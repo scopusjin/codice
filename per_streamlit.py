@@ -343,6 +343,17 @@ if mostra_parametri_aggiuntivi:
                 key=f"{nome_parametro}_diversa",
                 unsafe_allow_html=True
             )
+            col_check, col_label = st.columns([0.1, 0.9])
+            with col_check:
+               usa_orario_personalizzato = st.checkbox(
+                    label="", key=f"{nome_parametro}_diversa"
+               )
+            with col_label:
+                st.markdown(
+                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'>🕒 Ora di rilievo diversa dagli altri parametri</div>",
+                  unsafe_allow_html=True
+                )
+
 
             if usa_orario_personalizzato:
                 col1, col2 = st.columns(2)
