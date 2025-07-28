@@ -1058,8 +1058,6 @@ def aggiorna_grafico():
             unsafe_allow_html=True
         )
 
-# Pulsante per generare o aggiornare la stima
-pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
 
 # Al click del pulsante, esegui la funzione principale
 if pulsante_genera_stima:
