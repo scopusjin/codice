@@ -375,35 +375,28 @@ if mostra_parametri_aggiuntivi:
         }
 
 
-# --- Funzione Principale per Aggiornare Grafico e Testi ---
-import streamlit as st
 
-# CSS per centrare e dare solo il bordo azzurro al pulsante
 st.markdown("""
     <style>
-    .custom-button-container {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-    }
-    .custom-button-container .stButton>button {
-        border: 2px solid #2196F3;
+    div.stButton > button {
+        border: 2px solid #2196F3 !important;
         color: black !important;
         background-color: white !important;
         font-weight: bold;
-        border-radius: 8px;
-        padding: 0.5em 1.5em;
+        border-radius: 8px !important;
+        padding: 0.6em 2em !important;
     }
-    .custom-button-container .stButton>button:hover {
+    div.stButton > button:hover {
         background-color: #E3F2FD !important;
+        cursor: pointer;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Div che centra il pulsante
-st.markdown('<div class="custom-button-container">', unsafe_allow_html=True)
-pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
-st.markdown('</div>', unsafe_allow_html=True)
+# CENTRATURA con st.columns (funziona davvero)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
 
 
 grafico_generato = False
