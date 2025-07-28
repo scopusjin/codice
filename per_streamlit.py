@@ -802,60 +802,68 @@ def aggiorna_grafico():
                     f"prima dei rilievi effettuati al momento dell’ispezione legale."
                 )
 
-                testo_raff_completo = f"""
-                <ul>
-                  <li>
-                    {testo_raff_base}
-                    <ul>
-                """
+                testo_raff_base = (
+                    f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
+                    f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
+                    f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
+                    f"prima dei rilievi effettuati al momento dell’ispezione legale."
+                )
+
+                # Inizio blocco principale
+                testo_raff_completo = f"<ul><li>{testo_raff_base}"
+
+                # Lista per gli elementi aggiuntivi
+                elenco_extra = []
 
                 if not np.isnan(Qd_val_check):
                     if Qd_val_check < 0.2:
-                        testo_raff_completo += f"""
-                      <li>
-                        I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili
-                        (Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2)
-                        (il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica).
-                        In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso.
-                        Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici.
-                      </li>
-                        """
+                        elenco_extra.append(f"""
+                            <li>
+                              I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili
+                              (Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2)
+                              (il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica).
+                              In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso.
+                              Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici.
+                            </li>
+                        """)
 
                     soglia_qd = 0.2 if Ta_val <= 23 else 0.5
                     if Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
-                        testo_raff_completo += f"""
-                      <li>
-                        <span style='color:orange; font-weight:bold;'>
-                        La stima media ottenuta dal raffreddamento cadaverico ({t_med_raff_hensge_rounded:.1f} h) è superiore alle 30 ore.
-                        L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo.
-                        </span>
-                      </li>
-                        """
+                        elenco_extra.append(f"""
+                            <li>
+                              <span style='color:orange; font-weight:bold;'>
+                              La stima media ottenuta dal raffreddamento cadaverico ({t_med_raff_hensge_rounded:.1f} h) è superiore alle 30 ore.
+                              L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo.
+                              </span>
+                            </li>
+                        """)
 
                 if mt_ore is not None and not np.isnan(mt_ore):
                     if Qd_val_check is not None and Qd_val_check < soglia_qd:
-                        testo_raff_completo += f"""
-                      <li>
-                        Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge (Qd &lt; {soglia_qd} e Ta ≤ 23 °C).
-                        Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso.
-                        <ul>
-                          <li>
-                            <span style="font-size:smaller;">
-                              Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature.
-                              <i>Forensic Sci Int.</i> 2017;281:63–66. doi: 10.1016/j.forsciint.2017.09.012.
-                            </span>
-                          </li>
-                        </ul>
-                      </li>
-                        """
+                        elenco_extra.append(f"""
+                            <li>
+                              Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge (Qd &lt; {soglia_qd} e Ta ≤ 23 °C).
+                              Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso.
+                              <ul>
+                                <li>
+                                  <span style="font-size:smaller;">
+                                    Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature.
+                                    <i>Forensic Sci Int.</i> 2017;281:63–66. doi: 10.1016/j.forsciint.2017.09.012.
+                                  </span>
+                                </li>
+                              </ul>
+                            </li>
+                        """)
 
-                testo_raff_completo += """
-                    </ul>
-                  </li>
-                </ul>
-                """
+                # Se ci sono dettagli extra, aggiungi il blocco interno
+                if elenco_extra:
+                    testo_raff_completo += "<ul>" + "".join(elenco_extra) + "</ul>"
+
+                # Chiudi il blocco principale
+                testo_raff_completo += "</li></ul>"
 
                 st.markdown(testo_raff_completo, unsafe_allow_html=True)
+
 
     # --- Visualizza i testi descrittivi per macchie ipostatiche e rigidità cadaverica ---
     st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
