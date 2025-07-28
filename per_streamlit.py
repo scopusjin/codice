@@ -263,7 +263,7 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
         input_data_rilievo = st.date_input("Data:", value=datetime.date.today(), label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora(arrotondata ai quarto d'ora):</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input("Ora (arrotondata ai quarto d'ora):", value='00:00', label_visibility="collapsed")
 
 with st.container():
