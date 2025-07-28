@@ -859,8 +859,8 @@ st.markdown(testo_raff_completo, unsafe_allow_html=True)
 
 
     # --- Visualizza i testi descrittivi per macchie ipostatiche e rigidità cadaverica ---
-    st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
-    st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
+st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
+st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
 
     # --- Fine Visualizzazione Testi Descrittivi Fissi ---
     # --- Fine Visualizzazione Testi Descrittivi Aggiuntivi ---
