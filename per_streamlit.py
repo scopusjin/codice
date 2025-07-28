@@ -307,44 +307,49 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Fattore di correzione:</div>", unsafe_allow_html=True)
         input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
 
-
-
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
 
 widgets_parametri_aggiuntivi = {}
 if mostra_parametri_aggiuntivi:
     st.markdown("""
-    <h6 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h6>
+    <h5 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+        # Etichetta stile sobrio come "Rigidità" e "Macchie"
         st.markdown(
-            f"<div style='margin-top:10px; font-weight:bold;'>{nome_parametro}</div>",
+            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
+        # Selectbox senza etichetta visibile
         selector = st.selectbox(
-            "Valutazione:",
+            nome_parametro,  # label formale (necessaria per key, ma invisibile)
             options=dati_parametro["opzioni"],
-            key=f"{nome_parametro}_selector"
+            key=f"{nome_parametro}_selector",
+            label_visibility="collapsed"
         )
 
-        # Mostra data e ora solo se il parametro è valutato
         if selector != "Non valutata":
             col1, col2 = st.columns(2)
             with col1:
+                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
                 data_picker = st.date_input(
                     "Data rilievo:",
                     value=input_data_rilievo,
-                    key=f"{nome_parametro}_data"
+                    key=f"{nome_parametro}_data",
+                    label_visibility="collapsed"
                 )
             with col2:
+                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
                 time_text = st.text_input(
                     "Ora rilievo (HH:MM):",
                     value=input_ora_rilievo,
-                    key=f"{nome_parametro}_ora"
+                    key=f"{nome_parametro}_ora",
+                    label_visibility="collapsed"
                 )
         else:
             data_picker = None
