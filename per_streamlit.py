@@ -253,44 +253,60 @@ style = {'description_width': 'initial'}
 
 with st.container():
     st.markdown("""
-    <h6 style="margin:2; padding:0;">Dati ispezione legale</h6>
-    <hr style="margin:2; padding:0; height:1px; border:none; background-color:#ccc;">
+    <h5 style="margin:0; padding:0;">Dati ispezione legale</h5>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
     with col1:
-        input_data_rilievo = st.date_input("Data:", value=datetime.date.today())
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
+        input_data_rilievo = st.date_input("Data:", value=datetime.date.today(), label_visibility="collapsed")
     with col2:
-        input_ora_rilievo = st.text_input("Ora:", value='00:00')
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora:</div>", unsafe_allow_html=True)
+        input_ora_rilievo = st.text_input("Ora:", value='00:00', label_visibility="collapsed")
 
 with st.container():
     st.markdown("""
-    <h6 style="margin:0; padding:0;">Ipostasi & Rigor</h6>
+    <h5 style="margin:0; padding:0;">Ipostasi & Rigor</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
     with col1:
-        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Macchie ipostatiche:</div>", unsafe_allow_html=True)
+        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
     with col2:
-        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
+        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
 with st.container():
     st.markdown("""
-    <h6 style="margin:0; padding:0;">Dati per la valutazione del raffreddamento cadaverico</h6>
+    <h5 style="margin:0; padding:0;">Dati per la valutazione del raffreddamento cadaverico</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Temperatura rettale (°C):</div>", unsafe_allow_html=True)
         input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
     with col2:
-        input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Temperatura ambientale (°C):</div>", unsafe_allow_html=True)
+        input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, label_visibility="collapsed")
     with col3:
-        input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+        input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, label_visibility="collapsed")
+
     col4, col5 = st.columns(2)
     with col4:
-        input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+        input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0, label_visibility="collapsed")
     with col5:
-        input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Fattore di correzione:</div>", unsafe_allow_html=True)
+        input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
+
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
