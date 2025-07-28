@@ -950,6 +950,9 @@ def aggiorna_grafico():
     # --- Visualizza i testi descrittivi per macchie ipostatiche e rigidità cadaverica ---
     st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
     st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
+    for param in parametri_aggiuntivi_da_considerare:
+       if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
+           st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
 
     # --- Fine Visualizzazione Testi Descrittivi Fissi ---
     # --- Fine Visualizzazione Testi Descrittivi Aggiuntivi ---
