@@ -23,7 +23,7 @@ INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i
 
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
 opzioni_macchie = {
-    "Non ancora comparse": (0, 0.5),
+    "Non ancora comparse": (0, 3),
     "Migrabilità totale": (0, 6),
     "Migrabilità parziale": (4, 24),
     "Migrabilità perlomeno parziale": (0, 24),
@@ -39,7 +39,7 @@ macchie_medi = {
     "Non valutabili/Non attendibili": None
 }
 testi_macchie = {
-    "Non ancora comparse": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, non fossero ancora comparse. Secondo le comuni nozioni della medicina legale, le ipostasi compaiono entro 30 minuti dal decesso (generalmente entro 20-30 minuti).",
+    "Non ancora comparse": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, non fossero ancora comparse. Secondo le comuni nozioni della medicina legale, le ipostasi compaiono entro 3 ore dal decesso (generalmente entro 20-30 minuti).",
     "Migrabilità totale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità totale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 6 ore dal decesso. Generalmente le ipostasi compaiono dopo 20 minuti dal decesso",
     "Migrabilità parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità parziale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse tra le 4 ore e le 24 ore dal decesso.",
     "Migrabilità perlomeno parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 24 ore dal decesso.",
@@ -121,7 +121,7 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (1.5, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Fase III": (0, 12), # Meno di 12 ore = 0-12
+            "Fase III": (0, 12), # Meno di 12 ore = 0-12 (Henssge dice 13)
             "Fase II": (2, 5),
             "Fase I": (0, 2)   # Meno di 2 ore = 0-2
         },
@@ -139,7 +139,7 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Non valutabile/non attendibile": None,
             "Positiva": (0, 30), # Meno di 30 ore = 0-30
-            "Negativa": (5, INF_HOURS) # Più di 5 ore. Usiamo un limite superiore elevato (200h) per il grafico e i calcoli, coerente con gli altri range massimi.
+            "Negativa": (5, INF_HOURS) # Più di 5 ore. Usiamo un limite superiore elevato (200h) per il grafico e i calcoli, coerente con gli altri range massimi.(con arropina hansegee dice 3- 10
 
         },
          "descrizioni": {
@@ -275,7 +275,7 @@ with st.container():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Macchie ipostatiche:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ipostasi:</div>", unsafe_allow_html=True)
         selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
     with col2:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
