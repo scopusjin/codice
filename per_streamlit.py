@@ -376,35 +376,35 @@ if mostra_parametri_aggiuntivi:
 
 
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
+import streamlit as st
 
+# CSS per centrare e dare solo il bordo azzurro al pulsante
 st.markdown("""
     <style>
-    .centered-button {
+    .custom-button-container {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin: 20px 0;
     }
-    .stButton>button {
-        background-color: #2196F3;
-        color: white;
+    .custom-button-container .stButton>button {
+        border: 2px solid #2196F3;
+        color: black !important;
+        background-color: white !important;
         font-weight: bold;
-        padding: 0.6em 2em;
-        border: none;
-        border-radius: 10px;
+        border-radius: 8px;
+        padding: 0.5em 1.5em;
     }
-    .stButton>button:hover {
-        background-color: #1976D2;
+    .custom-button-container .stButton>button:hover {
+        background-color: #E3F2FD !important;
     }
     </style>
-    <div class="centered-button">
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# Pulsante dentro al div centrato
+# Div che centra il pulsante
+st.markdown('<div class="custom-button-container">', unsafe_allow_html=True)
 pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Chiude il div centrato
-st.markdown("</div>", unsafe_allow_html=True)
 
 grafico_generato = False
 
