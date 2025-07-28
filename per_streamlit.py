@@ -87,7 +87,6 @@ dati_parametri_aggiuntivi = {
             "Fase I: contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3)": (5, 22),
                     },
          "descrizioni": {
-             # Modifica le chiavi per corrispondere esattamente a quello che split(':')[0].strip() produrrà
              "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
              "Fase V": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico.",
              "Fase IV": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico.",
@@ -99,7 +98,7 @@ dati_parametri_aggiuntivi = {
          }
     },
     "Eccitabilità elettrica peribuccale": {
-        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutata/non attendibile", "Fase III: contrazione marcata muscoli peribuccali e facciali", "Fase II: contrazione discreta ai muscoli peribuccali", "Fase I: contrazione solo accennata dei muscoli peribuccali"],
+        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III: contrazione marcata muscoli peribuccali e facciali", "Fase II: contrazione discreta ai muscoli peribuccali", "Fase I: contrazione solo accennata dei muscoli peribuccali"],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (6, INF_HOURS),
