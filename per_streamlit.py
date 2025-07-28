@@ -264,11 +264,11 @@ with st.container():
         input_data_rilievo = st.date_input("Data:", value=datetime.date.today(), label_visibility="collapsed")
     with col2:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora:</div>", unsafe_allow_html=True)
-        input_ora_rilievo = st.text_input("Ora:", value='00:00', label_visibility="collapsed")
+        input_ora_rilievo = st.text_input("Ora (arrotondata ai quarto d'ora):", value='00:00', label_visibility="collapsed")
 
 with st.container():
     st.markdown("""
-    <h5 style="margin:0; padding:0;">Ipostasi & Rigor</h5>
+    <h5 style="margin:0; padding:0;">Ipostasi e Rigor</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
@@ -308,6 +308,7 @@ with st.container():
         input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
+# Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
 
 widgets_parametri_aggiuntivi = {}
@@ -319,49 +320,56 @@ if mostra_parametri_aggiuntivi:
     """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        # Etichetta stile sobrio come "Rigidità" e "Macchie"
+        # Etichetta come per rigidità/ipostasi
         st.markdown(
             f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
-        # Selectbox senza etichetta visibile
+        # Selectbox per valutazione (label nascosta)
         selector = st.selectbox(
-            nome_parametro,  # label formale (necessaria per key, ma invisibile)
+            nome_parametro,
             options=dati_parametro["opzioni"],
             key=f"{nome_parametro}_selector",
             label_visibility="collapsed"
         )
 
-        if selector != "Non valutata":
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
-                data_picker = st.date_input(
-                    "Data rilievo:",
-                    value=input_data_rilievo,
-                    key=f"{nome_parametro}_data",
-                    label_visibility="collapsed"
-                )
-            with col2:
-                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
-                time_text = st.text_input(
-                    "Ora rilievo (HH:MM):",
-                    value=input_ora_rilievo,
-                    key=f"{nome_parametro}_ora",
-                    label_visibility="collapsed"
-                )
-        else:
-            data_picker = None
-            time_text = None
+        # Default: eredita ora/data generali
+        data_picker = None
+        time_text = None
 
+        if selector != "Non valutata":
+            usa_orario_personalizzato = st.checkbox(
+                "Ora di rilievo diversa dagli altri parametri",
+                key=f"{nome_parametro}_diversa"
+            )
+
+            if usa_orario_personalizzato:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
+                    data_picker = st.date_input(
+                        "Data rilievo:",
+                        value=input_data_rilievo,
+                        key=f"{nome_parametro}_data",
+                        label_visibility="collapsed"
+                    )
+                with col2:
+                    st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
+                    time_text = st.text_input(
+                        "Ora rilievo (HH:MM):",
+                        value=input_ora_rilievo,
+                        key=f"{nome_parametro}_ora",
+                        label_visibility="collapsed"
+                    )
+
+        # Salvataggio widget per questo parametro
         widgets_parametri_aggiuntivi[nome_parametro] = {
             "selettore": selector,
             "data_rilievo": data_picker,
             "ora_rilievo": time_text
         }
 
-    
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
 
 # Pulsante per generare/aggiornare stima
