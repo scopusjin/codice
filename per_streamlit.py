@@ -308,7 +308,6 @@ with st.container():
         input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
-# Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
 
 widgets_parametri_aggiuntivi = {}
@@ -320,13 +319,13 @@ if mostra_parametri_aggiuntivi:
     """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        # Etichetta come per rigidità/ipostasi
+        # Etichetta sobria
         st.markdown(
             f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
-        # Selectbox per valutazione (label nascosta)
+        # Selectbox senza etichetta visibile
         selector = st.selectbox(
             nome_parametro,
             options=dati_parametro["opzioni"],
@@ -334,14 +333,17 @@ if mostra_parametri_aggiuntivi:
             label_visibility="collapsed"
         )
 
-        # Default: eredita ora/data generali
         data_picker = None
         time_text = None
 
         if selector != "Non valutata":
+            # Etichetta arancione sopra il checkbox
+            st.markdown(
+                "<div style='font-size: 0.82rem; color: orange; margin-bottom: 2px;'>Ora di rilievo diversa dagli altri parametri</div>",
+                unsafe_allow_html=True
+            )
             usa_orario_personalizzato = st.checkbox(
-                "Ora di rilievo diversa dagli altri parametri",
-                key=f"{nome_parametro}_diversa"
+                "", key=f"{nome_parametro}_diversa"
             )
 
             if usa_orario_personalizzato:
@@ -363,12 +365,12 @@ if mostra_parametri_aggiuntivi:
                         label_visibility="collapsed"
                     )
 
-        # Salvataggio widget per questo parametro
         widgets_parametri_aggiuntivi[nome_parametro] = {
             "selettore": selector,
             "data_rilievo": data_picker,
             "ora_rilievo": time_text
         }
+
 
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
 
