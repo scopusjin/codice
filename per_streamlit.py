@@ -337,15 +337,16 @@ if mostra_parametri_aggiuntivi:
         time_text = None
 
         if selector != "Non valutata":
-            col_check, col_label = st.columns([0.1, 0.9])
+            col_label, col_check,  = st.columns([0.8, 0.1])
+            with col_label:
+                st.markdown(
+                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa dagli altri parametri?</div>",
+                  unsafe_allow_html=True 
             with col_check:
                usa_orario_personalizzato = st.checkbox(
                     label="", key=f"{nome_parametro}_diversa"
                )
-            with col_label:
-                st.markdown(
-                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa dagli altri parametri?</div>",
-                  unsafe_allow_html=True
+
                 )
 
 
