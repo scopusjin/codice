@@ -337,13 +337,11 @@ if mostra_parametri_aggiuntivi:
         time_text = None
 
         if selector != "Non valutata":
-            # Etichetta arancione sopra il checkbox
-            st.markdown(
-                "<div style='font-size: 0.82rem; color: orange; margin-bottom: 2px;'>Ora di rilievo diversa dagli altri parametri</div>",
-                unsafe_allow_html=True
-            )
+            # Checkbox con label arancione sulla stessa riga
             usa_orario_personalizzato = st.checkbox(
-                "", key=f"{nome_parametro}_diversa"
+                label="<span style='font-size: 0.82rem; color: orange;'>Ora di rilievo diversa dagli altri parametri?</span>",
+                key=f"{nome_parametro}_diversa",
+                unsafe_allow_html=True
             )
 
             if usa_orario_personalizzato:
