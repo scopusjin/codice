@@ -741,11 +741,11 @@ def aggiorna_grafico():
         ), unsafe_allow_html=True)
 
     hensge_input_forniti = (
-        input_rt.value is not None and
-        input_ta.value is not None and
-        input_t0.value is not None and
-        input_w.value is not None and
-        input_cf.value is not None
+        input_rt is not None and
+        input_ta is not None and
+        input_t0 is not None and
+        input_w is not None and
+        input_cf is not None
     )
 
     if hensge_input_forniti:
