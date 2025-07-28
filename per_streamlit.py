@@ -270,7 +270,7 @@ with st.container():
         <h6> Ipostasi & Rigor </h6>
     </div>
     """, unsafe_allow_html=True)
- col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
     with col1:
         selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
     with col2:
@@ -345,7 +345,7 @@ if mostra_parametri_aggiuntivi:
             "ora_rilievo": time_text
         }
 
-        }
+    
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
 
 # Pulsante per generare/aggiornare stima
