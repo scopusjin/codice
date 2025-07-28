@@ -434,7 +434,7 @@ def aggiorna_grafico():
     parametri_aggiuntivi_da_considerare = []
     nota_globale_range_adattato = False
 
-    for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
+     for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
         stato_selezionato = widgets_param["selettore"]
         data_rilievo_param = widgets_param["data_rilievo"]
         ora_rilievo_param_str = widgets_param["ora_rilievo"]
@@ -445,25 +445,35 @@ def aggiorna_grafico():
         chiave_descrizione = stato_selezionato.split(':')[0] if ':' in stato_selezionato else stato_selezionato
         chiave_descrizione = chiave_descrizione.strip()
 
-        try:
-            ora_rilievo_param_obj = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M')
-            minuti_param = ora_rilievo_param_obj.minute
-            if minuti_param not in [0, 30]:
-                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+        # Usa ora ispezione legale se non presente valore personalizzato
+        if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
+            ora_rilievo_param_obj = data_ora_ispezione
+        else:
+            try:
+                ora_rilievo_param_obj = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M')
+                minuti_param = ora_rilievo_param_obj.minute
+                if minuti_param not in [0, 30]:
+                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+                    continue
+            except ValueError:
+                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
                 continue
-        except ValueError:
-            st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
-            continue
 
+        # Se data personalizzata assente, usa quella dell’ispezione
         if data_rilievo_param is None:
-            st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: La data di rilievo per '{nome_parametro}' non è stata selezionata. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
-            continue
+            data_rilievo_param = data_ora_ispezione.date()
 
         if dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is not None:
             range_originale = dati_parametri_aggiuntivi[nome_parametro]["range"][stato_selezionato]
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
 
-            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_param_obj.time())
+            # Calcolo data e ora param
+            if isinstance(ora_rilievo_param_obj, datetime.datetime):
+                ora_rilievo_time = ora_rilievo_param_obj.time()
+            else:
+                ora_rilievo_time = ora_rilievo_param_obj
+
+            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
             differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
 
             if range_originale[1] >= INF_HOURS:
@@ -482,6 +492,7 @@ def aggiorna_grafico():
                 "differenza_ore": differenza_ore,
                 "adattato": differenza_ore != 0
             })
+
 
             differenze_ore_set = set(
                 p["differenza_ore"]
