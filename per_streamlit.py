@@ -1058,10 +1058,12 @@ def aggiorna_grafico():
             unsafe_allow_html=True
         )
 
-    # --- Pulsante Genera Stima e Layout Iniziale ---
-    def on_click_genera_stima(b):
-        aggiorna_grafico()  # Chiama la funzione principale che gestisce tutto
+# Pulsante per generare o aggiornare la stima
+pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
 
-    pulsante_genera_stima.on_click(on_click_genera_stima)
+# Al click del pulsante, esegui la funzione principale
+if pulsante_genera_stima:
+    aggiorna_grafico()
+
 
     display_initial_form()
