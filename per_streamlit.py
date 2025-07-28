@@ -567,8 +567,6 @@ def aggiorna_grafico():
         comune_inizio, comune_fine = np.nan, np.nan
         overlap = False
 
-    # --- Visualizza il form di input prima di tutto il resto ---
-    display_initial_form()
 
         # --- Sezione dedicata alla generazione del grafico ---
 
