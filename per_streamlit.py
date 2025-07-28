@@ -794,12 +794,6 @@ def aggiorna_grafico():
                 min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
                 max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
 
-                testo_raff_base = (
-                    f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
-                    f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
-                    f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
-                    f"prima dei rilievi effettuati al momento dell’ispezione legale."
-                )
 
                 testo_raff_base = (
                     f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
