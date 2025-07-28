@@ -253,8 +253,8 @@ style = {'description_width': 'initial'}
 
 with st.container():
     st.markdown("""
-    <h6 style="margin:0; padding:0;">Dati ispezione legale</h6>
-    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <h6 style="margin:2; padding:0;">Dati ispezione legale</h6>
+    <hr style="margin:2; padding:0; height:1px; border:none; background-color:#ccc;">
     """, unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
