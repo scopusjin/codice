@@ -252,21 +252,37 @@ style = {'description_width': 'initial'}
 
 # --- Definizione Widget (Streamlit) ---
 
-# Widget principali (sempre visibili)
-input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today())
-input_ora_rilievo = st.text_input("Ora ispezione:", value='00:00')
+with st.container():
+    st.markdown("""
+    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-bottom: 10px;">
+        <h5> Dati ispezione legale</h5>
+    </div>
+    """, unsafe_allow_html=True)
+    input_data_rilievo = st.date_input("📅 Data :", value=datetime.date.today())
+    input_ora_rilievo = st.text_input("⏰ Ora:", value='00:00')
 
-selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
-selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
+with st.container():
+    st.markdown("""
+    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
+        <h5> Ipostasi & Rigor </h5>
+    </div>
+    """, unsafe_allow_html=True)
+    selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
+    selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
 
-input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1)
-input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1)
-input_t0 = st.number_input("T. ante-mortem (°C):", value=37.2, step=0.1)
-input_w = st.number_input("Peso (kg):", value=70.0, step=1.0)
-input_cf = st.number_input("Fattore correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0)
 
-# Box di raffreddamento (etichetta simulata da HTML nel codice originale)
-st.markdown("**Dati per la valutazione del raffreddamento cadaverico:**")
+
+with st.container():
+    st.markdown("""
+    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
+        <h5> Dati per la valutazione del raffreddamento cadaverico</h5>
+    </div>
+    """, unsafe_allow_html=True)
+    input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1)
+    input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1)
+    input_t0 = st.number_input("T. ante-mortem (°C):", value=37.2, step=0.1)
+    input_w = st.number_input("Peso (kg):", value=70.0, step=1.0)
+    input_cf = st.number_input("Fattore correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0)
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
