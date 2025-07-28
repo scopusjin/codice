@@ -255,63 +255,96 @@ style = {'description_width': 'initial'}
 with st.container():
     st.markdown("""
     <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-bottom: 10px;">
-        <h5> Dati ispezione legale</h5>
+        <h6> Dati ispezione legale</h6>
     </div>
     """, unsafe_allow_html=True)
-    input_data_rilievo = st.date_input("📅 Data :", value=datetime.date.today())
-    input_ora_rilievo = st.text_input("⏰ Ora:", value='00:00')
+    col1, col2 = st.columns(2)
+    with col1:
+        input_data_rilievo = st.date_input("Data:", value=datetime.date.today())
+    with col2:
+        input_ora_rilievo = st.text_input("Ora:", value='00:00')
 
 with st.container():
     st.markdown("""
     <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
-        <h5> Ipostasi & Rigor </h5>
+        <h6> Ipostasi & Rigor </h6>
     </div>
     """, unsafe_allow_html=True)
-    selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
-    selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
+ col1, col2 = st.columns(2)
+    with col1:
+        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
+    with col2:
+        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
 
 
 
 with st.container():
     st.markdown("""
     <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
-        <h5> Dati per la valutazione del raffreddamento cadaverico</h5>
+        <h6>Dati per la valutazione del raffreddamento cadaverico</h6>
     </div>
     """, unsafe_allow_html=True)
-    input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1)
-    input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1)
-    input_t0 = st.number_input("T. ante-mortem (°C):", value=37.2, step=0.1)
-    input_w = st.number_input("Peso (kg):", value=70.0, step=1.0)
-    input_cf = st.number_input("Fattore correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0)
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1)
+    with col2:
+        input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1)
+    with col3:
+        input_t0 = st.number_input("Temperatura ante-mortem stimata (°C):", value=37.2, step=0.1)
+
+    col4, col5 = st.columns(2)
+    with col4:
+        input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0)
+    with col5:
+        input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0)
+
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
 
-# Widget per i parametri aggiuntivi
 widgets_parametri_aggiuntivi = {}
 if mostra_parametri_aggiuntivi:
-    st.markdown("---")
+    st.markdown("""
+    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
+        <h6 style="margin-bottom: 10px;">Parametri tanatologici aggiuntivi</h6>
+    </div>
+    """, unsafe_allow_html=True)
+
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+        st.markdown(f"<div style='margin-top:10px; font-weight:bold;'>{nome_parametro}</div>", unsafe_allow_html=True)
+
         selector = st.selectbox(
-            f"{nome_parametro}:",
+            "Valutazione:",
             options=dati_parametro["opzioni"],
             key=f"{nome_parametro}_selector"
         )
-        data_picker = st.date_input(
-            f"Data rilievo - {nome_parametro}:",
-            value=input_data_rilievo,
-            key=f"{nome_parametro}_data"
-        )
-        time_text = st.text_input(
-            f"Ora rilievo - {nome_parametro} (HH:MM):",
-            value=input_ora_rilievo,
-            key=f"{nome_parametro}_ora"
-        )
+
+        # Mostra data e ora solo se il parametro è valutato
+        if selector != "Non valutata":
+            col1, col2 = st.columns(2)
+            with col1:
+                data_picker = st.date_input(
+                    "Data rilievo:",
+                    value=input_data_rilievo,
+                    key=f"{nome_parametro}_data"
+                )
+            with col2:
+                time_text = st.text_input(
+                    "Ora rilievo (HH:MM):",
+                    value=input_ora_rilievo,
+                    key=f"{nome_parametro}_ora"
+                )
+        else:
+            data_picker = None
+            time_text = None
 
         widgets_parametri_aggiuntivi[nome_parametro] = {
             "selettore": selector,
             "data_rilievo": data_picker,
             "ora_rilievo": time_text
+        }
+
         }
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
 
