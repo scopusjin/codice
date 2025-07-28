@@ -291,7 +291,7 @@ with st.container():
     with col2:
         input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1)
     with col3:
-        input_t0 = st.number_input("Temperatura ante-mortem stimata (°C):", value=37.2, step=0.1)
+        input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1)
 
     col4, col5 = st.columns(2)
     with col4:
