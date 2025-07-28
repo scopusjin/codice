@@ -1062,4 +1062,3 @@ if pulsante_genera_stima:
     aggiorna_grafico()
 
 
-    display_initial_form()
