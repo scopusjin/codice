@@ -326,12 +326,12 @@ if mostra_parametri_aggiuntivi:
         )
 
         # Selectbox senza etichetta visibile
-        selector = st.selectbox(
-            nome_parametro,
-            options=dati_parametro["opzioni"],
-            key=f"{nome_parametro}_selector",
-            label_visibility="collapsed"
-        )
+        selector = st.radio(
+           label=nome_parametro,
+           options=dati_parametro["opzioni"],
+           key=f"{nome_parametro}_selector"
+           )
+
 
         data_picker = None
         time_text = None
