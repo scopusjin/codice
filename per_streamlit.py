@@ -342,12 +342,12 @@ if mostra_parametri_aggiuntivi:
                 st.markdown(
                   "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa dagli altri parametri?</div>",
                   unsafe_allow_html=True 
+                )
             with col_check:
                usa_orario_personalizzato = st.checkbox(
                     label="", key=f"{nome_parametro}_diversa"
                )
 
-                )
 
 
             if usa_orario_personalizzato:
