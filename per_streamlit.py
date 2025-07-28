@@ -434,7 +434,7 @@ def aggiorna_grafico():
     parametri_aggiuntivi_da_considerare = []
     nota_globale_range_adattato = False
 
-     for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
+    for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
         stato_selezionato = widgets_param["selettore"]
         data_rilievo_param = widgets_param["data_rilievo"]
         ora_rilievo_param_str = widgets_param["ora_rilievo"]
