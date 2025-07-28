@@ -344,7 +344,7 @@ if mostra_parametri_aggiuntivi:
                )
             with col_label:
                 st.markdown(
-                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'>🕒 Ora di rilievo diversa dagli altri parametri</div>",
+                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa dagli altri parametri?</div>",
                   unsafe_allow_html=True
                 )
 
