@@ -280,7 +280,8 @@ with st.container():
     """, unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
-        input_rt = st.number_input("Temperatura rettale (°C)", value=35.0, step=0.1)
+        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Temperatura rettale (°C):</div>", unsafe_allow_html=True)
+        input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
     with col2:
         input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1)
     with col3:
