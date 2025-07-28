@@ -253,11 +253,7 @@ style = {'description_width': 'initial'}
 # --- Definizione Widget (Streamlit) ---
 
 with st.container():
-    st.markdown("""
-    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-bottom: 10px;">
-        <h6> Dati ispezione legale</h6>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<h6>Dati ispezione legale</h6><hr style="margin-top:2px; margin-bottom:10px;">""", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         input_data_rilievo = st.date_input("Data:", value=datetime.date.today())
@@ -265,26 +261,15 @@ with st.container():
         input_ora_rilievo = st.text_input("Ora:", value='00:00')
 
 with st.container():
-    st.markdown("""
-    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
-        <h6> Ipostasi & Rigor </h6>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<h6>Ipostasi & Rigor</h6><hr style="margin-top:2px; margin-bottom:10px;">""", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
     with col2:
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
 
-
-
 with st.container():
-    st.markdown("""
-    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
-        <h6>Dati per la valutazione del raffreddamento cadaverico</h6>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<h6>Dati per la valutazione del raffreddamento cadaverico</h6><hr style="margin-top:2px; margin-bottom:10px;">""", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
         input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1)
@@ -292,7 +277,6 @@ with st.container():
         input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1)
     with col3:
         input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1)
-
     col4, col5 = st.columns(2)
     with col4:
         input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0)
@@ -305,11 +289,7 @@ mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiunt
 
 widgets_parametri_aggiuntivi = {}
 if mostra_parametri_aggiuntivi:
-    st.markdown("""
-    <div style="background-color: #f8f9fa; padding: 15px; border: 1px solid #d0d0d0; border-radius: 8px; margin-top: 10px;">
-        <h6 style="margin-bottom: 10px;">Parametri tanatologici aggiuntivi</h6>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("""<h6>Parametri tanatologici aggiuntivi</h6><hr style="margin-top:2px; margin-bottom:10px;">""", unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         st.markdown(f"<div style='margin-top:10px; font-weight:bold;'>{nome_parametro}</div>", unsafe_allow_html=True)
