@@ -269,7 +269,7 @@ with st.container():
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
 
 with st.container():
-    st.markdown("""<h6>Dati per la valutazione del raffreddamento cadaverico</h6><hr style="margin-top:2px; margin-bottom:2px;">""", unsafe_allow_html=True)
+    st.markdown("""<h6>Dati per la valutazione del raffreddamento cadaverico</h6><hr ">""", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
         input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1)
