@@ -252,7 +252,10 @@ style = {'description_width': 'initial'}
 # --- Definizione Widget (Streamlit) ---
 
 with st.container():
-    st.markdown("""<h6>Dati ispezione legale</h6><hr style="margin-top:2px; margin-bottom:2px;">""", unsafe_allow_html=True)
+    st.markdown("""
+    <h6 style="margin:0; padding:0;">Dati ispezione legale</h6>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    """, unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         input_data_rilievo = st.date_input("Data:", value=datetime.date.today())
@@ -260,7 +263,10 @@ with st.container():
         input_ora_rilievo = st.text_input("Ora:", value='00:00')
 
 with st.container():
-    st.markdown("""<h6>Ipostasi & Rigor</h6><hr style="margin-top:2px; margin-bottom:2px;">""", unsafe_allow_html=True)
+    st.markdown("""
+    <h6 style="margin:0; padding:0;">Ipostasi & Rigor</h6>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    """, unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()))
@@ -268,7 +274,10 @@ with st.container():
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()))
 
 with st.container():
-    st.markdown("""<h6>Dati per la valutazione del raffreddamento cadaverico</h6><hr ">""", unsafe_allow_html=True)
+    st.markdown("""
+    <h6 style="margin:0; padding:0;">Dati per la valutazione del raffreddamento cadaverico</h6>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    """, unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     with col1:
         input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1)
@@ -288,10 +297,16 @@ mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiunt
 
 widgets_parametri_aggiuntivi = {}
 if mostra_parametri_aggiuntivi:
-    st.markdown("""<h6>Parametri tanatologici aggiuntivi</h6><hr style="margin-top:2px; margin-bottom:2px;">""", unsafe_allow_html=True)
+    st.markdown("""
+    <h6 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h6>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        st.markdown(f"<div style='margin-top:10px; font-weight:bold;'>{nome_parametro}</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='margin-top:10px; font-weight:bold;'>{nome_parametro}</div>",
+            unsafe_allow_html=True
+        )
 
         selector = st.selectbox(
             "Valutazione:",
