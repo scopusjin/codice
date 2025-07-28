@@ -377,8 +377,34 @@ if mostra_parametri_aggiuntivi:
 
 # --- Funzione Principale per Aggiornare Grafico e Testi ---
 
-# Pulsante per generare/aggiornare stima
+st.markdown("""
+    <style>
+    .centered-button {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .stButton>button {
+        background-color: #2196F3;
+        color: white;
+        font-weight: bold;
+        padding: 0.6em 2em;
+        border: none;
+        border-radius: 10px;
+    }
+    .stButton>button:hover {
+        background-color: #1976D2;
+    }
+    </style>
+    <div class="centered-button">
+    """, unsafe_allow_html=True)
+
+# Pulsante dentro al div centrato
 pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
+
+# Chiude il div centrato
+st.markdown("</div>", unsafe_allow_html=True)
 
 grafico_generato = False
 
