@@ -259,7 +259,7 @@ with st.container():
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
-     with col1:
+    with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
 
         # Campo nascosto per ricevere la data selezionata via JS
