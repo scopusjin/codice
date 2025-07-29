@@ -64,7 +64,7 @@ rigidita_descrizioni = {
 
 # --- Dati per i Nuovi Parametri Aggiuntivi ---
 dati_parametri_aggiuntivi = {
-    "eccitabilità elettrica sopraciliare": {
+    "Eccitabilità elettrica sopraciliare": {
         "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase VI", "Fase V", "Fase IV", "Fase III", "Fase II", "Fase I"],
         "range": {
             "Non valutata": None,
@@ -88,7 +88,7 @@ dati_parametri_aggiuntivi = {
              "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 5 ore dal decesso"
          }
     },
-    "eccitabilità elettrica peribuccale": {
+    "Eccitabilità elettrica peribuccale": {
         "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III: contrazione marcata muscoli peribuccali e facciali", "Fase II: contrazione discreta ai muscoli peribuccali", "Fase I: contrazione solo accennata dei muscoli peribuccali"],
         "range": {
             "Non valutata": None,
@@ -106,7 +106,7 @@ dati_parametri_aggiuntivi = {
             "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 6 ore dal decesso."
         }
     },
-    "eccitabilità muscolare meccanica": {
+    "Eccitabilità muscolare meccanica": {
         "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III: formazione di una piccola tumefazione persistente del muscolo", "Fase II: formazione di una tumefazione reversibile del muscolo", "Fase I: contrazione reversibile dell’intero muscolo"],
         "range": {
             "Non valutata": None,
@@ -124,7 +124,7 @@ dati_parametri_aggiuntivi = {
              "Nessuna reazione": "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 1 ora e 30 minuti dal decesso."
          }
     },
-    "eccitabilità chimica pupillare": {
+    "Eccitabilità chimica pupillare": {
         "opzioni": ["Non valutata", "Non valutabile/non attendibile","Positiva", "Negativa"],
         "range": {
             "Non valutata": None,
@@ -352,12 +352,11 @@ if mostra_parametri_aggiuntivi:
 
         # Selectbox senza etichetta visibile
         selector = st.selectbox(
-           label=nome_parametro,
            options=dati_parametro["opzioni"],
            key=f"{nome_parametro}_selector"
            )
 
-        if nome_parametro in ["eccitabilità elettrica sopraciliare"]:
+        if nome_parametro in ["Eccitabilità elettrica sopraciliare"]:
                 st.image(
                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
                     use_container_width=True
