@@ -254,7 +254,7 @@ style = {'description_width': 'initial'}
 
 with st.container():
     st.markdown("""
-    <h5 style="margin:0; padding:0;">Dati ispezione legale</h5>
+    <h5 style="margin:0; padding:0;">Data e ora ispezione legale</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
@@ -262,7 +262,6 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
         input_data_rilievo = st.date_input(
             "Data ispezione legale",
             value=datetime.date.today(),
@@ -270,7 +269,6 @@ with st.container():
         )
 
     with col2:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora (arrotondata ai quarto d'ora):</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input("Ora (arrotondata ai quarto d'ora):", value='00:00', label_visibility="collapsed")
 
 with st.container():
