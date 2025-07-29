@@ -522,19 +522,21 @@ def aggiorna_grafico():
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+        # Determina la chiave corretta da usare per cercare nel dizionario dei range
+        if nome_parametro == "Eccitabilità elettrica peribuccale":
             chiave_descrizione = stato_selezionato.split(':')[0].strip()
         else:
             chiave_descrizione = stato_selezionato.strip()
 
         # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
         chiave_esatta = None
-        for k in dati_parametri_aggiuntivi[nome_parametro].keys():
+        for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
             if k.strip() == chiave_descrizione:
                 chiave_esatta = k
                 break
 
-        range_valori = dati_parametri_aggiuntivi[nome_parametro].get(chiave_esatta)
+        range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
+
 
         if range_valori:
             dati_intervalli_validi[nome_parametro] = range_valori
