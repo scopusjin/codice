@@ -536,7 +536,7 @@ def aggiorna_grafico():
                 break
 
         range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
-
+        range_originale = range_valori
 
         if range_valori:
             range_validi.append(range_valori)
