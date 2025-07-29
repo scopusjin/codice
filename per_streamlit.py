@@ -413,7 +413,11 @@ if mostra_parametri_aggiuntivi:
                 use_container_width=True
             )
 
-
+        if nome_parametro == "Eccitabilità elettrica peribuccale":
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                use_container_width=True
+            )
 
 st.markdown("""
     <style>
