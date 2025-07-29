@@ -345,7 +345,6 @@ if mostra_parametri_aggiuntivi:
     """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        # Etichetta sobria
         st.markdown(
             f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
@@ -358,6 +357,13 @@ if mostra_parametri_aggiuntivi:
            key=f"{nome_parametro}_selector"
            )
 
+        if nome_parametro in ["Eccitabilità elettrica sopraciliare"]:
+            if selector != "Non valutata":
+                st.image(
+                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                    caption="Schema dei riflessi elettrici residui",
+                    use_column_width=True
+                )
 
         data_picker = None
         time_text = None
