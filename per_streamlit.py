@@ -351,7 +351,7 @@ if mostra_parametri_aggiuntivi:
         )
 
         # Selectbox senza etichetta visibile
-        selector = st.radio(
+        selector = st.selectbox(
            label=nome_parametro,
            options=dati_parametro["opzioni"],
            key=f"{nome_parametro}_selector"
@@ -360,7 +360,6 @@ if mostra_parametri_aggiuntivi:
         if nome_parametro in ["eccitabilità elettrica sopraciliare"]:
                 st.image(
                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                    caption="Schema dei riflessi elettrici residui",
                     use_container_width=True
                 )
 
