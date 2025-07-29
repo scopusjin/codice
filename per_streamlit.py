@@ -285,23 +285,24 @@ with st.container():
         with subcol2:
             selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    col3, col4, col5 = st.columns(3, gap="small")
+    # NUOVA DISTRIBUZIONE A 5 COLONNE
+    col_a, col_b, col_c, col_d, col_e = st.columns([0.2, 1, 1, 1, 0.2], gap="small")
 
-    with col3:
+    with col_b:
         subcol1, subcol2 = st.columns([1.5, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
             input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
 
-    with col4:
+    with col_c:
         subcol1, subcol2 = st.columns([1.5, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
             input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, label_visibility="collapsed")
 
-    with col5:
+    with col_d:
         subcol1, subcol2 = st.columns([1.5, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg):</div>", unsafe_allow_html=True)
