@@ -140,6 +140,15 @@ dati_parametri_aggiuntivi = {
          }
     }
 }
+nomi_brevi = {
+    "Macchie ipostatiche": "Ipostasi",
+    "Rigidità cadaverica": "Rigor",
+    "Raffreddamento cadaverico": "Hensge",
+    "Eccitabilità elettrica peribuccale": "Ecc. el. peribuccale",
+    "Eccitabilità elettrica sopraciliare": "Ecc. el. sopraciliare",
+    "Eccitabilità chimica pupillare": "Ecc. chimica",
+    "Eccitabilità muscolare meccanica": "Ecc. meccanica"
+}
 
 # --- Funzioni di Utilità e Calcolo Henssge (Esistenti) ---
 def round_quarter_hour(x):
@@ -730,22 +739,25 @@ def aggiorna_grafico():
         ranges_to_plot_fine = []
 
         if macchie_range_valido and macchie_range is not None:
+            nome_breve_macchie = "Ipostasi"
             if macchie_range[1] < INF_HOURS:
-                label_macchie = f"Macchie ipostatiche ({macchie_range[0]:.1f}-{macchie_range[1]:.1f} h)"
+                label_macchie = f"{nome_breve_macchie}\n({macchie_range[0]:.1f}–{macchie_range[1]:.1f} h)"
             else:
-                label_macchie = f"Macchie ipostatiche (≥ {macchie_range[0]:.1f} h)"
+                label_macchie = f"{nome_breve_macchie}\n(≥ {macchie_range[0]:.1f} h)"
             parametri_grafico.append(label_macchie)
             ranges_to_plot_inizio.append(macchie_range[0])
             ranges_to_plot_fine.append(macchie_range[1] if macchie_range[1] < INF_HOURS else INF_HOURS)
 
         if rigidita_range_valido and rigidita_range is not None:
+            nome_breve_rigidita = "Rigor"
             if rigidita_range[1] < INF_HOURS:
-                label_rigidita = f"Rigidità cadaverica ({rigidita_range[0]:.1f}-{rigidita_range[1]:.1f} h)"
+                label_rigidita = f"{nome_breve_rigidita}\n({rigidita_range[0]:.1f}–{rigidita_range[1]:.1f} h)"
             else:
-                label_rigidita = f"Rigidità cadaverica (≥ {rigidita_range[0]:.1f} h)"
+                label_rigidita = f"{nome_breve_rigidita}\n(≥ {rigidita_range[0]:.1f} h)"
             parametri_grafico.append(label_rigidita)
             ranges_to_plot_inizio.append(rigidita_range[0])
             ranges_to_plot_fine.append(rigidita_range[1] if rigidita_range[1] < INF_HOURS else INF_HOURS)
+
 
         if raffreddamento_calcolabile:
             usa_solo_limite_inferiore_henssge = not np.isnan(Qd_val_check) and Qd_val_check < 0.2
