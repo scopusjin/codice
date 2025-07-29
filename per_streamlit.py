@@ -7,7 +7,7 @@ import numpy as np
 from scipy.optimize import root_scalar
 
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
-st.title("Stima dell'epoca della Morte")
+st.title("Stima epoca decesso")
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
