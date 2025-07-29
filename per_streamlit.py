@@ -272,7 +272,7 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        subcol1, subcol2 = st.columns([0.6, 2, gap="small"])
+        subcol1, subcol2 = st.columns([0.6, 2], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi:</div>", unsafe_allow_html=True)
         with subcol2:
