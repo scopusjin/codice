@@ -501,8 +501,10 @@ def aggiorna_grafico():
         if stato_selezionato == "Non valutata":
             continue
 
-        chiave_descrizione = stato_selezionato.split(':')[0] if ':' in stato_selezionato else stato_selezionato
-        chiave_descrizione = chiave_descrizione.strip()
+        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+            chiave_descrizione = stato_selezionato.split(':')[0].strip()
+        else:
+            chiave_descrizione = stato_selezionato.strip()
 
         # Usa ora ispezione legale se non presente valore personalizzato
         if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
