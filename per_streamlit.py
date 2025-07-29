@@ -433,7 +433,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# CENTRATURA con st.columns (funziona davvero)
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
@@ -524,12 +523,24 @@ def aggiorna_grafico():
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        chiave_descrizione = stato_selezionato.split(':')[0] if ':' in stato_selezionato else stato_selezionato
-        chiave_descrizione = chiave_descrizione.strip()
+        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+            chiave_descrizione = stato_selezionato.split(':')[0].strip()
+        else:
+            chiave_descrizione = stato_selezionato.strip()
 
-        range_param = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_descrizione)
-        if range_param is not None:
-            range_originale = range_param
+        # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
+        chiave_esatta = None
+        for k in range_parametri_aggiuntivi[nome_parametro].keys():
+            if k.strip() == chiave_descrizione:
+                chiave_esatta = k
+                break
+
+        range_valori = range_parametri_aggiuntivi[nome_parametro].get(chiave_esatta)
+
+        if range_valori:
+            dati_intervalli_validi[nome_parametro] = range_valori
+            range_validi.append(range_valori)
+
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
 
             # Calcolo data e ora param
