@@ -760,6 +760,7 @@ def aggiorna_grafico():
 
 
         if raffreddamento_calcolabile:
+            nome_breve_hensge = "Hensge"
             usa_solo_limite_inferiore_henssge = not np.isnan(Qd_val_check) and Qd_val_check < 0.2
 
             if usa_solo_limite_inferiore_henssge:
@@ -770,9 +771,9 @@ def aggiorna_grafico():
                     usa_potente = True
 
                 if usa_potente:
-                    label_hensge = f"Raffreddamento cadaverico (> {maggiore_di_valore} h)"
+                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore} h)"
                 else:
-                    label_hensge = f"Raffreddamento cadaverico (> {maggiore_di_valore:.1f} h) ({t_min_raff_hensge:.1f}-{t_max_raff_hensge:.1f} h)"
+                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore:.1f} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
 
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
@@ -785,29 +786,36 @@ def aggiorna_grafico():
                     usa_potente = True
 
                 if usa_potente:
-                    label_hensge = f"Raffreddamento cadaverico (> {maggiore_di_valore} h)"
+                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore} h)"
                 else:
-                    label_hensge = f"Raffreddamento cadaverico (> {maggiore_di_valore:.1f} h) ({t_min_raff_hensge:.1f}-{t_max_raff_hensge:.1f} h)"
+                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore:.1f} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
 
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
 
             else:
-                label_hensge = f"Raffreddamento cadaverico ({t_min_raff_hensge:.1f}-{t_max_raff_hensge:.1f} h)"
+                label_hensge = f"{nome_breve_hensge}\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
 
             parametri_grafico.append(label_hensge)
 
-        for param in parametri_aggiuntivi_da_considerare:
+
+      for param in parametri_aggiuntivi_da_considerare:
             if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]):
+                nome_breve = nomi_brevi.get(param['nome'], param['nome'])
+
                 if param['range_traslato'][1] == INF_HOURS:
-                    label_param_aggiuntivo = f"{param['nome']} (> {param['range_traslato'][0]:.1f} h)"
+                    label_param_aggiuntivo = f"{nome_breve}\n(≥ {param['range_traslato'][0]:.1f} h)"
                 else:
-                    label_param_aggiuntivo = f"{param['nome']} ({param['range_traslato'][0]:.1f}-{param['range_traslato'][1]:.1f} h)"
+                    label_param_aggiuntivo = f"{nome_breve}\n({param['range_traslato'][0]:.1f}–{param['range_traslato'][1]:.1f} h)"
 
                 if param.get('adattato', False):
                     label_param_aggiuntivo += " *"
+
+                parametri_grafico.append(label_param_aggiuntivo)
+                ranges_to_plot_inizio.append(param["range_traslato"][0])
+                ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
                 parametri_grafico.append(label_param_aggiuntivo)
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
