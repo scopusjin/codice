@@ -271,12 +271,20 @@ with st.container():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
-    with col2:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Rigidità:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
+        subcol1, subcol2 = st.columns([1, 2])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+        with subcol2:
+             selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
 
+    with col2:
+       subcol1, subcol2 = st.columns([1, 2])
+        with subcol1:
+           st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Rigidità:</div>", unsafe_allow_html=True)
+        with subcol2:
+            selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
+
+    
     col3, col4, col5 = st.columns(3)
     with col3:
         subcol1, subcol2 = st.columns([1.5, 0.9])
