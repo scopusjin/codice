@@ -357,7 +357,7 @@ if mostra_parametri_aggiuntivi:
            key=f"{nome_parametro}_selector"
            )
 
-        if nome_parametro in ["Eccitabilità elettrica sopraciliare"]:
+        if nome_parametro in ["eccitabilità elettrica sopraciliare"]:
             if selector != "Non valutata":
                 st.image(
                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
