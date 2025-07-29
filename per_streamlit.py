@@ -539,7 +539,6 @@ def aggiorna_grafico():
 
 
         if range_valori:
-            dati_intervalli_validi[nome_parametro] = range_valori
             range_validi.append(range_valori)
 
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
