@@ -353,7 +353,7 @@ if mostra_parametri_aggiuntivi:
         selector = st.selectbox(
             label=nome_parametro,
             options=dati_parametro["opzioni"],
-            key=f"{nome_parametro}_selector"
+            key=f"{nome_parametro}_selector",
             label_visibility="collapsed"
            )
 
