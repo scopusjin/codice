@@ -94,9 +94,9 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (6, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Fase III: contrazione marcata muscoli peribuccali e facciali": (0, 2.5), # 2 ore 30 minuti = 2.5 ore
-            "Fase II: contrazione discreta ai muscoli peribuccali": (1, 5),
-            "Fase I: contrazione solo accennata dei muscoli peribuccali": (2, 6)
+            "Fase III": (0, 2.5), # 2 ore 30 minuti = 2.5 ore
+            "Fase II": (1, 5),
+            "Fase I": (2, 6)
         },
         "descrizioni": {
             "Fase III": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata ai muscoli peribuccali estesasi anche ai muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto meno di 2 ore e mezzo prima delle valutazioni del dato tanatologico.",
@@ -107,7 +107,7 @@ dati_parametri_aggiuntivi = {
         }
     },
     "Eccitabilità muscolare meccanica": {
-        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III: formazione di una piccola tumefazione persistente del muscolo", "Fase II: formazione di una tumefazione reversibile del muscolo", "Fase I: contrazione reversibile dell’intero muscolo"],
+        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III", "Fase II", "Fase I"],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (1.5, INF_HOURS),
