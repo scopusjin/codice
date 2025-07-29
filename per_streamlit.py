@@ -538,8 +538,6 @@ def aggiorna_grafico():
         range_originale = range_valori
 
         if range_valori:
-            range_validi.append(range_valori)
-
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
 
             # Calcolo data e ora param
