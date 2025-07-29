@@ -351,9 +351,9 @@ if mostra_parametri_aggiuntivi:
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
-
+    range_validi = []
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        st.markdown(
+                st.markdown(
             f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
