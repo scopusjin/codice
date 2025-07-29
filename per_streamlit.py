@@ -89,7 +89,7 @@ dati_parametri_aggiuntivi = {
          }
     },
     "Eccitabilità elettrica peribuccale": {
-        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III: contrazione marcata muscoli peribuccali e facciali", "Fase II: contrazione discreta ai muscoli peribuccali", "Fase I: contrazione solo accennata dei muscoli peribuccali"],
+        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase III", "Fase II", "Fase I"],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (6, INF_HOURS),
