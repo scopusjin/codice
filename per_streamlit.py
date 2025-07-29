@@ -65,7 +65,7 @@ rigidita_descrizioni = {
 # --- Dati per i Nuovi Parametri Aggiuntivi ---
 dati_parametri_aggiuntivi = {
     "Eccitabilità elettrica sopraciliare": {
-        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase VI", "Fase V", "Fase IV", "Fase III", "Fase II", "Fase I"],
+        "opzioni": ["Non valutata", "Fase I", "Fase II", "Fase III", "Fase IV", "Fase V", "Fase VI", "Nessuna reazione", "Non valutabile/non attendibile"],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (5, INF_HOURS),
