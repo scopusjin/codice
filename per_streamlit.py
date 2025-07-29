@@ -308,25 +308,29 @@ with st.container():
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
+
     with col1:
         subcol1, subcol2 = st.columns([1, 1.2])
         with subcol1:
-            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg):</div>", unsafe_allow_html=True)
         with subcol2:
             input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0, label_visibility="collapsed")
+
     with col2:
-        subcol1, subcol2 = st.columns([1, 1.2])
+        subcol1, subcol2 = st.columns([1, 1.4])
         with subcol1:
-            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
         with subcol2:
             input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
 
-    subcol1, subcol2 = st.columns([1, 1.2])
-    with subcol1:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
-    with subcol2:
-        input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, label_visibility="collapsed")
+    with col3:
+        subcol1, subcol2 = st.columns([1, 1.4])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, label_visibility="collapsed")
+
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
