@@ -529,12 +529,12 @@ def aggiorna_grafico():
 
         # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
         chiave_esatta = None
-        for k in range_parametri_aggiuntivi[nome_parametro].keys():
+        for k in dati_parametri_aggiuntivi[nome_parametro].keys():
             if k.strip() == chiave_descrizione:
                 chiave_esatta = k
                 break
 
-        range_valori = range_parametri_aggiuntivi[nome_parametro].get(chiave_esatta)
+        range_valori = dati_parametri_aggiuntivi[nome_parametro].get(chiave_esatta)
 
         if range_valori:
             dati_intervalli_validi[nome_parametro] = range_valori
