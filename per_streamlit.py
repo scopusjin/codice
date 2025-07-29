@@ -345,74 +345,73 @@ with st.container():
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
 
 widgets_parametri_aggiuntivi = {}
+
 if mostra_parametri_aggiuntivi:
     st.markdown("""
     <h5 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
-    range_validi = []
+
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         st.markdown(
             f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
-        # Selectbox senza etichetta visibile
-        selector = st.selectbox(
+        selettore = st.selectbox(
             label=nome_parametro,
             options=dati_parametro["opzioni"],
             key=f"{nome_parametro}_selector",
             label_visibility="collapsed"
-           )
-
-        if nome_parametro in ["Eccitabilità elettrica sopraciliare"]:
-                st.image(
-                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                    use_container_width=True
-                )
+        )
 
         data_picker = None
-        time_text = None
+        ora_input = None
 
-        if selector != "Non valutata":
-            col_label, col_check,  = st.columns([0.1, 0.1])
+        usa_orario_personalizzato = False
+        if selettore != "Non valutata":
+            col_label, col_check = st.columns([0.1, 0.1])
             with col_label:
                 st.markdown(
-                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa dagli altri parametri?</div>",
-                  unsafe_allow_html=True 
+                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa?</div>",
+                  unsafe_allow_html=True
                 )
             with col_check:
-               usa_orario_personalizzato = st.checkbox(
+                usa_orario_personalizzato = st.checkbox(
                     label="", key=f"{nome_parametro}_diversa"
-               )
+                )
 
-
-
-            if usa_orario_personalizzato:
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
-                    data_picker = st.date_input(
-                        "Data rilievo:",
-                        value=input_data_rilievo,
-                        key=f"{nome_parametro}_data",
-                        label_visibility="collapsed"
-                    )
-                with col2:
-                    st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
-                    time_text = st.text_input(
-                        "Ora rilievo (HH:MM):",
-                        value=input_ora_rilievo,
-                        key=f"{nome_parametro}_ora",
-                        label_visibility="collapsed"
-                    )
+        if usa_orario_personalizzato:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
+                data_picker = st.date_input(
+                    "Data rilievo:",
+                    value=input_data_rilievo,
+                    key=f"{nome_parametro}_data",
+                    label_visibility="collapsed"
+                )
+            with col2:
+                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
+                ora_input = st.text_input(
+                    "Ora rilievo (HH:MM):",
+                    value=input_ora_rilievo,
+                    key=f"{nome_parametro}_ora",
+                    label_visibility="collapsed"
+                )
 
         widgets_parametri_aggiuntivi[nome_parametro] = {
-            "selettore": selector,
+            "selettore": selettore,
             "data_rilievo": data_picker,
-            "ora_rilievo": time_text
+            "ora_rilievo": ora_input
         }
+
+        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                use_container_width=True
+            )
 
 
 
