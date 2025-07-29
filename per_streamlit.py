@@ -263,14 +263,17 @@ with st.container():
     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
 
-        # Campo nascosto per ricevere la data selezionata via JS
-        data_selezionata_str = st.text_input(
-            label="Data selezionata (nascosta)",
-            value=datetime.date.today().strftime("%d/%m/%Y"),
-            key="data_selezionata",
-            label_visibility="collapsed"
-        )
-        # Calendario visuale con Flatpickr in italiano (solo 1 campo visivo)
+        import datetime
+        import streamlit.components.v1 as components
+
+        # Slot invisibile per sincronizzare la data
+        data_container = st.empty()
+
+        # Imposta valore iniziale se non presente
+        if "data_selezionata_str" not in st.session_state:
+            st.session_state.data_selezionata_str = datetime.date.today().strftime("%d/%m/%Y")
+
+        # Campo calendario Flatpickr
         components.html(
             f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -278,18 +281,18 @@ with st.container():
             <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
 
             <input type="text" id="datepicker" placeholder="gg/mm/aaaa"
-                   style="font-size: 15px; padding: 5px; width: 100%; border-radius: 4px; border: 1px solid #ccc;" />
+                   style="font-size: 15px; padding: 6px; width: 100%; border-radius: 5px; border: 1px solid #ccc;" />
 
             <script>
             document.addEventListener("DOMContentLoaded", function() {{
                 flatpickr("#datepicker", {{
                     dateFormat: "d/m/Y",
                     locale: "it",
-                    defaultDate: "{datetime.date.today().strftime('%d/%m/%Y')}",
+                    defaultDate: "{st.session_state.data_selezionata_str}",
                     onChange: function(selectedDates, dateStr) {{
                         const inputs = window.parent.document.querySelectorAll('input[data-baseweb="input"]');
                         for (let i = 0; i < inputs.length; i++) {{
-                            if (inputs[i].id.startsWith("data_selezionata")) {{
+                            if (inputs[i].id.includes("date_hidden")) {{
                                 inputs[i].value = dateStr;
                                 inputs[i].dispatchEvent(new Event("input", {{ bubbles: true }}));
                                 break;
@@ -303,11 +306,16 @@ with st.container():
             height=100,
         )
 
-        # Parsing della stringa in oggetto datetime.date
+        # Campo nascosto (non visibile) che riceve la data da JS
+        hidden_input = data_container.text_input(
+            "date_hidden", value=st.session_state.data_selezionata_str, label_visibility="collapsed", key="date_hidden"
+        )
+
         try:
-            input_data_rilievo = datetime.datetime.strptime(data_selezionata_str, "%d/%m/%Y").date()
+            input_data_rilievo = datetime.datetime.strptime(hidden_input, "%d/%m/%Y").date()
         except ValueError:
             input_data_rilievo = datetime.date.today()
+
 
 
     with col2:
