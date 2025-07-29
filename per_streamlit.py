@@ -11,6 +11,7 @@ Original file is located at
 import streamlit as st
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import streamlit.components.v1 as components
 import datetime
 import numpy as np
 from scipy.optimize import root_scalar
