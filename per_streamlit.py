@@ -259,9 +259,52 @@ with st.container():
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
-    with col1:
+     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
-        input_data_rilievo = st.date_input("Data:", value=datetime.date.today(), label_visibility="collapsed")
+
+        # Campo nascosto per ricevere la data selezionata via JS
+        data_selezionata_str = st.text_input("Data selezionata:", value=datetime.date.today().strftime("%d/%m/%Y"), key="data_selezionata", label_visibility="collapsed")
+
+        # Mostra il calendario in italiano via Flatpickr
+        components.html(
+            """
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
+
+            <input type="text" id="datepicker" placeholder="gg/mm/aaaa" 
+                   style="font-size: 20px; padding: 5px; width: 100%; border-radius: 5px;" />
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const input = document.getElementById("datepicker");
+
+                flatpickr(input, {
+                    dateFormat: "d/m/Y",
+                    locale: "it",
+                    defaultDate: new Date(),
+                    onChange: function(selectedDates, dateStr, instance) {
+                        const streamlitInput = window.parent.document.querySelector('input[data-baseweb="input"][id^="data_selezionata"]');
+                        if (streamlitInput) {
+                            streamlitInput.value = dateStr;
+                            streamlitInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
+                });
+            });
+            </script>
+            """,
+            height=120,
+        )
+
+        # Parsing in oggetto datetime.date
+        try:
+            input_data_rilievo = datetime.datetime.strptime(data_selezionata_str, "%d/%m/%Y").date()
+        except ValueError:
+            st.error("⚠️ Formato data non valido. Usa il formato gg/mm/aaaa.")
+            input_data_rilievo = datetime.date.today()
+
+
     with col2:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora (arrotondata ai quarto d'ora):</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input("Ora (arrotondata ai quarto d'ora):", value='00:00', label_visibility="collapsed")
