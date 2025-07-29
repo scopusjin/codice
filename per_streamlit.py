@@ -93,7 +93,7 @@ dati_parametri_aggiuntivi = {
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (6, INF_HOURS),
-            "Non valutata/non attendibile": None,
+            "Non valutabile/non attendibile": None,
             "Fase III: contrazione marcata muscoli peribuccali e facciali": (0, 2.5), # 2 ore 30 minuti = 2.5 ore
             "Fase II: contrazione discreta ai muscoli peribuccali": (1, 5),
             "Fase I: contrazione solo accennata dei muscoli peribuccali": (2, 6)
