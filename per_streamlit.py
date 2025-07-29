@@ -65,17 +65,17 @@ rigidita_descrizioni = {
 # --- Dati per i Nuovi Parametri Aggiuntivi ---
 dati_parametri_aggiuntivi = {
     "eccitabilità elettrica sopraciliare": {
-        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase VI: contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia", "Fase V: contrazione generalizzata dei muscoli della fronte e dell’orbita, ma non della guancia", "Fase IV: contrazione generalizzata dei muscoli dei muscoli orbicolari superiori e inferiori", "Fase III: contrazione dei muscoli dell’intera palpebra superiore", "Fase II: contrazione dei muscoli di meno di 2/3 della palpebra superiore", "Fase I: contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3)"],
+        "opzioni": ["Non valutata", "Nessuna reazione", "Non valutabile/non attendibile", "Fase VI", "Fase V", "Fase IV", "Fase III", "Fase II", "Fase I"],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (5, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Fase VI: contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia": (1, 6),
-            "Fase V: contrazione generalizzata dei muscoli della fronte e dell’orbita, ma non della guancia": (2, 7),
-            "Fase IV: contrazione generalizzata dei muscoli dei muscoli orbicolari superiori e inferiori": (3, 8),
-            "Fase III: contrazione dei muscoli dell’intera palpebra superiore": (3.5, 13),
-            "Fase II: contrazione dei muscoli di meno di 2/3 della palpebra superiore": (5, 16),
-            "Fase I: contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3)": (5, 22),
+            "Fase VI": (1, 6),
+            "Fase V": (2, 7),
+            "Fase IV": (3, 8),
+            "Fase III": (3.5, 13),
+            "Fase II": (5, 16),
+            "Fase I": (5, 22),
                     },
          "descrizioni": {
              "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
