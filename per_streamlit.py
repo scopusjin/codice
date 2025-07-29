@@ -801,7 +801,7 @@ def aggiorna_grafico():
             parametri_grafico.append(label_hensge)
 
 
-      for param in parametri_aggiuntivi_da_considerare:
+        for param in parametri_aggiuntivi_da_considerare:
             if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]):
                 nome_breve = nomi_brevi.get(param['nome'], param['nome'])
 
@@ -816,10 +816,6 @@ def aggiorna_grafico():
                 parametri_grafico.append(label_param_aggiuntivo)
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
-
-                parametri_grafico.append(label_param_aggiuntivo)
-                ranges_to_plot_inizio.append(param["range_traslato"][0])
-                ranges_to_plot_fine.append(param["range_traslato"][1] if param['range_traslato'][1] < INF_HOURS else INF_HOURS)
 
                 y_indices_mapping[label_param_aggiuntivo] = current_y_index
                 current_y_index += 1
