@@ -416,7 +416,7 @@ if mostra_parametri_aggiuntivi:
         if nome_parametro == "Eccitabilità elettrica peribuccale":
             st.image(
                 "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                width=400
+                width=300
             )
 
 st.markdown("""
