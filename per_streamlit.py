@@ -358,11 +358,10 @@ if mostra_parametri_aggiuntivi:
            )
 
         if nome_parametro in ["eccitabilità elettrica sopraciliare"]:
-            if selector != "Non valutata":
                 st.image(
                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
                     caption="Schema dei riflessi elettrici residui",
-                    use_column_width=True
+                    use_container_width=True
                 )
 
         data_picker = None
