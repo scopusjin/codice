@@ -263,15 +263,11 @@ with st.container():
     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
 
-
-        # Slot invisibile per sincronizzare la data
         data_container = st.empty()
-
-        # Imposta valore iniziale se non presente
         if "data_selezionata_str" not in st.session_state:
             st.session_state.data_selezionata_str = datetime.date.today().strftime("%d/%m/%Y")
 
-        # Campo calendario Flatpickr
+        # Tentativo di usare Flatpickr
         components.html(
             f"""
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -304,16 +300,21 @@ with st.container():
             height=100,
         )
 
-        # Campo nascosto (non visibile) che riceve la data da JS
         hidden_input = data_container.text_input(
             "date_hidden", value=st.session_state.data_selezionata_str, label_visibility="collapsed", key="date_hidden"
         )
 
         try:
             input_data_rilievo = datetime.datetime.strptime(hidden_input, "%d/%m/%Y").date()
+            flatpickr_ok = True
         except ValueError:
-            input_data_rilievo = datetime.date.today()
+            flatpickr_ok = False
 
+        if not flatpickr_ok:
+            input_data_rilievo = st.date_input(
+                "Seleziona la data ispezione legale (backup):",
+                value=datetime.date.today()
+            )
 
 
     with col2:
