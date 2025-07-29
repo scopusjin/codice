@@ -513,8 +513,12 @@ def aggiorna_grafico():
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        if dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is not None:
-            range_originale = dati_parametri_aggiuntivi[nome_parametro]["range"][stato_selezionato]
+        chiave_descrizione = stato_selezionato.split(':')[0] if ':' in stato_selezionato else stato_selezionato
+        chiave_descrizione = chiave_descrizione.strip()
+
+        range_param = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_descrizione)
+        if range_param is not None:
+            range_originale = range_param
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
 
             # Calcolo data e ora param
