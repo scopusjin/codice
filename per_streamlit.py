@@ -273,7 +273,7 @@ with st.container():
 
 with st.container():
     st.markdown("""
-    <h5 style="margin:0; padding:0;">Ipostasi e Rigor</h5>
+    <h5 style="margin:0; padding:0;">Dati tanatologici</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
@@ -288,7 +288,7 @@ with st.container():
 
 with st.container():
     st.markdown("""
-    <h5 style="margin:0; padding:0;">Dati per la valutazione del raffreddamento cadaverico</h5>
+    <h5 style="margin:0; padding:0;">Stime</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
