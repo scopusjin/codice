@@ -263,8 +263,6 @@ with st.container():
     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
 
-        import datetime
-        import streamlit.components.v1 as components
 
         # Slot invisibile per sincronizzare la data
         data_container = st.empty()
