@@ -251,6 +251,7 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
 style = {'description_width': 'initial'}
 
 # --- Definizione Widget (Streamlit) ---
+# --- Definizione Widget (Streamlit) ---
 
 with st.container():
     st.markdown("""
@@ -285,15 +286,20 @@ with st.container():
     with col2:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
-    
+
     col3, col4 = st.columns(2)
     with col3:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Temperatura rettale (°C):</div>", unsafe_allow_html=True)
-        input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
+        subcol1, subcol2 = st.columns([1, 1.2])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Temperatura rettale (°C):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
     with col4:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Temperatura ambientale (°C):</div>", unsafe_allow_html=True)
-        input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, label_visibility="collapsed")
-
+        subcol1, subcol2 = st.columns([1, 1.2])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Temperatura ambientale (°C):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, label_visibility="collapsed")
 
 with st.container():
     st.markdown("""
@@ -302,16 +308,24 @@ with st.container():
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
-
+    col1, col2 = st.columns(2)
     with col1:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-        input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0, label_visibility="collapsed")
+        subcol1, subcol2 = st.columns([1, 1.2])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0, label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Fattore di correzione:</div>", unsafe_allow_html=True)
-        input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
-    with col3:
-        st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+        subcol1, subcol2 = st.columns([1, 1.2])
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_cf = st.number_input("Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed")
+
+    subcol1, subcol2 = st.columns([1, 1.2])
+    with subcol1:
+        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+    with subcol2:
         input_t0 = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, label_visibility="collapsed")
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
