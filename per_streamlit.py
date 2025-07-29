@@ -285,8 +285,7 @@ with st.container():
         with subcol2:
             selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    # NUOVA STRUTTURA A 5 COLONNE CON 2 E 4 VUOTE
-    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1], gap="small")
+     col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1, 0.2, 1], gap="small")
 
     with col1:
         subcol1, subcol2 = st.columns([1.5, 0.9], gap="small")
@@ -352,8 +351,10 @@ if mostra_parametri_aggiuntivi:
 
         # Selectbox senza etichetta visibile
         selector = st.selectbox(
-           options=dati_parametro["opzioni"],
-           key=f"{nome_parametro}_selector"
+            label=nome_parametro,
+            options=dati_parametro["opzioni"],
+            key=f"{nome_parametro}_selector"
+            label_visibility="collapsed"
            )
 
         if nome_parametro in ["Eccitabilità elettrica sopraciliare"]:
