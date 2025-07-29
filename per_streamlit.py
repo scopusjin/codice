@@ -260,62 +260,14 @@ with st.container():
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
+
     with col1:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data:</div>", unsafe_allow_html=True)
-
-        data_container = st.empty()
-        if "data_selezionata_str" not in st.session_state:
-            st.session_state.data_selezionata_str = datetime.date.today().strftime("%d/%m/%Y")
-
-        # Tentativo di usare Flatpickr
-        components.html(
-            f"""
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
-
-            <input type="text" id="datepicker" placeholder="gg/mm/aaaa"
-                   style="font-size: 15px; padding: 6px; width: 100%; border-radius: 5px; border: 1px solid #ccc;" />
-
-            <script>
-            document.addEventListener("DOMContentLoaded", function() {{
-                flatpickr("#datepicker", {{
-                    dateFormat: "d/m/Y",
-                    locale: "it",
-                    defaultDate: "{st.session_state.data_selezionata_str}",
-                    onChange: function(selectedDates, dateStr) {{
-                        const inputs = window.parent.document.querySelectorAll('input[data-baseweb="input"]');
-                        for (let i = 0; i < inputs.length; i++) {{
-                            if (inputs[i].id.includes("date_hidden")) {{
-                                inputs[i].value = dateStr;
-                                inputs[i].dispatchEvent(new Event("input", {{ bubbles: true }}));
-                                break;
-                            }}
-                        }}
-                    }}
-                }});
-            }});
-            </script>
-            """,
-            height=100,
+        input_data_rilievo = st.date_input(
+            "Data ispezione legale",
+            value=datetime.date.today(),
+            label_visibility="collapsed"
         )
-
-        hidden_input = data_container.text_input(
-            "date_hidden", value=st.session_state.data_selezionata_str, label_visibility="collapsed", key="date_hidden"
-        )
-
-        try:
-            input_data_rilievo = datetime.datetime.strptime(hidden_input, "%d/%m/%Y").date()
-            flatpickr_ok = True
-        except ValueError:
-            flatpickr_ok = False
-
-        if not flatpickr_ok:
-            input_data_rilievo = st.date_input(
-                "Seleziona la data ispezione legale (backup):",
-                value=datetime.date.today()
-            )
-
 
     with col2:
         st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora (arrotondata ai quarto d'ora):</div>", unsafe_allow_html=True)
