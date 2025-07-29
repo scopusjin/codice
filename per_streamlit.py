@@ -410,13 +410,13 @@ if mostra_parametri_aggiuntivi:
         if nome_parametro == "Eccitabilità elettrica sopraciliare":
             st.image(
                 "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                use_container_width=True
+                width=400
             )
 
         if nome_parametro == "Eccitabilità elettrica peribuccale":
             st.image(
                 "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                use_container_width=True
+                width=400
             )
 
 st.markdown("""
