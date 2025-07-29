@@ -272,7 +272,7 @@ with st.container():
     col1, col2 = st.columns(2)
 
     with col1:
-        subcol1, subcol2 = st.columns([0.6, 2])
+        subcol1, subcol2 = st.columns([0.6, 2, gap="small"])
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi:</div>", unsafe_allow_html=True)
         with subcol2:
@@ -288,21 +288,21 @@ with st.container():
     col3, col4, col5 = st.columns(3)
 
     with col3:
-        subcol1, subcol2 = st.columns([1.1, 0.9])
+        subcol1, subcol2 = st.columns([1.1, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
             input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, label_visibility="collapsed")
 
     with col4:
-        subcol1, subcol2 = st.columns([1.1, 0.9])
+        subcol1, subcol2 = st.columns([1.1, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
             input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, label_visibility="collapsed")
 
     with col5:
-        subcol1, subcol2 = st.columns([1.1, 0.9])
+        subcol1, subcol2 = st.columns([1.1, 0.9], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg):</div>", unsafe_allow_html=True)
         with subcol2:
