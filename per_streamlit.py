@@ -10,12 +10,12 @@ import datetime
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
-st.markdown("""
+st.markdown(f"""
     <style>
-    label[for^=".*_diversa"] {
+    label[for="{nome_parametro}_diversa"] {{
         font-size: 0.8em;
         color: orange;
-    }
+    }}
     </style>
 """, unsafe_allow_html=True)
 
