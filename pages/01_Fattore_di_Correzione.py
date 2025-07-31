@@ -111,12 +111,12 @@ def calcola_fattore(peso):
             return
 
         # --- DESCRIZIONE ---
-        descrizione = f"{stato_corpo.lower()}"
+        descrizione = f"cadavere {stato_corpo.lower()}"
         if not corpo_immerso:
             if scelta_vestiti.lower() == "nudo":
                 descrizione += ", nudo"
             else:
-                descrizione += f", con {scelta_vestiti.lower()}"
+                descrizione += f", con {scelta_vestiti.lower()} di indumenti"
 
             if scelta_coperte != "/":
                 descrizione += f", sotto {scelta_coperte.lower()}"
