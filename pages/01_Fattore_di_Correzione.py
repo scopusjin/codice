@@ -1,4 +1,4 @@
-import streamlit as st
+aimport streamlit as st
 import pandas as pd
 
 # --- CARICAMENTO DATI ---
@@ -60,6 +60,7 @@ def calcola_fattore(peso):
         st.subheader("Copertura")
         if not corpo_immerso:
             scelta_coperte = st.radio("Coperte:", [
+                "Nessuna coperta",
                 "Coperta leggera (es lenzuuolo)",
                 "Coperta di medio spessore (es copriletto)",
                 "Coperta pesante (es piuminino invernale)",
@@ -76,8 +77,8 @@ def calcola_fattore(peso):
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante)",
                 "Materasso o tappeto spesso",
-                "Foglie umide (almeno 2 cm)",
-                "Foglie secche (almeno 2 cm)"
+                "Foglie umide (≥2 cm)",
+                "Foglie secche (≥2 cm)"
             ])
         else:
             superficie = "/"
