@@ -93,6 +93,13 @@ def calcola_fattore(peso):
             "Bagnato": "Bagnato",
             "Immerso": "In acqua"
         }[stato_corpo]
+    # --- LOGICA DI CALCOLO ---
+    if calcola:
+        ambiente = {
+            "Asciutto": "Asciutto",
+            "Bagnato": "Bagnato",
+            "Immerso": "In acqua"
+        }[stato_corpo]
 
         # FILTRO DATI
         riga = tabella1[
@@ -107,8 +114,6 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-
-        if peso == 70:
         # DESCRIZIONE
         descrizione = f"{stato_corpo.lower()}"
         if not corpo_immerso:
@@ -120,23 +125,19 @@ def calcola_fattore(peso):
             descrizione += f", appoggiato su {superficie.lower()}"
         descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
 
-fattore = riga.iloc[0]['Fattore']
         # RISULTATO
+        try:
+            peso_colonne = [int(c) for c in tabella2.columns]
+            peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
+            indice_tab2 = tabella1.index.get_loc(riga.index[0])
 
-# RISULTATO
-try:
-    peso_colonne = [int(c) for c in tabella2.columns]
-    peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
-    indice_tab2 = tabella1.index.get_loc(riga.index[0])
-
-    if indice_tab2 < len(tabella2):
-        fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
-        st.success(f"Fattore di correzione stimato: {fattore_peso:.2f} ({descrizione})")
-    else:
-        st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
-except Exception as e:
-    st.error(f"Errore nel calcolo con tabella secondaria: {e}")
-
+            if indice_tab2 < len(tabella2):
+                fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
+                st.success(f"Fattore di correzione stimato: {fattore_peso:.2f} ({descrizione})")
+            else:
+                st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
+        except Exception as e:
+            st.error(f"Errore nel calcolo con tabella secondaria: {e}")
 
             
             st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
