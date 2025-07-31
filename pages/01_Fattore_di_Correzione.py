@@ -121,7 +121,7 @@ def calcola_fattore(peso):
         descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
 
         # RISULTATO
-        if peso == 70 or not situaz_speciale:
+        if peso == 70:
             st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
 
         else:
