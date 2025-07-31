@@ -108,7 +108,7 @@ def calcola_fattore(peso):
             return
 
 
-
+        if peso == 70:
         # DESCRIZIONE
         descrizione = f"{stato_corpo.lower()}"
         if not corpo_immerso:
@@ -122,7 +122,22 @@ def calcola_fattore(peso):
 
 fattore = riga.iloc[0]['Fattore']
         # RISULTATO
-        if peso == 70:
+
+# RISULTATO
+try:
+    peso_colonne = [int(c) for c in tabella2.columns]
+    peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
+    indice_tab2 = tabella1.index.get_loc(riga.index[0])
+
+    if indice_tab2 < len(tabella2):
+        fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
+        st.success(f"Fattore di correzione stimato: {fattore_peso:.2f} ({descrizione})")
+    else:
+        st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
+except Exception as e:
+    st.error(f"Errore nel calcolo con tabella secondaria: {e}")
+
+
             
             st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
 
