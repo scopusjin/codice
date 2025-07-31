@@ -384,18 +384,22 @@ if mostra_parametri_aggiuntivi:
         if selettore != "Non valutata":
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
-                # Etichetta in piccolo e arancione, separata dal checkbox
-                st.markdown(
-                    "<span style='font-size: 0.8em; color: orange;'>Il dato è stato valutato a un'orario diverso da quello prima indicato?</span>",
-                    unsafe_allow_html=True
-                )
+                # Riga con etichetta e checkbox affiancati
+                col_etichetta, col_checkbox = st.columns([0.85, 0.15])
 
-                # Checkbox senza etichetta
-                usa_orario_personalizzato = st.checkbox(
-                    label="",
-                    key=chiave_checkbox
-                )
+                with col_etichetta:
+                    st.markdown(
+                        "<div style='font-size: 0.8em; color: orange; padding-top: 6px;'>"
+                        "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
+                        "</div>", 
+                        unsafe_allow_html=True
+                    )
 
+                with col_checkbox:
+                    usa_orario_personalizzato = st.checkbox(
+                        label="",
+                        key=chiave_checkbox
+                    )
 
 
 
