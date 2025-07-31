@@ -22,7 +22,9 @@ def calcola_fattore(peso):
     with col1:
         st.subheader("Condizioni del corpo")
         stato_corpo = st.radio("Stato del corpo:", ["Asciutto", "Bagnato", "Immerso"])
-        corpo_immerso = (stato_corpo in ["Bagnato", "Immerso"])
+        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_bagnato = (stato_corpo == "Bagnato")
+
 
         st.subheader("Abbigliamento")
         if not corpo_immerso:
@@ -52,7 +54,7 @@ def calcola_fattore(peso):
             ])
 
         st.subheader("Copertura")
-        if not corpo_immerso:
+        if not (corpo_immerso or corpo_bagnato):
             scelta_coperte = st.radio("Coperte:", [
                 "Nessuna coperta",
                 "Coperta leggera (es lenzuuolo)",
@@ -65,7 +67,7 @@ def calcola_fattore(peso):
 
     with col3:
         st.subheader("Superficie di appoggio")
-        if not corpo_immerso:
+        if not (corpo_immerso or corpo_bagnato):
             superficie = st.radio("Superficie:", [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante)",
@@ -88,6 +90,7 @@ def calcola_fattore(peso):
 
         if corpo_immerso:
             scelta_vestiti = "/"
+         if corpo_immerso or corpo_bagnato:
             scelta_coperte = "/"
             superficie = "/"
 
