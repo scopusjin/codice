@@ -384,7 +384,7 @@ if mostra_parametri_aggiuntivi:
         if selettore != "Non valutata":
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
-                col1, col2 = st.columns([0.9, 0.05])
+                col1, col2 = st.columns([0.1, 0.05])
 
                 with col1:
         
