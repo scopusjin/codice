@@ -388,7 +388,7 @@ if mostra_parametri_aggiuntivi:
             with col1:
                 st.markdown(
                     "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                    "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
+                    "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
                     "</div>",
                     unsafe_allow_html=True
                 )
@@ -409,7 +409,7 @@ if mostra_parametri_aggiuntivi:
                     label_visibility="collapsed"
                 )
             with col2:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
                 ora_input = st.text_input(
                     "Ora rilievo (HH:MM):",
                     value=input_ora_rilievo,
