@@ -384,22 +384,47 @@ if mostra_parametri_aggiuntivi:
         if selettore != "Non valutata":
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
-                # Riga con etichetta e checkbox affiancati
-                col_etichetta, col_checkbox = st.columns([0.85, 0.15])
+                # Contenitore HTML centrato con testo e checkbox ravvicinati
+                st.markdown(f"""
+                    <style>
+                        .checkbox-row {{
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 6px;
+                            margin-top: 10px;
+                            margin-bottom: 10px;
+                        }}
+                        .checkbox-label {{
+                            font-size: 0.8em;
+                            color: orange;
+                        }}
+                    </style>
+                    <div class="checkbox-row">
+                        <div class="checkbox-label">
+                            Il dato è stato valutato a un'orario diverso da quello prima indicato?
+                        </div>
+                        <div id="{chiave_checkbox}_placeholder"></div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-                with col_etichetta:
-                    st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; padding-top: 6px;'>"
-                        "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
-                        "</div>", 
-                        unsafe_allow_html=True
-                    )
+                # Inserisce il vero checkbox Streamlit nella posizione desiderata
+                usa_orario_personalizzato = st.checkbox(
+                    label="",
+                    key=chiave_checkbox
+                )
 
-                with col_checkbox:
-                    usa_orario_personalizzato = st.checkbox(
-                        label="",
-                        key=chiave_checkbox
-                    )
+                # Sposta il checkbox nel punto corretto via JavaScript (opzionale)
+                st.markdown(f"""
+                    <script>
+                        const checkbox = window.parent.document.querySelector('input[id$="{chiave_checkbox}"]');
+                        const placeholder = window.parent.document.getElementById("{chiave_checkbox}_placeholder");
+                        if (checkbox && placeholder) {{
+                            placeholder.appendChild(checkbox.parentElement);
+                        }}
+                    </script>
+                """, unsafe_allow_html=True)
+
 
 
 
