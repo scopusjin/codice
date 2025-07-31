@@ -927,7 +927,7 @@ def aggiorna_grafico():
 
     if minuti_isp not in [0, 15, 30, 45]:
         st.markdown(
-    "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinsici dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
+    "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
     unsafe_allow_html=True
         )
         
