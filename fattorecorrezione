@@ -9,70 +9,75 @@ tabella2 = pd.read_excel("tabella secondaria.xlsx")
 def calcola_fattore(peso):
     st.header("Calcolo del Fattore di Correzione")
 
-    # SEZIONE 1: STATO DEL CORPO
-    st.subheader("Condizioni del corpo")
-    stato_corpo = st.radio("Seleziona lo stato del corpo:", [
-        "Asciutto",
-        "Bagnato",
-        "Immerso"
-    ])
-    corpo_immerso = (stato_corpo == "Immerso")
+    # --- LAYOUT A 3 COLONNE ---
+    col1, col2, col3 = st.columns(3)
 
-    # SEZIONE 2: VESTITI
-    st.subheader("Abbigliamento")
-    if not corpo_immerso:
-        scelta_vestiti = st.radio("Numero e tipo di vestiti al tronco:", [
-            "Nudo",
-            "1-2 strati sottili",
-            "2-3 strati sottili",
-            "3-4 strati sottili",
-            "1-2 strati spessi",
-            "˃4 strati sottili o ˃2 strati spessi",
-            "Moltissimi strati"
+    # COLONNA 1: Stato del corpo e vestiti
+    with col1:
+        st.subheader("Condizioni del corpo")
+        stato_corpo = st.radio("Stato del corpo:", [
+            "Asciutto", "Bagnato", "Immerso"
         ])
-    else:
-        scelta_vestiti = "/"
+        corpo_immerso = (stato_corpo == "Immerso")
 
-    # SEZIONE 3: COPERTE
-    st.subheader("Copertura")
-    if not corpo_immerso:
-        scelta_coperte = st.radio("Numero e tipo di coperte:", [
-            "Coperta leggera (es lenzuuolo)",
-            "Coperta di medio spessore (es copriletto)",
-            "Coperta pesante (es piuminino invernale)",
-            "Più coperte pesanti"
-        ])
-    else:
-        scelta_coperte = "/"
+        st.subheader("Abbigliamento")
+        if not corpo_immerso:
+            scelta_vestiti = st.radio("Vestiti:", [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ])
+        else:
+            scelta_vestiti = "/"
 
-    # SEZIONE 4: SUPERFICIE DI APPOGGIO
-    st.subheader("Superficie di appoggio")
-    if not corpo_immerso:
-        superficie = st.radio("Tipo di superficie:", [
-            "Pavimento di casa, terreno o prato asciutto, asfalto",
-            "Imbottitura pesante (es sacco a pelo isolante)",
-            "Materasso o tappeto spesso",
-            "Foglie umide (almeno 2 cm)",
-            "Foglie secche (almeno 2 cm)"
-        ])
-    else:
-        superficie = "/"
+    # COLONNA 2: Correnti e coperte
+    with col2:
+        st.subheader("Presenza di correnti")
+        if not corpo_immerso:
+            corrente = st.radio("Correnti presenti:", [
+                "Esposto a corrente d'aria",
+                "/"
+            ])
+        else:
+            corrente = st.radio("Correnti presenti:", [
+                "In acqua corrente",
+                "In acqua stagnante"
+            ])
 
-    # SEZIONE 5: CORRENTI
-    st.subheader("Presenza di correnti")
-    if not corpo_immerso:
-        corrente = st.radio("Correnti presenti:", [
-            "Esposto a corrente d'aria",
-            "/"
-        ])
-    else:
-        corrente = st.radio("Correnti presenti:", [
-            "In acqua corrente",
-            "In acqua stagnante"
-        ])
+        st.subheader("Copertura")
+        if not corpo_immerso:
+            scelta_coperte = st.radio("Coperte:", [
+                "Coperta leggera (es lenzuuolo)",
+                "Coperta di medio spessore (es copriletto)",
+                "Coperta pesante (es piuminino invernale)",
+                "Più coperte pesanti"
+            ])
+        else:
+            scelta_coperte = "/"
 
-    # PULSANTE DI AGGIORNAMENTO
-    if st.button("Aggiorna fattore di correzione"):
+    # COLONNA 3: Superficie e pulsante
+    with col3:
+        st.subheader("Superficie di appoggio")
+        if not corpo_immerso:
+            superficie = st.radio("Superficie:", [
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Imbottitura pesante (es sacco a pelo isolante)",
+                "Materasso o tappeto spesso",
+                "Foglie umide (almeno 2 cm)",
+                "Foglie secche (almeno 2 cm)"
+            ])
+        else:
+            superficie = "/"
+
+        # PULSANTE
+        calcola = st.button("Aggiorna fattore di correzione")
+
+    # --- LOGICA DI CALCOLO ---
+    if calcola:
         ambiente = {
             "Asciutto": "Asciutto",
             "Bagnato": "Bagnato",
@@ -122,4 +127,3 @@ def calcola_fattore(peso):
                     st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
             except Exception as e:
                 st.error(f"Errore nel calcolo con tabella secondaria: {e}")
-
