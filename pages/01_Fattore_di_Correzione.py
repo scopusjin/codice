@@ -128,9 +128,9 @@ def calcola_fattore(peso):
 
 
         if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
-            descrizione += ", non esposto a correnti"
+            descrizione += ", non esposto a correnti d'aria"
         else:
-            descrizione += ", esposto a corrente"
+            descrizione += ", esposto a corrente d'aria"
 
 
 
