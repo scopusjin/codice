@@ -3,6 +3,8 @@ import pandas as pd
 
 # --- CARICAMENTO DATI ---
 tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
+
 tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
 # --- FUNZIONE PRINCIPALE ---
