@@ -381,15 +381,8 @@ if mostra_parametri_aggiuntivi:
 
         usa_orario_personalizzato = False
         if selettore != "Non valutata":
-            col_label, col_check = st.columns([0.1, 0.1])
-            with col_label:
-                st.markdown(
-                  "<div style='font-size: 0.82rem; color: orange; padding-top: 4px;'> Ora di rilievo diversa?</div>",
-                  unsafe_allow_html=True
-                )
-            with col_check:
-                usa_orario_personalizzato = st.checkbox(
-                    label="", key=f"{nome_parametro}_diversa"
+            usa_orario_personalizzato = st.checkbox(
+            label="Ora di rilievo diversa?", key=f"{nome_parametro}_diversa"
                 )
 
         if usa_orario_personalizzato:
