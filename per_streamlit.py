@@ -1185,7 +1185,11 @@ def aggiorna_grafico():
         if raffreddamento_calcolabile:
             range_inizio_senza_potente.append(t_min_raff_hensge)
             range_fine_senza_potente.append(t_max_raff_hensge)
+            ranges_per_intersezione_inizio.append(t_min_raff_hensge)
+            ranges_per_intersezione_fine.append(t_max_raff_hensge)
+            nomi_parametri_usati_per_intersezione.append("raffreddamento cadaverico (nomogramma di Henssge)")
 
+        
         if len(range_inizio_senza_potente) >= 2:
             inizio_senza_potente = max(range_inizio_senza_potente)
             fine_senza_potente = min(range_fine_senza_potente)
