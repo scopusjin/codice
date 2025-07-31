@@ -54,7 +54,7 @@ def calcola_fattore(peso):
         if not (corpo_immerso or corpo_bagnato):
             scelta_coperte = st.radio("", [
                 "Nessuna coperta",
-                "Coperta leggera (es lenzuuolo)",
+                "Coperta leggera (es lenzuolo)",
                 "Coperta di medio spessore (es copriletto)",
                 "Coperta pesante (es piuminino invernale)",
                 "Più coperte pesanti"
