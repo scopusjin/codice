@@ -365,7 +365,7 @@ if mostra_parametri_aggiuntivi:
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         st.markdown(
-            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>{nome_parametro}</div>",
+            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 50px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
