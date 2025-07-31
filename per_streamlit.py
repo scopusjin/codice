@@ -384,7 +384,7 @@ if mostra_parametri_aggiuntivi:
 
         if selettore != "Non valutata":
             chiave_checkbox = f"{nome_parametro}_diversa"
-            col1, col2 = st.columns([1.8, 0.2], gap="small")
+            col1, col2 = st.columns([0.8, 0.2], gap="small")
             with col1:
                 st.markdown(
                     "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
