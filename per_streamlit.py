@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 import datetime
 import numpy as np
 from scipy.optimize import root_scalar
-from datetime import datetime, timedelta
+
 
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
