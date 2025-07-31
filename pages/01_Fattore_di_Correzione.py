@@ -97,8 +97,7 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        fattore = riga.iloc[0]['Fattore']
-        situaz_speciale = pd.notna(riga.iloc[0]['situazioni special per tabella aggiuntiva'])
+
 
         # DESCRIZIONE
         descrizione = f"{stato_corpo.lower()}"
