@@ -5,13 +5,20 @@ import streamlit.components.v1 as components
 import datetime
 import numpy as np
 from scipy.optimize import root_scalar
+from datetime import datetime, timedelta
 
-st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
-st.title("Stima epoca decesso")
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
-
+def arrotonda_quarto_dora(dt: datetime) -> datetime:
+    """Arrotonda un datetime al quarto d’ora più vicino."""
+    minuti = (dt.minute + 7) // 15 * 15
+    if minuti == 60:
+        dt += timedelta(hours=1)
+        minuti = 0
+    return dt.replace(minute=0, second=0, microsecond=0) + timedelta(minutes=minuti)
+st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
+st.title("Stima epoca decesso")
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
 opzioni_macchie = {
     "Non ancora comparse": (0, 3),
@@ -269,7 +276,7 @@ with st.container():
         )
 
     with col2:
-        input_ora_rilievo = st.text_input("Ora (arrotondata ai quarto d'ora):", value='00:00', label_visibility="collapsed")
+        input_ora_rilievo = st.text_input("Ora:", value='00:00', label_visibility="collapsed")
 
 with st.container():
     st.markdown("""
