@@ -381,7 +381,7 @@ if mostra_parametri_aggiuntivi:
 
         usa_orario_personalizzato = False
 
-             if selettore != "Non valutata":
+        if selettore != "Non valutata":
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
                 # Layout con checkbox e testo affiancati, centrati verticalmente
