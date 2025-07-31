@@ -385,18 +385,19 @@ if mostra_parametri_aggiuntivi:
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
                 st.markdown(f"""
-                        <style>
-                        label[for="{chiave_checkbox}"] {{
-                            font-size: 0.8em;
-                            color: orange;
-                        }}
-                        </style>
-                    """, unsafe_allow_html=True)
+                    <style>
+                    div[data-testid="stCheckbox"][data-baseweb="checkbox"] > label {{
+                        font-size: 0.8em;
+                        color: orange;
+                    }}
+                    </style>
+                """, unsafe_allow_html=True)
 
                 usa_orario_personalizzato = st.checkbox(
                     label="Il dato è stato valutato a un'orario diverso da quello prima indicato?", 
                     key=chiave_checkbox
                 )
+
 
 
         if usa_orario_personalizzato:
