@@ -85,7 +85,7 @@ def calcola_fattore(peso):
         ambiente = {
             "Asciutto": "Asciutto",
             "Bagnato": "Bagnato",
-            "Immerso": "In acqua"
+            "Immerso": "Immerso"
         }[stato_corpo]
 
         if corpo_immerso:
