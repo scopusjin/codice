@@ -112,7 +112,8 @@ def calcola_fattore(peso):
 
         # RISULTATO
         if peso == 70 or not situaz_speciale:
-            st.success(f"Fattore di correzione stimato: {fattore:.2f} ({descrizione})")
+            st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
+
         else:
             try:
                 peso_colonne = [int(c) for c in tabella2.columns]
