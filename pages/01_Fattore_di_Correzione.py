@@ -120,8 +120,10 @@ def calcola_fattore(peso):
             descrizione += f", appoggiato su {superficie.lower()}"
         descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
 
+fattore = riga.iloc[0]['Fattore']
         # RISULTATO
         if peso == 70:
+            
             st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
 
         else:
