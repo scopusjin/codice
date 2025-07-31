@@ -103,18 +103,20 @@ def calcola_fattore(peso):
             return
 
         descrizione = f"{stato_corpo.lower()}"
-        if not corpo_immerso:
+        if scelta_vestiti != "/":
             if scelta_vestiti.lower() == "nudo":
                 descrizione += ", nudo"
             else:
                 descrizione += f", con {scelta_vestiti.lower()}"
+        if scelta_coperte != "/":
             descrizione += f", sotto {scelta_coperte.lower()}"
+        if superficie != "/":
             descrizione += f", appoggiato su {superficie.lower()}"
-
         if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
             descrizione += ", non esposto a correnti"
         else:
             descrizione += ", esposto a corrente"
+
 
         try:
             fattore = riga.iloc[0]['Fattore']
