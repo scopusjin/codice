@@ -102,7 +102,7 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        descrizione = f"{stato_corpo.lower()}"
+        descrizione = f"cadavere {stato_corpo.lower()}"
         if scelta_vestiti != "/":
             if scelta_vestiti.lower() == "nudo":
                 descrizione += ", nudo"
