@@ -860,7 +860,7 @@ def aggiorna_grafico():
 
         if visualizza_hensge_grafico:
             idx = parametri_grafico.index(label_hensge) if label_hensge in parametri_grafico else None
-            )
+            
             if idx is not None:
                 if mt_ore is not None and not np.isnan(mt_ore):
                     ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
