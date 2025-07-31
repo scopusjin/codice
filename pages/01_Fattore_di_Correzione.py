@@ -27,7 +27,7 @@ def calcola_fattore(peso):
         stato_corpo = st.radio("Stato del corpo:", [
             "Asciutto", "Bagnato", "Immerso"
         ])
-        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_immerso = (stato_corpo in ["Bagnato", "Immerso"])
 
         st.subheader("Abbigliamento")
         if not corpo_immerso:
