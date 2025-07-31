@@ -122,6 +122,8 @@ def calcola_fattore(peso):
                 "Foglie secche (≥2 cm)": "superficie termicamente isolante",
                 "Cemento, pietra, piastrelle": "superficie termicamente conduttiva"
             }
+            if superficie in mappa_superficie:
+                descrizione += f", adagiato su superficie {mappa_superficie[superficie]}"
 
             tipo_superficie = mappa_superficie.get(superficie, "superficie non specificata")
             descrizione += f", adagiato su {tipo_superficie}"
