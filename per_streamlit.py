@@ -382,7 +382,7 @@ if mostra_parametri_aggiuntivi:
         usa_orario_personalizzato = False
         if selettore != "Non valutata":
             usa_orario_personalizzato = st.checkbox(
-            label="Ora di rilievo diversa?", key=f"{nome_parametro}_diversa"
+            label="Il dato è stato valutato a un'orario diverso da quello prima indicato?", key=f"{nome_parametro}_diversa"
                 )
 
         if usa_orario_personalizzato:
