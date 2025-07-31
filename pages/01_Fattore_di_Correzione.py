@@ -2,8 +2,15 @@ import streamlit as st
 import pandas as pd
 
 # --- CARICAMENTO DATI ---
+# --- CARICAMENTO DATI ---
 tabella1 = pd.read_excel("tabella rielaborata.xlsx")
-tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
+tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')  # Forza i valori numerici
+
+# --- SEGNALAZIONE RIGHE CON ERRORI ---
+righe_non_valide = tabella1[tabella1['Fattore'].isna()]
+if not righe_non_valide.empty:
+    st.warning(f"⚠️ Attenzione: {len(righe_non_valide)} riga/e nella tabella 'Fattore' non contengono valori numerici validi.")
+    st.dataframe(righe_non_valide)
 
 tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
