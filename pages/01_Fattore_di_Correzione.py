@@ -93,13 +93,11 @@ def calcola_fattore(peso):
             "Bagnato": "Bagnato",
             "Immerso": "In acqua"
         }[stato_corpo]
-    # --- LOGICA DI CALCOLO ---
-    if calcola:
-        ambiente = {
-            "Asciutto": "Asciutto",
-            "Bagnato": "Bagnato",
-            "Immerso": "In acqua"
-        }[stato_corpo]
+
+    if corpo_immerso:
+        scelta_vestiti = "/"
+        scelta_coperte = "/"
+        superficie = "/"
 
         # FILTRO DATI
         riga = tabella1[
