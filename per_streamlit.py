@@ -929,7 +929,8 @@ def aggiorna_grafico():
         st.markdown(
     "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti di precisione dei metodi utilizzati, i risultati saranno arrotondati al quarto d’ora più vicino.</p>",
     unsafe_allow_html=True
-            
+        )
+        
     hensge_input_forniti = (
         input_rt is not None and
         input_ta is not None and
