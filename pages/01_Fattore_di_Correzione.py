@@ -86,64 +86,60 @@ def calcola_fattore(peso):
         # PULSANTE
         calcola = st.button("Aggiorna fattore di correzione")
 
-    # --- LOGICA DI CALCOLO ---
-    if calcola:
-        ambiente = {
-            "Asciutto": "Asciutto",
-            "Bagnato": "Bagnato",
-            "Immerso": "In acqua"
-        }[stato_corpo]
+# --- LOGICA DI CALCOLO ---
+if calcola:
+    ambiente = {
+        "Asciutto": "Asciutto",
+        "Bagnato": "Bagnato",
+        "Immerso": "In acqua"
+    }[stato_corpo]
 
     if corpo_immerso:
         scelta_vestiti = "/"
         scelta_coperte = "/"
         superficie = "/"
 
-        # FILTRO DATI
-        riga = tabella1[
-            ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
-            ((tabella1['Vestiti'] == scelta_vestiti) | (tabella1['Vestiti'] == '/')) &
-            ((tabella1['Coperte'] == scelta_coperte) | (tabella1['Coperte'] == '/')) &
-            ((tabella1['Correnti'] == corrente) | (tabella1['Correnti'] == '/')) &
-            ((tabella1["Superficie d'appoggio"] == superficie) | (tabella1["Superficie d'appoggio"] == '/'))
-        ]
+    # --- FILTRO DATI ---
+    riga = tabella1[
+        ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
+        ((tabella1['Vestiti'] == scelta_vestiti) | (tabella1['Vestiti'] == '/')) &
+        ((tabella1['Coperte'] == scelta_coperte) | (tabella1['Coperte'] == '/')) &
+        ((tabella1['Correnti'] == corrente) | (tabella1['Correnti'] == '/')) &
+        ((tabella1["Superficie d'appoggio"] == superficie) | (tabella1["Superficie d'appoggio"] == '/'))
+    ]
 
-        if riga.empty:
-            st.error("Nessuna combinazione trovata.")
-            return
+    if riga.empty:
+        st.error("Nessuna combinazione trovata.")
+        return
 
-        # --- DESCRIZIONE ---
-        descrizione = f"{stato_corpo.lower()}"
-        if not corpo_immerso:
-            if scelta_vestiti.lower() == "nudo":
-                descrizione += ", nudo"
+    # --- DESCRIZIONE ---
+    descrizione = f"{stato_corpo.lower()}"
+    if not corpo_immerso:
+        if scelta_vestiti.lower() == "nudo":
+            descrizione += ", nudo"
+        else:
+            descrizione += f", con {scelta_vestiti.lower()}"
+        descrizione += f", sotto {scelta_coperte.lower()}"
+        descrizione += f", appoggiato su {superficie.lower()}"
+        descrizione += f", {'non esposto a correnti' if 'nessuna' in corrente.lower() or 'stagnante' in corrente.lower() else 'esposto a corrente'}"
+
+
+    # --- ESTRAZIONE FATTORE ---
+    try:
+        fattore = riga.iloc[0]['Fattore']
+        if fattore < 1.4 or peso == 70:
+            st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
+        else:
+            colonna_70 = tabella2["70"]
+            indice_vicino = (colonna_70 - fattore).abs().idxmin()
+            riga_tab2 = tabella2.loc[indice_vicino]
+            colonna_peso = str(peso)
+            if colonna_peso not in tabella2.columns:
+                st.error(f"Nessuna colonna disponibile per il peso {peso} kg nella tabella secondaria.")
             else:
-                descrizione += f", con {scelta_vestiti.lower()}"
-            descrizione += f", sotto {scelta_coperte.lower()}"
-            descrizione += f", appoggiato su {superficie.lower()}"
-        descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
-
-        # --- ESTRAZIONE FATTORE BASE ---
-        try:
-            fattore = riga.iloc[0]['Fattore']
-
-            if fattore < 1.4 or peso == 70:
-                # Nessuna correzione necessaria
-                st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
-            else:
-                # Correzione tramite tabella secondaria
-                colonna_70 = tabella2["70"]
-                indice_vicino = (colonna_70 - fattore).abs().idxmin()
-                riga_tab2 = tabella2.loc[indice_vicino]
-
-                colonna_peso = str(peso)
-                if colonna_peso not in tabella2.columns:
-                    st.error(f"Nessuna colonna disponibile per il peso {peso} kg nella tabella secondaria.")
-                else:
-                    fattore_corretto = riga_tab2[colonna_peso]
-                    st.info(f"Fattore corretto per {peso} kg: {fattore_corretto:.2f} ({descrizione})")
-        except Exception as e:
-            st.error(f"Errore nel calcolo: {e}")
-
+                fattore_corretto = riga_tab2[colonna_peso]
+                st.info(f"Fattore corretto per {peso} kg: {fattore_corretto:.2f} ({descrizione})")
+    except Exception as e:
+        st.error(f"Errore nel calcolo: {e}")
 peso_input = st.slider("Peso del corpo (kg)", min_value=30, max_value=150, value=70, step=1)
 calcola_fattore(peso=peso_input)
