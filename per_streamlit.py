@@ -364,52 +364,44 @@ if mostra_parametri_aggiuntivi:
     """, unsafe_allow_html=True)
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        st.markdown(
-            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 0px;'>{nome_parametro}</div>",
-            unsafe_allow_html=True
-        )
-
-        selettore = st.selectbox(
-            label=nome_parametro,
-            options=dati_parametro["opzioni"],
-            key=f"{nome_parametro}_selector",
-            label_visibility="collapsed"
-        )
+        col1, col2 = st.columns([1, 2], gap="small")
+        with col1:
+            st.markdown(
+                f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
+                unsafe_allow_html=True
+            )
+        with col2:
+            selettore = st.selectbox(
+                label=nome_parametro,
+                options=dati_parametro["opzioni"],
+                key=f"{nome_parametro}_selector",
+                label_visibility="collapsed"
+            )
 
         data_picker = None
         ora_input = None
-
         usa_orario_personalizzato = False
 
         if selettore != "Non valutata":
-                chiave_checkbox = f"{nome_parametro}_diversa"
-
-                col1, col2 = st.columns([0.05, 0.05])
-
-                with col1:
-        
-                     st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                        "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
-                        "</div>",
-                        unsafe_allow_html=True
-                    )
-                   
-                with col2:
-        
-                    st.markdown("<div style='margin-top: 0px;'>", unsafe_allow_html=True)
-                    usa_orario_personalizzato = st.checkbox(
-                        label="",
-                        key=chiave_checkbox
-                    )
-
-
-
+            chiave_checkbox = f"{nome_parametro}_diversa"
+            col1, col2 = st.columns([1.8, 0.2], gap="small")
+            with col1:
+                st.markdown(
+                    "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
+                    "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
+            with col2:
+                usa_orario_personalizzato = st.checkbox(
+                    label="",
+                    key=chiave_checkbox
+                )
 
         if usa_orario_personalizzato:
             col1, col2 = st.columns(2)
             with col1:
-                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Data rilievo:</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
                 data_picker = st.date_input(
                     "Data rilievo:",
                     value=input_data_rilievo,
@@ -417,7 +409,7 @@ if mostra_parametri_aggiuntivi:
                     label_visibility="collapsed"
                 )
             with col2:
-                st.markdown("<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 2px;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo (HH:MM):</div>", unsafe_allow_html=True)
                 ora_input = st.text_input(
                     "Ora rilievo (HH:MM):",
                     value=input_ora_rilievo,
@@ -430,6 +422,7 @@ if mostra_parametri_aggiuntivi:
             "data_rilievo": data_picker,
             "ora_rilievo": ora_input
         }
+
 
         if nome_parametro == "Eccitabilità elettrica sopraciliare":
             st.image(
