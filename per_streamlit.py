@@ -902,12 +902,12 @@ def aggiorna_grafico():
         ax.set_yticklabels(parametri_grafico, fontsize=9)
         ax.set_xlabel("Ore dal decesso")
 
-        max_x_value = 24
+        max_x_value = 10
         all_limits = ranges_to_plot_fine + ranges_to_plot_inizio
         valid_limits = [lim for lim in all_limits if not np.isnan(lim) and lim < INF_HOURS]
         if valid_limits:
             max_x_value = max(max_x_value, max(valid_limits) * 1.1)
-            max_x_value = max(max_x_value, 24)
+            max_x_value = max(max_x_value, 10)
 
         ax.set_xlim(0, max_x_value)
         ax.grid(True, axis='x', linestyle=':', alpha=0.6)
