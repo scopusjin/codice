@@ -458,10 +458,12 @@ def aggiorna_grafico():
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: Formato ora ispezione legale non valido. Utilizzare il formato HH:MM (es. 14:30).</p>", unsafe_allow_html=True)
         return
 
+     # if minuti_isp not in [0, 15, 30, 45]:
+         # st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: I minuti dell'ora di ispezione legale devono essere arrotondati al quarto d'ora più vicino.</p>", unsafe_allow_html=True)
+         # return
     if minuti_isp not in [0, 15, 30, 45]:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: I minuti dell'ora di ispezione legale devono essere arrotondati al quarto d'ora più vicino.</p>", unsafe_allow_html=True)
-        return
-
+         st.markdown("NB: Considerati i limiti di precisione dei metodi utilizzati, i risultati saranno arrotondati al quarto d’ora più vicino.")
+        
     data_ora_ispezione = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
 
     # --- Recupero Valori Input per Calcoli (Esistenti) ---
