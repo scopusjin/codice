@@ -125,8 +125,7 @@ def calcola_fattore(peso):
             if superficie in mappa_superficie:
                 descrizione += f", adagiato su superficie {mappa_superficie[superficie]}"
 
-            tipo_superficie = mappa_superficie.get(superficie, "superficie non specificata")
-            descrizione += f", adagiato su {tipo_superficie}"
+
 
         if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
             descrizione += ", non esposto a correnti"
