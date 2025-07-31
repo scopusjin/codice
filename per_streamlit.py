@@ -10,14 +10,6 @@ import datetime
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
-st.markdown(f"""
-    <style>
-    label[for="{nome_parametro}_diversa"] {{
-        font-size: 0.8em;
-        color: orange;
-    }}
-    </style>
-""", unsafe_allow_html=True)
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
@@ -388,11 +380,24 @@ if mostra_parametri_aggiuntivi:
         ora_input = None
 
         usa_orario_personalizzato = False
+
         if selettore != "Non valutata":
-            usa_orario_personalizzato = st.checkbox(
-            label="Il dato è stato valutato a un'orario diverso da quello prima indicato?", 
-            key=f"{nome_parametro}_diversa"
+                chiave_checkbox = f"{nome_parametro}_diversa"
+
+                st.markdown(f"""
+                        <style>
+                        label[for="{chiave_checkbox}"] {{
+                            font-size: 0.8em;
+                            color: orange;
+                        }}
+                        </style>
+                    """, unsafe_allow_html=True)
+
+                usa_orario_personalizzato = st.checkbox(
+                    label="Il dato è stato valutato a un'orario diverso da quello prima indicato?", 
+                    key=chiave_checkbox
                 )
+
 
         if usa_orario_personalizzato:
             col1, col2 = st.columns(2)
