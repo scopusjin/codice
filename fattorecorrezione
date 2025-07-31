@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 # --- CARICAMENTO DATI ---
-tabella1 = pd.read_excel("tabella1_rielaborata.xlsx")
-tabella2 = pd.read_excel("tabella_secondaria.xlsx")
+tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
 # --- FUNZIONE PRINCIPALE ---
 def calcola_fattore(peso):
@@ -27,7 +27,7 @@ def calcola_fattore(peso):
             "2-3 strati sottili",
             "3-4 strati sottili",
             "1-2 strati spessi",
-            "˃4 strati sottili o ˃ 2 strati spessi",
+            "˃4 strati sottili o ˃2 strati spessi",
             "Moltissimi strati"
         ])
     else:
@@ -60,18 +60,26 @@ def calcola_fattore(peso):
 
     # SEZIONE 5: CORRENTI
     st.subheader("Presenza di correnti")
-    corrente = st.radio("Correnti presenti:", [
-        "Esposto a corrente d'aria",
-        "In acqua corrente",
-        "In acqua stagnante"
-    ])
+    if not corpo_immerso:
+        corrente = st.radio("Correnti presenti:", [
+            "Esposto a corrente d'aria",
+            "/"
+        ])
     else:
-        corrente = "/"
+        corrente = st.radio("Correnti presenti:", [
+            "In acqua corrente",
+            "In acqua stagnante"
+        ])
 
     # PULSANTE DI AGGIORNAMENTO
     if st.button("Aggiorna fattore di correzione"):
-        ambiente = "Asciutto" if stato_corpo == "Asciutto" else "In acqua" if corpo_immerso else "Bagnato"
+        ambiente = {
+            "Asciutto": "Asciutto",
+            "Bagnato": "Bagnato",
+            "Immerso": "In acqua"
+        }[stato_corpo]
 
+        # FILTRO DATI
         riga = tabella1[
             ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
             ((tabella1['Vestiti'] == scelta_vestiti) | (tabella1['Vestiti'] == '/')) &
@@ -84,29 +92,34 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
+        fattore = riga.iloc[0]['Fattore']
+        situaz_speciale = pd.notna(riga.iloc[0]['situazioni special per tabella aggiuntiva'])
 
-
-        # Preparazione della frase descrittiva
+        # DESCRIZIONE
         descrizione = f"{stato_corpo.lower()}"
         if not corpo_immerso:
-            if scelta_vestiti == "nudo":
+            if scelta_vestiti.lower() == "nudo":
                 descrizione += ", nudo"
             else:
-                descrizione += f", con {scelta_vestiti} di indumenti"
-            descrizione += f", sotto una {scelta_coperte}"
+                descrizione += f", con {scelta_vestiti.lower()}"
+            descrizione += f", sotto {scelta_coperte.lower()}"
             descrizione += f", appoggiato su {superficie.lower()}"
         descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
 
-        # Stampa risultato
+        # RISULTATO
         if peso == 70 or not situaz_speciale:
             st.success(f"Fattore di correzione stimato: {fattore:.2f} ({descrizione})")
         else:
-            peso_colonne = [int(c) for c in tabella2.columns]
-            peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
-            indice_tab2 = tabella1.index.get_loc(riga.index[0])
+            try:
+                peso_colonne = [int(c) for c in tabella2.columns]
+                peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
+                indice_tab2 = tabella1.index.get_loc(riga.index[0])
 
-            if indice_tab2 < len(tabella2):
-                fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
-                st.info(f"Fattore corretto per {peso} kg: {fattore_peso:.2f} ({descrizione})")
-            else:
-                st.warning("Combinazione valida, ma non trovata nella tabella secondaria.")
+                if indice_tab2 < len(tabella2):
+                    fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
+                    st.info(f"Fattore corretto per {peso} kg: {fattore_peso:.2f} ({descrizione})")
+                else:
+                    st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
+            except Exception as e:
+                st.error(f"Errore nel calcolo con tabella secondaria: {e}")
+
