@@ -384,44 +384,23 @@ if mostra_parametri_aggiuntivi:
         if selettore != "Non valutata":
                 chiave_checkbox = f"{nome_parametro}_diversa"
 
-                # CSS + struttura flex per allineamento perfetto
-                st.markdown(f"""
-                    <style>
-                        .custom-row {{
-                            display: flex;
-                            align-items: center;
-                            gap: 4px;
-                            padding: 4px 0;
-                        }}
-                        .custom-label {{
-                            font-size: 0.8em;
-                            color: orange;
-                        }}
-                    </style>
-                    <div class="custom-row">
-                        <div id="{chiave_checkbox}_container"></div>
-                        <div class="custom-label">
-                            Il dato è stato valutato a un'orario diverso da quello prima indicato?
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
+                col1, col2 = st.columns([0.05, 0.95])
 
-                # Checkbox reale di Streamlit, separato
-                usa_orario_personalizzato = st.checkbox(
-                    label="",
-                    key=chiave_checkbox
-                )
+                with col1:
+                    st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)  # Spazio per allineare
+                    usa_orario_personalizzato = st.checkbox(
+                        label="",
+                        key=chiave_checkbox
+                    )
 
-                # JavaScript per spostare il checkbox accanto al testo
-                st.markdown(f"""
-                    <script>
-                        const checkbox = window.parent.document.querySelector('input[id$="{chiave_checkbox}"]');
-                        const target = window.parent.document.getElementById("{chiave_checkbox}_container");
-                        if (checkbox && target) {{
-                            target.appendChild(checkbox.closest('label'));
-                        }}
-                    </script>
-                """, unsafe_allow_html=True)
+                with col2:
+                    st.markdown(
+                        "<div style='font-size: 0.8em; color: orange; line-height: 1.6;'>"
+                        "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+
 
 
 
