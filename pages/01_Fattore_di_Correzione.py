@@ -114,7 +114,7 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        # DESCRIZIONE
+        # --- DESCRIZIONE ---
         descrizione = f"{stato_corpo.lower()}"
         if not corpo_immerso:
             if scelta_vestiti.lower() == "nudo":
@@ -125,35 +125,27 @@ def calcola_fattore(peso):
             descrizione += f", appoggiato su {superficie.lower()}"
         descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
 
-        # RISULTATO
+        # --- ESTRAZIONE FATTORE BASE ---
         try:
-            peso_colonne = [int(c) for c in tabella2.columns]
-            peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
-            indice_tab2 = tabella1.index.get_loc(riga.index[0])
+            fattore = riga.iloc[0]['Fattore']
 
-            if indice_tab2 < len(tabella2):
-                fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
-                st.success(f"Fattore di correzione stimato: {fattore_peso:.2f} ({descrizione})")
+            if fattore < 1.4 or peso == 70:
+                # Nessuna correzione necessaria
+                st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
             else:
-                st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
-        except Exception as e:
-            st.error(f"Errore nel calcolo con tabella secondaria: {e}")
+                # Correzione tramite tabella secondaria
+                colonna_70 = tabella2["70"]
+                indice_vicino = (colonna_70 - fattore).abs().idxmin()
+                riga_tab2 = tabella2.loc[indice_vicino]
 
-            
-            st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
-
-        else:
-            try:
-                peso_colonne = [int(c) for c in tabella2.columns]
-                peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
-                indice_tab2 = tabella1.index.get_loc(riga.index[0])
-
-                if indice_tab2 < len(tabella2):
-                    fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
-                    st.info(f"Fattore corretto per {peso} kg: {fattore_peso:.2f} ({descrizione})")
+                colonna_peso = str(peso)
+                if colonna_peso not in tabella2.columns:
+                    st.error(f"Nessuna colonna disponibile per il peso {peso} kg nella tabella secondaria.")
                 else:
-                    st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
-            except Exception as e:
-                st.error(f"Errore nel calcolo con tabella secondaria: {e}")
+                    fattore_corretto = riga_tab2[colonna_peso]
+                    st.info(f"Fattore corretto per {peso} kg: {fattore_corretto:.2f} ({descrizione})")
+        except Exception as e:
+            st.error(f"Errore nel calcolo: {e}")
+
 peso_input = st.slider("Peso del corpo (kg)", min_value=30, max_value=150, value=70, step=1)
 calcola_fattore(peso=peso_input)
