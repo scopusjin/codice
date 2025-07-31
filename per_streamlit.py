@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
+
+
 def arrotonda_quarto_dora(dt: datetime) -> datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
     minuti = (dt.minute + 7) // 15 * 15
@@ -19,6 +21,8 @@ def arrotonda_quarto_dora(dt: datetime) -> datetime:
     return dt.replace(minute=0, second=0, microsecond=0) + timedelta(minutes=minuti)
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 st.title("Stima epoca decesso")
+
+
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
 opzioni_macchie = {
     "Non ancora comparse": (0, 3),
@@ -471,7 +475,8 @@ def aggiorna_grafico():
     if minuti_isp not in [0, 15, 30, 45]:
          st.markdown("NB: Considerati i limiti di precisione dei metodi utilizzati, i risultati saranno arrotondati al quarto d’ora più vicino.")
         
-    data_ora_ispezione = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+    data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
 
     # --- Recupero Valori Input per Calcoli (Esistenti) ---
     Tr_val = input_rt
