@@ -90,7 +90,7 @@ def calcola_fattore(peso):
 
         if corpo_immerso:
             scelta_vestiti = "/"
-         if corpo_immerso or corpo_bagnato:
+        if corpo_immerso or corpo_bagnato:
             scelta_coperte = "/"
             superficie = "/"
 
