@@ -398,7 +398,7 @@ if mostra_parametri_aggiuntivi:
                 with col2:
                     # Testo con margin bottom per abbassarlo leggermente
                     st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 20px;'>"
+                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 2px;'>"
                         "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
                         "</div>",
                         unsafe_allow_html=True
