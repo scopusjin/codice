@@ -16,7 +16,7 @@ def calcola_fattore(peso):
         "Bagnato",
         "Immerso"
     ])
-    corpo_immerso = (stato_corpo == "Corpo immerso in acqua")
+    corpo_immerso = (stato_corpo == "Immerso")
 
     # SEZIONE 2: VESTITI
     st.subheader("Abbigliamento")
@@ -70,7 +70,7 @@ def calcola_fattore(peso):
 
     # PULSANTE DI AGGIORNAMENTO
     if st.button("Aggiorna fattore di correzione"):
-        ambiente = "Asciutto" if stato_corpo == "Corpo asciutto" else "In acqua" if corpo_immerso else "Bagnato"
+        ambiente = "Asciutto" if stato_corpo == "Asciutto" else "In acqua" if corpo_immerso else "Bagnato"
 
         riga = tabella1[
             ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
@@ -84,8 +84,7 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        fattore = riga.iloc[0]['Fattore']
-        situaz_speciale = pd.notna(riga.iloc[0]['situazioni special per tabella aggiuntiva'])
+
 
         # Preparazione della frase descrittiva
         descrizione = f"{stato_corpo.lower()}"
