@@ -1,0 +1,113 @@
+import streamlit as st
+import pandas as pd
+
+# --- CARICAMENTO DATI ---
+tabella1 = pd.read_excel("tabella1_rielaborata.xlsx")
+tabella2 = pd.read_excel("tabella_secondaria.xlsx")
+
+# --- FUNZIONE PRINCIPALE ---
+def calcola_fattore(peso):
+    st.header("Calcolo del Fattore di Correzione")
+
+    # SEZIONE 1: STATO DEL CORPO
+    st.subheader("Condizioni del corpo")
+    stato_corpo = st.radio("Seleziona lo stato del corpo:", [
+        "Asciutto",
+        "Bagnato",
+        "Immerso"
+    ])
+    corpo_immerso = (stato_corpo == "Corpo immerso in acqua")
+
+    # SEZIONE 2: VESTITI
+    st.subheader("Abbigliamento")
+    if not corpo_immerso:
+        scelta_vestiti = st.radio("Numero e tipo di vestiti al tronco:", [
+            "Nudo",
+            "1-2 strati sottili",
+            "2-3 strati sottili",
+            "3-4 strati sottili",
+            "1-2 strati spessi",
+            "˃4 strati sottili o ˃ 2 strati spessi",
+            "Moltissimi strati"
+        ])
+    else:
+        scelta_vestiti = "/"
+
+    # SEZIONE 3: COPERTE
+    st.subheader("Copertura")
+    if not corpo_immerso:
+        scelta_coperte = st.radio("Numero e tipo di coperte:", [
+            "Coperta leggera (es lenzuuolo)",
+            "Coperta di medio spessore (es copriletto)",
+            "Coperta pesante (es piuminino invernale)",
+            "Più coperte pesanti"
+        ])
+    else:
+        scelta_coperte = "/"
+
+    # SEZIONE 4: SUPERFICIE DI APPOGGIO
+    st.subheader("Superficie di appoggio")
+    if not corpo_immerso:
+        superficie = st.radio("Tipo di superficie:", [
+            "Pavimento di casa, terreno o prato asciutto, asfalto",
+            "Imbottitura pesante (es sacco a pelo isolante)",
+            "Materasso o tappeto spesso",
+            "Foglie umide (almeno 2 cm)",
+            "Foglie secche (almeno 2 cm)"
+        ])
+    else:
+        superficie = "/"
+
+    # SEZIONE 5: CORRENTI
+    st.subheader("Presenza di correnti")
+    corrente = st.radio("Correnti presenti:", [
+        "Esposto a corrente d'aria",
+        "In acqua corrente",
+        "In acqua stagnante"
+    ])
+    else:
+        corrente = "/"
+
+    # PULSANTE DI AGGIORNAMENTO
+    if st.button("Aggiorna fattore di correzione"):
+        ambiente = "Asciutto" if stato_corpo == "Corpo asciutto" else "In acqua" if corpo_immerso else "Bagnato"
+
+        riga = tabella1[
+            ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
+            ((tabella1['Vestiti'] == scelta_vestiti) | (tabella1['Vestiti'] == '/')) &
+            ((tabella1['Coperte'] == scelta_coperte) | (tabella1['Coperte'] == '/')) &
+            ((tabella1['Correnti'] == corrente) | (tabella1['Correnti'] == '/')) &
+            ((tabella1["Superficie d'appoggio"] == superficie) | (tabella1["Superficie d'appoggio"] == '/'))
+        ]
+
+        if riga.empty:
+            st.error("Nessuna combinazione trovata.")
+            return
+
+        fattore = riga.iloc[0]['Fattore']
+        situaz_speciale = pd.notna(riga.iloc[0]['situazioni special per tabella aggiuntiva'])
+
+        # Preparazione della frase descrittiva
+        descrizione = f"{stato_corpo.lower()}"
+        if not corpo_immerso:
+            if scelta_vestiti == "nudo":
+                descrizione += ", nudo"
+            else:
+                descrizione += f", con {scelta_vestiti} di indumenti"
+            descrizione += f", sotto una {scelta_coperte}"
+            descrizione += f", appoggiato su {superficie.lower()}"
+        descrizione += f", {'esposto a corrente' if 'corrente' in corrente else 'non esposto a correnti'}"
+
+        # Stampa risultato
+        if peso == 70 or not situaz_speciale:
+            st.success(f"Fattore di correzione stimato: {fattore:.2f} ({descrizione})")
+        else:
+            peso_colonne = [int(c) for c in tabella2.columns]
+            peso_usato = min(peso_colonne, key=lambda x: abs(x - peso))
+            indice_tab2 = tabella1.index.get_loc(riga.index[0])
+
+            if indice_tab2 < len(tabella2):
+                fattore_peso = tabella2.iloc[indice_tab2][str(peso_usato)]
+                st.info(f"Fattore corretto per {peso} kg: {fattore_peso:.2f} ({descrizione})")
+            else:
+                st.warning("Combinazione valida, ma non trovata nella tabella secondaria.")
