@@ -102,20 +102,35 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        descrizione = f"cadavere {stato_corpo.lower()}"
-        if scelta_vestiti != "/":
+        # --- DESCRIZIONE ---
+        descrizione = f"{stato_corpo.lower()}"
+        if not corpo_immerso:
             if scelta_vestiti.lower() == "nudo":
                 descrizione += ", nudo"
             else:
-                descrizione += f", con {scelta_vestiti.lower()} di indumenti"
-        if scelta_coperte != "/":
-            descrizione += f", sotto {scelta_coperte.lower()}"
-        if superficie != "/":
-            descrizione += f", appoggiato su {superficie.lower()}"
+                descrizione += f", con {scelta_vestiti.lower()}"
+
+            if scelta_coperte != "/":
+                descrizione += f", sotto {scelta_coperte.lower()}"
+
+            # Mappa superficie → tipo
+            mappa_superficie = {
+                "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie indifferente",
+                "Imbottitura pesante (es sacco a pelo isolante)": "superficie isolante",
+                "Materasso o tappeto spesso": "superficie isolante",
+                "Foglie umide (≥2 cm)": "superficie isolante",
+                "Foglie secche (≥2 cm)": "superficie isolante",
+                "Cemento, pietra, piastrelle": "superficie conduttiva"
+            }
+
+            tipo_superficie = mappa_superficie.get(superficie, "superficie non specificata")
+            descrizione += f", adagiato su {tipo_superficie}"
+
         if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
             descrizione += ", non esposto a correnti"
         else:
             descrizione += ", esposto a corrente"
+
 
 
         try:
