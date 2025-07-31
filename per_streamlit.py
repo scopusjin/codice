@@ -388,7 +388,7 @@ if mostra_parametri_aggiuntivi:
 
                 with col1:
                     # Checkbox con margine sopra per alzarlo
-                    st.markdown("<div style='margin-top: 2px;'>", unsafe_allow_html=True)
+                    st.markdown("<div style='margin-top: 10px;'>", unsafe_allow_html=True)
                     usa_orario_personalizzato = st.checkbox(
                         label="",
                         key=chiave_checkbox
@@ -398,7 +398,7 @@ if mostra_parametri_aggiuntivi:
                 with col2:
                     # Testo con margin bottom per abbassarlo leggermente
                     st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 2px;'>"
+                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 4px;'>"
                         "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
                         "</div>",
                         unsafe_allow_html=True
