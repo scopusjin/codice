@@ -471,8 +471,8 @@ def aggiorna_grafico():
      # if minuti_isp not in [0, 15, 30, 45]:
          # st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: I minuti dell'ora di ispezione legale devono essere arrotondati al quarto d'ora più vicino.</p>", unsafe_allow_html=True)
          # return
-    if minuti_isp not in [0, 15, 30, 45]:
-         st.markdown("NB: Considerati i limiti di precisione dei metodi utilizzati, i risultati saranno arrotondati al quarto d’ora più vicino.")
+
+        
         
     data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
     data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
@@ -925,6 +925,11 @@ def aggiorna_grafico():
             "</p>"
         ), unsafe_allow_html=True)
 
+    if minuti_isp not in [0, 15, 30, 45]:
+        st.markdown(
+    "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti di precisione dei metodi utilizzati, i risultati saranno arrotondati al quarto d’ora più vicino.</p>",
+    unsafe_allow_html=True
+            
     hensge_input_forniti = (
         input_rt is not None and
         input_ta is not None and
