@@ -365,7 +365,7 @@ if mostra_parametri_aggiuntivi:
 
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         st.markdown(
-            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 50px;'>{nome_parametro}</div>",
+            f"<div style='font-size: 0.88rem; font-weight: 500; margin-bottom: 0px;'>{nome_parametro}</div>",
             unsafe_allow_html=True
         )
 
@@ -398,7 +398,7 @@ if mostra_parametri_aggiuntivi:
                 with col2:
                     # Testo con margin bottom per abbassarlo leggermente
                     st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 30px;'>"
+                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
                         "Il dato è stato valutato a un'orario diverso da quello prima indicato?"
                         "</div>",
                         unsafe_allow_html=True
