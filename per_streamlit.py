@@ -1227,10 +1227,11 @@ def aggiorna_grafico():
 
         num_parametri_usati_intersezione = len(nomi_parametri_finali_per_riepilogo)
         if num_parametri_usati_intersezione == 1:
-            messaggio_parametri = f"La stima complessiva si basa sul seguente parametro: {nomi_parametri_finali_per_riepilogo[0]}."
+            p = nomi_parametri_finali_per_riepilogo[0]
+            messaggio_parametri = f"La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}."
         elif num_parametri_usati_intersezione > 1:
-            parametri_usati_str = ', '.join(nomi_parametri_finali_per_riepilogo[:-1])
-            parametri_usati_str += f" e {nomi_parametri_finali_per_riepilogo[-1]}"
+            parametri_usati_str = ', '.join(p[0].lower() + p[1:] for p in nomi_parametri_finali_per_riepilogo[:-1])
+            parametri_usati_str += f" e {nomi_parametri_finali_per_riepilogo[-1][0].lower() + nomi_parametri_finali_per_riepilogo[-1][1:]}"
             messaggio_parametri = f"La stima complessiva si basa sui seguenti parametri: {parametri_usati_str}."
         else:
             messaggio_parametri = None
