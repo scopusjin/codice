@@ -127,3 +127,6 @@ def calcola_fattore(peso):
                     st.warning("Combinazione trovata, ma non presente nella tabella secondaria.")
             except Exception as e:
                 st.error(f"Errore nel calcolo con tabella secondaria: {e}")
+
+peso_input = st.slider("Peso del corpo (kg)", min_value=30, max_value=150, value=70, step=1)
+calcola_fattore(peso=peso_input)
