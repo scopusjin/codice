@@ -859,9 +859,7 @@ def aggiorna_grafico():
                 ax.hlines(i, s, e, color='steelblue', linewidth=6)
 
         if visualizza_hensge_grafico:
-            idx = next(
-                (i for i, label in enumerate(parametri_grafico) if label.startswith("Raffreddamento cadaverico")),
-                None
+            idx = parametri_grafico.index(label_hensge) if label_hensge in parametri_grafico else None
             )
             if idx is not None:
                 if mt_ore is not None and not np.isnan(mt_ore):
