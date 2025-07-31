@@ -52,15 +52,23 @@ def calcola_fattore(peso):
 
         st.markdown("**Copertura**")
         if not (corpo_immerso or corpo_bagnato):
-            scelta_coperte = st.radio("", [
-                "Nessuna coperta",
-                "Coperta leggera (es lenzuolo)",
-                "Coperta di medio spessore (es copriletto)",
-                "Coperta pesante (es piuminino invernale)",
-                "Più coperte pesanti"
-            ], label_visibility="collapsed")
+            if scelta_vestiti == "Moltissimi strati":
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Più coperte pesanti"
+                ]
+            else:
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Coperta leggera (es lenzuolo)",
+                    "Coperta di medio spessore (es copriletto)",
+                    "Coperta pesante (es piuminino invernale)",
+                    "Più coperte pesanti"
+                ]
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
         else:
             scelta_coperte = "/"
+
 
     with col3:
         st.markdown("**Superficie di appoggio**")
