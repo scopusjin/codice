@@ -49,7 +49,7 @@ def calcola_fattore(peso):
         if not corpo_immerso:
             corrente = st.radio("Correnti presenti:", [
                 "Esposto a corrente d'aria",
-                "/"
+                "Nessuna corrente"
             ])
         else:
             corrente = st.radio("Correnti presenti:", [
