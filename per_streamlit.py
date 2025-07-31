@@ -388,7 +388,7 @@ if mostra_parametri_aggiuntivi:
 
                 with col1:
                     # Checkbox con margine sopra per alzarlo
-                    st.markdown("<div style='margin-top: 6px;'>", unsafe_allow_html=True)
+                    st.markdown("<div style='margin-top: 2px;'>", unsafe_allow_html=True)
                     usa_orario_personalizzato = st.checkbox(
                         label="",
                         key=chiave_checkbox
