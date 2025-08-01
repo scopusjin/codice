@@ -103,7 +103,7 @@ def calcola_fattore(peso):
 
     # COSTRUISCI LA RIGA
     valori = {
-        "Condizione": stato_corpo.lower(),
+        "Ambiente": stato_corpo.lower(),
         "Vestiti": scelta_vestiti,
         "Coperte": scelta_coperte,
         "Superficie": superficie,
@@ -111,7 +111,7 @@ def calcola_fattore(peso):
     }
 
     riga = tabella1[
-        (tabella1["Condizione"] == valori["Condizione"]) &
+        (tabella1["Ambiente"] == valori["Ambiente"]) &
         (tabella1["Vestiti"] == valori["Vestiti"]) &
         (tabella1["Coperte"] == valori["Coperte"]) &
         (tabella1["Superficie"] == valori["Superficie"]) &
