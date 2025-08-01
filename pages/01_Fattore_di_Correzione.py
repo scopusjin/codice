@@ -50,7 +50,7 @@ def calcola_fattore(peso):
                     "Nessuna coperta",
                     "Coperta leggera (es lenzuolo)",
                     "Coperta di medio spessore (es copriletto)",
-                    "Coperta pesante (es piuminino invernale)",
+                    "Coperta pesante (es piumino invernale)",
                     "Più coperte pesanti"
                 ]
             scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
