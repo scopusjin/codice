@@ -138,11 +138,11 @@ def calcola_fattore(peso):
 
     if superficie != "/":
         mappa_superficie = {
-            "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie indifferente",
-            "Imbottitura pesante (es sacco a pelo isolante)": "superficie isolante",
-            "Materasso o tappeto spesso": "superficie isolante",
-            "Foglie umide (≥2 cm)": "superficie isolante",
-            "Foglie secche (≥2 cm)": "superficie isolante"
+            "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
+            "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
+            "Materasso o tappeto spesso": "superficie termicamente isolante",
+            "Foglie umide (≥2 cm)": "superficie termicamente isolante",
+            "Foglie secche (≥2 cm)": "superficie termicamente isolante"
         }
         tipo_superficie = mappa_superficie.get(superficie, "")
         if tipo_superficie:
