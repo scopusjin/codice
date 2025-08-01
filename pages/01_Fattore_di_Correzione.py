@@ -107,15 +107,15 @@ def calcola_fattore(peso):
         "Vestiti": scelta_vestiti,
         "Coperte": scelta_coperte,
         "Superficie": superficie,
-        "Corrente": corrente
+        "Correnti": corrente
     }
 
     riga = tabella1[
         (tabella1["Ambiente"] == valori["Ambiente"]) &
         (tabella1["Vestiti"] == valori["Vestiti"]) &
         (tabella1["Coperte"] == valori["Coperte"]) &
-        (tabella1["Superficie"] == valori["Superficie"]) &
-        (tabella1["Corrente"] == valori["Corrente"])
+        (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
+        (tabella1["Correnti"] == valori["Correnti"])
     ]
 
     if riga.empty:
