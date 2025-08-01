@@ -304,7 +304,7 @@ with st.container():
         with subcol2:
             selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    col1, col2, col3, col4, col5 = st.columns([1, 0.3, 1, 0.3, 1], gap="small")
+    col1, col2, col3, col4, col5 = st.columns([1, 0.3, 1, 0.1, 1], gap="small")
 
     with col1:
         subcol1, subcol2 = st.columns([1, 1.5], gap="small")
@@ -316,7 +316,7 @@ with st.container():
             )
 
     with col3:
-        subcol1, subcol2 = st.columns([1.9, 1.5], gap="small")
+        subcol1, subcol2 = st.columns([1.9, 1.7], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
