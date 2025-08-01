@@ -298,14 +298,6 @@ with st.container():
                 input_t0 = st.number_input(
                     "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
                 )
-        with col3:
-            subcol1, subcol2 = st.columns([1, 1.4])
-            with subcol1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
-            with subcol2:
-                input_cf = st.number_input(
-                    "Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed"
-                )
 
         with col4:
                 subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
