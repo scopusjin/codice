@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Tabelle di riferimento medico-legale")
+st.title("Tabelle di riferimento")
 
 st.markdown("## Ipostasi (Mallach)")
 st.image(
