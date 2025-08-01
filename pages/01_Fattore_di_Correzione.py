@@ -59,11 +59,13 @@ def calcola_fattore(peso):
 
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
         if not corpo_immerso:
-            if scelta_vestiti in [
-                "2-3 strati sottili", "3-4 strati sottili",
-                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
-                "Moltissimi strati"
-            ] or (scelta_coperte != "Nessuna coperta"):
+            if stato_corpo == "Asciutto" and (
+                scelta_vestiti in [
+                    "2-3 strati sottili", "3-4 strati sottili",
+                    "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
+                    "Moltissimi strati"
+                ] or scelta_coperte != "Nessuna coperta"
+            ):
                 corrente = "/"
             else:
                 corrente = st.radio("", [
