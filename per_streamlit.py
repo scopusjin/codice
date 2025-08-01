@@ -319,6 +319,7 @@ with st.container():
                         step=0.1,
                         value=1.0,
                         label_visibility="collapsed"
+                        key="fattore_correzione_input"
                     )
                 with subcol3:
                     perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
