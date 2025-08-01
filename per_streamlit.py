@@ -288,10 +288,10 @@ with st.container():
         <div style="margin-top:10px;"></div>
         """, unsafe_allow_html=True)
 
-        col1, col2, col3, col4 = st.columns([2, 1, 1.4, 1.5])
+        col1, col2, col3, col4 = st.columns([2.2, 1, 1.4, 1.5])
         
         with col1:
-            subcol1, subcol2 = st.columns([1, 1.4])
+            subcol1, subcol2 = st.columns([1.3, 1.4])
             with subcol1:
                 st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             with subcol2:
