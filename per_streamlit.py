@@ -304,7 +304,7 @@ with st.container():
         with subcol2:
             selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1.3, 0.2, 0.9], gap="small")
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1.1, 0.2, 0.9], gap="small")
 
     with col1:
         subcol1, subcol2 = st.columns([1, 1.5], gap="small")
