@@ -31,7 +31,7 @@ def calcola_fattore(peso):
                 "2-3 strati sottili",
                 "3-4 strati sottili",
                 "1-2 strati spessi",
-                "˃4 strati sottili o ˃2 strati spessi",
+                "˃4 strati sottili o ˃2 spessi",
                 "Moltissimi strati"
             ], label_visibility="collapsed")
         else:
