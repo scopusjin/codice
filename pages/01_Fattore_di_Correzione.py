@@ -83,23 +83,25 @@ def calcola_fattore(peso):
     with col3:
         if not (corpo_immerso or corpo_bagnato):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
-            if scelta_vestiti == "Nudo":
-                opzioni_superficie = [
-                    "Pavimento di casa, terreno o prato asciutto, asfalto",
-                    "Imbottitura pesante (es sacco a pelo isolante)",
-                    "Materasso o tappeto spesso",
+
+            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
+
+            opzioni_superficie = [
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Imbottitura pesante (es sacco a pelo isolante)",
+                "Materasso o tappeto spesso"
+            ]
+
+            if mostra_foglie:
+                opzioni_superficie += [
                     "Foglie umide (≥2 cm)",
                     "Foglie secche (≥2 cm)"
                 ]
-            else:
-                opzioni_superficie = [
-                    "Pavimento di casa, terreno o prato asciutto, asfalto",
-                    "Imbottitura pesante (es sacco a pelo isolante)",
-                    "Materasso o tappeto spesso"
-                ]
+
             superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
         else:
             superficie = "/"
+
 
     # COSTRUISCI LA RIGA
     valori = {
