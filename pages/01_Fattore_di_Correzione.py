@@ -126,33 +126,33 @@ def calcola_fattore(peso):
             st.error("Nessuna combinazione trovata.")
             return
 
-        # --- DESCRIZIONE ---
         descrizione = f"cadavere {stato_corpo.lower()}"
         if not corpo_immerso:
-            if scelta_vestiti.lower() == "nudo":
-                descrizione += ", nudo"
-            else:
+            if scelta_vestiti.lower() != "nudo":
                 descrizione += f", con {scelta_vestiti.lower()} di indumenti"
-            if scelta_coperte.lower() != "nessuna coperta":
+            else:
+                descrizione += ", nudo"
+
+            if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta":
                 descrizione += f", sotto {scelta_coperte.lower()}"
 
-            # Mappa superficie → tipo semplificato
-            mappa_superficie = {
-                "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
-                "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
-                "Materasso o tappeto spesso": "superficie termicamente isolante",
-                "Foglie umide (≥2 cm)": "superficie termicamente isolante",
-                "Foglie secche (≥2 cm)": "superficie termicamente isolante",
-                "Cemento, pietra, piastrelle": "superficie termicamente conduttiva"
-            }
-            if superficie in mappa_superficie:
-                descrizione += f", adagiato su {mappa_superficie[superficie]}"
+            # Superficie
+            if superficie != "/":
+                mappa_superficie = {
+                    "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie indifferente",
+                    "Imbottitura pesante (es sacco a pelo isolante)": "superficie isolante",
+                    "Materasso o tappeto spesso": "superficie isolante",
+                    "Foglie umide (≥2 cm)": "superficie isolante",
+                    "Foglie secche (≥2 cm)": "superficie isolante"
+                }
+                descrizione += f", adagiato su {mappa_superficie.get(superficie)}"
 
-        if corrente != "/":
-            if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
-                descrizione += ", non esposto a correnti d'aria"
+        # Corrente
+        if corrente != "/" and not corpo_immerso:
+            if "nessuna" in corrente.lower():
+                descrizione += ", non esposto a correnti"
             else:
-                descrizione += ", esposto a corrente d'aria"
+                descrizione += ", esposto a corrente"
 
 
 
