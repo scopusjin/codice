@@ -288,7 +288,7 @@ with st.container():
         <div style="margin-top:10px;"></div>
         """, unsafe_allow_html=True)
 
-        col1, col2, col3, col4 = st.columns([2.2, 1, 0.2, 1.5])
+        col1, col2, col3 = st.columns([2.2, 1, 1.5])
         
         with col1:
             subcol1, subcol2 = st.columns([1.3, 1.4])
@@ -299,7 +299,7 @@ with st.container():
                     "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
                 )
 
-        with col4:
+        with col3:
                 subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
                 with subcol1:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
