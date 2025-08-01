@@ -18,12 +18,12 @@ def calcola_fattore(peso):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("**Condizioni del corpo**")
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
 
-        st.markdown("**Abbigliamento**")
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
         if not corpo_immerso:
             scelta_vestiti = st.radio("", [
                 "Nudo",
@@ -38,7 +38,26 @@ def calcola_fattore(peso):
             scelta_vestiti = "/"
 
     with col2:
-        st.markdown("**Copertura**")
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+        if not corpo_immerso:
+            if scelta_vestiti in [
+                "2-3 strati sottili", "3-4 strati sottili",
+                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ] or (not (corpo_immerso or corpo_bagnato) and scelta_coperte != "Nessuna coperta"):
+                corrente = "/"
+            else:
+                corrente = st.radio("", [
+                    "Esposto a corrente d'aria",
+                    "Nessuna corrente"
+                ], label_visibility="collapsed")
+        else:
+            corrente = st.radio("", [
+                "In acqua corrente",
+                "In acqua stagnante"
+            ], label_visibility="collapsed")
+
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
         if not (corpo_immerso or corpo_bagnato):
             if scelta_vestiti == "Moltissimi strati":
                 opzioni_coperte = [
@@ -57,31 +76,8 @@ def calcola_fattore(peso):
         else:
             scelta_coperte = "/"
 
-        st.markdown("**Presenza di correnti**")
-        vestiti_corrente_non_rilevante = scelta_vestiti in [
-            "2-3 strati sottili",
-            "3-4 strati sottili",
-            "1-2 strati spessi",
-            "˃4 strati sottili o ˃2 strati spessi",
-            "Moltissimi strati"
-        ]
-        coperta_presente = scelta_coperte not in ["/", "Nessuna coperta"]
-
-        if corpo_immerso:
-            corrente = st.radio("Correnti presenti:", [
-                "In acqua corrente",
-                "In acqua stagnante"
-            ])
-        elif vestiti_corrente_non_rilevante or coperta_presente:
-            corrente = "/"
-        else:
-            corrente = st.radio("", [
-                "Esposto a corrente d'aria",
-                "Nessuna corrente"
-            ], label_visibility="collapsed")
-
     with col3:
-        st.markdown("**Superficie di appoggio**")
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
         if not (corpo_immerso or corpo_bagnato):
             if scelta_vestiti == "Nudo":
                 opzioni_superficie = [
@@ -100,7 +96,6 @@ def calcola_fattore(peso):
             superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
         else:
             superficie = "/"
-
 
         calcola = st.button("Aggiorna fattore di correzione")
 
