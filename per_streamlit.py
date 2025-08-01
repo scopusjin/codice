@@ -318,7 +318,7 @@ with st.container():
                         max_value=5.5,
                         step=0.1,
                         value=1.0,
-                        label_visibility="collapsed"
+                        label_visibility="collapsed",
                         key="fattore_correzione_input"
                     )
                 with subcol3:
