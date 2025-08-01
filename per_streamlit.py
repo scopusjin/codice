@@ -281,6 +281,36 @@ with st.container():
     with col2:
         input_ora_rilievo = st.text_input("Ora:", value='00:00', label_visibility="collapsed")
 
+    with st.container():
+        st.markdown("""
+        <h5 style="margin:0; padding:0;">Dati stimati</h5>
+        <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+        <div style="margin-top:10px;"></div>
+        """, unsafe_allow_html=True)
+
+        col1, col2, col3 = st.columns([1, 1.4, 1.5])
+        
+        with col1:
+            subcol1, subcol2 = st.columns([1, 1.4])
+            with subcol1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+            with subcol2:
+                input_t0 = st.number_input(
+                    "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
+                )
+        with col2:
+            subcol1, subcol2 = st.columns([1, 1.4])
+            with subcol1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
+            with subcol2:
+                input_cf = st.number_input(
+                    "Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed"
+                )
+
+        with col3:
+            perfeziona_cf = st.button("Perfeziona")
+
+
 with st.container():
     st.markdown("""
     <h5 style="margin:0; padding:0;">Dati misurati</h5>
@@ -333,32 +363,6 @@ with st.container():
                 "Peso corporeo (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed"
             )
 
-    with st.container():
-        st.markdown("""
-        <h5 style="margin:0; padding:0;">Dati stimati</h5>
-        <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
-        <div style="margin-top:10px;"></div>
-        """, unsafe_allow_html=True)
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            subcol1, subcol2 = st.columns([1, 1.4])
-            with subcol1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
-            with subcol2:
-                input_cf = st.number_input(
-                    "Fattore di correzione:", min_value=0.2, max_value=5.5, step=0.1, value=1.0, label_visibility="collapsed"
-                )
-
-        with col2:
-            subcol1, subcol2 = st.columns([1, 1.4])
-            with subcol1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            with subcol2:
-                input_t0 = st.number_input(
-                    "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
-                )
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
