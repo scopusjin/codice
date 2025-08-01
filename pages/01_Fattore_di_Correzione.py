@@ -140,9 +140,13 @@ def calcola_fattore(peso):
     else:
         descrizione.append("cadavere asciutto")
 
+
     # Indumenti: solo se corpo asciutto o bagnato
     if scelta_vestiti != "/" and stato_corpo != "Immerso":
-        descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
+        if scelta_vestiti.lower() == "nudo":
+            descrizione.append("nudo")
+        else:
+            descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
 
     # Coperte: solo se corpo asciutto
     if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta" and stato_corpo == "Asciutto":
