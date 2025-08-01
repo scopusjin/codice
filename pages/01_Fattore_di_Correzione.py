@@ -261,20 +261,25 @@ def calcola_fattore(peso):
         return
 
     descrizione = []
-    if stato_corpo != "Asciutto":
-        descrizione.append(f"cadavere {stato_corpo.lower()}")
+
+    # Corpo: asciutto, bagnato o immerso
+    if stato_corpo == "Immerso":
+        descrizione.append("cadavere immerso")
+    elif stato_corpo == "Bagnato":
+        descrizione.append("cadavere bagnato")
     else:
         descrizione.append("cadavere asciutto")
 
-    if scelta_vestiti != "/":
+    # Indumenti: solo se corpo asciutto o bagnato
+    if scelta_vestiti != "/" and stato_corpo != "Immerso":
         descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
 
-    if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta":
+    # Coperte: solo se corpo asciutto
+    if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta" and stato_corpo == "Asciutto":
         descrizione.append(f"sotto {scelta_coperte.lower()}")
-    elif scelta_coperte == "/":
-        descrizione.append("sotto /")
 
-    if superficie != "/":
+    # Superficie: solo se corpo asciutto
+    if superficie != "/" and stato_corpo == "Asciutto":
         mappa_superficie = {
             "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
             "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
@@ -285,17 +290,15 @@ def calcola_fattore(peso):
         tipo_superficie = mappa_superficie.get(superficie, "")
         if tipo_superficie:
             descrizione.append(f"adagiato su {tipo_superficie}")
-    else:
-        descrizione.append("adagiato su /")
 
+    # Correnti: evita 'esposto a in acqua...'
     if corrente != "/":
-        descrizione.append(f"esposto a {corrente.lower()}")
+        if corrente.startswith("In acqua"):
+            descrizione.append(corrente.lower())
+        else:
+            descrizione.append(f"esposto a {corrente.lower()}")
 
     descrizione = ", ".join(descrizione)
-
-
-
-
 
 
 
