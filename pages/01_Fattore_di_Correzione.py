@@ -57,13 +57,15 @@ def calcola_fattore(peso):
         else:
             scelta_coperte = "/"
 
-        mostra_corrente = not corpo_immerso and not (
-            scelta_vestiti in [
-                "2-3 strati sottili", "3-4 strati sottili",
-                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
-                "Moltissimi strati"
-            ] or (not (corpo_immerso or corpo_bagnato) and scelta_coperte != "Nessuna coperta")
-        )
+        mostra_corrente = False
+        if not corpo_immerso:
+            if stato_corpo == "Bagnato":
+                mostra_corrente = True
+            elif stato_corpo == "Asciutto":
+                # Solo alcuni casi di asciutto permettono correnti
+                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
+                    mostra_corrente = True
+
 
         if mostra_corrente:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
