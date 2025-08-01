@@ -117,9 +117,9 @@ def calcola_fattore(peso):
                 descrizione += ", nudo"
             else:
                 descrizione += f", con {scelta_vestiti.lower()} di indumenti"
-
-            if scelta_coperte != "/":
+            if scelta_coperte.lower() != "nessuna coperta":
                 descrizione += f", sotto {scelta_coperte.lower()}"
+
 
             # Mappa superficie → tipo
             mappa_superficie = {
