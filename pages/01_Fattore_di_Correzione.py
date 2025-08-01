@@ -96,7 +96,8 @@ def calcola_fattore(peso):
             opzioni_superficie = [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante)",
-                "Materasso o tappeto spesso"
+                "Materasso o tappeto spesso",
+                "Cemento, pietra, piastrelle"
             ]
 
             if mostra_foglie:
