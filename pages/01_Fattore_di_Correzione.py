@@ -106,7 +106,7 @@ def calcola_fattore(peso):
         "Ambiente": stato_corpo.lower(),
         "Vestiti": scelta_vestiti,
         "Coperte": scelta_coperte,
-        "Superficie": superficie,
+        "Superficie d'appoggio": superficie,
         "Correnti": corrente
     }
 
