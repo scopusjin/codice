@@ -1,4 +1,8 @@
-References:
+import streamlit as st
+
+st.title("References")
+
+st.markdown("References:
 Henssge, C., and B. Madea. "Estimation of the time since death in the early post-mortem period." Forensic science international 144.2 (2004): 167-175.
 
 @article{henssge2004estimation,
@@ -24,3 +28,5 @@ year={1981}
 }
 
 pHp-code written and implemented 2005 by Wolf Schweitzer, MD, Institute of Legal Medicine, University of Zuerich, Switzerland - method described by Henssge C (2002) Todeszeitbestimmung an Leichen; Rechtsmedizin 12:112-131
+.")
+
