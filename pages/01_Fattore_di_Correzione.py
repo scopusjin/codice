@@ -131,7 +131,7 @@ def calcola_fattore(peso):
                 "Cemento, pietra, piastrelle": "superficie termicamente conduttiva"
             }
             if superficie in mappa_superficie:
-                descrizione += f", adagiato su superficie {mappa_superficie[superficie]}"
+                descrizione += f", adagiato su {mappa_superficie[superficie]}"
 
 
 
