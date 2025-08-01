@@ -308,7 +308,21 @@ with st.container():
                 )
 
         with col4:
-            perfeziona_cf = st.button("Perfeziona FC")
+                subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
+                with subcol1:
+                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
+                with subcol2:
+                    input_cf = st.number_input(
+                        "Fattore di correzione:",
+                        min_value=0.2,
+                        max_value=5.5,
+                        step=0.1,
+                        value=1.0,
+                        label_visibility="collapsed"
+                    )
+                with subcol3:
+                    perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
+
 
 
 with st.container():
