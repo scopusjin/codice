@@ -316,7 +316,7 @@ with st.container():
             )
 
     with col3:
-        subcol1, subcol2 = st.columns([1.9, 2], gap="small")
+        subcol1, subcol2 = st.columns([1.8, 2], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
         with subcol2:
@@ -325,7 +325,7 @@ with st.container():
             )
 
     with col5:
-        subcol1, subcol2 = st.columns([1, 1.7], gap="small")
+        subcol1, subcol2 = st.columns([1, 2], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg):</div>", unsafe_allow_html=True)
         with subcol2:
