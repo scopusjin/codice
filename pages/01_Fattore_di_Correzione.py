@@ -38,25 +38,6 @@ def calcola_fattore(peso):
             scelta_vestiti = "/"
 
     with col2:
-        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-        if not corpo_immerso:
-            if scelta_vestiti in [
-                "2-3 strati sottili", "3-4 strati sottili",
-                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
-                "Moltissimi strati"
-            ] or (not (corpo_immerso or corpo_bagnato) and scelta_coperte != "Nessuna coperta"):
-                corrente = "/"
-            else:
-                corrente = st.radio("", [
-                    "Esposto a corrente d'aria",
-                    "Nessuna corrente"
-                ], label_visibility="collapsed")
-        else:
-            corrente = st.radio("", [
-                "In acqua corrente",
-                "In acqua stagnante"
-            ], label_visibility="collapsed")
-
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
         if not (corpo_immerso or corpo_bagnato):
             if scelta_vestiti == "Moltissimi strati":
@@ -75,6 +56,25 @@ def calcola_fattore(peso):
             scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
         else:
             scelta_coperte = "/"
+
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+        if not corpo_immerso:
+            if scelta_vestiti in [
+                "2-3 strati sottili", "3-4 strati sottili",
+                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ] or (scelta_coperte != "Nessuna coperta"):
+                corrente = "/"
+            else:
+                corrente = st.radio("", [
+                    "Esposto a corrente d'aria",
+                    "Nessuna corrente"
+                ], label_visibility="collapsed")
+        else:
+            corrente = st.radio("", [
+                "In acqua corrente",
+                "In acqua stagnante"
+            ], label_visibility="collapsed")
 
     with col3:
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
