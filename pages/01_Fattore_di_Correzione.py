@@ -150,9 +150,9 @@ def calcola_fattore(peso):
         # Corrente
         if corrente != "/" and not corpo_immerso:
             if "nessuna" in corrente.lower():
-                descrizione += ", non esposto a correnti"
+                descrizione += ", non esposto a correnti d'aria"
             else:
-                descrizione += ", esposto a corrente"
+                descrizione += ", esposto a corrente d'aria"
 
 
 
