@@ -155,7 +155,6 @@ def calcola_fattore(peso):
 
     descrizione = ", ".join(descrizione)
 
-    descrizione = ", ".join(descrizione)
 
     try:
         fattore = riga.iloc[0]['Fattore']
