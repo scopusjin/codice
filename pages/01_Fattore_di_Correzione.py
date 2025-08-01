@@ -180,7 +180,7 @@ def calcola_fattore(peso):
         else:
             descrizione.append(f"esposto a {corrente_lower}")
 
-
+    descrizione = ", ".join(descrizione)
 
 
     try:
