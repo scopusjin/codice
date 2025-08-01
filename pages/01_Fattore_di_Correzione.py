@@ -129,6 +129,137 @@ def calcola_fattore(peso):
         st.error("⚠️ Nessuna combinazione trovata nella tabella per i parametri selezionati.")
         return
 
+import streamlit as st
+import pandas as pd
+
+# --- CARICAMENTO DATI ---
+tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
+
+righe_non_valide = tabella1[tabella1['Fattore'].isna()]
+if not righe_non_valide.empty:
+    st.warning(f"⚠️ {len(righe_non_valide)} riga/e nella tabella 'Fattore' non contengono valori numerici validi.")
+    st.dataframe(righe_non_valide)
+
+tabella2 = pd.read_excel("tabella secondaria.xlsx")
+
+def calcola_fattore(peso):
+    st.header("Calcolo del Fattore di Correzione")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
+        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
+        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_bagnato = (stato_corpo == "Bagnato")
+
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
+        if not corpo_immerso:
+            scelta_vestiti = st.radio("", [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ], label_visibility="collapsed")
+        else:
+            scelta_vestiti = "/"
+
+    with col2:
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            if scelta_vestiti == "Moltissimi strati":
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Più coperte pesanti"
+                ]
+            else:
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Coperta leggera (es lenzuolo)",
+                    "Coperta di medio spessore (es copriletto)",
+                    "Coperta pesante (es piuminino invernale)",
+                    "Più coperte pesanti"
+                ]
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
+        else:
+            scelta_coperte = "/"
+
+        mostra_corrente = not corpo_immerso and not (
+            scelta_vestiti in [
+                "2-3 strati sottili", "3-4 strati sottili",
+                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ] or (not (corpo_immerso or corpo_bagnato) and scelta_coperte != "Nessuna coperta")
+        )
+
+        if mostra_corrente:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio(
+                "",
+                ["Esposto a corrente d'aria", "Nessuna corrente"],
+                index=1,  # predefinito: Nessuna corrente
+                label_visibility="collapsed"
+            )
+        elif corpo_immerso:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio(
+                "",
+                ["In acqua corrente", "In acqua stagnante"],
+                index=1,  # predefinito: In acqua stagnante
+                label_visibility="collapsed"
+            )
+        else:
+            corrente = "/"
+
+
+    with col3:
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
+
+            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
+
+            opzioni_superficie = [
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Imbottitura pesante (es sacco a pelo isolante)",
+                "Materasso o tappeto spesso"
+            ]
+
+            if mostra_foglie:
+                opzioni_superficie += [
+                    "Foglie umide (≥2 cm)",
+                    "Foglie secche (≥2 cm)"
+                ]
+
+            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
+        else:
+            superficie = "/"
+
+
+    # COSTRUISCI LA RIGA
+    valori = {
+        "Ambiente": stato_corpo,
+        "Vestiti": scelta_vestiti,
+        "Coperte": scelta_coperte,
+        "Superficie d'appoggio": superficie,
+        "Correnti": corrente
+    }
+
+    riga = tabella1[
+        (tabella1["Ambiente"] == valori["Ambiente"]) &
+        (tabella1["Vestiti"] == valori["Vestiti"]) &
+        (tabella1["Coperte"] == valori["Coperte"]) &
+        (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
+        (tabella1["Correnti"] == valori["Correnti"])
+    ]
+
+    if riga.empty:
+        st.error("⚠️ Nessuna combinazione trovata nella tabella per i parametri selezionati.")
+        return
+
     descrizione = []
     if stato_corpo != "Asciutto":
         descrizione.append(f"cadavere {stato_corpo.lower()}")
@@ -161,6 +292,11 @@ def calcola_fattore(peso):
         descrizione.append(f"esposto a {corrente.lower()}")
 
     descrizione = ", ".join(descrizione)
+
+
+
+
+
 
 
     try:
