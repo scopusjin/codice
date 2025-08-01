@@ -38,18 +38,6 @@ def calcola_fattore(peso):
             scelta_vestiti = "/"
 
     with col2:
-        st.markdown("**Presenza di correnti**")
-        if not corpo_immerso:
-            corrente = st.radio("", [
-                "Esposto a corrente d'aria",
-                "Nessuna corrente"
-            ], label_visibility="collapsed")
-        else:
-            corrente = st.radio("", [
-                "In acqua corrente",
-                "In acqua stagnante"
-            ], label_visibility="collapsed")
-
         st.markdown("**Copertura**")
         if not (corpo_immerso or corpo_bagnato):
             if scelta_vestiti == "Moltissimi strati":
@@ -69,6 +57,28 @@ def calcola_fattore(peso):
         else:
             scelta_coperte = "/"
 
+        st.markdown("**Presenza di correnti**")
+        vestiti_corrente_non_rilevante = scelta_vestiti in [
+            "2-3 strati sottili",
+            "3-4 strati sottili",
+            "1-2 strati spessi",
+            "˃4 strati sottili o ˃2 strati spessi",
+            "Moltissimi strati"
+        ]
+        coperta_presente = scelta_coperte not in ["/", "Nessuna coperta"]
+
+        if corpo_immerso:
+            corrente = st.radio("Correnti presenti:", [
+                "In acqua corrente",
+                "In acqua stagnante"
+            ])
+        elif vestiti_corrente_non_rilevante or coperta_presente:
+            corrente = "/"
+        else:
+            corrente = st.radio("", [
+                "Esposto a corrente d'aria",
+                "Nessuna corrente"
+            ], label_visibility="collapsed")
 
     with col3:
         st.markdown("**Superficie di appoggio**")
@@ -82,6 +92,7 @@ def calcola_fattore(peso):
             ], label_visibility="collapsed")
         else:
             superficie = "/"
+
 
         calcola = st.button("Aggiorna fattore di correzione")
 
@@ -120,8 +131,7 @@ def calcola_fattore(peso):
             if scelta_coperte.lower() != "nessuna coperta":
                 descrizione += f", sotto {scelta_coperte.lower()}"
 
-
-            # Mappa superficie → tipo
+            # Mappa superficie → tipo semplificato
             mappa_superficie = {
                 "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
                 "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
@@ -133,12 +143,11 @@ def calcola_fattore(peso):
             if superficie in mappa_superficie:
                 descrizione += f", adagiato su {mappa_superficie[superficie]}"
 
-
-
-        if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
-            descrizione += ", non esposto a correnti d'aria"
-        else:
-            descrizione += ", esposto a corrente d'aria"
+        if corrente != "/":
+            if "nessuna" in corrente.lower() or "stagnante" in corrente.lower():
+                descrizione += ", non esposto a correnti d'aria"
+            else:
+                descrizione += ", esposto a corrente d'aria"
 
 
 
