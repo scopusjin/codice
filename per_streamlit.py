@@ -291,14 +291,14 @@ with st.container():
     col1, col2, col3 = st.columns([1, 0.5, 1], gap="small")
 
     with col1:
-        subcol1, subcol2 = st.columns([1, 2], gap="small")
+        subcol1, subcol2 = st.columns([0.8, 2], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi:</div>", unsafe_allow_html=True)
         with subcol2:
             selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
 
-    with col2:
-        subcol1, subcol2 = st.columns([1, 2], gap="small")
+    with col3:
+        subcol1, subcol2 = st.columns([0.8, 2], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Rigidità:</div>", unsafe_allow_html=True)
         with subcol2:
