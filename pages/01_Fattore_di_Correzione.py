@@ -167,14 +167,19 @@ def calcola_fattore(peso):
         if tipo_superficie:
             descrizione.append(f"adagiato su {tipo_superficie}")
 
-    # Correnti: evita 'esposto a in acqua...'
+    # Correnti: evita 'esposto a esposto a...' o 'esposto a in acqua...'
     if corrente != "/":
-        if corrente.startswith("In acqua"):
-            descrizione.append(corrente.lower())
-        else:
-            descrizione.append(f"esposto a {corrente.lower()}")
+        corrente_lower = corrente.lower()
 
-    descrizione = ", ".join(descrizione)
+        if corrente_lower.startswith("in acqua"):
+            descrizione.append(corrente_lower)
+        elif corrente_lower.startswith("esposto a "):
+            descrizione.append(corrente_lower)  # già completo
+        elif corrente_lower == "nessuna corrente":
+            descrizione.append("non esposto a correnti d'aria")
+        else:
+            descrizione.append(f"esposto a {corrente_lower}")
+
 
 
 
