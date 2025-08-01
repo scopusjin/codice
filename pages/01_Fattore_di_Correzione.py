@@ -67,18 +67,23 @@ def calcola_fattore(peso):
 
         if mostra_corrente:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-            corrente = st.radio("", [
-                "Esposto a corrente d'aria",
-                "Nessuna corrente"
-            ], label_visibility="collapsed")
+            corrente = st.radio(
+                "",
+                ["Esposto a corrente d'aria", "Nessuna corrente"],
+                index=1,  # predefinito: Nessuna corrente
+                label_visibility="collapsed"
+            )
         elif corpo_immerso:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-            corrente = st.radio("", [
-                "In acqua corrente",
-                "In acqua stagnante"
-            ], label_visibility="collapsed")
+            corrente = st.radio(
+                "",
+                ["In acqua corrente", "In acqua stagnante"],
+                index=1,  # predefinito: In acqua stagnante
+                label_visibility="collapsed"
+            )
         else:
             corrente = "/"
+
 
     with col3:
         if not (corpo_immerso or corpo_bagnato):
