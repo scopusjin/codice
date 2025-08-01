@@ -101,16 +101,15 @@ def calcola_fattore(peso):
         else:
             superficie = "/"
 
-    # Preparazione dei valori da cercare nella tabella
+    # COSTRUISCI LA RIGA
     valori = {
-        "Condizione": stato_corpo.lower(),  # es. "bagnato"
+        "Condizione": stato_corpo.lower(),
         "Vestiti": scelta_vestiti,
         "Coperte": scelta_coperte,
         "Superficie": superficie,
         "Corrente": corrente
     }
 
-    # Filtro riga corrispondente
     riga = tabella1[
         (tabella1["Condizione"] == valori["Condizione"]) &
         (tabella1["Vestiti"] == valori["Vestiti"]) &
@@ -122,6 +121,40 @@ def calcola_fattore(peso):
     if riga.empty:
         st.error("⚠️ Nessuna combinazione trovata nella tabella per i parametri selezionati.")
         return
+
+    descrizione = []
+    if stato_corpo != "Asciutto":
+        descrizione.append(f"cadavere {stato_corpo.lower()}")
+    else:
+        descrizione.append("cadavere asciutto")
+
+    if scelta_vestiti != "/":
+        descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
+
+    if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta":
+        descrizione.append(f"sotto {scelta_coperte.lower()}")
+    elif scelta_coperte == "/":
+        descrizione.append("sotto /")
+
+    if superficie != "/":
+        mappa_superficie = {
+            "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie indifferente",
+            "Imbottitura pesante (es sacco a pelo isolante)": "superficie isolante",
+            "Materasso o tappeto spesso": "superficie isolante",
+            "Foglie umide (≥2 cm)": "superficie isolante",
+            "Foglie secche (≥2 cm)": "superficie isolante"
+        }
+        tipo_superficie = mappa_superficie.get(superficie, "")
+        if tipo_superficie:
+            descrizione.append(f"adagiato su {tipo_superficie}")
+    else:
+        descrizione.append("adagiato su /")
+
+    if corrente != "/":
+        descrizione.append(f"esposto a {corrente.lower()}")
+
+    descrizione = ", ".join(descrizione)
+
 
         try:
             fattore = riga.iloc[0]['Fattore']
