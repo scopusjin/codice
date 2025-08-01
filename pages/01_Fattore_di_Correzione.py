@@ -103,7 +103,7 @@ def calcola_fattore(peso):
 
     # COSTRUISCI LA RIGA
     valori = {
-        "Ambiente": stato_corpo.lower(),
+        "Ambiente": stato_corpo,
         "Vestiti": scelta_vestiti,
         "Coperte": scelta_coperte,
         "Superficie d'appoggio": superficie,
