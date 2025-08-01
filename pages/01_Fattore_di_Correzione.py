@@ -101,6 +101,27 @@ def calcola_fattore(peso):
         else:
             superficie = "/"
 
+    # Preparazione dei valori da cercare nella tabella
+    valori = {
+        "Condizione": stato_corpo.lower(),  # es. "bagnato"
+        "Vestiti": scelta_vestiti,
+        "Coperte": scelta_coperte,
+        "Superficie": superficie,
+        "Corrente": corrente
+    }
+
+    # Filtro riga corrispondente
+    riga = tabella1[
+        (tabella1["Condizione"] == valori["Condizione"]) &
+        (tabella1["Vestiti"] == valori["Vestiti"]) &
+        (tabella1["Coperte"] == valori["Coperte"]) &
+        (tabella1["Superficie"] == valori["Superficie"]) &
+        (tabella1["Corrente"] == valori["Corrente"])
+    ]
+
+    if riga.empty:
+        st.error("⚠️ Nessuna combinazione trovata nella tabella per i parametri selezionati.")
+        return
 
         try:
             fattore = riga.iloc[0]['Fattore']
