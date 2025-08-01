@@ -187,6 +187,7 @@ def calcola_fattore(peso):
         fattore = riga.iloc[0]['Fattore']
         if fattore < 1.4 or peso == 70:
             st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
+
         else:
             colonna_70 = tabella2["70"]
             indice_vicino = (colonna_70 - fattore).abs().idxmin()
@@ -202,6 +203,7 @@ def calcola_fattore(peso):
 
             fattore_corretto = riga_tab2[colonna_peso]
             st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
+
     except Exception as e:
         st.error(f"Errore nel calcolo: {e}")
 
