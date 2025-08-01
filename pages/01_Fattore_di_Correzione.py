@@ -38,8 +38,29 @@ def calcola_fattore(peso):
             scelta_vestiti = "/"
 
     with col2:
-        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+        if not corpo_immerso and not (
+            scelta_vestiti in [
+                "2-3 strati sottili", "3-4 strati sottili",
+                "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
+                "Moltissimi strati"
+            ] or scelta_coperte != "Nessuna coperta"
+        ):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio("", [
+                "Esposto a corrente d'aria",
+                "Nessuna corrente"
+            ], label_visibility="collapsed")
+        elif corpo_immerso:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio("", [
+                "In acqua corrente",
+                "In acqua stagnante"
+            ], label_visibility="collapsed")
+        else:
+            corrente = "/"
+
         if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
             if scelta_vestiti == "Moltissimi strati":
                 opzioni_coperte = [
                     "Nessuna coperta",
@@ -57,30 +78,9 @@ def calcola_fattore(peso):
         else:
             scelta_coperte = "/"
 
-        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-        if not corpo_immerso:
-            if stato_corpo == "Asciutto" and (
-                scelta_vestiti in [
-                    "2-3 strati sottili", "3-4 strati sottili",
-                    "1-2 strati spessi", "˃4 strati sottili o ˃2 strati spessi",
-                    "Moltissimi strati"
-                ] or scelta_coperte != "Nessuna coperta"
-            ):
-                corrente = "/"
-            else:
-                corrente = st.radio("", [
-                    "Esposto a corrente d'aria",
-                    "Nessuna corrente"
-                ], label_visibility="collapsed")
-        else:
-            corrente = st.radio("", [
-                "In acqua corrente",
-                "In acqua stagnante"
-            ], label_visibility="collapsed")
-
     with col3:
-        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
         if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
             if scelta_vestiti == "Nudo":
                 opzioni_superficie = [
                     "Pavimento di casa, terreno o prato asciutto, asfalto",
@@ -98,62 +98,6 @@ def calcola_fattore(peso):
             superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
         else:
             superficie = "/"
-
-        calcola = st.button("Aggiorna fattore di correzione")
-
-    if calcola:
-        ambiente = {
-            "Asciutto": "Asciutto",
-            "Bagnato": "Bagnato",
-            "Immerso": "Immerso"
-        }[stato_corpo]
-
-        if corpo_immerso:
-            scelta_vestiti = "/"
-        if corpo_immerso or corpo_bagnato:
-            scelta_coperte = "/"
-            superficie = "/"
-
-        riga = tabella1[
-            ((tabella1['Ambiente'] == ambiente) | (tabella1['Ambiente'] == '/')) &
-            ((tabella1['Vestiti'] == scelta_vestiti) | (tabella1['Vestiti'] == '/')) &
-            ((tabella1['Coperte'] == scelta_coperte) | (tabella1['Coperte'] == '/')) &
-            ((tabella1['Correnti'] == corrente) | (tabella1['Correnti'] == '/')) &
-            ((tabella1["Superficie d'appoggio"] == superficie) | (tabella1["Superficie d'appoggio"] == '/'))
-        ]
-
-        if riga.empty:
-            st.error("Nessuna combinazione trovata.")
-            return
-
-        descrizione = f"cadavere {stato_corpo.lower()}"
-        if not corpo_immerso:
-            if scelta_vestiti.lower() != "nudo":
-                descrizione += f", con {scelta_vestiti.lower()} di indumenti"
-            else:
-                descrizione += ", nudo"
-
-            if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta":
-                descrizione += f", sotto {scelta_coperte.lower()}"
-
-            # Superficie
-            if superficie != "/":
-                mappa_superficie = {
-                    "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie indifferente",
-                    "Imbottitura pesante (es sacco a pelo isolante)": "superficie isolante",
-                    "Materasso o tappeto spesso": "superficie isolante",
-                    "Foglie umide (≥2 cm)": "superficie isolante",
-                    "Foglie secche (≥2 cm)": "superficie isolante"
-                }
-                descrizione += f", adagiato su {mappa_superficie.get(superficie)}"
-
-        # Corrente
-        if corrente != "/" and not corpo_immerso:
-            if "nessuna" in corrente.lower():
-                descrizione += ", non esposto a correnti d'aria"
-            else:
-                descrizione += ", esposto a corrente d'aria"
-
 
 
         try:
