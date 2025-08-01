@@ -288,7 +288,7 @@ with st.container():
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2, gap="small")
+    col1, col2, col3 = st.columns([1, 0.5, 1], gap="small")
 
     with col1:
         subcol1, subcol2 = st.columns([1, 2], gap="small")
