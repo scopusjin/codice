@@ -488,7 +488,7 @@ with st.container():
         with col3:
                 subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
                 if "fattore_correzione" in st.session_state:
-                st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+                    st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
                 del st.session_state["fattore_correzione"]  # rimuove la variabile temporanea
                 with subcol1:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
