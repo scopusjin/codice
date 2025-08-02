@@ -10,6 +10,186 @@ import datetime
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
+def calcola_fattore(peso):
+    import pandas as pd
+    tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+    tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
+    tabella2 = pd.read_excel("tabella secondaria.xlsx")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
+        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
+        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_bagnato = (stato_corpo == "Bagnato")
+
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
+        if not corpo_immerso:
+            scelta_vestiti = st.radio("", [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃4 strati sottili o ˃2 spessi",
+                "Moltissimi strati"
+            ], label_visibility="collapsed")
+        else:
+            scelta_vestiti = "/"
+
+    with col2:
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            if scelta_vestiti == "Moltissimi strati":
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Più coperte pesanti"
+                ]
+            else:
+                opzioni_coperte = [
+                    "Nessuna coperta",
+                    "Coperta leggera (es lenzuolo)",
+                    "Coperta di medio spessore (es copriletto)",
+                    "Coperta pesante (es piumino invernale)",
+                    "Più coperte pesanti"
+                ]
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
+        else:
+            scelta_coperte = "/"
+
+        mostra_corrente = False
+        if not corpo_immerso:
+            if stato_corpo == "Bagnato":
+                mostra_corrente = True
+            elif stato_corpo == "Asciutto":
+                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
+                    mostra_corrente = True
+
+        if mostra_corrente:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio(
+                "",
+                ["Esposto a corrente d'aria", "Nessuna corrente"],
+                index=1,
+                label_visibility="collapsed"
+            )
+        elif corpo_immerso:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+            corrente = st.radio(
+                "",
+                ["In acqua corrente", "In acqua stagnante"],
+                index=1,
+                label_visibility="collapsed"
+            )
+        else:
+            corrente = "/"
+
+    with col3:
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
+            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
+            opzioni_superficie = [
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Imbottitura pesante (es sacco a pelo isolante)",
+                "Materasso o tappeto spesso",
+                "Cemento, pietra, piastrelle"
+            ]
+            if mostra_foglie:
+                opzioni_superficie += [
+                    "Foglie umide (≥2 cm)",
+                    "Foglie secche (≥2 cm)"
+                ]
+            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
+        else:
+            superficie = "/"
+
+    valori = {
+        "Ambiente": stato_corpo,
+        "Vestiti": scelta_vestiti,
+        "Coperte": scelta_coperte,
+        "Superficie d'appoggio": superficie,
+        "Correnti": corrente
+    }
+
+    riga = tabella1[
+        (tabella1["Ambiente"] == valori["Ambiente"]) &
+        (tabella1["Vestiti"] == valori["Vestiti"]) &
+        (tabella1["Coperte"] == valori["Coperte"]) &
+        (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
+        (tabella1["Correnti"] == valori["Correnti"])
+    ]
+
+    if riga.empty:
+        st.error("⚠️ Nessuna combinazione trovata nella tabella per i parametri selezionati.")
+        return
+
+    descrizione = []
+
+    if stato_corpo == "Immerso":
+        descrizione.append("cadavere immerso")
+    elif stato_corpo == "Bagnato":
+        descrizione.append("cadavere bagnato")
+    else:
+        descrizione.append("cadavere asciutto")
+
+    if scelta_vestiti != "/" and stato_corpo != "Immerso":
+        if scelta_vestiti.lower() == "nudo":
+            descrizione.append("nudo")
+        else:
+            descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
+
+    if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta" and stato_corpo == "Asciutto":
+        descrizione.append(f"sotto {scelta_coperte.lower()}")
+
+    if superficie != "/" and stato_corpo == "Asciutto":
+        mappa_superficie = {
+            "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
+            "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
+            "Materasso o tappeto spesso": "superficie termicamente isolante",
+            "Foglie umide (≥2 cm)": "superficie termicamente isolante",
+            "Foglie secche (≥2 cm)": "superficie termicamente isolante"
+        }
+        tipo_superficie = mappa_superficie.get(superficie, "")
+        if tipo_superficie:
+            descrizione.append(f"adagiato su {tipo_superficie}")
+
+    if corrente != "/":
+        corrente_lower = corrente.lower()
+        if corrente_lower.startswith("in acqua"):
+            descrizione.append(corrente_lower)
+        elif corrente_lower.startswith("esposto a "):
+            descrizione.append(corrente_lower)
+        elif corrente_lower == "nessuna corrente":
+            descrizione.append("non esposto a correnti d'aria")
+        else:
+            descrizione.append(f"esposto a {corrente_lower}")
+
+    descrizione = ", ".join(descrizione)
+
+    try:
+        fattore = riga.iloc[0]['Fattore']
+        if fattore < 1.4 or peso == 70:
+            st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
+            st.session_state["fattore_correzione"] = round(float(fattore), 2)
+        else:
+            colonna_70 = tabella2["70"]
+            indice_vicino = (colonna_70 - fattore).abs().idxmin()
+            riga_tab2 = tabella2.loc[indice_vicino]
+
+            colonna_peso = str(peso)
+            if colonna_peso not in tabella2.columns:
+                colonne_pesi = [int(c) for c in tabella2.columns if c.isnumeric()]
+                peso_vicino = min(colonne_pesi, key=lambda x: abs(x - peso))
+                colonna_peso = str(peso_vicino)
+                st.warning("valori di peso arrotondati.")
+
+            fattore_corretto = riga_tab2[colonna_peso]
+            st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
+            st.session_state["fattore_correzione"] = round(float(fattore_corretto), 2)
+
+    except Exception as e:
+        st.error(f"Errore nel calcolo: {e}")
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
@@ -315,7 +495,16 @@ with st.container():
                     )
                 with subcol3:
                     perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
+                   # Attiva/disattiva il modulo al clic del pulsante ⚙
+                    if perfeziona_cf:
+                        st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 
+                    if st.session_state.get("mostra_modulo_fattore", False):
+                        calcola_fattore(peso=st.session_state.get("peso", 70))
+
+                        # Aggiorna il campo visivo se necessario
+                        if "fattore_correzione" in st.session_state:
+                            st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
 
 
 with st.container():
