@@ -498,7 +498,7 @@ with st.container():
             with subcol2:
                 input_cf = st.number_input(
                     "Fattore di correzione:",
-                    min_value=0.2,
+                    min_value=0.05,
                     max_value=5.5,
                     step=0.1,
                     value=1.0,
