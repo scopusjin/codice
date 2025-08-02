@@ -479,8 +479,17 @@ with st.container():
                     "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
                 )
 
+                with col3:
+                    subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
+
+                    # Inserimento: aggiorna il campo numerico solo se esiste un nuovo valore calcolato
+
+
         with col3:
                 subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
+                if "fattore_correzione" in st.session_state:
+                st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+                del st.session_state["fattore_correzione"]  # rimuove la variabile temporanea
                 with subcol1:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
                 with subcol2:
@@ -503,8 +512,8 @@ with st.container():
                         calcola_fattore(peso=st.session_state.get("peso", 70))
 
                         # Aggiorna il campo visivo se necessario
-                        if "fattore_correzione" in st.session_state:
-                            st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+if "fattore_correzione" in st.session_state:
+    st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
 
 
 with st.container():
