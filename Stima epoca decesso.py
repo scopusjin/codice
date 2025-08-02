@@ -486,34 +486,34 @@ with st.container():
 
 
         with col3:
-                subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
-                if "fattore_correzione" in st.session_state:
-                    st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
-                del st.session_state["fattore_correzione"]  # rimuove la variabile temporanea
-                with subcol1:
-                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
-                with subcol2:
-                    input_cf = st.number_input(
-                        "Fattore di correzione:",
-                        min_value=0.2,
-                        max_value=5.5,
-                        step=0.1,
-                        value=1.0,
-                        label_visibility="collapsed",
-                        key="fattore_correzione_input"
-                    )
-                with subcol3:
-                    perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
-                   # Attiva/disattiva il modulo al clic del pulsante ⚙
-                    if perfeziona_cf:
-                        st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+            subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
 
-                    if st.session_state.get("mostra_modulo_fattore", False):
-                        calcola_fattore(peso=st.session_state.get("peso", 70))
+            # ✅ Aggiorna il campo numerico solo se esiste un nuovo valore calcolato
+            if "fattore_correzione" in st.session_state:
+                st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+                st.session_state.pop("fattore_correzione", None)  # elimina in modo sicuro
 
-if "fattore_correzione" in st.session_state:
-    st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
-    st.session_state.pop("fattore_correzione", None)
+            with subcol1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
+            with subcol2:
+                input_cf = st.number_input(
+                    "Fattore di correzione:",
+                    min_value=0.2,
+                    max_value=5.5,
+                    step=0.1,
+                    value=1.0,
+                    label_visibility="collapsed",
+                    key="fattore_correzione_input"
+                )
+            with subcol3:
+                perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
+
+    # 🔽 Fuori da tutte le colonne, su piena larghezza
+    if perfeziona_cf:
+        st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+
+    if st.session_state.get("mostra_modulo_fattore", False):
+        calcola_fattore(peso=st.session_state.get("peso", 70))
 
 
 with st.container():
