@@ -511,9 +511,9 @@ with st.container():
                     if st.session_state.get("mostra_modulo_fattore", False):
                         calcola_fattore(peso=st.session_state.get("peso", 70))
 
-                        # Aggiorna il campo visivo se necessario
 if "fattore_correzione" in st.session_state:
     st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+    st.session_state.pop("fattore_correzione", None)
 
 
 with st.container():
