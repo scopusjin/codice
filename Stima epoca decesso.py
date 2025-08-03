@@ -19,15 +19,12 @@ def calcola_fattore(peso):
     # ⬅️ AGGIUNTA: blocco CSS per ridurre font
     st.markdown("""
         <style>
-        .fattore-correzione-section label,
-        .fattore-correzione-section input,
-        .fattore-correzione-section select,
-        .fattore-correzione-section textarea,
-        .fattore-correzione-section div[data-baseweb="radio"] div {
-            font-size: 0.85rem !important;
+        .fattore-correzione-section * {
+            font-size: 0.80rem !important;
         }
         </style>
     """, unsafe_allow_html=True)
+
 
     # ⬅️ AGGIUNTA: inizio blocco HTML personalizzato
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
