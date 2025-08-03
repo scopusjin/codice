@@ -44,15 +44,15 @@ def calcola_fattore(peso):
             if scelta_vestiti == "Moltissimi strati":
                 opzioni_coperte = [
                     "Nessuna coperta",
-                    "Più coperte pesanti"
+                    "Molte coperte pesanti"
                 ]
             else:
                 opzioni_coperte = [
                     "Nessuna coperta",
-                    "Coperta leggera (es lenzuolo)",
-                    "Coperta di medio spessore (es copriletto)",
-                    "Coperta pesante (es piumino invernale)",
-                    "Più coperte pesanti"
+                    "Coperta spessa (es copriletto)",
+                    "Coperte più spesse (es coperte di lana)",
+                    "Coperta pesante (es piumino imbottito)",
+                    "Molte coperte pesanti"
                 ]
             scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
         else:
@@ -89,11 +89,13 @@ def calcola_fattore(peso):
         if not (corpo_immerso or corpo_bagnato):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
+            mostra_pietra = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
             opzioni_superficie = [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
-                "Imbottitura pesante (es sacco a pelo isolante)",
+                "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
                 "Materasso o tappeto spesso",
-                "Cemento, pietra, piastrelle"
+                "Cemento, pavimento in PVC, pavimentazione esterna",
+                "Pietra all'esterno, superficie metallica spessa"            
             ]
             if mostra_foglie:
                 opzioni_superficie += [
@@ -146,6 +148,8 @@ def calcola_fattore(peso):
         mappa_superficie = {
             "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
             "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
+            "Pietra all'esterno, superficie metallica spessa": "superficie termicamente conduttiva",
+            "Cemento, pavimento in PVC, pavimentazione esterna": "superficie termicamente conduttiva",
             "Materasso o tappeto spesso": "superficie termicamente isolante",
             "Foglie umide (≥2 cm)": "superficie termicamente isolante",
             "Foglie secche (≥2 cm)": "superficie termicamente isolante"
