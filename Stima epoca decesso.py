@@ -603,7 +603,7 @@ with st.container():
                 "Peso corporeo (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed"
             )
 
-
+st.session_state["peso"] = input_w  #
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
