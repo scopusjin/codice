@@ -16,17 +16,30 @@ def calcola_fattore(peso):
     tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
     tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
-    # ⬅️ AGGIUNTA: blocco CSS per ridurre font
     st.markdown("""
         <style>
-        .fattore-correzione-section * {
+        .fattore-correzione-section p {
+            font-size: 0.85rem !important;
+            margin-bottom: 4px;
+        }
+
+        .fattore-correzione-section [data-baseweb="radio"] label {
+            font-size: 0.80rem !important;
+        }
+
+        .fattore-correzione-section [data-baseweb="radio"] div {
+            font-size: 0.80rem !important;
+        }
+
+        .fattore-correzione-section input,
+        .fattore-correzione-section textarea,
+        .fattore-correzione-section select,
+        .fattore-correzione-section span {
             font-size: 0.80rem !important;
         }
         </style>
     """, unsafe_allow_html=True)
 
-
-    # ⬅️ AGGIUNTA: inizio blocco HTML personalizzato
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -102,13 +115,12 @@ def calcola_fattore(peso):
         if not (corpo_immerso or corpo_bagnato):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
-            mostra_pietra = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
             opzioni_superficie = [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
                 "Materasso o tappeto spesso",
                 "Cemento, pavimento in PVC, pavimentazione esterna",
-                "Pietra all'esterno, superficie metallica spessa"            
+                "Pietra all'esterno, superficie metallica spessa"
             ]
             if mostra_foglie:
                 opzioni_superficie += [
@@ -119,8 +131,10 @@ def calcola_fattore(peso):
         else:
             superficie = "/"
 
-    # ⬅️ AGGIUNTA: chiusura del blocco HTML personalizzato
     st.markdown('</div>', unsafe_allow_html=True)
+
+    # (Il resto del codice continua senza modifiche, come nel tuo script attuale...)
+
 
     valori = {
         "Ambiente": stato_corpo,
