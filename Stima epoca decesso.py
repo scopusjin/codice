@@ -16,6 +16,22 @@ def calcola_fattore(peso):
     tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
     tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
+    # ⬅️ AGGIUNTA: blocco CSS per ridurre font
+    st.markdown("""
+        <style>
+        .fattore-correzione-section label,
+        .fattore-correzione-section input,
+        .fattore-correzione-section select,
+        .fattore-correzione-section textarea,
+        .fattore-correzione-section div[data-baseweb="radio"] div {
+            font-size: 0.85rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # ⬅️ AGGIUNTA: inizio blocco HTML personalizzato
+    st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -106,6 +122,9 @@ def calcola_fattore(peso):
         else:
             superficie = "/"
 
+    # ⬅️ AGGIUNTA: chiusura del blocco HTML personalizzato
+    st.markdown('</div>', unsafe_allow_html=True)
+
     valori = {
         "Ambiente": stato_corpo,
         "Vestiti": scelta_vestiti,
@@ -191,6 +210,7 @@ def calcola_fattore(peso):
             fattore_corretto = riga_tab2[colonna_peso]
             st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
             st.session_state["fattore_correzione"] = round(float(fattore_corretto), 2)
+
 
     except Exception as e:
         st.error(f"Errore nel calcolo: {e}")
