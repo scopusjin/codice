@@ -41,7 +41,7 @@ def calcola_fattore(peso):
         copertura_speciale = False
         scelta_vestiti = "/"
 
-        if not (corpo_immerso or corpo_bagnato):
+        if not (corpo_immerso):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
 
             mostra_vestiti = True
