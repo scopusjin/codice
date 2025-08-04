@@ -5,7 +5,7 @@ st.title("Tabelle di riferimento")
 # --- Sezione 1: Mallach ---
 st.markdown("## Ipostasi")
 st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Ipostasi%20(Mallach).jpeg",
+    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Ipostasi%20(Mallach).jpg",
     caption="Ipostasi (Mallach)",
     use_container_width=True
 )
