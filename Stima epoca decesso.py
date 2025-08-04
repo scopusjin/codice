@@ -16,30 +16,17 @@ def calcola_fattore(peso):
     tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
     tabella2 = pd.read_excel("tabella secondaria.xlsx")
 
-    st.markdown("""
-        <style>
-        .fattore-correzione-section p {
-            font-size: 0.85rem !important;
-            margin-bottom: 4px;
-        }
-
-        .fattore-correzione-section [data-baseweb="radio"] label {
-            font-size: 0.80rem !important;
-        }
-
-        .fattore-correzione-section [data-baseweb="radio"] div {
-            font-size: 0.80rem !important;
-        }
-
+    st.markdown("""<style>
+        .fattore-correzione-section p { font-size: 0.85rem !important; margin-bottom: 4px; }
+        .fattore-correzione-section [data-baseweb="radio"] label,
+        .fattore-correzione-section [data-baseweb="radio"] div,
         .fattore-correzione-section input,
         .fattore-correzione-section textarea,
         .fattore-correzione-section select,
         .fattore-correzione-section span {
             font-size: 0.80rem !important;
         }
-        </style>
-    """, unsafe_allow_html=True)
-
+    </style>""", unsafe_allow_html=True)
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -53,25 +40,20 @@ def calcola_fattore(peso):
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
         if not corpo_immerso:
             scelta_vestiti = st.radio("", [
-                "Nudo",
-                "1-2 strati sottili",
-                "2-3 strati sottili",
-                "3-4 strati sottili",
-                "1-2 strati spessi",
-                "˃4 strati sottili o ˃2 spessi",
-                "Moltissimi strati"
+                "Nudo", "1-2 strati sottili", "2-3 strati sottili", "3-4 strati sottili",
+                "1-2 strati spessi", "˃4 strati sottili o ˃2 spessi", "Moltissimi strati"
             ], label_visibility="collapsed")
         else:
             scelta_vestiti = "/"
 
     with col2:
+        copertura_speciale = False
+
         if not (corpo_immerso or corpo_bagnato):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+
             if scelta_vestiti == "Moltissimi strati":
-                opzioni_coperte = [
-                    "Nessuna coperta",
-                    "Molte coperte pesanti"
-                ]
+                opzioni_coperte = ["Nessuna coperta", "Molte coperte pesanti"]
             else:
                 opzioni_coperte = [
                     "Nessuna coperta",
@@ -80,7 +62,14 @@ def calcola_fattore(peso):
                     "Coperta pesante (es piumino imbottito)",
                     "Molte coperte pesanti"
                 ]
+
+            if stato_corpo == "Asciutto":
+                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+
             scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
+
+            if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
+                copertura_speciale = True
         else:
             scelta_coperte = "/"
 
@@ -92,30 +81,20 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
                     mostra_corrente = True
 
-        if mostra_corrente:
+        if mostra_corrente and not copertura_speciale:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-            corrente = st.radio(
-                "",
-                ["Esposto a corrente d'aria", "Nessuna corrente"],
-                index=1,
-                label_visibility="collapsed"
-            )
+            corrente = st.radio("", ["Esposto a corrente d'aria", "Nessuna corrente"], index=1, label_visibility="collapsed")
         elif corpo_immerso:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-            corrente = st.radio(
-                "",
-                ["In acqua corrente", "In acqua stagnante"],
-                index=1,
-                label_visibility="collapsed"
-            )
+            corrente = st.radio("", ["In acqua corrente", "In acqua stagnante"], index=1, label_visibility="collapsed")
         else:
             corrente = "/"
 
     with col3:
-        if not (corpo_immerso or corpo_bagnato):
+        if not (corpo_immerso or corpo_bagnato or copertura_speciale):
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
-            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
 
+            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
             opzioni_superficie = [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
@@ -127,20 +106,13 @@ def calcola_fattore(peso):
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
 
             if mostra_foglie:
-                opzioni_superficie += [
-                    "Foglie umide (≥2 cm)",
-                    "Foglie secche (≥2 cm)"
-                ]
+                opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
         else:
             superficie = "/"
 
-
     st.markdown('</div>', unsafe_allow_html=True)
-
-    # (Il resto del codice continua senza modifiche, come nel tuo script attuale...)
-
 
     valori = {
         "Ambiente": stato_corpo,
@@ -177,16 +149,19 @@ def calcola_fattore(peso):
         else:
             descrizione.append(f"con {scelta_vestiti.lower()} di indumenti")
 
-    if scelta_coperte != "/" and scelta_coperte != "Nessuna coperta" and stato_corpo == "Asciutto":
-        descrizione.append(f"sotto {scelta_coperte.lower()}")
+    if scelta_coperte != "/" and stato_corpo == "Asciutto":
+        if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
+            descrizione.append(f"coperto da {scelta_coperte.lower()}")
+        elif scelta_coperte != "Nessuna coperta":
+            descrizione.append(f"sotto {scelta_coperte.lower()}")
 
     if superficie != "/" and stato_corpo == "Asciutto":
         mappa_superficie = {
             "Pavimento di casa, terreno o prato asciutto, asfalto": "superficie termicamente indifferente",
-            "Imbottitura pesante (es sacco a pelo isolante)": "superficie termicamente isolante",
-            "Pietra all'esterno, superficie metallica spessa": "superficie termicamente conduttiva",
-            "Cemento, pavimento in PVC, pavimentazione esterna": "superficie termicamente conduttiva",
+            "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "superficie termicamente isolante",
             "Materasso o tappeto spesso": "superficie termicamente isolante",
+            "Cemento, pavimento in PVC, pavimentazione esterna": "superficie termicamente conduttiva",
+            "Superficie metallica spessa, all'esterno.": "superficie termicamente conduttiva",
             "Foglie umide (≥2 cm)": "superficie termicamente isolante",
             "Foglie secche (≥2 cm)": "superficie termicamente isolante"
         }
@@ -227,6 +202,7 @@ def calcola_fattore(peso):
             fattore_corretto = riga_tab2[colonna_peso]
             st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
             st.session_state["fattore_correzione"] = round(float(fattore_corretto), 2)
+
 
 
     except Exception as e:
