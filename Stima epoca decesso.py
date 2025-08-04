@@ -167,39 +167,7 @@ def calcola_fattore(peso):
             descrizione.append(corrente_lower)
         elif corrente_lower.startswith("esposto a "):
             descrizione.append(corrente_lower)
-        elif corrente_lower == "nessuna corrente":
-            descrizione.append("non esposto a correnti d'aria")
-        else:
-            descrizione.append(f"esposto a {corrente_lower}")
 
-    descrizione = ", ".join(descrizione)
-
-    try:
-        fattore = riga.iloc[0]['Fattore']
-        if fattore < 1.4 or peso == 70:
-            st.success(f"Fattore di correzione stimato: {float(fattore):.2f} ({descrizione})")
-            st.session_state["fattore_correzione"] = round(float(fattore), 2)
-        else:
-            colonna_70 = tabella2["70"]
-            indice_vicino = (colonna_70 - fattore).abs().idxmin()
-            riga_tab2 = tabella2.loc[indice_vicino]
-
-            colonna_peso = str(peso)
-            if colonna_peso not in tabella2.columns:
-                colonne_pesi = [int(c) for c in tabella2.columns if c.isnumeric()]
-                peso_vicino = min(colonne_pesi, key=lambda x: abs(x - peso))
-                colonna_peso = str(peso_vicino)
-                st.warning("valori di peso arrotondati.")
-
-            fattore_corretto = riga_tab2[colonna_peso]
-            st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
-            st.session_state["fattore_correzione"] = round(float(fattore_corretto), 2)
-    except Exception as e:
-        st.error(f"Errore durante il calcolo del fattore: {str(e)}")
-
-
-    except Exception as e:
-        st.error(f"Errore nel calcolo: {e}")
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
