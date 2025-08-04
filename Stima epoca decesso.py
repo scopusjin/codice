@@ -124,7 +124,7 @@ def calcola_fattore(peso):
             ]
 
             if scelta_vestiti == "Nudo":
-                opzioni_superficie.append("Pietra all'esterno, superficie metallica spessa")
+                opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
 
             if mostra_foglie:
                 opzioni_superficie += [
