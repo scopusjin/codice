@@ -25,21 +25,41 @@ def calcola_fattore(peso):
 
     # --- COLONNA 1: CONDIZIONE CORPO e INDUMENTI ---
     with col1:
+        # --- CONDIZIONE DEL CORPO ---
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
         corpo_asciutto = (stato_corpo == "Asciutto")
 
-    # inizializzazione variabili
-    copertura_speciale = False
-    scelta_vestiti = "/"
-    superficie = "/"
-    corrente = "/"
+        # inizializzazione variabili
+        copertura_speciale = False
+        scelta_vestiti = "/"
+        superficie = "/"
+        corrente = "/"
 
-    # Se non foglie → mostra indumenti
-    if not corpo_immerso and corpo_asciutto:
-        with col1:
+        # --- SCELTA COPERTURA ---
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            opzioni_coperte = [
+                "Nessuna coperta",
+                "Coperta spessa (es copriletto)",
+                "Coperte più spesse (es coperte di lana)",
+                "Coperta pesante (es piumino imbottito)",
+                "Molte coperte pesanti"
+            ]
+            if corpo_asciutto:
+                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
+
+            if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
+                copertura_speciale = True
+        else:
+            scelta_coperte = "/"
+
+        # --- SCELTA VESTITI SOLO SE NON COPERTURA SPECIALE ---
+        if corpo_asciutto and not corpo_immerso and not copertura_speciale:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
             scelta_vestiti = st.radio("", [
                 "Nudo",
@@ -50,8 +70,9 @@ def calcola_fattore(peso):
                 "˃4 strati sottili o ˃2 spessi",
                 "Moltissimi strati"
             ], label_visibility="collapsed")
-    elif corpo_immerso:
-        scelta_vestiti = "/"
+        elif corpo_immerso or copertura_speciale:
+            scelta_vestiti = "/"
+            
 
     # --- COLONNA 2: COPERTURA e CORRENTE ---
     with col2:
