@@ -196,6 +196,7 @@ def calcola_fattore(peso):
         else:
             colonna_70 = tabella2["70"]
             indice_vicino = (colonna_70 - fattore).abs().idxmin()
+
 def calcola_fattore(peso):
     import pandas as pd
     tabella1 = pd.read_excel("tabella rielaborata.xlsx")
