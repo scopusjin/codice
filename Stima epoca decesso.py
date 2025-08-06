@@ -92,7 +92,14 @@ def calcola_fattore(peso):
             if corpo_asciutto:
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed")
+            
+            scelta_coperte = st.radio(
+    "", 
+    opzioni_coperte, 
+    label_visibility="collapsed", 
+    key="scelta_coperte_radio"
+            )
+            
             if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
                 copertura_speciale = True
         else:
