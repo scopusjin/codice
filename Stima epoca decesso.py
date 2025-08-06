@@ -92,47 +92,12 @@ def calcola_fattore(peso):
             if corpo_asciutto:
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-            
-            scelta_coperte = st.radio(
-    "", 
-    opzioni_coperte, 
-    label_visibility="collapsed", 
-    key="scelta_coperte_radio"
-            )
-            
-            if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
-                copertura_speciale = True
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed", key="scelta_coperte_radio")
         else:
             scelta_coperte = "/"
 
-        if not copertura_speciale:
-            mostra_corrente = False
-            if not corpo_immerso:
-                if corpo_bagnato:
-                    mostra_corrente = True
-                elif corpo_asciutto:
-                    if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
-                        mostra_corrente = True
-
-            if mostra_corrente:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                corrente = st.radio(
-                    "",
-                    ["Esposto a corrente d'aria", "Nessuna corrente"],
-                    index=1,
-                    label_visibility="collapsed"
-                )
-            elif corpo_immerso:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                corrente = st.radio(
-                    "",
-                    ["In acqua corrente", "In acqua stagnante"],
-                    index=1,
-                    label_visibility="collapsed"
-                )
-            else:
-                corrente = "/"
-
+        copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+        
     # --- COLONNA 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
