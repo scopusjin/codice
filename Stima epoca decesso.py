@@ -215,8 +215,8 @@ def calcola_fattore(peso):
             fattore_corretto = riga_tab2[colonna_peso]
             st.info(f"Fattore corretto per {colonna_peso} kg: {fattore_corretto:.2f} ({descrizione})")
             st.session_state["fattore_correzione"] = round(float(fattore_corretto), 2)
-        except Exception as e:
-        st.error(f"Errore durante il calcolo del fattore di correzione: {e}")
+    except Exception as e:
+            st.error(f"Errore durante il calcolo del fattore di correzione: {e}")
 
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
