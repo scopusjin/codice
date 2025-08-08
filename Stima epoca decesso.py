@@ -155,6 +155,7 @@ def calcola_fattore(peso):
         return
 
     fattore = riga["Fattore"].values[0]
+    fattore_base = float(fattore)    
     fattore_finale = fattore_base
 
     # Applica Tabella 2 solo quando serve (puoi cambiare la condizione se vuoi reintrodurre 'situaz_speciale')
