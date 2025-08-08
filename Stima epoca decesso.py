@@ -12,6 +12,7 @@ INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i
     # =======================
     # 1) DATA E ORA ISPEZIONE LEGALE (prima sezione, due colonne)
     # =======================
+with st.container():   
     st.markdown("""
     <h5 style="margin:0; padding:0;">Data e ora ispezione legale</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
