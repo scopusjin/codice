@@ -1216,7 +1216,7 @@ def aggiorna_grafico():
 
     # Metodo Potente et al.
     soglia_qd = 0.2 if Ta_val <= 23 else 0.5
-    condizione_temp = "Ta ≤ 23 °C" if temperatura_ambiente <= 23 else "Ta > 23 °C"
+    condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
     if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < soglia_qd:
         elenco_extra.append(
             f"<li>"
