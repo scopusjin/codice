@@ -423,9 +423,11 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem;'>Data ispezione legale:</div>", unsafe_allow_html=True)
         data_ispezione = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
-        ora_ispezione = st.text_input("Ora ispezione legale (HH:MM):", value=input_ora_ispezione, label_visibility="collapsed")
-
+        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale (HH:MM):</div>", unsafe_allow_html=True)
+        ora_ispezione = st.text_input(
+        "Ora ispezione legale (HH:MM):",
+        value="00:00",  # valore predefinito
+        label_visibility="collapsed"
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
     col1, col2 = st.columns(2, gap="small")
     with col1:
