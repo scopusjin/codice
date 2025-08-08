@@ -832,6 +832,8 @@ def aggiorna_grafico():
     # --- Stima minima post mortem secondo Potente et al. (calcolato prima di costruire i range) ---
     mt_ore = None
     mt_giorni = None
+    usa_potente_per_intersezione = False
+
     if not any(np.isnan(val) for val in [Tr_val, Ta_val, CF_val, W_val]):
         if Tr_val <= Ta_val + 1e-6:
             mt_ore = None
@@ -845,10 +847,11 @@ def aggiorna_grafico():
                 mt_ore = round(ln_term / B_potente, 1)
                 mt_giorni = round(mt_ore / 24, 1)
         usa_potente_per_intersezione = (
-           (not np.isnan(Qd_val_check)) and
-          (Qd_val_check < qd_threshold) and
-          (mt_ore is not None) and (not np.isnan(mt_ore))
-       )
+            (not np.isnan(Qd_val_check)) and
+            (Qd_val_check < qd_threshold) and
+            (mt_ore is not None) and (not np.isnan(mt_ore))
+        )
+
     # Aggiunge range dei parametri aggiuntivi, considerando sempre il limite inferiore
     for p in parametri_aggiuntivi_da_considerare:
         if not np.isnan(p["range_traslato"][0]):
@@ -859,7 +862,9 @@ def aggiorna_grafico():
                 ranges_per_intersezione_fine.append(p["range_traslato"][1])
             nomi_parametri_usati_per_intersezione.append(p["nome"])
 
+    # --- Logica Henssge/Potente per intersezione ---
     if raffreddamento_calcolabile:
+        # Se deve essere usato solo il limite inferiore
         usa_solo_limite_inferiore_henssge = False
         if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
             usa_solo_limite_inferiore_henssge = True
@@ -875,21 +880,28 @@ def aggiorna_grafico():
             )
         ])
 
-        if usa_solo_limite_inferiore_henssge:
+        if usa_potente_per_intersezione:
+            # Usa solo Potente, senza aggiungere Henssge
+            ranges_per_intersezione_inizio.append(mt_ore)
+            ranges_per_intersezione_fine.append(np.nan)
+            nome_raffreddamento_intersezione = "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
+            nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
+
+        elif usa_solo_limite_inferiore_henssge:
             if mt_ore is not None and not np.isnan(mt_ore):
                 ranges_per_intersezione_inizio.append(mt_ore)
                 ranges_per_intersezione_fine.append(np.nan)
-                nome_raffreddamento_intersezione = (
-                    "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
-                )
+                nome_raffreddamento_intersezione = "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
             else:
                 ranges_per_intersezione_inizio.append(t_min_raff_hensge)
                 ranges_per_intersezione_fine.append(np.nan)
                 nome_raffreddamento_intersezione = (
-                    "raffreddamento cadaverico (\u00e8 stato considerato solo il limite inferiore, vista la limitata affidabilit\u00e0 del calcolo per i motivi sopraesposti)"
+                    "raffreddamento cadaverico (è stato considerato solo il limite inferiore, "
+                    "vista la limitata affidabilità del calcolo per i motivi sopraesposti)"
                 )
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
+
         else:
             if t_med_raff_hensge_rounded_raw > 48:
                 if altri_parametri_con_range:
@@ -897,7 +909,8 @@ def aggiorna_grafico():
                         ranges_per_intersezione_inizio.append(48.0)
                         ranges_per_intersezione_fine.append(np.nan)
                         nome_raffreddamento_intersezione = (
-                            "raffreddamento cadaverico (che \u00e8 stato considerato genericamente > 48h, vista la limitata affidabilit\u00e0 del calcolo per i motivi sopraesposti)"
+                            "raffreddamento cadaverico (che è stato considerato genericamente > 48h, "
+                            "vista la limitata affidabilità del calcolo per i motivi sopraesposti)"
                         )
                         nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
                     else:
@@ -911,12 +924,15 @@ def aggiorna_grafico():
                 nome_raffreddamento_intersezione = "raffreddamento cadaverico"
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
 
+    # Se Potente non è stato usato per intersezione, ma è disponibile, lo aggiunge come parametro separato
     if (not usa_potente_per_intersezione) and ('mt_ore' in locals()) and (mt_ore is not None) and (not np.isnan(mt_ore)):
         ranges_per_intersezione_inizio.append(mt_ore)
         ranges_per_intersezione_fine.append(np.nan)
-        
+
+    # Calcolo intersezione finale
     if len(ranges_per_intersezione_inizio) > 0:
         comune_inizio = max(ranges_per_intersezione_inizio)
+
         if mt_ore is not None and not np.isnan(mt_ore):
             altri_limiti_inferiori = [
                 v for v, n in zip(ranges_per_intersezione_inizio, nomi_parametri_usati_per_intersezione)
@@ -941,7 +957,6 @@ def aggiorna_grafico():
     else:
         comune_inizio, comune_fine = np.nan, np.nan
         overlap = False
-
 
         # --- Sezione dedicata alla generazione del grafico ---
 
