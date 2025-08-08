@@ -14,8 +14,12 @@ def calcola_fattore(peso):
     import streamlit as st
 
     tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+    # normalizzazione: numerico e spazi rimossi sulle colonne chiave
     tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
-    tabella2 = pd.read_excel("tabella secondaria.xlsx")
+    for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
+        tabella1[col] = tabella1[col].astype(str).str.strip()
+
+    tabella2 = pd.read_excel("tabella secondaria.xlsx")  # (non usata qui, lasciata invariata)
 
     st.markdown("""<style> ... (stile invariato) ... </style>""", unsafe_allow_html=True)
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
@@ -57,7 +61,8 @@ def calcola_fattore(peso):
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
-    if not corpo_immerso and corpo_asciutto and not copertura_speciale:
+    # Mostriamo l'abbigliamento sia per Asciutto che per Bagnato (non per Immerso o copertura speciale)
+    if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
             scelta_vestiti = st.radio("", [
@@ -77,6 +82,7 @@ def calcola_fattore(peso):
         if not copertura_speciale:
             mostra_corrente = False
             if corpo_bagnato:
+                # per Bagnato mostra sempre la scelta correnti (in tabella non ci sono coperte/superficie)
                 mostra_corrente = True
             elif corpo_asciutto:
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
@@ -113,7 +119,8 @@ def calcola_fattore(peso):
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
                 "Materasso o tappeto spesso",
-                "Cemento, pavimento in PVC, pavimentazione esterna"
+                # etichetta allineata alla tabella (aggiunta 'pietra')
+                "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
             ]
             if scelta_vestiti == "Nudo":
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
@@ -132,6 +139,8 @@ def calcola_fattore(peso):
         "Superficie d'appoggio": superficie,
         "Correnti": corrente
     }
+    # strip sui valori scelti dall'utente per evitare mismatch da spazi
+    valori = {k: (str(v).strip() if v is not None else v) for k, v in valori.items()}
 
     riga = tabella1[
         (tabella1["Ambiente"] == valori["Ambiente"]) &
@@ -147,7 +156,6 @@ def calcola_fattore(peso):
 
     fattore = riga["Fattore"].values[0]
     st.success(f"Fattore di correzione calcolato: {fattore:.2f}")
-    
 
 
     
