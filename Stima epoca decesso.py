@@ -9,144 +9,643 @@ import datetime
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
-    # =======================
-    # 1) DATA E ORA ISPEZIONE LEGALE (prima sezione, due colonne)
-    # =======================
-with st.container():   
+def calcola_fattore(peso):
+    import pandas as pd
+    import streamlit as st
+
+    tabella1 = pd.read_excel("tabella rielaborata.xlsx")
+    # normalizzazione: numerico e spazi rimossi sulle colonne chiave
+    tabella1['Fattore'] = pd.to_numeric(tabella1['Fattore'], errors='coerce')
+    for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
+        tabella1[col] = tabella1[col].astype(str).str.strip()
+
+    tabella2 = pd.read_excel("tabella secondaria.xlsx")  # (non usata qui, lasciata invariata)
+
+    st.markdown("""<style> ... (stile invariato) ... </style>""", unsafe_allow_html=True)
+    st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    # --- COLONNA 1: CONDIZIONE CORPO ---
+    with col1:
+        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
+        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
+        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_bagnato = (stato_corpo == "Bagnato")
+        corpo_asciutto = (stato_corpo == "Asciutto")
+
+    # inizializzazione variabili
+    copertura_speciale = False
+    scelta_vestiti = "/"
+    superficie = "/"
+    corrente = "/"
+
+    # --- COLONNA 2: COPERTURA ---
+    with col2:
+        if not (corpo_immerso or corpo_bagnato):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            opzioni_coperte = [
+                "Nessuna coperta",
+                "Coperta spessa (es copriletto)",
+                "Coperte più spesse (es coperte di lana)",
+                "Coperta pesante (es piumino imbottito)",
+                "Molte coperte pesanti"
+            ]
+            if corpo_asciutto:
+                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+
+            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed", key="scelta_coperte_radio")
+        else:
+            scelta_coperte = "/"
+
+    copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+
+    # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
+    # Mostriamo l'abbigliamento sia per Asciutto che per Bagnato (non per Immerso o copertura speciale)
+    if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
+        with col1:
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
+            scelta_vestiti = st.radio("", [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃4 strati sottili o ˃2 spessi",
+                "Moltissimi strati"
+            ], label_visibility="collapsed")
+    elif corpo_immerso or copertura_speciale:
+        scelta_vestiti = "/"
+
+    # --- COLONNA 2: CORRENTI ---
+    with col2:
+        if not copertura_speciale:
+            mostra_corrente = False
+            if corpo_bagnato:
+                # per Bagnato mostra sempre la scelta correnti (in tabella non ci sono coperte/superficie)
+                mostra_corrente = True
+            elif corpo_asciutto:
+                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
+                    mostra_corrente = True
+
+            if mostra_corrente:
+                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+                corrente = st.radio(
+                    "",
+                    ["Esposto a corrente d'aria", "Nessuna corrente"],
+                    index=1,
+                    label_visibility="collapsed",
+                    key="radio_corrente"
+                )
+            elif corpo_immerso:
+                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+                corrente = st.radio(
+                    "",
+                    ["In acqua corrente", "In acqua stagnante"],
+                    index=1,
+                    label_visibility="collapsed",
+                    key="radio_acqua"
+                )
+            else:
+                corrente = "/"
+
+    # --- COLONNA 3: SUPERFICIE ---
+    with col3:
+        if not (corpo_immerso or corpo_bagnato or copertura_speciale):
+            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
+            mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
+
+            opzioni_superficie = [
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
+                "Materasso o tappeto spesso",
+                # etichetta allineata alla tabella (aggiunta 'pietra')
+                "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
+            ]
+            if scelta_vestiti == "Nudo":
+                opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
+            if mostra_foglie:
+                opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
+
+            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # --- CALCOLO TABELLA E DESCRIZIONE ---
+    valori = {
+        "Ambiente": stato_corpo,
+        "Vestiti": scelta_vestiti,
+        "Coperte": scelta_coperte,
+        "Superficie d'appoggio": superficie,
+        "Correnti": corrente
+    }
+    # strip sui valori scelti dall'utente per evitare mismatch da spazi
+    valori = {k: (str(v).strip() if v is not None else v) for k, v in valori.items()}
+
+    riga = tabella1[
+        (tabella1["Ambiente"] == valori["Ambiente"]) &
+        (tabella1["Vestiti"] == valori["Vestiti"]) &
+        (tabella1["Coperte"] == valori["Coperte"]) &
+        (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
+        (tabella1["Correnti"] == valori["Correnti"])
+    ]
+
+    if riga.empty:
+        st.warning("Nessuna combinazione valida trovata nella tabella.")
+        return
+
+    fattore = riga["Fattore"].values[0]
+    st.success(f"Fattore di correzione calcolato: {fattore:.2f}")
+
+
+    
+
+def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
+    """Arrotonda un datetime al quarto d’ora più vicino."""
+    minuti = (dt.minute + 7) // 15 * 15
+    if minuti == 60:
+        dt += datetime.timedelta(hours=1)
+        minuti = 0
+    return dt.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(minutes=minuti)
+st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
+st.title("Stima epoca decesso")
+
+
+# --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
+opzioni_macchie = {
+    "Non ancora comparse": (0, 3),
+    "Migrabilità totale": (0, 6),
+    "Migrabilità parziale": (4, 24),
+    "Migrabilità perlomeno parziale": (0, 24),
+    "Fissità assoluta": (10, INF_HOURS),
+    "Non valutabili/Non attendibili": None
+}
+macchie_medi = {
+    "Non ancora comparse": (0, 0.33),
+    "Migrabilità totale": (0.33, 6),
+    "Migrabilità parziale": (6, 12),
+    "Migrabilità perlomeno parziale": None,
+    "Fissità assoluta": (12, INF_HOURS),
+    "Non valutabili/Non attendibili": None
+}
+testi_macchie = {
+    "Non ancora comparse": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, non fossero ancora comparse. Secondo le comuni nozioni della medicina legale, le ipostasi compaiono entro 3 ore dal decesso (generalmente entro 15-20 minuti).",
+    "Migrabilità totale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità totale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 6 ore dal decesso. Generalmente le ipostasi compaiono dopo 20 minuti dal decesso",
+    "Migrabilità parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità parziale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse tra le 4 ore e le 24 ore dal decesso.",
+    "Migrabilità perlomeno parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 24 ore dal decesso.",
+    "Fissità assoluta": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di fissità assoluta. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non modificare la loro posizione alla movimentazione del corpo, ma la loro intensità può affievolirsi).",
+    "Non valutabili/Non attendibili": "Le macchie ipostatiche non sono state valutate o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
+}
+
+opzioni_rigidita = {
+    "Non ancora comparsa": (0, 7),
+    "In via di formazione, intensificazione e generalizzazione": (0.5, 20),
+    "Presente e generalizzata": (2, 96),
+    "In via di risoluzione": (24, 192),
+    "Ormai risolta": (24, INF_HOURS),
+    "Non valutabile/Non attendibile": None
+}
+rigidita_medi = {
+    "Non ancora comparsa": (0, 3),
+    "In via di formazione, intensificazione e generalizzazione": (2, 10),
+    "Presente e generalizzata": (10, 85),
+    "In via di risoluzione": (29, 140),
+    "Ormai risolta": (76, INF_HOURS)
+}
+rigidita_descrizioni = {
+    "Non ancora comparsa": "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse meno di 7 ore dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso).",
+    "In via di formazione, intensificazione e generalizzazione": "È possibile valutare che la rigidità cadaverica fosse in via di formazione, intensificazione e generalizzazione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità si completa in 6-10 ore).",
+    "Presente e generalizzata": "È possibile valutare che la rigidità cadaverica fosse presente e generalizzata. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore).",
+    "In via di risoluzione": "È possibile valutare che la rigidità cadaverica fosse in via di risoluzione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso).",
+    "Ormai risolta": "È possibile valutare che la rigidità cadaverica fosse ormai risolta. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni).",
+    "Non valutabile/Non attendibile": "La rigidità cadaverica non è stata valutata o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
+}
+
+# --- Dati per i Nuovi Parametri Aggiuntivi ---
+dati_parametri_aggiuntivi = {
+    "Eccitabilità elettrica sopraciliare": {
+        "opzioni": ["Non valutata", "Fase I", "Fase II", "Fase III", "Fase IV", "Fase V", "Fase VI", "Nessuna reazione", "Non valutabile/non attendibile"],
+        "range": {
+            "Non valutata": None,
+            "Nessuna reazione": (5, INF_HOURS),
+            "Non valutabile/non attendibile": None,
+            "Fase VI": (1, 6),
+            "Fase V": (2, 7),
+            "Fase IV": (3, 8),
+            "Fase III": (3.5, 13),
+            "Fase II": (5, 16),
+            "Fase I": (5, 22),
+                    },
+         "descrizioni": {
+             "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
+             "Fase V": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico.",
+             "Fase IV": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico.",
+             "Fase III": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima delle valutazioni del dato tanatologico.",
+             "Fase II": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli di meno di 2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 5 e le 16 ore prima delle valutazioni del dato tanatologico.",
+             "Fase I": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3). Tale reazione di eccitabilità muscolare elettrica residua e suggerisce che il decesso fosse avvenuto tra le 5 e le 22 ore prima delle valutazioni del dato tanatologico.",
+             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo non è da considerarsi attendibile.",
+             "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
+         }
+    },
+    "Eccitabilità elettrica peribuccale": {
+        "opzioni": ["Non valutata", "Marcata ed estesa (+++)", "Discreta (++)", "Accennata (+)", "Nessuna reazione", "Non valutabile/non attendibile"],
+        "range": {
+            "Non valutata": None,
+            "Nessuna reazione": (6, INF_HOURS),
+            "Non valutabile/non attendibile": None,
+            "Marcata ed estesa (+++)": (0, 2.5), # 2 ore 30 minuti = 2.5 ore
+            "Discreta (++)": (1, 5),
+            "Accennata (+)": (2, 6)
+        },
+        "descrizioni": {
+            "Marcata ed estesa (+++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata ai muscoli peribuccali estesasi anche ai muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto meno di 2 ore e mezzo prima delle valutazioni del dato tanatologico.",
+            "Discreta (++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta ai muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 e le 6 ore prima delle valutazioni del dato tanatologico.",
+            "Accennata (+)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra  1 e  5 ore prima delle valutazioni del dato tanatologico.",
+            "Non valutata/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
+            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+        }
+    },
+    "Eccitabilità muscolare meccanica": {
+        "opzioni": ["Non valutata", "Contrazione reversibile dell’intero muscolo", "Formazione di una tumefazione reversibile", "Formazione di una piccola tumefazione persistente", "Nessuna reazione", "Non valutabile/non attendibile"],
+        "range": {
+            "Non valutata": None,
+            "Nessuna reazione": (1.5, INF_HOURS),
+            "Non valutabile/non attendibile": None,
+            "Formazione di una piccola tumefazione persistente": (0, 12), # Meno di 12 ore = 0-12 (Henssge dice 13)
+            "Formazione di una tumefazione reversibile": (2, 5),
+            "Contrazione reversibile dell’intero muscolo": (0, 2)   # Meno di 2 ore = 0-2
+        },
+         "descrizioni": {
+             "Formazione di una piccola tumefazione persistente": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 12 ore prima delle valutazioni del dato tanatologico.",
+             "Formazione di una tumefazione reversibile": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto tra le 2 e le 5 ore prima delle valutazioni del dato tanatologico.",
+             "Contrazione reversibile dell’intero muscolo": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 2 ore prima delle valutazioni del dato tanatologico.",
+             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare meccanica o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
+             "Nessuna reazione": "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 1 ora e 30 minuti dal decesso."
+         }
+    },
+    "Eccitabilità chimica pupillare": {
+        "opzioni": ["Non valutata", "Non valutabile/non attendibile","Positiva", "Negativa"],
+        "range": {
+            "Non valutata": None,
+            "Non valutabile/non attendibile": None,
+            "Positiva": (0, 30), # Meno di 30 ore = 0-30
+            "Negativa": (5, INF_HOURS) # Più di 5 ore. Usiamo un limite superiore elevato (200h) per il grafico e i calcoli, coerente con gli altri range massimi.(con arropina hansegee dice 3- 10
+
+        },
+         "descrizioni": {
+             "Positiva": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico legali.",
+             "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali.",
+             "Non valutabile/non attendibile": "L'eccitabilità chimica pupillare non era valutabile o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
+         }
+    }
+}
+nomi_brevi = {
+    "Macchie ipostatiche": "Ipostasi",
+    "Rigidità cadaverica": "Rigor",
+    "Raffreddamento cadaverico": "Hensge",
+    "Eccitabilità elettrica peribuccale": "Ecc. el. peribuccale",
+    "Eccitabilità elettrica sopraciliare": "Ecc. el. sopraciliare",
+    "Eccitabilità chimica pupillare": "Ecc. chimica",
+    "Eccitabilità muscolare meccanica": "Ecc. meccanica"
+}
+
+# --- Funzioni di Utilità e Calcolo Henssge (Esistenti) ---
+def round_quarter_hour(x):
+    if np.isnan(x):
+        return np.nan
+    return np.round(x * 2) / 2
+
+def calcola_raffreddamento(Tr, Ta, T0, W, CF):
+    # Controllo per temperature non valide per il calcolo di Henssge
+    if Tr is None or Ta is None or T0 is None or W is None or CF is None:
+         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
+    #
+    # Considera non valido se Tr è "molto vicino" o inferiore a Ta
+    temp_tolerance = 1e-6
+    if Tr <= Ta + temp_tolerance:
+        return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
+    # Controllo esplicito per evitare divisione per zero nel calcolo di Qd
+    if abs(T0 - Ta) < temp_tolerance: # Controlla se il denominatore è molto vicino a zero
+         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
+
+    # Ora calcola Qd solo se i controlli iniziali sono passati
+    Qd = (Tr - Ta) / (T0 - Ta)
+
+    # Assicurati che Qd sia un valore valido e rientri in un range plausibile (es. > 0 e <= 1)
+    if np.isnan(Qd) or Qd <= 0 or Qd > 1:
+         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
+
+    A = 1.25 if Ta <= 23 else 10/9
+    B = -1.2815 * (CF * W)**(-5/8) + 0.0284
+
+    def Qp(t):
+        try:
+            if t < 0:
+                return np.inf
+            val = A * np.exp(B * t) + (1 - A) * np.exp((A / (A - 1)) * B * t)
+            if np.isinf(val) or abs(val) > 1e10:
+                 return np.nan
+            return val
+        except OverflowError:
+             return np.nan
+        except Exception:
+             return np.nan
+
+    t_med_raw = np.nan
+
+    qp_at_0 = Qp(0)
+    qp_at_48 = Qp(480)
+
+    eps = 1e-9
+    if np.isnan(qp_at_0) or np.isnan(qp_at_48) or not (min(qp_at_48, qp_at_0) - eps <= Qd <= max(qp_at_48, qp_at_0) + eps):
+        t_med_raw = np.nan
+    else:
+         try:
+             sol = root_scalar(lambda t: Qp(t) - Qd, bracket=[0, 160], method='bisect')
+             t_med_raw = sol.root
+         except ValueError:
+             t_med_raw = np.nan
+         except Exception:
+             t_med_raw = np.nan
+
+    Dt_raw = 0
+
+    if not np.isnan(t_med_raw) and not np.isnan(Qd):
+         if Qd <= 0.2:
+              Dt_raw = t_med_raw * 0.20
+         elif CF == 1:
+              Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
+         else: # CF != 1
+              Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7
+
+    t_med = round_quarter_hour(t_med_raw) if not np.isnan(t_med_raw) else np.nan
+    t_min = round_quarter_hour(t_med_raw - Dt_raw) if not np.isnan(t_med_raw) else np.nan
+    t_max = round_quarter_hour(t_med_raw + Dt_raw) if not np.isnan(t_med_raw) else np.nan
+
+    t_min = max(0.0, t_min) if not np.isnan(t_min) else np.nan
+
+    return t_med, t_min, t_max, t_med_raw, Qd
+#
+def ranges_in_disaccordo_completa(r_inizio, r_fine):
+    intervalli = []
+    for start, end in zip(r_inizio, r_fine):
+        s = start if not np.isnan(start) else -np.inf
+        e = end if not np.isnan(end) else np.inf
+        intervalli.append((s, e))
+
+    for i, (s1, e1) in enumerate(intervalli):
+        si_sovrappone = False
+        for j, (s2, e2) in enumerate(intervalli):
+            if i == j:
+                continue
+            if s1 <= e2 and s2 <= e1:
+                si_sovrappone = True
+                break
+        if not si_sovrappone:
+            return True  # almeno uno è completamente isolato
+    return False
+
+# --- Definizione Stile e Widget (Esistenti e Nuovi) ---
+style = {'description_width': 'initial'}
+
+# --- Definizione Widget (Streamlit) ---
+
+
+with st.container():
     st.markdown("""
     <h5 style="margin:0; padding:0;">Data e ora ispezione legale</h5>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
 
-    col_data, col_ora = st.columns([1, 1], gap="large")
-    with col_data:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data ispezione legale</div>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+
+    with col1:
         input_data_rilievo = st.date_input(
             "Data ispezione legale",
             value=datetime.date.today(),
             label_visibility="collapsed"
         )
-    with col_ora:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora ispezione legale</div>", unsafe_allow_html=True)
-        input_ora_rilievo = st.text_input(
-            "Ora:",
-            value='00:00',
-            label_visibility="collapsed"
-        )
 
-    st.write("")
+    with col2:
+        input_ora_rilievo = st.text_input("Ora:", value='00:00', label_visibility="collapsed")
 
-    # =======================
-    # 2) IPOSTASI | RIGIDITÀ (stessa riga, due colonne)
-    # =======================
-    col_ipostasi, col_rigidita = st.columns([1, 1], gap="large")
+    with st.container():
+        st.markdown("""
+        <h5 style="margin:0; padding:0;">Dati stimati</h5>
+        <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+        <div style="margin-top:10px;"></div>
+        """, unsafe_allow_html=True)
 
-    with col_ipostasi:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox(
-            "Macchie ipostatiche:",
-            options=list(opzioni_macchie.keys()),
-            label_visibility="collapsed"
-        )
+        col1, col2, col3 = st.columns([2.2, 0.6, 3])
+        
+        with col1:
+            subcol1, subcol2 = st.columns([1.3, 1.4])
+            with subcol1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+            with subcol2:
+                input_t0 = st.number_input(
+                    "T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed"
+                )
 
-    with col_rigidita:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Rigidità</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox(
-            "Rigidità cadaverica:",
-            options=list(opzioni_rigidita.keys()),
-            label_visibility="collapsed"
-        )
+                with col3:
+                    subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
 
-    st.write("")
+                    # Inserimento: aggiorna il campo numerico solo se esiste un nuovo valore calcolato
 
-    # =======================
-    # 3) TEMPERATURE (stessa riga, tre colonne, etichette vicine ai campi)
-    # =======================
-    col_t_rettale, col_t_amb, col_t_ante = st.columns([1, 1, 1], gap="large")
 
-    with col_t_rettale:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Temperatura rettale (°C)</div>", unsafe_allow_html=True)
-        input_rt = st.number_input(
-            "Temperatura rettale (°C):",
-            value=35.0,
-            step=0.1,
-            format="%.1f",
-            label_visibility="collapsed"
-        )
+        with col3:
+            subcol1, subcol2, subcol3 = st.columns([1, 1.2, 0.8], gap="small")
 
-    with col_t_amb:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Temperatura ambientale (°C)</div>", unsafe_allow_html=True)
-        input_ta = st.number_input(
-            "Temperatura ambientale (°C):",
-            value=20.0,
-            step=0.1,
-            format="%.1f",
-            label_visibility="collapsed"
-        )
+            # ✅ Aggiorna il campo numerico solo se esiste un nuovo valore calcolato
+            if "fattore_correzione" in st.session_state:
+                st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
+                st.session_state.pop("fattore_correzione", None)  # elimina in modo sicuro
 
-    with col_t_ante:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ante-mortem stimata (°C)</div>", unsafe_allow_html=True)
-        input_t0 = st.number_input(
-            "T. ante-mortem stimata (°C):",
-            value=37.2,
-            step=0.1,
-            format="%.1f",
-            label_visibility="collapsed"
-        )
+            with subcol1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore correzione:</div>", unsafe_allow_html=True)
+            with subcol2:
+                input_cf = st.number_input(
+                    "Fattore di correzione:",
+                    min_value=0.05,
+                    max_value=5.5,
+                    step=0.1,
+                    value=1.0,
+                    label_visibility="collapsed",
+                    key="fattore_correzione_input"
+                )
+            with subcol3:
+                perfeziona_cf = st.button("⚙", key="perfeziona_fc_mini")
 
-    st.write("")
-
-    # =======================
-    # 4) PESO | FATTORE DI CORREZIONE (stessa riga, due colonne)
-    #    Pulsante con ingranaggio + testo "suggerisci"
-    # =======================
-    col_peso, col_fattore = st.columns([1, 1], gap="large")
-
-    with col_peso:
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg)</div>", unsafe_allow_html=True)
-        input_w = st.number_input(
-            "Peso corporeo (kg):",
-            value=70.0,
-            step=1.0,
-            format="%.1f",
-            label_visibility="collapsed"
-        )
-        st.session_state["peso"] = input_w  # mantiene coerenza con calcola_fattore
-
-    with col_fattore:
-        # Se è presente un valore calcolato altrove, lo porta nel campo visibile (come già facevi)
-        if "fattore_correzione" in st.session_state:
-            st.session_state["fattore_correzione_input"] = st.session_state["fattore_correzione"]
-            st.session_state.pop("fattore_correzione", None)
-
-        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Fattore di correzione</div>", unsafe_allow_html=True)
-        input_cf = st.number_input(
-            "Fattore di correzione:",
-            min_value=0.05,
-            max_value=5.5,
-            step=0.1,
-            value=st.session_state.get("fattore_correzione_input", 1.0),
-            label_visibility="collapsed",
-            key="fattore_correzione_input"
-        )
-
-        # 🔘 Pulsante: ingranaggio + testo SOLO "suggerisci"
-        perfeziona_cf = st.button("⚙️ suggerisci", key="perfeziona_cf")
-
-    # 🔽 Fuori da tutte le colonne, piena larghezza (toggle identico al tuo)
+    # 🔽 Fuori da tutte le colonne, su piena larghezza
     if perfeziona_cf:
         st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 
     if st.session_state.get("mostra_modulo_fattore", False):
-        with st.expander("Suggerimento fattore di correzione", expanded=True):
+        calcola_fattore(peso=st.session_state.get("peso", 70))
+
+
+with st.container():
+    st.markdown("""
+    <h5 style="margin:0; padding:0;">Dati misurati</h5>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="small")
+
+    with col1:
+        subcol1, subcol2 = st.columns([0.6, 2], gap="small")
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+        with subcol2:
+            selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
+
+    with col2:
+        subcol1, subcol2 = st.columns([0.6, 2], gap="small")
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Rigidità:</div>", unsafe_allow_html=True)
+        with subcol2:
+            selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
+
+    col1, col2, col3, col4, col5 = st.columns([1, 0.2, 1.1, 0.2, 0.9], gap="small")
+
+    with col1:
+        subcol1, subcol2 = st.columns([1, 1.5], gap="small")
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_rt = st.number_input(
+                "Temperatura rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed"
+            )
+
+    with col3:
+        subcol1, subcol2 = st.columns([1.8, 2], gap="small")
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_ta = st.number_input(
+                "Temperatura ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed"
+            )
+
+    with col5:
+        subcol1, subcol2 = st.columns([1, 2], gap="small")
+        with subcol1:
+            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Peso (kg):</div>", unsafe_allow_html=True)
+        with subcol2:
+            input_w = st.number_input(
+                "Peso corporeo (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed"
+            )
+
+st.session_state["peso"] = input_w  #
+
+# Pulsante per mostrare/nascondere i parametri aggiuntivi
+mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
+
+widgets_parametri_aggiuntivi = {}
+
+if mostra_parametri_aggiuntivi:
+    st.markdown("""
+    <h5 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h5>
+    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
+    <div style="margin-top:10px;"></div>
+    """, unsafe_allow_html=True)
+
+    for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+        col1, col2 = st.columns([1, 2], gap="small")
+        with col1:
             st.markdown(
-                "<div style='background-color:#f0f4f8; padding:12px; border-radius:10px;'>",
+                f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
                 unsafe_allow_html=True
             )
-            # ⬇️ Chiama la tua funzione esistente (invariata)
-            calcola_fattore(peso=st.session_state.get("peso", 70))
-            st.markdown("</div>", unsafe_allow_html=True)
+        with col2:
+            selettore = st.selectbox(
+                label=nome_parametro,
+                options=dati_parametro["opzioni"],
+                key=f"{nome_parametro}_selector",
+                label_visibility="collapsed"
+            )
+
+        data_picker = None
+        ora_input = None
+        usa_orario_personalizzato = False
+
+        if selettore != "Non valutata":
+            chiave_checkbox = f"{nome_parametro}_diversa"
+            col1, col2 = st.columns([0.2, 0.2], gap="small")
+            with col1:
+                st.markdown(
+                    "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
+                    "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
+            with col2:
+                usa_orario_personalizzato = st.checkbox(
+                    label="",
+                    key=chiave_checkbox
+                )
+
+        if usa_orario_personalizzato:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
+                data_picker = st.date_input(
+                    "Data rilievo:",
+                    value=input_data_rilievo,
+                    key=f"{nome_parametro}_data",
+                    label_visibility="collapsed"
+                )
+            with col2:
+                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
+                ora_input = st.text_input(
+                    "Ora rilievo (HH:MM):",
+                    value=input_ora_rilievo,
+                    key=f"{nome_parametro}_ora",
+                    label_visibility="collapsed"
+                )
+
+        widgets_parametri_aggiuntivi[nome_parametro] = {
+            "selettore": selettore,
+            "data_rilievo": data_picker,
+            "ora_rilievo": ora_input
+        }
+
+
+        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                width=400
+            )
+
+        if nome_parametro == "Eccitabilità elettrica peribuccale":
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                width=300
+            )
+
+st.markdown("""
+    <style>
+    div.stButton > button {
+        border: 2px solid #2196F3 !important;
+        color: black !important;
+        background-color: white !important;
+        font-weight: bold;
+        border-radius: 8px !important;
+        padding: 0.6em 2em !important;
+    }
+    div.stButton > button:hover {
+        background-color: #E3F2FD !important;
+        cursor: pointer;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
+
+
 grafico_generato = False
 
 def aggiorna_grafico():
@@ -953,6 +1452,9 @@ def aggiorna_grafico():
 # Al click del pulsante, esegui la funzione principale
 if pulsante_genera_stima:
     aggiorna_grafico()
+
+
+
 
 
 
