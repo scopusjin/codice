@@ -199,6 +199,14 @@ def calcola_fattore(peso):
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
+    # Pulsante per applicare il fattore calcolato al campo principale (senza aggiornamenti automatici)
+    if st.button("✅ Usa questo fattore", key="usa_fattore_btn"):
+        try:
+            st.session_state["fattore_correzione"] = round(float(fattore_finale), 2)
+            st.success("Campo 'Fattore di correzione' aggiornato.")
+        except Exception as e:
+            st.warning(f"Impossibile applicare il fattore calcolato: {e}")
+
 
 
 
@@ -505,7 +513,14 @@ with st.container():
         subcol1, subcol2 = st.columns([2, 1], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
-            fattore_correzione = st.number_input("Fattore di correzione:", value=1.0, step=0.1, format="%.2f", label_visibility="collapsed")
+            fattore_correzione = st.number_input(
+                "Fattore di correzione:",
+                value=st.session_state.get("fattore_correzione", 1.0),
+                step=0.1,
+                format="%.2f",
+                label_visibility="collapsed",
+                key="fattore_correzione"
+                )
         with subcol2:
             if st.button("⚙️ Suggerisci", help="Calcola il fattore di correzione suggerito"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
