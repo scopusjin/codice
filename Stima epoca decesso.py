@@ -1065,9 +1065,9 @@ def aggiorna_grafico():
     hensge_input_forniti = (
         input_rt is not None and
         input_ta is not None and
-        input_t0 is not None and
+        input_tm is not None and
         input_w is not None and
-        input_cf is not None
+        fattore_correzione is not None
     )
 
     if hensge_input_forniti:
