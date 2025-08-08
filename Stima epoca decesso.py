@@ -497,10 +497,10 @@ with st.container():
     col1, col2, col3 = st.columns(3, gap="large")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-        input_rt = st.number_input("Temperatura rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
-        input_ta = st.number_input("Temperatura ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
     with col3:
         st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.0, step=0.1, format="%.1f", label_visibility="collapsed")
@@ -517,7 +517,6 @@ with st.container():
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
                 "Fattore di correzione:",
-                value=st.session_state.get("fattore_correzione", 1.0),
                 step=0.1,
                 format="%.2f",
                 label_visibility="collapsed",
