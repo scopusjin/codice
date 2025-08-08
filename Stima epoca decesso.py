@@ -6,6 +6,8 @@ import numpy as np
 from scipy.optimize import root_scalar
 import datetime
 
+if "fattore_correzione" not in st.session_state:
+    st.session_state["fattore_correzione"] = 1.0
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200 # Un valore sufficientemente grande per la scala del grafico e i calcoli
@@ -200,16 +202,16 @@ def calcola_fattore(peso):
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
     # Pulsante per applicare il fattore calcolato al campo principale (senza aggiornamenti automatici)
-    if st.button("✅ Usa questo fattore", key="usa_fattore_btn"):
-        try:
-            st.session_state["fattore_correzione"] = round(float(fattore_finale), 2)
-            st.success("Campo 'Fattore di correzione' aggiornato.")
-        except Exception as e:
-            st.warning(f"Impossibile applicare il fattore calcolato: {e}")
+    def _apply_fattore(val):
+        st.session_state["fattore_correzione"] = round(float(val), 2)
+        st.session_state["mostra_modulo_fattore"] = False  # opzionale: richiude l’expander
 
-
-
-
+    st.button(
+        "✅ Usa questo fattore",
+        key="usa_fattore_btn",
+        on_click=_apply_fattore,
+        args=(fattore_finale,)
+    )
     
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
