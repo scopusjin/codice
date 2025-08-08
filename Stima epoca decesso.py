@@ -683,7 +683,7 @@ def aggiorna_grafico():
     t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
         Tr_val, Ta_val, T0_val, W_val, CF_val
     )
-
+    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
     raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
 
     temp_difference_small = False
