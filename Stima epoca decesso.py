@@ -1216,11 +1216,12 @@ def aggiorna_grafico():
 
     # Metodo Potente et al.
     soglia_qd = 0.2 if Ta_val <= 23 else 0.5
+    condizione_temp = "Ta ≤ 23 °C" if temperatura_ambiente <= 23 else "Ta > 23 °C"
     if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < soglia_qd:
         elenco_extra.append(
             f"<li>"
             f"Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
-            f"(Qd &lt; {soglia_qd} e Ta ≤ 23 °C). "
+            f"(Qd &lt; {soglia_qd} e {condizione_temp}). "
             f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
             f"<ul><li><span style='font-size:smaller;'>"
             f"Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. "
