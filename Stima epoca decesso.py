@@ -907,10 +907,10 @@ def aggiorna_grafico():
                 nome_raffreddamento_intersezione = "raffreddamento cadaverico"
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
 
-    if 'mt_ore' in locals() and mt_ore is not None and not np.isnan(mt_ore):
+    if (not usa_potente_per_intersezione) and ('mt_ore' in locals()) and (mt_ore is not None) and (not np.isnan(mt_ore)):
         ranges_per_intersezione_inizio.append(mt_ore)
         ranges_per_intersezione_fine.append(np.nan)
-
+        
     if len(ranges_per_intersezione_inizio) > 0:
         comune_inizio = max(ranges_per_intersezione_inizio)
         if mt_ore is not None and not np.isnan(mt_ore):
