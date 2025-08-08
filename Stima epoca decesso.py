@@ -844,7 +844,11 @@ def aggiorna_grafico():
                 ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
                 mt_ore = round(ln_term / B_potente, 1)
                 mt_giorni = round(mt_ore / 24, 1)
-
+        usa_potente_per_intersezione = (
+           (not np.isnan(Qd_val_check)) and
+          (Qd_val_check < qd_threshold) and
+          (mt_ore is not None) and (not np.isnan(mt_ore))
+       )
     # Aggiunge range dei parametri aggiuntivi, considerando sempre il limite inferiore
     for p in parametri_aggiuntivi_da_considerare:
         if not np.isnan(p["range_traslato"][0]):
