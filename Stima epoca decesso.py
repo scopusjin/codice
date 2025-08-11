@@ -559,7 +559,6 @@ with st.container():
             options=list(opzioni_rigidita.keys()),
             label_visibility="collapsed"
         )
-
     st.markdown('</div>', unsafe_allow_html=True)  # fine riquadro
 
 
