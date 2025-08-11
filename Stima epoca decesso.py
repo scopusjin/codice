@@ -700,80 +700,25 @@ with col2:
 
 # grafico_generato = False  # non necessario mantenerlo globale
 
-def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
     if not input_data_rilievo or not input_ora_rilievo:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Completare data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
         return
 
     try:
-        ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, '%H:%M')
-        minuti_isp = ora_isp_obj.minute
-    except ValueError:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: Formato ora ispezione legale non valido. Utilizzare il formato HH:MM (es. 14:30).</p>", unsafe_allow_html=True)
+        # Con i selectbox, input_ora_rilievo è già un datetime.time
+        if isinstance(input_ora_rilievo, datetime.time):
+            ora_isp_time = input_ora_rilievo
+        else:
+            # Fallback di compatibilità se fosse ancora una stringa "HH:MM"
+            ora_isp_time = datetime.datetime.strptime(str(input_ora_rilievo), '%H:%M').time()
+        minuti_isp = ora_isp_time.minute
+    except Exception:
+        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: Ora ispezione non valida. Seleziona un orario (es. 14:30).</p>", unsafe_allow_html=True)
         return
 
-    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_time)
     data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
-
-    # --- Recupero Valori Input per Calcoli (Esistenti) ---
-    Tr_val = input_rt
-    Ta_val = input_ta
-    T0_val = input_tm
-    W_val = input_w
-    CF_val = st.session_state.get("fattore_correzione", 1.0)
-
-    macchie_selezionata = selettore_macchie
-    rigidita_selezionata = selettore_rigidita
-
-    t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
-        Tr_val, Ta_val, T0_val, W_val, CF_val
-    )
-    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
-    raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
-
-    temp_difference_small = False
-    if Tr_val is not None and Ta_val is not None and (Tr_val - Ta_val) is not None and (Tr_val - Ta_val) < 2.0 and (Tr_val - Ta_val) >= 0:
-        temp_difference_small = True
-
-    macchie_range_valido = macchie_selezionata != "Non valutabili/Non attendibili"
-    macchie_range = opzioni_macchie.get(macchie_selezionata) if macchie_range_valido else (np.nan, np.nan)
-    macchie_medi_range = macchie_medi.get(macchie_selezionata) if macchie_range_valido else None
-
-    rigidita_range_valido = rigidita_selezionata != "Non valutabile/Non attendibile"
-    rigidita_range = opzioni_rigidita.get(rigidita_selezionata) if rigidita_range_valido else (np.nan, np.nan)
-    rigidita_medi_range = rigidita_medi.get(rigidita_selezionata) if rigidita_range_valido else None
-
-    parametri_aggiuntivi_da_considerare = []
-    nota_globale_range_adattato = False
-
-    for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
-        stato_selezionato = widgets_param["selettore"]
-        data_rilievo_param = widgets_param["data_rilievo"]
-        ora_rilievo_param_str = widgets_param["ora_rilievo"]
-
-        if stato_selezionato == "Non valutata":
-            continue
-
-        chiave_descrizione = stato_selezionato.split(':')[0].strip()
-
-        # Usa ora ispezione legale se non presente valore personalizzato
-        if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
-            ora_rilievo_param_obj = data_ora_ispezione
-        else:
-            try:
-                ora_rilievo_param_obj = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M')
-                minuti_param = ora_rilievo_param_obj.minute
-                if minuti_param not in [0, 30]:
-                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
-                    continue
-            except ValueError:
-                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
-                continue
-
-        # Se data personalizzata assente, usa quella dell’ispezione
-        if data_rilievo_param is None:
-            data_rilievo_param = data_ora_ispezione.date()
 
         # Determina la chiave corretta da usare per cercare nel dizionario dei range
         if nome_parametro == "Eccitabilità elettrica peribuccale":
