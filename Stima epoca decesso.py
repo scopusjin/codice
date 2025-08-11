@@ -541,7 +541,7 @@ with st.container():
         label_visibility="collapsed"
         )
 
-	st.markdown('<div class="box-tanatologia">', unsafe_allow_html=True)
+    st.markdown('<div class="box-tanatologia">', unsafe_allow_html=True)
     st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2, gap="small")
