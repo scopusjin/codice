@@ -508,11 +508,11 @@ with st.container():
     # 📌 1. Data e ora ispezione legale
     col1, col2 = st.columns(2, gap="small")
     with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Data ispezione legale:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi:</div>", unsafe_allow_html=True)
         input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
 
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
+        # st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input(
         "Ora ispezione legale (HH:MM):",
         value="00:00",
