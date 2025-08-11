@@ -503,12 +503,7 @@ style = {'description_width': 'initial'}
 
 # --- Definizione Widget (Streamlit) ---
 with st.container():
-    # Titolo sezione
-    st.markdown("""
-    <h3 style="margin:0; padding:0;">Dati misurati</h3>
-    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
-    <div style="margin-top:10px;"></div>
-    """, unsafe_allow_html=True)
+    
 
     # 📌 1. Data e ora ispezione legale
     col1, col2 = st.columns(2, gap="small")
