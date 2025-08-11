@@ -264,6 +264,28 @@ def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 st.title("Stima epoca decesso")
 
+# --- BOX STILE PER IPOSTASI & RIGOR ---
+st.markdown("""
+<style>
+.box-tanatologia {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px 12px 6px;
+    background: #fafafa;
+    margin-top: 6px;
+}
+.box-tanatologia .box-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 8px 2px;
+    color: #444;
+}
+@media (max-width: 600px){
+    .box-tanatologia { padding: 10px; }
+    .box-tanatologia .box-title { font-size: 0.92rem; }
+}
+</style>
+""", unsafe_allow_html=True)
 
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
 opzioni_macchie = {
@@ -518,15 +540,32 @@ with st.container():
         value="00:00",
         label_visibility="collapsed"
         )
-    # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
+
+	st.markdown('<div class="box-tanatologia">', unsafe_allow_html=True)
+    st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
+
     col1, col2 = st.columns(2, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
+        selettore_macchie = st.selectbox(
+            "Macchie ipostatiche:",
+            options=list(opzioni_macchie.keys()),
+            label_visibility="collapsed"
+        )
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
+        selettore_rigidita = st.selectbox(
+            "Rigidità cadaverica:",
+            options=list(opzioni_rigidita.keys()),
+            label_visibility="collapsed"
+        )
 
+    st.markdown('</div>', unsafe_allow_html=True)  # fine riquadro
+
+
+
+    
+    
     # 📌 3. Temperature (3 colonne gap large)
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
