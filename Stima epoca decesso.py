@@ -562,6 +562,51 @@ with st.container():
     st.markdown('</div>', unsafe_allow_html=True)  # fine riquadro
 
 
+# Ancoraggio per stilare il container successivo
+st.markdown('<div id="box-tanatologia"></div>', unsafe_allow_html=True)
+
+# Container che conterrà i widget (verrà stilato via CSS come riquadro)
+with st.container():
+    st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="small")
+    with col1:
+        st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+        selettore_macchie = st.selectbox(
+            "Macchie ipostatiche:",
+            options=list(opzioni_macchie.keys()),
+            label_visibility="collapsed"
+        )
+    with col2:
+        st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
+        selettore_rigidita = st.selectbox(
+            "Rigidità cadaverica:",
+            options=list(opzioni_rigidita.keys()),
+            label_visibility="collapsed"
+        )
+
+# Stile del riquadro applicato al container subito dopo l’ancora
+st.markdown("""
+<style>
+#box-tanatologia + div {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 12px 12px 6px;
+    background: #fafafa;
+    margin-top: 6px;
+}
+#box-tanatologia + div .box-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0 0 8px 2px;
+    color: #444;
+}
+@media (max-width: 600px){
+    #box-tanatologia + div { padding: 10px; }
+    #box-tanatologia + div .box-title { font-size: 0.92rem; }
+}
+</style>
+""", unsafe_allow_html=True)
 
     
     
