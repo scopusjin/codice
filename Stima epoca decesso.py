@@ -200,7 +200,7 @@ def calcola_fattore(peso):
     fattore_finale = fattore_base
 
     # Applica Tabella 2 solo quando serve (puoi cambiare la condizione se vuoi reintrodurre 'situaz_speciale')
-    if fattore_base >= 1.4:
+    if fattore_base >= 1.4 and abs(peso - 70.0) > 0.01:
         try:
             t2 = tabella2.copy()
 
