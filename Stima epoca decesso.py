@@ -505,7 +505,7 @@ style = {'description_width': 'initial'}
 with st.container():
     # Titolo sezione
     st.markdown("""
-    <h3 style="margin:0; padding:0;">Dati misurati</h3>
+    <h2 style="margin:0; padding:0;">Dati misurati</h2>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
@@ -518,11 +518,13 @@ with st.container():
 
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
-        input_ora_rilievo = st.text_input(
-        "Ora ispezione legale (HH:MM):",
-        value="00:00",
-        label_visibility="collapsed"
+        input_ora_rilievo = st.time_input(
+            "Ora ispezione legale (HH:MM):",
+            value=datetime.time(0, 0),
+            step=datetime.timedelta(minutes=5),
+            label_visibility="collapsed"
         )
+
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
     col1, col2 = st.columns(2, gap="small")
     with col1:
