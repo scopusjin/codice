@@ -515,16 +515,30 @@ with st.container():
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Data ispezione legale:</div>", unsafe_allow_html=True)
         input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
-
+    
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
-        input_ora_rilievo = st.time_input(
-            "Ora ispezione legale (HH:MM):",
-            value=datetime.time(0, 0),
-            step=datetime.timedelta(minutes=5),
-            label_visibility="collapsed"
-        )
 
+        col_h, col_m = st.columns([1, 1], gap="small")
+        with col_h:
+            ora_sel = st.selectbox(
+                "Ora",
+                options=list(range(0, 24)),
+                index=0,
+                label_visibility="collapsed"
+            )
+        with col_m:
+            minuti_sel = st.selectbox(
+                "Minuti",
+                options=[0, 15, 30, 45],
+                index=0,
+                label_visibility="collapsed"
+            )
+
+        # Orario composto in oggetto datetime.time (step effettivo 15 min)
+        input_ora_rilievo = datetime.time(ora_sel, minuti_sel)
+
+    
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
     col1, col2 = st.columns(2, gap="small")
     with col1:
