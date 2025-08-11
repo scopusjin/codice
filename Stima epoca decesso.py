@@ -505,7 +505,7 @@ style = {'description_width': 'initial'}
 with st.container():
     # Titolo sezione
     st.markdown("""
-    <h5 style="margin:0; padding:0;">Dati misurati</h5>
+    <h3 style="margin:0; padding:0;">Dati misurati</h3>
     <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
     <div style="margin-top:10px;"></div>
     """, unsafe_allow_html=True)
@@ -517,7 +517,7 @@ with st.container():
         input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
 
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale (HH:MM):</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input(
         "Ora ispezione legale (HH:MM):",
         value="00:00",
@@ -533,7 +533,7 @@ with st.container():
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
     # 📌 3. Temperature (3 colonne gap large)
-    col1, col2, col3 = st.columns(3, gap="large")
+    col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
         input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
@@ -548,7 +548,7 @@ with st.container():
     col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-        input_w = st.number_input("Peso corporeo (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
+        input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
         st.session_state["peso"] = input_w
     with col2:
         subcol1, subcol2 = st.columns([2, 1], gap="small")
@@ -562,12 +562,12 @@ with st.container():
                 key="fattore_correzione"
                 )
         with subcol2:
-            if st.button("⚙️ Suggerisci", help="Calcola il fattore di correzione suggerito"):
+            if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 
 # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
 if st.session_state.get("mostra_modulo_fattore", False):
-    with st.expander("Calcolo fattore di correzione", expanded=True):
+    with st.expander("Stima fattore di correzione", expanded=True):
         st.markdown(
             '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
             unsafe_allow_html=True
