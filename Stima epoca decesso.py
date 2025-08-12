@@ -547,23 +547,6 @@ with st.container():
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
     # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci" (mini-link)
-    import streamlit as st
-    from streamlit_js_eval import streamlit_js_eval
-
-    # CSS per link
-    st.markdown("""
-        <style>
-        .link-button {
-            background: none;
-            border: none;
-            color: #0066cc;
-            text-decoration: underline;
-            font-size: 0.85rem;
-            cursor: pointer;
-            padding: 0;
-        }
-        </style>
-    """, unsafe_allow_html=True)
 
     col1, col2 = st.columns([1, 3], gap="small")
     with col1:
@@ -584,7 +567,7 @@ with st.container():
             )
 
         with subcol2:
-            st.markdown("&nbsp;", unsafe_allow_html=True)  # Spazio vuoto o eventuale placeholder
+            st.empty()
 
 
 
