@@ -59,10 +59,9 @@ def calcola_fattore(peso):
         return
 
     st.markdown("### Parametri per il fattore di correzione")
-
     col1, col2, col3 = st.columns(3)
 
-    # Ambiente
+    # Colonna 1: Ambiente
     with col1:
         ambiente = st.radio(
             "Ambiente",
@@ -70,7 +69,7 @@ def calcola_fattore(peso):
             index=0
         )
 
-    # Coperte
+    # Colonna 2: Coperte
     with col2:
         if ambiente == "Asciutto":
             coperte = st.selectbox(
@@ -86,11 +85,11 @@ def calcola_fattore(peso):
                 ]
             )
         elif ambiente == "Bagnato":
-            coperte = st.selectbox("Coperte", ["/"])
-        else:  # Immerso
+            coperte = "/"
+        else:
             coperte = "/"
 
-    # Vestiti
+    # Colonna 3: Vestiti
     with col3:
         if ambiente in ["Asciutto", "Bagnato"] and coperte not in [
             "Strato di foglie di medio spessore",
@@ -134,7 +133,7 @@ def calcola_fattore(peso):
     else:
         superficie = "/"
 
-    # Costruzione del dizionario valori
+    # Dizionario valori per la ricerca
     valori = {
         "Ambiente": ambiente,
         "Vestiti": vestiti,
@@ -143,7 +142,7 @@ def calcola_fattore(peso):
         "Correnti": correnti
     }
 
-    # Match nella tabella 1
+    # Ricerca nella tabella 1
     riga = tabella1[
         (tabella1["Ambiente"] == valori["Ambiente"]) &
         (tabella1["Vestiti"] == valori["Vestiti"]) &
@@ -151,6 +150,7 @@ def calcola_fattore(peso):
         (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
         (tabella1["Correnti"] == valori["Correnti"])
     ]
+
     if riga.empty:
         st.warning("Nessuna combinazione trovata nella tabella.")
         return
@@ -158,7 +158,7 @@ def calcola_fattore(peso):
     fattore_base = float(riga["Fattore"].values[0])
     fattore_finale = fattore_base
 
-    # Correzione tabella 2 per peso
+    # Correzione con tabella 2
     if fattore_base >= 1.4 and peso != 70:
         try:
             pesi_col = {
@@ -180,7 +180,7 @@ def calcola_fattore(peso):
     if abs(fattore_finale - fattore_base) > 1e-9:
         st.caption(f"Valore Tabella 1: {fattore_base:.2f} – peso considerato: {peso:.1f} kg")
 
-    # Pulsante per applicare il fattore
+    # Pulsante per usare il fattore
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["mostra_modulo_fattore"] = False
