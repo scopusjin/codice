@@ -200,7 +200,7 @@ def calcola_fattore(peso):
     fattore_finale = fattore_base
 
     # Applica Tabella 2 solo quando serve (puoi cambiare la condizione se vuoi reintrodurre 'situaz_speciale')
-    if fattore_base >= 1.4:
+    if fattore_base >= 1.4 and peso != 70:
         try:
             t2 = tabella2.copy()
 
@@ -507,12 +507,11 @@ with st.container():
 
     # 📌 1. Data e ora ispezione legale
     col1, col2 = st.columns(2, gap="small")
+    st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
     with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Data ispezione legale:</div>", unsafe_allow_html=True)
-        input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
+                input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
 
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
         input_ora_rilievo = st.text_input(
         "Ora ispezione legale (HH:MM):",
         value="00:00",
@@ -533,7 +532,7 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
         input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
         input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
     with col3:
         st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
@@ -548,7 +547,7 @@ with st.container():
     with col2:
         subcol1, subcol2 = st.columns([2, 1], gap="small")
         with subcol1:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
                 "Fattore di correzione:",
                 step=0.1,
@@ -557,7 +556,7 @@ with st.container():
                 key="fattore_correzione"
                 )
         with subcol2:
-            if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione"):
+            if st.button("⚙️ Suggerisci FC"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 
 # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
@@ -572,7 +571,7 @@ if st.session_state.get("mostra_modulo_fattore", False):
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
+mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
 
 widgets_parametri_aggiuntivi = {}
 
@@ -674,7 +673,7 @@ st.markdown("""
 
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
+    pulsante_genera_stima = st.button("STIMA EPOCA DECESSO")
 
 
 # grafico_generato = False  # non necessario mantenerlo globale
@@ -682,7 +681,7 @@ with col2:
 def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
     if not input_data_rilievo or not input_ora_rilievo:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Completare data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
         return
 
     try:
