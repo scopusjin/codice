@@ -52,143 +52,98 @@ def calcola_fattore(peso):
     try:
         tabella1, tabella2 = load_tabelle_correzione()
     except FileNotFoundError:
-        st.error("File Excel mancanti per il calcolo del fattore di correzione.")
+        st.error("Impossibile calcolare il fattore di correzione: file Excel non trovati.")
         return
     except Exception as e:
-        st.error(f"Errore nel caricamento delle tabelle: {e}")
+        st.error(f"Errore nel caricamento delle tabelle di correzione: {e}")
         return
 
     st.markdown("### Parametri per il fattore di correzione")
 
-    # --- CAMPO 1: Condizioni del corpo ---
-    stato_corpo = st.radio(
-        "Condizioni del corpo",
-        ["Asciutto", "Bagnato", "Immerso"],
-        horizontal=True,
-        index=0,
-        key="stato_corpo"
-    )
+    col1, col2, col3 = st.columns(3)
 
-    # Default valori
-    scelta_vestiti, scelta_coperte, superficie, corrente = "/", "Nessuna coperta", "/", "/"
-    foglie = None
-
-    # --- CAMPO 2: Indumenti sull’addome ---
-    if stato_corpo != "Immerso":
-        tipo_strati = st.radio(
-            "Tipo di indumenti",
-            ["Leggeri", "Pesanti"],
-            horizontal=True,
-            index=0,
-            key="tipo_strati"
+    # Ambiente
+    with col1:
+        ambiente = st.radio(
+            "Ambiente",
+            ["Asciutto", "Bagnato", "Immerso"],
+            index=0
         )
 
-        if tipo_strati == "Leggeri":
-            opzioni_leggeri = [
-                "Nudo",
-                "1-2 strati sottili",
-                "2-3 strati sottili",
-                "3-4 strati sottili",
-                "˃4 strati sottili o ˃2 spessi",
-                "Moltissimi strati"
-            ]
-            scelta_vestiti = st.select_slider(
-                "Indumenti leggeri",
-                options=opzioni_leggeri,
-                value="Nudo",
-                key="scelta_leggeri"
+    # Coperte
+    with col2:
+        if ambiente == "Asciutto":
+            coperte = st.selectbox(
+                "Coperte",
+                [
+                    "Nessuna coperta",
+                    "Coperta spessa (es copriletto)",
+                    "Coperte più spesse (es coperte di lana)",
+                    "Coperta pesante (es piumino imbottito)",
+                    "Molte coperte pesanti",
+                    "Strato di foglie di medio spessore",
+                    "Spesso strato di foglie"
+                ]
+            )
+        elif ambiente == "Bagnato":
+            coperte = st.selectbox("Coperte", ["/"])
+        else:  # Immerso
+            coperte = "/"
+
+    # Vestiti
+    with col3:
+        if ambiente in ["Asciutto", "Bagnato"] and coperte not in [
+            "Strato di foglie di medio spessore",
+            "Spesso strato di foglie"
+        ] and ambiente != "Immerso":
+            vestiti = st.selectbox(
+                "Vestiti",
+                [
+                    "Nudo",
+                    "1-2 strati sottili",
+                    "2-3 strati sottili",
+                    "3-4 strati sottili",
+                    "1-2 strati spessi",
+                    "˃4 strati sottili o ˃2 spessi",
+                    "Moltissimi strati"
+                ]
             )
         else:
-            opzioni_pesanti = [
-                "Nudo",
-                "1-2 strati spessi",
-                "˃4 strati sottili o ˃2 spessi",
-                "Moltissimi strati"
-            ]
-            scelta_vestiti = st.select_slider(
-                "Indumenti pesanti",
-                options=opzioni_pesanti,
-                value="Nudo",
-                key="scelta_pesanti"
-            )
+            vestiti = "/"
 
-    # --- PULSANTE COPERTE ---
-    if stato_corpo != "Immerso":
-        if st.checkbox("Coperte?", key="usa_coperte"):
-            opzioni_coperte = [
-                "Coperta spessa (es copriletto)",
-                "Coperte più spesse (es coperte di lana)",
-                "Coperta pesante (es piumino imbottito)"
-            ]
-            if scelta_vestiti == "Moltissimi strati":
-                opzioni_coperte.append("Molte coperte pesanti")
-            scelta_coperte = st.select_slider(
-                "Tipologia coperte",
-                options=opzioni_coperte,
-                value=opzioni_coperte[0],
-                key="scelta_coperte"
-            )
+    # Correnti
+    if ambiente == "Bagnato":
+        correnti = st.selectbox("Correnti", ["Esposto a corrente d'aria", "Nessuna corrente"])
+    elif ambiente == "Immerso":
+        correnti = st.selectbox("Correnti", ["In acqua corrente", "In acqua stagnante"])
+    else:
+        correnti = "/"
 
-    # --- PULSANTE FOGLIE ---
-    if stato_corpo == "Asciutto":
-        if st.checkbox("Foglie?", key="usa_foglie"):
-            foglie_opzioni = [
-                "Strato di foglie di medio spessore",
-                "Spesso strato di foglie"
-            ]
-            if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":
-                foglie_opzioni += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
-            foglie = st.selectbox("Tipologia foglie", foglie_opzioni, key="tipo_foglie")
-
-            if "foglie" in foglie.lower() and not ("umide" in foglie.lower() or "secche" in foglie.lower()):
-                scelta_coperte, scelta_vestiti, superficie, corrente = foglie, "/", "/", "/"
-            elif "umide" in foglie.lower() or "secche" in foglie.lower():
-                superficie = foglie
-
-    # --- CAMPO SUPERFICIE ---
-    if superficie == "/" and stato_corpo != "Immerso" and not (foglie and "foglie" in foglie.lower() and not ("umide" in foglie or "secche" in foglie)):
-        superficie_scelta = st.radio(
+    # Superficie d'appoggio
+    if coperte not in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
+        superficie = st.selectbox(
             "Superficie d'appoggio",
-            ["Molto conduttiva", "Conduttiva", "Indifferente", "Isolante", "Molto isolante"],
-            horizontal=True,
-            index=2,
-            key="superficie_scelta"
+            [
+                "Superficie metallica spessa, all'esterno.",
+                "Cemento, pietra, pavimento in PVC, pavimentazione esterna",
+                "Pavimento di casa, terreno o prato asciutto, asfalto",
+                "Materasso o tappeto spesso",
+                "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)"
+            ]
         )
-        mapping_superficie = {
-            "Molto conduttiva": "Superficie metallica spessa, all'esterno.",
-            "Conduttiva": "Cemento, pietra, pavimento in PVC, pavimentazione esterna",
-            "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
-            "Isolante": "Materasso o tappeto spesso",
-            "Molto isolante": "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)"
-        }
-        superficie = mapping_superficie[superficie_scelta]
-        st.caption(f"Esempio: {mapping_superficie[superficie_scelta]}")
+    else:
+        superficie = "/"
 
-    # --- CORRENTI ---
-    if stato_corpo == "Bagnato":
-        corrente = st.radio(
-            "Presenza di correnti",
-            ["Esposto a corrente d'aria", "Nessuna corrente"],
-            index=1,
-            key="corrente_aria"
-        )
-    elif stato_corpo == "Immerso":
-        corrente = st.radio(
-            "Presenza di correnti in acqua",
-            ["In acqua corrente", "In acqua stagnante"],
-            index=1,
-            key="corrente_acqua"
-        )
-
-    # --- COSTRUZIONE E MATCH ---
+    # Costruzione del dizionario valori
     valori = {
-        "Ambiente": stato_corpo,
-        "Vestiti": scelta_vestiti,
-        "Coperte": scelta_coperte,
+        "Ambiente": ambiente,
+        "Vestiti": vestiti,
+        "Coperte": coperte,
         "Superficie d'appoggio": superficie,
-        "Correnti": corrente
+        "Correnti": correnti
     }
 
+    # Match nella tabella 1
     riga = tabella1[
         (tabella1["Ambiente"] == valori["Ambiente"]) &
         (tabella1["Vestiti"] == valori["Vestiti"]) &
@@ -197,18 +152,19 @@ def calcola_fattore(peso):
         (tabella1["Correnti"] == valori["Correnti"])
     ]
     if riga.empty:
-        st.warning("Nessuna combinazione valida trovata nella tabella.")
+        st.warning("Nessuna combinazione trovata nella tabella.")
         return
 
     fattore_base = float(riga["Fattore"].values[0])
     fattore_finale = fattore_base
 
-    # Tabella 2
+    # Correzione tabella 2 per peso
     if fattore_base >= 1.4 and peso != 70:
         try:
             pesi_col = {
                 col: float(''.join(ch for ch in str(col) if ch.isdigit() or ch in '.,').replace(',', '.'))
-                for col in tabella2.columns if any(ch.isdigit() for ch in str(col))
+                for col in tabella2.columns
+                if any(ch.isdigit() for ch in str(col))
             }
             col_70 = min(pesi_col.keys(), key=lambda c: abs(pesi_col[c] - 70))
             serie70 = pd.to_numeric(tabella2[col_70], errors='coerce')
@@ -224,13 +180,12 @@ def calcola_fattore(peso):
     if abs(fattore_finale - fattore_base) > 1e-9:
         st.caption(f"Valore Tabella 1: {fattore_base:.2f} – peso considerato: {peso:.1f} kg")
 
-    st.button(
-        "✅ Usa questo fattore",
-        on_click=lambda: st.session_state.update({
-            "fattore_correzione": round(fattore_finale, 2),
-            "mostra_modulo_fattore": False
-        })
-    )
+    # Pulsante per applicare il fattore
+    def _apply_fattore(val):
+        st.session_state["fattore_correzione"] = round(float(val), 2)
+        st.session_state["mostra_modulo_fattore"] = False
+
+    st.button("✅ Usa questo fattore", on_click=_apply_fattore, args=(fattore_finale,))
 
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
