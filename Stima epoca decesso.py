@@ -31,11 +31,17 @@ def load_tabelle_correzione():
     Carica e normalizza le tabelle usate da calcola_fattore.
     Restituisce (tabella1, tabella2) o solleva eccezione con messaggio chiaro.
     """
-    t1 = pd.read_excel("tabella rielaborata.xlsx")
+    try:
+        t1 = pd.read_excel("tabella rielaborata.xlsx", engine="openpyxl")
+        t2 = pd.read_excel("tabella secondaria.xlsx", engine="openpyxl")
+    except FileNotFoundError:
+        raise
+    except ImportError as e:
+        raise RuntimeError("Il pacchetto 'openpyxl' è richiesto per leggere i file Excel.") from e
+
     t1['Fattore'] = pd.to_numeric(t1['Fattore'], errors='coerce')
     for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
         t1[col] = t1[col].astype(str).str.strip()
-    t2 = pd.read_excel("tabella secondaria.xlsx")
     return t1, t2
 
 # =========================
@@ -43,8 +49,6 @@ def load_tabelle_correzione():
 # =========================
 
 def calcola_fattore(peso):
-    import streamlit as st
-
     # Caricamento tabelle con cache + gestione errori
     try:
         tabella1, tabella2 = load_tabelle_correzione()
@@ -64,7 +68,7 @@ def calcola_fattore(peso):
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
-        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed")
+        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
         corpo_asciutto = (stato_corpo == "Asciutto")
@@ -108,7 +112,7 @@ def calcola_fattore(peso):
                 "1-2 strati spessi",
                 "˃4 strati sottili o ˃2 spessi",
                 "Moltissimi strati"
-            ], label_visibility="collapsed")
+            ], label_visibility="collapsed", key="radio_vestiti")
     elif corpo_immerso or copertura_speciale:
         scelta_vestiti = "/"
 
@@ -161,7 +165,7 @@ def calcola_fattore(peso):
             if mostra_foglie:
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
-            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed")
+            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed", key="radio_superficie")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -260,6 +264,14 @@ def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
         dt += datetime.timedelta(hours=1)
         minuti = 0
     return dt.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(minutes=minuti)
+
+def _split_hours_minutes(h: float):
+    """Converte ore decimali in (ore, minuti) arrotondando correttamente, evitando '60 minuti'."""
+    if h is None or (isinstance(h, float) and np.isnan(h)):
+        return None
+    total_minutes = int(round(h * 60))
+    hours, minutes = divmod(total_minutes, 60)
+    return hours, minutes
 
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 st.title("Stima epoca decesso")
@@ -387,7 +399,7 @@ dati_parametri_aggiuntivi = {
         },
          "descrizioni": {
              "Positiva": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico legali.",
-             "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali.",
+             "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all'instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali.",
              "Non valutabile/non attendibile": "L'eccitabilità chimica pupillare non era valutabile o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
          }
     }
@@ -447,10 +459,10 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
     t_med_raw = np.nan
 
     qp_at_0 = Qp(0)
-    qp_at_48 = Qp(480)
+    qp_at_160 = Qp(160)
 
     eps = 1e-9
-    if np.isnan(qp_at_0) or np.isnan(qp_at_48) or not (min(qp_at_48, qp_at_0) - eps <= Qd <= max(qp_at_48, qp_at_0) + eps):
+    if np.isnan(qp_at_0) or np.isnan(qp_at_160) or not (min(qp_at_160, qp_at_0) - eps <= Qd <= max(qp_at_160, qp_at_0) + eps):
         t_med_raw = np.nan
     else:
          try:
@@ -498,24 +510,20 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
             return True  # almeno uno è completamente isolato
     return False
 
-# --- Definizione Stile e Widget (Esistenti e Nuovi) ---
-style = {'description_width': 'initial'}
-
 # --- Definizione Widget (Streamlit) ---
 with st.container():
     
-
     # 📌 1. Data e ora ispezione legale
     st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="small")
     with col1:
-                input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
+        input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
 
     with col2:
         input_ora_rilievo = st.text_input(
-        "Ora ispezione legale (HH:MM):",
-        value="00:00",
-        label_visibility="collapsed"
+            "Ora ispezione legale (HH:MM):",
+            value="00:00",
+            label_visibility="collapsed"
         )
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
     col1, col2 = st.columns(2, gap="small")
@@ -554,7 +562,7 @@ with st.container():
                 format="%.2f",
                 label_visibility="collapsed",
                 key="fattore_correzione"
-                )
+            )
         with subcol2:
             if st.button("⚙️ Suggerisci FC"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
@@ -676,8 +684,6 @@ with col2:
     pulsante_genera_stima = st.button("STIMA EPOCA DECESSO")
 
 
-# grafico_generato = False  # non necessario mantenerlo globale
-
 def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
     if not input_data_rilievo or not input_ora_rilievo:
@@ -700,6 +706,17 @@ def aggiorna_grafico():
     T0_val = input_tm
     W_val = input_w
     CF_val = st.session_state.get("fattore_correzione", 1.0)
+
+    # Validazioni extra (robustezza)
+    if W_val is None or W_val <= 0:
+        st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
+        return
+    if CF_val is None or CF_val <= 0:
+        st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
+        return
+    if any(v is None for v in [Tr_val, Ta_val, T0_val]):
+        st.error("⚠️ Temperature mancanti.")
+        return
 
     macchie_selezionata = selettore_macchie
     rigidita_selezionata = selettore_rigidita
@@ -735,14 +752,13 @@ def aggiorna_grafico():
 
         chiave_descrizione = stato_selezionato.split(':')[0].strip()
 
-        # Usa ora ispezione legale se non presente valore personalizzato
+        # Ora param: normalizza a datetime.time e controlla mezz'ora
         if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
-            ora_rilievo_param_obj = data_ora_ispezione
+            ora_rilievo_time = data_ora_ispezione.time()
         else:
             try:
-                ora_rilievo_param_obj = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M')
-                minuti_param = ora_rilievo_param_obj.minute
-                if minuti_param not in [0, 30]:
+                ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
+                if ora_rilievo_time.minute not in (0, 30):
                     st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
                     continue
             except ValueError:
@@ -771,12 +787,6 @@ def aggiorna_grafico():
 
         if range_valori:
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
-
-            # Calcolo data e ora param
-            if isinstance(ora_rilievo_param_obj, datetime.datetime):
-                ora_rilievo_time = ora_rilievo_param_obj.time()
-            else:
-                ora_rilievo_time = ora_rilievo_param_obj
 
             data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
             differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
@@ -851,7 +861,7 @@ def aggiorna_grafico():
         ranges_per_intersezione_fine.append(rigidita_range[1])
         nomi_parametri_usati_per_intersezione.append("rigidità cadaverica")
 
-    # --- Stima minima post mortem secondo Potente et al. (calcolato prima di costruire i range) ---
+    # --- Stima minima post mortem secondo Potente et al. ---
     mt_ore = None
     mt_giorni = None
     usa_potente_per_intersezione = False
@@ -862,8 +872,7 @@ def aggiorna_grafico():
             mt_giorni = None
         else:
             Qd_potente = (Tr_val - Ta_val) / (37.2 - Ta_val)
-            soglia_qd = 0.2 if Ta_val <= 23 else 0.5
-            if Qd_potente < soglia_qd:
+            if Qd_potente < qd_threshold:
                 B_potente = -1.2815 * (CF_val * W_val) ** (-5 / 8) + 0.0284
                 ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
                 mt_ore = round(ln_term / B_potente, 1)
@@ -992,9 +1001,6 @@ def aggiorna_grafico():
     if num_params_grafico > 0:
         fig, ax = plt.subplots(figsize=(10, max(2, 1.5 + 0.5 * num_params_grafico)))
 
-        y_indices_mapping = {}
-        current_y_index = 0
-
         parametri_grafico = []
         ranges_to_plot_inizio = []
         ranges_to_plot_fine = []
@@ -1019,7 +1025,7 @@ def aggiorna_grafico():
             ranges_to_plot_inizio.append(rigidita_range[0])
             ranges_to_plot_fine.append(rigidita_range[1] if rigidita_range[1] < INF_HOURS else INF_HOURS)
 
-
+        label_hensge = None
         if raffreddamento_calcolabile:
             nome_breve_hensge = "Hensge"
             usa_solo_limite_inferiore_henssge = not np.isnan(Qd_val_check) and Qd_val_check < 0.2
@@ -1039,7 +1045,7 @@ def aggiorna_grafico():
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
 
-            elif t_med_raff_hensge_rounded_raw > 30:
+            elif t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30:
                 maggiore_di_valore = 30.0
                 usa_potente = False
                 if mt_ore is not None and not np.isnan(mt_ore):
@@ -1061,7 +1067,6 @@ def aggiorna_grafico():
 
             parametri_grafico.append(label_hensge)
 
-
         for param in parametri_aggiuntivi_da_considerare:
             if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]):
                 nome_breve = nomi_brevi.get(param['nome'], param['nome'])
@@ -1078,22 +1083,18 @@ def aggiorna_grafico():
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
-                y_indices_mapping[label_param_aggiuntivo] = current_y_index
-                current_y_index += 1
-
         for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
             if not np.isnan(s) and not np.isnan(e):
                 ax.hlines(i, s, e, color='steelblue', linewidth=6)
 
-        if visualizza_hensge_grafico:
-            idx = parametri_grafico.index(label_hensge) if 'label_hensge' in locals() and label_hensge in parametri_grafico else None
+        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
+            idx = parametri_grafico.index(label_hensge)
 
-            if idx is not None:
-                if mt_ore is not None and not np.isnan(mt_ore):
-                    ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
-                if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
-                    t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-                    ax.hlines(y=idx, xmin=30.0, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+            if mt_ore is not None and not np.isnan(mt_ore):
+                ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+            if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
+                t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
+                ax.hlines(y=idx, xmin=30.0, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
 
         # Mapping asse Y statico per righe principali
         y_indices_mapping = {}
@@ -1104,7 +1105,7 @@ def aggiorna_grafico():
         if rigidita_range_valido and rigidita_range is not None:
             y_indices_mapping["Rigidità cadaverica"] = current_y_index
             current_y_index += 1
-        if visualizza_hensge_grafico:
+        if raffreddamento_calcolabile:
             y_indices_mapping["Raffreddamento cadaverico"] = current_y_index
             current_y_index += 1
 
@@ -1116,7 +1117,7 @@ def aggiorna_grafico():
             if "Rigidità cadaverica" in y_indices_mapping:
                 ax.hlines(y_indices_mapping["Rigidità cadaverica"], rigidita_medi_range[0], rigidita_medi_range[1], color='orange', linewidth=6, alpha=0.6)
 
-        if visualizza_hensge_grafico:
+        if raffreddamento_calcolabile:
             if "Raffreddamento cadaverico" in y_indices_mapping:
                 y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
                 punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
@@ -1212,10 +1213,11 @@ def aggiorna_grafico():
                 limite_superiore_testo = t_max_raff_hensge
 
             if (not np.isnan(limite_inferiore_testo)) and (not np.isnan(limite_superiore_testo)):
-                min_raff_hours = int(limite_inferiore_testo)
-                min_raff_minutes = int(round((limite_inferiore_testo % 1) * 60))
-                max_raff_hours = int(limite_superiore_testo)
-                max_raff_minutes = int(round((limite_superiore_testo % 1) * 60))
+                # Usa helper robusto per ore/minuti
+                hm = _split_hours_minutes(limite_inferiore_testo)
+                min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
+                hm = _split_hours_minutes(limite_superiore_testo)
+                max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
 
                 min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
                 max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
@@ -1258,13 +1260,12 @@ def aggiorna_grafico():
                     )
 
                 # Metodo Potente et al.
-                soglia_qd = 0.2 if Ta_val <= 23 else 0.5
                 condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
-                if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < soglia_qd:
+                if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < qd_threshold:
                     elenco_extra.append(
                         f"<li>"
                         f"Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
-                        f"(Qd &lt; {soglia_qd} e {condizione_temp}). "
+                        f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
                         f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
                         f"<ul><li><span style='font-size:smaller;'>"
                         f"Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. "
@@ -1311,8 +1312,8 @@ def aggiorna_grafico():
             and comune_inizio > 30
             and (np.isnan(comune_fine) or comune_fine == INF_HOURS)):
 
-            comune_inizio_hours = int(comune_inizio)
-            comune_inizio_minutes = int(round((comune_inizio % 1) * 60))
+            hm = _split_hours_minutes(comune_inizio)
+            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
             da = isp - datetime.timedelta(hours=comune_inizio)
             if not np.isnan(Qd_val_check) and Qd_val_check <= 0.2 and not np.isnan(mt_ore) and mt_ore > 30:
@@ -1337,8 +1338,8 @@ def aggiorna_grafico():
                 if abs(comune_inizio - mt_ore) < 0.25:
                     comune_inizio = round(mt_ore)
 
-            comune_inizio_hours = int(comune_inizio)
-            comune_inizio_minutes = int(round((comune_inizio % 1) * 60))
+            hm = _split_hours_minutes(comune_inizio)
+            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
             da = isp - datetime.timedelta(hours=comune_inizio)
             testo = (
@@ -1349,8 +1350,8 @@ def aggiorna_grafico():
             )
 
         elif comune_inizio == 0:
-            comune_fine_hours = int(comune_fine)
-            comune_fine_minutes = int(round((comune_fine % 1) * 60))
+            hm = _split_hours_minutes(comune_fine)
+            comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
             fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
             da = isp - datetime.timedelta(hours=comune_fine)
             testo = (
@@ -1361,10 +1362,10 @@ def aggiorna_grafico():
             )
 
         else:
-            comune_inizio_hours = int(comune_inizio)
-            comune_inizio_minutes = int(round((comune_inizio % 1) * 60))
-            comune_fine_hours = int(comune_fine)
-            comune_fine_minutes = int(round((comune_fine % 1) * 60))
+            hm = _split_hours_minutes(comune_inizio)
+            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_fine)
+            comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 else "ore"
             comune_fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
             da = isp - datetime.timedelta(hours=comune_fine)
@@ -1415,10 +1416,10 @@ def aggiorna_grafico():
             inizio_senza_potente = max(range_inizio_senza_potente)
             fine_senza_potente = min(range_fine_senza_potente)
             if inizio_senza_potente <= fine_senza_potente:
-                inizio_h = int(inizio_senza_potente)
-                inizio_m = int(round((inizio_senza_potente % 1) * 60))
-                fine_h = int(fine_senza_potente)
-                fine_m = int(round((fine_senza_potente % 1) * 60))
+                hm = _split_hours_minutes(inizio_senza_potente)
+                inizio_h, inizio_m = hm if hm else (0, 0)
+                hm = _split_hours_minutes(fine_senza_potente)
+                fine_h, fine_m = hm if hm else (0, 0)
 
                 inizio_text = "ora" if inizio_h == 1 and inizio_m == 0 else "ore"
                 fine_text = "ora" if fine_h == 1 and fine_m == 0 else "ore"
@@ -1489,4 +1490,3 @@ def aggiorna_grafico():
 # Al click del pulsante, esegui la funzione principale
 if pulsante_genera_stima:
     aggiorna_grafico()
-
