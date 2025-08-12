@@ -407,10 +407,10 @@ dati_parametri_aggiuntivi = {
 nomi_brevi = {
     "Macchie ipostatiche": "Ipostasi",
     "Rigidità cadaverica": "Rigor",
-    "Raffreddamento cadaverico": "Hensge",
-    "Eccitabilità elettrica peribuccale": "Ecc. el. peribuccale",
-    "Eccitabilità elettrica sopraciliare": "Ecc. el. sopraciliare",
-    "Eccitabilità chimica pupillare": "Ecc. chimica",
+    "Raffreddamento cadaverico": "Raffreddamento",
+    "Eccitabilità elettrica peribuccale": "Ecc. elettrica peribuccale",
+    "Eccitabilità elettrica sopraciliare": "Ecc. elettrica sopraciliare",
+    "Eccitabilità chimica pupillare": "Ecc. pupillare",
     "Eccitabilità muscolare meccanica": "Ecc. meccanica"
 }
 
