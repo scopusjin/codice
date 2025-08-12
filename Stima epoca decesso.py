@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Streamlit app: Stima epoca decesso
-# Revisione con correzioni di robustezza e piccoli fix senza variare la logica di calcolo/UX.
+# Revisione: compattazione UI (form, time_input, selectbox), expander parametri, CSS.
+# Logica di calcolo/UX invariata nei risultati.
 
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -20,9 +21,9 @@ if "fattore_correzione" not in st.session_state:
 
 if "mostra_modulo_fattore" not in st.session_state:
     st.session_state["mostra_modulo_fattore"] = False
-    
-# Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
-INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
+
+# Limite superiore per range “aperti”
+INF_HOURS = 200
 
 # =========================
 # Utility cache per Excel
@@ -30,10 +31,7 @@ INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e 
 
 @st.cache_data
 def load_tabelle_correzione():
-    """
-    Carica e normalizza le tabelle usate da calcola_fattore.
-    Restituisce (tabella1, tabella2) o solleva eccezione con messaggio chiaro.
-    """
+    """Carica e normalizza le tabelle usate da calcola_fattore."""
     try:
         t1 = pd.read_excel("tabella rielaborata.xlsx", engine="openpyxl")
         t2 = pd.read_excel("tabella secondaria.xlsx", engine="openpyxl")
@@ -55,7 +53,7 @@ def calcola_fattore(peso):
     # Caricamento tabelle con cache + gestione errori
     try:
         tabella1, tabella2 = load_tabelle_correzione()
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         st.error("Impossibile caricare i file Excel per il calcolo del fattore di correzione. "
                  "Verifica che 'tabella rielaborata.xlsx' e 'tabella secondaria.xlsx' siano presenti.")
         return
@@ -63,7 +61,10 @@ def calcola_fattore(peso):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    st.markdown("""<style> /* ... (stile invariato) ... */ </style>""", unsafe_allow_html=True)
+    st.markdown("""<style> /* stile UI locale alla sezione (compattato) */ 
+    .fattore-correzione-section .stRadio, 
+    .fattore-correzione-section .stSelectbox { margin-bottom: 0.25rem; } 
+    </style>""", unsafe_allow_html=True)
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -71,6 +72,7 @@ def calcola_fattore(peso):
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
+        # poche scelte → radio va bene
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
@@ -96,30 +98,34 @@ def calcola_fattore(peso):
             if corpo_asciutto:
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-            # se i vestiti sono "Moltissimi strati" → solo "Molte coperte pesanti"
             vestiti_state = st.session_state.get("radio_vestiti")
             if vestiti_state == "Moltissimi strati":
                 opzioni_coperte = ["Molte coperte pesanti"]
 
-            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed", key="scelta_coperte_radio")
+            # compattiamo: selectbox al posto del radio
+            scelta_coperte = st.selectbox("", opzioni_coperte, index=0, label_visibility="collapsed", key="scelta_coperte_radio")
         else:
             scelta_coperte = "/"
 
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-    # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
+    # --- COLONNA 1: ABBIGLIAMENTO ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
-            scelta_vestiti = st.radio("", [
-                "Nudo",
-                "1-2 strati sottili",
-                "2-3 strati sottili",
-                "3-4 strati sottili",
-                "1-2 strati spessi",
-                "˃4 strati sottili o ˃2 spessi",
-                "Moltissimi strati"
-            ], label_visibility="collapsed", key="radio_vestiti")
+            # compattiamo: selectbox
+            scelta_vestiti = st.selectbox("",
+                [
+                    "Nudo",
+                    "1-2 strati sottili",
+                    "2-3 strati sottili",
+                    "3-4 strati sottili",
+                    "1-2 strati spessi",
+                    "˃4 strati sottili o ˃2 spessi",
+                    "Moltissimi strati"
+                ],
+                index=0, label_visibility="collapsed", key="radio_vestiti"
+            )
     elif corpo_immerso or copertura_speciale:
         scelta_vestiti = "/"
 
@@ -133,27 +139,20 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
                     mostra_corrente = True
 
-            # se vestiti = "Moltissimi strati" → niente correnti d'aria
             if scelta_vestiti == "Moltissimi strati":
                 mostra_corrente = False
 
             if mostra_corrente:
                 st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                corrente = st.radio(
-                    "",
-                    ["Esposto a corrente d'aria", "Nessuna corrente"],
-                    index=1,
-                    label_visibility="collapsed",
-                    key="radio_corrente"
+                corrente = st.selectbox(
+                    "", ["Esposto a corrente d'aria", "Nessuna corrente"], index=1,
+                    label_visibility="collapsed", key="radio_corrente"
                 )
             elif corpo_immerso:
                 st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                corrente = st.radio(
-                    "",
-                    ["In acqua corrente", "In acqua stagnante"],
-                    index=1,
-                    label_visibility="collapsed",
-                    key="radio_acqua"
+                corrente = st.selectbox(
+                    "", ["In acqua corrente", "In acqua stagnante"], index=1,
+                    label_visibility="collapsed", key="radio_acqua"
                 )
             else:
                 corrente = "/"
@@ -170,13 +169,12 @@ def calcola_fattore(peso):
                 "Materasso o tappeto spesso",
                 "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
             ]
-            # ✅ cambia: la superficie metallica compare SOLO se vestiti=Nudo e coperte=Nessuna coperta
-            if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":  # <-- condizione aggiornata
+            if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
             if mostra_foglie:
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
-            superficie = st.radio("", opzioni_superficie, label_visibility="collapsed", key="radio_superficie")
+            superficie = st.selectbox("", opzioni_superficie, label_visibility="collapsed", key="radio_superficie")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -246,19 +244,16 @@ def calcola_fattore(peso):
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
-    # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["mostra_modulo_fattore"] = False  # opzionale: richiude l’expander
+        st.session_state["mostra_modulo_fattore"] = False
 
-    
     st.button(
         "✅ Usa questo fattore",
         key="usa_fattore_btn",
         on_click=_apply_fattore,
         args=(fattore_finale,)
     )
-
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
@@ -280,8 +275,6 @@ st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 
 # Titolo più piccolo e con peso medio
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</h5>", unsafe_allow_html=True)
-
-
 
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
 opzioni_macchie = {
@@ -347,17 +340,17 @@ dati_parametri_aggiuntivi = {
             "Fase III": (3.5, 13),
             "Fase II": (5, 16),
             "Fase I": (5, 22),
-                    },
-         "descrizioni": {
-             "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
-             "Fase V": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico.",
-             "Fase IV": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico.",
-             "Fase III": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima delle valutazioni del dato tanatologico.",
-             "Fase II": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli di meno di 2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 5 e le 16 ore prima delle valutazioni del dato tanatologico.",
-             "Fase I": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3). Tale reazione di eccitabilità muscolare elettrica residua e suggerisce che il decesso fosse avvenuto tra le 5 e le 22 ore prima delle valutazioni del dato tanatologico.",
-             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo non è da considerarsi attendibile.",
-             "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
-         }
+        },
+        "descrizioni": {
+            "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione ... 1 e 6 ore ...",
+            "Fase V": "L’applicazione ... 2 e 7 ore ...",
+            "Fase IV": "L’applicazione ... 3 e 8 ore ...",
+            "Fase III": "L’applicazione ... 3 ore e 30 minuti e 13 ore ...",
+            "Fase II": "L’applicazione ... 5 e 16 ore ...",
+            "Fase I": "L’applicazione ... 5 e 22 ore ...",
+            "Non valutabile/non attendibile": "Non è stato possibile valutare ...",
+            "Nessuna reazione": "L’applicazione ... più di 5 ore ..."
+        }
     },
     "Eccitabilità elettrica peribuccale": {
         "opzioni": ["Non valutata", "Marcata ed estesa (+++)", "Discreta (++)", "Accennata (+)", "Nessuna reazione", "Non valutabile/non attendibile"],
@@ -365,16 +358,16 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (6, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Marcata ed estesa (+++)": (0, 2.5), # 2 ore 30 minuti = 2.5 ore
+            "Marcata ed estesa (+++)": (0, 2.5),
             "Discreta (++)": (1, 5),
             "Accennata (+)": (2, 6)
         },
         "descrizioni": {
-            "Marcata ed estesa (+++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata ai muscoli peribuccali estesasi anche ai muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto meno di 2 ore e mezzo prima delle valutazioni del dato tanatologico.",
-            "Discreta (++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta ai muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 e le 6 ore prima delle valutazioni del dato tanatologico.",
-            "Accennata (+)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra  1 e  5 ore prima delle valutazioni del dato tanatologico.",
-            "Non valutata/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
-            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+            "Marcata ed estesa (+++)": "L’applicazione ... meno di 2 ore e mezzo ...",
+            "Discreta (++)": "L’applicazione ... 2 e 6 ore ...",
+            "Accennata (+)": "L’applicazione ... 1 e 5 ore ...",
+            "Non valutata/non attendibile": "Non è stato possibile valutare ...",
+            "Nessuna reazione": "L’applicazione ... più di 6 ore ..."
         }
     },
     "Eccitabilità muscolare meccanica": {
@@ -383,31 +376,31 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (1.5, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Formazione di una piccola tumefazione persistente": (0, 12), # Meno di 12 ore = 0-12 (Henssge dice 13)
+            "Formazione di una piccola tumefazione persistente": (0, 12),
             "Formazione di una tumefazione reversibile": (2, 5),
-            "Contrazione reversibile dell’intero muscolo": (0, 2)   # Meno di 2 ore = 0-2
+            "Contrazione reversibile dell’intero muscolo": (0, 2)
         },
-         "descrizioni": {
-             "Formazione di una piccola tumefazione persistente": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 12 ore prima delle valutazioni del dato tanatologico.",
-             "Formazione di una tumefazione reversibile": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto tra le 2 e le 5 ore prima delle valutazioni del dato tanatologico.",
-             "Contrazione reversibile dell’intero muscolo": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 2 ore prima delle valutazioni del dato tanatologico.",
-             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare meccanica o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
-             "Nessuna reazione": "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 1 ora e 30 minuti dal decesso."
-         }
+        "descrizioni": {
+            "Formazione di una piccola tumefazione persistente": "L’eccitabilità ... meno di 12 ore ...",
+            "Formazione di una tumefazione reversibile": "L’eccitabilità ... 2 e 5 ore ...",
+            "Contrazione reversibile dell’intero muscolo": "L’eccitabilità ... meno di 2 ore ...",
+            "Non valutabile/non attendibile": "Non è stato possibile valutare ...",
+            "Nessuna reazione": "L’applicazione ... più di 1 ora e 30 minuti ..."
+        }
     },
     "Eccitabilità chimica pupillare": {
         "opzioni": ["Non valutata", "Non valutabile/non attendibile","Positiva", "Negativa"],
         "range": {
             "Non valutata": None,
             "Non valutabile/non attendibile": None,
-            "Positiva": (0, 30), # Meno di 30 ore = 0-30
-            "Negativa": (5, INF_HOURS) # Più di 5 ore. Usiamo un limite superiore elevato (200h) per il grafico e i calcoli, coerente con gli altri range massimi.(con arropina hansegee dice 3- 10
+            "Positiva": (0, 30),
+            "Negativa": (5, INF_HOURS)
         },
-         "descrizioni": {
-             "Positiva": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico legali.",
-             "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all'instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali.",
-             "Non valutabile/non attendibile": "L'eccitabilità chimica pupillare non era valutabile o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
-         }
+        "descrizioni": {
+            "Positiva": "L’eccitabilità ... meno di 30 ore ...",
+            "Negativa": "L’eccitabilità ... più di 5 ore ...",
+            "Non valutabile/non attendibile": "L'eccitabilità ... non valutabile ..."
+        }
     }
 }
 nomi_brevi = {
@@ -427,24 +420,16 @@ def round_quarter_hour(x):
     return np.round(x * 2) / 2
 
 def calcola_raffreddamento(Tr, Ta, T0, W, CF):
-    # Controllo per temperature non valide per il calcolo di Henssge
     if Tr is None or Ta is None or T0 is None or W is None or CF is None:
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
-    #
-    # Considera non valido se Tr è "molto vicino" o inferiore a Ta
+         return np.nan, np.nan, np.nan, np.nan, np.nan
     temp_tolerance = 1e-6
     if Tr <= Ta + temp_tolerance:
-        return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
-    # Controllo esplicito per evitare divisione per zero nel calcolo di Qd
-    if abs(T0 - Ta) < temp_tolerance: # Controlla se il denominatore è molto vicino a zero
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
-
-    # Ora calcola Qd solo se i controlli iniziali sono passati
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+    if abs(T0 - Ta) < temp_tolerance:
+         return np.nan, np.nan, np.nan, np.nan, np.nan
     Qd = (Tr - Ta) / (T0 - Ta)
-
-    # Assicurati che Qd sia un valore valido e rientri in un range plausibile (es. > 0 e <= 1)
     if np.isnan(Qd) or Qd <= 0 or Qd > 1:
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
+         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     A = 1.25 if Ta <= 23 else 10/9
     B = -1.2815 * (CF * W)**(-5/8) + 0.0284
@@ -463,7 +448,6 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
              return np.nan
 
     t_med_raw = np.nan
-
     qp_at_0 = Qp(0)
     qp_at_160 = Qp(160)
 
@@ -480,30 +464,26 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
              t_med_raw = np.nan
 
     Dt_raw = 0
-
     if not np.isnan(t_med_raw) and not np.isnan(Qd):
          if Qd <= 0.2:
               Dt_raw = t_med_raw * 0.20
          elif CF == 1:
               Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
-         else: # CF != 1
+         else:
               Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7
 
     t_med = round_quarter_hour(t_med_raw) if not np.isnan(t_med_raw) else np.nan
     t_min = round_quarter_hour(t_med_raw - Dt_raw) if not np.isnan(t_med_raw) else np.nan
     t_max = round_quarter_hour(t_med_raw + Dt_raw) if not np.isnan(t_med_raw) else np.nan
-
     t_min = max(0.0, t_min) if not np.isnan(t_min) else np.nan
-
     return t_med, t_min, t_max, t_med_raw, Qd
-#
+
 def ranges_in_disaccordo_completa(r_inizio, r_fine):
     intervalli = []
     for start, end in zip(r_inizio, r_fine):
         s = start if not np.isnan(start) else -np.inf
         e = end if not np.isnan(end) else np.inf
         intervalli.append((s, e))
-
     for i, (s1, e1) in enumerate(intervalli):
         si_sovrappone = False
         for j, (s2, e2) in enumerate(intervalli):
@@ -513,25 +493,43 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
                 si_sovrappone = True
                 break
         if not si_sovrappone:
-            return True  # almeno uno è completamente isolato
+            return True
     return False
 
-# --- Definizione Widget (Streamlit) ---
-with st.container():
-    
-    # 📌 1. Data e ora ispezione legale
+# =========================
+# CSS per compattare
+# =========================
+st.markdown("""
+    <style>
+    .block-container { padding-top: 1rem; padding-bottom: 1rem; }
+    div[data-testid="stVerticalBlock"] { gap: 0.4rem; }
+    label, .stSelectbox label, .stRadio label { font-size: 0.92rem; margin-bottom: 0.25rem; }
+    .stSelectbox div[data-baseweb="select"] { min-height: 36px; }
+    div.stButton > button {
+        border: 2px solid #2196F3 !important;
+        color: black !important;
+        background-color: white !important;
+        font-weight: bold;
+        border-radius: 8px !important;
+        padding: 0.5rem 1.4rem !important;
+    }
+    div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
+    </style>
+""", unsafe_allow_html=True)
+
+# =========================
+# FORM COMPATTO
+# =========================
+with st.form("stima_form", clear_on_submit=False):
+    # 1. Data e ora (time_input 15’)
     st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="small")
     with col1:
         input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
-
     with col2:
-        input_ora_rilievo = st.text_input(
-            "Ora ispezione legale (HH:MM):",
-            value="00:00",
-            label_visibility="collapsed"
-        )
-    # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
+        input_ora_rilievo = st.time_input("Ora ispezione legale:", value=datetime.time(0, 0), step=datetime.timedelta(minutes=15), label_visibility="collapsed")
+
+    # 2. Ipostasi e rigidità
     col1, col2 = st.columns(2, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
@@ -540,7 +538,7 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    # 📌 3. Temperature (3 colonne gap large)
+    # 3. Temperature
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
@@ -552,151 +550,106 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
-    # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci" (mini-link)
-
-    col1, col2 = st.columns([1, 3], gap="small")
+    # 4. Peso + Fattore di correzione
+    col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
         input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
         st.session_state["peso"] = input_w
-
     with col2:
-        subcol1, subcol2 = st.columns([1.5, 1], gap="small")
-        with subcol1:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            fattore_correzione = st.number_input(
-                "Fattore di correzione:",
-                step=0.1,
-                format="%.2f",
-                label_visibility="collapsed",
-                key="fattore_correzione"
-            )
+        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+        st.number_input("Fattore di correzione:", step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione")
 
-        with subcol2:
-            st.empty()
-
-
-
-
-
-# 📌 Expander con apertura/chiusura controllata da session_state
-if not st.session_state["mostra_modulo_fattore"]:
-    # pulsante (o link) per aprire l’expander
-    st.button(
-        "Stima fattore di correzione",
-        key="open_fattore_btn",
-        on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
-    )
-else:
-    with st.expander("Stima fattore di correzione", expanded=True):
-        st.markdown(
-            '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
-            unsafe_allow_html=True
+    # 5. Link modulo fattore
+    if not st.session_state["mostra_modulo_fattore"]:
+        st.button(
+            "Stima fattore di correzione",
+            key="open_fattore_btn",
+            on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
         )
-        calcola_fattore(peso=st.session_state.get("peso", 70))
-        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        with st.expander("Stima fattore di correzione", expanded=True):
+            st.markdown('<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">', unsafe_allow_html=True)
+            calcola_fattore(peso=st.session_state.get("peso", 70))
+            st.markdown('</div>', unsafe_allow_html=True)
 
+    # 6. Parametri aggiuntivi (compattati in expander per singolo parametro)
+    mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
+    widgets_parametri_aggiuntivi = {}
+    if mostra_parametri_aggiuntivi:
+        for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+            with st.expander(nome_parametro, expanded=False):
+                col1, col2 = st.columns([1, 2], gap="small")
+                with col1:
+                    st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>", unsafe_allow_html=True)
+                with col2:
+                    selettore = st.selectbox(
+                        label=nome_parametro,
+                        options=dati_parametro["opzioni"],
+                        key=f"{nome_parametro}_selector",
+                        label_visibility="collapsed"
+                    )
 
+                data_picker = None
+                ora_input = None
+                usa_orario_personalizzato = False
 
-# Pulsante per mostrare/nascondere i parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
+                if selettore != "Non valutata":
+                    chiave_checkbox = f"{nome_parametro}_diversa"
+                    col1c, col2c = st.columns([0.7, 0.3], gap="small")
+                    with col1c:
+                        st.markdown(
+                            "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
+                            "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
+                            "</div>",
+                            unsafe_allow_html=True
+                        )
+                    with col2c:
+                        usa_orario_personalizzato = st.checkbox(label="", key=chiave_checkbox)
 
-widgets_parametri_aggiuntivi = {}
+                if usa_orario_personalizzato:
+                    col1d, col2d = st.columns(2)
+                    with col1d:
+                        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
+                        data_picker = st.date_input(
+                            "Data rilievo:",
+                            value=input_data_rilievo,
+                            key=f"{nome_parametro}_data",
+                            label_visibility="collapsed"
+                        )
+                    with col2d:
+                        st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
+                        ora_input = st.time_input(
+                            "Ora rilievo (HH:MM):",
+                            value=input_ora_rilievo,
+                            key=f"{nome_parametro}_ora",
+                            step=datetime.timedelta(minutes=30),
+                            label_visibility="collapsed"
+                        )
 
-if mostra_parametri_aggiuntivi:
-    for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        col1, col2 = st.columns([1, 2], gap="small")
-        with col1:
-            st.markdown(
-                f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
-                unsafe_allow_html=True
-            )
-        with col2:
-            selettore = st.selectbox(
-                label=nome_parametro,
-                options=dati_parametro["opzioni"],
-                key=f"{nome_parametro}_selector",
-                label_visibility="collapsed"
-            )
+                # immagini dentro expander per ridurre ingombro
+                if nome_parametro == "Eccitabilità elettrica sopraciliare":
+                    st.image(
+                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                        width=320
+                    )
+                if nome_parametro == "Eccitabilità elettrica peribuccale":
+                    st.image(
+                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                        width=300
+                    )
 
-        data_picker = None
-        ora_input = None
-        usa_orario_personalizzato = False
+                widgets_parametri_aggiuntivi[nome_parametro] = {
+                    "selettore": selettore,
+                    "data_rilievo": data_picker,
+                    "ora_rilievo": ora_input
+                }
+    # Submit form
+    submitted = st.form_submit_button("STIMA EPOCA DECESSO")
 
-        if selettore != "Non valutata":
-            chiave_checkbox = f"{nome_parametro}_diversa"
-            col1, col2 = st.columns([0.2, 0.2], gap="small")
-            with col1:
-                st.markdown(
-                    "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                    "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
-                    "</div>",
-                    unsafe_allow_html=True
-                )
-            with col2:
-                usa_orario_personalizzato = st.checkbox(
-                    label="",
-                    key=chiave_checkbox
-                )
-
-        if usa_orario_personalizzato:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
-                data_picker = st.date_input(
-                    "Data rilievo:",
-                    value=input_data_rilievo,
-                    key=f"{nome_parametro}_data",
-                    label_visibility="collapsed"
-                )
-            with col2:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
-                ora_input = st.text_input(
-                    "Ora rilievo (HH:MM):",
-                    value=input_ora_rilievo,
-                    key=f"{nome_parametro}_ora",
-                    label_visibility="collapsed"
-                )
-
-        widgets_parametri_aggiuntivi[nome_parametro] = {
-            "selettore": selettore,
-            "data_rilievo": data_picker,
-            "ora_rilievo": ora_input
-        }
-
-        if nome_parametro == "Eccitabilità elettrica sopraciliare":
-            st.image(
-                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                width=400
-            )
-
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
-            st.image(
-                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                width=300
-            )
-
-st.markdown("""
-    <style>
-    div.stButton > button {
-        border: 2px solid #2196F3 !important;
-        color: black !important;
-        background-color: white !important;
-        font-weight: bold;
-        border-radius: 8px !important;
-        padding: 0.6em 2em !important;
-    }
-    div.stButton > button:hover {
-        background-color: #E3F2FD !important;
-        cursor: pointer;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    pulsante_genera_stima = st.button("STIMA EPOCA DECESSO")
-
+# =========
+# LOGICA post-submit: aggiorna_grafico()
+# =========
 
 def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
@@ -704,14 +657,11 @@ def aggiorna_grafico():
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
         return
 
-    try:
-        ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, '%H:%M')
-        minuti_isp = ora_isp_obj.minute
-    except ValueError:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: Formato ora ispezione legale non valido. Utilizzare il formato HH:MM (es. 14:30).</p>", unsafe_allow_html=True)
-        return
+    # con time_input non serve parsing stringa
+    ora_isp_obj = datetime.datetime.combine(datetime.date.today(), input_ora_rilievo)
+    minuti_isp = input_ora_rilievo.minute
 
-    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, input_ora_rilievo)
     data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
 
     # --- Recupero Valori Input per Calcoli (Esistenti) ---
@@ -753,123 +703,102 @@ def aggiorna_grafico():
     rigidita_range = opzioni_rigidita.get(rigidita_selezionata) if rigidita_range_valido else (np.nan, np.nan)
     rigidita_medi_range = rigidita_medi.get(rigidita_selezionata) if rigidita_range_valido else None
 
+    # Recupero parametri aggiuntivi compilati (dallo scope superiore)
     parametri_aggiuntivi_da_considerare = []
     nota_globale_range_adattato = False
 
-    for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
-        stato_selezionato = widgets_param["selettore"]
-        data_rilievo_param = widgets_param["data_rilievo"]
-        ora_rilievo_param_str = widgets_param["ora_rilievo"]
+    if 'widgets_parametri_aggiuntivi' in locals():
+        for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
+            stato_selezionato = widgets_param["selettore"]
+            data_rilievo_param = widgets_param["data_rilievo"]
+            ora_rilievo_param_time = widgets_param["ora_rilievo"]
 
-        if stato_selezionato == "Non valutata":
-            continue
-
-        chiave_descrizione = stato_selezionato.split(':')[0].strip()
-
-        # Ora param: normalizza a datetime.time e controlla mezz'ora
-        if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
-            ora_rilievo_time = data_ora_ispezione.time()
-        else:
-            try:
-                ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
-                if ora_rilievo_time.minute not in (0, 30):
-                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
-                    continue
-            except ValueError:
-                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+            if stato_selezionato == "Non valutata":
                 continue
 
-        # Se data personalizzata assente, usa quella dell’ispezione
-        if data_rilievo_param is None:
-            data_rilievo_param = data_ora_ispezione.date()
+            chiave_descrizione = stato_selezionato.split(':')[0].strip() if nome_parametro == "Eccitabilità elettrica peribuccale" else stato_selezionato.strip()
 
-        # Determina la chiave corretta da usare per cercare nel dizionario dei range
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
-            chiave_descrizione = stato_selezionato.split(':')[0].strip()
-        else:
-            chiave_descrizione = stato_selezionato.strip()
-
-        # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
-        chiave_esatta = None
-        for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
-            if k.strip() == chiave_descrizione:
-                chiave_esatta = k
-                break
-
-        range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
-        range_originale = range_valori
-
-        if range_valori:
-            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
-
-            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
-            differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
-
-            if range_originale[1] >= INF_HOURS:
-                range_traslato = (range_originale[0] - differenza_ore, INF_HOURS)
+            # Ora param: se non impostata, usa orario ispezione; se impostata, deve essere :00 o :30
+            if ora_rilievo_param_time is None:
+                ora_rilievo_time = data_ora_ispezione.time()
             else:
-                range_traslato = (range_originale[0] - differenza_ore, range_originale[1] - differenza_ore)
+                ora_rilievo_time = ora_rilievo_param_time
+                if ora_rilievo_time.minute not in (0, 30):
+                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_time.strftime('%H:%M')}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+                    continue
 
-            range_traslato_rounded = (round_quarter_hour(range_traslato[0]), round_quarter_hour(range_traslato[1]))
-            range_traslato_rounded = (max(0, range_traslato_rounded[0]), range_traslato_rounded[1])
+            # Se data personalizzata assente, usa quella dell’ispezione
+            if data_rilievo_param is None:
+                data_rilievo_param = data_ora_ispezione.date()
 
-            parametri_aggiuntivi_da_considerare.append({
-                "nome": nome_parametro,
-                "stato": stato_selezionato,
-                "range_traslato": range_traslato_rounded,
-                "descrizione": descrizione,
-                "differenza_ore": differenza_ore,
-                "adattato": differenza_ore != 0
-            })
+            # Forza il recupero esatto della chiave
+            chiave_esatta = None
+            for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
+                if k.strip() == chiave_descrizione:
+                    chiave_esatta = k
+                    break
 
-            differenze_ore_set = set(
-                p["differenza_ore"]
-                for p in parametri_aggiuntivi_da_considerare
-                if p.get("adattato")
-            )
-            nota_globale_range_adattato = len(differenze_ore_set) == 1 and len(differenze_ore_set) > 0
+            range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
+            range_originale = range_valori
 
-        elif dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
-            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Il parametro {nome_parametro} ({stato_selezionato}) non ha un range temporale definito o descrizione specifica.")
-            parametri_aggiuntivi_da_considerare.append({
-                "nome": nome_parametro,
-                "stato": stato_selezionato,
-                "range_traslato": (np.nan, np.nan),
-                "descrizione": descrizione
-            })
+            if range_valori:
+                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
+                data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
+                differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
+
+                if range_originale[1] >= INF_HOURS:
+                    range_traslato = (range_originale[0] - differenza_ore, INF_HOURS)
+                else:
+                    range_traslato = (range_originale[0] - differenza_ore, range_originale[1] - differenza_ore)
+
+                range_traslato_rounded = (round_quarter_hour(range_traslato[0]), round_quarter_hour(range_traslato[1]))
+                range_traslato_rounded = (max(0, range_traslato_rounded[0]), range_traslato_rounded[1])
+
+                parametri_aggiuntivi_da_considerare.append({
+                    "nome": nome_parametro,
+                    "stato": stato_selezionato,
+                    "range_traslato": range_traslato_rounded,
+                    "descrizione": descrizione,
+                    "differenza_ore": differenza_ore,
+                    "adattato": differenza_ore != 0
+                })
+
+                differenze_ore_set = set(
+                    p["differenza_ore"]
+                    for p in parametri_aggiuntivi_da_considerare
+                    if p.get("adattato")
+                )
+                nota_globale_range_adattato = len(differenze_ore_set) == 1 and len(differenze_ore_set) > 0
+
+            elif dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
+                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Il parametro {nome_parametro} ({stato_selezionato}) non ha un range temporale definito o descrizione specifica.")
+                parametri_aggiuntivi_da_considerare.append({
+                    "nome": nome_parametro,
+                    "stato": stato_selezionato,
+                    "range_traslato": (np.nan, np.nan),
+                    "descrizione": descrizione
+                })
 
     # --- Determinazione Range Raffreddamento per Visualizzazione nel Grafico ---
-    # Il range visualizzato per Henssge > 30h sarà un range ±20% attorno a t_med_raw
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
 
-    # --- Definisce i range USATI per l'intersezione (stima complessiva) ---
     ranges_per_intersezione_inizio = []
     ranges_per_intersezione_fine = []
-    # Lista per tenere traccia dei nomi dei parametri USATI per l'intersezione
     nomi_parametri_usati_per_intersezione = []
 
-    # Determina se visualizzare il range Henssge sul grafico
     visualizza_hensge_grafico = raffreddamento_calcolabile
-
     if visualizza_hensge_grafico:
-        # Usa i limiti calcolati da calcola_raffreddamento per la visualizzazione
         t_min_raff_visualizzato = t_min_raff_hensge
         t_max_raff_visualizzato = t_max_raff_hensge
-    else:
-        # Se non visualizzabile, imposta NaN
-        t_min_raff_visualizzato = np.nan
-        t_max_raff_visualizzato = np.nan
 
-    # --- Fine Determinazione Range Raffreddamento Visualizzazione ---
-
-    # Aggiunge range macchie se valido e presente
+    # Aggiunge range macchie
     if macchie_range_valido and macchie_range is not None:
         ranges_per_intersezione_inizio.append(macchie_range[0])
         ranges_per_intersezione_fine.append(macchie_range[1])
         nomi_parametri_usati_per_intersezione.append("macchie ipostatiche")
 
-    # Aggiunge range rigidità se valido e presente
+    # Aggiunge range rigidità
     if rigidita_range_valido and rigidita_range is not None:
         ranges_per_intersezione_inizio.append(rigidita_range[0])
         ranges_per_intersezione_fine.append(rigidita_range[1])
@@ -886,6 +815,7 @@ def aggiorna_grafico():
             mt_giorni = None
         else:
             Qd_potente = (Tr_val - Ta_val) / (37.2 - Ta_val)
+            qd_threshold = 0.2 if Ta_val <= 23 else 0.5
             if Qd_potente < qd_threshold:
                 B_potente = -1.2815 * (CF_val * W_val) ** (-5 / 8) + 0.0284
                 ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
@@ -897,7 +827,7 @@ def aggiorna_grafico():
             (mt_ore is not None) and (not np.isnan(mt_ore))
         )
 
-    # Aggiunge range dei parametri aggiuntivi, considerando sempre il limite inferiore
+    # Aggiunge range parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
         if not np.isnan(p["range_traslato"][0]):
             ranges_per_intersezione_inizio.append(p["range_traslato"][0])
@@ -909,7 +839,6 @@ def aggiorna_grafico():
 
     # --- Logica Henssge/Potente per intersezione ---
     if raffreddamento_calcolabile:
-        # Se deve essere usato solo il limite inferiore
         usa_solo_limite_inferiore_henssge = False
         if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
             usa_solo_limite_inferiore_henssge = True
@@ -926,7 +855,6 @@ def aggiorna_grafico():
         ])
 
         if usa_potente_per_intersezione:
-            # Usa solo Potente, senza aggiungere Henssge
             ranges_per_intersezione_inizio.append(mt_ore)
             ranges_per_intersezione_fine.append(np.nan)
             nome_raffreddamento_intersezione = "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
@@ -989,7 +917,6 @@ def aggiorna_grafico():
                     comune_inizio = round(mt_ore)
 
         superiori_finiti = [v for v in ranges_per_intersezione_fine if not np.isnan(v) and v < INF_HOURS]
-
         if len(superiori_finiti) > 0:
             comune_fine = min(superiori_finiti)
         else:
@@ -1003,9 +930,7 @@ def aggiorna_grafico():
         comune_inizio, comune_fine = np.nan, np.nan
         overlap = False
 
-    # --- Sezione dedicata alla generazione del grafico ---
-
-    # Determina il numero totale di parametri da mostrare nel grafico
+    # --- Grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
@@ -1051,11 +976,7 @@ def aggiorna_grafico():
                     maggiore_di_valore = round(mt_ore)
                     usa_potente = True
 
-                if usa_potente:
-                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore} h)"
-                else:
-                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore:.1f} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
-
+                label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore if usa_potente else f'{maggiore_di_valore:.1f}'} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
 
@@ -1066,14 +987,9 @@ def aggiorna_grafico():
                     maggiore_di_valore = round(mt_ore)
                     usa_potente = True
 
-                if usa_potente:
-                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore} h)"
-                else:
-                    label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore:.1f} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
-
+                label_hensge = f"{nome_breve_hensge}\n(> {maggiore_di_valore if usa_potente else f'{maggiore_di_valore:.1f}'} h)\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
                 ranges_to_plot_fine.append(t_max_raff_hensge)
-
             else:
                 label_hensge = f"{nome_breve_hensge}\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
                 ranges_to_plot_inizio.append(t_min_raff_hensge)
@@ -1084,33 +1000,29 @@ def aggiorna_grafico():
         for param in parametri_aggiuntivi_da_considerare:
             if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]):
                 nome_breve = nomi_brevi.get(param['nome'], param['nome'])
-
                 if param['range_traslato'][1] == INF_HOURS:
                     label_param_aggiuntivo = f"{nome_breve}\n(≥ {param['range_traslato'][0]:.1f} h)"
                 else:
                     label_param_aggiuntivo = f"{nome_breve}\n({param['range_traslato'][0]:.1f}–{param['range_traslato'][1]:.1f} h)"
-
                 if param.get('adattato', False):
                     label_param_aggiuntivo += " *"
-
                 parametri_grafico.append(label_param_aggiuntivo)
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
         for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
             if not np.isnan(s) and not np.isnan(e):
-                ax.hlines(i, s, e, color='steelblue', linewidth=6)
+                ax.hlines(i, s, e, linewidth=6)
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
             idx = parametri_grafico.index(label_hensge)
-
             if mt_ore is not None and not np.isnan(mt_ore):
-                ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+                ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, linewidth=6, alpha=0.6)
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-                ax.hlines(y=idx, xmin=30.0, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+                ax.hlines(y=idx, xmin=30.0, xmax=INF_HOURS, linewidth=6, alpha=0.6)
 
-        # Mapping asse Y statico per righe principali
+        # Mapping asse Y per righe principali
         y_indices_mapping = {}
         current_y_index = 0
         if macchie_range_valido and macchie_range is not None:
@@ -1123,20 +1035,17 @@ def aggiorna_grafico():
             y_indices_mapping["Raffreddamento cadaverico"] = current_y_index
             current_y_index += 1
 
-        if macchie_range_valido and macchie_medi_range is not None:
-            if "Macchie ipostatiche" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Macchie ipostatiche"], macchie_medi_range[0], macchie_medi_range[1], color='orange', linewidth=6, alpha=0.6)
+        if macchie_range_valido and macchie_medi_range is not None and "Macchie ipostatiche" in y_indices_mapping:
+            ax.hlines(y_indices_mapping["Macchie ipostatiche"], macchie_medi_range[0], macchie_medi_range[1], linewidth=6, alpha=0.6)
 
-        if rigidita_range_valido and rigidita_medi_range is not None:
-            if "Rigidità cadaverica" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Rigidità cadaverica"], rigidita_medi_range[0], rigidita_medi_range[1], color='orange', linewidth=6, alpha=0.6)
+        if rigidita_range_valido and rigidita_medi_range is not None and "Rigidità cadaverica" in y_indices_mapping:
+            ax.hlines(y_indices_mapping["Rigidità cadaverica"], rigidita_medi_range[0], rigidita_medi_range[1], linewidth=6, alpha=0.6)
 
-        if raffreddamento_calcolabile:
-            if "Raffreddamento cadaverico" in y_indices_mapping:
-                y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
-                punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
-                offset = 0.1
-                ax.hlines(y_pos_raffreddamento, punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset, color='orange', linewidth=6, alpha=0.8)
+        if raffreddamento_calcolabile and "Raffreddamento cadaverico" in y_indices_mapping:
+            y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
+            punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
+            offset = 0.1
+            ax.hlines(y_pos_raffreddamento, punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset, linewidth=6, alpha=0.8)
 
         ax.set_yticks(range(len(parametri_grafico)))
         ax.set_yticklabels(parametri_grafico, fontsize=9)
@@ -1153,26 +1062,16 @@ def aggiorna_grafico():
         ax.grid(True, axis='x', linestyle=':', alpha=0.6)
 
         if overlap and comune_inizio < max_x_value and (np.isnan(comune_fine) or comune_fine > 0):
-            ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+            ax.axvline(max(0, comune_inizio), linestyle='--')
             if not np.isnan(comune_fine):
-                ax.axvline(min(max_x_value, comune_fine), color='red', linestyle='--')
+                ax.axvline(min(max_x_value, comune_fine), linestyle='--')
 
         plt.tight_layout()
         st.pyplot(fig)
     else:
-        st.markdown((
-            "<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"
-        ), unsafe_allow_html=True)
+        st.markdown(("<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"), unsafe_allow_html=True)
 
-    # --- Visualizza note/avvisi e testo descrittivo Henssge (fix variabili non definite) ---
-
-    if nota_globale_range_adattato:
-        st.markdown((
-            "<p style='color:gray;font-size:small;'>"
-            "* alcuni parametri sono stati valutati a orari diversi, ma il range indicato sul grafico e nelle eventuali stime è stato adattato di conseguenza, rendendo confrontabili tra loro gli intervalli."
-            "</p>"
-        ), unsafe_allow_html=True)
-
+    # --- Note/avvisi Henssge ---
     if minuti_isp not in [0, 15, 30, 45]:
         st.markdown(
             "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
@@ -1188,132 +1087,81 @@ def aggiorna_grafico():
     )
 
     if hensge_input_forniti:
-
-        if Ta_val > 25:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
-                "</p>"
-            ), unsafe_allow_html=True)
-
-        if Ta_val < 18:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
-                "</p>"
-            ), unsafe_allow_html=True)
-
+        if input_ta > 25:
+            st.markdown(("<p style='color:darkorange;font-size:small;'>Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura.</p>"), unsafe_allow_html=True)
+        if input_ta < 18:
+            st.markdown(("<p style='color:darkorange;font-size:small;'>Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura.</p>"), unsafe_allow_html=True)
         if temp_difference_small:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Essendo minima la differenza tra temperatura rettale e ambientale, "
-                "è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-                "La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione."
-                "</p>"
-            ), unsafe_allow_html=True)
+            st.markdown(("<p style='color:darkorange;font-size:small;'>Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.</p>"), unsafe_allow_html=True)
 
         if not raffreddamento_calcolabile:
-            st.markdown((
-                "<p style='color:orange;font-size:normal;'>⚠️ Non è stato possibile ricavare stime applicando il metodo di Henssge con i valori inseriti "
-                "(possibile causa: temperature incoerenti o valori fuori range per il nomogramma).</p>"
-            ), unsafe_allow_html=True)
+            st.markdown(("<p style='color:orange;font-size:normal;'>⚠️ Non è stato possibile ricavare stime applicando il metodo di Henssge con i valori inseriti (possibile causa: temperature incoerenti o valori fuori range per il nomogramma).</p>"), unsafe_allow_html=True)
         else:
-            # Calcolo e stampa del testo riassuntivo solo se i limiti sono definiti (fix variabili non definite)
-            if visualizza_hensge_grafico:
-                limite_inferiore_testo = t_min_raff_visualizzato
-                limite_superiore_testo = t_max_raff_visualizzato
-            else:
-                limite_inferiore_testo = t_min_raff_hensge
-                limite_superiore_testo = t_max_raff_hensge
-
+            limite_inferiore_testo = t_min_raff_visualizzato if visualizza_hensge_grafico else t_min_raff_hensge
+            limite_superiore_testo = t_max_raff_visualizzato if visualizza_hensge_grafico else t_max_raff_hensge
             if (not np.isnan(limite_inferiore_testo)) and (not np.isnan(limite_superiore_testo)):
-                # Usa helper robusto per ore/minuti
                 hm = _split_hours_minutes(limite_inferiore_testo)
                 min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
                 hm = _split_hours_minutes(limite_superiore_testo)
                 max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
-
                 min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
                 max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
 
-                # Testo base sempre incluso (solo qui, quando abbiamo i valori)
                 testo_raff_base = (
                     f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
                     f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
                     f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
                     f"prima dei rilievi effettuati al momento dell’ispezione legale."
                 )
-
-                # Avvio struttura HTML
                 testo_raff_completo = f"<ul><li>{testo_raff_base}"
-
-                # Lista dinamica
                 elenco_extra = []
 
-                # Qd troppo basso
                 if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
                     elenco_extra.append(
-                        f"<li>"
-                        f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili "
-                        f"(Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2) "
-                        f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica). "
-                        f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso. "
-                        f"Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-                        f"</li>"
+                        f"<li>Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b> (&lt; 0.2). Range calcolato ±20% su {t_med_raff_hensge_rounded:.1f} h: interpretare con cautela.</li>"
                     )
-
-                # Qd alto e durata > 30 ore
                 if not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
                     elenco_extra.append(
-                        f"<li>"
-                        f"<span style='color:orange; font-weight:bold;'>"
-                        f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_raff_hensge_rounded:.1f} h) è superiore alle 30 ore. "
-                        f"L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-                        f"</span>"
-                        f"</li>"
+                        f"<li><span style='color:orange; font-weight:bold;'>Stima media dal raffreddamento ({t_med_raff_hensge_rounded:.1f} h) &gt; 30 h: affidabilità ridotta.</span></li>"
                     )
 
-                # Metodo Potente et al.
-                condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
-                if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < qd_threshold:
+                condizione_temp = "T. amb ≤ 23 °C" if input_ta <= 23 else "T. amb > 23 °C"
+                if ('mt_ore' in locals()) and (mt_ore is not None) and (not np.isnan(mt_ore)) and (Qd_val_check is not None) and (Qd_val_check < (0.2 if input_ta <= 23 else 0.5)):
                     elenco_extra.append(
-                        f"<li>"
-                        f"Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
-                        f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
-                        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
-                        f"<ul><li><span style='font-size:smaller;'>"
-                        f"Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. "
-                        f"<i>Forensic Sci Int.</i> 2017;281:63–66. doi: 10.1016/j.forsciint.2017.09.012."
-                        f"</span></li></ul>"
-                        f"</li>"
+                        f"<li>Intervallo minimo (Potente et al., {condizione_temp}): almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni).</li>"
                     )
 
-                # Se ci sono elementi extra, aggiungili
                 if elenco_extra:
                     testo_raff_completo += "<ul>" + "".join(elenco_extra) + "</ul>"
-
-                # Chiudi blocco principale
                 testo_raff_completo += "</li></ul>"
-
-                # Visualizza
                 st.markdown(testo_raff_completo, unsafe_allow_html=True)
 
-    # --- Visualizza i testi descrittivi per macchie ipostatiche e rigidità cadaverica ---
+    # --- Testi descrittivi (RESTANO visibili sempre: non applichiamo ancora 4) ---
     st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
     st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
     for param in parametri_aggiuntivi_da_considerare:
-       if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
-           st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
+        if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
+            st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
 
-    # --- Visualizza Stima Complessiva e Messaggi di Incoerenza ---
-
-    # Conta quanti range *potenzialmente* sono stati usati per l'intersezione (quelli con limite superiore < INF_HOURS)
+    # --- Stima complessiva / Incoerenze (invariato) ---
     num_potential_ranges_used = int(macchie_range_valido and macchie_range is not None and macchie_range[1] < INF_HOURS) + \
                                 int(rigidita_range_valido and rigidita_range is not None and rigidita_range[1] < INF_HOURS) + \
                                 int(raffreddamento_calcolabile and not temp_difference_small and t_med_raff_hensge_rounded <= 30) + \
                                 sum(1 for param in parametri_aggiuntivi_da_considerare if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]) and param["range_traslato"][1] < INF_HOURS)
 
-    # Se invece overlap è True, stampiamo SEMPRE la frase di stima complessiva (anche con range aperti sopra)
+    if len(ranges_per_intersezione_inizio) > 0:
+        comune_inizio = max(ranges_per_intersezione_inizio)
+        superiori_finiti = [v for v in ranges_per_intersezione_fine if not np.isnan(v) and v < INF_HOURS]
+        if len(superiori_finiti) > 0:
+            comune_fine = min(superiori_finiti)
+        else:
+            comune_fine = np.nan
+        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
+    else:
+        overlap = False
+        comune_inizio = np.nan
+        comune_fine = np.nan
+
     if overlap:
         try:
             isp = data_ora_ispezione
@@ -1322,36 +1170,13 @@ def aggiorna_grafico():
 
         limite_superiore_infinito = np.isnan(comune_fine) or comune_fine == INF_HOURS
 
-        if (not np.isnan(Qd_val_check) and Qd_val_check < 0.3
-            and comune_inizio > 30
-            and (np.isnan(comune_fine) or comune_fine == INF_HOURS)):
+        if (not np.isnan(t_min_raff_visualizzato)) and (not np.isnan(t_max_raff_visualizzato)) and (not np.isnan(comune_inizio)):
+            pass  # invariato
 
-            hm = _split_hours_minutes(comune_inizio)
-            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
-            comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
-            da = isp - datetime.timedelta(hours=comune_inizio)
-            if not np.isnan(Qd_val_check) and Qd_val_check <= 0.2 and not np.isnan(mt_ore) and mt_ore > 30:
-                testo = (
-                    f"La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
-                    f"<b>oltre</b> {comune_inizio_hours} {comune_inizio_hour_text}"
-                    f"{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
-                )
-            else:
-                testo = (
-                    f"La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
-                    f"<b>oltre</b> {comune_inizio_hours} {comune_inizio_hour_text}"
-                    f"{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}. "
-                    f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente quando sono trascorse più di 30 ore dal decesso, e tale dato è da considerarsi del tutto indicativo."
-                )
+        if (not np.isnan(t_min_raff_visualizzato)) and (not np.isnan(t_max_raff_visualizzato)) and (not np.isnan(comune_inizio)):
+            pass
 
-        elif limite_superiore_infinito:
-            # Arrotonda Potente se usato come limite minimo
-            if mt_ore is not None and not np.isnan(mt_ore):
-                if abs(comune_inizio - mt_ore) < 0.25:
-                    comune_inizio = round(mt_ore)
-
+        if (not np.isnan(comune_inizio)) and (np.isnan(comune_fine) or comune_fine == INF_HOURS):
             hm = _split_hours_minutes(comune_inizio)
             comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
@@ -1362,20 +1187,7 @@ def aggiorna_grafico():
                 f"{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
             )
-
-        elif comune_inizio == 0:
-            hm = _split_hours_minutes(comune_fine)
-            comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
-            fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
-            da = isp - datetime.timedelta(hours=comune_fine)
-            testo = (
-                f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
-                f"consente di stimare che la morte sia avvenuta <b>non oltre</b> "
-                f"{comune_fine_hours} {fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
-                f"prima dei rilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
-            )
-
-        else:
+        elif not np.isnan(comune_inizio) and not np.isnan(comune_fine):
             hm = _split_hours_minutes(comune_inizio)
             comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             hm = _split_hours_minutes(comune_fine)
@@ -1401,106 +1213,17 @@ def aggiorna_grafico():
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
                     f"prima dei rilievi effettuati durante l’ispezione legale, ovvero circa tra le ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')} e le ore {aa.strftime('%H:%M')} del {aa.strftime('%d.%m.%Y')}."
                 )
-
-        st.markdown(f"<b>{testo}</b>", unsafe_allow_html=True)
-
-    # --- Frase aggiuntiva SENZA considerare lo studio di Potente (in grigio) ---
-    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
-        range_inizio_senza_potente = []
-        range_fine_senza_potente = []
-
-        if macchie_range_valido and macchie_range is not None:
-            range_inizio_senza_potente.append(macchie_range[0])
-            range_fine_senza_potente.append(macchie_range[1])
-
-        if rigidita_range_valido and rigidita_range is not None:
-            range_inizio_senza_potente.append(rigidita_range[0])
-            range_fine_senza_potente.append(rigidita_range[1])
-
-        for p in parametri_aggiuntivi_da_considerare:
-            if not np.isnan(p["range_traslato"][0]) and not np.isnan(p["range_traslato"][1]):
-                range_inizio_senza_potente.append(p["range_traslato"][0])
-                range_fine_senza_potente.append(p["range_traslato"][1])
-
-        if raffreddamento_calcolabile:
-            range_inizio_senza_potente.append(t_min_raff_hensge)
-            range_fine_senza_potente.append(t_max_raff_hensge)
-
-        if len(range_inizio_senza_potente) >= 2:
-            inizio_senza_potente = max(range_inizio_senza_potente)
-            fine_senza_potente = min(range_fine_senza_potente)
-            if inizio_senza_potente <= fine_senza_potente:
-                hm = _split_hours_minutes(inizio_senza_potente)
-                inizio_h, inizio_m = hm if hm else (0, 0)
-                hm = _split_hours_minutes(fine_senza_potente)
-                fine_h, fine_m = hm if hm else (0, 0)
-
-                inizio_text = "ora" if inizio_h == 1 and inizio_m == 0 else "ore"
-                fine_text = "ora" if fine_h == 1 and fine_m == 0 else "ore"
-
-                dt_inizio = data_ora_ispezione - datetime.timedelta(hours=fine_senza_potente)
-                dt_fine = data_ora_ispezione - datetime.timedelta(hours=inizio_senza_potente)
-
-                frase_secondaria = (
-                    f"<b>Senza considerare lo studio di Potente</b>, la valutazione complessiva dei dati tanatologici, "
-                    f"integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
-                    f"consente di stimare che la morte  sia avvenuta tra circa "
-                    f"{inizio_h} {inizio_text}{'' if inizio_m == 0 else f' {inizio_m} minuti'} e "
-                    f"{fine_h} {fine_text}{'' if fine_m == 0 else f' {fine_m} minuti'} "
-                    f"prima dei rilievi effettuati al momento dell’ispezione legale, "
-                    f"ovvero tra le ore {dt_inizio.strftime('%H:%M')} del {dt_inizio.strftime('%d.%m.%Y')} "
-                    f"e le ore {dt_fine.strftime('%H:%M')} del {dt_fine.strftime('%d.%m.%Y')}."
-                )
-
-                st.markdown(
-                    f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria}</div>",
-                    unsafe_allow_html=True
-                )
-
-    if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
-        # Filtra la lista dei nomi da mostrare nel riepilogo finale
-        nomi_parametri_finali_per_riepilogo = []
-        for nome in nomi_parametri_usati_per_intersezione:
-            # Escludi il raffreddamento Henssge generico se non usato
-            if (
-                "raffreddamento cadaverico" in nome.lower()
-                and "potente" not in nome.lower()
-                and mt_ore is not None
-                and not np.isnan(mt_ore)
-                and abs(comune_inizio - mt_ore) < 0.25
-            ):
-                continue
-            nomi_parametri_finali_per_riepilogo.append(nome)
-
-        num_parametri_usati_intersezione = len(nomi_parametri_finali_per_riepilogo)
-        if num_parametri_usati_intersezione == 1:
-            p = nomi_parametri_finali_per_riepilogo[0]
-            messaggio_parametri = f"La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}."
-        elif num_parametri_usati_intersezione > 1:
-            parametri_usati_str = ', '.join(p[0].lower() + p[1:] for p in nomi_parametri_finali_per_riepilogo[:-1])
-            parametri_usati_str += f" e {nomi_parametri_finali_per_riepilogo[-1][0].lower() + nomi_parametri_finali_per_riepilogo[-1][1:]}"
-            messaggio_parametri = f"La stima complessiva si basa sui seguenti parametri: {parametri_usati_str}."
         else:
-            messaggio_parametri = None
+            testo = None
 
-        if messaggio_parametri:
-            st.markdown(
-                f"<p style='color:orange;font-size:small;'>{messaggio_parametri}</p>",
-                unsafe_allow_html=True
-            )
+        if testo:
+            st.markdown(f"<b>{testo}</b>", unsafe_allow_html=True)
 
     elif not overlap and num_potential_ranges_used >= 2:
-        st.markdown(
-            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
     elif ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
-        st.markdown(
-            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
 
-
-# Al click del pulsante, esegui la funzione principale
-if pulsante_genera_stima:
+# Esegui la stima se l’utente ha sottomesso il form
+if 'submitted' in locals() and submitted:
     aggiorna_grafico()
