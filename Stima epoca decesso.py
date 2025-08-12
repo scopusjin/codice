@@ -1027,7 +1027,7 @@ def aggiorna_grafico():
 
         label_hensge = None
         if raffreddamento_calcolabile:
-            nome_breve_hensge = "Hensge"
+            nome_breve_hensge = "Raffreddamento"
             usa_solo_limite_inferiore_henssge = not np.isnan(Qd_val_check) and Qd_val_check < 0.2
 
             if usa_solo_limite_inferiore_henssge:
