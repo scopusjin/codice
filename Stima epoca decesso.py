@@ -417,10 +417,10 @@ dati_parametri_aggiuntivi = {
 nomi_brevi = {
     "Macchie ipostatiche": "Ipostasi",
     "Rigidità cadaverica": "Rigor",
-    "Raffreddamento cadaverico": "Hensge",
-    "Eccitabilità elettrica peribuccale": "Ecc. el. peribuccale",
-    "Eccitabilità elettrica sopraciliare": "Ecc. el. sopraciliare",
-    "Eccitabilità chimica pupillare": "Ecc. chimica",
+    "Raffreddamento cadaverico": "Raffreddamento",
+    "Eccitabilità elettrica peribuccale": "Ecc. elettrica peribuccale",
+    "Eccitabilità elettrica sopraciliare": "Ecc. elettrica sopraciliare",
+    "Eccitabilità chimica pupillare": "Ecc. pupillare",
     "Eccitabilità muscolare meccanica": "Ecc. meccanica"
 }
 
@@ -520,7 +520,7 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
             return True  # almeno uno è completamente isolato
     return False
 
-# --- Definizione Stile e Widget (Esistenti e Nuovi) ---
+# --- Definizione Stile e Widget ---
 style = {'description_width': 'initial'}
 
 with st.container():
@@ -532,19 +532,21 @@ with st.container():
         input_data_rilievo = st.date_input(
             "Data ispezione legale:",
             value=datetime.date.today(),
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="data_ispezione_legale_main"
         )
     with col2:
         input_ora_rilievo = st.text_input(
             "Ora ispezione legale (HH:MM):",
             value="00:00",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="ora_ispezione_legale_main"
         )
 
-    # 🔹 Ancoraggio per stilare il container successivo
+    # 🔹 Ancoraggio per stilare il container successivo come riquadro
     st.markdown('<div id="box-tanatologia"></div>', unsafe_allow_html=True)
 
-    # 🔹 Container che conterrà Ipostasi e Rigidità
+    # 🔹 Container che conterrà Ipostasi e Rigidità (verrà stilato come riquadro)
     with st.container():
         st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2, gap="small")
@@ -553,17 +555,19 @@ with st.container():
             selettore_macchie = st.selectbox(
                 "Macchie ipostatiche:",
                 options=list(opzioni_macchie.keys()),
-                label_visibility="collapsed"
+                label_visibility="collapsed",
+                key="macchie_ipostatiche_main"
             )
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
             selettore_rigidita = st.selectbox(
                 "Rigidità cadaverica:",
                 options=list(opzioni_rigidita.keys()),
-                label_visibility="collapsed"
+                label_visibility="collapsed",
+                key="rigidita_cadaverica_main"
             )
 
-    # 🔹 Stile del riquadro per Ipostasi e Rigidità
+    # 🔹 Stile del riquadro applicato al container subito dopo l’ancora
     st.markdown("""
     <style>
     #box-tanatologia + div {
@@ -590,19 +594,39 @@ with st.container():
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-        input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        input_rt = st.number_input(
+            "T. rettale (°C):",
+            value=35.0, step=0.1, format="%.1f",
+            label_visibility="collapsed",
+            key="t_rettale_main"
+        )
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale (°C):</div>", unsafe_allow_html=True)
-        input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        input_ta = st.number_input(
+            "T. ambientale (°C):",
+            value=20.0, step=0.1, format="%.1f",
+            label_visibility="collapsed",
+            key="t_ambientale_main"
+        )
     with col3:
         st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
-        input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
+        input_tm = st.number_input(
+            "T. ante-mortem stimata (°C):",
+            value=37.2, step=0.1, format="%.1f",
+            label_visibility="collapsed",
+            key="t_antemortem_main"
+        )
 
     # 📌 4. Peso + Fattore di correzione
     col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-        input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
+        input_w = st.number_input(
+            "Peso (kg):",
+            value=70.0, step=1.0, format="%.1f",
+            label_visibility="collapsed",
+            key="peso_main"
+        )
         st.session_state["peso"] = input_w
     with col2:
         subcol1, subcol2 = st.columns([2, 1], gap="small")
@@ -610,14 +634,20 @@ with st.container():
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione:</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
                 "Fattore di correzione:",
-                step=0.1,
-                format="%.2f",
+                step=0.1, format="%.2f",
                 label_visibility="collapsed",
                 key="fattore_correzione"
             )
         with subcol2:
-            if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione"):
+            if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione", key="btn_suggerisci_fattore"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+# Pulsante centrale per generare/aggiornare la stima
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA", key="btn_genera_stima")
+
+if pulsante_genera_stima:
+    aggiorna_grafico()
 
 
 def aggiorna_grafico():
