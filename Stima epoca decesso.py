@@ -547,13 +547,24 @@ with st.container():
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
     # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci"
+    # CSS per mini bottone
+    st.markdown("""
+        <style>
+        .small-btn button {
+            padding: 2px 8px !important;
+            font-size: 0.8rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     col1, col2 = st.columns([1, 3], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
         input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
         st.session_state["peso"] = input_w
+
     with col2:
-        subcol1, subcol2 = st.columns([1.5, 2.5], gap="small")
+        subcol1, subcol2 = st.columns([1.5, 1], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
@@ -564,8 +575,10 @@ with st.container():
                 key="fattore_correzione"
             )
         with subcol2:
-            if st.button("⚙️ Suggerisci FC"):
+            # Mini bottone
+            if st.button("⚙️ Suggerisci", key="btn_fc_small"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+
 
 # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
 if st.session_state.get("mostra_modulo_fattore", False):
