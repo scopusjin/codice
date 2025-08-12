@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 # Streamlit app: Stima epoca decesso
 # Revisione UI: form + tabs + sidebar + toggle testi + "?" immagini
@@ -24,6 +25,10 @@ if "mostra_modulo_fattore" not in st.session_state:
 
 if "show_imgs" not in st.session_state:
     st.session_state["show_imgs"] = False  # per bottone "?" in Parametri aggiuntivi
+
+# Peso: sorgente unica e condivisa in tutta l'app
+if "peso" not in st.session_state:
+    st.session_state["peso"] = 70.0
 
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
@@ -57,7 +62,7 @@ def load_tabelle_correzione():
     return t1, t2
 
 # =========================
-# Funzioni esistenti (con fix robustezza minimi già presenti)
+# Funzioni esistenti (logica invariata)
 # =========================
 
 def calcola_fattore(peso):
@@ -80,7 +85,6 @@ def calcola_fattore(peso):
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
-        # radio mantenuto (3 scelte)
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
@@ -111,7 +115,6 @@ def calcola_fattore(peso):
             if vestiti_state == "Moltissimi strati":
                 opzioni_coperte = ["Molte coperte pesanti"]
 
-            # selectbox al posto di radio (più compatto)
             scelta_coperte = st.selectbox("", opzioni_coperte, key="scelta_coperte_radio", label_visibility="collapsed")
         else:
             scelta_coperte = "/"
@@ -122,7 +125,6 @@ def calcola_fattore(peso):
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
-            # selectbox (etichetta invariata)
             scelta_vestiti = st.selectbox("", [
                 "Nudo",
                 "1-2 strati sottili",
@@ -151,7 +153,6 @@ def calcola_fattore(peso):
 
             if mostra_corrente:
                 st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                # selectbox più compatto
                 corrente = st.selectbox(
                     "",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
@@ -183,7 +184,6 @@ def calcola_fattore(peso):
                 "Materasso o tappeto spesso",
                 "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
             ]
-            # ✅ la superficie metallica compare SOLO se vestiti=Nudo e coperte=Nessuna coperta
             if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
             if mostra_foglie:
@@ -259,17 +259,12 @@ def calcola_fattore(peso):
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
-    # Pulsante per applicare il fattore calcolato al campo principale
-    def _apply_fattore(val):
-        st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["mostra_modulo_fattore"] = False  # richiude l’expander
-
-    st.button(
-        "✅ Usa questo fattore",
-        key="usa_fattore_btn",
-        on_click=_apply_fattore,
-        args=(fattore_finale,)
-    )
+    # Pulsante per applicare il fattore calcolato al campo principale (fuori dal form, nessun ricalcolo automatico)
+    if st.button("✅ Usa questo fattore", key="usa_fattore_btn"):
+        st.session_state["fattore_correzione"] = round(float(fattore_finale), 2)
+        # Manteniamo sincronizzato il peso condiviso (qui già usiamo st.session_state['peso'])
+        st.session_state["mostra_modulo_fattore"] = False  # chiude il modulo in sidebar
+        st.success("Fattore applicato.")
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
@@ -331,7 +326,7 @@ rigidita_medi = {
 rigidita_descrizioni = {
     "Non ancora comparsa": "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse meno di 7 ore dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso).",
     "In via di formazione, intensificazione e generalizzazione": "È possibile valutare che la rigidità cadaverica fosse in via di formazione, intensificazione e generalizzazione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità si completa in 6-10 ore).",
-    "Presente e generalizzata": "È possibile valutare che la rigidità cadaverica fosse presente e generalizzata. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore).",
+    "Presente e generalizzata": "È possibile valutare che la rigidità cadaverica fosse presente e generalizzata. Secondo les comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore).",
     "In via di risoluzione": "È possibile valutare che la rigidità cadaverica fosse in via di risoluzione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso).",
     "Ormai risolta": "È possibile valutare che la rigidità cadaverica fosse ormai risolta. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni).",
     "Non valutabile/Non attendibile": "La rigidità cadaverica non è stata valutata o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
@@ -378,7 +373,7 @@ dati_parametri_aggiuntivi = {
             "Discreta (++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta ai muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 e le 6 ore prima delle valutazioni del dato tanatologico.",
             "Accennata (+)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra  1 e  5 ore prima delle valutazioni del dato tanatologico.",
             "Non valutata/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
-            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 6 ore dal decesso."
         }
     },
     "Eccitabilità muscolare meccanica": {
@@ -515,12 +510,37 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
     return False
 
 # ================
-# SIDEBAR (nuova)
+# SIDEBAR (nuova) — modulo FC con aggiornamento immediato
 # ================
 with st.sidebar:
     st.markdown("### Opzioni di visualizzazione")
     opt_mostra_testi = st.checkbox("Mostra testi descrittivi", value=True)
     opt_mostra_medi = st.checkbox("Mostra intervalli medi (ipostasi/rigor)", value=True)
+
+    st.markdown("---")
+    st.markdown("### Fattore di correzione")
+
+    # Apertura/chiusura del modulo in sidebar (fuori dal form → update immediato)
+    if st.session_state.get("mostra_modulo_fattore", False):
+        with st.expander("Stima fattore di correzione", expanded=True):
+            st.markdown('<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">', unsafe_allow_html=True)
+
+            # Peso condiviso (editabile qui): ogni modifica aggiorna subito il suggerimento
+            st.session_state["peso"] = st.number_input(
+                "Peso (kg):",
+                value=float(st.session_state["peso"]),
+                step=1.0,
+                format="%.1f",
+                key="peso_sidebar"
+            )
+
+            # Calcolo suggerimento usando il peso condiviso
+            calcola_fattore(peso=st.session_state["peso"])
+
+            st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        if st.button("Apri modulo fattore di correzione", key="open_fattore_btn_sidebar"):
+            st.session_state["mostra_modulo_fattore"] = True
 
 # Piccolo CSS per compattare
 st.markdown("""
@@ -585,12 +605,20 @@ with st.form("stima_form", clear_on_submit=False):
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
             input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
-        # 4) Peso + Fattore di correzione (in una riga)
+        # 4) Peso + Fattore di correzione (mirror + input FC)
         c1, c2 = st.columns([1, 3], gap="small")
         with c1:
             st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-            input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
-            st.session_state["peso"] = input_w
+            # Mirror disabilitato del peso condiviso (editabile in sidebar)
+            st.number_input(
+                "Peso (kg):",
+                value=float(st.session_state["peso"]),
+                step=1.0,
+                format="%.1f",
+                label_visibility="collapsed",
+                key="peso_mirror",
+                disabled=True
+            )
         with c2:
             sub1, sub2 = st.columns([1.5, 1], gap="small")
             with sub1:
@@ -603,20 +631,15 @@ with st.form("stima_form", clear_on_submit=False):
                     key="fattore_correzione"
                 )
             with sub2:
-                st.empty()
+                # Pulsante interno al form: apre il modulo in sidebar (visibile dopo submit, coerente col form)
+                if st.button("Apri calcolo FC ➜", key="open_fattore_btn_inline"):
+                    st.session_state["mostra_modulo_fattore"] = True
 
-    # TAB 2 — FATTORE/CORREZIONI (expander con modulo invariato)
+    # TAB 2 — FATTORE/CORREZIONI (modulo spostato in sidebar)
     with tab2:
-        with st.expander("Stima fattore di correzione", expanded=st.session_state.get("mostra_modulo_fattore", False)):
-            st.markdown('<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">', unsafe_allow_html=True)
-            calcola_fattore(peso=st.session_state.get("peso", 70))
-            st.markdown('</div>', unsafe_allow_html=True)
-        if not st.session_state.get("mostra_modulo_fattore", False):
-            st.button(
-                "Apri modulo fattore di correzione",
-                key="open_fattore_btn_form",
-                on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
-            )
+        st.info("Il modulo di calcolo del fattore di correzione è disponibile nella **sidebar**.")
+        if st.button("Apri modulo in sidebar", key="open_fattore_btn_tab2"):
+            st.session_state["mostra_modulo_fattore"] = True
 
     # TAB 3 — PARAMETRI AGGIUNTIVI
     with tab3:
@@ -735,7 +758,7 @@ def aggiorna_grafico():
     Tr_val = input_rt
     Ta_val = input_ta
     T0_val = input_tm
-    W_val = input_w
+    W_val = float(st.session_state["peso"])  # <-- peso condiviso
     CF_val = st.session_state.get("fattore_correzione", 1.0)
 
     # Validazioni extra (robustezza)
@@ -799,7 +822,7 @@ def aggiorna_grafico():
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
+        if nome_parametro == "Eccitabilità eletrica peribuccale":
             chiave_descrizione = stato_selezionato.split(':')[0].strip()
         else:
             chiave_descrizione = stato_selezionato.strip()
@@ -1045,7 +1068,7 @@ def aggiorna_grafico():
             if usa_solo_limite_inferiore_henssge:
                 maggiore_di_valore = t_min_raff_hensge
                 usa_potente = False
-                if mt_ore is not None and not np.isnan(mt_ore):
+                if 'mt_ore' in locals() and mt_ore is not None and not np.isnan(mt_ore):
                     maggiore_di_valore = round(mt_ore)
                     usa_potente = True
 
@@ -1060,7 +1083,7 @@ def aggiorna_grafico():
             elif t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30:
                 maggiore_di_valore = 30.0
                 usa_potente = False
-                if mt_ore is not None and not np.isnan(mt_ore):
+                if 'mt_ore' in locals() and mt_ore is not None and not np.isnan(mt_ore):
                     maggiore_di_valore = round(mt_ore)
                     usa_potente = True
 
@@ -1098,7 +1121,7 @@ def aggiorna_grafico():
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
             idx = parametri_grafico.index(label_hensge)
-            if mt_ore is not None and not np.isnan(mt_ore):
+            if 'mt_ore' in locals() and mt_ore is not None and not np.isnan(mt_ore):
                 ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
@@ -1160,14 +1183,7 @@ def aggiorna_grafico():
         ), unsafe_allow_html=True)
 
     # --- Note/avvisi e testo descrittivo Henssge ---
-    if nota_globale_range_adattato:
-        st.markdown((
-            "<p style='color:gray;font-size:small;'>"
-            "* alcuni parametri sono stati valutati a orari diversi, ma il range indicato sul grafico e nelle eventuali stime è stato adattato di conseguenza, rendendo confrontabili tra loro gli intervalli."
-            "</p>"
-        ), unsafe_allow_html=True)
-
-    if minuti_isp not in [0, 15, 30, 45]:
+    if 'minuti_isp' in locals() and minuti_isp not in [0, 15, 30, 45]:
         st.markdown(
             "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
             unsafe_allow_html=True
@@ -1177,7 +1193,7 @@ def aggiorna_grafico():
         input_rt is not None and
         input_ta is not None and
         input_tm is not None and
-        input_w is not None and
+        st.session_state.get("peso", None) is not None and
         st.session_state.get("fattore_correzione", None) is not None
     )
 
@@ -1185,17 +1201,18 @@ def aggiorna_grafico():
         if Ta_val > 25:
             st.markdown((
                 "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
+                "Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
                 "</p>"
             ), unsafe_allow_html=True)
 
         if Ta_val < 18:
             st.markdown((
                 "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
+                "Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
                 "</p>"
             ), unsafe_allow_html=True)
 
+        temp_difference_small = (Tr_val is not None and Ta_val is not None and (Tr_val - Ta_val) is not None and (Tr_val - Ta_val) < 2.0 and (Tr_val - Ta_val) >= 0)
         if temp_difference_small:
             st.markdown((
                 "<p style='color:darkorange;font-size:small;'>"
@@ -1259,7 +1276,7 @@ def aggiorna_grafico():
                     )
 
                 condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
-                if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < (0.2 if Ta_val <= 23 else 0.5):
+                if (not np.isnan(Qd_val_check)) and Qd_val_check < (0.2 if Ta_val <= 23 else 0.5) and 'mt_ore' in locals() and mt_ore is not None and not np.isnan(mt_ore):
                     elenco_extra.append(
                         f"<li>"
                         f"Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
