@@ -523,45 +523,6 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
 # --- Definizione Stile e Widget (Esistenti e Nuovi) ---
 style = {'description_width': 'initial'}
 
-# --- Definizione Widget (Streamlit) ---
-with st.container():
-    
-
-    # 📌 1. Data e ora ispezione legale
-    st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi:</div>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2, gap="small")
-    with col1:
-        input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
-
-    with col2:
-        # st.markdown("<div style='font-size: 0.88rem;'>Ora ispezione legale:</div>", unsafe_allow_html=True)
-        input_ora_rilievo = st.text_input(
-        "Ora ispezione legale (HH:MM):",
-        value="00:00",
-        label_visibility="collapsed"
-        )
-
-    st.markdown('<div class="box-tanatologia">', unsafe_allow_html=True)
-    st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2, gap="small")
-    with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox(
-            "Macchie ipostatiche:",
-            options=list(opzioni_macchie.keys()),
-            label_visibility="collapsed"
-        )
-    with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox(
-            "Rigidità cadaverica:",
-            options=list(opzioni_rigidita.keys()),
-            label_visibility="collapsed"
-        )
-    st.markdown('</div>', unsafe_allow_html=True)  # fine riquadro
-
-
 with st.container():
 
     # 📌 1. Data e ora ispezione legale
