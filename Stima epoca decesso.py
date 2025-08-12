@@ -18,6 +18,9 @@ import pandas as pd
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
 
+if "mostra_modulo_fattore" not in st.session_state:
+    st.session_state["mostra_modulo_fattore"] = False
+    
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
@@ -248,6 +251,7 @@ def calcola_fattore(peso):
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["mostra_modulo_fattore"] = False  # opzionale: richiude l’expander
 
+    
     st.button(
         "✅ Usa questo fattore",
         key="usa_fattore_btn",
@@ -573,8 +577,18 @@ with st.container():
 
 
 
-    # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
-    with st.expander("Stima fattore di correzione", expanded=False):
+
+
+# 📌 Expander con apertura/chiusura controllata da session_state
+if not st.session_state["mostra_modulo_fattore"]:
+    # pulsante (o link) per aprire l’expander
+    st.button(
+        "Stima fattore di correzione",
+        key="open_fattore_btn",
+        on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
+    )
+else:
+    with st.expander("Stima fattore di correzione", expanded=True):
         st.markdown(
             '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
             unsafe_allow_html=True
