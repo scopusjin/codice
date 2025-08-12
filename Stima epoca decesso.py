@@ -539,7 +539,7 @@ with st.container():
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
     # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci"
-    col1, col2 = st.columns([1, 1], gap="small")
+    col1, col2 = st.columns([1, 3], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
         input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
