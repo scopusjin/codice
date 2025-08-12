@@ -547,15 +547,45 @@ with st.container():
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
     # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci"
-    # CSS per mini bottone
+    # CSS per link-bottone compatto senza riquadro
     st.markdown("""
         <style>
-        .small-btn button {
-            padding: 2px 8px !important;
-            font-size: 0.8rem !important;
+        .link-like-button {
+            background: transparent;
+            border: none;
+            color: #0066cc;
+            text-decoration: underline;
+            padding: 0;
+            font-size: 0.85rem;
+            cursor: pointer;
         }
         </style>
     """, unsafe_allow_html=True)
+
+    # Gestione click via query param (?toggle_fc=true)
+    try:
+        params = st.query_params
+        toggled = params.get("toggle_fc", None)
+        if toggled:
+            st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+            # Pulisce i query params per non togglare ad ogni refresh
+            st.query_params.clear()
+            # Rerun (opzionale su versioni recenti)
+            try:
+                st.rerun()
+            except Exception:
+                pass
+    except Exception:
+        # Fallback per versioni Streamlit precedenti
+        params = st.experimental_get_query_params()
+        toggled = params.get("toggle_fc", [None])[0]
+        if toggled:
+            st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+            st.experimental_set_query_params()  # svuota
+            try:
+                st.experimental_rerun()
+            except Exception:
+                pass
 
     col1, col2 = st.columns([1, 3], gap="small")
     with col1:
@@ -575,9 +605,12 @@ with st.container():
                 key="fattore_correzione"
             )
         with subcol2:
-            # Mini bottone
-            if st.button("⚙️ Suggerisci", key="btn_fc_small"):
-                st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
+            # Link che attiva il toggle via query param
+            st.markdown(
+                '<a class="link-like-button" href="?toggle_fc=true">Suggerisci FC</a>',
+                unsafe_allow_html=True
+            )
+
 
 
 # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
