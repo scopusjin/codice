@@ -582,27 +582,21 @@ with st.container():
                 label_visibility="collapsed",
                 key="fattore_correzione"
             )
+
         with subcol2:
-            clicked = st.session_state.get("btn_fc_clicked", False)
-            # Pulsante HTML
-            if st.markdown('<button class="link-button" onclick="window.parent.postMessage({type: \'fc-click\'}, \'*\')">Suggerisci FC</button>', unsafe_allow_html=True):
-                pass
-            # Listener JS → Streamlit
-            event = streamlit_js_eval(js_expressions="new Promise(resolve => { window.addEventListener('message', e => { if(e.data?.type === 'fc-click') resolve(true); }); });", key="fc_js_listener")
-            if event:
-                st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
-                st.rerun()
+            st.markdown("&nbsp;", unsafe_allow_html=True)  # Spazio vuoto o eventuale placeholder
 
 
-# 📌 Expander con sfondo diverso per il modulo di calcolo fattore
-if st.session_state.get("mostra_modulo_fattore", False):
-    with st.expander("Stima fattore di correzione", expanded=True):
+
+    # 📌 Expander con sfondo diverso per il modulo di calcolo fattore
+    with st.expander("Stima fattore di correzione", expanded=False):
         st.markdown(
             '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
             unsafe_allow_html=True
         )
         calcola_fattore(peso=st.session_state.get("peso", 70))
         st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
