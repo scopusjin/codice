@@ -646,9 +646,6 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     pulsante_genera_stima = st.button("Stima epoca decesso", key="btn_genera_stima")
 
-if pulsante_genera_stima:
-    aggiorna_grafico()
-
 
 def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
