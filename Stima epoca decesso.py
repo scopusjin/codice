@@ -274,7 +274,10 @@ def _split_hours_minutes(h: float):
     return hours, minutes
 
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
-st.title("Stima epoca decesso")
+
+# Titolo più piccolo e con peso medio
+st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</h5>", unsafe_allow_html=True)
+
 
 
 # --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
@@ -588,12 +591,6 @@ mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntiv
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
-    st.markdown("""
-    <h5 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h5>
-    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
-    <div style="margin-top:10px;"></div>
-    """, unsafe_allow_html=True)
-
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         col1, col2 = st.columns([1, 2], gap="small")
         with col1:
