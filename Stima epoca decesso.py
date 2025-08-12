@@ -562,55 +562,70 @@ with st.container():
     st.markdown('</div>', unsafe_allow_html=True)  # fine riquadro
 
 
-# Ancoraggio per stilare il container successivo
-st.markdown('<div id="box-tanatologia"></div>', unsafe_allow_html=True)
-
-# Container che conterrà i widget (verrà stilato via CSS come riquadro)
 with st.container():
-    st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
 
+    # 📌 1. Data e ora ispezione legale
+    st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi:</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="small")
     with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox(
-            "Macchie ipostatiche:",
-            options=list(opzioni_macchie.keys()),
+        input_data_rilievo = st.date_input(
+            "Data ispezione legale:",
+            value=datetime.date.today(),
             label_visibility="collapsed"
         )
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox(
-            "Rigidità cadaverica:",
-            options=list(opzioni_rigidita.keys()),
+        input_ora_rilievo = st.text_input(
+            "Ora ispezione legale (HH:MM):",
+            value="00:00",
             label_visibility="collapsed"
         )
 
-# Stile del riquadro applicato al container subito dopo l’ancora
-st.markdown("""
-<style>
-#box-tanatologia + div {
-    border: 1.5px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 12px 12px 6px;
-    background: #fafafa;
-    margin-top: 6px;
-}
-#box-tanatologia + div .box-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin: 0 0 8px 2px;
-    color: #444;
-}
-@media (max-width: 600px){
-    #box-tanatologia + div { padding: 10px; }
-    #box-tanatologia + div .box-title { font-size: 0.92rem; }
-}
-</style>
-""", unsafe_allow_html=True)
+    # 🔹 Ancoraggio per stilare il container successivo
+    st.markdown('<div id="box-tanatologia"></div>', unsafe_allow_html=True)
 
-    
-    
-    # 📌 3. Temperature (3 colonne gap large)
+    # 🔹 Container che conterrà Ipostasi e Rigidità
+    with st.container():
+        st.markdown('<div class="box-title">Segni cadaverici principali</div>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2, gap="small")
+        with col1:
+            st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+            selettore_macchie = st.selectbox(
+                "Macchie ipostatiche:",
+                options=list(opzioni_macchie.keys()),
+                label_visibility="collapsed"
+            )
+        with col2:
+            st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
+            selettore_rigidita = st.selectbox(
+                "Rigidità cadaverica:",
+                options=list(opzioni_rigidita.keys()),
+                label_visibility="collapsed"
+            )
+
+    # 🔹 Stile del riquadro per Ipostasi e Rigidità
+    st.markdown("""
+    <style>
+    #box-tanatologia + div {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 12px 12px 6px;
+        background: #fafafa;
+        margin-top: 6px;
+    }
+    #box-tanatologia + div .box-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: 0 0 8px 2px;
+        color: #444;
+    }
+    @media (max-width: 600px){
+        #box-tanatologia + div { padding: 10px; }
+        #box-tanatologia + div .box-title { font-size: 0.92rem; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # 📌 3. Temperature
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
@@ -622,7 +637,7 @@ st.markdown("""
         st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
-    # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci"
+    # 📌 4. Peso + Fattore di correzione
     col1, col2 = st.columns([1, 1], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
@@ -638,129 +653,11 @@ st.markdown("""
                 format="%.2f",
                 label_visibility="collapsed",
                 key="fattore_correzione"
-                )
+            )
         with subcol2:
             if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 
-# 📌 Expander con sfondo diverso per il modulo di calcolo fattore
-if st.session_state.get("mostra_modulo_fattore", False):
-    with st.expander("Stima fattore di correzione", expanded=True):
-        st.markdown(
-            '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
-            unsafe_allow_html=True
-        )
-        calcola_fattore(peso=st.session_state.get("peso", 70))
-        st.markdown('</div>', unsafe_allow_html=True)
-
-
-# Pulsante per mostrare/nascondere i parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox("Mostra parametri tanatologici aggiuntivi")
-
-widgets_parametri_aggiuntivi = {}
-
-if mostra_parametri_aggiuntivi:
-    st.markdown("""
-    <h5 style="margin:0; padding:0;">Parametri tanatologici aggiuntivi</h5>
-    <hr style="margin:0; padding:0; height:1px; border:none; background-color:#ccc;">
-    <div style="margin-top:10px;"></div>
-    """, unsafe_allow_html=True)
-
-    for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        col1, col2 = st.columns([1, 2], gap="small")
-        with col1:
-            st.markdown(
-                f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
-                unsafe_allow_html=True
-            )
-        with col2:
-            selettore = st.selectbox(
-                label=nome_parametro,
-                options=dati_parametro["opzioni"],
-                key=f"{nome_parametro}_selector",
-                label_visibility="collapsed"
-            )
-
-        data_picker = None
-        ora_input = None
-        usa_orario_personalizzato = False
-
-        if selettore != "Non valutata":
-            chiave_checkbox = f"{nome_parametro}_diversa"
-            col1, col2 = st.columns([0.2, 0.2], gap="small")
-            with col1:
-                st.markdown(
-                    "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                    "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
-                    "</div>",
-                    unsafe_allow_html=True
-                )
-            with col2:
-                usa_orario_personalizzato = st.checkbox(
-                    label="",
-                    key=chiave_checkbox
-                )
-
-        if usa_orario_personalizzato:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
-                data_picker = st.date_input(
-                    "Data rilievo:",
-                    value=input_data_rilievo,
-                    key=f"{nome_parametro}_data",
-                    label_visibility="collapsed"
-                )
-            with col2:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
-                ora_input = st.text_input(
-                    "Ora rilievo (HH:MM):",
-                    value=input_ora_rilievo,
-                    key=f"{nome_parametro}_ora",
-                    label_visibility="collapsed"
-                )
-
-        widgets_parametri_aggiuntivi[nome_parametro] = {
-            "selettore": selettore,
-            "data_rilievo": data_picker,
-            "ora_rilievo": ora_input
-        }
-
-        if nome_parametro == "Eccitabilità elettrica sopraciliare":
-            st.image(
-                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                width=400
-            )
-
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
-            st.image(
-                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                width=300
-            )
-
-st.markdown("""
-    <style>
-    div.stButton > button {
-        border: 2px solid #2196F3 !important;
-        color: black !important;
-        background-color: white !important;
-        font-weight: bold;
-        border-radius: 8px !important;
-        padding: 0.6em 2em !important;
-    }
-    div.stButton > button:hover {
-        background-color: #E3F2FD !important;
-        cursor: pointer;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA")
-
-
-# grafico_generato = False  # non necessario mantenerlo globale
 
 def aggiorna_grafico():
     # --- Validazione Input Data/Ora Ispezione Legale ---
