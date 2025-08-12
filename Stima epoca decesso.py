@@ -517,7 +517,7 @@ with st.container():
 
 
     with col2:
-        if is_mobile:
+    if is_mobile:
         # Selezione ore/minuti separata per mobile
         ore_legale = st.selectbox("Ore", range(0, 24), index=0, label_visibility="collapsed", key="ore_legale_base")
         minuti_legale = st.selectbox("Minuti", range(0, 60, 15), index=0, label_visibility="collapsed", key="minuti_legale_base")
