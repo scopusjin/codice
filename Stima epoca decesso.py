@@ -545,7 +545,7 @@ with st.container():
         input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
         st.session_state["peso"] = input_w
     with col2:
-        subcol1, subcol2 = st.columns([1, 3], gap="small")
+        subcol1, subcol2 = st.columns([1.5, 2.5], gap="small")
         with subcol1:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
