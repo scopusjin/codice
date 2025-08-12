@@ -93,8 +93,7 @@ def calcola_fattore(peso):
             if corpo_asciutto:
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-            # MODIFICA: se l'utente ha selezionato "Moltissimi strati" per i vestiti,
-            # mostrare come opzione coperte SOLO "Molte coperte pesanti".
+            # se i vestiti sono "Moltissimi strati" → solo "Molte coperte pesanti"
             vestiti_state = st.session_state.get("radio_vestiti")
             if vestiti_state == "Moltissimi strati":
                 opzioni_coperte = ["Molte coperte pesanti"]
@@ -106,7 +105,6 @@ def calcola_fattore(peso):
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
-    # Mostriamo l'abbigliamento sia per Asciutto che per Bagnato (non per Immerso o copertura speciale)
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
@@ -132,7 +130,7 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
                     mostra_corrente = True
 
-            # MODIFICA: se "Moltissimi strati" è selezionato, non mostrare opzioni per correnti d'aria.
+            # se vestiti = "Moltissimi strati" → niente correnti d'aria
             if scelta_vestiti == "Moltissimi strati":
                 mostra_corrente = False
 
@@ -169,7 +167,8 @@ def calcola_fattore(peso):
                 "Materasso o tappeto spesso",
                 "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
             ]
-            if scelta_vestiti == "Nudo":
+            # ✅ cambia: la superficie metallica compare SOLO se vestiti=Nudo e coperte=Nessuna coperta
+            if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":  # <-- condizione aggiornata
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
             if mostra_foglie:
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
@@ -186,7 +185,6 @@ def calcola_fattore(peso):
         "Superficie d'appoggio": superficie,
         "Correnti": corrente
     }
-    # strip sui valori scelti dall'utente per evitare mismatch da spazi
     valori = {k: (str(v).strip() if v is not None else v) for k, v in valori.items()}
 
     riga = tabella1[
@@ -212,12 +210,11 @@ def calcola_fattore(peso):
 
     fattore_finale = fattore_base
 
-    # Applica Tabella 2 solo quando serve (puoi cambiare la condizione se vuoi reintrodurre 'situaz_speciale')
+    # Applica Tabella 2 solo quando serve
     if fattore_base >= 1.4 and peso != 70:
         try:
             t2 = tabella2.copy()
 
-            # Provo a interpretare le intestazioni di colonna come pesi (es. "70", "70 kg", "W70")
             def parse_peso(col):
                 s = str(col).strip().lower().replace('kg', '').replace('w', '')
                 num = ''.join(ch for ch in s if (ch.isdigit() or ch in '.,'))
@@ -229,20 +226,13 @@ def calcola_fattore(peso):
             if not pesi_col:
                 raise ValueError("Nessuna colonna peso valida in Tabella 2.")
 
-            # Colonna ~70 kg (se manca 70 preciso, prendo la più vicina)
             col_70 = min(pesi_col.keys(), key=lambda c: abs(pesi_col[c] - 70.0))
             serie70 = pd.to_numeric(t2[col_70], errors='coerce')
-
-            # Riga della Tabella 2 che più si avvicina al fattore base nella colonna 70 kg
             idx_match = (serie70 - fattore_base).abs().idxmin()
-
-            # Colonna del peso utente (o la più vicina)
             col_user = min(pesi_col.keys(), key=lambda c: abs(pesi_col[c] - float(peso)))
-
             val_user = pd.to_numeric(t2.loc[idx_match, col_user], errors='coerce')
             if pd.notna(val_user):
                 fattore_finale = float(val_user)
-
         except Exception as e:
             st.warning(f"Impossibile applicare la correzione per il peso (uso Tabella 1): {e}")
 
@@ -253,7 +243,7 @@ def calcola_fattore(peso):
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
-    # Pulsante per applicare il fattore calcolato al campo principale (senza aggiornamenti automatici)
+    # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["mostra_modulo_fattore"] = False  # opzionale: richiude l’expander
