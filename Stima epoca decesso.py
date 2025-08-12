@@ -639,12 +639,12 @@ with st.container():
                 key="fattore_correzione"
             )
         with subcol2:
-            if st.button("⚙️ Suggerisci", help="Stima il fattore di correzione", key="btn_suggerisci_fattore"):
+            if st.button("⚙️ Stima il fattore di correzione", key="btn_suggerisci_fattore"):
                 st.session_state["mostra_modulo_fattore"] = not st.session_state.get("mostra_modulo_fattore", False)
 # Pulsante centrale per generare/aggiornare la stima
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    pulsante_genera_stima = st.button("GENERA O AGGIORNA STIMA", key="btn_genera_stima")
+    pulsante_genera_stima = st.button("Stima epoca decesso", key="btn_genera_stima")
 
 if pulsante_genera_stima:
     aggiorna_grafico()
