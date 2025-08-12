@@ -11,6 +11,10 @@ from scipy.optimize import root_scalar
 import datetime
 import pandas as pd
 
+
+# Rileva se è mobile (user-agent via query params o variabile di sessione)
+is_mobile = st.session_state.get("is_mobile", False)
+
 # =========================
 # Stato e costanti globali
 # =========================
@@ -511,12 +515,23 @@ with st.container():
     with col1:
                 input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
 
+
     with col2:
-        input_ora_rilievo = st.text_input(
-        "Ora ispezione legale (HH:MM):",
-        value="00:00",
-        label_visibility="collapsed"
+        if is_mobile:
+        # Selezione ore/minuti separata per mobile
+        ore_legale = st.selectbox("Ore", range(0, 24), index=0, label_visibility="collapsed", key="ore_legale_base")
+        minuti_legale = st.selectbox("Minuti", range(0, 60, 15), index=0, label_visibility="collapsed", key="minuti_legale_base")
+        input_ora_rilievo_base = datetime.time(ore_legale, minuti_legale)
+    else:
+        # Desktop: input diretto
+        input_ora_rilievo_base = st.time_input(
+            "Ora ispezione legale:",
+            value=datetime.time(0, 0),
+            step=datetime.timedelta(minutes=15),
+            label_visibility="collapsed",
+            key="ora_legale_base"
         )
+        
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
     col1, col2 = st.columns(2, gap="small")
     with col1:
@@ -635,6 +650,8 @@ if mostra_parametri_aggiuntivi:
                     key=f"{nome_parametro}_ora",
                     label_visibility="collapsed"
                 )
+
+        
 
         widgets_parametri_aggiuntivi[nome_parametro] = {
             "selettore": selettore,
