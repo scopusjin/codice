@@ -517,19 +517,19 @@ with st.container():
 
 
     with col2:
-    if is_mobile:
-        # Selezione ore/minuti separata per mobile
-        ore_legale = st.selectbox("Ore", range(0, 24), index=0, label_visibility="collapsed", key="ore_legale_base")
-        minuti_legale = st.selectbox("Minuti", range(0, 60, 15), index=0, label_visibility="collapsed", key="minuti_legale_base")
-        input_ora_rilievo_base = datetime.time(ore_legale, minuti_legale)
-    else:
+        if is_mobile:
+            # Selezione ore/minuti separata per mobile
+            ore_legale = st.selectbox("Ore", range(0, 24), index=0, label_visibility="collapsed", key="ore_legale_base")
+            minuti_legale = st.selectbox("Minuti", range(0, 60, 15), index=0, label_visibility="collapsed", key="minuti_legale_base")
+            input_ora_rilievo_base = datetime.time(ore_legale, minuti_legale)
+        else:
         # Desktop: input diretto
-        input_ora_rilievo_base = st.time_input(
-            "Ora ispezione legale:",
-            value=datetime.time(0, 0),
-            step=datetime.timedelta(minutes=15),
-            label_visibility="collapsed",
-            key="ora_legale_base"
+            input_ora_rilievo_base = st.time_input(
+                "Ora ispezione legale:",
+                value=datetime.time(0, 0),
+                step=datetime.timedelta(minutes=15),
+                label_visibility="collapsed",
+                key="ora_legale_base"
         )
         
     # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
