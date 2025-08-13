@@ -1404,67 +1404,18 @@ def aggiorna_grafico():
         st.warning("**Avvertenze**:\n\n" + "\n".join(f"- {msg}" for msg in avvisi))
     if frase_finale_html:
         st.markdown(frase_finale_html, unsafe_allow_html=True)
-    if frase_secondaria_html:
-        st.markdown(f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria_html}</div>", unsafe_allow_html=True)
-
     with st.expander("Descrizioni dettagliate"):
+        if frase_secondaria_html:
+            st.markdown(
+                f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria_html}</div>",
+                unsafe_allow_html=True
+            )
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
 
-    # --- Frase aggiuntiva SENZA considerare lo studio di Potente (in grigio) ---
-    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
-        range_inizio_senza_potente = []
-        range_fine_senza_potente = []
 
-        if macchie_range_valido and macchie_range is not None:
-            range_inizio_senza_potente.append(macchie_range[0])
-            range_fine_senza_potente.append(macchie_range[1])
-
-        if rigidita_range_valido and rigidita_range is not None:
-            range_inizio_senza_potente.append(rigidita_range[0])
-            range_fine_senza_potente.append(rigidita_range[1])
-
-        for p in parametri_aggiuntivi_da_considerare:
-            if not np.isnan(p["range_traslato"][0]) and not np.isnan(p["range_traslato"][1]):
-                range_inizio_senza_potente.append(p["range_traslato"][0])
-                range_fine_senza_potente.append(p["range_traslato"][1])
-
-        if raffreddamento_calcolabile:
-            range_inizio_senza_potente.append(t_min_raff_hensge)
-            range_fine_senza_potente.append(t_max_raff_hensge)
-
-        if len(range_inizio_senza_potente) >= 2:
-            inizio_senza_potente = max(range_inizio_senza_potente)
-            fine_senza_potente = min(range_fine_senza_potente)
-            if inizio_senza_potente <= fine_senza_potente:
-                hm = _split_hours_minutes(inizio_senza_potente)
-                inizio_h, inizio_m = hm if hm else (0, 0)
-                hm = _split_hours_minutes(fine_senza_potente)
-                fine_h, fine_m = hm if hm else (0, 0)
-
-                inizio_text = "ora" if inizio_h == 1 and inizio_m == 0 else "ore"
-                fine_text = "ora" if fine_h == 1 and fine_m == 0 else "ore"
-
-                dt_inizio = data_ora_ispezione - datetime.timedelta(hours=fine_senza_potente)
-                dt_fine = data_ora_ispezione - datetime.timedelta(hours=inizio_senza_potente)
-
-                frase_secondaria = (
-                    f"<b>Senza considerare lo studio di Potente</b>, la valutazione complessiva dei dati tanatologici, "
-                    f"integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
-                    f"consente di stimare che la morte  sia avvenuta tra circa "
-                    f"{inizio_h} {inizio_text}{'' if inizio_m == 0 else f' {inizio_m} minuti'} e "
-                    f"{fine_h} {fine_text}{'' if fine_m == 0 else f' {fine_m} minuti'} "
-                    f"prima dei rilievi effettuati al momento dell’ispezione legale, "
-                    f"ovvero tra le ore {dt_inizio.strftime('%H:%M')} del {dt_inizio.strftime('%d.%m.%Y')} "
-                    f"e le ore {dt_fine.strftime('%H:%M')} del {dt_fine.strftime('%d.%m.%Y')}."
-                )
-
-                st.markdown(
-                    f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria}</div>",
-                    unsafe_allow_html=True
-                )
-
+ 
     if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
         # Filtra la lista dei nomi da mostrare nel riepilogo finale
         nomi_parametri_finali_per_riepilogo = []
