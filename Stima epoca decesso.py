@@ -1229,11 +1229,11 @@ def aggiorna_grafico():
         if (mt_ore is not None) and (not np.isnan(mt_ore)) and (Qd_val_check is not None) and (Qd_val_check < qd_threshold):
             condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
             dettagli.append(
-                f"<ul><li>Secondo Potente et al. (Qd &lt; {qd_threshold}, {condizione_temp}), il tempo minimo trascorso potrebbe essere "
-                f"<b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni)."
-                f"<ul><li><span style='font-size:smaller;'>Potente S, Kettner M, Verhoff MA, Ishikawa T. "
-                f"<i>Forensic Sci Int.</i> 2017;281:63–66. doi:10.1016/j.forsciint.2017.09.012.</span></li></ul></li></ul>"
+                f"<ul>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
+                f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
+                f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
             )
+                      
 
     # --- Descrizioni macchie/rigidità/parametri: tutte nei dettagli ---
     dettagli.append(f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>")
@@ -1304,7 +1304,7 @@ def aggiorna_grafico():
             aa = isp - datetime.timedelta(hours=comune_inizio)
             if da.date() == aa.date():
                 testo = (
-                    f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                    f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
                     f"consente di stimare che la morte sia avvenuta tra circa "
                     f"{comune_inizio_hours} {comune_inizio_hour_text}{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} e "
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
@@ -1312,7 +1312,7 @@ def aggiorna_grafico():
                 )
             else:
                 testo = (
-                    f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                    f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
                     f"consente di stimare che la morte sia avvenuta tra circa "
                     f"{comune_inizio_hours} {comune_inizio_hour_text}{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} e "
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
@@ -1380,10 +1380,6 @@ def aggiorna_grafico():
         if start is not None and end is not None
     )
 
-    if (not overlap and num_potential_ranges_used >= 2) or ranges_in_disaccordo_completa(
-        ranges_per_intersezione_inizio, ranges_per_intersezione_fine
-    ):
-        dettagli.append("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>")
 
     # === RENDER COMPATTO ===
     if avvisi:
