@@ -612,7 +612,7 @@ with st.expander(_expander_title, expanded=False):
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
+mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
 
 widgets_parametri_aggiuntivi = {}
 
