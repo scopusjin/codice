@@ -1024,6 +1024,7 @@ def aggiorna_grafico():
         ranges_to_plot_inizio = []
         ranges_to_plot_fine = []
 
+        # --- Etichette e range: IPOSTASI ---
         if macchie_range_valido and macchie_range is not None:
             nome_breve_macchie = "Ipostasi"
             if macchie_range[1] < INF_HOURS:
@@ -1034,6 +1035,7 @@ def aggiorna_grafico():
             ranges_to_plot_inizio.append(macchie_range[0])
             ranges_to_plot_fine.append(macchie_range[1] if macchie_range[1] < INF_HOURS else INF_HOURS)
 
+        # --- Etichette e range: RIGIDITÀ ---
         if rigidita_range_valido and rigidita_range is not None:
             nome_breve_rigidita = "Rigor"
             if rigidita_range[1] < INF_HOURS:
@@ -1044,6 +1046,7 @@ def aggiorna_grafico():
             ranges_to_plot_inizio.append(rigidita_range[0])
             ranges_to_plot_fine.append(rigidita_range[1] if rigidita_range[1] < INF_HOURS else INF_HOURS)
 
+        # --- Etichette e range: RAFFREDDAMENTO ---
         label_hensge = None
         if raffreddamento_calcolabile:
             nome_breve_hensge = "Raffreddamento"
@@ -1086,35 +1089,49 @@ def aggiorna_grafico():
 
             parametri_grafico.append(label_hensge)
 
+        # --- Etichette e range: PARAMETRI AGGIUNTIVI ---
         for param in parametri_aggiuntivi_da_considerare:
             if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]):
                 nome_breve = nomi_brevi.get(param['nome'], param['nome'])
-
                 if param['range_traslato'][1] == INF_HOURS:
                     label_param_aggiuntivo = f"{nome_breve}\n(≥ {param['range_traslato'][0]:.1f} h)"
                 else:
                     label_param_aggiuntivo = f"{nome_breve}\n({param['range_traslato'][0]:.1f}–{param['range_traslato'][1]:.1f} h)"
-
                 if param.get('adattato', False):
                     label_param_aggiuntivo += " *"
-
                 parametri_grafico.append(label_param_aggiuntivo)
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
-        for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
-            if not np.isnan(s) and not np.isnan(e):
-                ax.hlines(i, s, e, color='steelblue', linewidth=6)
-
+        # ==============================
+        # 1) RAFFREDDAMENTO ARANCIONE (SOTTO)
+        #    - Disegnato PRIMA delle linee blu
+        #    - Alpha=1.0 e zorder basso
+        # ==============================
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
-            idx = parametri_grafico.index(label_hensge)
+            idx_raff = parametri_grafico.index(label_hensge)
 
+            # Segmento Potente (se presente): da mt_ore a infinito
             if mt_ore is not None and not np.isnan(mt_ore):
-                ax.hlines(y=idx, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+                ax.hlines(y=idx_raff, xmin=mt_ore, xmax=INF_HOURS, color='orange', linewidth=6, alpha=1.0, zorder=1)
+
+            # Segmento >30h (quando Qd>0.2 e t_med_raw>30): da 30 a infinito
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-                ax.hlines(y=idx, xmin=30.0, xmax=INF_HOURS, color='orange', linewidth=6, alpha=0.6, zorder=1)
+                ax.hlines(y=idx_raff, xmin=30.0, xmax=INF_HOURS, color='orange', linewidth=6, alpha=1.0, zorder=1)
 
+        # ==============================
+        # 2) LINEE BLU DI BASE (tutti i range)
+        #    - Steelblue, zorder medio
+        # ==============================
+        for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
+            if not np.isnan(s) and not np.isnan(e):
+                ax.hlines(i, s, e, color='steelblue', linewidth=6, zorder=2)
+
+        # ==============================
+        # 3) IPOSTASI/RIGOR ARANCIONE (SOPRA)
+        #    - Mediane arancioni opache, disegnate DOPO le blu
+        # ==============================
         # Mapping asse Y statico per righe principali
         y_indices_mapping = {}
         current_y_index = 0
@@ -1130,19 +1147,28 @@ def aggiorna_grafico():
 
         if macchie_range_valido and macchie_medi_range is not None:
             if "Macchie ipostatiche" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Macchie ipostatiche"], macchie_medi_range[0], macchie_medi_range[1], color='orange', linewidth=6, alpha=0.6)
+                ax.hlines(y_indices_mapping["Macchie ipostatiche"],
+                          macchie_medi_range[0], macchie_medi_range[1],
+                          color='orange', linewidth=6, alpha=1.0, zorder=3)
 
         if rigidita_range_valido and rigidita_medi_range is not None:
             if "Rigidità cadaverica" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Rigidità cadaverica"], rigidita_medi_range[0], rigidita_medi_range[1], color='orange', linewidth=6, alpha=0.6)
+                ax.hlines(y_indices_mapping["Rigidità cadaverica"],
+                          rigidita_medi_range[0], rigidita_medi_range[1],
+                          color='orange', linewidth=6, alpha=1.0, zorder=3)
 
+        # Marker corto arancione sul punto medio del raffreddamento (opaco ma resta sotto perché disegnato prima? No: lo teniamo sopra il blu solo come marker)
         if raffreddamento_calcolabile:
             if "Raffreddamento cadaverico" in y_indices_mapping:
                 y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
                 punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
                 offset = 0.1
-                ax.hlines(y_pos_raffreddamento, punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset, color='orange', linewidth=6, alpha=0.8)
+                # Se preferisci che questo marker resti comunque sotto il blu, usa zorder=1; se lo vuoi sopra, zorder=3.
+                ax.hlines(y_pos_raffreddamento,
+                          punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset,
+                          color='orange', linewidth=6, alpha=1.0, zorder=1)
 
+        # Asse Y, etichette e limiti
         ax.set_yticks(range(len(parametri_grafico)))
         ax.set_yticklabels(parametri_grafico, fontsize=9)
         ax.set_xlabel("Ore dal decesso")
@@ -1168,6 +1194,7 @@ def aggiorna_grafico():
         st.markdown((
             "<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"
         ), unsafe_allow_html=True)
+
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
