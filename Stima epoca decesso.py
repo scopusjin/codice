@@ -1,6 +1,7 @@
+
 # -*- coding: utf-8 -*-
 # Streamlit app: Stima epoca decesso
-# Revisione UI: form + tabs + sidebar + toggle testi + "?" immagini (convertito in checkbox)
+# Revisione UI: form + tabs + sidebar + toggle testi + "?" immagini
 # Logica/calcoli INVARIATI.
 
 import streamlit as st
@@ -23,11 +24,7 @@ if "mostra_modulo_fattore" not in st.session_state:
     st.session_state["mostra_modulo_fattore"] = False
 
 if "show_imgs" not in st.session_state:
-    st.session_state["show_imgs"] = False  # per checkbox immagini in Parametri aggiuntivi
-
-# Toggle globale per i parametri aggiuntivi (fuori dal form)
-if "mostra_param_aggiuntivi" not in st.session_state:
-    st.session_state["mostra_param_aggiuntivi"] = False
+    st.session_state["show_imgs"] = False  # per bottone "?" in Parametri aggiuntivi
 
 # Peso: sorgente unica e condivisa in tutta l'app
 if "peso" not in st.session_state:
@@ -44,6 +41,7 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</
 # =========================
 # Utility cache per Excel
 # =========================
+
 @st.cache_data
 def load_tabelle_correzione():
     """
@@ -66,6 +64,7 @@ def load_tabelle_correzione():
 # =========================
 # Funzioni esistenti (logica invariata)
 # =========================
+
 def calcola_fattore(peso):
     # Caricamento tabelle con cache + gestione errori
     try:
@@ -86,8 +85,7 @@ def calcola_fattore(peso):
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
         st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
-        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"],
-                               label_visibility="collapsed", key="fc_radio_stato_corpo")
+        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
         corpo_asciutto = (stato_corpo == "Asciutto")
@@ -113,33 +111,29 @@ def calcola_fattore(peso):
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
             # se i vestiti sono "Moltissimi strati" → solo "Molte coperte pesanti"
-            vestiti_state = st.session_state.get("fc_radio_vestiti")
+            vestiti_state = st.session_state.get("radio_vestiti")
             if vestiti_state == "Moltissimi strati":
                 opzioni_coperte = ["Molte coperte pesanti"]
 
-            scelta_coperte = st.selectbox("", opzioni_coperte,
-                                          key="fc_scelta_coperte_radio", label_visibility="collapsed")
+            scelta_coperte = st.selectbox("", opzioni_coperte, key="scelta_coperte_radio", label_visibility="collapsed")
         else:
             scelta_coperte = "/"
 
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-    # --- COLONNA 1: ABBIGLIAMENTO ---
+    # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
-            scelta_vestiti = st.selectbox(
-                "", [
-                    "Nudo",
-                    "1-2 strati sottili",
-                    "2-3 strati sottili",
-                    "3-4 strati sottili",
-                    "1-2 strati spessi",
-                    "˃4 strati sottili o ˃2 spessi",
-                    "Moltissimi strati"
-                ],
-                key="fc_radio_vestiti", label_visibility="collapsed"
-            )
+            scelta_vestiti = st.selectbox("", [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃4 strati sottili o ˃2 spessi",
+                "Moltissimi strati"
+            ], key="radio_vestiti", label_visibility="collapsed")
     elif corpo_immerso or copertura_speciale:
         scelta_vestiti = "/"
 
@@ -153,27 +147,26 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
                     mostra_corrente = True
 
+            # se vestiti = "Moltissimi strati" → niente correnti d'aria
             if scelta_vestiti == "Moltissimi strati":
                 mostra_corrente = False
 
             if mostra_corrente:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>",
-                            unsafe_allow_html=True)
+                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
                 corrente = st.selectbox(
                     "",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
                     index=1,
-                    key="fc_radio_corrente",
+                    key="radio_corrente",
                     label_visibility="collapsed"
                 )
             elif corpo_immerso:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>",
-                            unsafe_allow_html=True)
+                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
                 corrente = st.selectbox(
                     "",
                     ["In acqua corrente", "In acqua stagnante"],
                     index=1,
-                    key="fc_radio_acqua",
+                    key="radio_acqua",
                     label_visibility="collapsed"
                 )
             else:
@@ -196,12 +189,11 @@ def calcola_fattore(peso):
             if mostra_foglie:
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
-            superficie = st.selectbox("", opzioni_superficie,
-                                      key="fc_radio_superficie", label_visibility="collapsed")
+            superficie = st.selectbox("", opzioni_superficie, key="radio_superficie", label_visibility="collapsed")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- CALCOLO TABELLA ---
+    # --- CALCOLO TABELLA E DESCRIZIONE ---
     valori = {
         "Ambiente": stato_corpo,
         "Vestiti": scelta_vestiti,
@@ -260,19 +252,19 @@ def calcola_fattore(peso):
         except Exception as e:
             st.warning(f"Impossibile applicare la correzione per il peso (uso Tabella 1): {e}")
 
-    # Output suggerimento
+    # Output
     if abs(fattore_finale - fattore_base) > 1e-9:
         st.success(f"Fattore di correzione (Tabella 1 → adattato per il peso): {fattore_finale:.2f}")
         st.caption(f"Valore Tabella 1: {fattore_base:.2f} – peso considerato: {peso:.1f} kg")
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
-    # Applicazione del fattore (fuori da qualsiasi form → non avvia la stima)
-    if st.button("✅ Usa questo fattore", key="fc_usa_fattore_btn"):
+    # Pulsante per applicare il fattore calcolato al campo principale (fuori dal form, nessun ricalcolo automatico)
+    if st.button("✅ Usa questo fattore", key="usa_fattore_btn"):
         st.session_state["fattore_correzione"] = round(float(fattore_finale), 2)
-        st.session_state["mostra_modulo_fattore"] = False  # chiude l’expander in sidebar
+        # Manteniamo sincronizzato il peso condiviso (qui già usiamo st.session_state['peso'])
+        st.session_state["mostra_modulo_fattore"] = False  # chiude il modulo in sidebar
         st.success("Fattore applicato.")
-
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
@@ -309,7 +301,7 @@ macchie_medi = {
 }
 testi_macchie = {
     "Non ancora comparse": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, non fossero ancora comparse. Secondo le comuni nozioni della medicina legale, le ipostasi compaiono entro 3 ore dal decesso (generalmente entro 15-20 minuti).",
-    "Migrabilità totale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità totale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 6 ore dal decesso. Generalmente le ipostasi compaiono dopo 20 minuti dal decesso.",
+    "Migrabilità totale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità totale. Secondo le comuni nozioni della medicina legicina, tale fase indica che fossero trascorse meno di 6 ore dal decesso. Generalmente le ipostasi compaiono dopo 20 minuti dal decesso",
     "Migrabilità parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità parziale. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse tra le 4 ore e le 24 ore dal decesso.",
     "Migrabilità perlomeno parziale": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse meno di 24 ore dal decesso.",
     "Fissità assoluta": "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero in una fase di fissità assoluta. Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non modificare la loro posizione alla movimentazione del corpo, ma la loro intensità può affievolirsi).",
@@ -334,9 +326,9 @@ rigidita_medi = {
 rigidita_descrizioni = {
     "Non ancora comparsa": "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse meno di 7 ore dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso).",
     "In via di formazione, intensificazione e generalizzazione": "È possibile valutare che la rigidità cadaverica fosse in via di formazione, intensificazione e generalizzazione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità si completa in 6-10 ore).",
-    "Presente e generalizzata": "È possibile valutare che la rigidità cadaverica fosse presente e generalizzata. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29–85 ore).",
+    "Presente e generalizzata": "È possibile valutare che la rigidità cadaverica fosse presente e generalizzata. Secondo les comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore).",
     "In via di risoluzione": "È possibile valutare che la rigidità cadaverica fosse in via di risoluzione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso).",
-    "Ormai risolta": "È possibile valutare che la rigidità cadaverica fosse ormai risolta. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni).",
+    "Ormai risolta": "È possibile valutare che la rigidità cadaverica fosse ormai risolta. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni).",
     "Non valutabile/Non attendibile": "La rigidità cadaverica non è stata valutata o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
 }
 
@@ -354,17 +346,17 @@ dati_parametri_aggiuntivi = {
             "Fase III": (3.5, 13),
             "Fase II": (5, 16),
             "Fase I": (5, 22),
-        },
-        "descrizioni": {
-            "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
-            "Fase V": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico.",
-            "Fase IV": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico.",
-            "Fase III": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima delle valutazioni del dato tanatologico.",
-            "Fase II": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli di meno di 2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 5 e le 16 ore prima delle valutazioni del dato tanatologico.",
-            "Fase I": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3). Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 5 e le 22 ore prima delle valutazioni del dato tanatologico.",
-            "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo non è da considerarsi attendibile.",
-            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso."
-        }
+                    },
+         "descrizioni": {
+             "Fase VI": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni del dato tanatologico.",
+             "Fase V": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico.",
+             "Fase IV": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico.",
+             "Fase III": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima delle valutazioni del dato tanatologico.",
+             "Fase II": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli di meno di 2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso fosse avvenuto tra le 5 e le 16 ore prima delle valutazioni del dato tanatologico.",
+             "Fase I": "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione accennata di una minima porzione della palpebra superiore (meno di 1/3). Tale reazione di eccitabilità muscolare elettrica residua e suggerisce che il decesso fosse avvenuto tra le 5 e le 22 ore prima delle valutazioni del dato tanatologico.",
+             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo non è da considerarsi attendibile.",
+             "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
+         }
     },
     "Eccitabilità elettrica peribuccale": {
         "opzioni": ["Non valutata", "Marcata ed estesa (+++)", "Discreta (++)", "Accennata (+)", "Nessuna reazione", "Non valutabile/non attendibile"],
@@ -379,9 +371,9 @@ dati_parametri_aggiuntivi = {
         "descrizioni": {
             "Marcata ed estesa (+++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata ai muscoli peribuccali estesasi anche ai muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto meno di 2 ore e mezzo prima delle valutazioni del dato tanatologico.",
             "Discreta (++)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta ai muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 e le 6 ore prima delle valutazioni del dato tanatologico.",
-            "Accennata (+)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 5 ore prima delle valutazioni del dato tanatologico.",
-            "Non valutata/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono attendibili per la stima dell'epoca della morte.",
-            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+            "Accennata (+)": "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra  1 e  5 ore prima delle valutazioni del dato tanatologico.",
+            "Non valutata/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
+            "Nessuna reazione": "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 6 ore dal decesso."
         }
     },
     "Eccitabilità muscolare meccanica": {
@@ -394,34 +386,34 @@ dati_parametri_aggiuntivi = {
             "Formazione di una tumefazione reversibile": (2, 5),
             "Contrazione reversibile dell’intero muscolo": (0, 2)
         },
-        "descrizioni": {
-            "Formazione di una piccola tumefazione persistente": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 12 ore prima delle valutazioni del dato tanatologico.",
-            "Formazione di una tumefazione reversibile": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto tra le 2 e le 5 ore prima delle valutazioni del dato tanatologico.",
-            "Contrazione reversibile dell’intero muscolo": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 2 ore prima delle valutazioni del dato tanatologico.",
-            "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare meccanica o i rilievi non sono attendibili per la stima dell'epoca della morte.",
-            "Nessuna reazione": "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 1 ora e 30 minuti dal decesso."
-        }
+         "descrizioni": {
+             "Formazione di una piccola tumefazione persistente": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 12 ore prima delle valutazioni del dato tanatologico.",
+             "Formazione di una tumefazione reversibile": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto tra le 2 e le 5 ore prima delle valutazioni del dato tanatologico.",
+             "Contrazione reversibile dell’intero muscolo": "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso fosse avvenuto meno di 2 ore prima delle valutazioni del dato tanatologico.",
+             "Non valutabile/non attendibile": "Non è stato possibile valutare l'eccitabilità muscolare meccanica o i rilievi non sono  attendibili per la stima dell'epoca della morte.",
+             "Nessuna reazione": "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse piû di 1 ora e 30 minuti dal decesso."
+         }
     },
     "Eccitabilità chimica pupillare": {
-        "opzioni": ["Non valutata", "Non valutabile/non attendibile", "Positiva", "Negativa"],
+        "opzioni": ["Non valutata", "Non valutabile/non attendibile","Positiva", "Negativa"],
         "range": {
             "Non valutata": None,
             "Non valutabile/non attendibile": None,
             "Positiva": (0, 30),
             "Negativa": (5, INF_HOURS)
         },
-        "descrizioni": {
-            "Positiva": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico-legali.",
-            "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all'instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico-legali.",
-            "Non valutabile/non attendibile": "L'eccitabilità chimica pupillare non era valutabile o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
-        }
+         "descrizioni": {
+             "Positiva": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico legali.",
+             "Negativa": "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all'instillazione intraoculare di atropina. Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali.",
+             "Non valutabile/non attendibile": "L'eccitabilità chimica pupillare non era valutabile o i rilievi non sono considerati attendibili per la stima dell'epoca della morte."
+         }
     }
 }
 nomi_brevi = {
     "Macchie ipostatiche": "Ipostasi",
     "Rigidità cadaverica": "Rigor",
     "Raffreddamento cadaverico": "Raffreddamento",
-    "Eccitabilità elettrica peribuccale": "Ecc. elettrica peribuccale",
+    "Eccitabilità eletrica peribuccale": "Ecc. elettrica peribuccale",
     "Eccitabilità elettrica sopraciliare": "Ecc. elettrica sopraciliare",
     "Eccitabilità chimica pupillare": "Ecc. pupillare",
     "Eccitabilità muscolare meccanica": "Ecc. meccanica"
@@ -436,16 +428,16 @@ def round_quarter_hour(x):
 def calcola_raffreddamento(Tr, Ta, T0, W, CF):
     # Controlli invariati
     if Tr is None or Ta is None or T0 is None or W is None or CF is None:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+         return np.nan, np.nan, np.nan, np.nan, np.nan
     temp_tolerance = 1e-6
     if Tr <= Ta + temp_tolerance:
         return np.nan, np.nan, np.nan, np.nan, np.nan
     if abs(T0 - Ta) < temp_tolerance:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     Qd = (Tr - Ta) / (T0 - Ta)
     if np.isnan(Qd) or Qd <= 0 or Qd > 1:
-        return np.nan, np.nan, np.nan, np.nan, np.nan
+         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     A = 1.25 if Ta <= 23 else 10/9
     B = -1.2815 * (CF * W)**(-5/8) + 0.0284
@@ -456,12 +448,12 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
                 return np.inf
             val = A * np.exp(B * t) + (1 - A) * np.exp((A / (A - 1)) * B * t)
             if np.isinf(val) or abs(val) > 1e10:
-                return np.nan
+                 return np.nan
             return val
         except OverflowError:
-            return np.nan
+             return np.nan
         except Exception:
-            return np.nan
+             return np.nan
 
     t_med_raw = np.nan
 
@@ -472,23 +464,23 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
     if np.isnan(qp_at_0) or np.isnan(qp_at_160) or not (min(qp_at_160, qp_at_0) - eps <= Qd <= max(qp_at_160, qp_at_0) + eps):
         t_med_raw = np.nan
     else:
-        try:
-            sol = root_scalar(lambda t: Qp(t) - Qd, bracket=[0, 160], method='bisect')
-            t_med_raw = sol.root
-        except ValueError:
-            t_med_raw = np.nan
-        except Exception:
-            t_med_raw = np.nan
+         try:
+             sol = root_scalar(lambda t: Qp(t) - Qd, bracket=[0, 160], method='bisect')
+             t_med_raw = sol.root
+         except ValueError:
+             t_med_raw = np.nan
+         except Exception:
+             t_med_raw = np.nan
 
     Dt_raw = 0
 
     if not np.isnan(t_med_raw) and not np.isnan(Qd):
-        if Qd <= 0.2:
-            Dt_raw = t_med_raw * 0.20
-        elif CF == 1:
-            Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
-        else:  # CF != 1
-            Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7
+         if Qd <= 0.2:
+              Dt_raw = t_med_raw * 0.20
+         elif CF == 1:
+              Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
+         else: # CF != 1
+              Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7
 
     t_med = round_quarter_hour(t_med_raw) if not np.isnan(t_med_raw) else np.nan
     t_min = round_quarter_hour(t_med_raw - Dt_raw) if not np.isnan(t_med_raw) else np.nan
@@ -518,30 +510,8 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
     return False
 
 # ================
-# SIDEBAR — modulo FC con aggiornamento immediato
+# SIDEBAR (nuova) — modulo FC con aggiornamento immediato
 # ================
-# -------------------------------------------------
-# -------------------------------------------------
-# Barra comandi (fuori dal form) per azioni istantanee
-# -------------------------------------------------
-c_top1, c_top2 = st.columns([1, 1])
-with c_top1:
-    if st.button("Apri modulo fattore di correzione", key="open_fc_top"):
-        st.session_state["mostra_modulo_fattore"] = True
-
-with c_top2:
-    # NON assegnare a session_state: il widget con key lo gestisce da solo
-    st.checkbox(
-        "Inserisci dati tanatologici aggiuntivi",
-        key="mostra_param_aggiuntivi"
-    )
-    if st.session_state.get("mostra_param_aggiuntivi", False):
-        st.checkbox(
-            "Mostra immagini (sopraciliare/peribuccale)",
-            key="show_imgs"
-        )
-
-
 with st.sidebar:
     st.markdown("### Opzioni di visualizzazione")
     opt_mostra_testi = st.checkbox("Mostra testi descrittivi", value=True)
@@ -550,7 +520,7 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### Fattore di correzione")
 
-    # Apertura/chiusura del modulo in sidebar (gestito qui)
+    # Apertura/chiusura del modulo in sidebar (fuori dal form → update immediato)
     if st.session_state.get("mostra_modulo_fattore", False):
         with st.expander("Stima fattore di correzione", expanded=True):
             st.markdown('<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">', unsafe_allow_html=True)
@@ -661,19 +631,29 @@ with st.form("stima_form", clear_on_submit=False):
                     key="fattore_correzione"
                 )
             with sub2:
-                st.caption("Per calcolare/aggiornare il FC usa il bottone fuori dal form o la sidebar.")
+                # Pulsante interno al form: apre il modulo in sidebar (visibile dopo submit, coerente col form)
+                if st.button("Apri calcolo FC ➜", key="open_fattore_btn_inline"):
+                    st.session_state["mostra_modulo_fattore"] = True
 
     # TAB 2 — FATTORE/CORREZIONI (modulo spostato in sidebar)
     with tab2:
-        st.info("Il modulo di calcolo del fattore di correzione è disponibile nella **sidebar**. Usa il pulsante fuori dal form per aprirlo.")
+        st.info("Il modulo di calcolo del fattore di correzione è disponibile nella **sidebar**.")
+        if st.button("Apri modulo in sidebar", key="open_fattore_btn_tab2"):
+            st.session_state["mostra_modulo_fattore"] = True
 
     # TAB 3 — PARAMETRI AGGIUNTIVI
     with tab3:
-        # Leggi lo stato deciso fuori dal form (toggle globale)
-        mostra_parametri_aggiuntivi = st.session_state.get("mostra_param_aggiuntivi", False)
+        # bottone "?" che mostra le DUE immagini solo su click, dopo aver aperto la sezione
+        row = st.columns([0.85, 0.15])
+        with row[0]:
+            mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
+        with row[1]:
+            if mostra_parametri_aggiuntivi:
+                if st.button("?", help="Mostra/Nascondi le immagini di riferimento (sopraciliare e peribuccale)"):
+                    st.session_state["show_imgs"] = not st.session_state["show_imgs"]
 
         if mostra_parametri_aggiuntivi:
-            # Immagini: solo se attivate fuori dal form
+            # immagini globali mostrate SOLO su richiesta ("?")
             if st.session_state.get("show_imgs", False):
                 cimg1, cimg2 = st.columns(2)
                 with cimg1:
@@ -689,7 +669,7 @@ with st.form("stima_form", clear_on_submit=False):
                         width=320
                     )
 
-            # Blocchi parametri in expander (ognuno con i propri input)
+            # blocchi parametri in expander (ognuno con i propri input)
             for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
                 with st.expander(nome_parametro, expanded=False):
                     r1, r2 = st.columns([1, 2], gap="small")
@@ -720,7 +700,6 @@ with st.form("stima_form", clear_on_submit=False):
                                 unsafe_allow_html=True
                             )
                         with c2:
-                            # Nessuna callback: solo valore nel form
                             usa_orario_personalizzato = st.checkbox(
                                 label="Sì, orario personalizzato",
                                 key=f"{nome_parametro}_diversa"
@@ -752,12 +731,9 @@ with st.form("stima_form", clear_on_submit=False):
                         "data_rilievo": data_picker,
                         "ora_rilievo": ora_input
                     }
-        else:
-            st.caption("☑️ Usa il toggle in alto per inserire i parametri aggiuntivi e/o mostrare le immagini di riferimento.")
 
     # Unico bottone di invio form: ricalcola SOLO su click
     pulsante_genera_stima = st.form_submit_button("STIMA EPOCA DECESSO")
-
 
 # --------------------------
 # FUNZIONE PRINCIPALE (INVARIATA NELLA LOGICA)
@@ -828,11 +804,7 @@ def aggiorna_grafico():
         if stato_selezionato == "Non valutata":
             continue
 
-        # Normalizzazione chiave descrizione (ramo mantenuto, refuso corretto)
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
-            chiave_descrizione = stato_selezionato.split(':')[0].strip()
-        else:
-            chiave_descrizione = stato_selezionato.strip()
+        chiave_descrizione = stato_selezionato.split(':')[0].strip()
 
         # Ora param: normalizza a datetime.time e controlla mezz'ora
         if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
@@ -849,6 +821,11 @@ def aggiorna_grafico():
 
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
+
+        if nome_parametro == "Eccitabilità eletrica peribuccale":
+            chiave_descrizione = stato_selezionato.split(':')[0].strip()
+        else:
+            chiave_descrizione = stato_selezionato.strip()
 
         chiave_esatta = None
         for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
@@ -1206,7 +1183,6 @@ def aggiorna_grafico():
         ), unsafe_allow_html=True)
 
     # --- Note/avvisi e testo descrittivo Henssge ---
-    henssge_descrizione = None  # verrà mostrata nell'expander di dettaglio
     if 'minuti_isp' in locals() and minuti_isp not in [0, 15, 30, 45]:
         st.markdown(
             "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
@@ -1316,18 +1292,16 @@ def aggiorna_grafico():
                 if elenco_extra:
                     testo_raff_completo += "<ul>" + "".join(elenco_extra) + "</ul>"
                 testo_raff_completo += "</li></ul>"
-                henssge_descrizione = testo_raff_completo
-                
+                st.markdown(testo_raff_completo, unsafe_allow_html=True)
+
     # --- Testi descrittivi in expander (toggle sidebar) ---
     if opt_mostra_testi:
         with st.expander("Dettaglio interpretazione", expanded=False):
-            if henssge_descrizione:
-               st.markdown(henssge_descrizione, unsafe_allow_html=True)
             st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
             st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
             for param in parametri_aggiuntivi_da_considerare:
-                if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
-                    st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
+               if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
+                   st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
 
     # --- Visualizza Stima Complessiva e Messaggi di Incoerenza ---
     num_potential_ranges_used = int(macchie_range_valido and macchie_range is not None and macchie_range[1] < INF_HOURS) + \
