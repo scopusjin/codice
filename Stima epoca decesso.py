@@ -667,28 +667,18 @@ if mostra_parametri_aggiuntivi:
         }
 
         if nome_parametro == "Eccitabilità elettrica sopraciliare":
-            help_cols = st.columns([0.08, 0.92])
-            with help_cols[0]:
-                if st.button("?", key="help_sopraciliare"):
-                    st.session_state["show_img_sopraciliare"] = not st.session_state["show_img_sopraciliare"]
-            with help_cols[1]:
-                if st.session_state["show_img_sopraciliare"]:
-                    st.image(
-                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                        width=400
-                    )
+            with st.popover("?", help="Mostra immagine di riferimento"):
+                st.image(
+                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                    width=400
+                )
 
         if nome_parametro == "Eccitabilità elettrica peribuccale":
-            help_cols = st.columns([0.08, 0.92])
-            with help_cols[0]:
-                if st.button("?", key="help_peribuccale"):
-                    st.session_state["show_img_peribuccale"] = not st.session_state["show_img_peribuccale"]
-            with help_cols[1]:
-                if st.session_state["show_img_peribuccale"]:
-                    st.image(
-                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                        width=300
-                    )
+            with st.popover("?", help="Mostra immagine di riferimento"):
+                st.image(
+                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                    width=300
+                )
 
 st.markdown("""
     <style>
