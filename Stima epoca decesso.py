@@ -694,25 +694,32 @@ if mostra_parametri_aggiuntivi:
         for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
             col1, col2 = st.columns([1, 2], gap="small")
             with col1:
-                st.markdown(
-                    f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'><b>{nome_parametro}:</b></div>",
-                    unsafe_allow_html=True
-                )
+                subcol1, subcol2 = st.columns([1, 0.5])
+                with subcol1:
+                    st.markdown(
+                        f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
+                        unsafe_allow_html=True
+                    )
+                with subcol2:
+                    if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
+                        with st.popover(" "):  # trigger invisibile ma associato alla posizione del testo
+                            if nome_parametro == "Eccitabilità elettrica sopraciliare":
+                                st.image(
+                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                                    width=400
+                                )
+                            elif nome_parametro == "Eccitabilità elettrica peribuccale":
+                                st.image(
+                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                                    width=300
+                                )
             with col2:
-                help_testo = None
-                if nome_parametro == "Eccitabilità elettrica sopraciliare":
-                    help_testo = "![Legenda](https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG)"
-                elif nome_parametro == "Eccitabilità elettrica peribuccale":
-                    help_testo = "![Legenda](https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG)"
-
                 selettore = st.selectbox(
                     label=nome_parametro,
                     options=dati_parametro["opzioni"],
                     key=f"{nome_parametro}_selector",
-                    label_visibility="collapsed",
-                    help=help_testo
+                    label_visibility="collapsed"
                 )
-
 
             data_picker = None
             ora_input = None
