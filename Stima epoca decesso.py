@@ -607,9 +607,9 @@ widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        col1, col2 = st.columns([2, 1], gap="small")
+        col1, col2 = st.columns([1.5, 1], gap="small")
         with col1:
-            subcol1, subcol2 = st.columns([0.88, 0.12])
+            subcol1, subcol2 = st.columns([1, 0.5])
             with subcol1:
                 st.markdown(
                     f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
