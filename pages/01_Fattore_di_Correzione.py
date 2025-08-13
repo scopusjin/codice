@@ -1,1 +1,0 @@
-fattore di correzione
