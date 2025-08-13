@@ -771,7 +771,9 @@ if mostra_parametri_aggiuntivi:
             help="Seleziona se sono presenti alterazioni putrefattive osservabili."
         )
         st.session_state["alterazioni_putrefattive"] = chk_putrefattive
-
+else:
+    st.session_state["alterazioni_putrefattive"] = False
+    
 st.markdown("""
     <style>
     div.stButton > button {
