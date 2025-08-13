@@ -252,7 +252,7 @@ def calcola_fattore(peso):
     # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["mostra_modulo_fattore"] = False  # opzionale: richiude l’expander
+
 
     
     st.button(
