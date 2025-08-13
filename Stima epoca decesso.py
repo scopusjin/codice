@@ -130,6 +130,25 @@ def calcola_fattore(peso):
     # --- COLONNA 2: COPERTURA ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
+            # Titolo + help inline (nessun popover, nessuna label del radio)
+            tcol, hcol = st.columns([1, 0.08])
+            with tcol:
+                st.markdown("**Coperte?**")
+            with hcol:
+                st.markdown(
+                    """
+                    <details>
+                      <summary>❔</summary>
+                      Coperta + = copriletto leggero<br>
+                      Coperta ++ = lana / medio spessore<br>
+                      Coperta +++ = piumino molto pesante<br>
+                      Coperta ++++ = più strati pesanti<br>
+                      Foglie ++/+++ = strato medio/spesso (esterno)
+                    </details>
+                    """,
+                    unsafe_allow_html=True
+                )
+
             opzioni_coperte = [
                 "Nessuna coperta",
                 "Coperta spessa (es copriletto)",
@@ -146,21 +165,14 @@ def calcola_fattore(peso):
                 opzioni_coperte = ["Molte coperte pesanti"]
 
             scelta_coperte = st.radio(
-                "**Coperte?**",
+                "",
                 opzioni_coperte,
                 key="scelta_coperte_radio",
-                format_func=lambda v: LABEL_COPERTE.get(v, v),
-                help=(
-                    "**Coperta +** = copriletto leggero; "
-                    "**Coperta ++** = coperta di lana/di medio spessore; "
-                    "**Coperta +++** = piumino imbottito/molto pesante; "
-                    "**Coperta ++++** = più strati spessi, sovrapposti; "
-                    "**Foglie ++/+++** = strato medio/spesso di foglie"
-                )
+                label_visibility="collapsed",
+                format_func=lambda v: LABEL_COPERTE.get(v, v)
             )
         else:
             scelta_coperte = "/"
-
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
