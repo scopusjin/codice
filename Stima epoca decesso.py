@@ -69,20 +69,6 @@ def calcola_fattore(peso):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    # CSS: compattazione + label dei widget in grassetto (simile al tuo markdown)
-    st.markdown("""
-    <style>
-      .stRadio div[role="radiogroup"] { gap: 0.2rem !important; }
-      .stRadio label { margin-bottom: 0.1rem !important; }
-      div[data-testid="stExpander"] .st-expander-content { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-      /* Etichette dei widget in grassetto e con margine ridotto */
-      div[data-testid="stWidgetLabel"] p, div[data-testid="stWidgetLabel"] span {
-          font-weight: 700 !important;
-          margin-bottom: 4px !important;
-      }
-    </style>
-    """, unsafe_allow_html=True)
-
     # --- Etichette brevi per visualizzazione (il valore interno resta la dicitura lunga) ---
     LABEL_VESTITI = {
         "Nudo": "Nudo",
