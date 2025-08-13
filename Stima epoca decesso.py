@@ -698,6 +698,12 @@ with col2:
 
 
 def aggiorna_grafico():
+        # --- Raccolta messaggi per nuova UI compatta ---
+    avvisi = []              # tutti gli avvisi arancioni
+    dettagli = []            # testi lunghi/descrittivi per l’expander
+    frase_finale_html = None # “La valutazione complessiva…”
+    frase_secondaria_html = None  # eventuale variante “Senza considerare Potente…”
+
     # --- Validazione Input Data/Ora Ispezione Legale ---
     if not input_data_rilievo or not input_ora_rilievo:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
@@ -772,10 +778,10 @@ def aggiorna_grafico():
             try:
                 ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
                 if ora_rilievo_time.minute not in (0, 30):
-                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+                    avvisi.append(f"⚠️ {nome_parametro}: ora di rilievo '{ora_rilievo_param_str}' non arrotondata alla mezz’ora → parametro escluso dalla stima.")
                     continue
             except ValueError:
-                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+                avvisi.append(f"⚠️ {nome_parametro}: formato ora di rilievo '{ora_rilievo_param_str}' non valido (usa HH:MM, es. 14:30) → parametro escluso dalla stima.")
                 continue
 
         # Se data personalizzata assente, usa quella dell’ispezione
@@ -1163,156 +1169,80 @@ def aggiorna_grafico():
             "<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"
         ), unsafe_allow_html=True)
 
-    # --- Visualizza note/avvisi e testo descrittivo Henssge (fix variabili non definite) ---
-
+    # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
-        st.markdown((
-            "<p style='color:gray;font-size:small;'>"
-            "* alcuni parametri sono stati valutati a orari diversi, ma il range indicato sul grafico e nelle eventuali stime è stato adattato di conseguenza, rendendo confrontabili tra loro gli intervalli."
-            "</p>"
-        ), unsafe_allow_html=True)
+        dettagli.append(
+            "<p style='color:gray;font-size:small;'>* alcuni parametri sono stati valutati a orari diversi; i range sono stati traslati per renderli confrontabili.</p>"
+        )
 
     if minuti_isp not in [0, 15, 30, 45]:
-        st.markdown(
-            "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
-            unsafe_allow_html=True
-        )
+        avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
     hensge_input_forniti = (
         input_rt is not None and
         input_ta is not None and
         input_tm is not None and
         input_w is not None and
-        st.session_state.get("fattore_correzione", None) is not None
+        st.session_state.get('fattore_correzione', None) is not None
     )
 
     if hensge_input_forniti:
-
         if Ta_val > 25:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
-                "</p>"
-            ), unsafe_allow_html=True)
-
+            avvisi.append("Per T. ambiente > 25 °C, un fattore di correzione diverso da 1 può influenzare sensibilmente il risultato: sceglilo con cura.")
         if Ta_val < 18:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
-                "</p>"
-            ), unsafe_allow_html=True)
-
+            avvisi.append("Per T. ambiente < 18 °C, un fattore di correzione diverso da 1 può influenzare sensibilmente il risultato: sceglilo con cura.")
         if temp_difference_small:
-            st.markdown((
-                "<p style='color:darkorange;font-size:small;'>"
-                "Essendo minima la differenza tra temperatura rettale e ambientale, "
-                "è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-                "La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione."
-                "</p>"
-            ), unsafe_allow_html=True)
-
+            avvisi.append("Differenza minima tra T. rettale e T. ambientale: possibile equilibrio termico → interpreta con cautela la stima da raffreddamento.")
         if not raffreddamento_calcolabile:
-            st.markdown((
-                "<p style='color:orange;font-size:normal;'>⚠️ Non è stato possibile ricavare stime applicando il metodo di Henssge con i valori inseriti "
-                "(possibile causa: temperature incoerenti o valori fuori range per il nomogramma).</p>"
-            ), unsafe_allow_html=True)
-        else:
-            # Calcolo e stampa del testo riassuntivo solo se i limiti sono definiti (fix variabili non definite)
-            if visualizza_hensge_grafico:
-                limite_inferiore_testo = t_min_raff_visualizzato
-                limite_superiore_testo = t_max_raff_visualizzato
-            else:
-                limite_inferiore_testo = t_min_raff_hensge
-                limite_superiore_testo = t_max_raff_hensge
+            avvisi.append("Non è stato possibile ricavare stime con il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
 
-            if (not np.isnan(limite_inferiore_testo)) and (not np.isnan(limite_superiore_testo)):
-                # Usa helper robusto per ore/minuti
-                hm = _split_hours_minutes(limite_inferiore_testo)
-                min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
-                hm = _split_hours_minutes(limite_superiore_testo)
-                max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
-
-                min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
-                max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
-
-                # Testo base sempre incluso (solo qui, quando abbiamo i valori)
-                testo_raff_base = (
-                    f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
-                    f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
-                    f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
-                    f"prima dei rilievi effettuati al momento dell’ispezione legale."
+    # --- Testo Henssge dettagliato (va nell’expander) ---
+    if raffreddamento_calcolabile:
+        if 't_min_raff_visualizzato' in locals() and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
+            hm = _split_hours_minutes(t_min_raff_visualizzato); min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(t_max_raff_visualizzato); max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
+            min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
+            max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
+            testo_raff_base = (
+                f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
+                f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
+                f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
+                f"prima dei rilievi effettuati al momento dell’ispezione legale."
+            )
+            # Paragrafi aggiuntivi (arancioni nel testo lungo) → qui li teniamo come DETTAGLI; aggiungiamo però un AVVISO se >30h
+            extra = []
+            if not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
+                avvisi.append(f"La stima media da raffreddamento ({t_med_raff_hensge_rounded:.1f} h) supera 30 h: l’affidabilità del metodo diminuisce oltre tale soglia.")
+            if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
+                extra.append(
+                    f"I valori ottenuti sono in parte/tot fuori dai range ottimali delle equazioni (Qd = <b>{Qd_val_check:.5f}</b> &lt; 0.2). "
+                    f"Il range è calcolato grossolanamente ±20% su {t_med_raff_hensge_rounded:.1f} h ed è privo di solida base statistica; "
+                    f"in assenza di altri dati, si può presumere il raffreddamento quasi concluso."
                 )
+            paragrafo = f"<ul><li>{testo_raff_base}"
+            if extra:
+                paragrafo += "<ul>" + "".join(f"<li>{e}</li>" for e in extra) + "</ul>"
+            paragrafo += "</li></ul>"
+            dettagli.append(paragrafo)
 
-                # Avvio struttura HTML
-                testo_raff_completo = f"<ul><li>{testo_raff_base}"
+        # Metodo Potente: solo spiegazione bibliografica nei dettagli
+        if (mt_ore is not None) and (not np.isnan(mt_ore)) and (Qd_val_check is not None) and (Qd_val_check < qd_threshold):
+            condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
+            dettagli.append(
+                f"<ul><li>Secondo Potente et al. (Qd &lt; {qd_threshold}, {condizione_temp}), il tempo minimo trascorso potrebbe essere "
+                f"<b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni)."
+                f"<ul><li><span style='font-size:smaller;'>Potente S, Kettner M, Verhoff MA, Ishikawa T. "
+                f"<i>Forensic Sci Int.</i> 2017;281:63–66. doi:10.1016/j.forsciint.2017.09.012.</span></li></ul></li></ul>"
+            )
 
-                # Lista dinamica
-                elenco_extra = []
-
-                # Qd troppo basso
-                if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
-                    elenco_extra.append(
-                        f"<li>"
-                        f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili "
-                        f"(Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2) "
-                        f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica). "
-                        f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso. "
-                        f"Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-                        f"</li>"
-                    )
-
-                # Qd alto e durata > 30 ore
-                if not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
-                    elenco_extra.append(
-                        f"<li>"
-                        f"<span style='color:orange; font-weight:bold;'>"
-                        f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_raff_hensge_rounded:.1f} h) è superiore alle 30 ore. "
-                        f"L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-                        f"</span>"
-                        f"</li>"
-                    )
-
-                # Metodo Potente et al.
-                condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
-                if mt_ore is not None and not np.isnan(mt_ore) and Qd_val_check is not None and Qd_val_check < qd_threshold:
-                    elenco_extra.append(
-                        f"<li>"
-                        f"Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
-                        f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
-                        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
-                        f"<ul><li><span style='font-size:smaller;'>"
-                        f"Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. "
-                        f"<i>Forensic Sci Int.</i> 2017;281:63–66. doi: 10.1016/j.forsciint.2017.09.012."
-                        f"</span></li></ul>"
-                        f"</li>"
-                    )
-
-                # Se ci sono elementi extra, aggiungili
-                if elenco_extra:
-                    testo_raff_completo += "<ul>" + "".join(elenco_extra) + "</ul>"
-
-                # Chiudi blocco principale
-                testo_raff_completo += "</li></ul>"
-
-                # Visualizza
-                st.markdown(testo_raff_completo, unsafe_allow_html=True)
-
-    # --- Visualizza i testi descrittivi per macchie ipostatiche e rigidità cadaverica ---
-    st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
-    st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
+    # --- Descrizioni macchie/rigidità/parametri: tutte nei dettagli ---
+    dettagli.append(f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>")
+    dettagli.append(f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>")
     for param in parametri_aggiuntivi_da_considerare:
-       if param["stato"] != "Non valutata" and param["stato"] != "Non valutabile/non attendibile":
-           st.markdown(f"<ul><li>{param['descrizione']}</li></ul>", unsafe_allow_html=True)
+        if param['stato'] not in ('Non valutata', 'Non valutabile/non attendibile'):
+            dettagli.append(f"<ul><li>{param['descrizione']}</li></ul>")
 
-    # --- Visualizza Stima Complessiva e Messaggi di Incoerenza ---
-
-    # Conta quanti range *potenzialmente* sono stati usati per l'intersezione (quelli con limite superiore < INF_HOURS)
-    num_potential_ranges_used = int(macchie_range_valido and macchie_range is not None and macchie_range[1] < INF_HOURS) + \
-                                int(rigidita_range_valido and rigidita_range is not None and rigidita_range[1] < INF_HOURS) + \
-                                int(raffreddamento_calcolabile and not temp_difference_small and t_med_raff_hensge_rounded <= 30) + \
-                                sum(1 for param in parametri_aggiuntivi_da_considerare if not np.isnan(param["range_traslato"][0]) and not np.isnan(param["range_traslato"][1]) and param["range_traslato"][1] < INF_HOURS)
-
-    # Se invece overlap è True, stampiamo SEMPRE la frase di stima complessiva (anche con range aperti sopra)
+    # --- Frase finale: identica alla tua logica, ma salvata in 'frase_finale_html' ---
     if overlap:
         try:
             isp = data_ora_ispezione
@@ -1324,9 +1254,7 @@ def aggiorna_grafico():
         if (not np.isnan(Qd_val_check) and Qd_val_check < 0.3
             and comune_inizio > 30
             and (np.isnan(comune_fine) or comune_fine == INF_HOURS)):
-
-            hm = _split_hours_minutes(comune_inizio)
-            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_inizio); comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
             da = isp - datetime.timedelta(hours=comune_inizio)
             if not np.isnan(Qd_val_check) and Qd_val_check <= 0.2 and not np.isnan(mt_ore) and mt_ore > 30:
@@ -1344,15 +1272,11 @@ def aggiorna_grafico():
                     f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}. "
                     f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente quando sono trascorse più di 30 ore dal decesso, e tale dato è da considerarsi del tutto indicativo."
                 )
-
         elif limite_superiore_infinito:
-            # Arrotonda Potente se usato come limite minimo
             if mt_ore is not None and not np.isnan(mt_ore):
                 if abs(comune_inizio - mt_ore) < 0.25:
                     comune_inizio = round(mt_ore)
-
-            hm = _split_hours_minutes(comune_inizio)
-            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_inizio); comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 and comune_inizio_minutes == 0 else "ore"
             da = isp - datetime.timedelta(hours=comune_inizio)
             testo = (
@@ -1361,10 +1285,8 @@ def aggiorna_grafico():
                 f"{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
             )
-
         elif comune_inizio == 0:
-            hm = _split_hours_minutes(comune_fine)
-            comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_fine); comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
             fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
             da = isp - datetime.timedelta(hours=comune_fine)
             testo = (
@@ -1373,17 +1295,13 @@ def aggiorna_grafico():
                 f"{comune_fine_hours} {fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
             )
-
         else:
-            hm = _split_hours_minutes(comune_inizio)
-            comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
-            hm = _split_hours_minutes(comune_fine)
-            comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_inizio); comune_inizio_hours, comune_inizio_minutes = hm if hm else (0, 0)
+            hm = _split_hours_minutes(comune_fine); comune_fine_hours, comune_fine_minutes = hm if hm else (0, 0)
             comune_inizio_hour_text = "ora" if comune_inizio_hours == 1 else "ore"
             comune_fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
             da = isp - datetime.timedelta(hours=comune_fine)
             aa = isp - datetime.timedelta(hours=comune_inizio)
-
             if da.date() == aa.date():
                 testo = (
                     f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
@@ -1400,8 +1318,76 @@ def aggiorna_grafico():
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
                     f"prima dei rilievi effettuati durante l’ispezione legale, ovvero circa tra le ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')} e le ore {aa.strftime('%H:%M')} del {aa.strftime('%d.%m.%Y')}."
                 )
+        frase_finale_html = f"<b>{testo}</b>"
 
-        st.markdown(f"<b>{testo}</b>", unsafe_allow_html=True)
+    # --- Variante “Senza considerare Potente” (se applicabile) → mostrata sotto la frase finale, non in expander
+    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
+        range_inizio_senza_potente = []
+        range_fine_senza_potente = []
+
+        if macchie_range_valido and macchie_range is not None:
+            range_inizio_senza_potente.append(macchie_range[0]); range_fine_senza_potente.append(macchie_range[1])
+        if rigidita_range_valido and rigidita_range is not None:
+            range_inizio_senza_potente.append(rigidita_range[0]); range_fine_senza_potente.append(rigidita_range[1])
+        for p in parametri_aggiuntivi_da_considerare:
+            if not np.isnan(p["range_traslato"][0]) and not np.isnan(p["range_traslato"][1]):
+                range_inizio_senza_potente.append(p["range_traslato"][0]); range_fine_senza_potente.append(p["range_traslato"][1])
+        if raffreddamento_calcolabile:
+            range_inizio_senza_potente.append(t_min_raff_hensge); range_fine_senza_potente.append(t_max_raff_hensge)
+
+        if len(range_inizio_senza_potente) >= 2:
+            inizio_senza_potente = max(range_inizio_senza_potente)
+            fine_senza_potente = min(range_fine_senza_potente)
+            if inizio_senza_potente <= fine_senza_potente:
+                hm = _split_hours_minutes(inizio_senza_potente); inizio_h, inizio_m = hm if hm else (0, 0)
+                hm = _split_hours_minutes(fine_senza_potente); fine_h, fine_m = hm if hm else (0, 0)
+                inizio_text = "ora" if inizio_h == 1 and inizio_m == 0 else "ore"
+                fine_text = "ora" if fine_h == 1 and fine_m == 0 else "ore"
+                dt_inizio = data_ora_ispezione - datetime.timedelta(hours=fine_senza_potente)
+                dt_fine = data_ora_ispezione - datetime.timedelta(hours=inizio_senza_potente)
+                frase_secondaria_html = (
+                    f"<b>Senza considerare lo studio di Potente</b>, la valutazione complessiva consente di stimare che la morte sia avvenuta tra circa "
+                    f"{inizio_h} {inizio_text}{'' if inizio_m == 0 else f' {inizio_m} minuti'} e "
+                    f"{fine_h} {fine_text}{'' if fine_m == 0 else f' {fine_m} minuti'} "
+                    f"prima dei rilievi, ovvero tra le ore {dt_inizio.strftime('%H:%M')} del {dt_inizio.strftime('%d.%m.%Y')} "
+                    f"e le ore {dt_fine.strftime('%H:%M')} del {dt_fine.strftime('%d.%m.%Y')}."
+                )
+
+    # --- Riepilogo parametri usati (era arancione piccolo) → dettagli
+    if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
+        nomi_parametri_finali_per_riepilogo = []
+        for nome in nomi_parametri_usati_per_intersezione:
+            if ("raffreddamento cadaverico" in nome.lower()
+                and "potente" not in nome.lower()
+                and mt_ore is not None
+                and not np.isnan(mt_ore)
+                and abs(comune_inizio - mt_ore) < 0.25):
+                continue
+            nomi_parametri_finali_per_riepilogo.append(nome)
+        if len(nomi_parametri_finali_per_riepilogo) == 1:
+            p = nomi_parametri_finali_per_riepilogo[0]
+            dettagli.append(f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>")
+        elif len(nomi_parametri_finali_per_riepilogo) > 1:
+            parametri_usati_str = ', '.join(p[0].lower() + p[1:] for p in nomi_parametri_finali_per_riepilogo[:-1])
+            parametri_usati_str += f" e {nomi_parametri_finali_per_riepilogo[-1][0].lower() + nomi_parametri_finali_per_riepilogo[-1][1:]}"
+            dettagli.append(f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {parametri_usati_str}.</p>")
+
+    # --- Messaggi di discordanza (rossi) → dettagli
+    if (not overlap and num_potential_ranges_used >= 2) or ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
+        dettagli.append("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>")
+
+    # === RENDER COMPATTO ===
+    if avvisi:
+        st.warning("**Avvertenze**:\n\n" + "\n".join(f"- {msg}" for msg in avvisi))
+    if frase_finale_html:
+        st.markdown(frase_finale_html, unsafe_allow_html=True)
+    if frase_secondaria_html:
+        st.markdown(f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria_html}</div>", unsafe_allow_html=True)
+
+    with st.expander("Descrizioni dettagliate"):
+        for blocco in dettagli:
+            st.markdown(blocco, unsafe_allow_html=True)
+
 
     # --- Frase aggiuntiva SENZA considerare lo studio di Potente (in grigio) ---
     if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
