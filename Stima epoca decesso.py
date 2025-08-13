@@ -211,7 +211,7 @@ def calcola_fattore(peso):
                 )
             elif corpo_immerso:
                 corrente = st.radio(
-                    "Correnti d'acqua?",
+                    "**Correnti d'acqua?**",
                     ["In acqua corrente", "In acqua stagnante"],
                     index=1,
                     key="radio_acqua",
