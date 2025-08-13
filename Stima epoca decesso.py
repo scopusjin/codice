@@ -69,7 +69,6 @@ def calcola_fattore(peso):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    st.markdown("""<style> /* ... (stile invariato) ... */ </style>""", unsafe_allow_html=True)
     st.markdown("""
     <style>
     /* Compatta gruppi radio (meno spazio tra le opzioni) */
@@ -83,7 +82,7 @@ def calcola_fattore(peso):
    div[data-testid="stExpander"] .st-expander-content { padding-top: 0.25rem; padding-bottom: 0.25rem; }
    </style>
    """, unsafe_allow_html=True)
-    st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
+
 
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
 
@@ -104,7 +103,7 @@ def calcola_fattore(peso):
     # --- COLONNA 2: COPERTURA ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
-            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
             opzioni_coperte = [
                 "Nessuna coperta",
                 "Coperta spessa (es copriletto)",
@@ -129,7 +128,7 @@ def calcola_fattore(peso):
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
-            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
             scelta_vestiti = st.radio("", [
                 "Nudo",
                 "1-2 strati sottili",
@@ -157,7 +156,7 @@ def calcola_fattore(peso):
                 mostra_corrente = False
 
             if mostra_corrente:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
                 corrente = st.radio(
                     "",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
@@ -166,7 +165,7 @@ def calcola_fattore(peso):
                     key="radio_corrente"
                 )
             elif corpo_immerso:
-                st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
                 corrente = st.radio(
                     "",
                     ["In acqua corrente", "In acqua stagnante"],
@@ -180,7 +179,7 @@ def calcola_fattore(peso):
     # --- COLONNA 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
-            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
 
             opzioni_superficie = [
