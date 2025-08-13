@@ -1435,13 +1435,105 @@ def aggiorna_grafico():
     cf_val = st.session_state.get('fattore_correzione', CF_val if CF_val is not None else None)
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
-    parent = st.session_state.get("fattori_condizioni_parentetica")
+    # === Ricostruzione robusta della parentetica dalle scelte correnti ===
+    def _classifica_superficie(s: str):
+        if not s or s == "/":
+            return None
+        s_low = s.lower()
+        if ("metall" in s_low) or ("cemento" in s_low) or ("pietra" in s_low) or ("pvc" in s_low) or ("pavimentazione esterna" in s_low):
+            return "conduttiva"
+        if ("materasso" in s_low) or ("tappeto" in s_low) or ("imbottitura" in s_low) or ("foglie" in s_low):
+            return "isolante"
+        return "indifferente"
+
+    def _format_vestiti(v: str):
+        if not v or v == "/":
+            return None
+        if v == "Nudo":
+            return "nudo"
+        if v == "1-2 strati sottili":
+            return "con 1–2 strati di indumenti sottili"
+        if v == "2-3 strati sottili":
+            return "con 2–3 strati di indumenti sottili"
+        if v == "3-4 strati sottili":
+            return "con 3–4 strati di indumenti sottili"
+        if v == "1-2 strati spessi":
+            return "con 1–2 strati di indumenti spessi"
+        if "˃4" in v or "Moltissimi" in v:
+            return "con molti strati di indumenti"
+        return f"con indumenti ({v.lower()})"
+
+    def _format_coperte(c: str):
+        if not c or c == "/":
+            return None
+        if c == "Nessuna coperta":
+            return "senza coperte"
+        if c.startswith("Coperta spessa (es copriletto)"):
+            return "con coperta (copriletto)"
+        if c.startswith("Coperte più spesse (es coperte di lana)"):
+            return "con coperte di lana"
+        if c.startswith("Coperta pesante (es piumino imbottito)"):
+            return "con coperta pesante (piumino)"
+        if c == "Molte coperte pesanti":
+            return "con molte coperte pesanti"
+        if c == "Strato di foglie di medio spessore":
+            return "coperto da strato di foglie di medio spessore"
+        if c == "Spesso strato di foglie":
+            return "coperto da spesso strato di foglie"
+        return f"con coperte ({c.lower()})"
+
+    def _format_corrente(c: str):
+        if not c or c == "/":
+            return None
+        if c == "Nessuna corrente":
+            return "senza correnti d'aria"
+        if c == "Esposto a corrente d'aria":
+            return "con correnti d'aria"
+        if c == "In acqua corrente":
+            return "in acqua corrente"
+        if c == "In acqua stagnante":
+            return "in acqua stagnante"
+        return c.lower()
+
+    def _format_stato_corpo(s: str):
+        if not s:
+            return None
+        return {"Asciutto": "corpo asciutto",
+                "Bagnato": "corpo bagnato",
+                "Immerso": "corpo immerso"}.get(s, s.lower())
+
+    # Leggi TUTTE le scelte correnti (anche se l’expander non è stato usato)
+    stato_sc = st.session_state.get("radio_stato_corpo")
+    vest_sc  = st.session_state.get("radio_vestiti", "/")
+    cop_sc   = st.session_state.get("scelta_coperte_radio", "/")
+    sup_sc   = st.session_state.get("radio_superficie", "/")
+    corr_sc  = st.session_state.get("radio_corrente") or st.session_state.get("radio_acqua") or "/"
+
+    vestiti_txt = _format_vestiti(vest_sc)
+    coperte_txt = _format_coperte(cop_sc)
+    superf_cat  = _classifica_superficie(sup_sc)
+    corr_txt    = _format_corrente(corr_sc)
+    stato_txt   = _format_stato_corpo(stato_sc)
+
+    parts_parent = []
+    if stato_txt:    parts_parent.append(stato_txt)
+    if vestiti_txt:  parts_parent.append(vestiti_txt)
+    if coperte_txt:  parts_parent.append(coperte_txt)
+    if superf_cat:   parts_parent.append(f"adagiato su superficie termicamente {superf_cat}")
+    if corr_txt:     parts_parent.append(corr_txt)
+
+    parent = "(" + ", ".join(parts_parent) + ")" if parts_parent else None
+    if not parent:
+        # fallback alla versione "congelata" salvata dal bottone (se esiste)
+        parent = st.session_state.get("fattori_condizioni_parentetica")
+
     if parent:
         cf_descr = f"{cf_txt} {parent}"
     elif st.session_state.get("fattori_condizioni_testo"):
         cf_descr = f"{cf_txt} (in base ai fattori scelti: {st.session_state['fattori_condizioni_testo']})."
     else:
         cf_descr = f"{cf_txt} (da adattare sulla base dei fattori scelti)."
+
 
     dettagli.append(
         "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
