@@ -540,7 +540,7 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
     return False
 
 # --- Definizione Widget (Streamlit) ---
-with st.container():
+with st.container(border=True):
     
     # 📌 1. Data e ora ispezione legale
     st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
