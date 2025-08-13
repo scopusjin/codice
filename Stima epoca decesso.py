@@ -127,7 +127,7 @@ def calcola_fattore(peso):
     with col1:
         # Titolo come label del radio (niente markdown)
         stato_corpo = st.radio(
-            "Condizioni del corpo",
+            "**Condizioni del corpo**",
             ["Asciutto", "Bagnato", "Immerso"],
             key="radio_stato_corpo"
         )
@@ -160,7 +160,7 @@ def calcola_fattore(peso):
                 opzioni_coperte = ["Molte coperte pesanti"]
 
             scelta_coperte = st.radio(
-                "Coperte?",
+                "**Coperte?**",
                 opzioni_coperte,
                 key="scelta_coperte_radio",
                 format_func=lambda v: LABEL_COPERTE.get(v, v),
