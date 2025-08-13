@@ -554,7 +554,9 @@ with st.container():
             value="00:00",
             label_visibility="collapsed"
         )
-    # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
+
+# 📌 2. Ipostasi e rigidità (2 colonne stessa riga) — RIQUADRO
+with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
@@ -563,7 +565,12 @@ with st.container():
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    # 📌 3. Temperature (3 colonne gap large)
+
+
+# 📌 3–4. Temperature + Peso/Fattore — RIQUADRO
+with st.container(border=True):
+
+    # 📌 3. Temperature (3 colonne gap small)
     col1, col2, col3 = st.columns(3, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
@@ -576,7 +583,6 @@ with st.container():
         input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
     # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci" (mini-link)
-
     col1, col2 = st.columns([1, 3], gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
@@ -597,6 +603,7 @@ with st.container():
 
         with subcol2:
             st.empty()
+
 
 
 
