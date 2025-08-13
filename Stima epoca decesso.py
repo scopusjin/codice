@@ -157,8 +157,7 @@ def calcola_fattore(peso):
     # --- COLONNA 2: COPERTURA ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Coperte?</p>", unsafe_allow_html=True)
-            with st.popover("ℹ︎", use_container_width=False):
+            with st.popover("Coperte?", use_container_width=False):
                 st.markdown(
                     "- **Coperta +**: copriletto leggero\n"
                     "- **Coperta ++**: coperte di lana / medio spessore\n"
