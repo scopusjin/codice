@@ -261,6 +261,7 @@ def calcola_fattore(peso):
         key="usa_fattore_btn",
         on_click=_apply_fattore,
         args=(fattore_finale,)
+        st.session_state["fattore_expander_aperto"] = False
     )
 
 
@@ -582,7 +583,7 @@ with st.container():
 
 
 # 📌 Expander in stile "parametri aggiuntivi" per il fattore di correzione
-with st.expander("Suggerisci fattore di correzione", expanded=False):
+with st.expander("Suggerisci fattore di correzione", expanded=st.session_state["fattore_expander_aperto"]):
     st.markdown(
         '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
         unsafe_allow_html=True
