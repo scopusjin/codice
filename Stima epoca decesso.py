@@ -766,9 +766,8 @@ if mostra_parametri_aggiuntivi:
                 "ora_rilievo": ora_input
             }
         chk_putrefattive = st.checkbox(
-            "Alterazioni putrefattive",
+            "Alterazioni putrefattive?",
             value=st.session_state.get("alterazioni_putrefattive", False),
-            help="Seleziona se sono presenti alterazioni putrefattive osservabili."
         )
         st.session_state["alterazioni_putrefattive"] = chk_putrefattive
 else:
@@ -1388,8 +1387,8 @@ def aggiorna_grafico():
     if st.session_state.get("alterazioni_putrefattive", False):
         dettagli.append(
             "<ul><li>Per quanto riguarda i processi trasformativi post-mortali (compresi quelli putrefattivi), "
-            "la loro insorgenza è influenzata da numerosi fattori, esogeni (ad esempio temperatura ambientale, "
-            "esposizione ai fenomeni metereologici…) ed endogeni (temperatura corporea, infezioni prima del decesso, "
+            "la loro insorgenza è influenzata da numerosi fattori, estrinseci (ad esempio temperatura ambientale, "
+            "esposizione ai fenomeni metereologici…) ed intrinseci (temperatura corporea, infezioni prima del decesso, "
             "presenza di ferite…). Poiché tali processi possono manifestarsi in un intervallo temporale estremamente "
             "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
             "ulteriori precisazioni sull’epoca della morte.</li></ul>"
