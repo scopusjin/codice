@@ -250,7 +250,7 @@ def calcola_fattore(peso):
         col1, col2 = st.columns([2, 1])
         with col1:
             st.markdown(
-                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px; font-weight:bold;">'
+                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
                 f'Fattore di correzione (adattato per peso {peso:.1f} kg): {fattore_finale:.2f}'
                 f'</div>',
                 unsafe_allow_html=True
@@ -262,7 +262,7 @@ def calcola_fattore(peso):
             )
     else:
         st.markdown(
-            f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px; font-weight:bold;">'
+            f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
             f'Fattore di correzione calcolato: {fattore_finale:.2f}'
             f'</div>',
             unsafe_allow_html=True
@@ -275,7 +275,7 @@ def calcola_fattore(peso):
         st.session_state["fattore_expander_tag"] += 1
 
     
-    col_empty1, col_button, col_empty2 = st.columns([2, 1, 2])
+    col_empty1, col_button, col_empty2 = st.columns([1, 3, 1])
     with col_button:
         st.button(
             "✅ Usa questo fattore",
