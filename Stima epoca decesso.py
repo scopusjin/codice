@@ -1121,7 +1121,7 @@ def aggiorna_grafico():
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
         for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
-            if not np.isnan(s) and not np.isnan(e)):
+            if not np.isnan(s) and not np.isnan(e):
                 ax.hlines(i, s, e, color='steelblue', linewidth=6)
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
