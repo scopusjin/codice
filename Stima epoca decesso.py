@@ -247,10 +247,26 @@ def calcola_fattore(peso):
 
     # Output
     if abs(fattore_finale - fattore_base) > 1e-9:
-        st.success(f"Fattore di correzione (adattato per peso {peso:.1f} kg): {fattore_finale:.2f}")
-        st.caption(f"Valore per 70 kg: {fattore_base:.2f}")
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            st.markdown(
+                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px; font-weight:bold;">'
+                f'Fattore di correzione (adattato per peso {peso:.1f} kg): {fattore_finale:.2f}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+        with col2:
+            st.markdown(
+                f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
+                unsafe_allow_html=True
+            )
     else:
-        st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
+        st.markdown(
+            f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px; font-weight:bold;">'
+            f'Fattore di correzione calcolato: {fattore_finale:.2f}'
+            f'</div>',
+            unsafe_allow_html=True
+        )
 
     # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
@@ -259,13 +275,14 @@ def calcola_fattore(peso):
         st.session_state["fattore_expander_tag"] += 1
 
     
-    st.button(
-        "✅ Usa questo fattore",
-        key="usa_fattore_btn",
-        on_click=_apply_fattore,
-        args=(fattore_finale,)
-        
-    )
+    col_empty1, col_button, col_empty2 = st.columns([2, 1, 2])
+    with col_button:
+        st.button(
+            "✅ Usa questo fattore",
+            key="usa_fattore_btn",
+            on_click=_apply_fattore,
+            args=(fattore_finale,)
+        )
 
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
