@@ -380,17 +380,17 @@ def calcola_fattore(peso):
             if c == "Nessuna coperta":
                 return "senza coperte"
             if c.startswith("Coperta spessa (es copriletto)"):
-                return "con coperta (copriletto)"
+                return "sotto una coperta pesante"
             if c.startswith("Coperte più spesse (es coperte di lana)"):
-                return "con coperte di lana"
+                return "sotto una coperta discretamente pesante
             if c.startswith("Coperta pesante (es piumino imbottito)"):
-                return "con coperta pesante (piumino)"
+                return "sotto una coperta molto pesante"
             if c == "Molte coperte pesanti":
-                return "con molte coperte pesanti"
+                return "sotto molte coperte pesanti"
             if c == "Strato di foglie di medio spessore":
-                return "coperto da strato di foglie di medio spessore"
+                return "coperto da uno strato di foglie"
             if c == "Spesso strato di foglie":
-                return "coperto da spesso strato di foglie"
+                return "coperto da uno spesso strato di foglie"
             return f"con coperte ({c.lower()})"
 
         def _format_corrente(c: str):
@@ -1469,17 +1469,17 @@ def aggiorna_grafico():
         if c == "Nessuna coperta":
             return "senza coperte"
         if c.startswith("Coperta spessa (es copriletto)"):
-            return "con coperta (copriletto)"
+            return "sotto una coperta pesante"
         if c.startswith("Coperte più spesse (es coperte di lana)"):
-            return "con coperte di lana"
+            return "sotto una coperta discretamente pesante"
         if c.startswith("Coperta pesante (es piumino imbottito)"):
-            return "con coperta pesante (piumino)"
+            return "sotto una coperta molto pesante"
         if c == "Molte coperte pesanti":
-            return "con molte coperte pesanti"
+            return "sotto molte coperte pesanti"
         if c == "Strato di foglie di medio spessore":
-            return "coperto da strato di foglie di medio spessore"
+            return "coperto da uno strato di foglie"
         if c == "Spesso strato di foglie":
-            return "coperto da spesso strato di foglie"
+            return "coperto da uno spesso strato di foglie"
         return f"con coperte ({c.lower()})"
 
     def _format_corrente(c: str):
