@@ -70,13 +70,26 @@ def calcola_fattore(peso):
         return
 
     st.markdown("""<style> /* ... (stile invariato) ... */ </style>""", unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    /* Compatta gruppi radio (meno spazio tra le opzioni) */
+    .stRadio div[role="radiogroup"] { gap: 0.2rem !important; }
+   .stRadio label { margin-bottom: 0.1rem !important; }
+
+   /* Riduci margine sotto i titoletti di sezione */
+   .fattore-sec-title { margin-bottom: 2px !important; }
+
+   /* Compatta leggermente il contenuto dell'expander */
+   div[data-testid="stExpander"] .st-expander-content { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+   </style>
+   """, unsafe_allow_html=True)
     st.markdown('<div class="fattore-correzione-section">', unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
 
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
-        st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
+        st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
@@ -274,16 +287,14 @@ def calcola_fattore(peso):
         # forza la chiusura dell'expander al prossimo rerun cambiando la sua "identità"
         st.session_state["fattore_expander_tag"] += 1
 
-    
-    col_empty1, col_button, col_empty2 = st.columns([1, 3, 1])
-    with col_button:
-        st.button(
-            "✅ Usa questo fattore",
-            key="usa_fattore_btn",
-            on_click=_apply_fattore,
-            args=(fattore_finale,)
-        )
 
+    st.button(
+        "✅ Usa questo fattore",
+        key="usa_fattore_btn",
+        on_click=_apply_fattore,
+        args=(fattore_finale,),
+        use_container_width=True
+    )
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
