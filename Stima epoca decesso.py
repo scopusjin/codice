@@ -230,11 +230,6 @@ def calcola_fattore(peso):
 
             if mostra_corrente:
                 st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Correnti?</p>", unsafe_allow_html=True)
-                with st.popover("ℹ︎", use_container_width=False):
-                    st.markdown(
-                        "- **Sì**: ventilatore, finestra aperta, spifferi d'aria"
-                        "- **No**: ambiente chiuso/senza correnti d'aria"
-                    )
                 corrente = st.radio(
                     "",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
@@ -259,8 +254,7 @@ def calcola_fattore(peso):
     # --- COLONNA 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Appoggio</p>", unsafe_allow_html=True)
-            with st.popover("ℹ︎", use_container_width=False):
+            with st.popover("Appoggio", use_container_width=False):
                 st.markdown(
                     "- **Indifferente**: pavimento di casa, parquet, prato o terreno asciutto, asfalto\n"
                     "- **Isolante**: materasso, tappeto spesso\n"
