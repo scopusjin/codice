@@ -84,6 +84,22 @@ def calcola_fattore(peso):
     </style>
     """, unsafe_allow_html=True)
 
+    st.markdown("""
+    <style>
+    /* Rimpicciolisci il bottone trigger del popover quando lo avvolgiamo in .inline-help */
+    .inline-help button {
+        font-size: 0.75rem !important;
+        padding: 0.1rem 0.3rem !important;
+        line-height: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        border-radius: 999px !important;
+    }
+    /* Evita che il trigger prenda tutta la larghezza della colonna su mobile */
+    .inline-help { display: inline-block; }
+    </style>
+    """, unsafe_allow_html=True)
+
     # --- Etichette brevi per visualizzazione (il valore interno resta la dicitura lunga) ---
     LABEL_VESTITI = {
         "Nudo": "Nudo",
