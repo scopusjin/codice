@@ -249,7 +249,7 @@ def calcola_fattore(peso):
                 st.markdown(
                     "- **Indifferente**: pavimento di casa, prato o terrono asciutto, asfalto"
                     "- **Isolante**: materasso, tappeto spesso"
-                    "- **Molto isolante**: imbottitura, sacco a pelo\n"
+                    "- **Molto isolante**: imbottitura, sacco a pelo"
                     "- **Conduttiva**: cemento, pietra, pavimento in PVC, pavimentazione esterna"
                     "- **Molto conduttiva**: superficie metallica spessa in ambiente esterno"
                 )
