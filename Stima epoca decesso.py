@@ -382,7 +382,7 @@ def calcola_fattore(peso):
             if c.startswith("Coperta spessa (es copriletto)"):
                 return "sotto una coperta pesante"
             if c.startswith("Coperte più spesse (es coperte di lana)"):
-                return "sotto una coperta discretamente pesante":
+                return "sotto una coperta discretamente pesante"
             if c.startswith("Coperta pesante (es piumino imbottito)"):
                 return "sotto una coperta molto pesante"
             if c == "Molte coperte pesanti":
