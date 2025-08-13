@@ -604,7 +604,7 @@ with st.container():
 _expander_title = "Suggerisci fattore di correzione" + ("\u200B" * st.session_state["fattore_expander_tag"])
 with st.expander(_expander_title, expanded=False):
      calcola_fattore(peso=st.session_state.get("peso", 70))
-     st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
