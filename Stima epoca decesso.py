@@ -617,82 +617,81 @@ mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntiv
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
-    for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        col1, col2 = st.columns([1, 2], gap="small")
-        with col1:
-            subcol1, subcol2 = st.columns([1, 0.5])
-            with subcol1:
-                st.markdown(
-                    f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
-                    unsafe_allow_html=True
-                )
-            with subcol2:
-                if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
-                    
-                    with st.popover(" "):  # trigger invisibile ma associato alla posizione del testo
-                        if nome_parametro == "Eccitabilità elettrica sopraciliare":
-                            st.image(
-                                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                                width=400
-                            )
-                        elif nome_parametro == "Eccitabilità elettrica peribuccale":
-                            st.image(
-                                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                                width=300
-                            )
-        with col2:
-            selettore = st.selectbox(
-                label=nome_parametro,
-                options=dati_parametro["opzioni"],
-                key=f"{nome_parametro}_selector",
-                label_visibility="collapsed"
-            )
-
-        data_picker = None
-        ora_input = None
-        usa_orario_personalizzato = False
-
-        if selettore != "Non valutata":
-            chiave_checkbox = f"{nome_parametro}_diversa"
-            col1, col2 = st.columns([0.2, 0.2], gap="small")
+    with st.container(border=True):  # bordo come per "Suggerisci fattore di correzione"
+        for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+            col1, col2 = st.columns([1, 2], gap="small")
             with col1:
-                st.markdown(
-                    "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                    "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
-                    "</div>",
-                    unsafe_allow_html=True
-                )
+                subcol1, subcol2 = st.columns([1, 0.5])
+                with subcol1:
+                    st.markdown(
+                        f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
+                        unsafe_allow_html=True
+                    )
+                with subcol2:
+                    if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
+                        with st.popover(" "):  # trigger invisibile ma associato alla posizione del testo
+                            if nome_parametro == "Eccitabilità elettrica sopraciliare":
+                                st.image(
+                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                                    width=400
+                                )
+                            elif nome_parametro == "Eccitabilità elettrica peribuccale":
+                                st.image(
+                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                                    width=300
+                                )
             with col2:
-                usa_orario_personalizzato = st.checkbox(
-                    label="",
-                    key=chiave_checkbox
-                )
-
-        if usa_orario_personalizzato:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
-                data_picker = st.date_input(
-                    "Data rilievo:",
-                    value=input_data_rilievo,
-                    key=f"{nome_parametro}_data",
-                    label_visibility="collapsed"
-                )
-            with col2:
-                st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
-                ora_input = st.text_input(
-                    "Ora rilievo (HH:MM):",
-                    value=input_ora_rilievo,
-                    key=f"{nome_parametro}_ora",
+                selettore = st.selectbox(
+                    label=nome_parametro,
+                    options=dati_parametro["opzioni"],
+                    key=f"{nome_parametro}_selector",
                     label_visibility="collapsed"
                 )
 
-        widgets_parametri_aggiuntivi[nome_parametro] = {
-            "selettore": selettore,
-            "data_rilievo": data_picker,
-            "ora_rilievo": ora_input
-        }
+            data_picker = None
+            ora_input = None
+            usa_orario_personalizzato = False
 
+            if selettore != "Non valutata":
+                chiave_checkbox = f"{nome_parametro}_diversa"
+                col1, col2 = st.columns([0.2, 0.2], gap="small")
+                with col1:
+                    st.markdown(
+                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
+                        "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+                with col2:
+                    usa_orario_personalizzato = st.checkbox(
+                        label="",
+                        key=chiave_checkbox
+                    )
+
+            if usa_orario_personalizzato:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
+                    data_picker = st.date_input(
+                        "Data rilievo:",
+                        value=input_data_rilievo,
+                        key=f"{nome_parametro}_data",
+                        label_visibility="collapsed"
+                    )
+                with col2:
+                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
+                    ora_input = st.text_input(
+                        "Ora rilievo (HH:MM):",
+                        value=input_ora_rilievo,
+                        key=f"{nome_parametro}_ora",
+                        label_visibility="collapsed"
+                    )
+
+            widgets_parametri_aggiuntivi[nome_parametro] = {
+                "selettore": selettore,
+                "data_rilievo": data_picker,
+                "ora_rilievo": ora_input
+            }
 
 
 st.markdown("""
