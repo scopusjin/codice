@@ -1187,15 +1187,35 @@ def aggiorna_grafico():
     )
 
     if hensge_input_forniti:
+        
         if Ta_val > 25:
-            avvisi.append("Per T. ambiente > 25 °C, un fattore di correzione diverso da 1 può influenzare sensibilmente il risultato: sceglilo con cura.")
-        if Ta_val < 18:
-            avvisi.append("Per T. ambiente < 18 °C, un fattore di correzione diverso da 1 può influenzare sensibilmente il risultato: sceglilo con cura.")
-        if temp_difference_small:
-            avvisi.append("Differenza minima tra T. rettale e T. ambientale: possibile equilibrio termico → interpreta con cautela la stima da raffreddamento.")
-        if not raffreddamento_calcolabile:
-            avvisi.append("Non è stato possibile ricavare stime con il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
+            st.markdown((
+                "<p style='color:darkorange;font-size:small;'>"
+                "Per la temperatura selezionata (&gt; 25 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
+                "</p>"
+            ), unsafe_allow_html=True)
 
+        if Ta_val < 18:
+            st.markdown((
+                "<p style='color:darkorange;font-size:small;'>"
+                "Per la temperatura selezionata (&lt; 18 °C), la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati. Scegliere il fattore con cura."
+                "</p>"
+            ), unsafe_allow_html=True)
+
+        if temp_difference_small:
+            st.markdown((
+                "<p style='color:darkorange;font-size:small;'>"
+                "Essendo minima la differenza tra temperatura rettale e ambientale, "
+                "è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
+                "La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione."
+                "</p>"
+            ), unsafe_allow_html=True)
+
+        if not raffreddamento_calcolabile:
+            st.markdown((
+                "<p style='color:orange;font-size:normal;'>⚠️ Non è stato possibile ricavare stime applicando il metodo di Henssge con i valori inseriti "
+                "(possibile causa: temperature incoerenti o valori fuori range per il nomogramma).</p>"
+            ), unsafe_allow_html=True)
     # --- Testo Henssge dettagliato (va nell’expander) ---
     if raffreddamento_calcolabile:
         if 't_min_raff_visualizzato' in locals() and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
