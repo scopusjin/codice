@@ -628,7 +628,7 @@ if mostra_parametri_aggiuntivi:
             with col1:
                 st.markdown(
                     "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                    "Il dato è stato valutato a un'orario diverso rispetto a quello precedentemente indicato?"
+                    "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
                     "</div>",
                     unsafe_allow_html=True
                 )
