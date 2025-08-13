@@ -765,7 +765,12 @@ if mostra_parametri_aggiuntivi:
                 "data_rilievo": data_picker,
                 "ora_rilievo": ora_input
             }
-
+        chk_putrefattive = st.checkbox(
+            "Alterazioni putrefattive",
+            value=st.session_state.get("alterazioni_putrefattive", False),
+            help="Seleziona se sono presenti alterazioni putrefattive osservabili."
+        )
+        st.session_state["alterazioni_putrefattive"] = chk_putrefattive
 
 st.markdown("""
     <style>
