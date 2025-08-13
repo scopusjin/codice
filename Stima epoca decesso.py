@@ -521,22 +521,23 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
 # SIDEBAR — modulo FC con aggiornamento immediato
 # ================
 # -------------------------------------------------
+# -------------------------------------------------
 # Barra comandi (fuori dal form) per azioni istantanee
 # -------------------------------------------------
 c_top1, c_top2 = st.columns([1, 1])
 with c_top1:
     if st.button("Apri modulo fattore di correzione", key="open_fc_top"):
         st.session_state["mostra_modulo_fattore"] = True
+
 with c_top2:
-    st.session_state["mostra_param_aggiuntivi"] = st.checkbox(
+    # NON assegnare a session_state: il widget con key lo gestisce da solo
+    st.checkbox(
         "Inserisci dati tanatologici aggiuntivi",
-        value=st.session_state.get("mostra_param_aggiuntivi", False),
         key="mostra_param_aggiuntivi"
     )
-    if st.session_state["mostra_param_aggiuntivi"]:
-        st.session_state["show_imgs"] = st.checkbox(
+    if st.session_state.get("mostra_param_aggiuntivi", False):
+        st.checkbox(
             "Mostra immagini (sopraciliare/peribuccale)",
-            value=st.session_state.get("show_imgs", False),
             key="show_imgs"
         )
 
