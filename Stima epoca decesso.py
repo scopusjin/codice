@@ -609,10 +609,32 @@ if mostra_parametri_aggiuntivi:
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         col1, col2 = st.columns([1, 2], gap="small")
         with col1:
-            st.markdown(
-                f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
-                unsafe_allow_html=True
-            )
+            subcol1, subcol2 = st.columns([0.88, 0.12])
+            with subcol1:
+                st.markdown(
+                    f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
+                    unsafe_allow_html=True
+                )
+            with subcol2:
+                if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
+                    # Pulsante piccolo stile testo
+                    st.markdown(
+                        "<div style='text-align: center; padding-top: 0.2rem;'>"
+                        "<span style='cursor: pointer; color: #0066cc; font-size: 0.9rem;' id='help_btn'>?</span>"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+                    with st.popover(" "):  # trigger invisibile ma associato alla posizione del testo
+                        if nome_parametro == "Eccitabilità elettrica sopraciliare":
+                            st.image(
+                                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                                width=400
+                            )
+                        elif nome_parametro == "Eccitabilità elettrica peribuccale":
+                            st.image(
+                                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                                width=300
+                            )
         with col2:
             selettore = st.selectbox(
                 label=nome_parametro,
@@ -666,19 +688,7 @@ if mostra_parametri_aggiuntivi:
             "ora_rilievo": ora_input
         }
 
-        if nome_parametro == "Eccitabilità elettrica sopraciliare":
-            with st.popover("?", help="Mostra immagine di riferimento"):
-                st.image(
-                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                    width=400
-                )
 
-        if nome_parametro == "Eccitabilità elettrica peribuccale":
-            with st.popover("?", help="Mostra immagine di riferimento"):
-                st.image(
-                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                    width=300
-                )
 
 st.markdown("""
     <style>
