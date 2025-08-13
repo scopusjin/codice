@@ -797,9 +797,7 @@ def aggiorna_grafico():
         else:
             try:
                 ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
-                if ora_rilievo_time.minute not in (0, 15, 30, 45):
-                    avvisi.append(f"⚠️ {nome_parametro}: ora di rilievo '{ora_rilievo_param_str}' non arrotondata  → parametro escluso dalla stima.")
-                    continue
+                
             except ValueError:
                 avvisi.append(f"⚠️ {nome_parametro}: formato ora di rilievo '{ora_rilievo_param_str}' non valido (usa HH:MM, es. 14:30) → parametro escluso dalla stima.")
                 continue
