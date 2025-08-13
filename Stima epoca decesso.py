@@ -165,11 +165,11 @@ def calcola_fattore(peso):
                 key="scelta_coperte_radio",
                 format_func=lambda v: LABEL_COPERTE.get(v, v),
                 help=(
-                    "Coperta + = copriletto leggero\n"
-                    "Coperta ++ = coperte di lana / medio spessore\n"
-                    "Coperta +++ = piumino imbottito / molto pesante\n"
-                    "Coperta ++++ = più strati pesanti sovrapposti\n"
-                    "Foglie ++/+++ = strato medio/spesso di foglie (esterno)"
+                    "**Coperta +** = copriletto leggero\n"
+                    "**Coperta ++** = coperte di lana / medio spessore\n"
+                    "**Coperta +++** = piumino imbottito / molto pesante\n"
+                    "**Coperta ++++** = più strati pesanti sovrapposti\n"
+                    "**Foglie ++/+++** = strato medio/spesso di foglie (esterno)"
                 )
             )
         else:
@@ -219,8 +219,8 @@ def calcola_fattore(peso):
                     key="radio_corrente",
                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v),
                     help=(
-                        "Sì = ventilatore, finestra aperta, spifferi d'aria\n"
-                        "No = ambiente chiuso / senza correnti d'aria"
+                        "**Sì** = ventilatore, finestra aperta, spifferi d'aria\n"
+                        "**No** = ambiente chiuso / senza correnti d'aria"
                     )
                 )
             elif corpo_immerso:
@@ -231,8 +231,8 @@ def calcola_fattore(peso):
                     key="radio_acqua",
                     format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v),
                     help=(
-                        "Acqua corrente = fiume / torrente\n"
-                        "Acqua stagnante = vasca, pozza, lago fermo"
+                        "**Acqua corrente** = fiume / torrente\n"
+                        "**Acqua stagnante** = vasca, pozza, lago fermo"
                     )
                 )
             else:
@@ -261,11 +261,11 @@ def calcola_fattore(peso):
                 key="radio_superficie",
                 format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
                 help=(
-                    "Indifferente = pavimento di casa, parquet, prato/terreno asciutto, asfalto\n"
-                    "Isolante = materasso, tappeto spesso\n"
-                    "Molto isolante = imbottitura, polistirolo, sacco a pelo tecnico\n"
-                    "Conduttiva = cemento, pietra, PVC esterno\n"
-                    "Molto conduttiva = superficie metallica spessa in esterno"
+                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto\n"
+                    "**Isolante** = materasso, tappeto spesso\n"
+                    "**Molto isolante** = imbottitura, polistirolo, sacco a pelo tecnico\n"
+                    "**Conduttiva** = cemento, pietra, PVC esterno\n"
+                    "**Molto conduttiva** = superficie metallica spessa in esterno"
                 )
             )
 
