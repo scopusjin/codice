@@ -181,7 +181,7 @@ def calcola_fattore(peso):
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             scelta_vestiti = st.radio(
-                "Strati di indumenti",
+                "**Strati di indumenti**",
                 [
                     "Nudo",
                     "1-2 strati sottili",
@@ -213,7 +213,7 @@ def calcola_fattore(peso):
 
             if mostra_corrente:
                 corrente = st.radio(
-                    "Correnti d'aria?",
+                    "**Correnti d'aria?**",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
                     index=1,
                     key="radio_corrente",
@@ -256,7 +256,7 @@ def calcola_fattore(peso):
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio(
-                "Appoggio",
+                "**Appoggio**",
                 opzioni_superficie,
                 key="radio_superficie",
                 format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
