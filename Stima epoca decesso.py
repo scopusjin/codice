@@ -1373,6 +1373,10 @@ def aggiorna_grafico():
             dettagli.append(f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {parametri_usati_str}.</p>")
 
     # --- Messaggi di discordanza (rossi) → dettagli
+    num_potential_ranges_used = sum(
+    1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
+        
+    if start is not None and end is not None
     if (not overlap and num_potential_ranges_used >= 2) or ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
         dettagli.append("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>")
 
