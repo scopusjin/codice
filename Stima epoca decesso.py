@@ -1372,9 +1372,9 @@ def aggiorna_grafico():
     # Frase tra parentesi costruita dalle condizioni scelte nel modulo del fattore
     fattori_note = st.session_state.get("fattori_condizioni_testo")
     if fattori_note:
-        cf_descr = f"{cf_txt} (in base ai fattori scelti: {fattori_note})."
+        cf_descr = f"{cf_txt} ({fattori_note})."
     else:
-        cf_descr = f"{cf_txt} (da adattare sulla base dei fattori scelti)."
+        cf_descr = f"{cf_txt} (...)."
 
     dettagli.append(
         "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
