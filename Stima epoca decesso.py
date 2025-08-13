@@ -128,38 +128,69 @@ def calcola_fattore(peso):
     corrente = "/"
 
     # --- COLONNA 2: COPERTURA ---
+    # --- COLONNA 2: CORRENTI ---
     with col2:
-        if not (corpo_immerso or corpo_bagnato):
-            opzioni_coperte = [
-                "Nessuna coperta",
-                "Coperta spessa (es copriletto)",
-                "Coperte più spesse (es coperte di lana)",
-                "Coperta pesante (es piumino imbottito)",
-                "Molte coperte pesanti"
-            ]
-            if corpo_asciutto:
-                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+        if not copertura_speciale:
+            mostra_corrente = False
+            if corpo_bagnato:
+                mostra_corrente = True
+            elif corpo_asciutto:
+                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
+                    mostra_corrente = True
 
-            # se i vestiti sono "Moltissimi strati" → solo "Molte coperte pesanti"
-            vestiti_state = st.session_state.get("radio_vestiti")
-            if vestiti_state == "Moltissimi strati":
-                opzioni_coperte = ["Molte coperte pesanti"]
+            # se vestiti = "Moltissimi strati" → niente correnti d'aria
+            if scelta_vestiti == "Moltissimi strati":
+                mostra_corrente = False
 
-            scelta_coperte = st.radio(
-                "**Coperte?**",
-                opzioni_coperte,
-                key="scelta_coperte_radio",
-                format_func=lambda v: LABEL_COPERTE.get(v, v),
-                help=(
-                    "**Coperta +** = copriletto leggero; "
-                    "**Coperta ++** = coperta di lana/di medio spessore; "
-                    "**Coperta +++** = piumino imbottito/molto pesante; "
-                    "**Coperta ++++** = più strati spessi, sovrapposti; "
-                    "**Foglie ++/+++** = strato medio/spesso di foglie"
+            if mostra_corrente:
+                tcol, hcol = st.columns([1, 0.08])
+                with tcol:
+                    st.markdown("**Correnti d'aria?**")
+                with hcol:
+                    st.markdown(
+                        """
+                        <details>
+                          <summary>❔</summary>
+                          Sì = ventilatore, finestra aperta, spifferi<br>
+                          No = ambiente chiuso / senza correnti
+                        </details>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                corrente = st.radio(
+                    "",
+                    ["Esposto a corrente d'aria", "Nessuna corrente"],
+                    index=1,
+                    key="radio_corrente",
+                    label_visibility="collapsed",
+                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v)
                 )
-            )
-        else:
-            scelta_coperte = "/"
+
+            elif corpo_immerso:
+                tcol, hcol = st.columns([1, 0.08])
+                with tcol:
+                    st.markdown("**Correnti d'acqua?**")
+                with hcol:
+                    st.markdown(
+                        """
+                        <details>
+                          <summary>❔</summary>
+                          Acqua corrente = fiume / torrente<br>
+                          Acqua stagnante = vasca, pozza, lago fermo
+                        </details>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                corrente = st.radio(
+                    "",
+                    ["In acqua corrente", "In acqua stagnante"],
+                    index=1,
+                    key="radio_acqua",
+                    label_visibility="collapsed",
+                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v)
+                )
+            else:
+                corrente = "/"
 
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
