@@ -11,6 +11,29 @@ from scipy.optimize import root_scalar
 import datetime
 import pandas as pd
 
+# === Mapping nomi opzioni (vecchio -> nuovo) ===
+OLD_TO_NEW = {
+    # Coperte / lenzuola
+    "Lenzuolo +": "Lenzuolo +",
+    "Lenzuolo ++": "Lenzuolo ++",
+    "Coperta": "Coperta",
+    "Coperta spessa (es copriletto)": "Coperta +",
+    "Coperte più spesse (es coperte di lana)": "Coperta ++",
+    "Coperta pesante (es piumino imbottito)": "Coperta ++++",
+    "Molte coperte pesanti": "Coperta ++++",
+
+    # Indumenti (strati)
+    "˃4 strati sottili o ˃2 spessi": "˃ strati",
+    ">4 strati sottili o >2 spessi": "> strati",   # normalizzazione del simbolo
+    "Moltissimi strati": "˃˃ strati",
+
+    # Superficie d'appoggio
+    "Materasso o tappeto spesso": "Isolante",
+    "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
+    "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
+    "Conduttivo": "Conduttivo",
+    "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
+}
 # =========================
 # Stato e costanti globali
 # =========================
