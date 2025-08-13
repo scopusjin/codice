@@ -495,7 +495,7 @@ def calcola_raffreddamento(Tr, Ta, T0, W, CF):
     t_min = max(0.0, t_min) if not np.isnan(t_min) else np.nan
 
     return t_med, t_min, t_max, t_med_raw, Qd
-#
+
 def ranges_in_disaccordo_completa(r_inizio, r_fine):
     intervalli = []
     for start, end in zip(r_inizio, r_fine):
