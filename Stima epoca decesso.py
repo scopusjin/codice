@@ -217,6 +217,8 @@ def calcola_fattore(peso):
 
     # --- COLONNA 2: CORRENTI ---
     with col2:
+        st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Coperte?</p>", unsafe_allow_html=True)
+
         if not copertura_speciale:
             mostra_corrente = False
             if corpo_bagnato:
