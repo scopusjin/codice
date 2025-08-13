@@ -1188,7 +1188,7 @@ def aggiorna_grafico():
 
     if hensge_input_forniti:
         if Ta_val > 25:
-            avvisi.append("Per temperature ambientali &gt; 25 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
+            avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
         if Ta_val < 18:
             avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
         if temp_difference_small:
