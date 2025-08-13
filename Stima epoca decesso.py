@@ -825,9 +825,10 @@ def aggiorna_grafico():
         if range_valori:
             descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
 
-            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
-            differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
 
+            data_ora_param_raw = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
+            data_ora_param = arrotonda_quarto_dora(data_ora_param_raw)
+            differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
             if range_originale[1] >= INF_HOURS:
                 range_traslato = (range_originale[0] - differenza_ore, INF_HOURS)
             else:
