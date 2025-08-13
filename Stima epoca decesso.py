@@ -337,11 +337,45 @@ def calcola_fattore(peso):
             unsafe_allow_html=True
         )
 
+
     # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
+        # 1) salva il valore del fattore
         st.session_state["fattore_correzione"] = round(float(val), 2)
-        # forza la chiusura dell'expander al prossimo rerun cambiando la sua "identità"
+
+        # 2) costruisci una descrizione breve delle condizioni selezionate (per il testo dettagliato)
+        cond_parts = []
+        if stato_corpo:
+            cond_parts.append({"Asciutto": "corpo asciutto",
+                               "Bagnato": "corpo bagnato",
+                               "Immerso": "corpo immerso"}.get(stato_corpo, stato_corpo.lower()))
+        if scelta_vestiti != "/":
+            if scelta_vestiti == "Nudo":
+                cond_parts.append("nudo")
+            else:
+                cond_parts.append(f"indumenti: {scelta_vestiti.lower()}")
+        if scelta_coperte != "/":
+            if scelta_coperte == "Nessuna coperta":
+                cond_parts.append("senza coperte")
+            else:
+                cond_parts.append(f"coperte: {scelta_coperte.lower()}")
+        if superficie != "/":
+            cond_parts.append(f"superficie di appoggio: {superficie.lower()}")
+        if corrente != "/":
+            if corrente == "Nessuna corrente":
+                cond_parts.append("senza correnti d'aria")
+            elif corrente == "Esposto a corrente d'aria":
+                cond_parts.append("esposto a correnti d'aria")
+            else:
+                # "In acqua corrente" / "In acqua stagnante"
+                cond_parts.append(corrente.lower())
+
+        # 3) memorizza la stringa pronta per la descrizione
+        st.session_state["fattori_condizioni_testo"] = "; ".join(cond_parts)
+
+        # 4) forza la chiusura dell'expander al prossimo rerun
         st.session_state["fattore_expander_tag"] += 1
+
 
     st.button(
         "✅ Usa questo fattore",
