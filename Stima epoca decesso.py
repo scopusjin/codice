@@ -260,7 +260,7 @@ def calcola_fattore(peso):
         "✅ Usa questo fattore",
         key="usa_fattore_btn",
         on_click=_apply_fattore,
-        args=(fattore_finale,)
+        args=(fattore_finale,),
         st.session_state["fattore_expander_aperto"] = False
     )
 
