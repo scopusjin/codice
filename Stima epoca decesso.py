@@ -243,12 +243,12 @@ def calcola_fattore(peso):
             if pd.notna(val_user):
                 fattore_finale = float(val_user)
         except Exception as e:
-            st.warning(f"Impossibile applicare la correzione per il peso (uso Tabella 1): {e}")
+            st.warning(f"Impossibile applicare la correzione per il peso (è riportato il fattore per un peso di 70 kg): {e}")
 
     # Output
     if abs(fattore_finale - fattore_base) > 1e-9:
-        st.success(f"Fattore di correzione (Tabella 1 → adattato per il peso): {fattore_finale:.2f}")
-        st.caption(f"Valore Tabella 1: {fattore_base:.2f} – peso considerato: {peso:.1f} kg")
+        st.success(f"Fattore di correzione (adattato per peso {peso:.1f} kg): {fattore_finale:.2f}")
+        st.caption(f"Valore per 70 kg: {fattore_base:.2f}")
     else:
         st.success(f"Fattore di correzione calcolato: {fattore_finale:.2f}")
 
