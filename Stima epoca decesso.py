@@ -253,15 +253,15 @@ def calcola_fattore(peso):
     # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
-
+        st.session_state["fattore_expander_aperto"] = False
 
     
     st.button(
         "✅ Usa questo fattore",
         key="usa_fattore_btn",
         on_click=_apply_fattore,
-        args=(fattore_finale,),
-        st.session_state["fattore_expander_aperto"] = False
+        args=(fattore_finale,)
+        
     )
 
 
