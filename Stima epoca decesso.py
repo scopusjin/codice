@@ -25,6 +25,10 @@ if "mostra_modulo_fattore" not in st.session_state:
 if "show_imgs" not in st.session_state:
     st.session_state["show_imgs"] = False  # per checkbox immagini in Parametri aggiuntivi
 
+# Toggle globale per i parametri aggiuntivi (fuori dal form)
+if "mostra_param_aggiuntivi" not in st.session_state:
+    st.session_state["mostra_param_aggiuntivi"] = False
+
 # Peso: sorgente unica e condivisa in tutta l'app
 if "peso" not in st.session_state:
     st.session_state["peso"] = 70.0
@@ -516,6 +520,27 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
 # ================
 # SIDEBAR — modulo FC con aggiornamento immediato
 # ================
+# -------------------------------------------------
+# Barra comandi (fuori dal form) per azioni istantanee
+# -------------------------------------------------
+c_top1, c_top2 = st.columns([1, 1])
+with c_top1:
+    if st.button("Apri modulo fattore di correzione", key="open_fc_top"):
+        st.session_state["mostra_modulo_fattore"] = True
+with c_top2:
+    st.session_state["mostra_param_aggiuntivi"] = st.checkbox(
+        "Inserisci dati tanatologici aggiuntivi",
+        value=st.session_state.get("mostra_param_aggiuntivi", False),
+        key="mostra_param_aggiuntivi"
+    )
+    if st.session_state["mostra_param_aggiuntivi"]:
+        st.session_state["show_imgs"] = st.checkbox(
+            "Mostra immagini (sopraciliare/peribuccale)",
+            value=st.session_state.get("show_imgs", False),
+            key="show_imgs"
+        )
+
+
 with st.sidebar:
     st.markdown("### Opzioni di visualizzazione")
     opt_mostra_testi = st.checkbox("Mostra testi descrittivi", value=True)
@@ -643,103 +668,95 @@ with st.form("stima_form", clear_on_submit=False):
 
     # TAB 3 — PARAMETRI AGGIUNTIVI
     with tab3:
-        # checkbox per mostrare parametri aggiuntivi
-        mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
 
-        # checkbox immagini (al posto del bottone "?")
-        if mostra_parametri_aggiuntivi:
-            st.session_state["show_imgs"] = st.checkbox(
-                "Mostra immagini di riferimento (sopraciliare e peribuccale)",
-                value=st.session_state.get("show_imgs", False)
+# Leggi lo stato deciso fuori dal form
+mostra_parametri_aggiuntivi = st.session_state.get("mostra_param_aggiuntivi", False)
+
+if mostra_parametri_aggiuntivi:
+    # Immagini: solo se attivate fuori dal form
+    if st.session_state.get("show_imgs", False):
+        cimg1, cimg2 = st.columns(2)
+        with cimg1:
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
+                caption="Eccitabilità elettrica sopraciliare",
+                width=380
+            )
+        with cimg2:
+            st.image(
+                "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
+                caption="Eccitabilità elettrica peribuccale",
+                width=320
             )
 
-            # immagini globali mostrate SOLO su richiesta (checkbox)
-            if st.session_state.get("show_imgs", False):
-                cimg1, cimg2 = st.columns(2)
-                with cimg1:
-                    st.image(
-                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                        caption="Eccitabilità elettrica sopraciliare",
-                        width=380
+    # blocchi parametri in expander (ognuno con i propri input)
+    for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+        with st.expander(nome_parametro, expanded=False):
+            r1, r2 = st.columns([1, 2], gap="small")
+            with r1:
+                st.markdown(
+                    f"<div style='font-size: 0.88rem; padding-top: 0.2rem;'>{nome_parametro}:</div>",
+                    unsafe_allow_html=True
+                )
+            with r2:
+                selettore = st.selectbox(
+                    label=nome_parametro,
+                    options=dati_parametro["opzioni"],
+                    key=f"{nome_parametro}_selector",
+                    label_visibility="collapsed"
+                )
+
+            data_picker = None
+            ora_input = None
+            usa_orario_personalizzato = False
+
+            if selettore != "Non valutata":
+                c1, c2 = st.columns([0.65, 0.35], gap="small")
+                with c1:
+                    st.markdown(
+                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
+                        "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
+                        "</div>",
+                        unsafe_allow_html=True
                     )
-                with cimg2:
-                    st.image(
-                        "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                        caption="Eccitabilità elettrica peribuccale",
-                        width=320
+                with c2:
+                    usa_orario_personalizzato = st.checkbox(
+                        label="Sì, orario personalizzato",
+                        key=f"{nome_parametro}_diversa"
                     )
 
-            # blocchi parametri in expander (ognuno con i propri input)
-            for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-                with st.expander(nome_parametro, expanded=False):
-                    r1, r2 = st.columns([1, 2], gap="small")
-                    with r1:
-                        st.markdown(
-                            f"<div style='font-size: 0.88rem; padding-top: 0.2rem;'>{nome_parametro}:</div>",
-                            unsafe_allow_html=True
-                        )
-                    with r2:
-                        selettore = st.selectbox(
-                            label=nome_parametro,
-                            options=dati_parametro["opzioni"],
-                            key=f"{nome_parametro}_selector",
-                            label_visibility="collapsed"
-                        )
+            if usa_orario_personalizzato:
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.2rem;'>Data rilievo:</div>", unsafe_allow_html=True)
+                    data_picker = st.date_input(
+                        "Data rilievo:",
+                        value=input_data_rilievo,
+                        key=f"{nome_parametro}_data",
+                        label_visibility="collapsed"
+                    )
+                with c2:
+                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.2rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
+                    _time_param = st.time_input(
+                        "Ora rilievo (step 30’):",
+                        value=datetime.datetime.strptime(input_ora_rilievo, "%H:%M").time(),
+                        step=1800,
+                        key=f"{nome_parametro}_ora_time",
+                        label_visibility="collapsed"
+                    )
+                    ora_input = _time_param.strftime("%H:%M")
 
-                    data_picker = None
-                    ora_input = None
-                    usa_orario_personalizzato = False
-
-                    if selettore != "Non valutata":
-                        c1, c2 = st.columns([0.65, 0.35], gap="small")
-                        with c1:
-                            st.markdown(
-                                "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                                "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
-                                "</div>",
-                                unsafe_allow_html=True
-                            )
-                        with c2:
-                            usa_orario_personalizzato = st.checkbox(
-                                label="Sì, orario personalizzato",
-                                key=f"{nome_parametro}_diversa"
-                            )
-
-                    if usa_orario_personalizzato:
-                        c1, c2 = st.columns(2)
-                        with c1:
-                            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.2rem;'>Data rilievo:</div>", unsafe_allow_html=True)
-                            data_picker = st.date_input(
-                                "Data rilievo:",
-                                value=input_data_rilievo,
-                                key=f"{nome_parametro}_data",
-                                label_visibility="collapsed"
-                            )
-                        with c2:
-                            st.markdown("<div style='font-size: 0.88rem; padding-top: 0.2rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
-                            _time_param = st.time_input(
-                                "Ora rilievo (step 30’):",
-                                value=datetime.datetime.strptime(input_ora_rilievo, "%H:%M").time(),
-                                step=1800,
-                                key=f"{nome_parametro}_ora_time",
-                                label_visibility="collapsed"
-                            )
-                            ora_input = _time_param.strftime("%H:%M")
-
-                    widgets_parametri_aggiuntivi[nome_parametro] = {
-                        "selettore": selettore,
-                        "data_rilievo": data_picker,
-                        "ora_rilievo": ora_input
-                    }
+            widgets_parametri_aggiuntivi[nome_parametro] = {
+                "selettore": selettore,
+                "data_rilievo": data_picker,
+                "ora_rilievo": ora_input
+            }
+else:
+    st.caption("☑️ Usa il toggle in alto per inserire parametri aggiuntivi e/o mostrare le immagini di riferimento.")
 
     # Unico bottone di invio form: ricalcola SOLO su click
     pulsante_genera_stima = st.form_submit_button("STIMA EPOCA DECESSO")
 
-# ------ Pulsante fuori dal form per aprire il modulo FC (evita bottoni nel form) ------
-col_fc, _ = st.columns([1, 6])
-with col_fc:
-    if st.button("Apri modulo fattore di correzione", key="open_fattore_btn_after_form"):
-        st.session_state["mostra_modulo_fattore"] = True
 
 # --------------------------
 # FUNZIONE PRINCIPALE (INVARIATA NELLA LOGICA)
@@ -1188,6 +1205,7 @@ def aggiorna_grafico():
         ), unsafe_allow_html=True)
 
     # --- Note/avvisi e testo descrittivo Henssge ---
+    henssge_descrizione = None  # verrà mostrata nell'expander di dettaglio
     if 'minuti_isp' in locals() and minuti_isp not in [0, 15, 30, 45]:
         st.markdown(
             "<p style='color:darkorange;font-size:small;'>NB: Considerati i limiti intrinseci dei metodi utilizzati, l’orario dei rilievi tanatologici è stato automaticamente arrotondato al quarto d’ora più vicino.</p>",
@@ -1297,11 +1315,13 @@ def aggiorna_grafico():
                 if elenco_extra:
                     testo_raff_completo += "<ul>" + "".join(elenco_extra) + "</ul>"
                 testo_raff_completo += "</li></ul>"
-                st.markdown(testo_raff_completo, unsafe_allow_html=True)
-
+                henssge_descrizione = testo_raff_completo
+                
     # --- Testi descrittivi in expander (toggle sidebar) ---
     if opt_mostra_testi:
         with st.expander("Dettaglio interpretazione", expanded=False):
+            if henssge_descrizione:
+               st.markdown(henssge_descrizione, unsafe_allow_html=True)
             st.markdown((f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>"), unsafe_allow_html=True)
             st.markdown((f"<ul><li>{rigidita_descrizioni[rigidita_selezionata]}</li></ul>"), unsafe_allow_html=True)
             for param in parametri_aggiuntivi_da_considerare:
