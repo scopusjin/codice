@@ -19,8 +19,7 @@ st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
 
-if "mostra_modulo_fattore" not in st.session_state:
-    st.session_state["mostra_modulo_fattore"] = False
+
 if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
 if "show_img_peribuccale" not in st.session_state:
@@ -581,22 +580,15 @@ with st.container():
 
 
 
-# 📌 Expander con apertura/chiusura controllata da session_state
-if not st.session_state["mostra_modulo_fattore"]:
-    # pulsante (o link) per aprire l’expander
-    st.button(
-        "Suggerisci fattore di correzione",
-        key="open_fattore_btn",
-        on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
+# 📌 Expander in stile "parametri aggiuntivi" per il fattore di correzione
+with st.expander("Suggerisci fattore di correzione", expanded=False):
+    st.markdown(
+        '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
+        unsafe_allow_html=True
     )
-else:
-    with st.expander("Stima fattore di correzione", expanded=True):
-        st.markdown(
-            '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
-            unsafe_allow_html=True
-        )
-        calcola_fattore(peso=st.session_state.get("peso", 70))
-        st.markdown('</div>', unsafe_allow_html=True)
+    calcola_fattore(peso=st.session_state.get("peso", 70))
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
