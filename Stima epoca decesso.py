@@ -99,7 +99,7 @@ def calcola_fattore(peso):
         "Coperta spessa (es copriletto)": "Coperta +",
         "Coperte più spesse (es coperte di lana)": "Coperta ++",
         "Coperta pesante (es piumino imbottito)": "Coperta +++",
-        "Molte coperte pesanti": "Coperta +",
+        "Molte coperte pesanti": "Coperta ++++",
         "Strato di foglie di medio spessore": "Foglie ++",
         "Spesso strato di foglie": "Foglie +++",
     }
@@ -127,12 +127,6 @@ def calcola_fattore(peso):
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
         st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
-        with st.popover("ℹ︎", use_container_width=False):
-            st.markdown(
-                "- **Asciutto**: corpo non bagnato/sgocciolante\n"
-                "- **Bagnato**: pioggia, lavato da poco, vestiti umidi\n"
-                "- **Immerso**: corpo in acqua (vasca, lago, fiume)"
-            )
         stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
@@ -147,13 +141,13 @@ def calcola_fattore(peso):
     # --- COLONNA 2: COPERTURA ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Coperte?</p>", unsafe_allow_html=True)
             with st.popover("ℹ︎", use_container_width=False):
                 st.markdown(
                     "- **Coperta +**: copriletto leggero\n"
                     "- **Coperta ++**: coperte di lana / medio spessore\n"
                     "- **Coperta +++**: piumino imbottito / molto pesante\n"
-                    "- **Molte coperte pesanti**: più strati pesanti sovrapposti\n"
+                    "- **Coperta ++++**: più strati pesanti sovrapposti\n"
                     "- **Foglie ++/+++**: strato medio/spesso di foglie (esterno)"
                 )
             opzioni_coperte = [
@@ -186,15 +180,7 @@ def calcola_fattore(peso):
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Abbigliamento</p>", unsafe_allow_html=True)
-            with st.popover("ℹ︎", use_container_width=False):
-                st.markdown(
-                    "- **1–2 sottili**: T-shirt + felpa leggera\n"
-                    "- **2–3 sottili**: T-shirt + camicia + maglioncino\n"
-                    "- **3–4 sottili**: più capi leggeri sovrapposti\n"
-                    "- **1–2 spessi**: giacca imbottita / cappotto\n"
-                    "- **Ancora più strati**: >4 sottili **oppure** >2 spessi"
-                )
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Strati di indumenti</p>", unsafe_allow_html=True)
             scelta_vestiti = st.radio(
                 "",
                 [
@@ -228,11 +214,11 @@ def calcola_fattore(peso):
                 mostra_corrente = False
 
             if mostra_corrente:
-                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
+                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Correnti?</p>", unsafe_allow_html=True)
                 with st.popover("ℹ︎", use_container_width=False):
                     st.markdown(
-                        "- **Sì**: ventilatore, finestra aperta, spifferi\n"
-                        "- **No**: ambiente chiuso/senza aria in movimento"
+                        "- **Sì**: ventilatore, finestra aperta, spifferi d'aria"
+                        "- **No**: ambiente chiuso/senza correnti d'aria"
                     )
                 corrente = st.radio(
                     "",
@@ -243,12 +229,7 @@ def calcola_fattore(peso):
                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v)
                 )
             elif corpo_immerso:
-                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Presenza di correnti</p>", unsafe_allow_html=True)
-                with st.popover("ℹ︎", use_container_width=False):
-                    st.markdown(
-                        "- **Acqua corrente**: fiume / torrente\n"
-                        "- **Acqua stagnante**: vasca, pozza, lago fermo"
-                    )
+                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Correnti?</p>", unsafe_allow_html=True)
                 corrente = st.radio(
                     "",
                     ["In acqua corrente", "In acqua stagnante"],
@@ -263,14 +244,14 @@ def calcola_fattore(peso):
     # --- COLONNA 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Superficie di appoggio</p>", unsafe_allow_html=True)
+            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Appoggio</p>", unsafe_allow_html=True)
             with st.popover("ℹ︎", use_container_width=False):
                 st.markdown(
-                    "- **Indifferente**: pavimento domestico, prato asciutto, asfalto\n"
-                    "- **Isolante**: materasso, tappeto spesso\n"
+                    "- **Indifferente**: pavimento di casa, prato o terrono asciutto, asfalto"
+                    "- **Isolante**: materasso, tappeto spesso"
                     "- **Molto isolante**: imbottitura, sacco a pelo\n"
-                    "- **Conduttiva**: cemento, pietra, PVC esterno\n"
-                    "- **Molto conduttiva**: superficie metallica"
+                    "- **Conduttiva**: cemento, pietra, pavimento in PVC, pavimentazione esterna"
+                    "- **Molto conduttiva**: superficie metallica spessa in ambiente esterno"
                 )
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
 
