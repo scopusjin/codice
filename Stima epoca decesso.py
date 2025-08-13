@@ -343,37 +343,103 @@ def calcola_fattore(peso):
         # 1) salva il valore del fattore
         st.session_state["fattore_correzione"] = round(float(val), 2)
 
-        # 2) costruisci una descrizione breve delle condizioni selezionate (per il testo dettagliato)
-        cond_parts = []
-        if stato_corpo:
-            cond_parts.append({"Asciutto": "corpo asciutto",
-                               "Bagnato": "corpo bagnato",
-                               "Immerso": "corpo immerso"}.get(stato_corpo, stato_corpo.lower()))
-        if scelta_vestiti != "/":
-            if scelta_vestiti == "Nudo":
-                cond_parts.append("nudo")
-            else:
-                cond_parts.append(f"indumenti: {scelta_vestiti.lower()}")
-        if scelta_coperte != "/":
-            if scelta_coperte == "Nessuna coperta":
-                cond_parts.append("senza coperte")
-            else:
-                cond_parts.append(f"coperte: {scelta_coperte.lower()}")
-        if superficie != "/":
-            cond_parts.append(f"superficie di appoggio: {superficie.lower()}")
-        if corrente != "/":
-            if corrente == "Nessuna corrente":
-                cond_parts.append("senza correnti d'aria")
-            elif corrente == "Esposto a corrente d'aria":
-                cond_parts.append("esposto a correnti d'aria")
-            else:
-                # "In acqua corrente" / "In acqua stagnante"
-                cond_parts.append(corrente.lower())
+        # 2) helper per classificare/formattare le condizioni
+        def _classifica_superficie(s: str):
+            if not s or s == "/":
+                return None
+            s_low = s.lower()
+            # conduttiva
+            if ("metall" in s_low) or ("cemento" in s_low) or ("pietra" in s_low) or ("pvc" in s_low) or ("pavimentazione esterna" in s_low):
+                return "conduttiva"
+            # isolante
+            if ("materasso" in s_low) or ("tappeto" in s_low) or ("imbottitura" in s_low) or ("foglie" in s_low):
+                return "isolante"
+            # indifferente
+            return "indifferente"
 
-        # 3) memorizza la stringa pronta per la descrizione
+        def _format_vestiti(v: str):
+            if not v or v == "/":
+                return None
+            if v == "Nudo":
+                return "nudo"
+            if v == "1-2 strati sottili":
+                return "con 1–2 strati di indumenti sottili"
+            if v == "2-3 strati sottili":
+                return "con 2–3 strati di indumenti sottili"
+            if v == "3-4 strati sottili":
+                return "con 3–4 strati di indumenti sottili"
+            if v == "1-2 strati spessi":
+                return "con 1–2 strati di indumenti spessi"
+            if "˃4" in v or "Moltissimi" in v:
+                return "con molti strati di indumenti"
+            return f"con indumenti ({v.lower()})"
+
+        def _format_coperte(c: str):
+            if not c or c == "/":
+                return None
+            if c == "Nessuna coperta":
+                return "senza coperte"
+            if c.startswith("Coperta spessa (es copriletto)"):
+                return "con coperta (copriletto)"
+            if c.startswith("Coperte più spesse (es coperte di lana)"):
+                return "con coperte di lana"
+            if c.startswith("Coperta pesante (es piumino imbottito)"):
+                return "con coperta pesante (piumino)"
+            if c == "Molte coperte pesanti":
+                return "con molte coperte pesanti"
+            if c == "Strato di foglie di medio spessore":
+                return "coperto da strato di foglie di medio spessore"
+            if c == "Spesso strato di foglie":
+                return "coperto da spesso strato di foglie"
+            return f"con coperte ({c.lower()})"
+
+        def _format_corrente(c: str):
+            if not c or c == "/":
+                return None
+            if c == "Nessuna corrente":
+                return "senza correnti d'aria"
+            if c == "Esposto a corrente d'aria":
+                return "con correnti d'aria"
+            if c == "In acqua corrente":
+                return "in acqua corrente"
+            if c == "In acqua stagnante":
+                return "in acqua stagnante"
+            return c.lower()
+
+        def _format_stato_corpo(s: str):
+            if not s:
+                return None
+            return {"Asciutto": "corpo asciutto",
+                    "Bagnato": "corpo bagnato",
+                    "Immerso": "corpo immerso"}.get(s, s.lower())
+
+        # 3) costruisci sia la frase parentetica sia la descrizione generica
+        vestiti_txt = _format_vestiti(scelta_vestiti)
+        coperte_txt = _format_coperte(scelta_coperte)
+        superf_cat  = _classifica_superficie(superficie)
+        corr_txt    = _format_corrente(corrente)
+        stato_txt   = _format_stato_corpo(stato_corpo)
+
+        # versione generica (retro-compatibile)
+        cond_parts = []
+        if stato_txt: cond_parts.append(stato_txt)
+        if vestiti_txt: cond_parts.append(vestiti_txt.replace("con ", ""))  # più sobria nella generica
+        if coperte_txt: cond_parts.append(coperte_txt)
+        if superf_cat: cond_parts.append(f"superficie di appoggio: {superf_cat}")
+        if corr_txt: cond_parts.append(corr_txt)
         st.session_state["fattori_condizioni_testo"] = "; ".join(cond_parts)
 
-        # 4) forza la chiusura dell'expander al prossimo rerun
+        # parentesi per la descrizione dettagliata (ordine e lessico richiesti)
+        parts_parent = []
+        if stato_txt:    parts_parent.append(stato_txt)
+        if vestiti_txt:  parts_parent.append(vestiti_txt)
+        if coperte_txt:  parts_parent.append(coperte_txt)
+        if superf_cat:   parts_parent.append(f"adagiato su superficie termicamente {superf_cat}")
+        if corr_txt:     parts_parent.append(corr_txt)
+
+        st.session_state["fattori_condizioni_parentetica"] = "(" + ", ".join(parts_parent) + ")" if parts_parent else None
+
+        # 4) chiudi l'expander al prossimo rerun
         st.session_state["fattore_expander_tag"] += 1
 
 
@@ -1354,7 +1420,7 @@ def aggiorna_grafico():
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
 
-        # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
+    # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
     try:
         orario_isp = data_ora_ispezione.strftime('%H:%M')
         data_isp = data_ora_ispezione.strftime('%d.%m.%Y')
@@ -1364,17 +1430,18 @@ def aggiorna_grafico():
 
     ta_txt = f"{Ta_val:.1f}" if Ta_val is not None else "—"
     tr_txt = f"{Tr_val:.1f}" if Tr_val is not None else "—"
-    w_txt  = f"{W_val:.1f}" if W_val  is not None else "—"
+    w_txt  = f"{W_val:.1f}"  if W_val  is not None else "—"
     t0_txt = f"{T0_val:.1f}" if T0_val is not None else "—"
     cf_val = st.session_state.get('fattore_correzione', CF_val if CF_val is not None else None)
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
-    # Frase tra parentesi costruita dalle condizioni scelte nel modulo del fattore
-    fattori_note = st.session_state.get("fattori_condizioni_testo")
-    if fattori_note:
-        cf_descr = f"{cf_txt} ({fattori_note})."
+    parent = st.session_state.get("fattori_condizioni_parentetica")
+    if parent:
+        cf_descr = f"{cf_txt} {parent}"
+    elif st.session_state.get("fattori_condizioni_testo"):
+        cf_descr = f"{cf_txt} (in base ai fattori scelti: {st.session_state['fattori_condizioni_testo']})."
     else:
-        cf_descr = f"{cf_txt} (...)."
+        cf_descr = f"{cf_txt} (da adattare sulla base dei fattori scelti)."
 
     dettagli.append(
         "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
@@ -1391,6 +1458,7 @@ def aggiorna_grafico():
         "</ul>"
         "</li></ul>"
     )
+
 
     # --- Testo Henssge dettagliato (va nell’expander) ---
     if raffreddamento_calcolabile:
