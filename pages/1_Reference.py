@@ -22,3 +22,4 @@ REFERENCES_MD = """
 - Henssge C (2002) *Todeszeitbestimmung an Leichen*. *Rechtsmedizin* 12:112-131.
 - PHP-code written and implemented 2005 by Wolf Schweitzer, MD, Institute of Legal Medicine, University of Zurich, Switzerland – method described by Henssge C (2002).
 """
+st.markdown(REFERENCES_MD)
