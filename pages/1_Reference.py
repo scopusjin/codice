@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
-from references import REFERENCES_MD
+
 
 st.title("References")
 st.markdown(REFERENCES_MD)
