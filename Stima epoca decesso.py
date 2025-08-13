@@ -1113,12 +1113,12 @@ def aggiorna_grafico():
 
             # Segmento Potente (se presente): da mt_ore a infinito
             if mt_ore is not None and not np.isnan(mt_ore):
-                ax.hlines(y=idx_raff, xmin=mt_ore, xmax=INF_HOURS, color='green', linewidth=6, alpha=1.0, zorder=1)
+                ax.hlines(y=idx_raff, xmin=mt_ore, xmax=INF_HOURS, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
 
             # Segmento >30h (quando Qd>0.2 e t_med_raw>30): da 30 a infinito
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-                ax.hlines(y=idx_raff, xmin=30.0, xmax=INF_HOURS, color='green', linewidth=6, alpha=1.0, zorder=1)
+                ax.hlines(y=idx_raff, xmin=30.0, xmax=INF_HOURS, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
 
         # ==============================
         # 2) LINEE BLU DI BASE (tutti i range)
@@ -1149,13 +1149,13 @@ def aggiorna_grafico():
             if "Macchie ipostatiche" in y_indices_mapping:
                 ax.hlines(y_indices_mapping["Macchie ipostatiche"],
                           macchie_medi_range[0], macchie_medi_range[1],
-                          color='green', linewidth=6, alpha=1.0, zorder=3)
+                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
 
         if rigidita_range_valido and rigidita_medi_range is not None:
             if "Rigidità cadaverica" in y_indices_mapping:
                 ax.hlines(y_indices_mapping["Rigidità cadaverica"],
                           rigidita_medi_range[0], rigidita_medi_range[1],
-                          color='green', linewidth=6, alpha=1.0, zorder=3)
+                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
 
         # Marker corto arancione sul punto medio del raffreddamento (opaco ma resta sotto perché disegnato prima? No: lo teniamo sopra il blu solo come marker)
         if raffreddamento_calcolabile:
@@ -1166,7 +1166,7 @@ def aggiorna_grafico():
                 # Se preferisci che questo marker resti comunque sotto il blu, usa zorder=1; se lo vuoi sopra, zorder=3.
                 ax.hlines(y_pos_raffreddamento,
                           punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset,
-                          color='green', linewidth=6, alpha=1.0, zorder=1)
+                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
 
         # Asse Y, etichette e limiti
         ax.set_yticks(range(len(parametri_grafico)))
