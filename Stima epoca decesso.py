@@ -152,9 +152,9 @@ def calcola_fattore(peso):
                 format_func=lambda v: LABEL_COPERTE.get(v, v),
                 help=(
                     "**Coperta +** = copriletto leggero; "
-                    "**Coperta ++** = coperte di lana / medio spessore; "
-                    "**Coperta +++** = piumino imbottito / molto pesante; "
-                    "**Coperta ++++** = più strati pesanti sovrapposti; "
+                    "**Coperta ++** = coperta di lana/di medio spessore; "
+                    "**Coperta +++** = piumino imbottito/molto pesante; "
+                    "**Coperta ++++** = più strati spessi, sovrapposti; "
                     "**Foglie ++/+++** = strato medio/spesso di foglie"
                 )
             )
