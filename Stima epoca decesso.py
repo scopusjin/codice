@@ -69,34 +69,17 @@ def calcola_fattore(peso):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    # CSS di compattazione (solo spaziature; nessun colore/tema)
+    # CSS: compattazione + label dei widget in grassetto (simile al tuo markdown)
     st.markdown("""
     <style>
-    /* Compatta gruppi radio (meno spazio tra le opzioni) */
-    .stRadio div[role="radiogroup"] { gap: 0.2rem !important; }
-    .stRadio label { margin-bottom: 0.1rem !important; }
-
-    /* Riduci margine sotto i titoletti di sezione */
-    .fattore-sec-title { margin-bottom: 2px !important; }
-
-    /* Compatta leggermente il contenuto dell'expander */
-    div[data-testid="stExpander"] .st-expander-content { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <style>
-    /* Rimpicciolisci il bottone trigger del popover quando lo avvolgiamo in .inline-help */
-    .inline-help button {
-        font-size: 0.75rem !important;
-        padding: 0.1rem 0.3rem !important;
-        line-height: 1 !important;
-        height: auto !important;
-        min-height: 0 !important;
-        border-radius: 999px !important;
-    }
-    /* Evita che il trigger prenda tutta la larghezza della colonna su mobile */
-    .inline-help { display: inline-block; }
+      .stRadio div[role="radiogroup"] { gap: 0.2rem !important; }
+      .stRadio label { margin-bottom: 0.1rem !important; }
+      div[data-testid="stExpander"] .st-expander-content { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+      /* Etichette dei widget in grassetto e con margine ridotto */
+      div[data-testid="stWidgetLabel"] p, div[data-testid="stWidgetLabel"] span {
+          font-weight: 700 !important;
+          margin-bottom: 4px !important;
+      }
     </style>
     """, unsafe_allow_html=True)
 
@@ -142,8 +125,12 @@ def calcola_fattore(peso):
 
     # --- COLONNA 1: CONDIZIONE CORPO ---
     with col1:
-        st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Condizioni del corpo</p>", unsafe_allow_html=True)
-        stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"], label_visibility="collapsed", key="radio_stato_corpo")
+        # Titolo come label del radio (niente markdown)
+        stato_corpo = st.radio(
+            "Condizioni del corpo",
+            ["Asciutto", "Bagnato", "Immerso"],
+            key="radio_stato_corpo"
+        )
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
         corpo_asciutto = (stato_corpo == "Asciutto")
@@ -153,8 +140,6 @@ def calcola_fattore(peso):
     scelta_vestiti = "/"
     superficie = "/"
     corrente = "/"
-
-
 
     # --- COLONNA 2: COPERTURA ---
     with col2:
@@ -190,16 +175,13 @@ def calcola_fattore(peso):
         else:
             scelta_coperte = "/"
 
-
-
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
     # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
-            st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Strati di indumenti</p>", unsafe_allow_html=True)
             scelta_vestiti = st.radio(
-                "",
+                "Strati di indumenti",
                 [
                     "Nudo",
                     "1-2 strati sottili",
@@ -209,7 +191,6 @@ def calcola_fattore(peso):
                     "˃4 strati sottili o ˃2 spessi",
                     "Moltissimi strati"
                 ],
-                label_visibility="collapsed",
                 key="radio_vestiti",
                 format_func=lambda v: LABEL_VESTITI.get(v, v)
             )
@@ -231,24 +212,28 @@ def calcola_fattore(peso):
                 mostra_corrente = False
 
             if mostra_corrente:
-                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Correnti?</p>", unsafe_allow_html=True)
                 corrente = st.radio(
-                    "",
+                    "Correnti d'aria?",
                     ["Esposto a corrente d'aria", "Nessuna corrente"],
                     index=1,
-                    label_visibility="collapsed",
                     key="radio_corrente",
-                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v)
+                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v),
+                    help=(
+                        "Sì = ventilatore, finestra aperta, spifferi d'aria\n"
+                        "No = ambiente chiuso / senza correnti d'aria"
+                    )
                 )
             elif corpo_immerso:
-                st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Correnti?</p>", unsafe_allow_html=True)
                 corrente = st.radio(
-                    "",
+                    "Correnti d'acqua?",
                     ["In acqua corrente", "In acqua stagnante"],
                     index=1,
-                    label_visibility="collapsed",
                     key="radio_acqua",
-                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v)
+                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v),
+                    help=(
+                        "Acqua corrente = fiume / torrente\n"
+                        "Acqua stagnante = vasca, pozza, lago fermo"
+                    )
                 )
             else:
                 corrente = "/"
@@ -256,14 +241,6 @@ def calcola_fattore(peso):
     # --- COLONNA 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
-            with st.popover("Appoggio", use_container_width=False):
-                st.markdown(
-                    "- **Indifferente**: pavimento di casa, parquet, prato o terreno asciutto, asfalto\n"
-                    "- **Isolante**: materasso, tappeto spesso\n"
-                    "- **Molto isolante**: strato spesso di polistirolo, sacco a pelo tecnico, divano imbottito\n"
-                    "- **Conduttiva**: cemento, pietra, pavimento in PVC, pavimentazione esterna\n"
-                    "- **Molto conduttiva**: superficie metallica spessa in ambiente esterno\n"
-                )
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
 
             opzioni_superficie = [
@@ -279,11 +256,17 @@ def calcola_fattore(peso):
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio(
-                "",
+                "Appoggio",
                 opzioni_superficie,
-                label_visibility="collapsed",
                 key="radio_superficie",
-                format_func=lambda v: LABEL_SUPERFICIE.get(v, v)
+                format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
+                help=(
+                    "Indifferente = pavimento di casa, parquet, prato/terreno asciutto, asfalto\n"
+                    "Isolante = materasso, tappeto spesso\n"
+                    "Molto isolante = imbottitura, polistirolo, sacco a pelo tecnico\n"
+                    "Conduttiva = cemento, pietra, PVC esterno\n"
+                    "Molto conduttiva = superficie metallica spessa in esterno"
+                )
             )
 
     # --- CALCOLO TABELLA E DESCRIZIONE ---
