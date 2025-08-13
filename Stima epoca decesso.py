@@ -346,7 +346,7 @@ def calcola_fattore(peso):
     else:
         st.markdown(
             f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-            f'Fattore di correzione calcolato: {fattore_finale:.2f}'
+            f'Fattore di correzione suggerito: {fattore_finale:.2f}'
             f'</div>',
             unsafe_allow_html=True
         )
