@@ -11,29 +11,7 @@ from scipy.optimize import root_scalar
 import datetime
 import pandas as pd
 
-# === Mapping nomi opzioni (vecchio -> nuovo) ===
-OLD_TO_NEW = {
-    # Coperte / lenzuola
-    "Lenzuolo +": "Lenzuolo +",
-    "Lenzuolo ++": "Lenzuolo ++",
-    "Coperta": "Coperta",
-    "Coperta spessa (es copriletto)": "Coperta +",
-    "Coperte più spesse (es coperte di lana)": "Coperta ++",
-    "Coperta pesante (es piumino imbottito)": "Coperta ++++",
-    "Molte coperte pesanti": "Coperta ++++",
 
-    # Indumenti (strati)
-    "˃4 strati sottili o ˃2 spessi": "˃ strati",
-    ">4 strati sottili o >2 spessi": "> strati",   # normalizzazione del simbolo
-    "Moltissimi strati": "˃˃ strati",
-
-    # Superficie d'appoggio
-    "Materasso o tappeto spesso": "Isolante",
-    "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
-    "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
-    "Conduttivo": "Conduttivo",
-    "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
-}
 # =========================
 # Stato e costanti globali
 # =========================
@@ -91,6 +69,28 @@ def calcola_fattore(peso):
     except Exception as e:
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
+    # --- Mapping vecchio -> nuovo per allineare alle nuove etichette in Excel/UI ---
+    OLD_TO_NEW_UI = {
+        # Coperte/Lenzuola
+        "Coperta spessa (es copriletto)": "Coperta +",
+        "Coperte più spesse (es coperte di lana)": "Coperta ++",
+        "Coperta pesante (es piumino imbottito)": "Coperta ++++",
+        "Molte coperte pesanti": "Coperta ++++",
+        "Lenzuolo +": "Lenzuolo +",
+        "Lenzuolo ++": "Lenzuolo ++",
+        "Nessuna coperta": "Nessuna coperta",
+
+        # Indumenti (strati)
+        "˃4 strati sottili o ˃2 spessi": "˃ strati",
+        "Moltissimi strati": "˃˃ strati",
+
+        # Superficie d'appoggio
+        "Materasso o tappeto spesso": "Isolante",
+        "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
+        "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
+        "Conduttivo": "Conduttivo",
+        "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
+    }
 
     # --- Etichette brevi per visualizzazione (il valore interno resta la dicitura lunga) ---
     LABEL_VESTITI = {
@@ -99,14 +99,17 @@ def calcola_fattore(peso):
         "2-3 strati sottili": "2–3 sottili",
         "3-4 strati sottili": "3–4 sottili",
         "1-2 strati spessi": "1–2 spessi",
-        "˃4 strati sottili o ˃2 spessi": "Ancora più strati",
-        "Moltissimi strati": "Moltissimi",
+        "˃4 strati sottili o ˃2 spessi": "˃ strati",
+        "Moltissimi strati": "˃˃ strati",
     }
+        
     LABEL_COPERTE = {
         "Nessuna coperta": "Nessuna",
+        "Lenzuolo +": "Lenzuolo +",
+        "Lenzuolo ++": "Lenzuolo ++",
         "Coperta spessa (es copriletto)": "Coperta +",
         "Coperte più spesse (es coperte di lana)": "Coperta ++",
-        "Coperta pesante (es piumino imbottito)": "Coperta +++",
+        "Coperta pesante (es piumino imbottito)": "Coperta ++++",
         "Molte coperte pesanti": "Coperta ++++",
         "Strato di foglie di medio spessore": "Foglie ++",
         "Spesso strato di foglie": "Foglie +++",
@@ -155,6 +158,8 @@ def calcola_fattore(peso):
         if not (corpo_immerso or corpo_bagnato):
             opzioni_coperte = [
                 "Nessuna coperta",
+                "Lenzuolo +",
+                "Lenzuolo ++",
                 "Coperta spessa (es copriletto)",
                 "Coperte più spesse (es coperte di lana)",
                 "Coperta pesante (es piumino imbottito)",
@@ -174,9 +179,12 @@ def calcola_fattore(peso):
                 key="scelta_coperte_radio",
                 format_func=lambda v: LABEL_COPERTE.get(v, v),
                 help=(
-                    "**Coperta +** = copriletto leggero; "
-                    "**Coperta ++** = coperta di lana/di medio spessore; "
-                    "**Coperta +++** = piumino imbottito/molto pesante; "
+                    "**Lenzuolo +** = telo sottile; "
+                    "**Lenzuolo ++** = 2 strati sottili/lenzuolo spesso/copriletto leggero; "
+                    "**Coperta** = copriletto mezza stagione; "
+                    "**Coperta +** = coperta pesante; "
+                    "**Coperta ++** = coperta piû pesante; "
+                    "**Coperta +++** = coperta molto pesante (es piumino invernale); "
                     "**Coperta ++++** = più strati spessi, sovrapposti; "
                     "**Foglie ++/+++** = strato medio/spesso di foglie"
                 )
@@ -288,13 +296,23 @@ def calcola_fattore(peso):
     }
     valori = {k: (str(v).strip() if v is not None else v) for k, v in valori.items()}
 
+        # Mappa i valori selezionati ai nuovi nomi prima della ricerca in tabella
+    valori_mappati = {
+        "Ambiente": OLD_TO_NEW_UI.get(valori["Ambiente"], valori["Ambiente"]),
+        "Vestiti": OLD_TO_NEW_UI.get(valori["Vestiti"], valori["Vestiti"]),
+        "Coperte": OLD_TO_NEW_UI.get(valori["Coperte"], valori["Coperte"]),
+        "Superficie d'appoggio": OLD_TO_NEW_UI.get(valori["Superficie d'appoggio"], valori["Superficie d'appoggio"]),
+        "Correnti": valori["Correnti"],  # invariato
+    }
+
     riga = tabella1[
-        (tabella1["Ambiente"] == valori["Ambiente"]) &
-        (tabella1["Vestiti"] == valori["Vestiti"]) &
-        (tabella1["Coperte"] == valori["Coperte"]) &
-        (tabella1["Superficie d'appoggio"] == valori["Superficie d'appoggio"]) &
-        (tabella1["Correnti"] == valori["Correnti"])
+        (tabella1["Ambiente"] == valori_mappati["Ambiente"]) &
+        (tabella1["Vestiti"] == valori_mappati["Vestiti"]) &
+        (tabella1["Coperte"] == valori_mappati["Coperte"]) &
+        (tabella1["Superficie d'appoggio"] == valori_mappati["Superficie d'appoggio"]) &
+        (tabella1["Correnti"] == valori_mappati["Correnti"])
     ]
+
 
     if riga.empty:
         st.warning("Nessuna combinazione valida trovata nella tabella.")
