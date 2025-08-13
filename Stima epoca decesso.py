@@ -1401,7 +1401,9 @@ def aggiorna_grafico():
 
     # === RENDER COMPATTO ===
     if avvisi:
-        st.warning("**Avvertenze**:\n\n" + "\n".join(f"- {msg}" for msg in avvisi))
+        with st.expander(f"⚠️ Avvertenze ({len(avvisi)})"):
+            st.warning("\n".join(f"- {msg}" for msg in avvisi))
+
     if frase_finale_html:
         st.markdown(frase_finale_html, unsafe_allow_html=True)
     with st.expander("Descrizioni dettagliate"):
