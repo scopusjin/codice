@@ -21,10 +21,6 @@ if "fattore_correzione" not in st.session_state:
 
 if "mostra_modulo_fattore" not in st.session_state:
     st.session_state["mostra_modulo_fattore"] = False
-
-if "usa_param_aggiuntivi" not in st.session_state:
-    st.session_state["usa_param_aggiuntivi"] = False  # default: non considerare param. aggiuntivi
-
     
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
@@ -601,30 +597,12 @@ else:
 
 
 
-# --- Tab: Parametri aggiuntivi (spostati qui) ---
+# Pulsante per mostrare/nascondere i parametri aggiuntivi
+mostra_parametri_aggiuntivi = st.checkbox("Inserisci dati tanatologici aggiuntivi")
+
 widgets_parametri_aggiuntivi = {}
 
-tab_param_aggiuntivi, = st.tabs(["Parametri aggiuntivi"])
-with tab_param_aggiuntivi:
-    st.markdown("<div style='font-size: 0.95rem; font-weight:600;'>Parametri tanatologici aggiuntivi</div>", unsafe_allow_html=True)
-
-    # Pulsanti inclusione/esclusione nella stima complessiva
-    c1, c2 = st.columns([1, 1], gap="small")
-    with c1:
-        st.button(
-            "✅ Aggiungi parametri alla stima complessiva",
-            on_click=lambda: st.session_state.update(usa_param_aggiuntivi=True)
-        )
-    with c2:
-        st.button(
-            "🚫 Non considerare parametri aggiuntivi",
-            on_click=lambda: st.session_state.update(usa_param_aggiuntivi=False)
-        )
-
-    stato_inclusione = "inclusi" if st.session_state.get("usa_param_aggiuntivi", False) else "esclusi"
-    st.caption(f"Parametri aggiuntivi attualmente **{stato_inclusione}** nella stima complessiva.")
-
-    # Costruzione UI dei parametri (identica alla tua, solo spostata nel tab)
+if mostra_parametri_aggiuntivi:
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
         col1, col2 = st.columns([1, 2], gap="small")
         with col1:
@@ -635,7 +613,7 @@ with tab_param_aggiuntivi:
         with col2:
             selettore = st.selectbox(
                 label=nome_parametro,
-                options=dati_parametro['opzioni'],
+                options=dati_parametro["opzioni"],
                 key=f"{nome_parametro}_selector",
                 label_visibility="collapsed"
             )
@@ -646,23 +624,23 @@ with tab_param_aggiuntivi:
 
         if selettore != "Non valutata":
             chiave_checkbox = f"{nome_parametro}_diversa"
-            colA, colB = st.columns([0.2, 0.2], gap="small")
-            with colA:
+            col1, col2 = st.columns([0.2, 0.2], gap="small")
+            with col1:
                 st.markdown(
                     "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
                     "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
                     "</div>",
                     unsafe_allow_html=True
                 )
-            with colB:
+            with col2:
                 usa_orario_personalizzato = st.checkbox(
                     label="",
                     key=chiave_checkbox
                 )
 
         if usa_orario_personalizzato:
-            colD, colE = st.columns(2)
-            with colD:
+            col1, col2 = st.columns(2)
+            with col1:
                 st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
                 data_picker = st.date_input(
                     "Data rilievo:",
@@ -670,7 +648,7 @@ with tab_param_aggiuntivi:
                     key=f"{nome_parametro}_data",
                     label_visibility="collapsed"
                 )
-            with colE:
+            with col2:
                 st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
                 ora_input = st.text_input(
                     "Ora rilievo (HH:MM):",
@@ -685,12 +663,12 @@ with tab_param_aggiuntivi:
             "ora_rilievo": ora_input
         }
 
-        # Immagini: identiche, solo spostate qui
         if nome_parametro == "Eccitabilità elettrica sopraciliare":
             st.image(
                 "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
                 width=400
             )
+
         if nome_parametro == "Eccitabilità elettrica peribuccale":
             st.image(
                 "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
@@ -777,114 +755,87 @@ def aggiorna_grafico():
     parametri_aggiuntivi_da_considerare = []
     nota_globale_range_adattato = False
 
-    # Se l'utente non vuole includere parametri aggiuntivi, salta il blocco
-    if st.session_state.get("usa_parametri_aggiuntivi", False):
+    for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
+        stato_selezionato = widgets_param["selettore"]
+        data_rilievo_param = widgets_param["data_rilievo"]
+        ora_rilievo_param_str = widgets_param["ora_rilievo"]
 
-        for nome_parametro, widgets_param in widgets_parametri_aggiuntivi.items():
-            stato_selezionato = widgets_param["selettore"]
-            data_rilievo_param = widgets_param["data_rilievo"]
-            ora_rilievo_param_str = widgets_param["ora_rilievo"]
+        if stato_selezionato == "Non valutata":
+            continue
 
-            if stato_selezionato == "Non valutata":
+        chiave_descrizione = stato_selezionato.split(':')[0].strip()
+
+        # Ora param: normalizza a datetime.time e controlla mezz'ora
+        if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
+            ora_rilievo_time = data_ora_ispezione.time()
+        else:
+            try:
+                ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
+                if ora_rilievo_time.minute not in (0, 30):
+                    st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
+                    continue
+            except ValueError:
+                st.markdown(f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>", unsafe_allow_html=True)
                 continue
 
+        # Se data personalizzata assente, usa quella dell’ispezione
+        if data_rilievo_param is None:
+            data_rilievo_param = data_ora_ispezione.date()
+
+        # Determina la chiave corretta da usare per cercare nel dizionario dei range
+        if nome_parametro == "Eccitabilità elettrica peribuccale":
             chiave_descrizione = stato_selezionato.split(':')[0].strip()
+        else:
+            chiave_descrizione = stato_selezionato.strip()
 
-            # Ora param: normalizza a datetime.time e controlla mezz'ora
-            if not ora_rilievo_param_str or ora_rilievo_param_str.strip() == "":
-                ora_rilievo_time = data_ora_ispezione.time()
+        # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
+        chiave_esatta = None
+        for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
+            if k.strip() == chiave_descrizione:
+                chiave_esatta = k
+                break
+
+        range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
+        range_originale = range_valori
+
+        if range_valori:
+            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Descrizione non trovata per lo stato '{stato_selezionato}'.")
+
+            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
+            differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
+
+            if range_originale[1] >= INF_HOURS:
+                range_traslato = (range_originale[0] - differenza_ore, INF_HOURS)
             else:
-                try:
-                    ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, '%H:%M').time()
-                    if ora_rilievo_time.minute not in (0, 30):
-                        st.markdown(
-                            f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: L'ora di rilievo per '{nome_parametro}' ({ora_rilievo_param_str}) non è arrotondata alla mezzora. Questo parametro non sarà considerato nella stima.</p>",
-                            unsafe_allow_html=True
-                        )
-                        continue
-                except ValueError:
-                    st.markdown(
-                        f"<p style='color:orange;font-weight:bold;'>⚠️ Avviso: Formato ora di rilievo non valido per '{nome_parametro}' ({ora_rilievo_param_str}). Utilizzare il formato HH:MM (es. 14:30). Questo parametro non sarà considerato nella stima.</p>",
-                        unsafe_allow_html=True
-                    )
-                    continue
+                range_traslato = (range_originale[0] - differenza_ore, range_originale[1] - differenza_ore)
 
-            # Se data personalizzata assente, usa quella dell’ispezione
-            if data_rilievo_param is None:
-                data_rilievo_param = data_ora_ispezione.date()
+            range_traslato_rounded = (round_quarter_hour(range_traslato[0]), round_quarter_hour(range_traslato[1]))
+            range_traslato_rounded = (max(0, range_traslato_rounded[0]), range_traslato_rounded[1])
 
-            # Determina la chiave corretta da usare per cercare nel dizionario dei range
-            if nome_parametro == "Eccitabilità elettrica peribuccale":
-                chiave_descrizione = stato_selezionato.split(':')[0].strip()
-            else:
-                chiave_descrizione = stato_selezionato.strip()
+            parametri_aggiuntivi_da_considerare.append({
+                "nome": nome_parametro,
+                "stato": stato_selezionato,
+                "range_traslato": range_traslato_rounded,
+                "descrizione": descrizione,
+                "differenza_ore": differenza_ore,
+                "adattato": differenza_ore != 0
+            })
 
-            # Forza il recupero esatto della chiave anche se ci sono spazi invisibili
-            chiave_esatta = None
-            for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
-                if k.strip() == chiave_descrizione:
-                    chiave_esatta = k
-                    break
+            differenze_ore_set = set(
+                p["differenza_ore"]
+                for p in parametri_aggiuntivi_da_considerare
+                if p.get("adattato")
+            )
+            nota_globale_range_adattato = len(differenze_ore_set) == 1 and len(differenze_ore_set) > 0
 
-            range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
-            range_originale = range_valori
-
-            if range_valori:
-                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
-                    chiave_descrizione,
-                    f"Descrizione non trovata per lo stato '{stato_selezionato}'."
-                )
-
-                data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
-                differenza_ore = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
-
-                if range_originale[1] >= INF_HOURS:
-                    range_traslato = (range_originale[0] - differenza_ore, INF_HOURS)
-                else:
-                    range_traslato = (
-                        range_originale[0] - differenza_ore,
-                        range_originale[1] - differenza_ore
-                    )
-
-                range_traslato_rounded = (
-                    round_quarter_hour(range_traslato[0]),
-                    round_quarter_hour(range_traslato[1])
-                )
-                range_traslato_rounded = (
-                    max(0, range_traslato_rounded[0]),
-                    range_traslato_rounded[1]
-                )
-
-                parametri_aggiuntivi_da_considerare.append({
-                    "nome": nome_parametro,
-                    "stato": stato_selezionato,
-                    "range_traslato": range_traslato_rounded,
-                    "descrizione": descrizione,
-                    "differenza_ore": differenza_ore,
-                    "adattato": differenza_ore != 0
-                })
-
-                differenze_ore_set = set(
-                    p["differenza_ore"]
-                    for p in parametri_aggiuntivi_da_considerare
-                    if p.get("adattato")
-                )
-                nota_globale_range_adattato = (
-                    len(differenze_ore_set) == 1 and len(differenze_ore_set) > 0
-                )
-
-            elif dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
-                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
-                    chiave_descrizione,
-                    f"Il parametro {nome_parametro} ({stato_selezionato}) non ha un range temporale definito o descrizione specifica."
-                )
-                parametri_aggiuntivi_da_considerare.append({
-                    "nome": nome_parametro,
-                    "stato": stato_selezionato,
-                    "range_traslato": (np.nan, np.nan),
-                    "descrizione": descrizione
-                })
-
+        elif dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
+            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(chiave_descrizione, f"Il parametro {nome_parametro} ({stato_selezionato}) non ha un range temporale definito o descrizione specifica.")
+            parametri_aggiuntivi_da_considerare.append({
+                "nome": nome_parametro,
+                "stato": stato_selezionato,
+                "range_traslato": (np.nan, np.nan),
+                "descrizione": descrizione
+            })
 
     # --- Determinazione Range Raffreddamento per Visualizzazione nel Grafico ---
     # Il range visualizzato per Henssge > 30h sarà un range ±20% attorno a t_med_raw
