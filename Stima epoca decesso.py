@@ -1190,7 +1190,7 @@ def aggiorna_grafico():
 
         # Asse Y, etichette e limiti
         ax.set_yticks(range(len(parametri_grafico)))
-        ax.set_yticklabels(parametri_grafico, fontsize=9)
+        ax.set_yticklabels(parametri_grafico, fontsize=11)
         ax.set_xlabel("Ore dal decesso")
 
         max_x_value = 10
