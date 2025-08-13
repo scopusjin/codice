@@ -247,11 +247,11 @@ def calcola_fattore(peso):
             st.markdown("<p class='fattore-sec-title' style='font-weight:bold; margin-bottom:4px;'>Appoggio</p>", unsafe_allow_html=True)
             with st.popover("ℹ︎", use_container_width=False):
                 st.markdown(
-                    "- **Indifferente**: pavimento di casa, prato o terrono asciutto, asfalto"
-                    "- **Isolante**: materasso, tappeto spesso"
-                    "- **Molto isolante**: imbottitura, sacco a pelo"
-                    "- **Conduttiva**: cemento, pietra, pavimento in PVC, pavimentazione esterna"
-                    "- **Molto conduttiva**: superficie metallica spessa in ambiente esterno"
+                    "- **Indifferente**: pavimento di casa, parquet, prato o terreno asciutto, asfalto\n"
+                    "- **Isolante**: materasso, tappeto spesso\n"
+                    "- **Molto isolante**: strato spesso di polistirolo, sacco a pelo tecnico, divano imbottito\n"
+                    "- **Conduttiva**: cemento, pietra, pavimento in PVC, pavimentazione esterna\n"
+                    "- **Molto conduttiva**: superficie metallica spessa in ambiente esterno\n"
                 )
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
 
