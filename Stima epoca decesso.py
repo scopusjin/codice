@@ -151,11 +151,11 @@ def calcola_fattore(peso):
                 key="scelta_coperte_radio",
                 format_func=lambda v: LABEL_COPERTE.get(v, v),
                 help=(
-                    "**Coperta +** = copriletto leggero\n"
-                    "**Coperta ++** = coperte di lana / medio spessore\n"
-                    "**Coperta +++** = piumino imbottito / molto pesante\n"
-                    "**Coperta ++++** = più strati pesanti sovrapposti\n"
-                    "**Foglie ++/+++** = strato medio/spesso di foglie (esterno)"
+                    "**Coperta +** = copriletto leggero; "
+                    "**Coperta ++** = coperte di lana / medio spessore; "
+                    "**Coperta +++** = piumino imbottito / molto pesante; "
+                    "**Coperta ++++** = più strati pesanti sovrapposti; "
+                    "**Foglie ++/+++** = strato medio/spesso di foglie"
                 )
             )
         else:
@@ -205,7 +205,7 @@ def calcola_fattore(peso):
                     key="radio_corrente",
                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v),
                     help=(
-                        "**Sì** = ventilatore, finestra aperta, spifferi d'aria\n"
+                        "**Sì** = ventilatore, finestra aperta, spifferi d'aria; "
                         "**No** = ambiente chiuso / senza correnti d'aria"
                     )
                 )
@@ -247,10 +247,10 @@ def calcola_fattore(peso):
                 key="radio_superficie",
                 format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
                 help=(
-                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto;"
-                    "**Isolante** = materasso, tappeto spesso;"
-                    "**Molto isolante** = polistirolo, sacco a pelo tecnico; divano imbottito;"
-                    "**Conduttiva** = cemento, pietra, pavimento in PVC, pavimentazione esterna;"
+                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto; "
+                    "**Isolante** = materasso, tappeto spesso; "
+                    "**Molto isolante** = polistirolo, sacco a pelo tecnico; divano imbottito; "
+                    "**Conduttiva** = cemento, pietra, pavimento in PVC, pavimentazione esterna; "
                     "**Molto conduttiva** = superficie metallica spessa in ambiente esterno"
                 )
             )
