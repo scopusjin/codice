@@ -86,7 +86,25 @@ def calcola_fattore(peso):
     # --- COLONNA 2: COPERTURA ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
-            st.markdown("<p style='font-weight:bold; margin-bottom:4px;'>Copertura</p>", unsafe_allow_html=True)
+            # Titolo + help inline (nessun popover, nessuna label del radio)
+            tcol, hcol = st.columns([1, 0.08])
+            with tcol:
+                st.markdown("**Coperte?**")
+            with hcol:
+                st.markdown(
+                    """
+                    <details>
+                      <summary>❔</summary>
+                      Coperta + = copriletto leggero<br>
+                      Coperta ++ = lana / medio spessore<br>
+                      Coperta +++ = piumino molto pesante<br>
+                      Coperta ++++ = più strati pesanti<br>
+                      Foglie ++/+++ = strato medio/spesso (esterno)
+                    </details>
+                    """,
+                    unsafe_allow_html=True
+                )
+
             opzioni_coperte = [
                 "Nessuna coperta",
                 "Coperta spessa (es copriletto)",
@@ -102,7 +120,13 @@ def calcola_fattore(peso):
             if vestiti_state == "Moltissimi strati":
                 opzioni_coperte = ["Molte coperte pesanti"]
 
-            scelta_coperte = st.radio("", opzioni_coperte, label_visibility="collapsed", key="scelta_coperte_radio")
+            scelta_coperte = st.radio(
+                "",
+                opzioni_coperte,
+                key="scelta_coperte_radio",
+                label_visibility="collapsed",
+                format_func=lambda v: LABEL_COPERTE.get(v, v)
+            )
         else:
             scelta_coperte = "/"
 
