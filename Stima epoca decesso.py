@@ -1196,44 +1196,62 @@ def aggiorna_grafico():
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile ricavare stime con il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
 
-    # --- Testo Henssge dettagliato (va nell’expander) ---
-    if raffreddamento_calcolabile:
-        if 't_min_raff_visualizzato' in locals() and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
-            hm = _split_hours_minutes(t_min_raff_visualizzato); min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
-            hm = _split_hours_minutes(t_max_raff_visualizzato); max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
-            min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
-            max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
-            testo_raff_base = (
-                f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
-                f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
-                f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
-                f"prima dei rilievi effettuati al momento dell’ispezione legale."
-            )
-            # Paragrafi aggiuntivi (arancioni nel testo lungo) → qui li teniamo come DETTAGLI; aggiungiamo però un AVVISO se >30h
-            extra = []
-            if not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
-                avvisi.append(f"La stima media da raffreddamento ({t_med_raff_hensge_rounded:.1f} h) supera 30 h: l’affidabilità del metodo diminuisce oltre tale soglia.")
-            if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
-                extra.append(
-                    f"I valori ottenuti sono in parte/tot fuori dai range ottimali delle equazioni (Qd = <b>{Qd_val_check:.5f}</b> &lt; 0.2). "
-                    f"Il range è calcolato grossolanamente ±20% su {t_med_raff_hensge_rounded:.1f} h ed è privo di solida base statistica; "
-                    f"in assenza di altri dati, si può presumere il raffreddamento quasi concluso."
-                )
-            paragrafo = f"<ul><li>{testo_raff_base}"
-            if extra:
-                paragrafo += "<ul>" + "".join(f"<li>{e}</li>" for e in extra) + "</ul>"
-            paragrafo += "</li></ul>"
-            dettagli.append(paragrafo)
+# --- Testo Henssge dettagliato (va nell’expander) ---
+if raffreddamento_calcolabile:
+    if 't_min_raff_visualizzato' in locals() and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
+        hm = _split_hours_minutes(t_min_raff_visualizzato); min_raff_hours, min_raff_minutes = hm if hm else (0, 0)
+        hm = _split_hours_minutes(t_max_raff_visualizzato); max_raff_hours, max_raff_minutes = hm if hm else (0, 0)
+        min_raff_hour_text = "ora" if min_raff_hours == 1 and min_raff_minutes == 0 else "ore"
+        max_raff_hour_text = "ora" if max_raff_hours == 1 and max_raff_minutes == 0 else "ore"
+        
+        testo_raff_base = (
+            f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
+            f"{min_raff_hours} {min_raff_hour_text}{'' if min_raff_minutes == 0 else f' {min_raff_minutes} minuti'} e "
+            f"{max_raff_hours} {max_raff_hour_text}{'' if max_raff_minutes == 0 else f' {max_raff_minutes} minuti'} "
+            f"prima dei rilievi effettuati al momento dell’ispezione legale."
+        )
 
-        # Metodo Potente: solo spiegazione bibliografica nei dettagli
-        if (mt_ore is not None) and (not np.isnan(mt_ore)) and (Qd_val_check is not None) and (Qd_val_check < qd_threshold):
-            condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
-            dettagli.append(
-                f"<ul>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
-                f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
-                f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso."
+        elenco_extra = []
+
+        # Qd basso
+        if not np.isnan(Qd_val_check) and Qd_val_check < 0.2:
+            elenco_extra.append(
+                f"<li>"
+                f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili "
+                f"(Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2) "
+                f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica). "
+                f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso. "
+                f"Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
+                f"</li>"
             )
-                      
+
+        # Qd alto e durata > 30 ore
+        if not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and t_med_raff_hensge_rounded_raw > 30:
+            elenco_extra.append(
+                f"<li>"
+                f"<span style='color:orange; font-weight:bold;'>"
+                f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_raff_hensge_rounded:.1f} h) è superiore alle 30 ore. "
+                f"L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
+                f"</span>"
+                f"</li>"
+            )
+
+        paragrafo = f"<ul><li>{testo_raff_base}"
+        if elenco_extra:
+            paragrafo += "<ul>" + "".join(elenco_extra) + "</ul>"
+        paragrafo += "</li></ul>"
+        dettagli.append(paragrafo)
+
+    # Metodo Potente: come punto elenco
+    if (mt_ore is not None) and (not np.isnan(mt_ore)) and (Qd_val_check is not None) and (Qd_val_check < qd_threshold):
+        condizione_temp = "T. amb ≤ 23 °C" if Ta_val <= 23 else "T. amb > 23 °C"
+        dettagli.append(
+            f"<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem "
+            f"quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge "
+            f"(Qd &lt; {qd_threshold} e {condizione_temp}). "
+            f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, "
+            f"fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso.</li></ul>"
+        )
 
     # --- Descrizioni macchie/rigidità/parametri: tutte nei dettagli ---
     dettagli.append(f"<ul><li>{testi_macchie[macchie_selezionata]}</li></ul>")
