@@ -3,7 +3,7 @@ import streamlit as st
 
 
 st.title("References")
-st.markdown(REFERENCES_MD)
+
 
 
 """
