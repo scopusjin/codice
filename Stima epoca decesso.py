@@ -114,8 +114,8 @@ def calcola_fattore(peso):
         "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
         "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
         "Materasso o tappeto spesso": "Isolante",
-        "Cemento, pietra, pavimento in PVC, pavimentazione esterna": "Conduttiva",
-        "Superficie metallica spessa, all'esterno.": "Molto conduttiva",
+        "Cemento, pietra, pavimento in PVC, pavimentazione esterna": "Conduttivo",
+        "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
         "Foglie umide (≥2 cm)": "Foglie umide (≥2 cm)",
         "Foglie secche (≥2 cm)": "Foglie secche (≥2 cm)",
     }
@@ -261,11 +261,11 @@ def calcola_fattore(peso):
                 key="radio_superficie",
                 format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
                 help=(
-                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto\n"
-                    "**Isolante** = materasso, tappeto spesso\n"
-                    "**Molto isolante** = imbottitura, polistirolo, sacco a pelo tecnico\n"
-                    "**Conduttiva** = cemento, pietra, PVC esterno\n"
-                    "**Molto conduttiva** = superficie metallica spessa in esterno"
+                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto;"
+                    "**Isolante** = materasso, tappeto spesso;"
+                    "**Molto isolante** = polistirolo, sacco a pelo tecnico; divano imbottito;"
+                    "**Conduttiva** = cemento, pietra, pavimento in PVC, pavimentazione esterna;"
+                    "**Molto conduttiva** = superficie metallica spessa in ambiente esterno"
                 )
             )
 
