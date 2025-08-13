@@ -582,7 +582,7 @@ with st.container():
 if not st.session_state["mostra_modulo_fattore"]:
     # pulsante (o link) per aprire l’expander
     st.button(
-        "Stima fattore di correzione",
+        "Suggerisci",
         key="open_fattore_btn",
         on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
     )
