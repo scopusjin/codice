@@ -7,7 +7,7 @@ import streamlit as st
 
 
 """
-Riferimenti bibliografici per la stima dell'epoca della morte
+st.title("Riferimenti bibliografici")
 """
 
 REFERENCES_MD = """
@@ -21,6 +21,11 @@ REFERENCES_MD = """
 - Henssge, C., and B. Madea. *Estimation of the time since death in the early post-mortem period*. *Forensic Science International* 144.2 (2004): 167-175.
 - Henssge C. *Todeszeitschatzungen durch die mathematische Beschreibung der rektalen Leichenabkuhlung unter verschiedenen Abkuhlbedingungen*. *Z Rechtsmed*. 1981;187:147-178.
 - Henssge C (2002) *Todeszeitbestimmung an Leichen*. *Rechtsmedizin* 12:112-131.
-- - Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. *Forensic Sci Int*. 2017.
+- Potente S, Kettner M, Verhoff MA, Ishikawa T. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. *Forensic Sci Int*. 2017.
 """
 st.markdown(REFERENCES_MD)
+
+
+
+
+
