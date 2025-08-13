@@ -607,7 +607,7 @@ widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
     for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
-        col1, col2 = st.columns([1, 2], gap="small")
+        col1, col2 = st.columns([2, 1], gap="small")
         with col1:
             subcol1, subcol2 = st.columns([0.88, 0.12])
             with subcol1:
