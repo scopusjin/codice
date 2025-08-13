@@ -617,13 +617,7 @@ if mostra_parametri_aggiuntivi:
                 )
             with subcol2:
                 if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
-                    # Pulsante piccolo stile testo
-                    st.markdown(
-                        "<div style='text-align: center; padding-top: 0.2rem;'>"
-                        "<span style='cursor: pointer; color: #0066cc; font-size: 0.9rem;' id='help_btn'>?</span>"
-                        "</div>",
-                        unsafe_allow_html=True
-                    )
+                    
                     with st.popover(" "):  # trigger invisibile ma associato alla posizione del testo
                         if nome_parametro == "Eccitabilità elettrica sopraciliare":
                             st.image(
