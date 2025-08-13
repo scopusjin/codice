@@ -18,8 +18,10 @@ st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
-if "fattore_expander_aperto" not in st.session_state:
-    st.session_state["fattore_expander_aperto"] = False
+
+# contatore invisibile per forzare il remount dell'expander del fattore
+if "fattore_expander_tag" not in st.session_state:
+    st.session_state["fattore_expander_tag"] = 0
 
 if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
@@ -253,7 +255,8 @@ def calcola_fattore(peso):
     # Pulsante per applicare il fattore calcolato al campo principale
     def _apply_fattore(val):
         st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["fattore_expander_aperto"] = False
+        # forza la chiusura dell'expander al prossimo rerun cambiando la sua "identità"
+        st.session_state["fattore_expander_tag"] += 1
 
     
     st.button(
@@ -580,16 +583,17 @@ with st.container():
 
 
 
+# titolo con zero-width spaces per cambiare identità del widget quando serve chiuderlo
+_expander_title = "Suggerisci fattore di correzione" + ("\u200B" * st.session_state["fattore_expander_tag"])
+with st.expander(_expander_title, expanded=False):
+     st.markdown(
+         '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
+         unsafe_allow_html=True
+     )
+     calcola_fattore(peso=st.session_state.get("peso", 70))
+     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# 📌 Expander in stile "parametri aggiuntivi" per il fattore di correzione
-with st.expander("Suggerisci fattore di correzione", expanded=st.session_state["fattore_expander_aperto"]):
-    st.markdown(
-        '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
-        unsafe_allow_html=True
-    )
-    calcola_fattore(peso=st.session_state.get("peso", 70))
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 
