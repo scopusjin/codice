@@ -31,6 +31,44 @@ if "show_img_peribuccale" not in st.session_state:
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
+# --- Helper dei widget (testi tooltip) ---
+HELP_COPERTE = (
+    "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
+    "**Lenzuolo +** = telo sottile/1-2 lenzuola;  "
+    "**Lenzuolo ++** = lenzuolo invernale/copriletto leggero;  "
+    "**Coperta"** = coperta mezza stagione/ sacco mortuario"
+    "**Coperta +** = coperta pesante/ mantellina termica "
+    "**Coperta ++** = coperta molto pesante/ più coperte medie;  "
+    "**Coperta +++** = coperta imbottita pesante (es piumino invernale);  "
+    "**Coperta ++++** = molti strati di coperte;  "
+    "**Foglie ++** = strato medio di foglie su corpo/vestiti;  "
+    "**Foglie +++** = strato spesso di foglie."
+)
+
+HELP_VESTITI = (
+    "**Tenere conto solo degli indumenti che coprono la parte bassa di torace/addome**.   "
+    "**Strati sottili** = t-shirt, camicia, maglia leggera"
+    "**Strati spessi** = maglione, felpa in pile, giubbino"
+    "**˃ strati** = ˃4 sottili o ˃2 spessi"
+    "**˃˃ strati** = molti strati pesanti"
+)
+
+HELP_SUPERFICIE = (
+    "**Indifferente = pavimento di casa/parquet, prato o terreno asciutto, asfalto\n"
+    "**Isolante = materasso, tappeto spesso\n"
+    "**Molto isolante = polistirolo, sacco a pelo tecnico, divano imbottito\n"
+    "**Conduttivo** = cemento, pietra, pavimento in PVC, pavimentazione esterna\n"
+    "**Molto conduttivo** = superficie metallica spessa all’esterno\n"
+    "**Foglie umide/secche (≥2 cm)** = strato spesso di foglie come interfaccia col suolo"
+)
+
+HELP_CORRENTI_ARIA = (
+    "**Sì** = all'aria aperta, finestra aperta con aria corrente, ventilatore"
+    "**No** = ambiente chiuso / senza correnti percepibili"
+)
+
+
+
 # =========================
 # Utility cache per Excel
 # =========================
@@ -211,6 +249,7 @@ def calcola_fattore(peso):
                 opzioni_coperte = ["Molte coperte pesanti"]
 
             scelta_coperte = st.radio("**Coperte?**", opzioni_coperte, key="scelta_coperte_radio",
+                                      help=HELP_COPERTE,
                                       format_func=lambda v: LABEL_COPERTE.get(v, v))
         else:
             scelta_coperte = "/"
@@ -232,6 +271,7 @@ def calcola_fattore(peso):
                     "Moltissimi strati"               # UI "lunga" (alias ˃˃ strati)
                 ],
                 key="radio_vestiti",
+                help=HELP_VESTITI,
                 format_func=lambda v: LABEL_VESTITI.get(v, v)
             )
     else:
@@ -258,6 +298,7 @@ def calcola_fattore(peso):
                 corrente = st.radio("**Correnti d'aria?**",
                                     ["Esposto a corrente d'aria", "Nessuna corrente"],
                                     index=1, key="radio_corrente",
+                                    help=HELP_CORRENTI_ARIA,
                                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v))
             elif corpo_immerso:
                 corrente = st.radio("**Correnti d'acqua?**",
@@ -283,6 +324,7 @@ def calcola_fattore(peso):
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie",
+                                  help=HELP_SUPERFICIE,
                                   format_func=lambda v: LABEL_SUPERFICIE.get(v, v))
 
     # --- CALCOLO TABELLA ---
