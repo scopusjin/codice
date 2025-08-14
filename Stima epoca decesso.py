@@ -246,7 +246,7 @@ def calcola_fattore(peso):
     with col2:
         if not (corpo_immerso or corpo_bagnato):
             opzioni_coperte = [
-                "Nessuna coperta","Lenzuolo +","Lenzuolo ++",
+                "Nessuna coperta","Lenzuolo +","Lenzuolo ++", "Coperta", 
                 "Coperta spessa (es copriletto)",
                 "Coperte più spesse (es coperte di lana)",
                 "Coperta pesante (es piumino imbottito)",
