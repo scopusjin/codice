@@ -212,35 +212,35 @@ def calcola_fattore(peso):
         "Foglie secche (≥2 cm)": "Foglie secche (≥2 cm)",
     }
     # --- Inizializzazioni di sicurezza (per evitare NameError) ---
-    corpo_asciutto = False
-    corpo_bagnato = False
-    corpo_immerso = False
+    # --- CONDIZIONI DEL CORPO (fuori dalle colonne, in alto) ---
+    stato_corpo = st.radio(
+        "**Condizioni del corpo**",
+        ["Asciutto", "Bagnato", "Immerso"],
+        key="radio_stato_corpo",
+        horizontal=True
+    )
+    corpo_immerso = (stato_corpo == "Immerso")
+    corpo_bagnato = (stato_corpo == "Bagnato")
+    corpo_asciutto = (stato_corpo == "Asciutto")
 
+    # Inizializzazioni sicure per variabili usate nei rami successivi
     copertura_speciale = False
     scelta_vestiti = "/"
     scelta_coperte = "/"
     superficie = "/"
     corrente = "/"
 
+    corpo_asciutto = False
+    corpo_bagnato = False
+    corpo_immerso = False
+
+
+
     # Layout colonne
+       
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
 
-    # --- COL 1: CONDIZIONE CORPO ---
-    with col1:
-        stato_corpo = st.radio(
-            "**Condizioni del corpo**",
-            ["Asciutto", "Bagnato", "Immerso"],
-            key="radio_stato_corpo",
-            horizontal=True
-        )
-        corpo_immerso = (stato_corpo == "Immerso")
-        corpo_bagnato = (stato_corpo == "Bagnato")
-        corpo_asciutto = (stato_corpo == "Asciutto")
 
-    copertura_speciale = False
-    scelta_vestiti = "/"
-    superficie = "/"
-    corrente = "/"
 
     # --- COL 2: COPERTE ---
     with col2:
