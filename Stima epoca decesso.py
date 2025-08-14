@@ -34,32 +34,32 @@ INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e 
 # --- Helper dei widget (testi tooltip) ---
 HELP_COPERTE = (
     "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
-    "**Lenzuolo +** = telo sottile/1-2 lenzuola;  "
-    "**Lenzuolo ++** = lenzuolo invernale/copriletto leggero;  "
-    "**Coperta** = coperta mezza stagione/ sacco mortuario;  "
-    "**Coperta +** = coperta pesante/ mantellina termica;  "
-    "**Coperta ++** = coperta molto pesante/ più coperte medie;  "
-    "**Coperta +++** = coperta imbottita pesante (es piumino invernale);  "
-    "**Coperta ++++** = molti strati di coperte;  "
-    "**Foglie ++** = strato medio di foglie su corpo/vestiti;  "
+    "**Lenzuolo +** = telo sottile/1-2 lenzuola;   "
+    "**Lenzuolo ++** = lenzuolo invernale/copriletto leggero;   "
+    "**Coperta** = coperta mezza stagione/ sacco mortuario;   "
+    "**Coperta +** = coperta pesante/ mantellina termica;   "
+    "**Coperta ++** = coperta molto pesante/ più coperte medie;   "
+    "**Coperta +++** = coperta imbottita pesante (es piumino invernale);   "
+    "**Coperta ++++** = molti strati di coperte;   "
+    "**Foglie ++** = strato medio di foglie su corpo/vestiti;   "
     "**Foglie +++** = strato spesso di foglie."
 )
 
 
 HELP_VESTITI = (
     "**Tenere conto solo degli indumenti che coprono la parte bassa di torace/addome**.   "
-    "**Strati sottili** = t-shirt, camicia, maglia leggera"
-    "**Strati spessi** = maglione, felpa in pile, giubbino"
-    "**˃ strati** = ˃4 sottili o ˃2 spessi"
-    "**˃˃ strati** = molti strati pesanti"
+    "**Strati sottili** = t-shirt, camicia, maglia leggera;    "
+    "**Strati spessi** = maglione, felpa in pile, giubbino;   "
+    "**˃ strati** = ˃4 sottili o ˃2 spessi;   "
+    "**˃˃ strati** = molti strati pesanti,"
 )
 
 HELP_SUPERFICIE = (
-    "**Indifferente = pavimento di casa/parquet, prato o terreno asciutto, asfalto\n"
-    "**Isolante = materasso, tappeto spesso\n"
-    "**Molto isolante = polistirolo, sacco a pelo tecnico, divano imbottito\n"
-    "**Conduttivo** = cemento, pietra, pavimento in PVC, pavimentazione esterna\n"
-    "**Molto conduttivo** = superficie metallica spessa all’esterno\n"
+    "**Indifferente** = pavimento di casa/parquet, prato o terreno asciutto, asfalto;   "
+    "**Isolante** = materasso, tappeto spesso;   "
+    "**Molto isolante** = polistirolo, sacco a pelo tecnico, divano imbottito;   "
+    "**Conduttivo** = cemento, pietra, pavimento in PVC, pavimentazione esterna;   "
+    "**Molto conduttivo** = superficie metallica spessa all’esterno;   "
     "**Foglie umide/secche (≥2 cm)** = strato spesso di foglie come interfaccia col suolo"
 )
 
