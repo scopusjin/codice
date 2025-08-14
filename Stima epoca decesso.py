@@ -105,6 +105,7 @@ def calcola_fattore(peso):
         "Materasso o tappeto spesso": "Isolante",
         "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
         "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
+        "Cemento, pietra, pavimento in PVC, pavimentazione esterna": "Conduttivo",
         "Conduttivo": "Conduttivo",
         "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
     }
