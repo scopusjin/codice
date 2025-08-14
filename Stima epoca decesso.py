@@ -211,9 +211,66 @@ def calcola_fattore(peso):
         "Foglie umide (≥2 cm)": "Foglie umide (≥2 cm)",
         "Foglie secche (≥2 cm)": "Foglie secche (≥2 cm)",
     }
+    # --- Inizializzazioni di sicurezza (per evitare NameError) ---
+    corpo_asciutto = False
+    corpo_bagnato = False
+    corpo_immerso = False
+
+    copertura_speciale = False
+    scelta_vestiti = "/"
+    scelta_coperte = "/"
+    superficie = "/"
+    corrente = "/"
 
     # Layout colonne
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
+
+    # --- COL 1: CONDIZIONE CORPO ---
+    with col1:
+        stato_corpo = st.radio(
+            "**Condizioni del corpo**",
+            ["Asciutto", "Bagnato", "Immerso"],
+            key="radio_stato_corpo",
+            horizontal=True
+        )
+        corpo_immerso = (stato_corpo == "Immerso")
+        corpo_bagnato = (stato_corpo == "Bagnato")
+        corpo_asciutto = (stato_corpo == "Asciutto")
+
+    copertura_speciale = False
+    scelta_vestiti = "/"
+    superficie = "/"
+    corrente = "/"
+
+    # --- COL 2: COPERTE ---
+    with col2:
+        if not (corpo_immerso or corpo_bagnato):
+            opzioni_coperte = [
+                "Nessuna coperta","Lenzuolo +","Lenzuolo ++",
+                "Coperta spessa (es copriletto)",
+                "Coperte più spesse (es coperte di lana)",
+                "Coperta pesante (es piumino imbottito)",
+                "Molte coperte pesanti"
+            ]
+            if corpo_asciutto:
+                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
+
+            # se vestiti = moltissimi (anche come ˃˃ strati) → solo “Molte coperte pesanti”
+            def _is_moltissimi(v):
+                v = _norm(v or "")
+                return v in {"Moltissimi strati", "˃˃ strati"}
+
+            vestiti_state = st.session_state.get("radio_vestiti")
+            if _is_moltissimi(vestiti_state):
+                opzioni_coperte = ["Molte coperte pesanti"]
+
+            scelta_coperte = st.radio("**Coperte?**", opzioni_coperte, key="scelta_coperte_radio",
+                                      help=HELP_COPERTE,
+                                      format_func=lambda v: LABEL_COPERTE.get(v, v))
+        else:
+            scelta_coperte = "/"
+
+    copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
     # --- COL 1: VESTITI ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
