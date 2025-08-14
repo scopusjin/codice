@@ -60,12 +60,12 @@ HELP_SUPERFICIE = (
     "**Molto isolante** = polistirolo, sacco a pelo tecnico, divano imbottito;   "
     "**Conduttivo** = cemento, pietra, pavimento in PVC, pavimentazione esterna;   "
     "**Molto conduttivo** = superficie metallica spessa all’esterno;   "
-    "**Foglie umide/secche (≥2 cm)** = strato spesso di foglie come interfaccia col suolo"
+    "**Foglie umide/secche (≥2 cm)** = adagiato su strato di foglie"
 )
 
 HELP_CORRENTI_ARIA = (
-    "**Sì** = all'aria aperta, finestra aperta con aria corrente, ventilatore"
-    "**No** = ambiente chiuso / senza correnti percepibili"
+    "**Sì** = all'aria aperta, finestra aperta con aria corrente, ventilatore;   "
+    "**No** = ambiente chiuso/nessuna corrente percepibile"
 )
 
 
