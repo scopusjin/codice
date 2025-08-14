@@ -211,6 +211,16 @@ def calcola_fattore(peso):
         "Foglie umide (≥2 cm)": "Foglie umide (≥2 cm)",
         "Foglie secche (≥2 cm)": "Foglie secche (≥2 cm)",
     }
+    # --- Inizializzazioni di sicurezza (per evitare NameError) ---
+    corpo_asciutto = False
+    corpo_bagnato = False
+    corpo_immerso = False
+
+    copertura_speciale = False
+    scelta_vestiti = "/"
+    scelta_coperte = "/"
+    superficie = "/"
+    corrente = "/"
 
     # Layout colonne
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
