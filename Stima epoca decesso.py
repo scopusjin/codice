@@ -244,7 +244,7 @@ def calcola_fattore(peso):
             if corpo_bagnato:
                 mostra_corrente = True
             elif corpo_asciutto:
-                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
+                if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte in ["Nessuna coperta", "Lenzuolo +"]:
                     mostra_corrente = True
 
             def _is_moltissimi(v):  # riuso
