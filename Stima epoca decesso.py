@@ -36,14 +36,15 @@ HELP_COPERTE = (
     "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
     "**Lenzuolo +** = telo sottile/1-2 lenzuola;  "
     "**Lenzuolo ++** = lenzuolo invernale/copriletto leggero;  "
-    "**Coperta"** = coperta mezza stagione/ sacco mortuario"
-    "**Coperta +** = coperta pesante/ mantellina termica "
+    "**Coperta** = coperta mezza stagione/ sacco mortuario;  "
+    "**Coperta +** = coperta pesante/ mantellina termica;  "
     "**Coperta ++** = coperta molto pesante/ più coperte medie;  "
     "**Coperta +++** = coperta imbottita pesante (es piumino invernale);  "
     "**Coperta ++++** = molti strati di coperte;  "
     "**Foglie ++** = strato medio di foglie su corpo/vestiti;  "
     "**Foglie +++** = strato spesso di foglie."
 )
+
 
 HELP_VESTITI = (
     "**Tenere conto solo degli indumenti che coprono la parte bassa di torace/addome**.   "
