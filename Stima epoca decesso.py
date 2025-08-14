@@ -59,19 +59,41 @@ def load_tabelle_correzione():
 # =========================
 
 def calcola_fattore(peso):
+    # import locale per la normalizzazione del carattere "maggiore"
+    import unicodedata
+
     # Caricamento tabelle con cache + gestione errori
     try:
         tabella1, tabella2 = load_tabelle_correzione()
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         st.error("Impossibile caricare i file Excel per il calcolo del fattore di correzione. "
                  "Verifica che 'tabella rielaborata.xlsx' e 'tabella secondaria.xlsx' siano presenti.")
         return
     except Exception as e:
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
-    # --- Mapping vecchio -> nuovo per allineare alle nuove etichette in Excel/UI ---
+
+    # --- Normalizzazione stringhe + sostituzione varianti di '>' con '˃' ---
+    def _norm(s):
+        if s is None or (isinstance(s, float) and pd.isna(s)):
+            return s
+        s = unicodedata.normalize("NFKC", str(s)).strip()
+        # uniforma tutte le varianti del maggiore
+        s = (s.replace(">>", "˃˃")
+               .replace("››", "˃˃")
+               .replace("»»", "˃˃")
+               .replace(">", "˃")
+               .replace("›", "˃")
+               .replace("»", "˃"))
+        # rimuovi eventuali doppi spazi
+        return " ".join(s.split())
+
+    for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
+        tabella1[col] = tabella1[col].astype("string").map(_norm)
+
+    # --- Alias: Coperte / Superficie (come prima) + Vestiti (nuovo) ---
     OLD_TO_NEW_UI = {
-        # Coperte/Lenzuola
+        # Coperte
         "Coperta spessa (es copriletto)": "Coperta +",
         "Coperte più spesse (es coperte di lana)": "Coperta ++",
         "Coperta pesante (es piumino imbottito)": "Coperta ++++",
@@ -79,20 +101,45 @@ def calcola_fattore(peso):
         "Lenzuolo +": "Lenzuolo +",
         "Lenzuolo ++": "Lenzuolo ++",
         "Nessuna coperta": "Nessuna coperta",
-
-        # Indumenti (strati)
-        "˃4 strati sottili o ˃2 spessi": "˃ strati",
-        "Moltissimi strati": "˃˃ strati",
-
-        # Superficie d'appoggio
+        # Superficie
         "Materasso o tappeto spesso": "Isolante",
         "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
         "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
         "Conduttivo": "Conduttivo",
         "Superficie metallica spessa, all'esterno.": "Molto conduttivo",
     }
+    NEW_TO_OLD = {}
+    for k, v in OLD_TO_NEW_UI.items():
+        NEW_TO_OLD.setdefault(v, set()).add(k)
 
-    # --- Etichette brevi per visualizzazione (il valore interno resta la dicitura lunga) ---
+    # Alias specifici per VESTITI (nuove/vecchie diciture)
+    VESTITI_ALIASES = {
+        "˃ strati": {"˃ strati", "> strati", "› strati"},
+        "˃˃ strati": {"˃˃ strati", ">> strati", "›› strati"},
+        "˃4 strati sottili o ˃2 spessi": {"˃4 strati sottili o ˃2 spessi", "˃ strati", "> strati", "› strati"},
+        "Moltissimi strati": {"Moltissimi strati", "˃˃ strati", ">> strati", "›› strati"},
+    }
+
+    def _aliases(val: str, colname: str):
+        """Restituisce un set di etichette equivalenti per la ricerca in tabella."""
+        if val is None or val == "/":
+            return {val}
+        v = _norm(val)
+        s = {v}
+        if colname == "Vestiti":
+            # se passo una dicitura 'lunga' o 'corta' restituisco entrambe
+            for key, alset in VESTITI_ALIASES.items():
+                if v == key or v in alset:
+                    s |= {key}
+                    s |= set(alset)
+        else:
+            if v in OLD_TO_NEW_UI:
+                s.add(OLD_TO_NEW_UI[v])
+            if v in NEW_TO_OLD:
+                s |= NEW_TO_OLD[v]
+        return {_norm(x) for x in s}
+
+    # --- Etichette brevi (solo UI) ---
     LABEL_VESTITI = {
         "Nudo": "Nudo",
         "1-2 strati sottili": "1–2 sottili",
@@ -102,7 +149,6 @@ def calcola_fattore(peso):
         "˃4 strati sottili o ˃2 spessi": "˃ strati",
         "Moltissimi strati": "˃˃ strati",
     }
-        
     LABEL_COPERTE = {
         "Nessuna coperta": "Nessuna",
         "Lenzuolo +": "Lenzuolo +",
@@ -114,14 +160,8 @@ def calcola_fattore(peso):
         "Strato di foglie di medio spessore": "Foglie ++",
         "Spesso strato di foglie": "Foglie +++",
     }
-    LABEL_CORRENTI_ARIA = {
-        "Esposto a corrente d'aria": "Sì",
-        "Nessuna corrente": "No",
-    }
-    LABEL_CORRENTI_ACQUA = {
-        "In acqua corrente": "Acqua corrente",
-        "In acqua stagnante": "Acqua stagnante",
-    }
+    LABEL_CORRENTI_ARIA = {"Esposto a corrente d'aria": "Sì", "Nessuna corrente": "No"}
+    LABEL_CORRENTI_ACQUA = {"In acqua corrente": "Acqua corrente", "In acqua stagnante": "Acqua stagnante"}
     LABEL_SUPERFICIE = {
         "Pavimento di casa, terreno o prato asciutto, asfalto": "Indifferente",
         "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": "Molto isolante",
@@ -132,34 +172,26 @@ def calcola_fattore(peso):
         "Foglie secche (≥2 cm)": "Foglie secche (≥2 cm)",
     }
 
-    # Layout colonne (terza più larga per ridurre a capo)
+    # Layout colonne
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
 
-    # --- COLONNA 1: CONDIZIONE CORPO ---
+    # --- COL 1: CONDIZIONE CORPO ---
     with col1:
-        # Titolo come label del radio (niente markdown)
-        stato_corpo = st.radio(
-            "**Condizioni del corpo**",
-            ["Asciutto", "Bagnato", "Immerso"],
-            key="radio_stato_corpo"
-        )
+        stato_corpo = st.radio("**Condizioni del corpo**", ["Asciutto", "Bagnato", "Immerso"], key="radio_stato_corpo")
         corpo_immerso = (stato_corpo == "Immerso")
         corpo_bagnato = (stato_corpo == "Bagnato")
         corpo_asciutto = (stato_corpo == "Asciutto")
 
-    # inizializzazione variabili
     copertura_speciale = False
     scelta_vestiti = "/"
     superficie = "/"
     corrente = "/"
 
-    # --- COLONNA 2: COPERTURA ---
+    # --- COL 2: COPERTE ---
     with col2:
         if not (corpo_immerso or corpo_bagnato):
             opzioni_coperte = [
-                "Nessuna coperta",
-                "Lenzuolo +",
-                "Lenzuolo ++",
+                "Nessuna coperta","Lenzuolo +","Lenzuolo ++",
                 "Coperta spessa (es copriletto)",
                 "Coperte più spesse (es coperte di lana)",
                 "Coperta pesante (es piumino imbottito)",
@@ -168,33 +200,23 @@ def calcola_fattore(peso):
             if corpo_asciutto:
                 opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-            # se i vestiti sono "Moltissimi strati" → solo "Molte coperte pesanti"
+            # se vestiti = moltissimi (anche come ˃˃ strati) → solo “Molte coperte pesanti”
+            def _is_moltissimi(v):
+                v = _norm(v or "")
+                return v in {"Moltissimi strati", "˃˃ strati"}
+
             vestiti_state = st.session_state.get("radio_vestiti")
-            if vestiti_state == "Moltissimi strati":
+            if _is_moltissimi(vestiti_state):
                 opzioni_coperte = ["Molte coperte pesanti"]
 
-            scelta_coperte = st.radio(
-                "**Coperte?**",
-                opzioni_coperte,
-                key="scelta_coperte_radio",
-                format_func=lambda v: LABEL_COPERTE.get(v, v),
-                help=(
-                    "**Lenzuolo +** = telo sottile; "
-                    "**Lenzuolo ++** = 2 strati sottili/lenzuolo spesso/copriletto leggero; "
-                    "**Coperta** = copriletto mezza stagione; "
-                    "**Coperta +** = coperta pesante; "
-                    "**Coperta ++** = coperta piû pesante; "
-                    "**Coperta +++** = coperta molto pesante (es piumino invernale); "
-                    "**Coperta ++++** = più strati spessi, sovrapposti; "
-                    "**Foglie ++/+++** = strato medio/spesso di foglie"
-                )
-            )
+            scelta_coperte = st.radio("**Coperte?**", opzioni_coperte, key="scelta_coperte_radio",
+                                      format_func=lambda v: LABEL_COPERTE.get(v, v))
         else:
             scelta_coperte = "/"
 
     copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
 
-    # --- COLONNA 1: ABBIGLIAMENTO (dopo copertura) ---
+    # --- COL 1: VESTITI ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
             scelta_vestiti = st.radio(
@@ -205,16 +227,16 @@ def calcola_fattore(peso):
                     "2-3 strati sottili",
                     "3-4 strati sottili",
                     "1-2 strati spessi",
-                    "˃4 strati sottili o ˃2 spessi",
-                    "Moltissimi strati"
+                    "˃4 strati sottili o ˃2 spessi",  # UI "lunga"
+                    "Moltissimi strati"               # UI "lunga" (alias ˃˃ strati)
                 ],
                 key="radio_vestiti",
                 format_func=lambda v: LABEL_VESTITI.get(v, v)
             )
-    elif corpo_immerso or copertura_speciale:
+    else:
         scelta_vestiti = "/"
 
-    # --- COLONNA 2: CORRENTI ---
+    # --- COL 2: CORRENTI ---
     with col2:
         if not copertura_speciale:
             mostra_corrente = False
@@ -224,95 +246,61 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte == "Nessuna coperta":
                     mostra_corrente = True
 
-            # se vestiti = "Moltissimi strati" → niente correnti d'aria
-            if scelta_vestiti == "Moltissimi strati":
+            def _is_moltissimi(v):  # riuso
+                v = _norm(v or "")
+                return v in {"Moltissimi strati", "˃˃ strati"}
+
+            if _is_moltissimi(scelta_vestiti):
                 mostra_corrente = False
 
             if mostra_corrente:
-                corrente = st.radio(
-                    "**Correnti d'aria?**",
-                    ["Esposto a corrente d'aria", "Nessuna corrente"],
-                    index=1,
-                    key="radio_corrente",
-                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v),
-                    help=(
-                        "**Sì** = ventilatore, finestra aperta, spifferi d'aria; "
-                        "**No** = ambiente chiuso / senza correnti d'aria"
-                    )
-                )
+                corrente = st.radio("**Correnti d'aria?**",
+                                    ["Esposto a corrente d'aria", "Nessuna corrente"],
+                                    index=1, key="radio_corrente",
+                                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v))
             elif corpo_immerso:
-                corrente = st.radio(
-                    "**Correnti d'acqua?**",
-                    ["In acqua corrente", "In acqua stagnante"],
-                    index=1,
-                    key="radio_acqua",
-                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v),
-                    help=(
-                        "**Acqua corrente** = fiume / torrente\n"
-                        "**Acqua stagnante** = vasca, pozza, lago fermo"
-                    )
-                )
+                corrente = st.radio("**Correnti d'acqua?**",
+                                    ["In acqua corrente", "In acqua stagnante"],
+                                    index=1, key="radio_acqua",
+                                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v))
             else:
                 corrente = "/"
 
-    # --- COLONNA 3: SUPERFICIE ---
+    # --- COL 3: SUPERFICIE ---
     with col3:
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
-
             opzioni_superficie = [
                 "Pavimento di casa, terreno o prato asciutto, asfalto",
                 "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
                 "Materasso o tappeto spesso",
                 "Cemento, pietra, pavimento in PVC, pavimentazione esterna"
             ]
-            # la superficie metallica compare SOLO se vestiti=Nudo e coperte=Nessuna coperta
             if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
             if mostra_foglie:
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
-            superficie = st.radio(
-                "**Appoggio**",
-                opzioni_superficie,
-                key="radio_superficie",
-                format_func=lambda v: LABEL_SUPERFICIE.get(v, v),
-                help=(
-                    "**Indifferente** = pavimento di casa, parquet, prato/terreno asciutto, asfalto; "
-                    "**Isolante** = materasso, tappeto spesso; "
-                    "**Molto isolante** = polistirolo, sacco a pelo tecnico; divano imbottito; "
-                    "**Conduttiva** = cemento, pietra, pavimento in PVC, pavimentazione esterna; "
-                    "**Molto conduttiva** = superficie metallica spessa in ambiente esterno"
-                )
-            )
+            superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie",
+                                  format_func=lambda v: LABEL_SUPERFICIE.get(v, v))
 
-    # --- CALCOLO TABELLA E DESCRIZIONE ---
+    # --- CALCOLO TABELLA ---
     valori = {
-        "Ambiente": stato_corpo,
-        "Vestiti": scelta_vestiti,
-        "Coperte": scelta_coperte,
-        "Superficie d'appoggio": superficie,
-        "Correnti": corrente
-    }
-    valori = {k: (str(v).strip() if v is not None else v) for k, v in valori.items()}
-
-        # Mappa i valori selezionati ai nuovi nomi prima della ricerca in tabella
-    valori_mappati = {
-        "Ambiente": OLD_TO_NEW_UI.get(valori["Ambiente"], valori["Ambiente"]),
-        "Vestiti": OLD_TO_NEW_UI.get(valori["Vestiti"], valori["Vestiti"]),
-        "Coperte": OLD_TO_NEW_UI.get(valori["Coperte"], valori["Coperte"]),
-        "Superficie d'appoggio": OLD_TO_NEW_UI.get(valori["Superficie d'appoggio"], valori["Superficie d'appoggio"]),
-        "Correnti": valori["Correnti"],  # invariato
+        "Ambiente": _norm(stato_corpo),
+        "Vestiti": _norm(scelta_vestiti),
+        "Coperte": _norm(scelta_coperte),
+        "Superficie d'appoggio": _norm(superficie),
+        "Correnti": _norm(corrente)
     }
 
-    riga = tabella1[
-        (tabella1["Ambiente"] == valori_mappati["Ambiente"]) &
-        (tabella1["Vestiti"] == valori_mappati["Vestiti"]) &
-        (tabella1["Coperte"] == valori_mappati["Coperte"]) &
-        (tabella1["Superficie d'appoggio"] == valori_mappati["Superficie d'appoggio"]) &
-        (tabella1["Correnti"] == valori_mappati["Correnti"])
-    ]
-
+    mask = (
+        tabella1["Ambiente"].isin(_aliases(valori["Ambiente"], "Ambiente")) &
+        tabella1["Vestiti"].isin(_aliases(valori["Vestiti"], "Vestiti")) &
+        tabella1["Coperte"].isin(_aliases(valori["Coperte"], "Coperte")) &
+        tabella1["Superficie d'appoggio"].isin(_aliases(valori["Superficie d'appoggio"], "Superficie d'appoggio")) &
+        tabella1["Correnti"].isin(_aliases(valori["Correnti"], "Correnti"))
+    )
+    riga = tabella1[mask]
 
     if riga.empty:
         st.warning("Nessuna combinazione valida trovata nella tabella.")
@@ -320,7 +308,7 @@ def calcola_fattore(peso):
     if len(riga) > 1:
         st.info("Più combinazioni valide trovate nella tabella: viene utilizzata la prima corrispondenza.")
 
-    fattore = riga["Fattore"].values[0]
+    fattore = riga["Fattore"].iloc[0]
     try:
         fattore_base = float(fattore)
     except Exception:
@@ -329,7 +317,7 @@ def calcola_fattore(peso):
 
     fattore_finale = fattore_base
 
-    # Applica Tabella 2 solo quando serve
+    # Applica Tabella 2 quando serve
     if fattore_base >= 1.4 and peso != 70:
         try:
             t2 = tabella2.copy()
@@ -353,7 +341,7 @@ def calcola_fattore(peso):
             if pd.notna(val_user):
                 fattore_finale = float(val_user)
         except Exception as e:
-            st.warning(f"Impossibile applicare la correzione per il peso (è riportato il fattore per un peso di 70 kg): {e}")
+            st.warning(f"Impossibile applicare la correzione per il peso (riporto il valore per 70 kg): {e}")
 
     # Output
     if abs(fattore_finale - fattore_base) > 1e-9:
@@ -378,119 +366,27 @@ def calcola_fattore(peso):
             unsafe_allow_html=True
         )
 
-
-    # Pulsante per applicare il fattore calcolato al campo principale
+    # --- Bottone: applica fattore + salva descrizioni in sessione ---
     def _apply_fattore(val):
-        # 1) salva il valore del fattore
         st.session_state["fattore_correzione"] = round(float(val), 2)
 
-        # 2) helper per classificare/formattare le condizioni
-        def _classifica_superficie(s: str):
-            if not s or s == "/":
-                return None
-            s_low = s.lower()
-            # conduttiva
-            if ("metall" in s_low) or ("cemento" in s_low) or ("pietra" in s_low) or ("pvc" in s_low) or ("pavimentazione esterna" in s_low):
-                return "conduttiva"
-            # isolante
-            if ("materasso" in s_low) or ("tappeto" in s_low) or ("imbottitura" in s_low) or ("foglie" in s_low):
-                return "isolante"
-            # indifferente
-            return "indifferente"
+        # parentetica e testo (riusiamo le scelte correnti)
+        stato = st.session_state.get("radio_stato_corpo")
+        vest  = st.session_state.get("radio_vestiti", "/")
+        cop   = st.session_state.get("scelta_coperte_radio", "/")
+        sup   = st.session_state.get("radio_superficie", "/")
+        corr  = st.session_state.get("radio_corrente") or st.session_state.get("radio_acqua") or "/"
 
-        def _format_vestiti(v: str):
-            if not v or v == "/":
-                return None
-            if v == "Nudo":
-                return "nudo"
-            if v == "1-2 strati sottili":
-                return "con 1–2 strati di indumenti sottili"
-            if v == "2-3 strati sottili":
-                return "con 2–3 strati di indumenti sottili"
-            if v == "3-4 strati sottili":
-                return "con 3–4 strati di indumenti sottili"
-            if v == "1-2 strati spessi":
-                return "con 1–2 strati di indumenti spessi"
-            if "˃4" in v or "Moltissimi" in v:
-                return "con molti strati di indumenti"
-            return f"con indumenti ({v.lower()})"
+        # salva: verrà usata nella parte finale
+        st.session_state["fattori_condizioni_parentetica"] = None  # verrà ricostruita a valle
+        st.session_state["fattori_condizioni_testo"] = None        # idem
 
-        def _format_coperte(c: str):
-            if not c or c == "/":
-                return None
-            if c == "Nessuna coperta":
-                return "senza coperte"
-            if c.startswith("Coperta spessa (es copriletto)"):
-                return "sotto una coperta pesante"
-            if c.startswith("Coperte più spesse (es coperte di lana)"):
-                return "sotto una coperta discretamente pesante"
-            if c.startswith("Coperta pesante (es piumino imbottito)"):
-                return "sotto una coperta molto pesante"
-            if c == "Molte coperte pesanti":
-                return "sotto molte coperte pesanti"
-            if c == "Strato di foglie di medio spessore":
-                return "coperto da uno strato di foglie"
-            if c == "Spesso strato di foglie":
-                return "coperto da uno spesso strato di foglie"
-            return f"con coperte ({c.lower()})"
-
-        def _format_corrente(c: str):
-            if not c or c == "/":
-                return None
-            if c == "Nessuna corrente":
-                return "senza correnti d'aria"
-            if c == "Esposto a corrente d'aria":
-                return "con correnti d'aria"
-            if c == "In acqua corrente":
-                return "in acqua corrente"
-            if c == "In acqua stagnante":
-                return "in acqua stagnante"
-            return c.lower()
-
-        def _format_stato_corpo(s: str):
-            if not s:
-                return None
-            return {"Asciutto": "corpo asciutto",
-                    "Bagnato": "corpo bagnato",
-                    "Immerso": "corpo immerso"}.get(s, s.lower())
-
-        # 3) costruisci sia la frase parentetica sia la descrizione generica
-        vestiti_txt = _format_vestiti(scelta_vestiti)
-        coperte_txt = _format_coperte(scelta_coperte)
-        superf_cat  = _classifica_superficie(superficie)
-        corr_txt    = _format_corrente(corrente)
-        stato_txt   = _format_stato_corpo(stato_corpo)
-
-        # versione generica (retro-compatibile)
-        cond_parts = []
-        if stato_txt: cond_parts.append(stato_txt)
-        if vestiti_txt: cond_parts.append(vestiti_txt.replace("con ", ""))  # più sobria nella generica
-        if coperte_txt: cond_parts.append(coperte_txt)
-        if superf_cat: cond_parts.append(f"superficie di appoggio: {superf_cat}")
-        if corr_txt: cond_parts.append(corr_txt)
-        st.session_state["fattori_condizioni_testo"] = "; ".join(cond_parts)
-
-        # parentesi per la descrizione dettagliata (ordine e lessico richiesti)
-        parts_parent = []
-        if stato_txt:    parts_parent.append(stato_txt)
-        if vestiti_txt:  parts_parent.append(vestiti_txt)
-        if coperte_txt:  parts_parent.append(coperte_txt)
-        if superf_cat:   parts_parent.append(f"adagiato su superficie termicamente {superf_cat}")
-        if corr_txt:     parts_parent.append(corr_txt)
-
-        st.session_state["fattori_condizioni_parentetica"] = "(" + ", ".join(parts_parent) + ")" if parts_parent else None
-
-        # 4) chiudi l'expander al prossimo rerun
+        # Forza richiudere l’expander al prossimo rerun
         st.session_state["fattore_expander_tag"] += 1
 
+    st.button("✅ Usa questo fattore", key="usa_fattore_btn",
+              on_click=_apply_fattore, args=(fattore_finale,), use_container_width=True)
 
-    st.button(
-        "✅ Usa questo fattore",
-        key="usa_fattore_btn",
-        on_click=_apply_fattore,
-        args=(fattore_finale,),
-        use_container_width=True
-    )
 
 def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
     """Arrotonda un datetime al quarto d’ora più vicino."""
