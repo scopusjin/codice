@@ -135,7 +135,7 @@ def calcola_fattore(peso):
         # Coperte
         "Coperta spessa (es copriletto)": "Coperta +",
         "Coperte più spesse (es coperte di lana)": "Coperta ++",
-        "Coperta pesante (es piumino imbottito)": "Coperta ++++",
+        "Coperta pesante (es piumino imbottito)": "Coperta +++",
         "Molte coperte pesanti": "Coperta ++++",
         "Lenzuolo +": "Lenzuolo +",
         "Lenzuolo ++": "Lenzuolo ++",
@@ -195,7 +195,7 @@ def calcola_fattore(peso):
         "Lenzuolo ++": "Lenzuolo ++",
         "Coperta spessa (es copriletto)": "Coperta +",
         "Coperte più spesse (es coperte di lana)": "Coperta ++",
-        "Coperta pesante (es piumino imbottito)": "Coperta ++++",
+        "Coperta pesante (es piumino imbottito)": "Coperta +++",
         "Molte coperte pesanti": "Coperta ++++",
         "Strato di foglie di medio spessore": "Foglie ++",
         "Spesso strato di foglie": "Foglie +++",
