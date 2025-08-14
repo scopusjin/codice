@@ -215,48 +215,6 @@ def calcola_fattore(peso):
     # Layout colonne
     col1, col2, col3 = st.columns([1, 1, 1.6], gap="small")
 
-    # --- COL 1: CONDIZIONE CORPO ---
-    with col1:
-        stato_corpo = st.radio("**Condizioni del corpo**", ["Asciutto", "Bagnato", "Immerso"], key="radio_stato_corpo", horizontal=True)
-        corpo_immerso = (stato_corpo == "Immerso")
-        corpo_bagnato = (stato_corpo == "Bagnato")
-        corpo_asciutto = (stato_corpo == "Asciutto")
-
-    copertura_speciale = False
-    scelta_vestiti = "/"
-    superficie = "/"
-    corrente = "/"
-
-    # --- COL 2: COPERTE ---
-    with col2:
-        if not (corpo_immerso or corpo_bagnato):
-            opzioni_coperte = [
-                "Nessuna coperta","Lenzuolo +","Lenzuolo ++",
-                "Coperta spessa (es copriletto)",
-                "Coperte più spesse (es coperte di lana)",
-                "Coperta pesante (es piumino imbottito)",
-                "Molte coperte pesanti"
-            ]
-            if corpo_asciutto:
-                opzioni_coperte += ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
-
-            # se vestiti = moltissimi (anche come ˃˃ strati) → solo “Molte coperte pesanti”
-            def _is_moltissimi(v):
-                v = _norm(v or "")
-                return v in {"Moltissimi strati", "˃˃ strati"}
-
-            vestiti_state = st.session_state.get("radio_vestiti")
-            if _is_moltissimi(vestiti_state):
-                opzioni_coperte = ["Molte coperte pesanti"]
-
-            scelta_coperte = st.radio("**Coperte?**", opzioni_coperte, key="scelta_coperte_radio",
-                                      help=HELP_COPERTE,
-                                      format_func=lambda v: LABEL_COPERTE.get(v, v))
-        else:
-            scelta_coperte = "/"
-
-    copertura_speciale = scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]
-
     # --- COL 1: VESTITI ---
     if (corpo_asciutto or corpo_bagnato) and not corpo_immerso and not copertura_speciale:
         with col1:
@@ -278,9 +236,21 @@ def calcola_fattore(peso):
     else:
         scelta_vestiti = "/"
 
-    # --- COL 2: CORRENTI ---
+    # --- COL 2: CORRENTI (solo ACQUA se Immerso) ---
     with col2:
-        if not copertura_speciale:
+        if not copertura_speciale and corpo_immerso:
+            corrente = st.radio("**Correnti d'acqua?**",
+                                ["In acqua corrente", "In acqua stagnante"],
+                                index=1, key="radio_acqua",
+                                format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v))
+        else:
+            # Le correnti d'aria sono spostate in colonna 3
+            corrente = "/"
+
+    # --- COL 3: SUPERFICIE + (spostata) CORRENTI D'ARIA ---
+    with col3:
+        # Correnti d'aria visibili qui (NON quando Immerso, e solo se non copertura speciale)
+        if not (corpo_immerso or copertura_speciale):
             mostra_corrente = False
             if corpo_bagnato:
                 mostra_corrente = True
@@ -288,7 +258,7 @@ def calcola_fattore(peso):
                 if scelta_vestiti in ["Nudo", "1-2 strati sottili"] and scelta_coperte in ["Nessuna coperta", "Lenzuolo +"]:
                     mostra_corrente = True
 
-            def _is_moltissimi(v):  # riuso
+            def _is_moltissimi(v):  # riuso locale
                 v = _norm(v or "")
                 return v in {"Moltissimi strati", "˃˃ strati"}
 
@@ -296,27 +266,13 @@ def calcola_fattore(peso):
                 mostra_corrente = False
 
             if mostra_corrente:
-                corrente = st.radio(
-                    "**Correnti d'aria?**",
-                    ["Esposto a corrente d'aria", "Nessuna corrente"],
-                    index=1,
-                    key="radio_corrente",
-                    help=HELP_CORRENTI_ARIA,
-                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v)
-                )
-            elif corpo_immerso:
-                corrente = st.radio(
-                    "**Correnti d'acqua?**",
-                    ["In acqua corrente", "In acqua stagnante"],
-                    index=1,
-                    key="radio_acqua",
-                    format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v)
-                )
-            else:
-                corrente = "/"
+                corrente = st.radio("**Correnti d'aria?**",
+                                    ["Esposto a corrente d'aria", "Nessuna corrente"],
+                                    index=1, key="radio_corrente",
+                                    help=HELP_CORRENTI_ARIA,
+                                    format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v))
 
-    # --- COL 3: SUPERFICIE ---
-    with col3:
+        # Appoggio: come prima (solo se non Immerso, non Bagnato, non copertura speciale)
         if not (corpo_immerso or corpo_bagnato or copertura_speciale):
             mostra_foglie = scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"
             opzioni_superficie = [
@@ -328,18 +284,11 @@ def calcola_fattore(peso):
             if scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta":
                 opzioni_superficie.append("Superficie metallica spessa, all'esterno.")
             if mostra_foglie:
-                opzioni_superficie += [
-                    "Foglie umide (≥2 cm)",
-                    "Foglie secche (≥2 cm)"
-                ]
+                opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
-            superficie = st.radio(
-                "**Appoggio**",
-                opzioni_superficie,
-                key="radio_superficie",
-                help=HELP_SUPERFICIE,
-                format_func=lambda v: LABEL_SUPERFICIE.get(v, v)
-            )
+            superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie",
+                                  help=HELP_SUPERFICIE,
+                                  format_func=lambda v: LABEL_SUPERFICIE.get(v, v))
 
     # --- CALCOLO TABELLA ---
     valori = {
