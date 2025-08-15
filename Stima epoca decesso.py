@@ -1417,6 +1417,13 @@ def aggiorna_grafico():
             avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
         if temp_difference_small:
             avvisi.append("Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.")
+        if abs(Tr_val - T0_val) <= 1.0:
+            avvisi.append(
+                "Considerato che la temperatura rettale è molto simile alla temperatura ante-mortem stimata, "
+                "è possibile che il raffreddamento si trovi ancora nella fase di plateau o non sia ancora iniziato; "
+                "in tale fase la precisione del metodo è ridotta."
+            )
+            
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
 
