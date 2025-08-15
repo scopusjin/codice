@@ -266,6 +266,7 @@ def calcola_fattore(peso):
 
             scelta_coperte = st.radio("**Coperte?**", opzioni_coperte, key="scelta_coperte_radio",
                                       help=HELP_COPERTE,
+                                      horizontal=True,
                                       format_func=lambda v: LABEL_COPERTE.get(v, v))
         else:
             scelta_coperte = "/"
@@ -287,6 +288,7 @@ def calcola_fattore(peso):
                     "Moltissimi strati"               # UI "lunga" (alias ˃˃ strati)
                 ],
                 key="radio_vestiti",
+                horizontal=True,
                 help=HELP_VESTITI,
                 format_func=lambda v: LABEL_VESTITI.get(v, v)
             )
@@ -298,7 +300,7 @@ def calcola_fattore(peso):
         if not copertura_speciale and corpo_immerso:
             corrente = st.radio("**Correnti d'acqua?**",
                                 ["In acqua corrente", "In acqua stagnante"],
-                                index=1, key="radio_acqua",
+                                index=1, key="radio_acqua", horizontal=True,
                                 format_func=lambda v: LABEL_CORRENTI_ACQUA.get(v, v))
         else:
             # Le correnti d'aria sono spostate in colonna 3
@@ -325,7 +327,7 @@ def calcola_fattore(peso):
             if mostra_corrente:
                 corrente = st.radio("**Correnti d'aria?**",
                                     ["Esposto a corrente d'aria", "Nessuna corrente"],
-                                    index=1, key="radio_corrente",
+                                    index=1, key="radio_corrente", horizontal=True, 
                                     help=HELP_CORRENTI_ARIA,
                                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v))
 
@@ -344,7 +346,7 @@ def calcola_fattore(peso):
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie",
-                                  help=HELP_SUPERFICIE,
+                                  help=HELP_SUPERFICIE, horizontal=True, 
                                   format_func=lambda v: LABEL_SUPERFICIE.get(v, v))
 
     # --- CALCOLO TABELLA ---
