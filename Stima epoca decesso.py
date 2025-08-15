@@ -327,7 +327,7 @@ def calcola_fattore(peso):
             if mostra_corrente:
                 corrente = st.radio("**Correnti d'aria?**",
                                     ["Esposto a corrente d'aria", "Nessuna corrente"],
-                                    index=1, key="radio_corrente", horizontal=vista_compatta, 
+                                    index=1, key="radio_corrente", horizontal=True, 
                                     help=HELP_CORRENTI_ARIA,
                                     format_func=lambda v: LABEL_CORRENTI_ARIA.get(v, v))
 
@@ -346,7 +346,7 @@ def calcola_fattore(peso):
                 opzioni_superficie += ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)"]
 
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie",
-                                  help=HELP_SUPERFICIE, horizontal=vista_compatta, 
+                                  help=HELP_SUPERFICIE, horizontal=True, 
                                   format_func=lambda v: LABEL_SUPERFICIE.get(v, v))
 
     # --- CALCOLO TABELLA ---
