@@ -3,9 +3,9 @@
 import pandas as pd
 import streamlit as st
 
-# =========================================
+# =========================
 # Config pagina
-# =========================================
+# =========================
 st.set_page_config(
     page_title="Fattore di correzione (beta)",
     layout="wide",
@@ -13,11 +13,11 @@ st.set_page_config(
 )
 
 st.title("Fattore di correzione — beta")
-st.caption("Modalità Tabella (originale) + Modalità Formula (senza tabella). La correzione per il peso (Tabella 2) resta applicata.")
+st.caption("Modalità Tabella (originale) + Modalità Formula (senza tabella). Contatori su una riga con st.data_editor. Correzione peso (Tabella 2) inclusa.")
 
-# =========================================
-# HELP (testi di guida) – invariati
-# =========================================
+# =========================
+# HELP (testi di guida) — come prima
+# =========================
 HELP_COPERTE = (
     "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
     "**Lenzuolo +** = telo sottile/1-2 lenzuola;   "
@@ -46,13 +46,13 @@ HELP_SUPERFICIE = (
     "**Foglie umide/secche (≥2 cm)** = adagiato su strato di foglie"
 )
 
-# =========================================
-# Cache caricamento Tabelle 1/2 (per modalità Tabella e per correzione peso)
-# =========================================
+# =========================
+# Cache caricamento Tabelle (per modalità Tabella e correzione peso)
+# =========================
 @st.cache_data
 def load_tabelle_correzione():
     """
-    Colonne attese in Tabella 1:
+    Tabella 1 colonne attese:
       Ambiente, Vestiti, Coperte, Correnti, Superficie d'appoggio, Fattore
     Tabella 2: colonne con pesi (es. '50 kg', '70 kg', '90 kg' ...)
     """
@@ -63,17 +63,12 @@ def load_tabelle_correzione():
         t1[col] = t1[col].astype(str).str.strip()
     return t1, t2
 
-# =========================================
-# Correzione peso (Tabella 2) – riuso identico
-# =========================================
+# =========================
+# Correzione peso (Tabella 2)
+# =========================
 def applica_tabella2(fattore_base: float, peso: float, tabella2: pd.DataFrame):
-    """
-    Applica la correzione per il peso usando la Tabella 2
-    (stessa logica dell'implementazione originale).
-    """
     if not (fattore_base >= 1.4 and float(peso) != 70.0):
         return fattore_base, False, {}
-
     try:
         t2 = tabella2.copy()
 
@@ -106,12 +101,100 @@ def applica_tabella2(fattore_base: float, peso: float, tabella2: pd.DataFrame):
             }
     except Exception:
         pass
-
     return fattore_base, False, {}
 
-# =========================================
-# MODALITÀ FORMULA (senza tabella): funzione di calcolo
-# =========================================
+# =========================
+# Editor contatori su una riga (mobile friendly)
+# =========================
+def contatori_editor(defaults=None, key="contatori_formula"):
+    """
+    Tabella editor per i contatori: etichetta a sinistra, numero a destra.
+    Ritorna: dict {label: int(val)}
+    """
+    if defaults is None:
+        defaults = {
+            "n. Strati sottili": 0,
+            "n. Strati spessi": 0,
+            "n. Lenzuolo +": 0,
+            "n. Lenzuolo ++": 0,
+            "n. Coperte (medie)": 0,
+            "n. Coperte (pesanti)": 0,
+        }
+
+    df_init = pd.DataFrame({
+        "Parametro": list(defaults.keys()),
+        "Valore": list(defaults.values()),
+    })
+
+    edited = st.data_editor(
+        df_init,
+        key=key,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "Parametro": st.column_config.TextColumn(
+                "Parametro",
+                disabled=True,
+                width="medium",
+            ),
+            "Valore": st.column_config.NumberColumn(
+                "Valore",
+                help="Usa le frecce o digita il numero",
+                min_value=0,
+                max_value=50,
+                step=1,
+                format="%d",
+            ),
+        }
+    )
+    return {row["Parametro"]: int(row["Valore"] or 0) for _, row in edited.iterrows()}
+
+# =========================
+# Utility: etichette compatte con mapping verso tabella
+# =========================
+def u_bold(s: str) -> str:
+    out = []
+    for ch in s:
+        if 'A' <= ch <= 'Z':
+            out.append(chr(ord(ch) - ord('A') + 0x1D400))  # 𝐀..𝐙
+        elif 'a' <= ch <= 'z':
+            out.append(chr(ord(ch) - ord('a') + 0x1D41A))  # 𝐚..𝐳
+        else:
+            out.append(ch)
+    return ''.join(out)
+
+CORPO_OPZIONI_VIS = [
+    f"Corpo {u_bold('asciutto')}",
+    f"Corpo {u_bold('bagnato')}",
+    f"Corpo {u_bold('immerso')}",
+]
+CORPO_MAP = {
+    CORPO_OPZIONI_VIS[0]: "Asciutto",
+    CORPO_OPZIONI_VIS[1]: "Bagnato",
+    CORPO_OPZIONI_VIS[2]: "Immerso",
+}
+
+ARIA_OPZIONI_VIS = [
+    f"{u_bold('Senza')} correnti d'aria",
+    f"{u_bold('Con')} correnti d'aria",
+]
+ARIA_MAP = {
+    ARIA_OPZIONI_VIS[0]: "Nessuna corrente",
+    ARIA_OPZIONI_VIS[1]: "Esposto a corrente d'aria",
+}
+
+ACQUA_OPZIONI_VIS = [
+    f"{u_bold('Senza')} correnti d'acqua",
+    f"{u_bold('Con')} correnti d'acqua",
+]
+ACQUA_MAP = {
+    ACQUA_OPZIONI_VIS[0]: "In acqua stagnante",
+    ACQUA_OPZIONI_VIS[1]: "In acqua corrente",
+}
+
+# =========================
+# Formula (senza tabella)
+# =========================
 def calcola_fattore_formula(
     n_sottili: int,
     n_spessi: int,
@@ -125,58 +208,41 @@ def calcola_fattore_formula(
     superficie: str          # una delle superfici o "/"
 ) -> float:
     """
-    Implementa le regole fornite:
-    - Ogni strato sottile: +0.075 fino a MAX 1.8 (cap sul valore mentre sommo i contributi “sottili/ spessi/ lenzuolo+”).
-    - Ogni strato spesso: +0.15 fino a MAX 1.8.
-    - Ogni Lenzuolo +: +0.075 fino a MAX 1.8.
-    - Lenzuolo ++: base 1.0, +0.15 per ciascun incremento, con CAP del contributo L++ a +1.0 (=> “fino a 2”).
-    - Coperta media: se presente, base almeno 1.5, +0.2 per ciascun incremento.
-    - Coperta pesante: base almeno 1.5, +0.3 per ciascun incremento.
-
-    NOTE:
-    - Per ora NON applico attenuazioni/boost dovuti a correnti e superficie: verranno aggiunti quando fornisci le regole.
-    - Se coesistono media e pesante, uso la base più alta (>=1.5).
+    Regole attuali (correnti/superficie NEUTRE per ora):
+    - Ogni strato sottile: +0.075 (CAP sul valore a 1.8 durante la somma di sottili/spessi/L+)
+    - Ogni strato spesso: +0.15 (stesso CAP 1.8 durante la somma)
+    - Ogni Lenzuolo +: +0.075 (stesso CAP 1.8 durante la somma)
+    - Lenzuolo ++: base 1.0, +0.15 per ciascun incremento, CAP contributo L++ = +1.0 (=> “fino a 2”)
+    - Coperta media: se presente base>=1.5; +0.2 per ciascuna
+    - Coperta pesante: se presente base>=1.5; +0.3 per ciascuna
     """
-
-    # Base
     base = 1.0
     if (n_coperte_medie > 0) or (n_coperte_pesanti > 0):
         base = max(base, 1.5)
-
     value = base
 
-    # Contributi che hanno CAP del valore a 1.8 mentre si sommano (sottili, spessi, L+)
-    def cap_18(x):  # helper
+    def cap_18(x):  # cappo il "valore" a 1.8 durante somme sottili/spessi/L+
         return min(x, 1.8)
 
-    # 1) strati sottili
+    # contributi cumulativi con cap 1.8
     value = cap_18(value + 0.075 * max(0, n_sottili))
-
-    # 2) strati spessi
-    value = cap_18(value + 0.15 * max(0, n_spessi))
-
-    # 3) Lenzuolo +
+    value = cap_18(value + 0.15  * max(0, n_spessi))
     value = cap_18(value + 0.075 * max(0, n_lenzuolo_piu))
 
-    # 4) Lenzuolo ++: contributo separato con cap +1.0 (così “da 1 a 2”)
-    contrib_lpp = min(0.15 * max(0, n_lenzuolo_piu_piu), 1.0)
-    value += contrib_lpp
+    # Lenzuolo ++: contributo separato con CAP +1.0
+    value += min(0.15 * max(0, n_lenzuolo_piu_piu), 1.0)
 
-    # 5) Coperte medie: +0.2 ciascuna
+    # Coperte
     value += 0.2 * max(0, n_coperte_medie)
-
-    # 6) Coperte pesanti: +0.3 ciascuna
     value += 0.3 * max(0, n_coperte_pesanti)
 
-    # ===== Correnti e superficie: per ora NEUTRE =====
-    # (inseriremo modifiche qui quando mi darai i dettagli)
+    # Correnti/superficie per ora neutre (placeholder)
     _ = (stato_corpo, corrente_tipo, corrente_label, superficie)
-
     return float(value)
 
-# =========================================
-# MODALITÀ TABELLA (originale)
-# =========================================
+# =========================
+# Modalità TABELLA (originale) per confronto
+# =========================
 def calcola_fattore_tabella(peso: float):
     try:
         tabella1, tabella2 = load_tabelle_correzione()
@@ -184,10 +250,8 @@ def calcola_fattore_tabella(peso: float):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    # CORPO (etichette compatte → mapping tabella)
-    corpo_label = st.radio("", ["Corpo asciutto", "Corpo bagnato", "Corpo immerso"], key="corpo_tab", horizontal=True)
-    mapping_corpo = {"Corpo asciutto": "Asciutto", "Corpo bagnato": "Bagnato", "Corpo immerso": "Immerso"}
-    stato_corpo = mapping_corpo[corpo_label]
+    corpo_label = st.radio("", CORPO_OPZIONI_VIS, key="corpo_tab", horizontal=True)
+    stato_corpo = CORPO_MAP[corpo_label]
 
     scelta_vestiti = "/"
     scelta_coperte = "/"
@@ -195,18 +259,18 @@ def calcola_fattore_tabella(peso: float):
     corrente = "/"
 
     if stato_corpo == "Immerso":
-        corr_acqua = st.radio("", ["Senza correnti d'acqua", "Con correnti d'acqua"], key="acqua_tab", horizontal=True)
-        corrente = "In acqua stagnante" if "Senza" in corr_acqua else "In acqua corrente"
+        corr_acqua = st.radio("", ACQUA_OPZIONI_VIS, key="acqua_tab", horizontal=True)
+        corrente = ACQUA_MAP[corr_acqua]
 
     elif stato_corpo == "Bagnato":
         scelta_vestiti = st.radio("**Strati di indumenti**",
                                   ["Nudo", "1-2 strati sottili", "1-2 strati spessi",
                                    "2-3 strati sottili", "3-4 strati sottili", "˃ strati", "˃˃ strati"],
                                   key="vestiti_tab", horizontal=True, help=HELP_VESTITI)
-        corr_aria = st.radio("", ["Senza correnti d'aria", "Con correnti d'aria"], key="aria_tab", horizontal=True)
-        corrente = "Nessuna corrente" if "Senza" in corr_aria else "Esposto a corrente d'aria"
+        corr_aria = st.radio("", ARIA_OPZIONI_VIS, key="aria_tab", horizontal=True)
+        corrente = ARIA_MAP[corr_aria]
 
-    else:
+    else:  # Asciutto
         scelta_vestiti = st.radio("**Strati di indumenti**",
                                   ["Nudo", "1-2 strati sottili", "2-3 strati sottili",
                                    "3-4 strati sottili", "1-2 strati spessi", "˃ strati", "˃˃ strati"],
@@ -222,8 +286,8 @@ def calcola_fattore_tabella(peso: float):
             superficie = "/"
             scelta_vestiti = "/"
         else:
-            corr_aria = st.radio("", ["Senza correnti d'aria", "Con correnti d'aria"], key="aria_tab", horizontal=True)
-            corrente = "Nessuna corrente" if "Senza" in corr_aria else "Esposto a corrente d'aria"
+            corr_aria = st.radio("", ARIA_OPZIONI_VIS, key="aria_tab", horizontal=True)
+            corrente = ARIA_MAP[corr_aria]
 
             if (scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta"):
                 opzioni_superficie = ["Indifferente", "Molto isolante", "Isolante",
@@ -232,82 +296,88 @@ def calcola_fattore_tabella(peso: float):
                 opzioni_superficie = ["Indifferente", "Molto isolante", "Isolante", "Conduttivo"]
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="superficie_tab", horizontal=True, help=HELP_SUPERFICIE)
 
-    # Match e calcolo
-    tabella1_mask = (
+    # match in tabella
+    mask = (
         (tabella1["Ambiente"] == stato_corpo) &
         (tabella1["Vestiti"] == scelta_vestiti) &
         (tabella1["Coperte"] == scelta_coperte) &
         (tabella1["Superficie d'appoggio"] == superficie) &
         (tabella1["Correnti"] == corrente)
     )
-    riga = tabella1[tabella1_mask]
+    riga = tabella1[mask]
     if riga.empty:
         st.warning("Nessuna combinazione valida trovata nella tabella.")
         return
 
     fattore_base = float(pd.to_numeric(riga["Fattore"], errors="coerce").dropna().iloc[0])
 
-    fattore_finale, applied_t2, t2_details = applica_tabella2(fattore_base, peso, tabella2)
+    # correzione peso
+    fattore_finale, applied_t2, _ = applica_tabella2(fattore_base, peso, tabella2)
 
     # Output
     if abs(fattore_finale - fattore_base) > 1e-9:
-        st.success(f"Fattore (adattato al peso {peso:.1f} kg): **{fattore_finale:.2f}**")
+        st.success(f"Fattore (tabella, adattato al peso {peso:.1f} kg): **{fattore_finale:.2f}**")
         st.caption(f"Valore per 70 kg: {fattore_base:.2f}")
     else:
-        st.success(f"Fattore suggerito: **{fattore_finale:.2f}**")
-    st.info("Tabella 2: " + ("applicata" if applied_t2 else "non applicata"))
+        st.success(f"Fattore (tabella): **{fattore_finale:.2f}**")
 
-# =========================================
+# =========================
 # UI: scelta modalità + Peso
-# =========================================
-modo = st.toggle("Usa **Formula (senza tabella)**", value=True, help="Se disattivo, uso la Tabella rielaborata.")
+# =========================
+modo_formula = st.toggle("Usa **Formula (senza tabella)**", value=True, help="Se disattivo, uso la Tabella rielaborata.")
 peso = st.number_input("Peso (kg)", min_value=10.0, max_value=250.0, value=70.0, step=0.5, key="peso_beta")
 
-# =========================================
+# =========================
 # Modalità FORMULA: contatori + calcolo
-# =========================================
-if modo:
-    st.subheader("Contatori di copertura/indumenti (Formula)")
+# =========================
+if modo_formula:
+    st.subheader("Coperture e indumenti (Formula)")
 
-    colA, colB, colC = st.columns(3)
-    with colA:
-        n_sottili = st.number_input("n. strati sottili", 0, 50, 0, 1)
-        n_spessi = st.number_input("n. strati spessi", 0, 50, 0, 1)
-    with colB:
-        n_lenzuolo_piu = st.number_input("n. Lenzuolo +", 0, 50, 0, 1)
-        n_lenzuolo_piu_piu = st.number_input("n. Lenzuolo ++", 0, 50, 0, 1)
-    with colC:
-        n_coperte_medie = st.number_input("n. Coperte (medie)", 0, 50, 0, 1)
-        n_coperte_pesanti = st.number_input("n. Coperte (pesanti)", 0, 50, 0, 1)
+    vals = contatori_editor(
+        defaults={
+            "n. Strati sottili": 0,
+            "n. Strati spessi": 0,
+            "n. Lenzuolo +": 0,
+            "n. Lenzuolo ++": 0,
+            "n. Coperte (medie)": 0,
+            "n. Coperte (pesanti)": 0,
+        },
+        key="contatori_formula_beta"
+    )
 
-    # Corpo + Correnti + Superficie (per ora neutri nella formula; li useremo dopo)
-    corpo = st.radio("", ["Corpo asciutto", "Corpo bagnato", "Corpo immerso"], horizontal=True)
-    mappa_corpo = {"Corpo asciutto": "Asciutto", "Corpo bagnato": "Bagnato", "Corpo immerso": "Immerso"}
-    stato_corpo = mappa_corpo[corpo]
+    n_sottili = vals["n. Strati sottili"]
+    n_spessi = vals["n. Strati spessi"]
+    n_lenzuolo_piu = vals["n. Lenzuolo +"]
+    n_lenzuolo_piu_piu = vals["n. Lenzuolo ++"]
+    n_coperte_medie = vals["n. Coperte (medie)"]
+    n_coperte_pesanti = vals["n. Coperte (pesanti)"]
+
+    # Corpo + correnti + superficie (per ora neutri nella formula; placeholder pronto)
+    corpo_label = st.radio("", CORPO_OPZIONI_VIS, key="corpo_formula", horizontal=True)
+    stato_corpo = CORPO_MAP[corpo_label]
 
     corrente_tipo = "/"
     corrente_label = "/"
     if stato_corpo == "Immerso":
         corrente_tipo = "acqua"
-        c = st.radio("", ["Senza correnti d'acqua", "Con correnti d'acqua"], horizontal=True)
-        corrente_label = "In acqua stagnante" if "Senza" in c else "In acqua corrente"
-    elif stato_corpo == "Bagnato" or stato_corpo == "Asciutto":
+        corr_lbl = st.radio("", ACQUA_OPZIONI_VIS, key="acqua_formula", horizontal=True)
+        corrente_label = ACQUA_MAP[corr_lbl]
+    else:
         corrente_tipo = "aria"
-        c = st.radio("", ["Senza correnti d'aria", "Con correnti d'aria"], horizontal=True)
-        corrente_label = "Nessuna corrente" if "Senza" in c else "Esposto a corrente d'aria"
+        corr_lbl = st.radio("", ARIA_OPZIONI_VIS, key="aria_formula", horizontal=True)
+        corrente_label = ARIA_MAP[corr_lbl]
 
     superficie = "/"
     if stato_corpo == "Asciutto":
-        # Solo per coerenza UI (non influisce ancora sul calcolo)
         base_opts = ["Indifferente", "Molto isolante", "Isolante", "Conduttivo"]
         extra_opts = ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)", "Molto conduttivo"]
+        # “nudo senza coperture” ≈ tutti i contatori a zero
         if (n_sottili == 0 and n_spessi == 0 and n_lenzuolo_piu == 0 and
             n_lenzuolo_piu_piu == 0 and n_coperte_medie == 0 and n_coperte_pesanti == 0):
-            # Caso "nudo senza coperture": offro anche le opzioni aggiuntive come nella tabella
             opzioni_superficie = base_opts + extra_opts
         else:
             opzioni_superficie = base_opts
-        superficie = st.radio("**Appoggio**", opzioni_superficie, horizontal=True, help=HELP_SUPERFICIE)
+        superficie = st.radio("**Appoggio**", opzioni_superficie, key="superficie_formula", horizontal=True, help=HELP_SUPERFICIE)
 
     # Calcolo formula
     fattore_base = calcola_fattore_formula(
@@ -323,12 +393,11 @@ if modo:
         superficie=superficie
     )
 
-    # Correzione peso (Tabella 2), se disponibile
+    # Correzione peso (Tabella 2) se disponibile
     applied_t2 = False
-    t2_details = {}
     try:
         _, tabella2 = load_tabelle_correzione()
-        fattore_finale, applied_t2, t2_details = applica_tabella2(fattore_base, peso, tabella2)
+        fattore_finale, applied_t2, _ = applica_tabella2(fattore_base, peso, tabella2)
     except Exception:
         fattore_finale = fattore_base
 
@@ -339,11 +408,9 @@ if modo:
     else:
         st.success(f"Fattore (formula): **{fattore_finale:.2f}**")
 
-    st.info("Tabella 2: " + ("applicata" if applied_t2 else "non applicata"))
-
-# =========================================
+# =========================
 # Modalità TABELLA (per confronto)
-# =========================================
+# =========================
 else:
     calcola_fattore_tabella(peso)
     
