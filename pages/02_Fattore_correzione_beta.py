@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"   # Sidebar nascosta
 )
 
-st.title("Fattore di correzione —  beta )
+st.title("Fattore di correzione — beta")
 st.caption("Struttura originale, etichette allineate alla tabella, UI verticale compatta.")
 
 # =========================
