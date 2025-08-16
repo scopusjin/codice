@@ -1,4 +1,5 @@
 # pages/02_Fattore_correzione_beta.py
+# -*- coding: utf-8 -*-
 import pandas as pd
 import streamlit as st
 
@@ -7,16 +8,15 @@ import streamlit as st
 # =========================
 st.set_page_config(
     page_title="Fattore di correzione (beta)",
-    
     layout="wide",
-    initial_sidebar_state="collapsed"   # Sidebar nascosta
+    initial_sidebar_state="collapsed"
 )
 
 st.title("Fattore di correzione — beta")
-st.caption("Struttura originale, etichette allineate alla tabella, UI verticale compatta.")
+st.caption("UI compatta: corpo e correnti con etichette semplificate; mapping interno alle diciture di tabella.")
 
 # =========================
-# HELP (testi di guida) — invariate
+# HELP (testi di guida)
 # =========================
 HELP_COPERTE = (
     "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
@@ -36,7 +36,7 @@ HELP_VESTITI = (
     "**Strati sottili** = t-shirt, camicia, maglia leggera;    "
     "**Strati spessi** = maglione, felpa in pile, giubbino;   "
     "**˃ strati** = ˃4 sottili o ˃2 spessi;   "
-    "**˃˃ strati** = molti strati pesanti,"
+    "**˃˃ strati** = molti strati pesanti."
 )
 
 HELP_SUPERFICIE = (
@@ -54,13 +54,12 @@ HELP_CORRENTI_ARIA = (
 )
 
 # =========================
-# Cache caricamento tabelle (come originale)
+# Cache caricamento tabelle
 # =========================
 @st.cache_data
 def load_tabelle_correzione():
     """
     Carica e normalizza le tabelle usate da calcola_fattore.
-    Restituisce (tabella1, tabella2) o solleva eccezione con messaggio chiaro.
     Colonne attese in Tabella 1:
       Ambiente, Vestiti, Coperte, Correnti, Superficie d'appoggio, Fattore
     """
@@ -78,7 +77,56 @@ def load_tabelle_correzione():
     return t1, t2
 
 # =========================
-# Funzione principale (come originale ma UI verticale e label allineate)
+# Util: opzioni visuali (con "grassetto" unicode) e mapping verso tabella
+# =========================
+# Nota: Streamlit non rende il Markdown dentro le opzioni di st.radio.
+# Uso quindi caratteri Unicode "mathematical bold" per evidenziare le parole chiave.
+
+def u_bold(s: str) -> str:
+    # converte a caratteri bold unicode solo lettere ASCII; lascia il resto invariato
+    import unicodedata
+    out = []
+    for ch in s:
+        if 'A' <= ch <= 'Z':
+            out.append(chr(ord(ch) - ord('A') + 0x1D400))  # 𝐀..𝐙
+        elif 'a' <= ch <= 'z':
+            out.append(chr(ord(ch) - ord('a') + 0x1D41A))  # 𝐚..𝐳
+        else:
+            out.append(ch)
+    return ''.join(out)
+
+# Etichette visuali
+CORPO_OPZIONI_VIS = [
+    f"Corpo {u_bold('asciutto')}",
+    f"Corpo {u_bold('bagnato')}",
+    f"Corpo {u_bold('immerso')}",
+]
+CORPO_MAP = {
+    CORPO_OPZIONI_VIS[0]: "Asciutto",
+    CORPO_OPZIONI_VIS[1]: "Bagnato",
+    CORPO_OPZIONI_VIS[2]: "Immerso",
+}
+
+ARIA_OPZIONI_VIS = [
+    f"{u_bold('Senza')} correnti d'aria",
+    f"{u_bold('Con')} correnti d'aria",
+]
+ARIA_MAP = {
+    ARIA_OPZIONI_VIS[0]: "Nessuna corrente",
+    ARIA_OPZIONI_VIS[1]: "Esposto a corrente d'aria",
+}
+
+ACQUA_OPZIONI_VIS = [
+    f"{u_bold('Senza')} correnti d'acqua",
+    f"{u_bold('Con')} correnti d'acqua",
+]
+ACQUA_MAP = {
+    ACQUA_OPZIONI_VIS[0]: "In acqua stagnante",
+    ACQUA_OPZIONI_VIS[1]: "In acqua corrente",
+}
+
+# =========================
+# Funzione principale (UI compatta + mapping etichette)
 # =========================
 def calcola_fattore(peso: float):
     # Caricamento tabelle
@@ -92,17 +140,14 @@ def calcola_fattore(peso: float):
         st.error(f"Errore nel caricamento delle tabelle: {e}")
         return
 
-    # ========== UI verticale (senza colonne) ==========
-    # 1) AMBIENTE
-    stato_corpo = st.radio(
-        "**Condizioni del corpo**",
-        ["Asciutto", "Bagnato", "Immerso"],
+    # ====== UI: CORPO (senza titolo) ======
+    corpo_label = st.radio(
+        "",  # niente titolo
+        CORPO_OPZIONI_VIS,
         key="radio_stato_corpo_beta",
         horizontal=True
     )
-    corpo_immerso = (stato_corpo == "Immerso")
-    corpo_bagnato = (stato_corpo == "Bagnato")
-    corpo_asciutto = (stato_corpo == "Asciutto")
+    stato_corpo = CORPO_MAP[corpo_label]
 
     # Iniziali
     scelta_vestiti = "/"
@@ -110,37 +155,57 @@ def calcola_fattore(peso: float):
     superficie = "/"
     corrente = "/"
 
-    # 2) COPERTE / VESTITI / CORRENTI / SUPERFICIE (in base ad AMBIENTE)
-    if corpo_immerso:
-        # Immerso → solo correnti d'acqua
-        corrente = st.radio("**Correnti d'acqua?**",
-                            ["In acqua corrente", "In acqua stagnante"],
-                            index=1, key="radio_acqua_beta", horizontal=True)
-        # altri = '/'
+    # ====== Ramo Immerso ======
+    if stato_corpo == "Immerso":
+        corr_label = st.radio(
+            "", ACQUA_OPZIONI_VIS,
+            index=0, horizontal=True
+        )
+        corrente = ACQUA_MAP[corr_label]
+        # altri = "/"
         scelta_vestiti = "/"
         scelta_coperte = "/"
         superficie = "/"
 
-    elif corpo_bagnato:
-        # Bagnato → vestiti + correnti aria (No/Sì) ; no coperte, no superficie
+    # ====== Ramo Bagnato ======
+    elif stato_corpo == "Bagnato":
         scelta_vestiti = st.radio(
             "**Strati di indumenti**",
-            ["Nudo", "1-2 strati sottili", "1-2 strati spessi", "2-3 strati sottili", "3-4 strati sottili", "˃ strati", "˃˃ strati"],
+            [
+                "Nudo",
+                "1-2 strati sottili",
+                "1-2 strati spessi",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "˃ strati",
+                "˃˃ strati",
+            ],
             key="radio_vestiti_beta",
             horizontal=True,
             help=HELP_VESTITI
         )
-        corrente = st.radio("**Correnti d'aria?**",
-                            ["Nessuna corrente", "Esposto a corrente d'aria"],
-                            index=0, key="radio_corrente_beta", horizontal=True, help=HELP_CORRENTI_ARIA)
+        corr_label = st.radio(
+            "", ARIA_OPZIONI_VIS,
+            index=0, horizontal=True
+        )
+        corrente = ARIA_MAP[corr_label]
+        # coperte e superficie non rilevanti
         scelta_coperte = "/"
         superficie = "/"
 
+    # ====== Ramo Asciutto ======
     else:
-        # Asciutto → vestiti + coperte; correnti aria e superficie dipendono dalla coperta
         scelta_vestiti = st.radio(
             "**Strati di indumenti**",
-            ["Nudo", "1-2 strati sottili", "2-3 strati sottili", "3-4 strati sottili", "1-2 strati spessi", "˃ strati", "˃˃ strati"],
+            [
+                "Nudo",
+                "1-2 strati sottili",
+                "2-3 strati sottili",
+                "3-4 strati sottili",
+                "1-2 strati spessi",
+                "˃ strati",
+                "˃˃ strati",
+            ],
             key="radio_vestiti_beta",
             horizontal=True,
             help=HELP_VESTITI
@@ -158,26 +223,33 @@ def calcola_fattore(peso: float):
         )
 
         if scelta_coperte in ["Strato di foglie di medio spessore", "Spesso strato di foglie"]:
-            # caso speciale (in tabella Correnti='/' e Superficie='/'; Vestiti='/')
+            # Caso speciale: in tabella Correnti='/' e Superficie='/' e Vestiti='/'
             corrente = "/"
             superficie = "/"
             scelta_vestiti = "/"
         else:
-            # Correnti aria presenti per tutti i casi Asciutto con coperta NON 'foglie'
-            corrente = st.radio("**Correnti d'aria?**",
-                                ["Nessuna corrente", "Esposto a corrente d'aria"],
-                                index=0, key="radio_corrente_beta", horizontal=True, help=HELP_CORRENTI_ARIA)
-            # Superficie: in tabella 'Molto conduttivo' compare solo con Nudo + Nessuna coperta
-            mostra_foglie = (scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta")
-            opzioni_superficie = ["Indifferente", "Molto isolante", "Isolante", "Conduttivo"]
-            if mostra_foglie:
+            # Correnti d'aria (senza titolo)
+            corr_label = st.radio(
+                "", ARIA_OPZIONI_VIS,
+                index=0, horizontal=True
+            )
+            corrente = ARIA_MAP[corr_label]
+
+            # Superficie: quando Nudo + Nessuna coperta compaiono anche Foglie* e Molto conduttivo
+            mostra_estese = (scelta_vestiti == "Nudo" and scelta_coperte == "Nessuna coperta")
+            if mostra_estese:
                 opzioni_superficie = [
                     "Indifferente", "Molto isolante", "Isolante",
-                    "Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)", "Molto conduttivo", "Conduttivo"
+                    "Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)",
+                    "Molto conduttivo", "Conduttivo"
                 ]
+            else:
+                opzioni_superficie = ["Indifferente", "Molto isolante", "Isolante", "Conduttivo"]
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="radio_superficie_beta", horizontal=True, help=HELP_SUPERFICIE)
 
-    # ========== CALCOLO ==========
+    # =========================
+    # CALCOLO
+    # =========================
     valori = {
         "Ambiente": stato_corpo,
         "Vestiti": scelta_vestiti,
@@ -201,7 +273,6 @@ def calcola_fattore(peso: float):
     if len(riga) > 1:
         st.info("Più combinazioni valide trovate nella tabella: viene utilizzata la prima corrispondenza.")
 
-    # fattore base
     fattore_series = pd.to_numeric(riga["Fattore"], errors='coerce').dropna()
     if fattore_series.empty:
         st.warning("Il valore di 'Fattore' nella riga trovata non è numerico. Impossibile proseguire.")
@@ -210,7 +281,9 @@ def calcola_fattore(peso: float):
     fattore_base = float(fattore_series.iloc[0])
     fattore_finale = fattore_base
 
-    # ========== Applicazione Tabella 2 (come originale) ==========
+    # =========================
+    # Applicazione Tabella 2
+    # =========================
     applied_t2 = False
     t2_details = {}
     if fattore_base >= 1.4 and float(peso) != 70.0:
@@ -249,7 +322,9 @@ def calcola_fattore(peso: float):
         except Exception as e:
             st.warning(f"Impossibile applicare la correzione per il peso (riporto il valore per 70 kg): {e}")
 
-    # ========== Output (nessun bottone) ==========
+    # =========================
+    # Output
+    # =========================
     if abs(fattore_finale - fattore_base) > 1e-9:
         st.markdown(
             f'<div style="background-color:#e6f4ea; padding:12px; border-radius:6px; font-size:1.05rem;">'
@@ -270,7 +345,6 @@ def calcola_fattore(peso: float):
         unsafe_allow_html=True
     )
 
-    # Badge Tabella 2
     if applied_t2:
         st.markdown(
             '<div style="background:#e8f0fe;border:1px solid #c3d3ff;padding:8px 10px;border-radius:6px;display:inline-block;">'
@@ -308,3 +382,4 @@ def calcola_fattore(peso: float):
 # =========================
 peso = st.number_input("Peso (kg)", min_value=10.0, max_value=250.0, value=70.0, step=0.5, key="peso_input_beta")
 calcola_fattore(peso)
+            
