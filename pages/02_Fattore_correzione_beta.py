@@ -13,10 +13,10 @@ st.set_page_config(
 )
 
 st.title("Fattore di correzione — beta")
-st.caption("Modalità Tabella (originale) + Modalità Formula (senza tabella). Contatori su una riga con st.data_editor. Correzione peso (Tabella 2) inclusa.")
+st.caption("Formula (senza tabella) + Tabella (confronto). Contatori in UNA SOLA RIGA con st.data_editor (step +/−). Correzione peso (Tabella 2) inclusa.")
 
 # =========================
-# HELP (testi di guida) — come prima
+# HELP (testi di guida)
 # =========================
 HELP_COPERTE = (
     "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
@@ -104,12 +104,12 @@ def applica_tabella2(fattore_base: float, peso: float, tabella2: pd.DataFrame):
     return fattore_base, False, {}
 
 # =========================
-# Editor contatori su una riga (mobile friendly)
+# Editor contatori: UNA SOLA RIGA
 # =========================
-def contatori_editor(defaults=None, key="contatori_formula"):
+def contatori_editor_one_row(defaults=None, key="contatori_formula_row"):
     """
-    Tabella editor per i contatori: etichetta a sinistra, numero a destra.
-    Ritorna: dict {label: int(val)}
+    Una riga, ogni contatore è una colonna con step +/-.
+    Ritorna: dict {colonna: int(val)}
     """
     if defaults is None:
         defaults = {
@@ -121,33 +121,32 @@ def contatori_editor(defaults=None, key="contatori_formula"):
             "n. Coperte (pesanti)": 0,
         }
 
-    df_init = pd.DataFrame({
-        "Parametro": list(defaults.keys()),
-        "Valore": list(defaults.values()),
-    })
+    df_init = pd.DataFrame([defaults], index=["Quantità"])
+
+    # Costruisco column_config dinamica per impostare tutte NumberColumn identiche
+    col_cfg = {}
+    for col in defaults.keys():
+        col_cfg[col] = st.column_config.NumberColumn(
+            col,
+            help="Usa +/− o digita",
+            min_value=0,
+            max_value=50,
+            step=1,
+            format="%d",
+        )
 
     edited = st.data_editor(
         df_init,
         key=key,
-        hide_index=True,
+        hide_index=False,            # Mostra "Quantità" a sinistra
         use_container_width=True,
-        column_config={
-            "Parametro": st.column_config.TextColumn(
-                "Parametro",
-                disabled=True,
-                width="medium",
-            ),
-            "Valore": st.column_config.NumberColumn(
-                "Valore",
-                help="Usa le frecce o digita il numero",
-                min_value=0,
-                max_value=50,
-                step=1,
-                format="%d",
-            ),
-        }
+        num_rows="fixed",            # fissa a una riga
+        column_config=col_cfg
     )
-    return {row["Parametro"]: int(row["Valore"] or 0) for _, row in edited.iterrows()}
+
+    # Ritorna come dict
+    row = edited.iloc[0]
+    return {k: int(row[k] or 0) for k in defaults.keys()}
 
 # =========================
 # Utility: etichette compatte con mapping verso tabella
@@ -297,6 +296,7 @@ def calcola_fattore_tabella(peso: float):
             superficie = st.radio("**Appoggio**", opzioni_superficie, key="superficie_tab", horizontal=True, help=HELP_SUPERFICIE)
 
     # match in tabella
+    tabella1, tabella2 = load_tabelle_correzione()
     mask = (
         (tabella1["Ambiente"] == stato_corpo) &
         (tabella1["Vestiti"] == scelta_vestiti) &
@@ -310,8 +310,6 @@ def calcola_fattore_tabella(peso: float):
         return
 
     fattore_base = float(pd.to_numeric(riga["Fattore"], errors="coerce").dropna().iloc[0])
-
-    # correzione peso
     fattore_finale, applied_t2, _ = applica_tabella2(fattore_base, peso, tabella2)
 
     # Output
@@ -328,12 +326,12 @@ modo_formula = st.toggle("Usa **Formula (senza tabella)**", value=True, help="Se
 peso = st.number_input("Peso (kg)", min_value=10.0, max_value=250.0, value=70.0, step=0.5, key="peso_beta")
 
 # =========================
-# Modalità FORMULA: contatori + calcolo
+# Modalità FORMULA: contatori (UNA RIGA) + calcolo
 # =========================
 if modo_formula:
     st.subheader("Coperture e indumenti (Formula)")
 
-    vals = contatori_editor(
+    vals = contatori_editor_one_row(
         defaults={
             "n. Strati sottili": 0,
             "n. Strati spessi": 0,
@@ -342,7 +340,7 @@ if modo_formula:
             "n. Coperte (medie)": 0,
             "n. Coperte (pesanti)": 0,
         },
-        key="contatori_formula_beta"
+        key="contatori_formula_row"
     )
 
     n_sottili = vals["n. Strati sottili"]
@@ -352,7 +350,7 @@ if modo_formula:
     n_coperte_medie = vals["n. Coperte (medie)"]
     n_coperte_pesanti = vals["n. Coperte (pesanti)"]
 
-    # Corpo + correnti + superficie (per ora neutri nella formula; placeholder pronto)
+    # Corpo + correnti + superficie (per ora neutri nella formula; placeholder)
     corpo_label = st.radio("", CORPO_OPZIONI_VIS, key="corpo_formula", horizontal=True)
     stato_corpo = CORPO_MAP[corpo_label]
 
@@ -371,7 +369,7 @@ if modo_formula:
     if stato_corpo == "Asciutto":
         base_opts = ["Indifferente", "Molto isolante", "Isolante", "Conduttivo"]
         extra_opts = ["Foglie umide (≥2 cm)", "Foglie secche (≥2 cm)", "Molto conduttivo"]
-        # “nudo senza coperture” ≈ tutti i contatori a zero
+        # consideriamo "nudo senza coperture" ≈ tutti i contatori a zero
         if (n_sottili == 0 and n_spessi == 0 and n_lenzuolo_piu == 0 and
             n_lenzuolo_piu_piu == 0 and n_coperte_medie == 0 and n_coperte_pesanti == 0):
             opzioni_superficie = base_opts + extra_opts
@@ -413,4 +411,4 @@ if modo_formula:
 # =========================
 else:
     calcola_fattore_tabella(peso)
-    
+            
