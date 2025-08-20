@@ -11,35 +11,70 @@ st.set_page_config(
 
 st.title("Fattore di correzione — beta")
 
-# Scelta rapida
-scelta_vestizione = st.radio(
-    "",
-    ("nudo e scoperto", "vestito e/o coperto"),
-    horizontal=True,
-    index=1,
-    label_visibility="collapsed",
+# =========================
+# Peso su riga isolata
+# =========================
+peso = st.number_input(
+    "Peso (kg)",
+    min_value=10.0,
+    max_value=200.0,
+    value=70.0,
+    step=0.5,
 )
 
-# Condizioni del corpo (compatte)
-colA, colB, colC, colD = st.columns([1, 1, 1, 1])
+# =========================
+# Condizioni iniziali (radio orizzontali)
+# =========================
+col1, col2 = st.columns([1, 1])
 
-with colA:
-    stato = st.selectbox("Stato", ["asciutto", "bagnato", "in acqua"], index=0)
+with col1:
+    stato = st.radio(
+        "",
+        ["asciutto", "bagnato", "in acqua"],
+        index=0,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+with col2:
+    scelta_vestizione = st.radio(
+        "",
+        ["nudo e scoperto", "vestito e/o coperto"],
+        index=1,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
 
 # Caso: corpo immerso -> UI minima
 if stato == "in acqua":
-    with colB:
-        acqua_tipo = st.selectbox("Acqua", ["acqua stagnante", "acqua corrente"], index=0)
+    acqua_tipo = st.radio(
+        "",
+        ["acqua stagnante", "acqua corrente"],
+        index=0,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
     fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-with colB:
-    correnti_aria = st.selectbox("Correnti", ["senza correnti", "con correnti d'aria"], index=0)
+# =========================
+# Correnti + Appoggio
+# =========================
+colA, colB = st.columns([1, 2])
 
-with colC:
-    superficie = st.selectbox(
-        "Superficie",
+with colA:
+    correnti_aria = st.radio(
+        "",
+        ["senza correnti", "con correnti d'aria"],
+        index=0,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+with colB:
+    superficie = st.radio(
+        "",
         [
             "Pavimento/terreno/prato/asfalto",
             "Materasso o tappeto spesso",
@@ -48,27 +83,23 @@ with colC:
             "Foglie secche (>= 2 cm)",
         ],
         index=0,
+        horizontal=True,
+        label_visibility="collapsed",
     )
 
-with colD:
-    peso = st.number_input("Peso (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
-
-st.divider()
-
-# Abbigliamento e coperte (compatti)
-mostra_tabella = (scelta_vestizione == "vestito e/o coperto")
+# =========================
+# Abbigliamento e coperte
+# =========================
 fattore_preliminare = 1.0
-
-if mostra_tabella:
-    # DataFrame con dtype espliciti (niente tipi misti)
+if scelta_vestizione == "vestito e/o coperto":
     df = pd.DataFrame(
         {
-            "n. strati sottili": pd.Series([0], dtype="int"),
-            "n. strati spessi": pd.Series([0], dtype="int"),
-            "n. lenzuolo +": pd.Series([0], dtype="int"),
-            "n. coperte medie": pd.Series([0], dtype="int"),
-            "n. coperte pesanti": pd.Series([0], dtype="int"),
-            "lenzuolo ++": pd.Series([False], dtype="bool"),
+            "Sottili": pd.Series([0], dtype="int"),
+            "Spessi": pd.Series([0], dtype="int"),
+            "Lenz.+": pd.Series([0], dtype="int"),
+            "Cop. medie": pd.Series([0], dtype="int"),
+            "Cop. pesanti": pd.Series([0], dtype="int"),
+            "Lenz.++": pd.Series([False], dtype="bool"),
         }
     )
 
@@ -78,34 +109,33 @@ if mostra_tabella:
         num_rows="fixed",
         use_container_width=True,
         column_config={
-            "n. strati sottili": st.column_config.NumberColumn(label="Sottili", min_value=0, step=1),
-            "n. strati spessi": st.column_config.NumberColumn(label="Spessi", min_value=0, step=1),
-            "n. lenzuolo +": st.column_config.NumberColumn(label="Lenz.+", min_value=0, step=1),
-            "n. coperte medie": st.column_config.NumberColumn(label="Cop. medie", min_value=0, step=1),
-            "n. coperte pesanti": st.column_config.NumberColumn(label="Cop. pesanti", min_value=0, step=1),
-            "lenzuolo ++": st.column_config.CheckboxColumn(label="Lenz.++"),
+            "Sottili": st.column_config.NumberColumn(min_value=0, step=1),
+            "Spessi": st.column_config.NumberColumn(min_value=0, step=1),
+            "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1),
+            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1),
+            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1),
+            "Lenz.++": st.column_config.CheckboxColumn(),
         },
     )
 
     r = edited.iloc[0]
-
     fattore_preliminare = 1.0
-    if r["n. strati sottili"] > 0:
-        fattore_preliminare += min(int(r["n. strati sottili"]) * 0.075, 1.8)
-    if r["n. strati spessi"] > 0:
-        fattore_preliminare += min(int(r["n. strati spessi"]) * 0.15, 1.8)
-    if r["n. lenzuolo +"] > 0:
-        fattore_preliminare += min(int(r["n. lenzuolo +"]) * 0.075, 1.8)
-    if bool(r["lenzuolo ++"]):
+    if r["Sottili"] > 0:
+        fattore_preliminare += min(int(r["Sottili"]) * 0.075, 1.8)
+    if r["Spessi"] > 0:
+        fattore_preliminare += min(int(r["Spessi"]) * 0.15, 1.8)
+    if r["Lenz.+"] > 0:
+        fattore_preliminare += min(int(r["Lenz.+"]) * 0.075, 1.8)
+    if bool(r["Lenz.++"]):
         fattore_preliminare += 1.0
-    if r["n. coperte medie"] > 0:
-        fattore_preliminare += 1.5 + max(0, int(r["n. coperte medie"]) - 1) * 0.2
-    if r["n. coperte pesanti"] > 0:
-        fattore_preliminare += 1.5 + max(0, int(r["n. coperte pesanti"]) - 1) * 0.3
-else:
-    fattore_preliminare = 1.0
+    if r["Cop. medie"] > 0:
+        fattore_preliminare += 1.5 + max(0, int(r["Cop. medie"]) - 1) * 0.2
+    if r["Cop. pesanti"] > 0:
+        fattore_preliminare += 1.5 + max(0, int(r["Cop. pesanti"]) - 1) * 0.3
 
-# Correzione peso (Tabella 2 - compatta)
+# =========================
+# Correzione peso
+# =========================
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     if f_base >= 1.4:
         return f_base * (0.98 + (peso_kg / 70.0) * 0.02)
@@ -113,5 +143,7 @@ def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
 
 fattore_finale = correzione_peso_tabella2(float(fattore_preliminare), float(peso))
 
+# =========================
 # Output compatto
+# =========================
 st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
