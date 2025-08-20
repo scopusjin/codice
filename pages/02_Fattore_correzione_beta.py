@@ -14,20 +14,36 @@ st.title("Fattore di correzione — beta")
 # --- Help compatti ---
 HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
 HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, seleziona 'con correnti d'aria'."
-HELP_SUPERFICIE = "Supporto su cui è adagiato il corpo."
 HELP_COPERTE = "Considera solo se coprono addome/torace inferiore."
 
-# ---------------------
+# Dizionario etichette brevi -> descrizioni estese per Appoggio
+APP_APPOGGIO_MAP = {
+    "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
+    "Isolante": "Materasso o tappeto spesso",
+    "Molto isolante": "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
+    "Conduttivo": "Cemento, pietra, pavimento in PVC, pavimentazione esterna",
+    "Molto conduttivo": "Superficie metallica spessa, all'esterno.",
+    "Foglie umide (>= 2 cm)": "Foglie umide (>= 2 cm)",
+    "Foglie secche (>= 2 cm)": "Foglie secche (>= 2 cm)",
+}
+
+HELP_SUPERFICIE = (
+    "Significato delle opzioni:\n"
+    "- Indifferente = Pavimento di casa / terreno / prato asciutto / asfalto\n"
+    "- Isolante = Materasso o tappeto spesso\n"
+    "- Molto isolante = Imbottitura pesante (es. sacco a pelo isolante, polistirolo, divano imbottito)\n"
+    "- Conduttivo = Cemento, pietra, pavimento in PVC, pavimentazione esterna\n"
+    "- Molto conduttivo = Superficie metallica spessa, all'esterno\n"
+    "- Foglie umide/secche = strato di foglie di almeno 2 cm"
+)
+
 # 1) Peso su riga isolata
-# ---------------------
 peso = st.number_input(
     "Peso corporeo (kg)",
     min_value=10.0, max_value=200.0, value=70.0, step=0.5,
 )
 
-# ---------------------
-# 2) Condizioni iniziali (no colonne, opzioni orizzontali)
-# ---------------------
+# 2) Condizioni iniziali (radio orizzontali, no colonne)
 stato = st.radio(
     "**Condizioni del corpo**",
     ["asciutto", "bagnato", "in acqua"],
@@ -39,14 +55,14 @@ stato = st.radio(
 scelta_vestizione = st.radio(
     "**Vestizione**",
     ["nudo e scoperto", "vestito e/o coperto"],
-    index=1,
+    index=0,  # default richiesto
     horizontal=True,
 )
 
 # Caso: immerso -> UI minima e stop
 if stato == "in acqua":
     acqua_tipo = st.radio(
-        "**Condizioni dell’acqua**",
+        "**Condizioni dell'acqua**",
         ["acqua stagnante", "acqua corrente"],
         index=0,
         horizontal=True,
@@ -55,34 +71,25 @@ if stato == "in acqua":
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# ---------------------
-# 3) Correnti d’aria + Appoggio (senza colonne, in sequenza)
-# ---------------------
+# 3) Correnti d’aria + Appoggio (senza colonne, orizzontali)
 correnti_aria = st.radio(
-    "**Correnti d’aria?**",
+    "**Correnti d'aria?**",
     ["senza correnti", "con correnti d'aria"],
     index=0,
     horizontal=True,
     help=HELP_CORRENTI_ARIA,
 )
 
-superficie = st.radio(
+superficie_short = st.radio(
     "**Appoggio**",
-    [
-        "Pavimento/terreno/prato/asfalto",
-        "Materasso o tappeto spesso",
-        "Imbottitura pesante",
-        "Foglie umide (>= 2 cm)",
-        "Foglie secche (>= 2 cm)",
-    ],
-    index=0,
+    list(APP_APPOGGIO_MAP.keys()),
+    index=0,  # default: Indifferente
     horizontal=True,
     help=HELP_SUPERFICIE,
 )
+superficie_full = APP_APPOGGIO_MAP[superficie_short]  # mappatura alla descrizione estesa (se serve più avanti)
 
-# ---------------------
 # 4) Abbigliamento e coperte (tabella compatta a 1 riga)
-# ---------------------
 fattore_preliminare = 1.0
 if scelta_vestizione == "vestito e/o coperto":
     df = pd.DataFrame(
@@ -126,9 +133,7 @@ if scelta_vestizione == "vestito e/o coperto":
     if r["Cop. pesanti"] > 0:
         fattore_preliminare += 1.5 + max(0, int(r["Cop. pesanti"]) - 1) * 0.3
 
-# ---------------------
 # 5) Correzione peso (Tabella 2 - compatta)
-# ---------------------
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     if f_base >= 1.4:
         return f_base * (0.98 + (peso_kg / 70.0) * 0.02)
@@ -136,7 +141,5 @@ def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
 
 fattore_finale = correzione_peso_tabella2(float(fattore_preliminare), float(peso))
 
-# ---------------------
 # 6) Output
-# ---------------------
 st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
