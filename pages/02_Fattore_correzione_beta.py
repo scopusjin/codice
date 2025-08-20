@@ -29,9 +29,7 @@ HELP_SUPERFICIE = (
     "Foglie = strato ≥ 2 cm"
 )
 
-# =========================
 # Etichette brevi -> descrizioni estese (se servono)
-# =========================
 APP_APPOGGIO_MAP = {
     "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
     "Isolante": "Materasso o tappeto spesso",
@@ -51,7 +49,7 @@ peso = st.number_input(
 )
 
 # =========================
-# 2) Condizioni iniziali (senza colonne, opzioni orizzontali)
+# 2) Condizioni iniziali (no colonne, opzioni orizzontali)
 # =========================
 stato = st.radio(
     "**Condizioni del corpo**",
@@ -64,11 +62,11 @@ stato = st.radio(
 scelta_vestizione = st.radio(
     "**Vestizione**",
     ["nudo e scoperto", "vestito e/o coperto"],
-    index=0,  # default richiesto: nudo e scoperto
+    index=0,  # default richiesto
     horizontal=True,
 )
 
-# Caso: immerso -> UI minima e stop
+# Caso: immerso -> UI minima e stop (niente tabella vestiti)
 if stato == "in acqua":
     acqua_tipo = st.radio(
         "**Condizioni dell'acqua**",
@@ -81,41 +79,16 @@ if stato == "in acqua":
     st.stop()
 
 # =========================
-# 3) Correnti d’aria + Appoggio (senza colonne, orizzontali)
+# 3) Tabella VESTITI/COPERTE subito sotto la riga “Vestizione”
 # =========================
-correnti_aria = st.radio(
-    "**Correnti d'aria?**",
-    ["senza correnti", "con correnti d'aria"],
-    index=0,
-    horizontal=True,
-    help=HELP_CORRENTI_ARIA,
-)
-
-# Opzioni Appoggio: "Molto conduttivo" compare solo se nudo + asciutto
-opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
-if stato == "asciutto" and scelta_vestizione == "nudo e scoperto":
-    opts_appoggio.append("Molto conduttivo")
-opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
-
-superficie_short = st.radio(
-    "**Appoggio**",
-    opts_appoggio,
-    index=0,  # default: Indifferente
-    horizontal=True,
-    help=HELP_SUPERFICIE,
-)
-superficie_full = APP_APPOGGIO_MAP.get(superficie_short, superficie_short)
-
-# =========================
-# 4) Abbigliamento e coperte (tabella compatta a 1 riga)
-# =========================
-# Contatori di default, anche quando nudo (restano 0)
+# Contatori di default (anche se nudo restano 0)
 n_sottili = n_spessi = n_lenz_plus = n_cop_medie = n_cop_pesanti = 0
 has_lenz_pp = False
 
 fattore_preliminare = 1.0
 
 if scelta_vestizione == "vestito e/o coperto":
+    # DataFrame a 1 riga con dtype espliciti
     df = pd.DataFrame(
         {
             "Sottili": pd.Series([0], dtype="int"),
@@ -143,7 +116,6 @@ if scelta_vestizione == "vestito e/o coperto":
     )
 
     r = edited.iloc[0]
-
     # Valori dai contatori
     n_sottili     = int(r["Sottili"])
     n_spessi      = int(r["Spessi"])
@@ -152,7 +124,7 @@ if scelta_vestizione == "vestito e/o coperto":
     n_cop_medie   = int(r["Cop. medie"])
     n_cop_pesanti = int(r["Cop. pesanti"])
 
-    # Calcolo fattore da vestiti/coperte
+    # Calcolo base da vestiti/coperte
     fattore_preliminare = 1.0
     if n_sottili > 0:
         fattore_preliminare += min(n_sottili * 0.075, 1.8)
@@ -168,7 +140,33 @@ if scelta_vestizione == "vestito e/o coperto":
         fattore_preliminare += 1.5 + max(0, n_cop_pesanti - 1) * 0.3
 
 # =========================
-# 4b) Regole Appoggio (dopo vestiti/coperte, prima correzione peso)
+# 4) Correnti d’aria + Appoggio (senza colonne, orizzontali)
+# =========================
+correnti_aria = st.radio(
+    "**Correnti d'aria?**",
+    ["senza correnti", "con correnti d'aria"],
+    index=0,
+    horizontal=True,
+    help=HELP_CORRENTI_ARIA,
+)
+
+# Opzioni Appoggio: "Molto conduttivo" solo se nudo + asciutto
+opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
+if stato == "asciutto" and scelta_vestizione == "nudo e scoperto":
+    opts_appoggio.append("Molto conduttivo")
+opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
+
+superficie_short = st.radio(
+    "**Appoggio**",
+    opts_appoggio,
+    index=0,  # default: Indifferente
+    horizontal=True,
+    help=HELP_SUPERFICIE,
+)
+superficie_full = APP_APPOGGIO_MAP.get(superficie_short, superficie_short)
+
+# =========================
+# 5) Regole Appoggio (dopo vestiti/coperte, prima correzione peso)
 # =========================
 def applica_regole_superficie(
     fatt, superficie_short, stato, correnti_aria, vestizione,
@@ -288,10 +286,10 @@ fattore_preliminare = applica_regole_superficie(
 )
 
 # =========================
-# 5) Correzione peso (Tabella 2 - compatta)
+# 6) Correzione peso (Tabella 2 - compatta)
 # =========================
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
-    # Nota: versione semplificata. Se serve la logica "tabella 2" completa, sostituire qui.
+    # Semplificata; sostituisci con Tabella 2 completa se necessario.
     if f_base >= 1.4:
         return f_base * (0.98 + (peso_kg / 70.0) * 0.02)
     return f_base
@@ -299,6 +297,6 @@ def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
 fattore_finale = correzione_peso_tabella2(float(fattore_preliminare), float(peso))
 
 # =========================
-# 6) Output
+# 7) Output
 # =========================
 st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
