@@ -203,5 +203,3 @@ else:
     st.caption("La tabella è nascosta perché hai selezionato **nudo e scoperto**. I parametri di abbigliamento/copertura non si applicano.")
 
 st.caption(f"Ultimo aggiornamento UI: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-
-    
