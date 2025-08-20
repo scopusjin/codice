@@ -16,156 +16,98 @@ st.set_page_config(
 st.title("Fattore di correzione — beta")
 
 # =========================
-# Helper per label "senza titolo"
-# =========================
-RADIO_NO_LABEL = ""
-
-# =========================
-# SEZIONE 0 — Scelta rapida (senza titolo): nudo/scoperto vs vestito/coperto
+# Scelta rapida
 # =========================
 scelta_vestizione = st.radio(
-    RADIO_NO_LABEL,
+    "",
     ("nudo e scoperto", "vestito e/o coperto"),
     horizontal=True,
     index=1,
     label_visibility="collapsed",
-    help="Scegli se il corpo è completamente nudo e non coperto, oppure se presenta abiti e/o coperte."
 )
 
-st.divider()
+# =========================
+# Condizioni del corpo
+# =========================
+colA, colB, colC, colD = st.columns([1, 1, 1, 1])
 
-# =========================
-# SEZIONE 1 — Condizioni del corpo (PRIMA della tabella)
-# =========================
-st.subheader("Condizioni del corpo")
-cond_col1 = st.columns([1])[0]
-with cond_col1:
+with colA:
     stato = st.selectbox(
-        "Stato del corpo",
+        "Stato",
         ["asciutto", "bagnato", "in acqua"],
         index=0,
-        help="Se il corpo è immerso *in acqua*, verranno mostrati solo i parametri pertinenti (acqua stagnante/corrente)."
     )
 
-# Branch 1: Corpo immerso — UI ridotta e fattori fissi
+# Caso: corpo immerso → UI minima
 if stato == "in acqua":
-    st.subheader("Parametri acqua")
-    acqua_tipo = st.selectbox(
-        "Acqua",
-        ["acqua stagnante", "acqua corrente"],
-        index=0,
-        help="Seleziona il tipo di acqua."
-    )
-
-    # Valori fissi (override totale)
-    if acqua_tipo == "acqua corrente":
-        fattore_finale = 0.35
-    else:
-        fattore_finale = 0.50
-
-    st.info("Tabella abbigliamento/coperte nascosta: non rilevante per corpo immerso.")
-    st.success(f"FATTORE DI CORREZIONE FINALE (in acqua): **{fattore_finale:.2f}**")
+    with colB:
+        acqua_tipo = st.selectbox("Acqua", ["acqua stagnante", "acqua corrente"], index=0)
+    fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
+    st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# Branch 2: Corpo non immerso — mostra correnti d'aria, superficie, peso
-cond_col2, cond_col3, cond_col4 = st.columns([1.2, 1.6, 1.2])
-with cond_col2:
-    correnti_aria = st.selectbox(
-        "Correnti d'aria",
-        ["senza correnti", "con correnti d'aria"],
-        index=0,
-        help="Rilevante solo se il corpo non è immerso."
-    )
-with cond_col3:
+# Caso: non immerso → opzioni compatte
+with colB:
+    correnti_aria = st.selectbox("Correnti", ["senza correnti", "con correnti d'aria"], index=0)
+
+with colC:
     superficie = st.selectbox(
-        "Superficie d'appoggio",
+        "Superficie",
         [
-            "Pavimento di casa, terreno o prato asciutto, asfalto",
+            "Pavimento/terreno/prato/asfalto",
             "Materasso o tappeto spesso",
-            "Imbottitura pesante (es sacco a pelo isolante)",
-            "Foglie umide (almeno 2 cm)",
-            "Foglie secche (almeno 2 cm)",
+            "Imbottitura pesante",
+            "Foglie umide (≥2 cm)",
+            "Foglie secche (≥2 cm)",
         ],
         index=0,
     )
-with cond_col4:
-    peso = st.number_input(
-        "Peso corporeo (kg)",
-        min_value=10.0, max_value=200.0, value=70.0, step=0.5,
-        help="Usato per la correzione di Tabella 2 quando necessario."
-    )
+
+with colD:
+    peso = st.number_input("Peso (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
 st.divider()
 
 # =========================
-# SEZIONE 2 — Tabella abbigliamento/coperture (solo se vestito/coperto)
+# Abbigliamento e coperte (compatti)
 # =========================
 mostra_tabella = (scelta_vestizione == "vestito e/o coperto")
-
 fattore_preliminare = 1.0
 
 if mostra_tabella:
-    st.subheader("Abbigliamento e coperte — Tabella")
-
-    # Tabella a singola riga con contatori
     schema = {
-        "n. strati sottili": 0,
-        "n. strati spessi": 0,
-        "n. lenzuolo +": 0,
-        "n. coperte medie": 0,
-        "n. coperte pesanti": 0,
-        "lenzuolo ++": False,  # flag dedicato
+        "n. strati sottili": pd.Series([0], dtype="int"),
+        "n. strati spessi": pd.Series([0], dtype="int"),
+        "n. lenzuolo +": pd.Series([0], dtype="int"),
+        "n. coperte medie": pd.Series([0], dtype="int"),
+        "n. coperte pesanti": pd.Series([0], dtype="int"),
+        "lenzuolo ++": pd.Series([False], dtype="bool"),
     }
-    df = pd.DataFrame([schema])
+    df = pd.DataFrame(schema)
 
     edited = st.data_editor(
         df,
         hide_index=True,
         num_rows="fixed",
-        column_config={
-            "n. strati sottili": st.column_config.NumberColumn(min_value=0, step=1, help="Strati leggeri"),
-            "n. strati spessi": st.column_config.NumberColumn(min_value=0, step=1, help="Strati pesanti"),
-            "n. lenzuolo +": st.column_config.NumberColumn(min_value=0, step=1, help="Lenzuola sottili"),
-            "n. coperte medie": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte mezza stagione"),
-            "n. coperte pesanti": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte spesse"),
-            "lenzuolo ++": st.column_config.CheckboxColumn(help="Lenzuolo invernale/copriletto leggero"),
-        },
         use_container_width=True,
+        column_config={
+            "n. strati sottili": st.column_config.NumberColumn(label="Sottili", min_value=0, step=1),
+            "n. strati spessi": st.column_config.NumberColumn(label="Spessi", min_value=0, step=1),
+            "n. lenzuolo +": st.column_config.NumberColumn(label="Lenz.+", min_value=0, step=1),
+            "n. coperte medie": st.column_config.NumberColumn(label="Cop. medie", min_value=0, step=1),
+            "n. coperte pesanti": st.column_config.NumberColumn(label="Cop. pesanti", min_value=0, step=1),
+            "lenzuolo ++": st.column_config.CheckboxColumn(label="Lenz.++"),
+        },
     )
 
     r = edited.iloc[0]
-
-    # Valore iniziale
     fattore_preliminare = 1.0
-
-    # Regole incrementali
     if r["n. strati sottili"] > 0:
         fattore_preliminare += min(r["n. strati sottili"] * 0.075, 1.8)
     if r["n. strati spessi"] > 0:
         fattore_preliminare += min(r["n. strati spessi"] * 0.15, 1.8)
     if r["n. lenzuolo +"] > 0:
         fattore_preliminare += min(r["n. lenzuolo +"] * 0.075, 1.8)
-    if bool(r["lenzuolo ++"]):
+    if r["lenzuolo ++"]:
         fattore_preliminare += 1.0
     if r["n. coperte medie"] > 0:
-        fattore_preliminare += 1.5 + max(0, r["n. coperte medie"] - 1) * 0.2
-    if r["n. coperte pesanti"] > 0:
-        fattore_preliminare += 1.5 + max(0, r["n. coperte pesanti"] - 1) * 0.3
-
-    st.info(f"Fattore preliminare (prima di correzioni): **{fattore_preliminare:.2f}**")
-else:
-    st.subheader("Abbigliamento e coperte — Tabella (nascosta per corpo nudo e scoperto)")
-
-# =========================
-# SEZIONE 3 — Adattamenti e correzione peso (solo corpo non immerso)
-# =========================
-fattore = float(fattore_preliminare)
-
-def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
-    if f_base >= 1.4:
-        return f_base * (0.98 + (peso_kg / 70.0) * 0.02)
-    return f_base
-
-fattore_finale = correzione_peso_tabella2(fattore, float(peso))
-
-st.success(f"FATTORE DI CORREZIONE FINALE: **{fattore_finale:.2f}**")
