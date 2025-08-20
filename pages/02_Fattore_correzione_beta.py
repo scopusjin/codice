@@ -12,6 +12,27 @@ st.set_page_config(
 st.title("Fattore di correzione — beta")
 
 # =========================
+# Help (stile esempio)
+# =========================
+HELP_CONDIZIONE = (
+    "Se il corpo è **immerso in acqua**, abbigliamento e coperte non sono rilevanti: "
+    "verranno mostrati solo i parametri pertinenti (acqua stagnante/corrente)."
+)
+HELP_CORRENTI_ARIA = (
+    "Seleziona *Eposto a corrente d’aria* quando il corpo è in prossimità di finestre aperte, ventole, "
+    "correnti d’aria naturali o artificiali. Altrimenti scegli *Nessuna corrente*."
+)
+HELP_SUPERFICIE = (
+    "Scegli il supporto su cui è adagiato il corpo. *Isolante* riduce lo scambio termico, "
+    "*Conduttivo* lo aumenta. Le **foglie** compaiono solo in condizioni particolari."
+)
+HELP_COPERTE = (
+    "Tenerne conto solo se coprono addome/torace inferiore. "
+    "Lenzuolo + = telo sottile; Lenzuolo ++ = invernale/copriletto; "
+    "Coperta medie/pesanti = mezza stagione/pesanti."
+)
+
+# =========================
 # Peso su riga isolata
 # =========================
 peso = st.number_input(
@@ -23,20 +44,23 @@ peso = st.number_input(
 )
 
 # =========================
-# Condizioni iniziali (radio orizzontali)
+# Condizioni iniziali (radio orizzontali, con titoletti e help)
 # =========================
 col1, col2 = st.columns([1, 1])
 
 with col1:
+    st.markdown("**Condizioni del corpo**")
     stato = st.radio(
         "",
         ["asciutto", "bagnato", "in acqua"],
         index=0,
         horizontal=True,
         label_visibility="collapsed",
+        help=HELP_CONDIZIONE,
     )
 
 with col2:
+    st.markdown("**Vestizione**")
     scelta_vestizione = st.radio(
         "",
         ["nudo e scoperto", "vestito e/o coperto"],
@@ -47,6 +71,7 @@ with col2:
 
 # Caso: corpo immerso -> UI minima
 if stato == "in acqua":
+    st.markdown("**Condizioni dell’acqua**")
     acqua_tipo = st.radio(
         "",
         ["acqua stagnante", "acqua corrente"],
@@ -59,20 +84,23 @@ if stato == "in acqua":
     st.stop()
 
 # =========================
-# Correnti + Appoggio
+# Correnti + Appoggio (con titoletti e help)
 # =========================
 colA, colB = st.columns([1, 2])
 
 with colA:
+    st.markdown("**Correnti d’aria?**")
     correnti_aria = st.radio(
         "",
         ["senza correnti", "con correnti d'aria"],
         index=0,
         horizontal=True,
         label_visibility="collapsed",
+        help=HELP_CORRENTI_ARIA,
     )
 
 with colB:
+    st.markdown("**Appoggio**")
     superficie = st.radio(
         "",
         [
@@ -85,10 +113,11 @@ with colB:
         index=0,
         horizontal=True,
         label_visibility="collapsed",
+        help=HELP_SUPERFICIE,
     )
 
 # =========================
-# Abbigliamento e coperte
+# Abbigliamento e coperte (compatti)
 # =========================
 fattore_preliminare = 1.0
 if scelta_vestizione == "vestito e/o coperto":
@@ -109,12 +138,12 @@ if scelta_vestizione == "vestito e/o coperto":
         num_rows="fixed",
         use_container_width=True,
         column_config={
-            "Sottili": st.column_config.NumberColumn(min_value=0, step=1),
-            "Spessi": st.column_config.NumberColumn(min_value=0, step=1),
-            "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1),
-            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1),
-            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1),
-            "Lenz.++": st.column_config.CheckboxColumn(),
+            "Sottili": st.column_config.NumberColumn(min_value=0, step=1, help="Strati leggeri"),
+            "Spessi": st.column_config.NumberColumn(min_value=0, step=1, help="Strati pesanti"),
+            "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1, help="Lenzuola sottili"),
+            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte mezza stagione"),
+            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte spesse"),
+            "Lenz.++": st.column_config.CheckboxColumn(help=HELP_COPERTE),
         },
     )
 
@@ -134,7 +163,7 @@ if scelta_vestizione == "vestito e/o coperto":
         fattore_preliminare += 1.5 + max(0, int(r["Cop. pesanti"]) - 1) * 0.3
 
 # =========================
-# Correzione peso
+# Correzione peso (Tabella 2 - compatta)
 # =========================
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     if f_base >= 1.4:
