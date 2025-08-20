@@ -14,11 +14,12 @@ st.set_page_config(
 )
 
 st.title("Fattore di correzione — beta")
-st.caption(
-    "Condizioni del corpo PRIMA della tabella. Selezione iniziale senza titolo: *nudo e scoperto* vs *vestito e/o coperto*.
-"
-    "Se *in acqua*, compare SOLO la scelta *acqua stagnante/corrente* con valori fissi (0.50 / 0.35) e la tabella viene nascosta."
-)
+st.caption("""
+Condizioni del corpo PRIMA della tabella.  
+Selezione iniziale senza titolo: *nudo e scoperto* vs *vestito e/o coperto*.  
+Se *in acqua*, compare SOLO la scelta *acqua stagnante/corrente* con valori fissi (0.50 / 0.35) e la tabella viene nascosta.
+""")
+
 
 # =========================
 # Helper per label "senza titolo"
