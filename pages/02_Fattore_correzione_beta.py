@@ -29,7 +29,7 @@ HELP_SUPERFICIE = (
     "Foglie = strato ≥ 2 cm"
 )
 
-# Etichette brevi -> descrizioni estese (se servono)
+# Etichette brevi -> descrizioni estese
 APP_APPOGGIO_MAP = {
     "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
     "Isolante": "Materasso o tappeto spesso",
@@ -105,13 +105,14 @@ if scelta_vestizione == "vestito e/o coperto":
         hide_index=True,
         num_rows="fixed",
         use_container_width=True,
+        key="editor_vestiti",  # evita conflitti di stato fra rerun
         column_config={
-            "Sottili": st.column_config.NumberColumn(min_value=0, step=1, help="Strati leggeri"),
-            "Spessi": st.column_config.NumberColumn(min_value=0, step=1, help="Strati pesanti"),
-            "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1, help="Lenzuola sottili"),
-            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte mezza stagione"),
-            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1, help="Coperte spesse"),
-            "Lenz.++": st.column_config.CheckboxColumn(help=HELP_COPERTE),
+            "Sottili": st.column_config.NumberColumn(min_value=0, step=1),
+            "Spessi": st.column_config.NumberColumn(min_value=0, step=1),
+            "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1),
+            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1),
+            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1),
+            "Lenz.++": st.column_config.CheckboxColumn(),
         },
     )
 
@@ -124,20 +125,38 @@ if scelta_vestizione == "vestito e/o coperto":
     n_cop_medie   = int(r["Cop. medie"])
     n_cop_pesanti = int(r["Cop. pesanti"])
 
-    # Calcolo base da vestiti/coperte
-    fattore_preliminare = 1.0
-    if n_sottili > 0:
-        fattore_preliminare += min(n_sottili * 0.075, 1.8)
-    if n_spessi > 0:
-        fattore_preliminare += min(n_spessi * 0.15, 1.8)
-    if n_lenz_plus > 0:
-        fattore_preliminare += min(n_lenz_plus * 0.075, 1.8)
-    if has_lenz_pp:
-        fattore_preliminare += 1.0
-    if n_cop_medie > 0:
-        fattore_preliminare += 1.5 + max(0, n_cop_medie - 1) * 0.2
-    if n_cop_pesanti > 0:
-        fattore_preliminare += 1.5 + max(0, n_cop_pesanti - 1) * 0.3
+    # -----------------------------
+    # Calcolo base da vestiti/coperte con casi speciali coperte "sole"
+    # -----------------------------
+    tot_items = (
+        n_sottili + n_spessi + n_lenz_plus
+        + (1 if has_lenz_pp else 0) + n_cop_medie + n_cop_pesanti
+    )
+
+    # Caso speciale: esattamente UNA coperta e nient'altro
+    if tot_items == 1 and n_cop_medie == 1:
+        fattore_preliminare = 1.5
+    elif tot_items == 1 and n_cop_pesanti == 1:
+        fattore_preliminare = 1.8
+    else:
+        fattore_preliminare = 1.0
+        if n_sottili > 0:
+            fattore_preliminare += min(n_sottili * 0.075, 1.8)
+        if n_spessi > 0:
+            fattore_preliminare += min(n_spessi * 0.15, 1.8)
+        if n_lenz_plus > 0:
+            fattore_preliminare += min(n_lenz_plus * 0.075, 1.8)
+        if has_lenz_pp:
+            fattore_preliminare += 1.0
+        if n_cop_medie > 0:
+            # prima coperta media = 1.5, poi +0.2 per ciascuna aggiuntiva
+            fattore_preliminare += 1.5 + max(0, n_cop_medie - 1) * 0.2
+        if n_cop_pesanti > 0:
+            # prima coperta pesante = 1.8, poi +0.3 per ciascuna aggiuntiva
+            fattore_preliminare += 1.8 + max(0, n_cop_pesanti - 1) * 0.3
+
+    # Cap sul contributo di vestiti/coperte
+    fattore_preliminare = min(fattore_preliminare, 3.0)
 
 # =========================
 # 4) Correnti d’aria + Appoggio (senza colonne, orizzontali)
@@ -286,7 +305,7 @@ fattore_preliminare = applica_regole_superficie(
 )
 
 # =========================
-# 6) Correzione peso (Tabella 2 - compatta)
+# 6) Correzione peso (Tabella 2 - compatta / placeholder)
 # =========================
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     # Semplificata; sostituisci con Tabella 2 completa se necessario.
