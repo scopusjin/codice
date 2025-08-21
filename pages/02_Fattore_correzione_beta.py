@@ -19,7 +19,7 @@ st.title("Fattore di correzione — beta")
 # =========================
 HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
 HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, seleziona 'con correnti d'aria'."
-HELP_COPERTE = "Considera solo se coprono addome/torace inferiore."
+HELP_COPERTE = "Considera solo se coprono la parte inferiore del tronco"
 HELP_SUPERFICIE = (
     "Indifferente = Pavimento/terreno/prato asciutto/asfalto · "
     "Isolante = Materasso/tappeto spesso · "
@@ -33,11 +33,10 @@ HELP_SUPERFICIE = (
 APP_APPOGGIO_MAP = {
     "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
     "Isolante": "Materasso o tappeto spesso",
-    "Molto isolante": "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
-    "Conduttivo": "Cemento, pietra, pavimentazione esterna in PVC, ecc.",
-    "Molto conduttivo": "Superficie metallica spessa, all'esterno.",
-    "Foglie umide (>= 2 cm)": "Foglie umide (>= 2 cm)",
-    "Foglie secche (>= 2 cm)": "Foglie secche (>= 2 cm)",
+    "Molto isolante": "sacco a pelo tecnico, polistirolo, divano imbottito)",
+    "Conduttivo": "Cemento, pietra, pavimentazione esterna, pavimento in PVC.",
+    "Molto conduttivo": "Superficie metallica spessa, in ambiente esterno.",
+    "Foglie (>= 2 cm)": "adagiato su uno spesso strato di foglie",
 }
 
 # =========================
