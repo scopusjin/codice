@@ -193,9 +193,9 @@ def applica_regole_superficie(fatt, superficie_short, stato, correnti_aria,
     # Isolante
     if superficie_short == "Isolante":
         if tot_items == 0:
-            return 1.20
-        elif only_thin_1() or only_sheet_1():
             return 1.10
+        elif only_thin_1() or only_sheet_1():
+            return 1.20
         else:
             return fatt + 0.10
 
