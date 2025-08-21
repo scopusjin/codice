@@ -141,10 +141,10 @@ if scelta_vestizione == "vestito e/o coperto":
 
     if n_cop_pesanti > 0:
         # Base 1.8, +0.3 per ogni pesante extra, +0.2 per ogni media
-        fattore_preliminare = 1.8 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
+        fattore_preliminare = 2 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
     elif n_cop_medie > 0:
         # Base 1.5, +0.2 per ogni media extra
-        fattore_preliminare = 1.5 + max(0, n_cop_medie - 1) * 0.2
+        fattore_preliminare = 1.8 + max(0, n_cop_medie - 1) * 0.2
     else:
         fattore_preliminare = 1.0
 
