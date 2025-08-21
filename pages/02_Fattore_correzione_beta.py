@@ -27,7 +27,7 @@ HELP_SUPERFICIE = (
     "Molto isolante = Imbottitura pesante (sacco a pelo, polistirolo, divano imbottito) · "
     "Conduttivo = Cemento/pietra/PVC/esterno · "
     "Molto conduttivo = Superficie metallica spessa all'esterno (solo nudo asciutto) · "
-    "Foglie = strato ≥ 2 cm"
+    "Foglie umide/secche = strato ≥ 2 cm (solo se corpo asciutto)"
 )
 
 # Etichette brevi -> descrizioni estese
@@ -92,7 +92,7 @@ if stato == "in acqua":
 n_sottili = n_spessi = n_lenz_plus = n_cop_medie = n_cop_pesanti = 0
 has_lenz_pp = False
 
-fattore_vestiti_coperte = 1.0  # questo serve anche per le regole "soglia 1.2"
+fattore_vestiti_coperte = 1.0  # serve sia per calcolo sia per regole correnti/bagnato
 
 if scelta_vestizione == "vestito e/o coperto":
     # DataFrame a 1 riga con dtype espliciti
@@ -117,8 +117,8 @@ if scelta_vestizione == "vestito e/o coperto":
             "Sottili": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="+0.075 per strato"),
             "Spessi": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="+0.15 per strato"),
             "Lenz.+": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="+0.075 per lenzuolo"),
-            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="base 1.8 (voluta da te); +0.2 extra"),
-            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="base 2.0 (voluta da te); +0.3 extra"),
+            "Cop. medie": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="base 1.8 (voluta); +0.2 extra"),
+            "Cop. pesanti": st.column_config.NumberColumn(min_value=0, step=1, format="%d", help="base 2.0 (voluta); +0.3 extra"),
             "Lenz.++": st.column_config.CheckboxColumn(help="+0.15 (lenzuolo spesso)"),
         },
     )
@@ -145,7 +145,6 @@ if scelta_vestizione == "vestito e/o coperto":
     #   * spesso: +0.15 ciascuno
     #   * lenzuolo+: +0.075 ciascuno
     #   * lenzuolo++: +0.15 (checkbox)
-    # Cap massimo = 3.0
     # -----------------------------
     if n_cop_pesanti > 0:
         fattore_vestiti_coperte = 2.0 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
@@ -160,10 +159,10 @@ if scelta_vestizione == "vestito e/o coperto":
     if has_lenz_pp:
         fattore_vestiti_coperte += 0.15
 
-    fattore_vestiti_coperte = min(fattore_vestiti_coperte, 3.0)
+    # ⛔️ NIENTE cap qui: il clamp resta SOLO alla fine della pipeline
 
 # =========================
-# 4) Correnti d’aria (VISIBILITÀ dipende SOLO dai vestiti/lenzuola)
+# 4) Correnti d’aria (VISIBILITÀ dipende SOLO da vestiti/lenzuola)
 #    - Se, sulla base di vestiti/lenzuola, il fattore >= 1.2 -> correnti irrilevanti e widget nascosto
 # =========================
 correnti_aria = "/"
@@ -348,7 +347,6 @@ def applica_correnti(
         if spessi_equiv >= 2:
             return 0.90, True
         # Altri casi bagnato+correnti non esplicitati: non applichiamo override
-        # (rimane il valore 'fatt')
         return fatt, False
 
     # 3) Nudo + asciutto (fattore < 1.2, non molto conduttivo)
@@ -386,7 +384,7 @@ fattore_post_correnti, correnti_override = applica_correnti(
 
 # =========================
 # 8) Regola generale BAGNATO (-0.3 se <1.2 in base a vestiti/lenzuola)
-#    - si applica al fattore finale (post appoggio / correnti), salvo si sia già applicato un override forte (0.7/0.8/0.9)
+#    - si applica al fattore finale (post appoggio / correnti), salvo override forte (0.7/0.8/0.9)
 # =========================
 fattore_pre_correzione_peso = float(fattore_post_correnti)
 if stato == "bagnato" and fattore_vestiti_coperte < 1.2 and not correnti_override:
@@ -419,3 +417,4 @@ fattore_finale = correzione_peso_tabella2(fattore_pre_correzione_peso, float(pes
 # 10) Output
 # =========================
 st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
+    
