@@ -126,36 +126,37 @@ if scelta_vestizione == "vestito e/o coperto":
     n_cop_pesanti = int(r["Cop. pesanti"])
 
     # -----------------------------
-    # Calcolo base da vestiti/coperte con casi speciali coperte "sole"
+    # Calcolo base con regole corrette per le coperte:
+    # - Se presente >=1 coperta pesante: BASE = 1.8
+    # - altrimenti se presente >=1 coperta media: BASE = 1.5
+    # - altrimenti: BASE = 1.0
+    # Extra coperte:
+    #   * pesante aggiuntiva: +0.3 ciascuna
+    #   * media aggiuntiva (o medie quando base è pesante): +0.2 ciascuna
+    # Strati:
+    #   * sottile: +0.075 ciascuno
+    #   * spesso: +0.15 ciascuno
+    #   * lenzuolo+: +0.075 ciascuno
+    #   * lenzuolo++: +0.15 (checkbox)
     # -----------------------------
-    tot_items = (
-        n_sottili + n_spessi + n_lenz_plus
-        + (1 if has_lenz_pp else 0) + n_cop_medie + n_cop_pesanti
-    )
 
-    # Caso speciale: esattamente UNA coperta e nient'altro
-    if tot_items == 1 and n_cop_medie == 1:
-        fattore_preliminare = 1.5
-    elif tot_items == 1 and n_cop_pesanti == 1:
-        fattore_preliminare = 1.8
+    if n_cop_pesanti > 0:
+        # Base 1.8, +0.3 per ogni pesante extra, +0.2 per ogni media
+        fattore_preliminare = 1.8 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
+    elif n_cop_medie > 0:
+        # Base 1.5, +0.2 per ogni media extra
+        fattore_preliminare = 1.5 + max(0, n_cop_medie - 1) * 0.2
     else:
         fattore_preliminare = 1.0
-        if n_sottili > 0:
-            fattore_preliminare += min(n_sottili * 0.075, 1.8)
-        if n_spessi > 0:
-            fattore_preliminare += min(n_spessi * 0.15, 1.8)
-        if n_lenz_plus > 0:
-            fattore_preliminare += min(n_lenz_plus * 0.075, 1.8)
-        if has_lenz_pp:
-            fattore_preliminare += 1.0
-        if n_cop_medie > 0:
-            # prima coperta media = 1.5, poi +0.2 per ciascuna aggiuntiva
-            fattore_preliminare += 1.5 + max(0, n_cop_medie - 1) * 0.2
-        if n_cop_pesanti > 0:
-            # prima coperta pesante = 1.8, poi +0.3 per ciascuna aggiuntiva
-            fattore_preliminare += 1.8 + max(0, n_cop_pesanti - 1) * 0.3
 
-    # Cap sul contributo di vestiti/coperte
+    # Incrementi vestiti/lenzuola
+    fattore_preliminare += n_sottili * 0.075
+    fattore_preliminare += n_spessi * 0.15
+    fattore_preliminare += n_lenz_plus * 0.075
+    if has_lenz_pp:
+        fattore_preliminare += 0.15
+
+    # Cap massimo
     fattore_preliminare = min(fattore_preliminare, 3.0)
 
 # =========================
