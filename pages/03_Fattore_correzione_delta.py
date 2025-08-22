@@ -40,7 +40,7 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
     - Altrimenti base 1.0
     - +0.075 per ogni strato sottile (indumento o lenzuolo sottile)
     - +0.15  per ogni strato spesso  (indumento pesante o lenzuolo spesso)
-    - CAP: se non ci sono coperte, valore massimo = 1.8
+    - NESSUN cap a 1.8 quando non ci sono coperte (come da tua scelta).
     """
     if n_cop_pesanti > 0:
         fatt = 2.0 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
@@ -52,12 +52,8 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
         fatt += n_spessi_eq * 0.15
     else:
         fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
-     #   if fatt > 1.8:
-     #   if fatt > 1.8:
-     #       fatt = 1.8  # cap se solo indumenti/lenzuola
 
     return float(fatt)
-
 
 def is_vestizione_minima(n_sottili_eq: int, n_spessi_eq: int) -> bool:
     # 1–2 sottili (0 spessi) oppure 1 spesso (0 sottili)
@@ -200,7 +196,7 @@ def applica_correnti(
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     """Stub Tabella 2: sostituisci con lookup reale quando pronto."""
     if f_base < 1.4:
-        return f_base
+        return clamp(f_base)
     approx = f_base * (0.98 + (peso_kg / 70.0) * 0.02)
     return clamp(approx)
 
@@ -212,32 +208,47 @@ st.subheader("Input")
 # Peso
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
-# ---- Condizione del corpo (etichette “corpo …”) ----
-_stato_options = [("asciutto", "corpo asciutto"),
-                  ("bagnato", "corpo bagnato"),
-                  ("in acqua", "corpo immerso")]
-stato = st.selectbox(
+# ---- Condizione del corpo: radio orizzontale ----
+stato = st.radio(
     "Condizione del corpo",
-    _stato_options,
+    options=["asciutto", "bagnato", "in acqua"],
     index=0,
-    format_func=lambda x: x[1],
-)[0]  # valore interno
+    horizontal=True,
+    format_func=lambda x: f"corpo {x}",
+)
+
+# ---- Superficie d’appoggio (PRIMA della sezione vestiti/coperte) ----
+# NB: le opzioni disponibili dipendono da stato e vestizione (che definiamo più sotto).
+# Per rendere disponibile "Molto conduttivo" solo se nudo + asciutto,
+# inizialmente assumiamo nudo; poi, se l'utente attiva vestizione, aggiorna il selectbox.
+vestizione_assunta = "nudo e scoperto"
+opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
+if stato == "asciutto" and vestizione_assunta == "nudo e scoperto":
+    opts_appoggio.append("Molto conduttivo")
+if stato == "asciutto":
+    opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
+
+superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
 
 # ---- Switch affiancati ----
 c1, c2 = st.columns(2)
 with c1:
-    toggle_vestito = st.toggle("Vestito/coperto?", value=False)  # <— fix sintassi
+    toggle_vestito = st.toggle("Vestito/coperto?", value=False)
 with c2:
     toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False, disabled=(stato == "in acqua"))
 correnti_presenti = bool(toggle_correnti)
 
 vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
 
-# ---- Expander (senza titolo leggibile) per strati/coperte ----
+# Se l'utente ha attivato la vestizione e la selezione corrente non è compatibile
+# con "Molto conduttivo", lo rimuoviamo a valle nel calcolo (guard-rail in regole superficie).
+
+# ---- Expander vestizione/coperte (solo se attivato lo switch) ----
 n_sottili_eq = n_spessi_eq = 0
 n_cop_medie = n_cop_pesanti = 0
 if toggle_vestito:
-    with st.expander(" ", expanded=True):  # U+2003 em-space: appare senza testo
+    with st.expander(" ", expanded=True):  # header “muto”
+        st.caption("Indicare il numero di strati sul corpo. Hanno influenza solo quelli che coprono la parte bassa del tronco.")
         c1e, c2e = st.columns(2)
         with c1e:
             n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
@@ -246,30 +257,20 @@ if toggle_vestito:
             n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
             n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
 
-# Caso: in acqua → UI minima e stop
+# ---- Caso: corpo in acqua → UI minima e stop ----
 if stato == "in acqua":
     acqua_tipo = st.selectbox("Condizioni dell'acqua", ["acqua stagnante", "acqua corrente"], index=0)
     fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# Fattore solo da vestiti/lenzuola (serve anche per regole 'poco vestito')
-fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
-    n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
-)
-
-# Superficie (opzioni condizionali)
-opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
-if stato == "asciutto" and vestizione == "nudo e scoperto":
-    opts_appoggio.append("Molto conduttivo")
-if stato == "asciutto":
-    opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
-superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
-
 # =========================
 # Pipeline di calcolo (reattiva)
 # =========================
 # 1) Base: fattore da vestiti/coperte
+fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
+    n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+)
 fattore = float(fattore_vestiti_coperte)
 
 # 2) Regole superficie (Molto conduttivo restituisce 0.55 per nudo asciutto)
