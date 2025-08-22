@@ -194,7 +194,7 @@ stato = st.selectbox(
     _stato_options,
     index=0,
     format_func=lambda x: x[1],
-    help=HELP_CONDIZIONE
+    
 )[0]  # prendi il valore interno ("asciutto"/"bagnato"/"in acqua")
 
 # Vestizione
@@ -229,7 +229,7 @@ if fattore_vestiti_coperte < 1.2:
         "",
         ["senza correnti d'aria", "con correnti d'aria"],
         index=0,
-        help=HELP_CORRENTI_ARIA
+        
     )
 
 # Superficie (opzioni condizionali)
