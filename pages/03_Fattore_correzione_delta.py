@@ -18,7 +18,7 @@ st.title("Fattore di correzione — delta")
 # Help compatti
 # =========================
 HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
-HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, seleziona 'con correnti d'aria'."
+HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, attiva lo switch 'Correnti d'aria presenti?'."
 HELP_SUPERFICIE = (
     "**Indifferente**: pavimento domestico/terreno asciutto/prato asciutto/asfalto · "
     "**Isolante**: materasso/tappeto spesso · "
@@ -36,12 +36,12 @@ def clamp(x, lo=0.35, hi=3.0):
 
 def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti):
     """
-    Regole VOLUTE (come da tua scelta):
+    Regole VOLUTE:
     - Base 2.0 se >=1 coperta pesante (+0.3 per ciascuna pesante extra, +0.2 per ciascuna media)
     - Altrimenti base 1.8 se >=1 coperta media (+0.2 per ciascuna media extra)
     - Altrimenti base 1.0
-    - Poi: +0.075 per ogni strato sottile (indumento o lenzuolo sottile)
-           +0.15  per ogni strato spesso  (indumento pesante o lenzuolo spesso)
+    - +0.075 per ogni strato sottile (indumento o lenzuolo sottile)
+    - +0.15  per ogni strato spesso  (indumento pesante o lenzuolo spesso)
     """
     if n_cop_pesanti > 0:
         fatt = 2.0 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
@@ -49,21 +49,24 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
         fatt = 1.8 + max(0, n_cop_medie - 1) * 0.2
     else:
         fatt = 1.0
-
     fatt += n_sottili_eq * 0.075
     fatt += n_spessi_eq * 0.15
-    return float(fatt)  # clamp solo a fine pipeline
+    return float(fatt)
 
 def is_vestizione_minima(n_sottili_eq: int, n_spessi_eq: int) -> bool:
     # 1–2 sottili (0 spessi) oppure 1 spesso (0 sottili)
     return ((n_sottili_eq in (1, 2) and n_spessi_eq == 0) or
             (n_spessi_eq == 1 and n_sottili_eq == 0))
 
+def is_poco_vestito(fattore_vestiti_coperte: float) -> bool:
+    # come da richiesta: >1 e <1.2
+    return (fattore_vestiti_coperte > 1.0 and fattore_vestiti_coperte < 1.2)
+
 def applica_regole_superficie(
-    fatt, superficie_short, stato, correnti_aria, vestizione,
+    fatt, superficie_short, stato, vestizione,
     n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
 ):
-    """Regole di appoggio (con ‘Molto conduttivo’ a precedenza assoluta)."""
+    """Regole di appoggio (senza gestire qui le correnti)."""
     tot_items = n_sottili_eq + n_spessi_eq + n_cop_medie + n_cop_pesanti
 
     def only_thin_1():   return (n_sottili_eq == 1 and n_spessi_eq == 0 and n_cop_medie == 0 and n_cop_pesanti == 0)
@@ -73,11 +76,11 @@ def applica_regole_superficie(
     if superficie_short == "Indifferente":
         return fatt
 
-    # 1) Isolante (corretto: nudo=1.10; 1 sottile=1.20; altrimenti +0.10)
+    # 1) Isolante
     if superficie_short == "Isolante":
         if tot_items == 0:              # nudo
             return 1.10
-        elif only_thin_1():             # solo 1 sottile (indumento o lenzuolo)
+        elif only_thin_1():             # 1 sottile
             return 1.20
         else:
             return fatt + 0.10
@@ -86,7 +89,7 @@ def applica_regole_superficie(
     if superficie_short == "Molto isolante":
         if tot_items == 0:              # nudo
             return 1.30
-        if only_thin_1_2():             # solo 1–2 sottili
+        if only_thin_1_2():             # 1–2 sottili
             return fatt + 0.30
         else:
             return fatt + 0.10
@@ -95,16 +98,16 @@ def applica_regole_superficie(
     if superficie_short == "Conduttivo":
         if tot_items == 0:              # nudo
             return 0.75
-        elif only_thin_1():             # solo 1 sottile
+        elif only_thin_1():
             return fatt - 0.20
         else:
             return fatt - 0.10
 
-    # 4) Molto conduttivo (solo nudo + asciutto): override con correnti (precedenza assoluta)
+    # 4) Molto conduttivo (solo nudo + asciutto)
     if superficie_short == "Molto conduttivo":
         if not (stato == "asciutto" and vestizione == "nudo e scoperto"):
             return fatt  # guard-rail
-        return 0.50 if correnti_aria == "con correnti d'aria" else 0.55
+        return 0.55  # le correnti si applicano DOPO (−25% richiesto)
 
     # 5) Foglie umide (>= 2 cm)
     if superficie_short == "Foglie umide (>= 2 cm)":
@@ -127,45 +130,64 @@ def applica_regole_superficie(
     return fatt
 
 def applica_correnti(
-    fatt, stato, vestizione, superficie_short, correnti_aria,
+    fatt, stato, vestizione, superficie_short, correnti_presenti: bool,
     n_sottili_eq, n_spessi_eq, fattore_vestiti_coperte
 ):
     """
-    Precedenze correnti:
-    - Visibilità: se fattore_vestiti_coperte >= 1.2 → correnti spesso irrilevanti ("/").
-    - Molto conduttivo: gestito in superficie (precedenza assoluta).
-    - Bagnato + correnti: override a 0.7/0.8/0.9 secondo gli strati.
-    - Nudo + asciutto: SOLO se superficie = Indifferente → 1.00 / 0.75.
-    - Vestizione minima + correnti: fatt - 0.10.
+    Correnti d'aria:
+    - BAGNATO + correnti: override a 0.7/0.8/0.9 secondo gli strati (come prima).
+    - ASCIUTTO + correnti: riduzioni per superficie come da specifica:
+        * Indifferente:   nudo −25% ; poco vestito −20%
+        * Isolante:       nudo −20% ; poco vestito −15%
+        * Molto isolante: nudo/poco vestito −10%
+        * Conduttivo:     nudo/poco vestito −25%
+        * Molto conduttivo: nudo −25%  (partendo da 0.55)
+    - Altrimenti: invariato.
     """
-    # Correnti nascoste o irrilevanti
-    if correnti_aria == "/":
+    if not correnti_presenti:
         return fatt, False
 
-    # Molto conduttivo già trattato a monte
-    if superficie_short == "Molto conduttivo":
-        return fatt, True
-
-    # 2) Corpo bagnato + correnti → override diretto
-    if stato == "bagnato" and correnti_aria == "con correnti d'aria":
+    # 1) Corpo bagnato: override forte
+    if stato == "bagnato":
         # nudo o 1 sottile -> 0.7
         if (vestizione == "nudo e scoperto") or (n_sottili_eq == 1 and n_spessi_eq == 0):
             return 0.70, True
         # 2 sottili oppure 1 spesso -> 0.8
         if (n_sottili_eq == 2 and n_spessi_eq == 0) or (n_spessi_eq == 1 and n_sottili_eq == 0):
             return 0.80, True
-        # 2 spessi -> 0.9 (o più)
+        # >=2 spessi -> 0.9
         if n_spessi_eq >= 2:
             return 0.90, True
         return fatt, False
 
-    # 3) Nudo + asciutto → SOLO su superficie Indifferente
-    if stato == "asciutto" and vestizione == "nudo e scoperto" and superficie_short == "Indifferente":
-        return (0.75, True) if correnti_aria == "con correnti d'aria" else (1.00, True)
+    # 2) Corpo asciutto: applica riduzioni percentuali
+    nudo_asciutto = (stato == "asciutto" and vestizione == "nudo e scoperto")
+    poco_vestito  = (stato == "asciutto" and is_poco_vestito(fattore_vestiti_coperte))
 
-    # 4) Vestizione minima + correnti: -0.10
-    if is_vestizione_minima(n_sottili_eq, n_spessi_eq) and correnti_aria == "con correnti d'aria":
-        return fatt - 0.10, False
+    if stato == "asciutto":
+        if superficie_short == "Indifferente":
+            if nudo_asciutto:
+                return fatt * 0.75, True
+            if poco_vestito:
+                return fatt * 0.80, True
+
+        elif superficie_short == "Isolante":
+            if nudo_asciutto:
+                return fatt * 0.80, True
+            if poco_vestito:
+                return fatt * 0.85, True
+
+        elif superficie_short == "Molto isolante":
+            if nudo_asciutto or poco_vestito:
+                return fatt * 0.90, True
+
+        elif superficie_short == "Conduttivo":
+            if nudo_asciutto or poco_vestito:
+                return fatt * 0.75, True
+
+        elif superficie_short == "Molto conduttivo":
+            # solo nudo è ammesso da UI; −25% richiesto
+            return fatt * 0.75, True
 
     return fatt, False
 
@@ -194,7 +216,7 @@ stato = st.selectbox(
     index=0,
     format_func=lambda x: x[1],
     help=HELP_CONDIZIONE,
-)[0]  # valore interno ("asciutto"/"bagnato"/"in acqua")
+)[0]  # valore interno
 
 # ---- Vestizione: switch + expander con slider in 2 colonne ----
 toggle_vestito = st.toggle("Vestito/coperto?", value=False, help="Attiva per indicare strati e coperte.")
@@ -220,7 +242,11 @@ if stato == "in acqua":
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# Fattore solo da vestiti/lenzuola (serve anche per visibilità correnti)
+# Switch correnti (sempre visibile fuori dall'acqua)
+toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False, help=HELP_CORRENTI_ARIA)
+correnti_presenti = bool(toggle_correnti)
+
+# Fattore solo da vestiti/lenzuola (serve anche per regole 'poco vestito')
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
     n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
 )
@@ -233,53 +259,27 @@ if stato == "asciutto":
     opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
 superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
 
-# ---- Correnti d'aria (mostra quando contano o richieste per nudo+asciutto) ----
-correnti_aria = "/"
-nudo_asciutto = (stato == "asciutto" and vestizione == "nudo e scoperto")
-superfici_per_nudo = {"Indifferente", "Conduttivo", "Isolante", "Molto isolante", "Molto conduttivo"}
-
-correnti_rilevanti = (
-    (stato == "bagnato") or
-    (nudo_asciutto and superficie_short in superfici_per_nudo) or
-    is_vestizione_minima(n_sottili_eq, n_spessi_eq) or
-    (superficie_short == "Molto conduttivo")
-)
-
-if correnti_rilevanti:
-    correnti_aria = st.selectbox(
-        "",
-        ["senza correnti d'aria", "con correnti d'aria"],
-        index=0,
-        label_visibility="collapsed",
-        help=HELP_CORRENTI_ARIA
-    )
-
-    # Nota di trasparenza: casi in cui non influisce
-    if nudo_asciutto and superficie_short in {"Isolante", "Molto isolante", "Conduttivo"}:
-        st.caption("Nota: per nudo & asciutto su questa superficie, le correnti **non modificano** il fattore (effetto previsto solo per 'Indifferente' e 'Molto conduttivo').")
-else:
-    st.caption("Le correnti d’aria sono irrilevanti con questa combinazione di vestizione/superficie.")
-
 # =========================
 # Pipeline di calcolo (reattiva)
 # =========================
 # 1) Base: fattore da vestiti/coperte
 fattore = float(fattore_vestiti_coperte)
 
-# 2) Regole superficie (Molto conduttivo ha precedenza e usa correnti)
+# 2) Regole superficie (Molto conduttivo restituisce 0.55 per nudo asciutto)
 fattore = applica_regole_superficie(
-    fattore, superficie_short, stato, correnti_aria, vestizione,
+    fattore, superficie_short, stato, vestizione,
     n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
 )
 
-# 3) Correnti d’aria (fuori dal caso ‘Molto conduttivo’)
+# 3) Correnti d’aria (bagnato = override; asciutto = percentuali richieste)
 fattore, correnti_override = applica_correnti(
     fatt=fattore, stato=stato, vestizione=vestizione, superficie_short=superficie_short,
-    correnti_aria=correnti_aria, n_sottili_eq=n_sottili_eq, n_spessi_eq=n_spessi_eq,
+    correnti_presenti=correnti_presenti,
+    n_sottili_eq=n_sottili_eq, n_spessi_eq=n_spessi_eq,
     fattore_vestiti_coperte=fattore_vestiti_coperte
 )
 
-# 4) Regola generale bagnato: se fattore_vestiti_coperte < 1.2 e NON c'è override forte 0.7/0.8/0.9 → -0.3
+# 4) Regola generale bagnato: se poco vestito (<1.2) e NON c'è override forte → -0.3
 if stato == "bagnato" and fattore_vestiti_coperte < 1.2 and not correnti_override:
     fattore -= 0.30
 
