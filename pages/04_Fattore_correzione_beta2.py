@@ -11,7 +11,7 @@ from scipy.optimize import root_scalar
 import datetime
 import pandas as pd
 
-pip install openpyxl
+
 # =========================
 # Stato e costanti globali
 # =========================
