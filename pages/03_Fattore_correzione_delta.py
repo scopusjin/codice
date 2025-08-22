@@ -214,11 +214,11 @@ stato = st.selectbox(
     _stato_options,
     index=0,
     format_func=lambda x: x[1],
-    help=HELP_CONDIZIONE,
+    
 )[0]  # valore interno
 
 # ---- Vestizione: switch + expander con slider in 2 colonne ----
-toggle_vestito = st.toggle("Vestito/coperto?", value=False, help="Attiva per indicare strati e coperte.")
+toggle_vestito = st.toggle("Vestito/coperto?", value=False")
 vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
 
 n_sottili_eq = n_spessi_eq = 0
@@ -242,7 +242,7 @@ if stato == "in acqua":
     st.stop()
 
 # Switch correnti (sempre visibile fuori dall'acqua)
-toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False, help=HELP_CORRENTI_ARIA)
+toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False)
 correnti_presenti = bool(toggle_correnti)
 
 # Fattore solo da vestiti/lenzuola (serve anche per regole 'poco vestito')
