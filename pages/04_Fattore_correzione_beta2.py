@@ -299,7 +299,7 @@ def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
 # =========================
 # Funzione principale (riquadro calcolo) + switch wrapper
 # =========================
-def calcola_fattore(peso_iniziale: float):
+def calcola_fattore(peso: float):
     """
     Calcolo interattivo del fattore con logiche interne (slider, correnti, superfici).
     Include pulsante "✅ Usa questo fattore" che aggiorna:
@@ -324,7 +324,7 @@ def calcola_fattore(peso_iniziale: float):
 
     # --- Peso (sincronizzato col resto dell'app)
     peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0,
-                           value=float(st.session_state.get("peso", peso_iniziale)),
+                           value=float(st.session_state.get("peso", peso)),
                            step=0.5, key="fc_peso_local")
 
     # --- Stato del corpo
