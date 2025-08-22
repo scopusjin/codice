@@ -194,6 +194,7 @@ stato = st.selectbox(
     _stato_options,
     index=0,
     format_func=lambda x: x[1],
+    label_visibility="collapsed",
     
 )[0]  # prendi il valore interno ("asciutto"/"bagnato"/"in acqua")
 
