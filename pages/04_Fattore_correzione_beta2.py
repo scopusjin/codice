@@ -501,14 +501,12 @@ def fattore_section(peso: float):
 
     if show_fattore:
         st.markdown("---")
-        st.subheader("Calcolo interattivo del fattore")
+
         calcola_fattore(peso)
-        st.markdown("---")
+        
 
 
-# =========================
-# ESEMPIO DI USO NELLA PAGINA
-# =========================
+
 # Se altrove nella tua app hai già un input del peso che popola st.session_state["peso"],
 # qui lo rispettiamo; altrimenti default 70.
 peso_default = float(st.session_state.get("peso", 70.0))
