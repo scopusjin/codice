@@ -239,7 +239,7 @@ if stato == "asciutto" and vestizione == "nudo e scoperto":
     opts_appoggio.append("Molto conduttivo")
 if stato == "asciutto":
     opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
-superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, label_visibility="hidden", help=HELP_SUPERFICIE)
+superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
 
 # =========================
 # Pipeline di calcolo (reattiva)
