@@ -218,7 +218,7 @@ stato = st.selectbox(
 )[0]  # valore interno
 
 # ---- Vestizione: switch + expander con slider in 2 colonne ----
-toggle_vestito = st.toggle("Vestito/coperto?", value=False")
+toggle_vestito = st.toggle("Vestito/coperto?", value=False)
 vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
 
 n_sottili_eq = n_spessi_eq = 0
