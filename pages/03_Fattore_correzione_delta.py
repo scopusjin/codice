@@ -146,11 +146,9 @@ peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, va
 
 # ---- Condizione del corpo: radio compatto orizzontale ----
 stato_label = st.radio(
-
+    "\u200B",  # zero-width space: nessun testo e nessuno spazio visibile
     options=["Corpo asciutto", "Bagnato", "Immerso"],
     index=0,
-    label="collapsed",
-    label=collapsed, 
     horizontal=True,
 )
 if stato_label == "Corpo asciutto":
