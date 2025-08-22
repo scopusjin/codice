@@ -145,12 +145,12 @@ st.subheader("Input")
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
 # ---- Condizione del corpo: radio compatto orizzontale ----
-stato_label = st.radio(
-    "\u200B",  # zero-width space: nessun testo e nessuno spazio visibile
+tato_label = st.segmented_control(
     options=["Corpo asciutto", "Bagnato", "Immerso"],
-    index=0,
-    horizontal=True,
+    default="Corpo asciutto",
 )
+
+# Normalizziamo il valore interno
 if stato_label == "Corpo asciutto":
     stato = "asciutto"
 elif stato_label == "Bagnato":
