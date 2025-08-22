@@ -16,8 +16,7 @@ import math
 # Stato e costanti globali
 # =========================
 
-if "fattore_correzione" not in st.session_state:
-    st.session_state["fattore_correzione"] = 1.0
+
 
 # contatore invisibile per forzare il remount dell'expander del fattore
 if "fattore_expander_tag" not in st.session_state:
@@ -394,7 +393,7 @@ def calcola_fattore(peso: float):
             "Pavimento di casa, piano in legno.",
             "Terreno, prato o asfalto asciutti",
             "Materasso o tappeto spesso",
-            "Divano imbottito, sacco a pelo tecnico, polistirolo",
+            "Divano imbottito, sacco a pelo, polistirolo",
             "Cemento, pietra, PVC",
             "Pavimentazione fredda (all’esterno, in cantina…)",
             "Piano metallico (in ambiente interno)",
@@ -822,20 +821,17 @@ with st.container(border=True):
         input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
         st.session_state["peso"] = input_w
 
+
     with col2:
         subcol1, subcol2 = st.columns([1.5, 1], gap="small")
         with subcol1:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            fattore_correzione = st.number_input(
-                "Fattore di correzione:",
-                step=0.1,
-                format="%.2f",
-                label_visibility="collapsed",
-                key="fattore_correzione"
-            )
-
+            ...
         with subcol2:
             st.empty()
+
+# 🔽 Switch per mostrare/nascondere il calcolo interattivo del fattore
+peso_default = float(st.session_state.get("peso", 70.0))
+fattore_section(peso_default)
 
 
 
