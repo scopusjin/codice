@@ -4,7 +4,7 @@ import math
 import streamlit as st
 
 # =========================
-# Config pagina
+# Config
 # =========================
 st.set_page_config(
     page_title="Fattore di correzione (delta)",
@@ -21,7 +21,6 @@ def clamp(x, lo=0.35, hi=3.0):
     return max(lo, min(hi, x))
 
 def is_nudo(n_sottili_eq: int, n_spessi_eq: int, n_cop_medie: int, n_cop_pesanti: int) -> bool:
-    """Nessuno strato/telo/coperta selezionato."""
     return (n_sottili_eq == 0 and n_spessi_eq == 0 and n_cop_medie == 0 and n_cop_pesanti == 0)
 
 def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti):
@@ -47,7 +46,9 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
 def is_poco_vestito(fattore_vestiti_coperte: float) -> bool:
     return (1.0 < fattore_vestiti_coperte < 1.2)
 
-# === Bagnato: tabelle ===
+# =========================
+# Bagnato — tabelle
+# =========================
 def bagnato_base_senza_correnti(n_sottili: int, n_spessi: int) -> float:
     """
     🌊 Bagnato — SENZA correnti (cap 1.2):
@@ -195,68 +196,81 @@ def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     return clamp(approx)
 
 # =========================
-# UI (senza titolo "Input")
+# UI — compattazione (punti 1–4)
 # =========================
 
 # Peso
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
-# Radio compatti (nascondi label/spazio)
+# CSS compatto per radio, toggle e slider
 st.markdown(
     """
     <style>
-    div[data-testid="stRadio"] > label {display: none !important;}
-    div[data-testid="stRadio"] {margin-top: -14px; margin-bottom: -10px;}
-    div[data-testid="stRadio"] div[role="radiogroup"] {gap: 0.4rem;}
+      /* Radio: nascondi label e riduci margini */
+      div[data-testid="stRadio"] > label {display:none !important;}
+      div[data-testid="stRadio"] {margin-top:-14px; margin-bottom:-10px;}
+      div[data-testid="stRadio"] div[role="radiogroup"] {gap:0.4rem;}
+      /* Toggle: riduci margini verticali */
+      div[data-testid="stToggle"] {margin-top:-6px; margin-bottom:-6px;}
+      /* Slider: compattazione leggera fra slider successivi */
+      div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Condizione del corpo (radio compatto)
+# 1) Condizione del corpo (radio compatto)
 stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"], index=0, horizontal=True)
 stato = "asciutto" if stato_label == "Corpo asciutto" else ("bagnato" if stato_label == "Bagnato" else "in acqua")
 
-# Se IMMERSO: radio compatto stagnante/corrente, niente altri campi
+# 2) Se IMMERSO: radio compatto stagnante/corrente e chiudi
 if stato == "in acqua":
     acqua_label = st.radio("dummy", ["in acqua stagnante", "in acqua corrente"], index=0, horizontal=True)
     fattore_finale = 0.35 if acqua_label == "in acqua corrente" else 0.50
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# Placeholder per Superficie (la renderemo una volta sola dopo aver letto gli slider)
+# Placeholder per Superficie (la mostriamo dopo aver letto gli slider)
 surface_placeholder = st.empty()
 
-# Switch affiancati: Vestiti / Correnti (le correnti le decidiamo dopo il calcolo fattore)
-c1, c2 = st.columns(2)
-with c1:
+# 3) Correnti e Vestiti sulla stessa riga (punti 1 & 3 & 4: ordine + allineamento + proporzioni)
+col_corr, col_vest = st.columns([1.0, 1.3])
+with col_corr:
+    corr_placeholder = st.empty()   # Render iniziale, forse verrà nascosto dopo gli slider
+with col_vest:
     toggle_vestito = st.toggle("Vestito/coperto?", value=st.session_state.get("toggle_vestito", False), key="toggle_vestito")
 
-# Slider inline (se switch ON)
+# 4) Slider vestizione inline (visibili se switch ON)
 n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
 if toggle_vestito:
-    colA, colB = st.columns(2)
-    with colA:
+    c1, c2 = st.columns(2)
+    with c1:
         n_sottili_eq = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, st.session_state.get("strati_sottili", 0), key="strati_sottili")
         if stato == "asciutto":
             n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, st.session_state.get("coperte_medie", 0), key="coperte_medie")
-    with colB:
+    with c2:
         n_spessi_eq  = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6, st.session_state.get("strati_spessi", 0), key="strati_spessi")
         if stato == "asciutto":
             n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
 
-# Fattore (solo vestiti/coperte) per decidere visibilità correnti
+# Calcolo fattore vestizione (serve anche per decidere la visibilità del toggle Correnti)
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
 
-with c2:
-    # Se asciutto e fattore >= 1.2 → correnti ininfluenti, non mostrare lo switch
+# (Ri)render del toggle Correnti nel suo placeholder, subito dopo il corpo (prima dei vestiti),
+# ma nascondilo se ininfluente: ASCIUTTO & fattore_vestiti >= 1.2
+with corr_placeholder.container():
     if (stato == "asciutto") and (fattore_vestiti_coperte >= 1.2):
         correnti_presenti = False
         st.empty()
     else:
-        correnti_presenti = st.toggle("Correnti d'aria presenti?", value=st.session_state.get("toggle_correnti", False), key="toggle_correnti", disabled=False)
+        correnti_presenti = st.toggle(
+            "Correnti d'aria presenti?",
+            value=st.session_state.get("toggle_correnti", False),
+            key="toggle_correnti",
+            disabled=False
+        )
 
-# Superficie: visibile solo in asciutto, dopo aver saputo se è nudo
+# Superficie (solo ASCIUTTO), mostrata dopo che sappiamo se è nudo effettivo
 superficie = None
 with surface_placeholder.container():
     if stato == "asciutto":
@@ -277,7 +291,10 @@ with surface_placeholder.container():
 fattore = float(fattore_vestiti_coperte)
 
 if stato == "asciutto" and superficie is not None:
-    fattore = applica_regole_superficie(fattore, superficie, stato, n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
+    fattore = applica_regole_superficie(
+        fattore, superficie, stato,
+        n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+    )
 
 fattore, _ = applica_correnti(
     fattore, stato, superficie, correnti_presenti,
@@ -289,18 +306,16 @@ if math.isnan(fattore):
     fattore = 1.0
 fattore = clamp(fattore)
 
-# Stub Tabella 2 (peso) — opzionale
+# (facoltativa) correzione peso "tabella 2"
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
     if f_base < 1.4:
         return clamp(f_base)
     approx = f_base * (0.98 + (peso_kg / 70.0) * 0.02)
     return clamp(approx)
 
-peso_kg = float(peso)
-fattore_finale = correzione_peso_tabella2(fattore, peso_kg)
+fattore_finale = correzione_peso_tabella2(fattore, float(peso))
 
 # =========================
 # Output
 # =========================
 st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
-
