@@ -211,7 +211,6 @@ if stato == "in acqua":
 n_sottili_eq = n_spessi_eq = 0
 n_cop_medie = n_cop_pesanti = 0
 if vestizione == "vestito e/o coperto":
-    st.markdown("### Vestiti e coperte")
     n_sottili_eq = st.slider("Strati SOTTILI (indumenti o lenzuola sottili)", 0, 8, 0)
     n_spessi_eq  = st.slider("Strati SPESSI (indumenti o lenzuola spesse)", 0, 6, 0)
     n_cop_medie  = st.slider("Coperte MEDIE", 0, 5, 0)
