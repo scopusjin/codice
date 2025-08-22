@@ -243,12 +243,12 @@ if toggle_vestito:
         st.caption("Indicare il numero di strati sul corpo. Hanno influenza solo quelli che coprono la parte bassa del tronco.")
         c1e, c2e = st.columns(2)
         with c1e:
-            n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
+            n_sottili_eq = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, 0)
             # Coperte: visibili solo se NON bagnato
             if stato != "bagnato":
                 n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, 0)
         with c2e:
-            n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
+            n_spessi_eq  = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6, 0)
             if stato != "bagnato":
                 n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
 
