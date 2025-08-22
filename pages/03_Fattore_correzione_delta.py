@@ -20,23 +20,14 @@ st.title("Fattore di correzione — delta")
 HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
 HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, seleziona 'con correnti d'aria'."
 HELP_SUPERFICIE = (
-    "**Indifferente** = Pavimento/terreno/prato asciutto/asfalto · "
-    "**Isolante** = Materasso/tappeto spesso · "
-    "**Molto isolante** = sacco a pelo tecnico, polistirolo, divano imbottito · "
-    "**Conduttivo** = Cemento/pietra/PVC/esterno · "
-    "**Molto conduttivo** = Superficie metallica spessa all'esterno (solo nudo asciutto) · "
-    "**Foglie**  = adagiato su strato spesso di foglie"
+    "**Indifferente**: pavimento domestico/terreno asciutto/prato asciutto/asfalto · "
+    "**Isolante**: materasso/tappeto spesso · "
+    "**Molto isolante**: sacco a pelo tecnico, polistirolo, divano imbottito · "
+    "**Conduttivo**: cemento/pietra/pavimento in PVC/pavimentazione esterna · "
+    "**Molto conduttivo**: adagiato su superficie metallica spessa all'esterno · "
+    "**Foglie**: adagiato su strato spesso di foglie"
 )
 
-APP_APPOGGIO_MAP = {
-    "Indifferente": "Pavimento di casa, terreno o prato asciutto, asfalto",
-    "Isolante": "Materasso o tappeto spesso",
-    "Molto isolante": "Imbottitura pesante (sacco a pelo tecnico, polistirolo, divano imbottito)",
-    "Conduttivo": "Cemento, pietra, pavimentazione esterna, pavimento in PVC.",
-    "Molto conduttivo": "Superficie metallica spessa, in ambiente esterno.",
-    "Foglie umide (>= 2 cm)": "Adagiato su strato di foglie umide ≥ 2 cm",
-    "Foglie secche (>= 2 cm)": "Adagiato su strato di foglie secche ≥ 2 cm",
-}
 
 # =========================
 # Utility
