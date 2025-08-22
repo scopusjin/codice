@@ -40,16 +40,23 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
     - Altrimenti base 1.0
     - +0.075 per ogni strato sottile (indumento o lenzuolo sottile)
     - +0.15  per ogni strato spesso  (indumento pesante o lenzuolo spesso)
+    - CAP: se non ci sono coperte, valore massimo = 1.8
     """
     if n_cop_pesanti > 0:
         fatt = 2.0 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
+        fatt += n_sottili_eq * 0.075
+        fatt += n_spessi_eq * 0.15
     elif n_cop_medie > 0:
         fatt = 1.8 + max(0, n_cop_medie - 1) * 0.2
+        fatt += n_sottili_eq * 0.075
+        fatt += n_spessi_eq * 0.15
     else:
-        fatt = 1.0
-    fatt += n_sottili_eq * 0.075
-    fatt += n_spessi_eq * 0.15
+        fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
+        if fatt > 1.8:
+            fatt = 1.8  # cap se solo indumenti/lenzuola
+
     return float(fatt)
+
 
 def is_vestizione_minima(n_sottili_eq: int, n_spessi_eq: int) -> bool:
     # 1–2 sottili (0 spessi) oppure 1 spesso (0 sottili)
