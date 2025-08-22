@@ -126,6 +126,7 @@ def applica_regole_superficie(
         else:                   return fatt - 0.10
 
     if superficie == SURF_MOLTOC:
+        # Solo ASCIUTTO + NUDO produce 0.55
         if not (stato == "asciutto" and is_nudo(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)):
             return fatt
         return 0.55
@@ -152,7 +153,7 @@ def applica_correnti(
 ):
     """
     - BAGNATO: tabella dedicata (cap 1.2 senza correnti, cap 0.9 con correnti).
-      Coperte => promozione al livello massimo.
+      Coperte ⇒ promozione al livello massimo.
     - ASCIUTTO: percentuali per superficie; 'nudo' dai contatori; 'poco vestito' dal fattore.
     """
     if stato == "bagnato":
@@ -212,19 +213,24 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Condizione del corpo
+# Condizione del corpo (radio compatto)
 stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"], index=0, horizontal=True)
 stato = "asciutto" if stato_label == "Corpo asciutto" else ("bagnato" if stato_label == "Bagnato" else "in acqua")
 
-# Placeholder per Superficie (lo renderemo una volta sola dopo gli slider)
+# Se IMMERSO: radio compatto stagnante/corrente, niente altri campi
+if stato == "in acqua":
+    acqua_label = st.radio("dummy", ["in acqua stagnante", "in acqua corrente"], index=0, horizontal=True)
+    fattore_finale = 0.35 if acqua_label == "in acqua corrente" else 0.50
+    st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
+    st.stop()
+
+# Placeholder per Superficie (la renderemo una volta sola dopo aver letto gli slider)
 surface_placeholder = st.empty()
 
-# Due switch affiancati: Vestiti / Correnti (le correnti le mettiamo in placeholder per decidere dopo)
+# Switch affiancati: Vestiti / Correnti (le correnti le decidiamo dopo il calcolo fattore)
 c1, c2 = st.columns(2)
 with c1:
     toggle_vestito = st.toggle("Vestito/coperto?", value=st.session_state.get("toggle_vestito", False), key="toggle_vestito")
-with c2:
-    corr_placeholder = st.empty()  # il toggle correnti verrà mostrato/nascosto dopo il calcolo del fattore
 
 # Slider inline (se switch ON)
 n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
@@ -239,21 +245,16 @@ if toggle_vestito:
         if stato == "asciutto":
             n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
 
-# Fattore (solo da vestiti/coperte) per decidere visibilità correnti
+# Fattore (solo vestiti/coperte) per decidere visibilità correnti
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
 
-# Toggle Correnti: mostrato solo se serve
-correnti_presenti = False
-with corr_placeholder.container():
-    if stato == "in acqua":
-        st.empty()
+with c2:
+    # Se asciutto e fattore >= 1.2 → correnti ininfluenti, non mostrare lo switch
+    if (stato == "asciutto") and (fattore_vestiti_coperte >= 1.2):
         correnti_presenti = False
-    elif (stato == "asciutto") and (fattore_vestiti_coperte >= 1.2):
-        # ininfluente → non mostrare
         st.empty()
-        correnti_presenti = False
     else:
-        correnti_presenti = st.toggle("Correnti d'aria presenti?", value=st.session_state.get("toggle_correnti", False), key="toggle_correnti", disabled=(stato == "in acqua"))
+        correnti_presenti = st.toggle("Correnti d'aria presenti?", value=st.session_state.get("toggle_correnti", False), key="toggle_correnti", disabled=False)
 
 # Superficie: visibile solo in asciutto, dopo aver saputo se è nudo
 superficie = None
@@ -288,7 +289,15 @@ if math.isnan(fattore):
     fattore = 1.0
 fattore = clamp(fattore)
 
-fattore_finale = correzione_peso_tabella2(fattore, float(peso))
+# Stub Tabella 2 (peso) — opzionale
+def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
+    if f_base < 1.4:
+        return clamp(f_base)
+    approx = f_base * (0.98 + (peso_kg / 70.0) * 0.02)
+    return clamp(approx)
+
+peso_kg = float(peso)
+fattore_finale = correzione_peso_tabella2(fattore, peso_kg)
 
 # =========================
 # Output
