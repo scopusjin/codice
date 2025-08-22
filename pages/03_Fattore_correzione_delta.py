@@ -49,7 +49,7 @@ def is_poco_vestito(fattore_vestiti_coperte: float) -> bool:
     # per correnti in asciutto
     return (1.0 < fattore_vestiti_coperte < 1.2)
 
-# === Bagnato: tabelle
+# === Bagnato: tabelle ===
 def bagnato_base_senza_correnti(n_sottili: int, n_spessi: int) -> float:
     """
     🌊 Bagnato — SENZA correnti (cap 1.2):
@@ -165,7 +165,7 @@ def applica_correnti(
         n_spessi_eff  = n_spessi_eq
         if (n_cop_medie > 0 or n_cop_pesanti > 0):
             n_sottili_eff = max(n_sottili_eff, 5)  # >4 sottili
-            n_spessi_eff  = max(n_spessi_eff, 3)  # >2 spessi
+            n_spessi_eff  = max(n_spessi_eff, 3)   # >2 spessi
 
         if correnti_presenti:
             return bagnato_con_correnti(n_sottili_eff, n_spessi_eff), True
@@ -223,7 +223,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Condizione del corpo
+# Condizione del corpo (radio senza titolo/spazio)
 stato_label = st.radio(
     "dummy",
     options=["Corpo asciutto", "Bagnato", "Immerso"],
@@ -232,40 +232,14 @@ stato_label = st.radio(
 )
 stato = "asciutto" if stato_label == "Corpo asciutto" else ("bagnato" if stato_label == "Bagnato" else "in acqua")
 
-# --- Valori correnti in sessione (servono per mostrare subito le superfici corrette) ---
-toggle_vestito_prev = st.session_state.get("toggle_vestito", False)
-n_sottili_prev = st.session_state.get("strati_sottili", 0)
-n_spessi_prev  = st.session_state.get("strati_spessi", 0)
-n_cop_med_prev = st.session_state.get("coperte_medie", 0)
-n_cop_pes_prev = st.session_state.get("coperte_pesanti", 0)
+# Placeholder per mostrare la Superficie subito dopo la condizione del corpo,
+# ma renderla SOLO una volta (dopo aver letto gli slider) per evitare chiavi duplicate.
+surface_placeholder = st.empty()
 
-# nudo effettivo pre-switch (se OFF ⇒ nudo; se ON ⇒ dipende dagli slider salvati)
-nudo_eff_pre = True
-if toggle_vestito_prev:
-    nudo_eff_pre = is_nudo(n_sottili_prev, n_spessi_prev, n_cop_med_prev, n_cop_pes_prev)
-
-# ---- Superficie d’appoggio (dopo condizione del corpo) ----
-superficie = None
-if stato == "asciutto":
-    base_opts = [SURF_INDIFF, SURF_ISOL, SURF_MOLTOI, SURF_COND, SURF_FOGLIU, SURF_FOGLIS]
-    opts_appoggio = list(base_opts)
-    if nudo_eff_pre:
-        opts_appoggio.append(SURF_MOLTOC)
-
-    prev = st.session_state.get("superficie_sel")
-    if prev not in opts_appoggio:
-        prev = opts_appoggio[0]
-    superficie = st.selectbox(
-        "Superficie di appoggio",
-        opts_appoggio,
-        index=opts_appoggio.index(prev),
-        key="superficie_sel"
-    )
-
-# ---- Due switch affiancati ----
+# ---- Due switch affiancati: Vestiti / Correnti ----
 c1, c2 = st.columns(2)
 with c1:
-    toggle_vestito = st.toggle("Vestito/coperto?", value=toggle_vestito_prev, key="toggle_vestito")
+    toggle_vestito = st.toggle("Vestito/coperto?", value=st.session_state.get("toggle_vestito", False), key="toggle_vestito")
 with c2:
     correnti_presenti = st.toggle("Correnti d'aria presenti?", value=st.session_state.get("toggle_correnti", False), key="toggle_correnti", disabled=(stato == "in acqua"))
 
@@ -278,31 +252,36 @@ n_cop_pesanti= 0
 if toggle_vestito:
     colA, colB = st.columns(2)
     with colA:
-        n_sottili_eq = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, n_sottili_prev, key="strati_sottili")
+        n_sottili_eq = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, st.session_state.get("strati_sottili", 0), key="strati_sottili")
         if stato == "asciutto":
-            n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, n_cop_med_prev, key="coperte_medie")
+            n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, st.session_state.get("coperte_medie", 0), key="coperte_medie")
     with colB:
-        n_spessi_eq  = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6, n_spessi_prev, key="strati_spessi")
+        n_spessi_eq  = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6, st.session_state.get("strati_spessi", 0), key="strati_spessi")
         if stato == "asciutto":
-            n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, n_cop_pes_prev, key="coperte_pesanti")
+            n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
 
-# Se ASCIUTTO, rivedi l’elenco superfici dopo aver saputo se è nudo effettivo
-if stato == "asciutto":
-    nudo_eff = (not toggle_vestito) or is_nudo(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
-    base_opts = [SURF_INDIFF, SURF_ISOL, SURF_MOLTOI, SURF_COND, SURF_FOGLIU, SURF_FOGLIS]
-    opts_appoggio2 = list(base_opts)
-    if nudo_eff:
-        opts_appoggio2.append(SURF_MOLTOC)
+# ---- Superficie d’appoggio: render UNA SOLA VOLTA nel placeholder ----
+superficie = None
+with surface_placeholder.container():
+    if stato == "asciutto":
+        # nudo effettivo: se switch OFF o slider/coperte = 0
+        nudo_eff = (not toggle_vestito) or is_nudo(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
+        opts_appoggio = [SURF_INDIFF, SURF_ISOL, SURF_MOLTOI, SURF_COND, SURF_FOGLIU, SURF_FOGLIS]
+        if nudo_eff:
+            opts_appoggio.append(SURF_MOLTOC)
 
-    if st.session_state["superficie_sel"] not in opts_appoggio2:
-        st.session_state["superficie_sel"] = opts_appoggio2[0]
-
-    superficie = st.selectbox(
-        "Superficie di appoggio",
-        opts_appoggio2,
-        index=opts_appoggio2.index(st.session_state["superficie_sel"]),
-        key="superficie_sel"
-    )
+        prev = st.session_state.get("superficie_sel")
+        if prev not in opts_appoggio:
+            prev = opts_appoggio[0]
+        superficie = st.selectbox(
+            "Superficie di appoggio",
+            opts_appoggio,
+            index=opts_appoggio.index(prev),
+            key="superficie_sel"
+        )
+    else:
+        # Bagnato/Immerso: la superficie non compare
+        st.empty()
 
 # =========================
 # Pipeline di calcolo
