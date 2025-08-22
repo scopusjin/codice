@@ -1,7 +1,6 @@
 # pages/03_Fattore_correzione_delta.py
 # -*- coding: utf-8 -*-
 import math
-import pandas as pd
 import streamlit as st
 
 # =========================
@@ -45,174 +44,229 @@ APP_APPOGGIO_MAP = {
 def clamp(x, lo=0.35, hi=3.0):
     return max(lo, min(hi, x))
 
-def calcola_fattore_vestiti_coperte(n_sottili, n_spessi, n_lenz_plus, has_lenz_pp, n_cop_medie, n_cop_pesanti):
+def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti):
+    """
+    Regole VOLUTE (come da tua scelta):
+    - Base 2.0 se >=1 coperta pesante (+0.3 per ciascuna pesante extra, +0.2 per ciascuna media)
+    - Altrimenti base 1.8 se >=1 coperta media (+0.2 per ciascuna media extra)
+    - Altrimenti base 1.0
+    - Poi: +0.075 per ogni strato sottile (indumento o lenzuolo sottile)
+           +0.15  per ogni strato spesso  (indumento pesante o lenzuolo spesso)
+    """
     if n_cop_pesanti > 0:
         fatt = 2.0 + max(0, n_cop_pesanti - 1) * 0.3 + n_cop_medie * 0.2
     elif n_cop_medie > 0:
         fatt = 1.8 + max(0, n_cop_medie - 1) * 0.2
     else:
         fatt = 1.0
-    fatt += n_sottili * 0.075
-    fatt += n_spessi * 0.15
-    fatt += n_lenz_plus * 0.075
-    if has_lenz_pp:
-        fatt += 0.15
-    return float(fatt)
 
-def applica_regole_superficie(fatt, superficie_short, stato, correnti_aria, vestizione,
-                              n_sottili, n_spessi, n_lenz_plus, has_lenz_pp, n_cop_medie, n_cop_pesanti):
-    tot_items = n_sottili + n_spessi + n_lenz_plus + (1 if has_lenz_pp else 0) + n_cop_medie + n_cop_pesanti
+    fatt += n_sottili_eq * 0.075
+    fatt += n_spessi_eq * 0.15
+    return float(fatt)  # niente cap locale; clamp solo a fine pipeline
 
-    def only_thin_1():  return (n_sottili == 1 and tot_items == 1)
-    def only_sheet_1(): return (n_lenz_plus == 1 and tot_items == 1)
-    def only_thin_1_2(): return (n_sottili in (1, 2) and tot_items == n_sottili)
-    def only_sheet_1_2(): return (n_lenz_plus in (1, 2) and tot_items == n_lenz_plus)
+def applica_regole_superficie(
+    fatt, superficie_short, stato, correnti_aria, vestizione,
+    n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+):
+    """Regole di appoggio (con ‘Molto conduttivo’ a precedenza assoluta)."""
+    tot_items = n_sottili_eq + n_spessi_eq + n_cop_medie + n_cop_pesanti
 
+    def only_thin_1():   return (n_sottili_eq == 1 and n_spessi_eq == 0 and n_cop_medie == 0 and n_cop_pesanti == 0)
+    def only_thin_1_2(): return (n_sottili_eq in (1, 2) and n_spessi_eq == 0 and n_cop_medie == 0 and n_cop_pesanti == 0)
+
+    # 0) Indifferente → nessuna modifica
     if superficie_short == "Indifferente":
         return fatt
+
+    # 1) Isolante (corretto: nudo=1.10; 1 sottile=1.20; altrimenti +0.10)
     if superficie_short == "Isolante":
-        if tot_items == 0:
-            return 1.10  # nudo
-        elif only_thin_1() or only_sheet_1():
-            return 1.20  # 1 sottile o 1 lenzuolo sottile
+        if tot_items == 0:              # nudo
+            return 1.10
+        elif only_thin_1():             # solo 1 sottile (indumento o lenzuolo)
+            return 1.20
         else:
             return fatt + 0.10
+
+    # 2) Molto isolante
     if superficie_short == "Molto isolante":
-        if tot_items == 0:
+        if tot_items == 0:              # nudo
             return 1.30
-        if only_thin_1_2() or only_sheet_1_2():
+        if only_thin_1_2():             # solo 1–2 sottili
             return fatt + 0.30
         else:
             return fatt + 0.10
+
+    # 3) Conduttivo
     if superficie_short == "Conduttivo":
-        if tot_items == 0:
+        if tot_items == 0:              # nudo
             return 0.75
-        elif only_thin_1() or only_sheet_1():
+        elif only_thin_1():             # solo 1 sottile
             return fatt - 0.20
         else:
             return fatt - 0.10
+
+    # 4) Molto conduttivo (solo nudo + asciutto): override con correnti (precedenza assoluta)
     if superficie_short == "Molto conduttivo":
         if not (stato == "asciutto" and vestizione == "nudo e scoperto"):
-            return fatt
+            return fatt  # guard-rail
         return 0.50 if correnti_aria == "con correnti d'aria" else 0.55
+
+    # 5) Foglie umide (>= 2 cm)
     if superficie_short == "Foglie umide (>= 2 cm)":
         if tot_items == 0:
             return 1.20
-        if only_thin_1_2() or only_sheet_1_2():
+        if only_thin_1_2():
             return fatt + 0.20
         else:
             return fatt + 0.10
+
+    # 6) Foglie secche (>= 2 cm)
     if superficie_short == "Foglie secche (>= 2 cm)":
         if tot_items == 0:
             return 1.50
-        if only_thin_1_2() or only_sheet_1_2():
+        if only_thin_1_2():
             return fatt + 0.30
         else:
             return fatt + 0.20
+
     return fatt
 
-def applica_correnti(fatt, stato, vestizione, superficie_short, correnti_aria,
-                     n_sottili, n_spessi, n_lenz_plus, has_lenz_pp, fattore_vestiti_coperte):
+def applica_correnti(
+    fatt, stato, vestizione, superficie_short, correnti_aria,
+    n_sottili_eq, n_spessi_eq, fattore_vestiti_coperte
+):
+    """
+    Precedenze correnti:
+    - Visibilità: se fattore_vestiti_coperte >= 1.2 → correnti irrilevanti ("/").
+    - Molto conduttivo: gestito in superficie (precedenza assoluta).
+    - Bagnato + correnti: override a 0.7/0.8/0.9 secondo gli strati.
+    - Nudo + asciutto: SOLO se superficie = Indifferente → 1.00 / 0.75.
+    - Vestizione minima + correnti: fatt - 0.10.
+    """
+    # Correnti nascoste o irrilevanti
     if correnti_aria == "/":
         return fatt, False
+
+    # Molto conduttivo già trattato a monte
     if superficie_short == "Molto conduttivo":
         return fatt, True
-    spessi_equiv = n_spessi + (1 if has_lenz_pp else 0)
+
+    # 2) Corpo bagnato + correnti → override diretto
     if stato == "bagnato" and correnti_aria == "con correnti d'aria":
-        if vestizione == "nudo e scoperto" or (n_sottili == 1 and spessi_equiv == 0 and n_lenz_plus == 0):
+        # nudo o 1 sottile -> 0.7
+        if (vestizione == "nudo e scoperto") or (n_sottili_eq == 1 and n_spessi_eq == 0):
             return 0.70, True
-        if (n_sottili == 2 and spessi_equiv == 0) or (spessi_equiv == 1 and n_sottili == 0):
+        # 2 sottili oppure 1 spesso -> 0.8
+        if (n_sottili_eq == 2 and n_spessi_eq == 0) or (n_spessi_eq == 1 and n_sottili_eq == 0):
             return 0.80, True
-        if spessi_equiv >= 2:
+        # 2 spessi -> 0.9 (o più)
+        if n_spessi_eq >= 2:
             return 0.90, True
         return fatt, False
+
+    # 3) Nudo + asciutto → SOLO su superficie Indifferente
     if stato == "asciutto" and vestizione == "nudo e scoperto" and superficie_short == "Indifferente":
         return (0.75, True) if correnti_aria == "con correnti d'aria" else (1.00, True)
+
+    # 4) Vestizione minima + correnti: -0.10
+    # condizioni: 1-2 sottili (e 0 spessi) OPPURE 1 spesso (e 0 sottili)
     vestizione_minima = (
-        (n_sottili in (1, 2) and n_spessi == 0 and not has_lenz_pp and n_lenz_plus == 0) or
-        (n_lenz_plus in (1, 2) and n_sottili == 0 and n_spessi == 0 and not has_lenz_pp) or
-        (n_spessi == 1 and n_sottili == 0 and n_lenz_plus == 0 and not has_lenz_pp) or
-        (has_lenz_pp and n_sottili == 0 and n_spessi == 0 and n_lenz_plus == 0)
+        (n_sottili_eq in (1, 2) and n_spessi_eq == 0) or
+        (n_spessi_eq == 1 and n_sottili_eq == 0)
     )
     if vestizione_minima and correnti_aria == "con correnti d'aria":
         return fatt - 0.10, False
+
     return fatt, False
 
 def correzione_peso_tabella2(f_base: float, peso_kg: float) -> float:
+    """Stub Tabella 2: sostituisci con lookup reale quando pronto."""
     if f_base < 1.4:
         return f_base
     approx = f_base * (0.98 + (peso_kg / 70.0) * 0.02)
     return clamp(approx)
 
 # =========================
-# Vestizione FUORI dal form (per visibilità immediata su mobile)
+# UI reattiva (senza form): si aggiorna ad ogni modifica
 # =========================
-st.subheader("Input principali")
+st.subheader("Input")
+
+# Peso
+peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
+
+# Stato
+stato = st.selectbox("Condizioni del corpo", ["asciutto", "bagnato", "in acqua"], index=0, help=HELP_CONDIZIONE)
+
+# Vestizione
 vestizione = st.selectbox("Vestizione", ["nudo e scoperto", "vestito e/o coperto"], index=0)
 
-# =========================
-# MASCHERA UNICA (st.form)
-# =========================
-with st.form("maschera_input"):
-    peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
-    stato = st.selectbox("Condizioni del corpo", ["asciutto", "bagnato", "in acqua"], index=0, help=HELP_CONDIZIONE)
-
-    # Se in acqua → UI minima e stop al submit
-    if stato == "in acqua":
-        acqua_tipo = st.selectbox("Condizioni dell'acqua", ["acqua stagnante", "acqua corrente"], index=0)
-        submit = st.form_submit_button("Aggiorna")
-        if submit:
-            fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
-            st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
-        st.stop()
-
-    # Vestiti & Coperte (compaiono SUBITO se hai scelto "vestito e/o coperto")
-    n_sottili = n_spessi = n_lenz_plus = n_cop_medie = n_cop_pesanti = 0
-    has_lenz_pp = False
-    if vestizione == "vestito e/o coperto":
-        st.markdown("### Vestiti e coperte")
-        n_sottili = st.slider("Strati sottili", 0, 8, 0)
-        n_spessi = st.slider("Strati spessi", 0, 6, 0)
-        n_lenz_plus = st.slider("Lenzuola leggere (Lenz.+)", 0, 6, 0)
-        n_cop_medie = st.slider("Coperte medie", 0, 5, 0)
-        n_cop_pesanti = st.slider("Coperte pesanti", 0, 5, 0)
-        has_lenz_pp = st.checkbox("Lenzuolo spesso (Lenz.++)")
-
-    # Calcolo fattore da vestiti/lenzuola per visibilità correnti
-    fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
-        n_sottili, n_spessi, n_lenz_plus, has_lenz_pp, n_cop_medie, n_cop_pesanti
-    )
-
-    # Correnti: visibili solo se fattore_vestiti_coperte < 1.2
-    correnti_aria = "/"
-    if fattore_vestiti_coperte < 1.2:
-        correnti_aria = st.selectbox("Correnti d’aria", ["senza correnti", "con correnti d'aria"], index=0, help=HELP_CORRENTI_ARIA)
-
-    # Superficie (opzioni condizionali)
-    opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
-    if stato == "asciutto" and vestizione == "nudo e scoperto":
-        opts_appoggio.append("Molto conduttivo")
-    if stato == "asciutto":
-        opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
-    superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
-
-    submit = st.form_submit_button("Aggiorna")
-
-# =========================
-# ELABORAZIONE al submit
-# =========================
-if submit:
-    fattore = float(fattore_vestiti_coperte)
-    fattore = applica_regole_superficie(fattore, superficie_short, stato, correnti_aria,
-                                        vestizione, n_sottili, n_spessi, n_lenz_plus,
-                                        has_lenz_pp, n_cop_medie, n_cop_pesanti)
-    fattore, correnti_override = applica_correnti(fattore, stato, vestizione, superficie_short, correnti_aria,
-                                                  n_sottili, n_spessi, n_lenz_plus,
-                                                  has_lenz_pp, fattore_vestiti_coperte)
-    if stato == "bagnato" and fattore_vestiti_coperte < 1.2 and not correnti_override:
-        fattore -= 0.30
-    if math.isnan(fattore):
-        fattore = 1.0
-    fattore = clamp(fattore)
-    fattore_finale = correzione_peso_tabella2(fattore, float(peso))
+# Caso: in acqua → UI minima e stop
+if stato == "in acqua":
+    acqua_tipo = st.selectbox("Condizioni dell'acqua", ["acqua stagnante", "acqua corrente"], index=0)
+    fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
+    st.stop()
+
+# Se vestito/coperto → campi ACCORPATI
+n_sottili_eq = n_spessi_eq = 0
+n_cop_medie = n_cop_pesanti = 0
+if vestizione == "vestito e/o coperto":
+    st.markdown("### Vestiti e coperte")
+    n_sottili_eq = st.slider("Strati SOTTILI (indumenti o lenzuola sottili)", 0, 8, 0)
+    n_spessi_eq  = st.slider("Strati SPESSI (indumenti o lenzuola spesse)", 0, 6, 0)
+    n_cop_medie  = st.slider("Coperte MEDIE", 0, 5, 0)
+    n_cop_pesanti= st.slider("Coperte PESANTI", 0, 5, 0)
+
+# Fattore solo da vestiti/lenzuola (serve anche per visibilità correnti)
+fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
+    n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+)
+
+# Correnti: visibili solo se fattore_vestiti_coperte < 1.2
+correnti_aria = "/"
+if fattore_vestiti_coperte < 1.2:
+    correnti_aria = st.selectbox("Correnti d’aria", ["senza correnti", "con correnti d'aria"], index=0, help=HELP_CORRENTI_ARIA)
+
+# Superficie (opzioni condizionali)
+opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
+if stato == "asciutto" and vestizione == "nudo e scoperto":
+    opts_appoggio.append("Molto conduttivo")
+if stato == "asciutto":
+    opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
+superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
+
+# =========================
+# Pipeline di calcolo (reattiva)
+# =========================
+# 1) Parto dal fattore vestiti/coperte
+fattore = float(fattore_vestiti_coperte)
+
+# 2) Regole superficie (Molto conduttivo ha precedenza e usa correnti)
+fattore = applica_regole_superficie(
+    fattore, superficie_short, stato, correnti_aria, vestizione,
+    n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+)
+
+# 3) Correnti d’aria (fuori dal caso ‘Molto conduttivo’)
+fattore, correnti_override = applica_correnti(
+    fatt=fattore, stato=stato, vestizione=vestizione, superficie_short=superficie_short,
+    correnti_aria=correnti_aria, n_sottili_eq=n_sottili_eq, n_spessi_eq=n_spessi_eq,
+    fattore_vestiti_coperte=fattore_vestiti_coperte
+)
+
+# 4) Regola generale bagnato: se fattore_vestiti_coperte < 1.2 e NON c'è override forte 0.7/0.8/0.9 → -0.3
+if stato == "bagnato" and fattore_vestiti_coperte < 1.2 and not correnti_override:
+    fattore -= 0.30
+
+# 5) Clamp sicurezza
+if math.isnan(fattore):
+    fattore = 1.0
+fattore = clamp(fattore)
+
+# 6) Correzione peso (Tabella 2 - stub)
+fattore_finale = correzione_peso_tabella2(fattore, float(peso))
+
+# =========================
+# Output
+# =========================
+st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
