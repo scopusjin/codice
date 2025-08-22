@@ -157,7 +157,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 stato_label = st.radio(
-    "dummy",  # lo nascondiamo via CSS, serve solo per Streamlit
+    "dummy",
     options=["Corpo asciutto", "Bagnato", "Immerso"],
     index=0,
     horizontal=True,
@@ -169,7 +169,21 @@ elif stato_label == "Bagnato":
 else:
     stato = "in acqua"
 
-# ---- Superficie d’appoggio ----
+# ==== Branch UI: Immerso vs non-immerso ====
+if stato == "in acqua":
+    # Solo scelte acqua, senza titolo né spazio (riusa CSS sopra)
+    acqua_label = st.radio(
+        "dummy",
+        options=["in acqua stagnante", "in acqua corrente"],
+        index=0,
+        horizontal=True,
+    )
+    # Calcolo immediato e stop
+    fattore_finale = 0.35 if acqua_label == "in acqua corrente" else 0.50
+    st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
+    st.stop()
+
+# ---- Superficie d’appoggio (visibile solo se NON immerso) ----
 vestizione_assunta = "nudo e scoperto"
 opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
 if stato == "asciutto" and vestizione_assunta == "nudo e scoperto":
@@ -178,16 +192,16 @@ if stato == "asciutto":
     opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
 superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
 
-# ---- Switch affiancati ----
+# ---- Switch affiancati (visibili solo se NON immerso) ----
 c1, c2 = st.columns(2)
 with c1:
     toggle_vestito = st.toggle("Vestito/coperto?", value=False)
 with c2:
-    toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False, disabled=(stato == "in acqua"))
+    toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False)
 correnti_presenti = bool(toggle_correnti)
 vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
 
-# ---- Expander vestizione/coperte ----
+# ---- Expander vestizione/coperte (solo se attivato lo switch) ----
 n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
 if toggle_vestito:
     with st.expander(" ", expanded=True):
@@ -199,13 +213,6 @@ if toggle_vestito:
         with c2e:
             n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
             n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
-
-# ---- Caso: in acqua ----
-if stato == "in acqua":
-    acqua_tipo = st.selectbox("Condizioni dell'acqua", ["acqua stagnante", "acqua corrente"], index=0)
-    fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
-    st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
-    st.stop()
 
 # =========================
 # Pipeline di calcolo
