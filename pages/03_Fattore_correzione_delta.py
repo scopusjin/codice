@@ -190,12 +190,15 @@ with st.form("maschera_input"):
 
 if submit:
     fattore = float(fattore_vestiti_coperte)
-    fattore = applica_regole_superficie(fattore, superficie_short, stato, correnti_aria,
-                                        vestizione, n_sottili, n_spessi, n_lenz_plus,
-                                        has_lenz_pp, n_cop_medie, n_cop_pesanti)
-    fattore, correnti_override = applica_correnti(fatt, stato, vestizione, superficie_short, correnti_aria,
-                                                  n_sottili, n_spessi, n_lenz_plus,
-                                                  has_lenz_pp, fattore_vestiti_coperte)
+    fattore = applica_regole_superficie(
+        fattore, superficie_short, stato, correnti_aria,
+        vestizione, n_sottili, n_spessi, n_lenz_plus,
+        has_lenz_pp, n_cop_medie, n_cop_pesanti
+    )
+    fattore, correnti_override = applica_correnti(
+        fattore, stato, vestizione, superficie_short, correnti_aria,
+        n_sottili, n_spessi, n_lenz_plus, has_lenz_pp, fattore_vestiti_coperte
+    )
     if stato == "bagnato" and fattore_vestiti_coperte < 1.2 and not correnti_override:
         fattore -= 0.30
     if math.isnan(fattore):
@@ -203,4 +206,5 @@ if submit:
     fattore = clamp(fattore)
     fattore_finale = correzione_peso_tabella2(fattore, float(peso))
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
+
 
