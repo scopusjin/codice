@@ -52,7 +52,12 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
 
     fatt += n_sottili_eq * 0.075
     fatt += n_spessi_eq * 0.15
-    return float(fatt)  # niente cap locale; clamp solo a fine pipeline
+    return float(fatt)  # clamp solo a fine pipeline
+
+def is_vestizione_minima(n_sottili_eq: int, n_spessi_eq: int) -> bool:
+    # 1–2 sottili (0 spessi) oppure 1 spesso (0 sottili)
+    return ((n_sottili_eq in (1, 2) and n_spessi_eq == 0) or
+            (n_spessi_eq == 1 and n_sottili_eq == 0))
 
 def applica_regole_superficie(
     fatt, superficie_short, stato, correnti_aria, vestizione,
@@ -127,7 +132,7 @@ def applica_correnti(
 ):
     """
     Precedenze correnti:
-    - Visibilità: se fattore_vestiti_coperte >= 1.2 → correnti irrilevanti ("/").
+    - Visibilità: se fattore_vestiti_coperte >= 1.2 → correnti spesso irrilevanti ("/").
     - Molto conduttivo: gestito in superficie (precedenza assoluta).
     - Bagnato + correnti: override a 0.7/0.8/0.9 secondo gli strati.
     - Nudo + asciutto: SOLO se superficie = Indifferente → 1.00 / 0.75.
@@ -159,12 +164,7 @@ def applica_correnti(
         return (0.75, True) if correnti_aria == "con correnti d'aria" else (1.00, True)
 
     # 4) Vestizione minima + correnti: -0.10
-    # condizioni: 1-2 sottili (e 0 spessi) OPPURE 1 spesso (e 0 sottili)
-    vestizione_minima = (
-        (n_sottili_eq in (1, 2) and n_spessi_eq == 0) or
-        (n_spessi_eq == 1 and n_sottili_eq == 0)
-    )
-    if vestizione_minima and correnti_aria == "con correnti d'aria":
+    if is_vestizione_minima(n_sottili_eq, n_spessi_eq) and correnti_aria == "con correnti d'aria":
         return fatt - 0.10, False
 
     return fatt, False
@@ -184,22 +184,34 @@ st.subheader("Input")
 # Peso
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
-# ---- Condizione del corpo (UI compatta, senza titolo) ----
-# Manteniamo valori interni invariati tramite mappatura
+# ---- Condizione del corpo (etichette “corpo …”) ----
 _stato_options = [("asciutto", "corpo asciutto"),
                   ("bagnato", "corpo bagnato"),
                   ("in acqua", "corpo immerso")]
 stato = st.selectbox(
-    "",
+    "Condizione del corpo",
     _stato_options,
     index=0,
     format_func=lambda x: x[1],
-    label_visibility="collapsed",
-    
-)[0]  # prendi il valore interno ("asciutto"/"bagnato"/"in acqua")
+    help=HELP_CONDIZIONE,
+)[0]  # valore interno ("asciutto"/"bagnato"/"in acqua")
 
-# Vestizione
-vestizione = st.selectbox("Vestizione", ["nudo e scoperto", "vestito e/o coperto"], index=0)
+# ---- Vestizione: switch + expander con slider in 2 colonne ----
+toggle_vestito = st.toggle("Vestito/coperto?", value=False, help="Attiva per indicare strati e coperte.")
+vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
+
+n_sottili_eq = n_spessi_eq = 0
+n_cop_medie = n_cop_pesanti = 0
+
+if toggle_vestito:
+    with st.expander("Strati e coperte", expanded=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
+            n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, 0)
+        with c2:
+            n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
+            n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
 
 # Caso: in acqua → UI minima e stop
 if stato == "in acqua":
@@ -208,30 +220,10 @@ if stato == "in acqua":
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
 
-# Se vestito/coperto → campi ACCORPATI
-n_sottili_eq = n_spessi_eq = 0
-n_cop_medie = n_cop_pesanti = 0
-if vestizione == "vestito e/o coperto":
-    n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
-    n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
-    n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, 0)
-    n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
-
 # Fattore solo da vestiti/lenzuola (serve anche per visibilità correnti)
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
     n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
 )
-
-# ---- Correnti d'aria (UI compatta, senza titolo) ----
-correnti_aria = "/"
-if fattore_vestiti_coperte < 1.2:
-    correnti_aria = st.selectbox(
-        "",
-        ["Nessuna corrente d'aria", "con correnti d'aria"],
-        index=0,
-        label_visibility="collapsed",
-        
-    )
 
 # Superficie (opzioni condizionali)
 opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
@@ -241,10 +233,37 @@ if stato == "asciutto":
     opts_appoggio += ["Foglie umide (>= 2 cm)", "Foglie secche (>= 2 cm)"]
 superficie_short = st.selectbox("Superficie di appoggio", opts_appoggio, index=0, help=HELP_SUPERFICIE)
 
+# ---- Correnti d'aria (mostra quando contano o richieste per nudo+asciutto) ----
+correnti_aria = "/"
+nudo_asciutto = (stato == "asciutto" and vestizione == "nudo e scoperto")
+superfici_per_nudo = {"Indifferente", "Conduttivo", "Isolante", "Molto isolante", "Molto conduttivo"}
+
+correnti_rilevanti = (
+    (stato == "bagnato") or
+    (nudo_asciutto and superficie_short in superfici_per_nudo) or
+    is_vestizione_minima(n_sottili_eq, n_spessi_eq) or
+    (superficie_short == "Molto conduttivo")
+)
+
+if correnti_rilevanti:
+    correnti_aria = st.selectbox(
+        "",
+        ["senza correnti d'aria", "con correnti d'aria"],
+        index=0,
+        label_visibility="collapsed",
+        help=HELP_CORRENTI_ARIA
+    )
+
+    # Nota di trasparenza: casi in cui non influisce
+    if nudo_asciutto and superficie_short in {"Isolante", "Molto isolante", "Conduttivo"}:
+        st.caption("Nota: per nudo & asciutto su questa superficie, le correnti **non modificano** il fattore (effetto previsto solo per 'Indifferente' e 'Molto conduttivo').")
+else:
+    st.caption("Le correnti d’aria sono irrilevanti con questa combinazione di vestizione/superficie.")
+
 # =========================
 # Pipeline di calcolo (reattiva)
 # =========================
-# 1) Parto dal fattore vestiti/coperte
+# 1) Base: fattore da vestiti/coperte
 fattore = float(fattore_vestiti_coperte)
 
 # 2) Regole superficie (Molto conduttivo ha precedenza e usa correnti)
