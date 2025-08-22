@@ -17,8 +17,7 @@ st.title("Fattore di correzione — delta")
 # =========================
 # Help compatti
 # =========================
-HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
-HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, attiva lo switch 'Correnti d'aria presenti?'."
+
 HELP_SUPERFICIE = (
     "**Indifferente**: pavimento domestico/terreno asciutto/prato asciutto/asfalto · "
     "**Isolante**: materasso/tappeto spesso · "
