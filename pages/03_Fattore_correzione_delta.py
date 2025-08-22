@@ -28,7 +28,6 @@ HELP_SUPERFICIE = (
     "**Foglie**: adagiato su strato spesso di foglie"
 )
 
-
 # =========================
 # Utility
 # =========================
@@ -185,8 +184,18 @@ st.subheader("Input")
 # Peso
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
-# Stato
-stato = st.selectbox("Condizioni del corpo", ["asciutto", "bagnato", "in acqua"], index=0, help=HELP_CONDIZIONE)
+# ---- Condizione del corpo (UI compatta, senza titolo) ----
+# Manteniamo valori interni invariati tramite mappatura
+_stato_options = [("asciutto", "corpo asciutto"),
+                  ("bagnato", "corpo bagnato"),
+                  ("in acqua", "corpo immerso")]
+stato = st.selectbox(
+    "",
+    _stato_options,
+    index=0,
+    format_func=lambda x: x[1],
+    help=HELP_CONDIZIONE
+)[0]  # prendi il valore interno ("asciutto"/"bagnato"/"in acqua")
 
 # Vestizione
 vestizione = st.selectbox("Vestizione", ["nudo e scoperto", "vestito e/o coperto"], index=0)
@@ -213,10 +222,15 @@ fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
     n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
 )
 
-# Correnti: visibili solo se fattore_vestiti_coperte < 1.2
+# ---- Correnti d'aria (UI compatta, senza titolo) ----
 correnti_aria = "/"
 if fattore_vestiti_coperte < 1.2:
-    correnti_aria = st.selectbox("Correnti d’aria", ["senza correnti", "con correnti d'aria"], index=0, help=HELP_CORRENTI_ARIA)
+    correnti_aria = st.selectbox(
+        "",
+        ["senza correnti d'aria", "con correnti d'aria"],
+        index=0,
+        help=HELP_CORRENTI_ARIA
+    )
 
 # Superficie (opzioni condizionali)
 opts_appoggio = ["Indifferente", "Isolante", "Molto isolante", "Conduttivo"]
