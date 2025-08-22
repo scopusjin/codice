@@ -146,7 +146,7 @@ peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, va
 
 # ---- Condizione del corpo: radio compatto orizzontale ----
 stato_label = st.radio(
-    label="",
+
     options=["Corpo asciutto", "Bagnato", "Immerso"],
     index=0,
     label="collapsed",
