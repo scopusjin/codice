@@ -227,7 +227,7 @@ correnti_aria = "/"
 if fattore_vestiti_coperte < 1.2:
     correnti_aria = st.selectbox(
         "",
-        ["senza correnti d'aria", "con correnti d'aria"],
+        ["Nessuna corrente d'aria", "con correnti d'aria"],
         index=0,
         label_visibility="collapsed",
         
