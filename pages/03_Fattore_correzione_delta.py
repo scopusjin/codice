@@ -53,7 +53,8 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
     else:
         fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
         if fatt > 1.8:
-            fatt = 1.8  # cap se solo indumenti/lenzuola
+     #   if fatt > 1.8:
+     #       fatt = 1.8  # cap se solo indumenti/lenzuola
 
     return float(fatt)
 
