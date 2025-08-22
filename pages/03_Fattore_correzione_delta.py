@@ -17,7 +17,6 @@ st.title("Fattore di correzione — delta")
 # =========================
 # Help compatti
 # =========================
-
 HELP_SUPERFICIE = (
     "**Indifferente**: pavimento domestico/terreno asciutto/prato asciutto/asfalto · "
     "**Isolante**: materasso/tappeto spesso · "
@@ -214,23 +213,28 @@ stato = st.selectbox(
     _stato_options,
     index=0,
     format_func=lambda x: x[1],
-    
 )[0]  # valore interno
 
-# ---- Vestizione: switch + expander con slider in 2 colonne ----
-toggle_vestito = st.toggle("Vestito/coperto?", value=False)
+# ---- Switch affiancati ----
+c1, c2 = st.columns(2)
+with c1:
+    toggle_vestito = st.toggle("Vestito/coperto?", value=False)  # <— fix sintassi
+with c2:
+    toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False, disabled=(stato == "in acqua"))
+correnti_presenti = bool(toggle_correnti)
+
 vestizione = "vestito e/o coperto" if toggle_vestito else "nudo e scoperto"
 
+# ---- Expander (senza titolo leggibile) per strati/coperte ----
 n_sottili_eq = n_spessi_eq = 0
 n_cop_medie = n_cop_pesanti = 0
-
 if toggle_vestito:
-    with st.expander("Strati e coperte", expanded=True):
-        c1, c2 = st.columns(2)
-        with c1:
+    with st.expander(" ", expanded=True):  # U+2003 em-space: appare senza testo
+        c1e, c2e = st.columns(2)
+        with c1e:
             n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
             n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, 0)
-        with c2:
+        with c2e:
             n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
             n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
 
@@ -240,10 +244,6 @@ if stato == "in acqua":
     fattore_finale = 0.35 if acqua_tipo == "acqua corrente" else 0.50
     st.metric("Fattore di correzione", f"{fattore_finale:.2f}")
     st.stop()
-
-# Switch correnti (sempre visibile fuori dall'acqua)
-toggle_correnti = st.toggle("Correnti d'aria presenti?", value=False)
-correnti_presenti = bool(toggle_correnti)
 
 # Fattore solo da vestiti/lenzuola (serve anche per regole 'poco vestito')
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
