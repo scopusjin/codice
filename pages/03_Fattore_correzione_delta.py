@@ -52,7 +52,6 @@ def calcola_fattore_vestiti_coperte(n_sottili_eq, n_spessi_eq, n_cop_medie, n_co
         fatt += n_spessi_eq * 0.15
     else:
         fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
-
     return float(fatt)
 
 def is_vestizione_minima(n_sottili_eq: int, n_spessi_eq: int) -> bool:
@@ -144,13 +143,25 @@ st.subheader("Input")
 # Peso
 peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0, value=70.0, step=0.5)
 
-# ---- Condizione del corpo: radio compatto orizzontale ----
-tato_label = st.segmented_control(
-    options=["Corpo asciutto", "Bagnato", "Immerso"],
-    default="Corpo asciutto",
+# ---- Condizione del corpo: radio orizzontale, senza label/spazio (via CSS) ----
+st.markdown(
+    """
+    <style>
+    /* Nasconde il label e compatta il blocco radio */
+    div[data-testid="stRadio"] > label {display: none !important;}
+    div[data-testid="stRadio"] {margin-top: -14px; margin-bottom: -10px;}
+    /* Avvicina i bottoni orizzontali */
+    div[data-testid="stRadio"] div[role="radiogroup"] {gap: 0.4rem;}
+    </style>
+    """,
+    unsafe_allow_html=True
 )
-
-# Normalizziamo il valore interno
+stato_label = st.radio(
+    "dummy",  # lo nascondiamo via CSS, serve solo per Streamlit
+    options=["Corpo asciutto", "Bagnato", "Immerso"],
+    index=0,
+    horizontal=True,
+)
 if stato_label == "Corpo asciutto":
     stato = "asciutto"
 elif stato_label == "Bagnato":
