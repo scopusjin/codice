@@ -15,8 +15,7 @@ import math
 # =========================
 # Stato e costanti globali
 # =========================
-st.set_page_config(page_title="Fattore di correzione (beta2)", layout="wide")
-st.title("Fattore di correzione — beta2")
+
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
 
