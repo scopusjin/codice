@@ -68,25 +68,8 @@ HELP_CORRENTI_ARIA = (
     "**No** = ambiente chiuso/nessuna corrente percepibile"
 )
 
-# pages/04_Fattore_correzione_beta2.py
-# -*- coding: utf-8 -*-
-import math
-import streamlit as st
 
-# =========================
-# Config
-# =========================
-st.set_page_config(
-    page_title="Fattore di correzione (beta2)",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
 
-st.title("Fattore di correzione — beta2")
-
-# =========================
-# Utility
-# =========================
 def clamp(x, lo=0.35, hi=3.0):
     return max(lo, min(hi, x))
 
