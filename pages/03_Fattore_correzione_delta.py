@@ -229,6 +229,7 @@ if fattore_vestiti_coperte < 1.2:
         "",
         ["senza correnti d'aria", "con correnti d'aria"],
         index=0,
+        label_visibility="collapsed",
         
     )
 
