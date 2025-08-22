@@ -212,10 +212,10 @@ if stato == "in acqua":
 n_sottili_eq = n_spessi_eq = 0
 n_cop_medie = n_cop_pesanti = 0
 if vestizione == "vestito e/o coperto":
-    n_sottili_eq = st.slider("Strati SOTTILI (indumenti o lenzuola sottili)", 0, 8, 0)
-    n_spessi_eq  = st.slider("Strati SPESSI (indumenti o lenzuola spesse)", 0, 6, 0)
-    n_cop_medie  = st.slider("Coperte MEDIE", 0, 5, 0)
-    n_cop_pesanti= st.slider("Coperte PESANTI", 0, 5, 0)
+    n_sottili_eq = st.slider("Strati leggeri (indumenti o lenzuola sottili)", 0, 8, 0)
+    n_spessi_eq  = st.slider("Strati pesanti (indumenti o lenzuola spesse)", 0, 6, 0)
+    n_cop_medie  = st.slider("Coperte di medio spessore", 0, 5, 0)
+    n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0)
 
 # Fattore solo da vestiti/lenzuola (serve anche per visibilità correnti)
 fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
