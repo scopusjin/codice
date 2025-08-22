@@ -20,12 +20,12 @@ st.title("Fattore di correzione — delta")
 HELP_CONDIZIONE = "Se il corpo è immerso in acqua, abbigliamento e coperte non sono rilevanti."
 HELP_CORRENTI_ARIA = "Se ci sono finestre aperte, ventole o correnti naturali, seleziona 'con correnti d'aria'."
 HELP_SUPERFICIE = (
-    "Indifferente = Pavimento/terreno/prato asciutto/asfalto · "
-    "Isolante = Materasso/tappeto spesso · "
-    "Molto isolante = Imbottitura pesante (sacco a pelo, polistirolo, divano imbottito) · "
-    "Conduttivo = Cemento/pietra/PVC/esterno · "
-    "Molto conduttivo = Superficie metallica spessa all'esterno (solo nudo asciutto) · "
-    "Foglie umide/secche = strato ≥ 2 cm (solo se corpo asciutto)"
+    "**Indifferente** = Pavimento/terreno/prato asciutto/asfalto · "
+    "**Isolante** = Materasso/tappeto spesso · "
+    "**Molto isolante** = sacco a pelo tecnico, polistirolo, divano imbottito · "
+    "**Conduttivo** = Cemento/pietra/PVC/esterno · "
+    "**Molto conduttivo** = Superficie metallica spessa all'esterno (solo nudo asciutto) · "
+    "**Foglie**  = adagiato su strato spesso di foglie"
 )
 
 APP_APPOGGIO_MAP = {
