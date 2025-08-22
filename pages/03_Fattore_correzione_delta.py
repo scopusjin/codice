@@ -150,6 +150,7 @@ stato_label = st.radio(
     options=["Corpo asciutto", "Bagnato", "Immerso"],
     index=0,
     label="collapsed",
+    label=collapsed, 
     horizontal=True,
 )
 if stato_label == "Corpo asciutto":
