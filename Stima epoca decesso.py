@@ -16,11 +16,7 @@ import pandas as pd
 # =========================
 st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 
-if "fattore_correzione" not in st.session_state:
-    st.session_state["fattore_correzione"] = 1.0
 
-if "mostra_modulo_fattore" not in st.session_state:
-    st.session_state["mostra_modulo_fattore"] = False
     
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
@@ -29,24 +25,6 @@ INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e 
 # Utility cache per Excel
 # =========================
 
-@st.cache_data
-def load_tabelle_correzione():
-    """
-    Carica e normalizza le tabelle usate da calcola_fattore.
-    Restituisce (tabella1, tabella2) o solleva eccezione con messaggio chiaro.
-    """
-    try:
-        t1 = pd.read_excel("tabella rielaborata.xlsx", engine="openpyxl")
-        t2 = pd.read_excel("tabella secondaria.xlsx", engine="openpyxl")
-    except FileNotFoundError:
-        raise
-    except ImportError as e:
-        raise RuntimeError("Il pacchetto 'openpyxl' è richiesto per leggere i file Excel.") from e
-
-    t1['Fattore'] = pd.to_numeric(t1['Fattore'], errors='coerce')
-    for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
-        t1[col] = t1[col].astype(str).str.strip()
-    return t1, t2
 
 # =========================
 # Funzioni esistenti (con fix robustezza)
@@ -1048,7 +1026,7 @@ def aggiorna_grafico():
                         f"<li>"
                         f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili "
                         f"(Valore di Qd ottenuto: <b>{Qd_val_check:.5f}</b>, &lt; 0.2) "
-                        f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_raff_hensge_rounded:.1f} ore -, ma tale range è privo di una solida base statistica). "
+                        f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico, cioè {t_med_raff_hensge_rounded:.1f} ore, ma tale range è privo di una solida base statistica). "
                         f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso. "
                         f"Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
                         f"</li>"
@@ -1161,7 +1139,7 @@ def aggiorna_grafico():
             fine_hour_text = "ora" if comune_fine_hours == 1 else "ore"
             da = isp - datetime.timedelta(hours=comune_fine)
             testo = (
-                f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
                 f"consente di stimare che la morte sia avvenuta <b>non oltre</b> "
                 f"{comune_fine_hours} {fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {da.strftime('%H:%M')} del {da.strftime('%d.%m.%Y')}."
@@ -1179,7 +1157,7 @@ def aggiorna_grafico():
 
             if da.date() == aa.date():
                 testo = (
-                    f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                    f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
                     f"consente di stimare che la morte sia avvenuta tra circa "
                     f"{comune_inizio_hours} {comune_inizio_hour_text}{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} e "
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
@@ -1187,7 +1165,7 @@ def aggiorna_grafico():
                 )
             else:
                 testo = (
-                    f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                    f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
                     f"consente di stimare che la morte sia avvenuta tra circa "
                     f"{comune_inizio_hours} {comune_inizio_hour_text}{'' if comune_inizio_minutes == 0 else f' {comune_inizio_minutes} minuti'} e "
                     f"{comune_fine_hours} {comune_fine_hour_text}{'' if comune_fine_minutes == 0 else f' {comune_fine_minutes} minuti'} "
@@ -1235,7 +1213,7 @@ def aggiorna_grafico():
 
                 frase_secondaria = (
                     f"<b>Senza considerare lo studio di Potente</b>, la valutazione complessiva dei dati tanatologici, "
-                    f"integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+                    f"integrando i loro limiti temporali massimi e minimi, "
                     f"consente di stimare che la morte  sia avvenuta tra circa "
                     f"{inizio_h} {inizio_text}{'' if inizio_m == 0 else f' {inizio_m} minuti'} e "
                     f"{fine_h} {fine_text}{'' if fine_m == 0 else f' {fine_m} minuti'} "
