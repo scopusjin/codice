@@ -3,6 +3,13 @@ from app.factor_calc import (
     SURF_DISPLAY_ORDER, fattore_vestiti_coperte,
 )
 
+from app.henssge import (
+    round_quarter_hour,
+    calcola_raffreddamento,
+    ranges_in_disaccordo_completa,
+    INF_HOURS as INF_HOURS_HENSSGE  # opzionale, se ti serve
+)
+
 # se la funzione Excel è in questo stesso file, non serve importarla;
 # altrimenti, se l’hai spostata in data_sources.py, usa:
 # from data_sources import load_tabelle_correzione
@@ -224,101 +231,11 @@ nomi_brevi = {
 }
 
 # --- Funzioni di Utilità e Calcolo Henssge (Esistenti) ---
-def round_quarter_hour(x):
-    if np.isnan(x):
-        return np.nan
-    return np.round(x * 2) / 2
 
-def calcola_raffreddamento(Tr, Ta, T0, W, CF):
-    # Controllo per temperature non valide per il calcolo di Henssge
-    if Tr is None or Ta is None or T0 is None or W is None or CF is None:
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
-    #
-    # Considera non valido se Tr è "molto vicino" o inferiore a Ta
-    temp_tolerance = 1e-6
-    if Tr <= Ta + temp_tolerance:
-        return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
-    # Controllo esplicito per evitare divisione per zero nel calcolo di Qd
-    if abs(T0 - Ta) < temp_tolerance: # Controlla se il denominatore è molto vicino a zero
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
 
-    # Ora calcola Qd solo se i controlli iniziali sono passati
-    Qd = (Tr - Ta) / (T0 - Ta)
 
-    # Assicurati che Qd sia un valore valido e rientri in un range plausibile (es. > 0 e <= 1)
-    if np.isnan(Qd) or Qd <= 0 or Qd > 1:
-         return np.nan, np.nan, np.nan, np.nan, np.nan # Restituisce 5 NaN
 
-    A = 1.25 if Ta <= 23 else 10/9
-    B = -1.2815 * (CF * W)**(-5/8) + 0.0284
-
-    def Qp(t):
-        try:
-            if t < 0:
-                return np.inf
-            val = A * np.exp(B * t) + (1 - A) * np.exp((A / (A - 1)) * B * t)
-            if np.isinf(val) or abs(val) > 1e10:
-                 return np.nan
-            return val
-        except OverflowError:
-             return np.nan
-        except Exception:
-             return np.nan
-
-    t_med_raw = np.nan
-
-    qp_at_0 = Qp(0)
-    qp_at_160 = Qp(160)
-
-    eps = 1e-9
-    if np.isnan(qp_at_0) or np.isnan(qp_at_160) or not (min(qp_at_160, qp_at_0) - eps <= Qd <= max(qp_at_160, qp_at_0) + eps):
-        t_med_raw = np.nan
-    else:
-         try:
-             sol = root_scalar(lambda t: Qp(t) - Qd, bracket=[0, 160], method='bisect')
-             t_med_raw = sol.root
-         except ValueError:
-             t_med_raw = np.nan
-         except Exception:
-             t_med_raw = np.nan
-
-    Dt_raw = 0
-
-    if not np.isnan(t_med_raw) and not np.isnan(Qd):
-         if Qd <= 0.2:
-              Dt_raw = t_med_raw * 0.20
-         elif CF == 1:
-              Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
-         else: # CF != 1
-              Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7
-
-    t_med = round_quarter_hour(t_med_raw) if not np.isnan(t_med_raw) else np.nan
-    t_min = round_quarter_hour(t_med_raw - Dt_raw) if not np.isnan(t_med_raw) else np.nan
-    t_max = round_quarter_hour(t_med_raw + Dt_raw) if not np.isnan(t_med_raw) else np.nan
-
-    t_min = max(0.0, t_min) if not np.isnan(t_min) else np.nan
-
-    return t_med, t_min, t_max, t_med_raw, Qd
-
-def ranges_in_disaccordo_completa(r_inizio, r_fine):
-    intervalli = []
-    for start, end in zip(r_inizio, r_fine):
-        s = start if not np.isnan(start) else -np.inf
-        e = end if not np.isnan(end) else np.inf
-        intervalli.append((s, e))
-
-    for i, (s1, e1) in enumerate(intervalli):
-        si_sovrappone = False
-        for j, (s2, e2) in enumerate(intervalli):
-            if i == j:
-                continue
-            if s1 <= e2 and s2 <= e1:
-                si_sovrappone = True
-                break
-        if not si_sovrappone:
-            return True  # almeno uno è completamente isolato
-    return False
-
+    
 # --- Definizione Widget (Streamlit) ---
 with st.container(border=True):
     
