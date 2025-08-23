@@ -276,38 +276,102 @@ def calcola_fattore(peso: float):
     # -------------------------------------
     # Lettura scelte dalla UI (session_state)
     # -------------------------------------
-    stato_corpo = st.radio(
-        "**Condizioni del corpo**",
-        ["Asciutto", "Bagnato", "Immerso"],
-        key="radio_stato_corpo",
-        horizontal=True
+      # --- CSS compatto per radio/toggle/slider (stile "delta") ---
+    st.markdown(
+        """
+        <style>
+          /* Radio: nascondi label e riduci margini */
+          div[data-testid="stRadio"] > label {display:none !important;}
+          div[data-testid="stRadio"] {margin-top:-14px; margin-bottom:-10px;}
+          div[data-testid="stRadio"] div[role="radiogroup"] {gap:0.4rem;}
+          /* Toggle: riduci margini verticali */
+          div[data-testid="stToggle"] {margin-top:-6px; margin-bottom:-6px;}
+          /* Slider: compattazione leggera */
+          div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
+        </style>
+        """,
+        unsafe_allow_html=True
     )
+        # -------------------------------------
+    # 1) Condizione del corpo (label nascosta via CSS globale)
+    # -------------------------------------
+    stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"], index=0, horizontal=True, key="radio_stato_corpo")
+    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
     corpo_immerso  = (stato_corpo == "Immerso")
     corpo_bagnato  = (stato_corpo == "Bagnato")
     corpo_asciutto = (stato_corpo == "Asciutto")
 
-    # Sliders per strati/coperte (nuovo modello a contatori)
+    
+        # -------------------------------------
+    # 3) Correnti + Vestiti sulla stessa riga
+    #    - placeholder a sinistra per correnti
+    #    - toggle "Vestito/coperto?" a destra
+    # -------------------------------------
+    col_corr, col_vest = st.columns([1.0, 1.3])
+    with col_corr:
+        corr_placeholder = st.empty()
+    with col_vest:
+        toggle_vestito = st.toggle(
+            "Vestito/coperto?",
+            value=st.session_state.get("toggle_vestito", False),
+            key="toggle_vestito"
+        )
+
+    # -------------------------------------
+    # 4) Slider vestizione (se ON)
+    # -------------------------------------
     n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
-    st.markdown("<div style='margin-top:0.5rem; font-size:0.92rem;'>Strati e coperte</div>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        n_sottili_eq = st.slider("Strati sottili (teli/indumenti leggeri)", 0, 8, 0, key="fc_strati_sottili")
-        if corpo_asciutto:
-            n_cop_medie  = st.slider("Coperte medie", 0, 5, 0, key="fc_coperte_medie")
-    with c2:
-        n_spessi_eq  = st.slider("Strati spessi (teli/indumenti pesanti)", 0, 6, 0, key="fc_strati_spessi")
-        if corpo_asciutto:
-            n_cop_pesanti= st.slider("Coperte pesanti", 0, 5, 0, key="fc_coperte_pesanti")
-
-    # Correnti (aria o acqua)
-    corrente = "/"
+    if toggle_vestito:
+        c1, c2 = st.columns(2)
+        with c1:
+            n_sottili_eq = st.slider(
+                "Strati leggeri (indumenti o teli sottili)",
+                0, 8, st.session_state.get("strati_sottili", 0),
+                key="strati_sottili"
+            )
+            n_spessi_eq = st.slider(
+                "Strati pesanti (indumenti o teli spessi)",
+                0, 6, st.session_state.get("strati_spessi", 0),
+                key="strati_spessi"
+            )
+            
+                
+        with c2:
+            if corpo_asciutto:
+                n_cop_medie = st.slider(
+                    "Coperte di medio spessore",
+                    0, 5, st.session_state.get("coperte_medie", 0),
+                    key="coperte_medie"
+                )
+            if corpo_asciutto:
+                n_cop_pesanti = st.slider(
+                    "Coperte pesanti",
+                    0, 5, st.session_state.get("coperte_pesanti", 0),
+                    key="coperte_pesanti"
+                )
+                
+    # -------------------------------------
+    # Correnti d'aria nel placeholder di sinistra
+    # - se ASCIUTTO e poco/mediamente vestito (fattore < 1.2) mostro il toggle
+    # - se ASCIUTTO e fattore >= 1.2 lo nascondo (come nel delta)
+    # - se BAGNATO mostro comunque il toggle (logica del delta gestita in applica_correnti)
+    # - se IMMERSO uso la radio dell'acqua (già gestita altrove)
+    # -------------------------------------
     correnti_presenti = False
-    if corpo_immerso:
-        corrente = st.radio("**Acqua**", ["In acqua stagnante", "In acqua corrente"], index=0, key="radio_acqua", horizontal=True)
-    else:
-        # Mostro il toggle correnti d'aria se ha senso (come nel tuo comportamento preesistente: libero di tenerlo sempre visibile)
-        correnti_presenti = st.toggle("Correnti d'aria presenti?", value=False, key="toggle_correnti_fc")
-
+    if not corpo_immerso:
+        with corr_placeholder.container():
+            if (corpo_asciutto and (fattore_vestiti_coperte >= 1.2)):
+                correnti_presenti = False
+                st.empty()
+            else:
+                correnti_presenti = st.toggle(
+                    "Correnti d'aria presenti?",
+                    value=st.session_state.get("toggle_correnti_fc", False),
+                    key="toggle_correnti_fc",
+                    disabled=False
+                )
+                
+    
     # Superficie (solo asciutto)
     superficie_key = None
     superficie_label_sel = "/"
