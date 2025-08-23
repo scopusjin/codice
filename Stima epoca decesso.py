@@ -1384,7 +1384,10 @@ def aggiorna_grafico():
 
     if num_params_grafico > 0:
         fig, ax = plt.subplots(figsize=(10, max(2, 1.5 + 0.5 * num_params_grafico)))
-
+# --- STILI LINEE (pieni e tratteggiati) ---
+        LINE_W  = 6              # stesso spessore per pieno e tratteggio
+       DASH_LS = (0, (4, 3))    # tratteggio corto: 4 on, 3 off
+       CAP     = 'butt'         # terminali piatti (coerenti)
         parametri_grafico = []
         ranges_to_plot_inizio = []
         ranges_to_plot_fine = []
@@ -1507,31 +1510,57 @@ def aggiorna_grafico():
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
             idx_raff = parametri_grafico.index(label_hensge)
+        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
+            idx_raff = parametri_grafico.index(label_hensge)
 
             # Segmento Potente (da mt_ore a ∞): solido fino a cap finito, poi tratteggiato fino a TAIL_END
             if mt_ore is not None and not np.isnan(mt_ore):
-                solid_from = mt_ore
+                solid_from = float(mt_ore)
                 solid_to   = max(solid_from, cap_base)
-                if solid_to > solid_from and solid_from < TAIL_END:
-                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=min(solid_to, TAIL_END),
-                              color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
-                if TAIL_END > max(solid_to, solid_from):
-                    ax.hlines(y=idx_raff, xmin=max(solid_to, solid_from), xmax=TAIL_END,
-                              color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
+
+                # parte piena
+                if solid_from < TAIL_END and solid_to > solid_from:
+                    ax.hlines(
+                        y=idx_raff,
+                        xmin=solid_from, xmax=min(solid_to, TAIL_END),
+                        color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1
+                    )
+
+                # tratteggio
+                dash_start = max(solid_to, solid_from)
+                if TAIL_END > dash_start:
+                    ax.hlines(
+                        y=idx_raff,
+                        xmin=dash_start, xmax=TAIL_END,
+                        color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1,
+                        linestyle=DASH_LS
+                    )
 
             # Segmento >30h (Qd>0.2 e t_med_raw>30): solido fino a cap finito, poi tratteggiato fino a TAIL_END
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
                 solid_from = 30.0
                 solid_to   = max(solid_from, cap_base)
-                if solid_to > solid_from and solid_from < TAIL_END:
-                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=min(solid_to, TAIL_END),
-                              color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
-                if TAIL_END > max(solid_to, solid_from):
-                    ax.hlines(y=idx_raff, xmin=max(solid_to, solid_from), xmax=TAIL_END,
-                              color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
 
-        # ==============================
+                # parte piena
+                if solid_from < TAIL_END and solid_to > solid_from:
+                    ax.hlines(
+                        y=idx_raff,
+                        xmin=solid_from, xmax=min(solid_to, TAIL_END),
+                        color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1
+                    )
+
+                # tratteggio
+                dash_start = max(solid_to, solid_from)
+                if TAIL_END > dash_start:
+                    ax.hlines(
+                        y=idx_raff,
+                        xmin=dash_start, xmax=TAIL_END,
+                        color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1,
+                        linestyle=DASH_LS
+                    )
+                    
+        
         # 2) LINEE BLU DI BASE (tutti i range)
         #    - Finite: come prima
         #    - Infinite: solido fino a cap finito, poi tratteggiato fino a TAIL_END
