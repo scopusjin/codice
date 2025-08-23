@@ -1,6 +1,13 @@
-# -*- coding: utf-8 -*-
-# Streamlit app: Stima epoca decesso
-# Revisione con correzioni di robustezza e piccoli fix senza variare la logica di calcolo/UX.
+from factor_calc import (
+    DressCounts,
+    compute_factor,
+    build_cf_description,
+    SURF_DISPLAY_ORDER,
+    fattore_vestiti_coperte,   # solo per decidere se mostrare il toggle "correnti"
+)
+# se la funzione Excel è in questo stesso file, non serve importarla;
+# altrimenti, se l’hai spostata in data_sources.py, usa:
+# from data_sources import load_tabelle_correzione
 
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -383,11 +390,167 @@ with st.container(border=True):
                 value=st.session_state.get("toggle_fattore", False),
                 key="toggle_fattore"
             )
+def pannello_suggerisci_fc(peso_default: float = 70.0):
+    import streamlit as st
 
-# — Pannello suggerimento FC a tutta pagina —
+    # ——— CSS compatto (opzionale) ———
+    st.markdown(
+        """
+        <style>
+          div[data-testid="stRadio"] > label {display:none !important;}
+          div[data-testid="stRadio"] {margin-top:-14px; margin-bottom:-10px;}
+          div[data-testid="stRadio"] div[role="radiogroup"] {gap:0.4rem;}
+          div[data-testid="stToggle"] {margin-top:-6px; margin-bottom:-6px;}
+          div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ——— Stato corpo ———
+    stato_label = st.radio(
+        "dummy",
+        ["Corpo asciutto", "Bagnato", "Immerso"],
+        index=0, horizontal=True, key="radio_stato_corpo"
+    )
+    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
+
+    # ——— Se Immerso: acqua stagnante/corrente, calcolo immediato e ritorno ———
+    if stato_corpo == "Immerso":
+        acqua_label = st.radio("dummy", ["In acqua stagnante", "In acqua corrente"], index=0, horizontal=True, key="radio_acqua")
+        acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
+        # tabelle Excel (solo Tabella 2 serve per peso)
+        try:
+            _, tabella2 = load_tabelle_correzione()
+        except Exception:
+            tabella2 = None
+
+        result = compute_factor(
+            stato="Immerso",
+            acqua=acqua_mode,
+            counts=DressCounts(),                 # zero strati nel caso Immerso
+            superficie_display=None,
+            correnti_aria=False,
+            peso=float(st.session_state.get("peso", peso_default)),
+            tabella2_df=tabella2
+        )
+
+        st.markdown(
+            f"<div style='background-color:#e6f4ea; padding:10px; border-radius:5px;'>"
+            f"Fattore di correzione suggerito: {result.fattore_finale:.2f}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        def _apply(val, riass):
+            st.session_state["fattore_correzione"] = round(float(val), 2)
+            st.session_state["fattori_condizioni_parentetica"] = None
+            st.session_state["fattori_condizioni_testo"] = None
+            st.session_state["toggle_fattore"] = False
+            st.session_state["fc_riassunto_contatori"] = riass
+
+        st.button("✅ Usa questo fattore", on_click=_apply, args=(result.fattore_finale, result.riassunto), use_container_width=True)
+        return
+
+    # ——— Non Immerso: vestizione/coperte ———
+    col_corr, col_vest = st.columns([1.0, 1.3])
+    with col_corr:
+        corr_placeholder = st.empty()
+    with col_vest:
+        toggle_vestito = st.toggle(
+            "Vestito/coperto?",
+            value=st.session_state.get("toggle_vestito", False),
+            key="toggle_vestito"
+        )
+
+    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
+    if toggle_vestito:
+        col_layers, col_blankets = st.columns(2)
+        with col_layers:
+            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, st.session_state.get("strati_sottili", 0), key="strati_sottili")
+            n_spessi  = st.slider("Strati pesanti (indumenti o teli spessi)",  0, 6, st.session_state.get("strati_spessi", 0),  key="strati_spessi")
+        with col_blankets:
+            if stato_corpo == "Asciutto":
+                n_cop_medie   = st.slider("Coperte di medio spessore", 0, 5, st.session_state.get("coperte_medie", 0), key="coperte_medie")
+                n_cop_pesanti = st.slider("Coperte pesanti",          0, 5, st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
+
+    counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
+
+    # ——— Superficie (solo Asciutto) ———
+    superficie_display_selected = "/"
+    if stato_corpo == "Asciutto":
+        # se nudo effettivo, includi opzione “Superficie metallica spessa (all’aperto)”
+        nudo_eff = (not toggle_vestito) or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        options_display = SURF_DISPLAY_ORDER.copy()
+        if not nudo_eff:
+            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+
+        # mantieni selezione precedente se valida
+        prev_display = st.session_state.get("superficie_display_sel")
+        if prev_display not in options_display:
+            prev_display = options_display[0]
+
+        superficie_display_selected = st.selectbox(
+            "Superficie di appoggio",
+            options_display,
+            index=options_display.index(prev_display),
+            key="superficie_display_sel"
+        )
+
+    # ——— Correnti d’aria (visibilità simile alla tua logica) ———
+    correnti_presenti = False
+    with corr_placeholder.container():
+        mostra_correnti = True
+        if stato_corpo == "Asciutto":
+            f_vc = fattore_vestiti_coperte(counts)
+            if f_vc >= 1.2:   # come la tua regola: se molto vestito, nascondi toggle
+                mostra_correnti = False
+        if mostra_correnti:
+            correnti_presenti = st.toggle(
+                "Correnti d'aria presenti?",
+                value=st.session_state.get("toggle_correnti_fc", False),
+                key="toggle_correnti_fc",
+                disabled=False
+            )
+
+    # ——— Carica Tabella 2 (se disponibile) ———
+    try:
+        _, tabella2 = load_tabelle_correzione()
+    except Exception:
+        tabella2 = None
+
+    # ——— Calcolo finale ———
+    result = compute_factor(
+        stato=stato_corpo,
+        acqua=None,
+        counts=counts,
+        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
+        correnti_aria=correnti_presenti,
+        peso=float(st.session_state.get("peso", peso_default)),
+        tabella2_df=tabella2
+    )
+
+    # ——— UI risultato ———
+    st.markdown(
+        f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
+        f'Fattore di correzione suggerito: {result.fattore_finale:.2f}'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
+    def _apply(val, riass):
+        st.session_state["fattore_correzione"] = round(float(val), 2)
+        st.session_state["fattori_condizioni_parentetica"] = None
+        st.session_state["fattori_condizioni_testo"] = None
+        st.session_state["toggle_fattore"] = False
+        st.session_state["fc_riassunto_contatori"] = riass
+
+    st.button("✅ Usa questo fattore", on_click=_apply, args=(result.fattore_finale, result.riassunto), use_container_width=True)
+
 if st.session_state.get("toggle_fattore", False):
     with st.container(border=True):
-        calcola_fattore(peso=st.session_state.get("peso", 70))
+        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
+
         
 
 
@@ -1167,6 +1330,11 @@ def aggiorna_grafico():
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
 
+c   f_descr = build_cf_description(
+        cf_value=st.session_state.get("fattore_correzione", 1.0),
+        riassunto=st.session_state.get("fc_riassunto_contatori"),
+        fallback_text=st.session_state.get("fattori_condizioni_testo")  # opzionale
+)
 
 
 
