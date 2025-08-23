@@ -51,10 +51,6 @@ if "show_img_peribuccale" not in st.session_state:
 
 
 
-# =========================
-# Utility cache per Excel
-# =========================
-
 @st.cache_data
 
 
