@@ -157,7 +157,7 @@ SURF_DISPLAY_TO_KEY = {
 
     # Isolante / molto isolante
     "Materasso o tappeto spesso": SURF_ISOL,
-    "Divano imbottito, sacco a pelo tecnico, polistirolo": SURF_MOLTOI,
+    "Divano imbottito, sacco a pelo, polistirolo": SURF_MOLTOI,
 
     # Conduttivo (stesso effetto, tre varianti)
     "Cemento, pietra, PVC": SURF_COND,
@@ -303,10 +303,9 @@ def calcola_fattore(peso: float):
         unsafe_allow_html=True
     )
 
-    # --- Peso (sincronizzato col resto dell'app)
-    peso = st.number_input("Peso corporeo (kg)", min_value=10.0, max_value=200.0,
-                           value=float(st.session_state.get("peso", peso)),
-                           step=0.5, key="fc_peso_local")
+    # --- Peso: usa quello della maschera principale (non mostrare un secondo input)
+    peso = float(st.session_state.get("peso", peso))
+    
 
     # --- Stato del corpo
     stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"],
