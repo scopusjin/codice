@@ -1468,37 +1468,55 @@ def aggiorna_grafico():
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
-        # ==============================
+        # =
+           # ==============================
         # 1) RAFFREDDAMENTO ARANCIONE (SOTTO)
         #    - Disegnato PRIMA delle linee blu
-        #    - Alpha=1.0 e zorder basso
+        #    - Con cap dinamico e tratteggio per i segmenti "infiniti"
         # ==============================
-        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
-            idx_raff = parametri_grafico.index(label_hensge)
-
-            # Segmento Potente (se presente): da mt_ore a infinito
-            if mt_ore is not None and not np.isnan(mt_ore):
-                ax.hlines(y=idx_raff, xmin=mt_ore, xmax=INF_HOURS, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
-
-            # Segmento >30h (quando Qd>0.2 e t_med_raw>30): da 30 a infinito
-            if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
-                t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-                ax.hlines(y=idx_raff, xmin=30.0, xmax=INF_HOURS, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
 
         # --- Cap dinamico per segmenti con "estremo massimo infinito" ---
-        TAIL_BUFFER_H = 6.0          # poche ore oltre il cap
+        TAIL_BUFFER_H = 6.0              # poche ore oltre il cap
         DEFAULT_CAP_IF_NO_FINITE = 72.0  # 3 giorni, se non esistono altri massimi finiti
 
         finite_ends_all = [e for e in ranges_to_plot_fine if not np.isnan(e) and e < INF_HOURS]
         cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
 
+        extra_dash_ends = []  # per estendere in modo corretto l'asse X
+
+        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
+            idx_raff = parametri_grafico.index(label_hensge)
+
+            # Segmento Potente (se presente): da mt_ore a "infinito" → tronco al cap, poi tratteggiato
+            if mt_ore is not None and not np.isnan(mt_ore):
+                solid_from = mt_ore
+                solid_to   = max(solid_from, cap_base)  # se cap è oltre lo start, disegna solido fino al cap
+                if solid_to > solid_from:
+                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=solid_to,
+                              color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
+                dash_end = (solid_to if solid_to > solid_from else solid_from) + TAIL_BUFFER_H
+                ax.hlines(y=idx_raff, xmin=solid_to, xmax=dash_end,
+                          color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
+                extra_dash_ends.append(dash_end)
+
+            # Segmento >30h (quando Qd>0.2 e t_med_raw>30): da 30 a "infinito" → tronco al cap, poi tratteggiato
+            if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
+                t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
+                solid_from = 30.0
+                solid_to   = max(solid_from, cap_base)
+                if solid_to > solid_from:
+                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=solid_to,
+                              color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
+                dash_end = solid_to + TAIL_BUFFER_H
+                ax.hlines(y=idx_raff, xmin=solid_to, xmax=dash_end,
+                          color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
+                extra_dash_ends.append(dash_end)
+
         # ==============================
         # 2) LINEE BLU DI BASE (tutti i range)
         #    - Finite: come prima
-        #    - Infinito: solido fino a cap_base, poi tratteggiato per TAIL_BUFFER_H
+        #    - Infinite: solido fino a cap_base, poi tratteggiato per TAIL_BUFFER_H
         # ==============================
-        extra_dash_ends = []  # per estendere in modo corretto l'asse X
-
         for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
             if np.isnan(s):
                 continue
@@ -1513,9 +1531,10 @@ def aggiorna_grafico():
                 solid_to = max(s, cap_base)  # se s > cap, niente solido
                 if solid_to > s:
                     ax.hlines(i, s, solid_to, color='steelblue', linewidth=6, zorder=2)
-                # codino tratteggiato oltre il cap
-                dash_to = (solid_to if solid_to > s else s) + TAIL_BUFFER_H
-                ax.hlines(i, solid_to, dash_to, color='steelblue', linewidth=4, zorder=2, linestyle='--')
+                # codino tratteggiato oltre il cap (o a partire da s, se s > cap)
+                dash_start = solid_to if solid_to > s else s
+                dash_to = dash_start + TAIL_BUFFER_H
+                ax.hlines(i, dash_start, dash_to, color='steelblue', linewidth=4, zorder=2, linestyle='--')
                 extra_dash_ends.append(dash_to)
 
         # --- Asse X: includi anche i cap/dash per dimensionare correttamente ---
@@ -1527,10 +1546,10 @@ def aggiorna_grafico():
             max_x_value = max(max_x_value, max(valid_limits) * 1.1, 10)
 
         ax.set_xlim(0, max_x_value)
-        
+
         # ==============================
         # 3) IPOSTASI/RIGOR ARANCIONE (SOPRA)
-        #    - Mediane arancioni opache, disegnate DOPO le blu
+        #    - Mediane verdi opache, disegnate DOPO le blu
         # ==============================
         # Mapping asse Y statico per righe principali
         y_indices_mapping = {}
@@ -1557,30 +1576,20 @@ def aggiorna_grafico():
                           rigidita_medi_range[0], rigidita_medi_range[1],
                           color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
 
-        # Marker corto arancione sul punto medio del raffreddamento (opaco ma resta sotto perché disegnato prima? No: lo teniamo sopra il blu solo come marker)
+        # Marker corto verde sul punto medio del raffreddamento
         if raffreddamento_calcolabile:
-            if "Raffreddamento cadaverico" in y_indices_mapping:
+            if "Raffreddamento cadaverico" in y_indices_mapping and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
                 y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
                 punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
                 offset = 0.1
-                # Se preferisci che questo marker resti comunque sotto il blu, usa zorder=1; se lo vuoi sopra, zorder=3.
                 ax.hlines(y_pos_raffreddamento,
                           punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset,
-                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
+                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
 
         # Asse Y, etichette e limiti
         ax.set_yticks(range(len(parametri_grafico)))
         ax.set_yticklabels(parametri_grafico, fontsize=15)
         ax.set_xlabel("Ore dal decesso")
-
-        max_x_value = 10
-        all_limits = ranges_to_plot_fine + ranges_to_plot_inizio
-        valid_limits = [lim for lim in all_limits if not np.isnan(lim) and lim < INF_HOURS]
-        if valid_limits:
-            max_x_value = max(max_x_value, max(valid_limits) * 1.1)
-            max_x_value = max(max_x_value, 10)
-
-        ax.set_xlim(0, max_x_value)
         ax.grid(True, axis='x', linestyle=':', alpha=0.6)
 
         if overlap and comune_inizio < max_x_value and (np.isnan(comune_fine) or comune_fine > 0):
@@ -1594,6 +1603,7 @@ def aggiorna_grafico():
         st.markdown((
             "<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"
         ), unsafe_allow_html=True)
+                                            
 
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
