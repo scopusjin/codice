@@ -1470,7 +1470,7 @@ def aggiorna_grafico():
 
         # =
            # ==============================
-        # 1) RAFFREDDAMENTO ARANCIONE (SOTTO)
+        # 1) RAFFREDDAMENTO verde (SOTTO)
         #    - Disegnato PRIMA delle linee blu
         #    - Con cap dinamico e tratteggio per i segmenti "infiniti"
         # ==============================
@@ -1547,9 +1547,9 @@ def aggiorna_grafico():
 
         ax.set_xlim(0, max_x_value)
 
-        # ==============================
+        #        # ==============================
         # 3) IPOSTASI/RIGOR Verdi (SOPRA)
-        #    - Mediane verdi opache, disegnate DOPO le blu
+        #    - Mediane verdi opache; se la mediana è "infinita": solido fino a cap_base + tratteggio
         # ==============================
         # Mapping asse Y statico per righe principali
         y_indices_mapping = {}
@@ -1564,27 +1564,54 @@ def aggiorna_grafico():
             y_indices_mapping["Raffreddamento cadaverico"] = current_y_index
             current_y_index += 1
 
-        if macchie_range_valido and macchie_medi_range is not None:
-            if "Macchie ipostatiche" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Macchie ipostatiche"],
-                          macchie_medi_range[0], macchie_medi_range[1],
-                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+        # --- Mediana IPOSTASI (solido + tratteggio se infinita) ---
+        if macchie_range_valido and macchie_medi_range is not None and "Macchie ipostatiche" in y_indices_mapping:
+            y = y_indices_mapping["Macchie ipostatiche"]
+            m_s, m_e = macchie_medi_range
+            is_infinite = (m_e is None) or (np.isnan(m_e)) or (m_e >= INF_HOURS)
 
-        if rigidita_range_valido and rigidita_medi_range is not None:
-            if "Rigidità cadaverica" in y_indices_mapping:
-                ax.hlines(y_indices_mapping["Rigidità cadaverica"],
-                          rigidita_medi_range[0], rigidita_medi_range[1],
-                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+            if not is_infinite:
+                ax.hlines(y, m_s, m_e, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+            else:
+                solid_to = max(m_s, cap_base)  # cap dinamico calcolato sopra
+                if solid_to > m_s:
+                    ax.hlines(y, m_s, solid_to, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+                dash_start = solid_to if solid_to > m_s else m_s
+                dash_end   = dash_start + TAIL_BUFFER_H
+                ax.plot([dash_start, dash_end], [y, y],
+                        color='mediumseagreen', linewidth=4, alpha=1.0,
+                        linestyle=(0, (8, 6)), zorder=3)
+                extra_dash_ends.append(dash_end)
 
-        # Marker corto verde sul punto medio del raffreddamento
+        # --- Mediana RIGIDITÀ (solido + tratteggio se infinita) ---
+        if rigidita_range_valido and rigidita_medi_range is not None and "Rigidità cadaverica" in y_indices_mapping:
+            y = y_indices_mapping["Rigidità cadaverica"]
+            r_s, r_e = rigidita_medi_range
+            is_infinite = (r_e is None) or (np.isnan(r_e)) or (r_e >= INF_HOURS)
+
+            if not is_infinite:
+                ax.hlines(y, r_s, r_e, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+            else:
+                solid_to = max(r_s, cap_base)
+                if solid_to > r_s:
+                    ax.hlines(y, r_s, solid_to, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+                dash_start = solid_to if solid_to > r_s else r_s
+                dash_end   = dash_start + TAIL_BUFFER_H
+                ax.plot([dash_start, dash_end], [y, y],
+                        color='mediumseagreen', linewidth=4, alpha=1.0,
+                        linestyle=(0, (8, 6)), zorder=3)
+                extra_dash_ends.append(dash_end)
+
+        # --- Marker corto verde sul punto medio del raffreddamento ---
         if raffreddamento_calcolabile:
             if "Raffreddamento cadaverico" in y_indices_mapping and not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
                 y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
-                punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2
+                punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2.0
                 offset = 0.1
                 ax.hlines(y_pos_raffreddamento,
                           punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset,
                           color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+
 
         # Asse Y, etichette e limiti
         ax.set_yticks(range(len(parametri_grafico)))
