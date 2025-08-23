@@ -514,6 +514,9 @@ def calcola_fattore(peso: float):
         )
 
     # ------------------------------
+    # 
+    
+    # ------------------------------
     # Bottone: "Usa questo fattore"
     # ------------------------------
     def _apply_fattore(val):
@@ -524,25 +527,42 @@ def calcola_fattore(peso: float):
         # chiude il pannello
         st.session_state["toggle_fattore"] = False
 
-        # opzionale: salva in sessione un riassunto minimale già conforme al nuovo modello (contatori),
-        # utile se vuoi usarlo nella parentetica futura.
+        # --- recupero sicuro dei campi UI usati nel riepilogo ---
+        # Superficie (nuovo selectbox -> fallback vecchio radio -> "/")
+        superficie_label_sel = (
+            st.session_state.get("superficie_display_sel")
+            or st.session_state.get("radio_superficie")
+            or "/"
+        )
+
+        # Correnti: aria (toggle_correnti_fc) o acqua (radio_acqua)
+        correnti_air_flag = bool(st.session_state.get("toggle_correnti_fc", False))
+        acqua_sel = st.session_state.get("radio_acqua")  # "In acqua stagnante"/"In acqua corrente"/None
+
+        correnti_descr = (
+            "In acqua corrente" if acqua_sel == "In acqua corrente"
+            else "In acqua stagnante" if acqua_sel == "In acqua stagnante"
+            else ("Correnti d'aria presenti" if correnti_air_flag else "Senza correnti d'aria")
+        )
+
+        # Salva in sessione un riassunto minimale conforme al nuovo modello (contatori)
         st.session_state["fc_riassunto_contatori"] = {
-            "stato": stato_corpo,
-            "sottili": n_sottili_eq,
-            "spessi": n_spessi_eq,
-            "cop_medie": n_cop_medie,
-            "cop_pesanti": n_cop_pesanti,
+            "stato": stato_corpo,  # "Asciutto"/"Bagnato"/"Immerso"
+            "sottili": int(n_sottili_eq),
+            "spessi": int(n_spessi_eq),
+            "cop_medie": int(n_cop_medie),
+            "cop_pesanti": int(n_cop_pesanti),
             "superficie": superficie_label_sel if corpo_asciutto else "/",
-            "correnti": (
-                "In acqua corrente" if (corpo_immerso and st.session_state.get("radio_acqua") == "In acqua corrente")
-                else "In acqua stagnante" if corpo_immerso
-                else ("Correnti d'aria presenti" if correnti_presenti else "Senza correnti d'aria")
-            ),
+            "correnti": correnti_descr,
         }
 
-    st.button("✅ Usa questo fattore", key="usa_fattore_btn", on_click=_apply_fattore, args=(fattore_finale,), use_container_width=True)
-        
-    
+    st.button(
+        "✅ Usa questo fattore",
+        key="usa_fattore_btn",
+        on_click=_apply_fattore,
+        args=(fattore_finale,),
+        use_container_width=True
+        )
 
 
 
