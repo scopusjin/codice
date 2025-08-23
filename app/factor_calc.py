@@ -252,7 +252,7 @@ def compute_factor(
                 "stato": "Immerso",
                 "sottili": 0, "spessi": 0, "cop_medie": 0, "cop_pesanti": 0,
                 "superficie": "/",
-                "correnti": "In acqua stagnante" if acqua == "stagnante" else "In acqua corrente",
+                "correnti": "in acqua stagnante" if acqua == "stagnante" else "in acqua corrente",
             }
         )
 
@@ -336,7 +336,7 @@ def _format_coperte(c: Optional[str]) -> Optional[str]:
 def _format_corrente(c: Optional[str]) -> Optional[str]:
     if not c or c == "/": return None
     if c == "Nessuna corrente": return "senza correnti d'aria"
-    if c == "Esposto a corrente d'aria": return "con correnti d'aria"
+    if c == "Esposto a corrente d'aria": return "esposto a correnti d'aria"
     if c == "In acqua corrente": return "in acqua corrente"
     if c == "In acqua stagnante": return "in acqua stagnante"
     return c.lower()
@@ -346,11 +346,7 @@ def build_cf_description(
     riassunto: Optional[Dict[str, Any]],
     fallback_text: Optional[str] = None
 ) -> str:
-    """
-    Ritorna la stringa completa tipo:
-    "1.40 (corpo asciutto, con 1–2 strati di indumenti sottili, ...)"
-    Se riassunto è assente e fallback_text è presente, usa quello.
-    """
+
     cf_txt = f"{float(cf_value):.2f}"
 
     if not riassunto:
@@ -358,9 +354,9 @@ def build_cf_description(
             return f"{cf_txt} (in base ai fattori scelti: {fallback_text})."
         return f"{cf_txt} (da adattare sulla base dei fattori scelti)."
 
-    # NB: in riassunto ci aspettiamo le chiavi salvate dal compute_factor
+
     stato_txt  = _format_stato(riassunto.get("stato"))
-    # vestiti sintetizzati: deducibili dai contatori; se vuoi, passa un’etichetta già pronta
+
     vestiti_txt = None  # costruzione rapida basata sui contatori
     sottili = int(riassunto.get("sottili", 0))
     spessi  = int(riassunto.get("spessi", 0))
