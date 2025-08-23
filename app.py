@@ -49,16 +49,6 @@ if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
 
 
-
-
-@st.cache_data
-
-
-
-
-
-
-
 # Titolo più piccolo e con peso medio
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</h5>", unsafe_allow_html=True)
 
