@@ -256,7 +256,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
 
     # ——— Carica Tabella 2 (se disponibile) ———
     try:
-        _, tabella2 = load_tabelle_correzione()
+        tabella2 = load_tabelle_correzione()
     except Exception:
         tabella2 = None
 
