@@ -28,43 +28,6 @@ if "show_img_peribuccale" not in st.session_state:
 # Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
 INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
 
-# --- Helper dei widget (testi tooltip) ---
-HELP_COPERTE = (
-    "**Tenerne conto solo se coprono la parte bassa di torace/addome**.   "
-    "**Lenzuolo +** = telo sottile/1-2 lenzuola;   "
-    "**Lenzuolo ++** = lenzuolo invernale/copriletto leggero;   "
-    "**Coperta** = coperta mezza stagione/ sacco mortuario;   "
-    "**Coperta +** = coperta pesante/ mantellina termica;   "
-    "**Coperta ++** = coperta molto pesante/ più coperte medie;   "
-    "**Coperta +++** = coperta imbottita pesante (es piumino invernale);   "
-    "**Coperta ++++** = molti strati di coperte;   "
-    "**Foglie ++** = strato medio di foglie su corpo/vestiti;   "
-    "**Foglie +++** = strato spesso di foglie."
-)
-
-
-HELP_VESTITI = (
-    "**Tenere conto solo degli indumenti che coprono la parte bassa di torace/addome**.   "
-    "**Strati sottili** = t-shirt, camicia, maglia leggera;    "
-    "**Strati spessi** = maglione, felpa in pile, giubbino;   "
-    "**˃ strati** = ˃4 sottili o ˃2 spessi;   "
-    "**˃˃ strati** = molti strati pesanti,"
-)
-
-HELP_SUPERFICIE = (
-    "**Indifferente** = pavimento di casa/parquet, prato o terreno asciutto, asfalto;   "
-    "**Isolante** = materasso, tappeto spesso;   "
-    "**Molto isolante** = polistirolo, sacco a pelo tecnico, divano imbottito;   "
-    "**Conduttivo** = cemento, pietra, pavimento in PVC, pavimentazione esterna;   "
-    "**Molto conduttivo** = superficie metallica spessa all’esterno;   "
-    "**Foglie umide/secche (≥2 cm)** = adagiato su strato di foglie"
-)
-
-HELP_CORRENTI_ARIA = (
-    "**Sì** = all'aria aperta, finestra aperta con aria corrente, ventilatore;   "
-    "**No** = ambiente chiuso/nessuna corrente percepibile"
-)
-
 
 
 # =========================
@@ -1203,125 +1166,9 @@ def aggiorna_grafico():
     cf_val = st.session_state.get('fattore_correzione', CF_val if CF_val is not None else None)
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
-     # === Ricostruzione robusta della parentetica dalle scelte correnti (versione con ˃ / ˃˃) ===
-    import unicodedata
 
-    def _norm(s: str):
-        if s is None:
-            return None
-        s = unicodedata.normalize("NFKC", str(s)).strip()
-        # normalizza tutte le varianti di “>” al carattere U+02C3 (˃)
-        s = (s.replace(">", "˃")
-               .replace("›", "˃")
-               .replace("＞", "˃"))
-        # uniforma doppie frecce
-        s = s.replace("˃ ˃", "˃˃").replace("˃˃", "˃˃")
-        return s
 
-    def _classifica_superficie(s: str):
-        if not s or s == "/":
-            return None
-        s_low = s.lower()
-        if ("metall" in s_low) or ("cemento" in s_low) or ("pietra" in s_low) or ("pvc" in s_low) or ("pavimentazione esterna" in s_low):
-            return "conduttiva"
-        if ("materasso" in s_low) or ("tappeto" in s_low) or ("imbottitura" in s_low) or ("foglie" in s_low):
-            return "isolante"
-        return "indifferente"
 
-    def _format_vestiti(v: str):
-        if not v or v == "/":
-            return None
-        v = _norm(v)
-        if v == "Nudo":
-            return "nudo"
-        if v == "1-2 strati sottili":
-            return "con 1–2 strati di indumenti sottili"
-        if v == "2-3 strati sottili":
-            return "con 2–3 strati di indumenti sottili"
-        if v == "3-4 strati sottili":
-            return "con 3–4 strati di indumenti sottili"
-        if v == "1-2 strati spessi":
-            return "con 1–2 strati di indumenti spessi"
-        # nuove etichette Excel
-        if v == "˃ strati":
-            return "con molti strati di indumenti"
-        if v == "˃˃ strati":
-            return "con moltissimi strati di indumenti"
-        return f"con indumenti ({v.lower()})"
-
-    def _format_coperte(c: str):
-        if not c or c == "/":
-            return None
-        if c == "Nessuna coperta":
-            return "senza coperte"
-        if c.startswith("Coperta spessa (es copriletto)"):
-            return "sotto una coperta pesante"
-        if c.startswith("Coperte più spesse (es coperte di lana)"):
-            return "sotto una coperta discretamente pesante"
-        if c.startswith("Coperta pesante (es piumino imbottito)"):
-            return "sotto una coperta molto pesante"
-        if c == "Molte coperte pesanti":
-            return "sotto molte coperte pesanti"
-        if c == "Strato di foglie di medio spessore":
-            return "coperto da uno strato di foglie"
-        if c == "Spesso strato di foglie":
-            return "coperto da uno spesso strato di foglie"
-        return f"con coperte ({c.lower()})"
-
-    def _format_corrente(c: str):
-        if not c or c == "/":
-            return None
-        if c == "Nessuna corrente":
-            return "senza correnti d'aria"
-        if c == "Esposto a corrente d'aria":
-            return "con correnti d'aria"
-        if c == "In acqua corrente":
-            return "in acqua corrente"
-        if c == "In acqua stagnante":
-            return "in acqua stagnante"
-        return c.lower()
-
-    def _format_stato_corpo(s: str):
-        if not s:
-            return None
-        return {
-            "Asciutto": "corpo asciutto",
-            "Bagnato": "corpo bagnato",
-            "Immerso": "corpo immerso"
-        }.get(s, str(s).lower())
-
-    # Leggi scelte correnti
-    stato_sc = st.session_state.get("radio_stato_corpo")
-    vest_sc  = _norm(st.session_state.get("radio_vestiti", "/"))
-    cop_sc   = st.session_state.get("scelta_coperte_radio", "/")
-    sup_sc   = st.session_state.get("radio_superficie", "/")
-    corr_sc  = st.session_state.get("radio_corrente") or st.session_state.get("radio_acqua") or "/"
-
-    # Ricostruzione testi
-    vestiti_txt = _format_vestiti(vest_sc)
-    coperte_txt = _format_coperte(cop_sc)
-    superf_cat  = _classifica_superficie(sup_sc)
-    corr_txt    = _format_corrente(corr_sc)
-    stato_txt   = _format_stato_corpo(stato_sc)
-
-    parts_parent = []
-    if stato_txt:    parts_parent.append(stato_txt)
-    if vestiti_txt:  parts_parent.append(vestiti_txt)
-    if coperte_txt:  parts_parent.append(coperte_txt)
-    if superf_cat:   parts_parent.append(f"adagiato su superficie termicamente {superf_cat}")
-    if corr_txt:     parts_parent.append(corr_txt)
-
-    parent = "(" + ", ".join(parts_parent) + ")" if parts_parent else None
-    if not parent:
-        # fallback alla versione salvata dal bottone “Usa questo fattore”
-        parent = st.session_state.get("fattori_condizioni_parentetica")
-
-    if parent:
-        cf_descr = f"{cf_txt} {parent}"
-    elif st.session_state.get("fattori_condizioni_testo"):
-        cf_descr = f"{cf_txt} (in base ai fattori scelti: {st.session_state['fattori_condizioni_testo']})."
-    else:
-        cf_descr = f"{cf_txt} (da adattare sulla base dei fattori scelti)."
 
     dettagli.append(
         "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
