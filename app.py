@@ -7,10 +7,13 @@ from app.henssge import (
     round_quarter_hour,
     calcola_raffreddamento,
     ranges_in_disaccordo_completa,
-    INF_HOURS as INF_HOURS_HENSSGE  # opzionale, se ti serve
+    INF_HOURS as INF_HOURS_HENSSGE,  # opzionale
 )
 
-from app.utils_time import arrotonda_quarto_dora, split_hours_minutes as _split_hours_minutes
+from app.utils_time import (
+    arrotonda_quarto_dora,
+    split_hours_minutes as _split_hours_minutes,
+)
 
 from app.parameters import (
     INF_HOURS,
@@ -20,18 +23,14 @@ from app.parameters import (
 )
 
 # se la funzione Excel è in questo stesso file, non serve importarla;
-# altrimenti, se l’hai spostata in data_sources.py, usa:
-# from data_sources import load_tabelle_correzione
+# altrimenti:
+# from app.data_sources import load_tabelle_correzione
 
 import streamlit as st
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import streamlit.components.v1 as components
 import numpy as np
-from scipy.optimize import root_scalar
 import datetime
 import pandas as pd
-
 
 # =========================
 # Stato e costanti globali
@@ -46,8 +45,7 @@ if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
 if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
-# Definiamo un valore che rappresenta "infinito" o un limite superiore molto elevato per i range aperti
-INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e i calcoli
+
 
 
 
