@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Streamlit app: Stima epoca decesso
 # Revisione con correzioni di robustezza e piccoli fix senza variare la logica di calcolo/UX.
+# cambio nome
 
 import streamlit as st
 import matplotlib.pyplot as plt
