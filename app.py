@@ -12,6 +12,13 @@ from app.henssge import (
 
 from app.utils_time import arrotonda_quarto_dora, split_hours_minutes as _split_hours_minutes
 
+from app.parameters import (
+    INF_HOURS,
+    opzioni_macchie, macchie_medi, testi_macchie,
+    opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
+    dati_parametri_aggiuntivi, nomi_brevi,
+)
+
 # se la funzione Excel è in questo stesso file, non serve importarla;
 # altrimenti, se l’hai spostata in data_sources.py, usa:
 # from data_sources import load_tabelle_correzione
