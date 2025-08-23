@@ -443,9 +443,7 @@ def calcola_fattore(peso):
         st.session_state["fattori_condizioni_parentetica"] = None  # verrà ricostruita a valle
         st.session_state["fattori_condizioni_testo"] = None        # idem
 
-        # Forza richiudere l’expander al prossimo rerun
-        st.session_state["fattore_expander_tag"] += 1
-
+        
     st.button("✅ Usa questo fattore", key="usa_fattore_btn",
               on_click=_apply_fattore, args=(fattore_finale,), use_container_width=True)
 
