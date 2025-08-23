@@ -767,16 +767,15 @@ with st.container(border=True):
         with subcol2:
             mostra_fattore = st.toggle(
                 "Suggerisci FC",
-                value=False,
-                key="toggle_fattore",
-                help="Apri il pannello per ottenere un fattore suggerito dalla tabella."
+                value=st.session_state.get("toggle_fattore", False),
+                key="toggle_fattore"
             )
-            if mostra_fattore:
-                calcola_fattore(peso=st.session_state.get("peso", 70))
+
+# — Pannello suggerimento FC a tutta pagina —
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        calcola_fattore(peso=st.session_state.get("peso", 70))
         
-
-
-
 
 
 
