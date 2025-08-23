@@ -1468,54 +1468,73 @@ def aggiorna_grafico():
                 ranges_to_plot_inizio.append(param["range_traslato"][0])
                 ranges_to_plot_fine.append(param["range_traslato"][1] if param["range_traslato"][1] < INF_HOURS else INF_HOURS)
 
-        # =
-           # ==============================
+        
+        # ==============================
         # 1) RAFFREDDAMENTO verde (SOTTO)
         #    - Disegnato PRIMA delle linee blu
-        #    - Con cap dinamico e tratteggio per i segmenti "infiniti"
+        #    - Cap dinamico e tratteggio fino al 20% in più
         # ==============================
 
-        # --- Cap dinamico per segmenti con "estremo massimo infinito" ---
-        TAIL_BUFFER_H = 6.0              # poche ore oltre il cap
-        DEFAULT_CAP_IF_NO_FINITE = 72.0  # 3 giorni, se non esistono altri massimi finiti
+        TAIL_FACTOR = 1.20
+        DEFAULT_CAP_IF_NO_FINITE = 72.0  # 3 giorni se non esistono massimi finiti
 
+        # Estremo superiore finito più grande (cap "finito")
         finite_ends_all = [e for e in ranges_to_plot_fine if not np.isnan(e) and e < INF_HOURS]
         cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
 
-        extra_dash_ends = []  # per estendere in modo corretto l'asse X
+        # Inizi dei segmenti "infiniti" blu (per stimare una base della coda)
+        infinite_starts_blue = [
+            s for s, e in zip(ranges_to_plot_inizio, ranges_to_plot_fine)
+            if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
+        ]
+
+        # Inizi dei segmenti verdi speciali (Potente, soglia >30h)
+        special_inf_starts_green = []
+        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
+            if mt_ore is not None and not np.isnan(mt_ore):
+                special_inf_starts_green.append(mt_ore)
+            if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
+                t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
+                special_inf_starts_green.append(30.0)
+
+        # Base della coda = max tra cap finito, inizi infiniti blu e verdi
+        if infinite_starts_blue or special_inf_starts_green:
+            tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green)
+        else:
+            tail_base = cap_base
+
+        TAIL_END = tail_base * TAIL_FACTOR  # fine tratteggio + fine grafico
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
             idx_raff = parametri_grafico.index(label_hensge)
 
-            # Segmento Potente (se presente): da mt_ore a "infinito" → tronco al cap, poi tratteggiato
+            # Segmento Potente (da mt_ore a ∞): solido fino a cap finito, poi tratteggiato fino a TAIL_END
             if mt_ore is not None and not np.isnan(mt_ore):
                 solid_from = mt_ore
-                solid_to   = max(solid_from, cap_base)  # se cap è oltre lo start, disegna solido fino al cap
-                if solid_to > solid_from:
-                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=solid_to,
+                solid_to   = max(solid_from, cap_base)
+                if solid_to > solid_from and solid_from < TAIL_END:
+                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=min(solid_to, TAIL_END),
                               color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
-                dash_end = (solid_to if solid_to > solid_from else solid_from) + TAIL_BUFFER_H
-                ax.hlines(y=idx_raff, xmin=solid_to, xmax=dash_end,
-                          color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
-                extra_dash_ends.append(dash_end)
+                if TAIL_END > max(solid_to, solid_from):
+                    ax.hlines(y=idx_raff, xmin=max(solid_to, solid_from), xmax=TAIL_END,
+                              color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
 
-            # Segmento >30h (quando Qd>0.2 e t_med_raw>30): da 30 a "infinito" → tronco al cap, poi tratteggiato
+            # Segmento >30h (Qd>0.2 e t_med_raw>30): solido fino a cap finito, poi tratteggiato fino a TAIL_END
             if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
                 solid_from = 30.0
                 solid_to   = max(solid_from, cap_base)
-                if solid_to > solid_from:
-                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=solid_to,
+                if solid_to > solid_from and solid_from < TAIL_END:
+                    ax.hlines(y=idx_raff, xmin=solid_from, xmax=min(solid_to, TAIL_END),
                               color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
-                dash_end = solid_to + TAIL_BUFFER_H
-                ax.hlines(y=idx_raff, xmin=solid_to, xmax=dash_end,
-                          color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
-                extra_dash_ends.append(dash_end)
+                if TAIL_END > max(solid_to, solid_from):
+                    ax.hlines(y=idx_raff, xmin=max(solid_to, solid_from), xmax=TAIL_END,
+                              color='mediumseagreen', linewidth=4, alpha=1.0, zorder=1, linestyle='--')
 
         # ==============================
         # 2) LINEE BLU DI BASE (tutti i range)
         #    - Finite: come prima
-        #    - Infinite: solido fino a cap_base, poi tratteggiato per TAIL_BUFFER_H
+        #    - Infinite: solido fino a cap finito, poi tratteggiato fino a TAIL_END
         # ==============================
         for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
             if np.isnan(s):
@@ -1524,32 +1543,23 @@ def aggiorna_grafico():
             is_infinite = (np.isnan(e) or e >= INF_HOURS)
 
             if not is_infinite:
-                # range finito: identico a prima
                 ax.hlines(i, s, e, color='steelblue', linewidth=6, zorder=2)
             else:
-                # range "infinito": tronco in solido al cap dinamico
-                solid_to = max(s, cap_base)  # se s > cap, niente solido
-                if solid_to > s:
-                    ax.hlines(i, s, solid_to, color='steelblue', linewidth=6, zorder=2)
-                # codino tratteggiato oltre il cap (o a partire da s, se s > cap)
-                dash_start = solid_to if solid_to > s else s
-                dash_to = dash_start + TAIL_BUFFER_H
-                ax.hlines(i, dash_start, dash_to, color='steelblue', linewidth=4, zorder=2, linestyle='--')
-                extra_dash_ends.append(dash_to)
+                solid_to = max(s, cap_base)
+                if solid_to > s and s < TAIL_END:
+                    ax.hlines(i, s, min(solid_to, TAIL_END), color='steelblue', linewidth=6, zorder=2)
+                dash_start = max(solid_to, s)
+                if TAIL_END > dash_start:
+                    ax.hlines(i, dash_start, TAIL_END, color='steelblue', linewidth=4, zorder=2, linestyle='--')
 
-        # --- Asse X: includi anche i cap/dash per dimensionare correttamente ---
-        max_x_value = 10
-        valid_limits = [lim for lim in (ranges_to_plot_inizio + ranges_to_plot_fine) if not np.isnan(lim) and lim < INF_HOURS]
-        valid_limits += extra_dash_ends + [cap_base + TAIL_BUFFER_H]
+        # --- Asse X: termina esattamente a TAIL_END (niente 10% extra) ---
+        ax.set_xlim(0, TAIL_END)
+        ax.margins(x=0)       # rimuove margine automatico
+        max_x_value = TAIL_END  # per la logica delle linee rosse sotto
 
-        if valid_limits:
-            max_x_value = max(max_x_value, max(valid_limits) * 1.1, 10)
-
-        ax.set_xlim(0, max_x_value)
-
-        #        # ==============================
+        # ==============================
         # 3) IPOSTASI/RIGOR Verdi (SOPRA)
-        #    - Mediane verdi opache; se la mediana è "infinita": solido fino a cap_base + tratteggio
+        #    - Mediane verdi opache; se la mediana è "infinita": solido fino a cap_base + tratteggio fino a TAIL_END
         # ==============================
         # Mapping asse Y statico per righe principali
         y_indices_mapping = {}
@@ -1568,39 +1578,38 @@ def aggiorna_grafico():
         if macchie_range_valido and macchie_medi_range is not None and "Macchie ipostatiche" in y_indices_mapping:
             y = y_indices_mapping["Macchie ipostatiche"]
             m_s, m_e = macchie_medi_range
-            is_infinite = (m_e is None) or (np.isnan(m_e)) or (m_e >= INF_HOURS)
+            is_infinite_m = (m_e is None) or (np.isnan(m_e)) or (m_e >= INF_HOURS)
 
-            if not is_infinite:
+            if not is_infinite_m:
                 ax.hlines(y, m_s, m_e, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
             else:
-                solid_to = max(m_s, cap_base)  # cap dinamico calcolato sopra
-                if solid_to > m_s:
-                    ax.hlines(y, m_s, solid_to, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
-                dash_start = solid_to if solid_to > m_s else m_s
-                dash_end   = dash_start + TAIL_BUFFER_H
-                ax.plot([dash_start, dash_end], [y, y],
-                        color='mediumseagreen', linewidth=4, alpha=1.0,
-                        linestyle=(0, (8, 6)), zorder=3)
-                extra_dash_ends.append(dash_end)
+                solid_to = max(m_s, cap_base)
+                if solid_to > m_s and m_s < TAIL_END:
+                    ax.hlines(y, m_s, min(solid_to, TAIL_END), color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+                dash_start = max(solid_to, m_s)
+                if TAIL_END > dash_start:
+                    # uso plot per avere tratteggio sicuro sopra le blu
+                    ax.plot([dash_start, TAIL_END], [y, y],
+                            color='mediumseagreen', linewidth=4, alpha=1.0,
+                            linestyle=(0, (8, 6)), zorder=3)
 
         # --- Mediana RIGIDITÀ (solido + tratteggio se infinita) ---
         if rigidita_range_valido and rigidita_medi_range is not None and "Rigidità cadaverica" in y_indices_mapping:
             y = y_indices_mapping["Rigidità cadaverica"]
             r_s, r_e = rigidita_medi_range
-            is_infinite = (r_e is None) or (np.isnan(r_e)) or (r_e >= INF_HOURS)
+            is_infinite_r = (r_e is None) or (np.isnan(r_e)) or (r_e >= INF_HOURS)
 
-            if not is_infinite:
+            if not is_infinite_r:
                 ax.hlines(y, r_s, r_e, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
             else:
                 solid_to = max(r_s, cap_base)
-                if solid_to > r_s:
-                    ax.hlines(y, r_s, solid_to, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
-                dash_start = solid_to if solid_to > r_s else r_s
-                dash_end   = dash_start + TAIL_BUFFER_H
-                ax.plot([dash_start, dash_end], [y, y],
-                        color='mediumseagreen', linewidth=4, alpha=1.0,
-                        linestyle=(0, (8, 6)), zorder=3)
-                extra_dash_ends.append(dash_end)
+                if solid_to > r_s and r_s < TAIL_END:
+                    ax.hlines(y, r_s, min(solid_to, TAIL_END), color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+                dash_start = max(solid_to, r_s)
+                if TAIL_END > dash_start:
+                    ax.plot([dash_start, TAIL_END], [y, y],
+                            color='mediumseagreen', linewidth=4, alpha=1.0,
+                            linestyle=(0, (8, 6)), zorder=3)
 
         # --- Marker corto verde sul punto medio del raffreddamento ---
         if raffreddamento_calcolabile:
@@ -1608,29 +1617,28 @@ def aggiorna_grafico():
                 y_pos_raffreddamento = y_indices_mapping["Raffreddamento cadaverico"]
                 punto_medio_raffreddamento = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2.0
                 offset = 0.1
-                ax.hlines(y_pos_raffreddamento,
-                          punto_medio_raffreddamento - offset, punto_medio_raffreddamento + offset,
-                          color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
-
-
-        # Asse Y, etichette e limiti
+                if (punto_medio_raffreddamento - offset) < TAIL_END:
+                    ax.hlines(y_pos_raffreddamento,
+                              max(0, punto_medio_raffreddamento - offset),
+                              min(TAIL_END, punto_medio_raffreddamento + offset),
+                              color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
+        
+         # --- Asse Y, etichette e limiti ---
         ax.set_yticks(range(len(parametri_grafico)))
         ax.set_yticklabels(parametri_grafico, fontsize=15)
         ax.set_xlabel("Ore dal decesso")
         ax.grid(True, axis='x', linestyle=':', alpha=0.6)
 
-        if overlap and comune_inizio < max_x_value and (np.isnan(comune_fine) or comune_fine > 0):
-            ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
-            if not np.isnan(comune_fine):
-                ax.axvline(min(max_x_value, comune_fine), color='red', linestyle='--')
+        # Intervallo finale in rosso (clippato a TAIL_END)
+        if overlap and (np.isnan(comune_fine) or comune_fine > 0):
+            if comune_inizio < TAIL_END:
+                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+            if not np.isnan(comune_fine) and comune_fine > 0:
+                ax.axvline(min(TAIL_END, comune_fine), color='red', linestyle='--')
 
         plt.tight_layout()
         st.pyplot(fig)
-    else:
-        st.markdown((
-            "<p style='color:orange;font-weight:bold;'>⚠️ Nessun parametro tanatologico con un range valido da visualizzare nel grafico.</p>"
-        ), unsafe_allow_html=True)
-                                            
+                             
 
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
