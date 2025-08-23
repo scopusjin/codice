@@ -162,7 +162,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
         # tabelle Excel (solo Tabella 2 serve per peso)
         try:
-            _, tabella2 = load_tabelle_correzione()
+            tabella2 = load_tabelle_correzione()
         except Exception:
             tabella2 = None
 
