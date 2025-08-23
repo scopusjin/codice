@@ -1,23 +1,31 @@
 # app/data_sources.py
-# -*- coding: utf-8 -*-
-"""
-Gestione dei file Excel per i fattori di correzione.
-
-"""
-
 import pandas as pd
 import streamlit as st
-
+from pathlib import Path
 
 @st.cache_data
-def load_tabelle_correzione() -> pd.DataFrame:
+def load_tabelle_correzione():
     """
-    Carica la Tabella 2 (Excel) per l'adattamento del fattore di correzione al peso.
-    Restituisce un DataFrame pandas.
+    Ritorna la tabella correttiva del peso come DataFrame, se trovata.
+    Prova prima CSV, poi Excel solo se 'openpyxl' è presente.
+    Se nulla è leggibile, ritorna None (l'app continua senza tabella).
     """
-    try:
-        tabella2 = pd.read_excel("data/tabella_secondaria.xlsx", engine="openpyxl")
-    except Exception as e:
-        st.error(f"Errore nel caricamento della Tabella correttiva del peso: {e}")
-        return None
-    return tabella2
+    csv_path = Path("data/tabella_secondaria.csv")
+    if csv_path.exists():
+        try:
+            return pd.read_csv(csv_path)
+        except Exception as e:
+            st.warning(f"Tabella peso CSV trovata ma non leggibile: {e}")
+
+    xlsx_path = Path("data/tabella_secondaria.xlsx")
+    if xlsx_path.exists():
+        try:
+            import openpyxl  # lazy import, evita crash se manca
+            return pd.read_excel(xlsx_path, engine="openpyxl")
+        except ImportError:
+            st.info("`openpyxl` non installato: salto l'Excel e continuo senza tabella peso.")
+        except Exception as e:
+            st.warning(f"Impossibile leggere l'Excel della tabella peso: {e}")
+
+    st.info("Tabella correttiva del peso non trovata: continuo senza (FC per peso disabilitato).")
+    return None
