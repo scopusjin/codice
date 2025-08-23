@@ -1,10 +1,8 @@
-from factor_calc import (
-    DressCounts,
-    compute_factor,
-    build_cf_description,
-    SURF_DISPLAY_ORDER,
-    fattore_vestiti_coperte,   # solo per decidere se mostrare il toggle "correnti"
+from app.factor_calc import (
+    DressCounts, compute_factor, build_cf_description,
+    SURF_DISPLAY_ORDER, fattore_vestiti_coperte,
 )
+
 # se la funzione Excel è in questo stesso file, non serve importarla;
 # altrimenti, se l’hai spostata in data_sources.py, usa:
 # from data_sources import load_tabelle_correzione
@@ -64,7 +62,7 @@ def load_tabelle_correzione():
 # Funzioni esistenti (con fix robustezza)
 # =========================
 
-def calcola_fattore(peso: float):
+
 
 
 
