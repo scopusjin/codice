@@ -1386,7 +1386,7 @@ def aggiorna_grafico():
         fig, ax = plt.subplots(figsize=(10, max(2, 1.5 + 0.5 * num_params_grafico)))
 # --- STILI LINEE (pieni e tratteggiati) ---
         LINE_W  = 6              # stesso spessore per pieno e tratteggio
-        DASH_LS = (0, (4, 3))    # tratteggio corto: 4 on, 3 off
+        DASH_LS = (0, (2, 1))    # tratteggio corto: 4 on, 3 off
         CAP     = 'butt'         # terminali piatti (coerenti)
         parametri_grafico = []
         ranges_to_plot_inizio = []
