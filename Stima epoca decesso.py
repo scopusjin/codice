@@ -442,7 +442,7 @@ def calcola_fattore(peso):
         # salva: verrà usata nella parte finale
         st.session_state["fattori_condizioni_parentetica"] = None  # verrà ricostruita a valle
         st.session_state["fattori_condizioni_testo"] = None        # idem
-
+        st.session_state["toggle_fattore"] = False
         
     st.button("✅ Usa questo fattore", key="usa_fattore_btn",
               on_click=_apply_fattore, args=(fattore_finale,), use_container_width=True)
