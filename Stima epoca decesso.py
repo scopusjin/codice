@@ -325,7 +325,57 @@ def calcola_fattore(peso: float):
     corpo_bagnato  = (stato_corpo == "Bagnato")
     corpo_asciutto = (stato_corpo == "Asciutto")
 
-    
+     # -------------------------------------
+    # Caso IMMERSO: scelta acqua + output + early return
+    # -------------------------------------
+    if corpo_immerso:
+        # label nascosta dal tuo CSS globale
+        acqua_label = st.radio(
+            "dummy",
+            ["In acqua stagnante", "In acqua corrente"],
+            index=0,
+            horizontal=True,
+            key="radio_acqua"
+        )
+
+        # Fattori per l'acqua (coerenti con il motore 'delta')
+        fattore_base = 0.50 if acqua_label == "In acqua stagnante" else 0.35
+        fattore_finale = max(0.35, min(3.0, float(fattore_base)))  # clamp
+
+        # Presentazione risultata come quando non c'è correzione peso (valore < 1.4)
+        st.markdown(
+            f"<div style='background-color:#e6f4ea; padding:10px; border-radius:5px;'>"
+            f"Fattore di correzione suggerito: {fattore_finale:.2f}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+
+        # Bottone "Usa questo fattore" con la stessa funzionalità
+        def _apply_fattore(val):
+            st.session_state["fattore_correzione"] = round(float(val), 2)
+            # reset parentetica (come nel tuo codice)
+            st.session_state["fattori_condizioni_parentetica"] = None
+            st.session_state["fattori_condizioni_testo"] = None
+            # chiudi il pannello suggerimento
+            st.session_state["toggle_fattore"] = False
+            # riepilogo minimale per futura parentetica
+            st.session_state["fc_riassunto_contatori"] = {
+                "stato": "Immerso",
+                "sottili": 0, "spessi": 0, "cop_medie": 0, "cop_pesanti": 0,
+                "superficie": "/",
+                "correnti": acqua_label,  # "In acqua stagnante"/"In acqua corrente"
+            }
+
+        st.button(
+            "✅ Usa questo fattore",
+            key="usa_fattore_btn",
+            on_click=_apply_fattore,
+            args=(fattore_finale,),
+            use_container_width=True
+        )
+
+        return  # esci: niente vestiti/superficie/correnti d'aria quando Immerso
+            
         # -------------------------------------
     # 3) Correnti + Vestiti sulla stessa riga
     #    - placeholder a sinistra per correnti
