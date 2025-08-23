@@ -1328,7 +1328,7 @@ def aggiorna_grafico():
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
 
-c   f_descr = build_cf_description(
+    cf_descr = build_cf_description(
         cf_value=st.session_state.get("fattore_correzione", 1.0),
         riassunto=st.session_state.get("fc_riassunto_contatori"),
         fallback_text=st.session_state.get("fattori_condizioni_testo")  # opzionale
