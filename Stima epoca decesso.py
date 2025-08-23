@@ -20,9 +20,6 @@ st.set_page_config(page_title="Stima Epoca della Morte", layout="centered")
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
 
-# contatore invisibile per forzare il remount dell'expander del fattore
-if "fattore_expander_tag" not in st.session_state:
-    st.session_state["fattore_expander_tag"] = 0
 
 if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
