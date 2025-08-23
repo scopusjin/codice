@@ -6,26 +6,20 @@ from pathlib import Path
 @st.cache_data
 def load_tabelle_correzione():
     """
-    Ritorna la tabella correttiva del peso come DataFrame, se trovata.
-    Prova prima CSV, poi Excel solo se 'openpyxl' è presente.
-    Se nulla è leggibile, ritorna None (l'app continua senza tabella).
+    Ritorna la tabella correttiva del peso (DataFrame) letta da Excel.
+    Richiede 'openpyxl'. Se il file non esiste o non è leggibile,
+    ritorna None (l'app continua senza correzione peso).
     """
-    csv_path = Path("data/tabella_secondaria.csv")
-    if csv_path.exists():
-        try:
-            return pd.read_csv(csv_path)
-        except Exception as e:
-            st.warning(f"Tabella peso CSV trovata ma non leggibile: {e}")
-
-    xlsx_path = Path("data/tabella_secondaria.xlsx")
-    if xlsx_path.exists():
-        try:
-            import openpyxl  # lazy import, evita crash se manca
-            return pd.read_excel(xlsx_path, engine="openpyxl")
-        except ImportError:
-            st.info("`openpyxl` non installato: salto l'Excel e continuo senza tabella peso.")
-        except Exception as e:
-            st.warning(f"Impossibile leggere l'Excel della tabella peso: {e}")
-
-    st.info("Tabella correttiva del peso non trovata: continuo senza (FC per peso disabilitato).")
-    return None
+    xlsx_path = Path("data/tabella_secondaria.xlsx")  # ← adatta il percorso se diverso
+    if not xlsx_path.exists():
+        st.info("Tabella correttiva del peso non trovata: continuo senza.")
+        return None
+    try:
+        # usa esplicitamente openpyxl per .xlsx
+        return pd.read_excel(xlsx_path, engine="openpyxl")
+    except ImportError:
+        st.error("Per leggere il file .xlsx serve 'openpyxl'. Installa con: pip install openpyxl")
+        return None
+    except Exception as e:
+        st.warning(f"Impossibile leggere l'Excel della tabella peso: {e}")
+        return None
