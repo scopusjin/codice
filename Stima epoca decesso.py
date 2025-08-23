@@ -775,10 +775,12 @@ with st.container(border=True):
 
 
 
-# titolo con zero-width spaces per cambiare identità del widget quando serve chiuderlo
-_expander_title = "Suggerisci fattore di correzione" + ("\u200B" * st.session_state["fattore_expander_tag"])
-with st.expander(_expander_title, expanded=False):
-     calcola_fattore(peso=st.session_state.get("peso", 70))
+# ✅ Switch per mostrare/nascondere suggerimento del fattore
+mostra_fattore = st.toggle("Suggerisci fattore di correzione", value=False, key="toggle_fattore")
+
+if mostra_fattore:
+    calcola_fattore(peso=st.session_state.get("peso", 70))
+    
 
 
 
