@@ -171,18 +171,18 @@ SURF_DISPLAY_TO_KEY = {
 }
 
 # Ordine preferito per la select/radio
-SURF_DISPLAY_ORDER = [
-    "Pavimento di casa, piano in legno.",
-    "Terreno, prato o asfalto asciutti",
-    "Materasso o tappeto spesso",
-    "Divano imbottito, sacco a pelo tecnico, polistirolo",
-    "Cemento, pietra, PVC",
-    "Pavimentazione fredda (all’esterno, in cantina…)",
-    "Piano metallico (in ambiente interno)",
-    "Superficie metallica spessa (all’aperto)",
-    "Strato di foglie umide (≥2 cm)",
-    "Strato di foglie secche (≥2 cm)",
-]
+    SURF_DISPLAY_ORDER = [
+        "Pavimento di casa, piano in legno.",
+        "Terreno, prato o asfalto asciutti",
+        "Materasso o tappeto spesso",
+        "Divano imbottito, sacco a pelo tecnico, polistirolo",
+        "Cemento, pietra, PVC",
+        "Pavimentazione fredda (all’esterno, in cantina…)",
+        "Piano metallico (in ambiente interno)",
+        "Superficie metallica spessa (all’aperto)",
+        "Strato di foglie umide (≥2 cm)",
+        "Strato di foglie secche (≥2 cm)",
+    ]
 
     def applica_regole_superficie(
         fatt, superficie_key, stato,
