@@ -318,12 +318,13 @@ def calcola_fattore(peso: float):
         )
 
     # -------------------------------------
+        # -------------------------------------
     # 4) Slider vestizione (se ON)
     # -------------------------------------
     n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
-        c1, c2 = st.columns(2)
-        with c1:
+        col_layers, col_blankets = st.columns(2)
+        with col_layers:
             n_sottili_eq = st.slider(
                 "Strati leggeri (indumenti o teli sottili)",
                 0, 8, st.session_state.get("strati_sottili", 0),
@@ -334,28 +335,30 @@ def calcola_fattore(peso: float):
                 0, 6, st.session_state.get("strati_spessi", 0),
                 key="strati_spessi"
             )
-            
-                
-        with c2:
+        with col_blankets:
             if corpo_asciutto:
                 n_cop_medie = st.slider(
                     "Coperte di medio spessore",
                     0, 5, st.session_state.get("coperte_medie", 0),
                     key="coperte_medie"
                 )
-            if corpo_asciutto:
                 n_cop_pesanti = st.slider(
                     "Coperte pesanti",
                     0, 5, st.session_state.get("coperte_pesanti", 0),
                     key="coperte_pesanti"
                 )
-                
+
+    # Calcolo SEMPRE il fattore vestizione+coperte (serve per la visibilità del toggle correnti)
+    fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
+        n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
+    )
+
     # -------------------------------------
     # Correnti d'aria nel placeholder di sinistra
-    # - se ASCIUTTO e poco/mediamente vestito (fattore < 1.2) mostro il toggle
-    # - se ASCIUTTO e fattore >= 1.2 lo nascondo (come nel delta)
-    # - se BAGNATO mostro comunque il toggle (logica del delta gestita in applica_correnti)
-    # - se IMMERSO uso la radio dell'acqua (già gestita altrove)
+    # - se ASCIUTTO e fattore >= 1.2 → nascondi toggle
+    # - altrimenti mostra toggle
+    # - BAGNATO: mostra toggle (logica specifica in applica_correnti)
+    # - IMMERSO: gestito altrove con radio dell'acqua
     # -------------------------------------
     correnti_presenti = False
     if not corpo_immerso:
@@ -370,7 +373,9 @@ def calcola_fattore(peso: float):
                     key="toggle_correnti_fc",
                     disabled=False
                 )
-                
+
+    # Superficie (solo asciutto)
+    
     
     # Superficie (solo asciutto)
     superficie_key = None
