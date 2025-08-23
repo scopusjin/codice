@@ -22,6 +22,8 @@ from app.parameters import (
     dati_parametri_aggiuntivi, nomi_brevi,
 )
 
+from app.data_sources import load_tabelle_correzione
+
 # se la funzione Excel è in questo stesso file, non serve importarla;
 # altrimenti:
 # from app.data_sources import load_tabelle_correzione
@@ -54,26 +56,6 @@ if "show_img_peribuccale" not in st.session_state:
 # =========================
 
 @st.cache_data
-def load_tabelle_correzione():
-    """
-    Carica e normalizza le tabelle usate da calcola_fattore.
-    """
-    try:
-        t1 = pd.read_excel("data/tabella_rielaborata.xlsx", engine="openpyxl")
-        t2 = pd.read_excel("data/tabella_secondaria.xlsx", engine="openpyxl")
-    except FileNotFoundError:
-        raise
-    except ImportError as e:
-        raise RuntimeError("Il pacchetto 'openpyxl' è richiesto per leggere i file Excel.") from e
-
-    t1['Fattore'] = pd.to_numeric(t1['Fattore'], errors='coerce')
-    for col in ["Ambiente", "Vestiti", "Coperte", "Superficie d'appoggio", "Correnti"]:
-        t1[col] = t1[col].astype(str).str.strip()
-    return t1, t2
-
-# =========================
-# Funzioni esistenti (con fix robustezza)
-# =========================
 
 
 
