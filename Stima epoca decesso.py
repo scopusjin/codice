@@ -1548,7 +1548,7 @@ def aggiorna_grafico():
         ax.set_xlim(0, max_x_value)
 
         # ==============================
-        # 3) IPOSTASI/RIGOR ARANCIONE (SOPRA)
+        # 3) IPOSTASI/RIGOR Verdi (SOPRA)
         #    - Mediane verdi opache, disegnate DOPO le blu
         # ==============================
         # Mapping asse Y statico per righe principali
