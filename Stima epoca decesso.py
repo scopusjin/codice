@@ -1485,14 +1485,49 @@ def aggiorna_grafico():
                 t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
                 ax.hlines(y=idx_raff, xmin=30.0, xmax=INF_HOURS, color='mediumseagreen', linewidth=6, alpha=1.0, zorder=1)
 
+        # --- Cap dinamico per segmenti con "estremo massimo infinito" ---
+        TAIL_BUFFER_H = 6.0          # poche ore oltre il cap
+        DEFAULT_CAP_IF_NO_FINITE = 72.0  # 3 giorni, se non esistono altri massimi finiti
+
+        finite_ends_all = [e for e in ranges_to_plot_fine if not np.isnan(e) and e < INF_HOURS]
+        cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
+
         # ==============================
         # 2) LINEE BLU DI BASE (tutti i range)
-        #    - Steelblue, zorder medio
+        #    - Finite: come prima
+        #    - Infinito: solido fino a cap_base, poi tratteggiato per TAIL_BUFFER_H
         # ==============================
-        for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
-            if not np.isnan(s) and not np.isnan(e):
-                ax.hlines(i, s, e, color='steelblue', linewidth=6, zorder=2)
+        extra_dash_ends = []  # per estendere in modo corretto l'asse X
 
+        for i, (s, e) in enumerate(zip(ranges_to_plot_inizio, ranges_to_plot_fine)):
+            if np.isnan(s):
+                continue
+
+            is_infinite = (np.isnan(e) or e >= INF_HOURS)
+
+            if not is_infinite:
+                # range finito: identico a prima
+                ax.hlines(i, s, e, color='steelblue', linewidth=6, zorder=2)
+            else:
+                # range "infinito": tronco in solido al cap dinamico
+                solid_to = max(s, cap_base)  # se s > cap, niente solido
+                if solid_to > s:
+                    ax.hlines(i, s, solid_to, color='steelblue', linewidth=6, zorder=2)
+                # codino tratteggiato oltre il cap
+                dash_to = (solid_to if solid_to > s else s) + TAIL_BUFFER_H
+                ax.hlines(i, solid_to, dash_to, color='steelblue', linewidth=4, zorder=2, linestyle='--')
+                extra_dash_ends.append(dash_to)
+
+        # --- Asse X: includi anche i cap/dash per dimensionare correttamente ---
+        max_x_value = 10
+        valid_limits = [lim for lim in (ranges_to_plot_inizio + ranges_to_plot_fine) if not np.isnan(lim) and lim < INF_HOURS]
+        valid_limits += extra_dash_ends + [cap_base + TAIL_BUFFER_H]
+
+        if valid_limits:
+            max_x_value = max(max_x_value, max(valid_limits) * 1.1, 10)
+
+        ax.set_xlim(0, max_x_value)
+        
         # ==============================
         # 3) IPOSTASI/RIGOR ARANCIONE (SOPRA)
         #    - Mediane arancioni opache, disegnate DOPO le blu
