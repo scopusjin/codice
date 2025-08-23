@@ -10,6 +10,8 @@ from app.henssge import (
     INF_HOURS as INF_HOURS_HENSSGE  # opzionale, se ti serve
 )
 
+from app.utils_time import arrotonda_quarto_dora, split_hours_minutes as _split_hours_minutes
+
 # se la funzione Excel è in questo stesso file, non serve importarla;
 # altrimenti, se l’hai spostata in data_sources.py, usa:
 # from data_sources import load_tabelle_correzione
@@ -72,21 +74,7 @@ def load_tabelle_correzione():
 
 
 
-def arrotonda_quarto_dora(dt: datetime.datetime) -> datetime.datetime:
-    """Arrotonda un datetime al quarto d’ora più vicino."""
-    minuti = (dt.minute + 7) // 15 * 15
-    if minuti == 60:
-        dt += datetime.timedelta(hours=1)
-        minuti = 0
-    return dt.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(minutes=minuti)
 
-def _split_hours_minutes(h: float):
-    """Converte ore decimali in (ore, minuti) arrotondando correttamente, evitando '60 minuti'."""
-    if h is None or (isinstance(h, float) and np.isnan(h)):
-        return None
-    total_minutes = int(round(h * 60))
-    hours, minutes = divmod(total_minutes, 60)
-    return hours, minutes
 
 # Titolo più piccolo e con peso medio
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</h5>", unsafe_allow_html=True)
