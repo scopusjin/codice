@@ -136,30 +136,53 @@ def calcola_fattore(peso: float):
         else:
             fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
         return float(fatt)
+# =========================
+# Superfici — categorie canoniche (nuovo)
+# =========================
+SURF_INDIFF = "INDIFFERENTE"
+SURF_ISOL   = "ISOLANTE"
+SURF_MOLTOI = "MOLTO_ISOLANTE"
+SURF_COND   = "CONDUTTIVO"
+SURF_MOLTOC = "MOLTO_CONDUTTIVO"
+SURF_FOGLIU = "FOGLIE_UMIDE"
+SURF_FOGLIS = "FOGLIE_SECCHE"
 
-    # Superfici — categorie canoniche
-    SURF_INDIFF = "INDIFFERENTE"
-    SURF_ISOL   = "ISOLANTE"
-    SURF_MOLTOI = "MOLTO_ISOLANTE"
-    SURF_COND   = "CONDUTTIVO"
-    SURF_MOLTOC = "MOLTO_CONDUTTIVO"
-    SURF_FOGLIU = "FOGLIE_UMIDE"
-    SURF_FOGLIS = "FOGLIE_SECCHE"
+# Etichette mostrate all’utente → chiave canonica
+SURF_DISPLAY_TO_KEY = {
+    # Indifferente
+    "Pavimento di casa, piano in legno.": SURF_INDIFF,
+    "Terreno, prato o asfalto asciutti": SURF_INDIFF,
 
-    # Mappa le label UI esistenti (del tuo pannello) a chiavi canoniche del motore
-    SURF_UI_TO_KEY = {
-        # Indifferente
-        "Pavimento di casa, terreno o prato asciutto, asfalto": SURF_INDIFF,
-        # Isolanti
-        "Materasso o tappeto spesso": SURF_ISOL,
-        "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)": SURF_MOLTOI,
-        # Conduttivo
-        "Cemento, pietra, pavimento in PVC, pavimentazione esterna": SURF_COND,
-        "Superficie metallica spessa, all'esterno.": SURF_MOLTOC,
-        # Foglie (restano superficie, non “copertura”)
-        "Foglie umide (≥2 cm)": SURF_FOGLIU,
-        "Foglie secche (≥2 cm)": SURF_FOGLIS,
-    }
+    # Isolante / molto isolante
+    "Materasso o tappeto spesso": SURF_ISOL,
+    "Divano imbottito, sacco a pelo tecnico, polistirolo": SURF_MOLTOI,
+
+    # Conduttivo (stesso effetto, tre varianti)
+    "Cemento, pietra, PVC": SURF_COND,
+    "Pavimentazione fredda (all’esterno, in cantina…)": SURF_COND,
+    "Piano metallico (in ambiente interno)": SURF_COND,
+
+    # Molto conduttivo (solo nudo + asciutto)
+    "Superficie metallica spessa (all’aperto)": SURF_MOLTOC,
+
+    # Foglie
+    "Strato di foglie umide (≥2 cm)": SURF_FOGLIU,
+    "Strato di foglie secche (≥2 cm)": SURF_FOGLIS,
+}
+
+# Ordine preferito per la select/radio
+SURF_DISPLAY_ORDER = [
+    "Pavimento di casa, piano in legno.",
+    "Terreno, prato o asfalto asciutti",
+    "Materasso o tappeto spesso",
+    "Divano imbottito, sacco a pelo tecnico, polistirolo",
+    "Cemento, pietra, PVC",
+    "Pavimentazione fredda (all’esterno, in cantina…)",
+    "Piano metallico (in ambiente interno)",
+    "Superficie metallica spessa (all’aperto)",
+    "Strato di foglie umide (≥2 cm)",
+    "Strato di foglie secche (≥2 cm)",
+]
 
     def applica_regole_superficie(
         fatt, superficie_key, stato,
@@ -375,24 +398,33 @@ def calcola_fattore(peso: float):
                 )
 
     # Superficie (solo asciutto)
-    
-    
-    # Superficie (solo asciutto)
     superficie_key = None
-    superficie_label_sel = "/"
+    superficie_display_selected = "/"
     if corpo_asciutto:
-        opzioni_superficie = [
-            "Pavimento di casa, terreno o prato asciutto, asfalto",
-            "Imbottitura pesante (es sacco a pelo isolante, polistirolo, divano imbottito)",
-            "Materasso o tappeto spesso",
-            "Cemento, pietra, pavimento in PVC, pavimentazione esterna",
-            "Superficie metallica spessa, all'esterno.",
-            "Foglie umide (≥2 cm)",
-            "Foglie secche (≥2 cm)",
-        ]
-        superficie_label_sel = st.radio("**Appoggio**", opzioni_superficie, horizontal=True, key="radio_superficie")
-        superficie_key = SURF_UI_TO_KEY.get(superficie_label_sel, SURF_INDIFF)
+        # nudo effettivo = toggle vestito OFF oppure tutti i contatori a zero
+        nudo_eff = (not toggle_vestito) or is_nudo(n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti)
 
+        # Opzioni disponibili: includo "Superficie metallica spessa (all’aperto)" solo se nudo
+        options_display = SURF_DISPLAY_ORDER.copy()
+        if not nudo_eff:
+            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+
+        # mantieni la selezione precedente se ancora valida
+        prev_display = st.session_state.get("superficie_display_sel")
+        if prev_display not in options_display:
+            prev_display = options_display[0]
+
+        # puoi usare selectbox (come nel delta) oppure radio; qui uso selectbox per non “esplodere” in orizzontale
+        superficie_display_selected = st.selectbox(
+            "Superficie di appoggio",
+            options_display,
+            index=options_display.index(prev_display),
+            key="superficie_display_sel"
+        )
+        superficie_key = SURF_DISPLAY_TO_KEY.get(superficie_display_selected, SURF_INDIFF)
+    else:
+        st.empty()
+        
     # -------------------------
     # Calcolo fattore (delta)
     # -------------------------
