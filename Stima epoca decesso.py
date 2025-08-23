@@ -136,41 +136,41 @@ def calcola_fattore(peso: float):
         else:
             fatt = 1.0 + n_sottili_eq * 0.075 + n_spessi_eq * 0.15
         return float(fatt)
-# =========================
-# Superfici — categorie canoniche (nuovo)
-# =========================
-SURF_INDIFF = "INDIFFERENTE"
-SURF_ISOL   = "ISOLANTE"
-SURF_MOLTOI = "MOLTO_ISOLANTE"
-SURF_COND   = "CONDUTTIVO"
-SURF_MOLTOC = "MOLTO_CONDUTTIVO"
-SURF_FOGLIU = "FOGLIE_UMIDE"
-SURF_FOGLIS = "FOGLIE_SECCHE"
+    # =========================
+    # Superfici — categorie canoniche (nuovo)
+    # =========================
+    SURF_INDIFF = "INDIFFERENTE"
+    SURF_ISOL   = "ISOLANTE"
+    SURF_MOLTOI = "MOLTO_ISOLANTE"
+    SURF_COND   = "CONDUTTIVO"
+    SURF_MOLTOC = "MOLTO_CONDUTTIVO"
+    SURF_FOGLIU = "FOGLIE_UMIDE"
+    SURF_FOGLIS = "FOGLIE_SECCHE"
 
-# Etichette mostrate all’utente → chiave canonica
-SURF_DISPLAY_TO_KEY = {
-    # Indifferente
-    "Pavimento di casa, piano in legno.": SURF_INDIFF,
-    "Terreno, prato o asfalto asciutti": SURF_INDIFF,
+    # Etichette mostrate all’utente → chiave canonica
+    SURF_DISPLAY_TO_KEY = {
+        # Indifferente
+        "Pavimento di casa, piano in legno.": SURF_INDIFF,
+        "Terreno, prato o asfalto asciutti": SURF_INDIFF,
 
-    # Isolante / molto isolante
-    "Materasso o tappeto spesso": SURF_ISOL,
-    "Divano imbottito, sacco a pelo tecnico, polistirolo": SURF_MOLTOI,
+        # Isolante / molto isolante
+        "Materasso o tappeto spesso": SURF_ISOL,
+        "Divano imbottito, sacco a pelo tecnico, polistirolo": SURF_MOLTOI,
 
-    # Conduttivo (stesso effetto, tre varianti)
-    "Cemento, pietra, PVC": SURF_COND,
-    "Pavimentazione fredda (all’esterno, in cantina…)": SURF_COND,
-    "Piano metallico (in ambiente interno)": SURF_COND,
+        # Conduttivo (stesso effetto, tre varianti)
+        "Cemento, pietra, PVC": SURF_COND,
+        "Pavimentazione fredda (all’esterno, in cantina…)": SURF_COND,
+        "Piano metallico (in ambiente interno)": SURF_COND,
 
-    # Molto conduttivo (solo nudo + asciutto)
-    "Superficie metallica spessa (all’aperto)": SURF_MOLTOC,
+        # Molto conduttivo (solo nudo + asciutto)
+        "Superficie metallica spessa (all’aperto)": SURF_MOLTOC,
 
-    # Foglie
-    "Strato di foglie umide (≥2 cm)": SURF_FOGLIU,
-    "Strato di foglie secche (≥2 cm)": SURF_FOGLIS,
-}
+        # Foglie
+        "Strato di foglie umide (≥2 cm)": SURF_FOGLIU,
+        "Strato di foglie secche (≥2 cm)": SURF_FOGLIS,
+    }
 
-# Ordine preferito per la select/radio
+    # Ordine preferito per la select/radio
     SURF_DISPLAY_ORDER = [
         "Pavimento di casa, piano in legno.",
         "Terreno, prato o asfalto asciutti",
@@ -183,6 +183,7 @@ SURF_DISPLAY_TO_KEY = {
         "Strato di foglie umide (≥2 cm)",
         "Strato di foglie secche (≥2 cm)",
     ]
+    
 
     def applica_regole_superficie(
         fatt, superficie_key, stato,
