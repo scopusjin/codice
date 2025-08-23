@@ -43,11 +43,10 @@ INF_HOURS = 200  # Un valore sufficientemente grande per la scala del grafico e 
 def load_tabelle_correzione():
     """
     Carica e normalizza le tabelle usate da calcola_fattore.
-    Restituisce (tabella1, tabella2) o solleva eccezione con messaggio chiaro.
     """
     try:
-        t1 = pd.read_excel("tabella rielaborata.xlsx", engine="openpyxl")
-        t2 = pd.read_excel("tabella secondaria.xlsx", engine="openpyxl")
+        t1 = pd.read_excel("data/tabella_rielaborata.xlsx", engine="openpyxl")
+        t2 = pd.read_excel("data/tabella_secondaria.xlsx", engine="openpyxl")
     except FileNotFoundError:
         raise
     except ImportError as e:
