@@ -1510,8 +1510,6 @@ def aggiorna_grafico():
 
         if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
             idx_raff = parametri_grafico.index(label_hensge)
-        if raffreddamento_calcolabile and label_hensge is not None and label_hensge in parametri_grafico:
-            idx_raff = parametri_grafico.index(label_hensge)
 
             # Segmento Potente (da mt_ore a ∞): solido fino a cap finito, poi tratteggiato fino a TAIL_END
             if mt_ore is not None and not np.isnan(mt_ore):
@@ -1579,7 +1577,9 @@ def aggiorna_grafico():
                     ax.hlines(i, s, min(solid_to, TAIL_END), color='steelblue', linewidth=6, zorder=2)
                 dash_start = max(solid_to, s)
                 if TAIL_END > dash_start:
-                    ax.hlines(i, dash_start, TAIL_END, color='steelblue', linewidth=4, zorder=2, linestyle='--')
+                    ax.hlines(i, dash_start, TAIL_END,
+                              color='steelblue', linewidth=LINE_W, zorder=2, linestyle=DASH_LS)
+                    
 
         # --- Asse X: termina esattamente a TAIL_END (niente 10% extra) ---
         ax.set_xlim(0, TAIL_END)
@@ -1619,8 +1619,10 @@ def aggiorna_grafico():
                 if TAIL_END > dash_start:
                     # uso plot per avere tratteggio sicuro sopra le blu
                     ax.plot([dash_start, TAIL_END], [y, y],
-                            color='mediumseagreen', linewidth=4, alpha=1.0,
-                            linestyle=(0, (8, 6)), zorder=3)
+                            color='mediumseagreen', linewidth=LINE_W, alpha=1.0,
+                            linestyle=DASH_LS, zorder=3)
+                              
+                    
 
         # --- Mediana RIGIDITÀ (solido + tratteggio se infinita) ---
         if rigidita_range_valido and rigidita_medi_range is not None and "Rigidità cadaverica" in y_indices_mapping:
