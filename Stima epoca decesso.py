@@ -1638,9 +1638,10 @@ def aggiorna_grafico():
                     ax.hlines(y, r_s, min(solid_to, TAIL_END), color='mediumseagreen', linewidth=6, alpha=1.0, zorder=3)
                 dash_start = max(solid_to, r_s)
                 if TAIL_END > dash_start:
+                    # uso plot per avere tratteggio sicuro sopra le blu
                     ax.plot([dash_start, TAIL_END], [y, y],
-                            color='mediumseagreen', linewidth=4, alpha=1.0,
-                            linestyle=(0, (8, 6)), zorder=3)
+                            color='mediumseagreen', linewidth=LINE_W, alpha=1.0,
+                            linestyle=DASH_LS, zorder=3)
 
         # --- Marker corto verde sul punto medio del raffreddamento ---
         if raffreddamento_calcolabile:
