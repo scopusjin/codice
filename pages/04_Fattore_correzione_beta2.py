@@ -504,12 +504,6 @@ def fattore_section(peso: float):
         calcola_fattore(peso)
         
 
-
-
-# Se altrove nella tua app hai già un input del peso che popola st.session_state["peso"],
-# qui lo rispettiamo; altrimenti default 70.
-peso_default = float(st.session_state.get("peso", 70.0))
-fattore_section(peso_default)
         
     
 # =========================
