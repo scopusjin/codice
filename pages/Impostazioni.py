@@ -10,7 +10,7 @@ if "henssge_round_minutes" not in st.session_state:
     st.session_state["henssge_round_minutes"] = 30
 
 scelta = st.radio(
-    "Specifica con quale arrotondamento vuoi che sia fornito la stima ottenuta applicando il metodo di Henssge per il raffreddamento cadaverico",
+    "Specifica con quale arrotondamento vuoi che sia fornito l'output per il raffreddamento cadaverico (metodo di Henssge)",
     ["6 minuti", "15 minuti", "30 minuti"],
     index={6: 0, 15: 1, 30: 2}[st.session_state["henssge_round_minutes"]],
 )
