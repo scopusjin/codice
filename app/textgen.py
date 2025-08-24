@@ -358,8 +358,7 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
 
     if qd_val < soglia:
         return (f"<p style='color:orange;font-size:small;'>Qd = {qd_val:.3f}. "
-                f"Essendo la {condizione_temp}, il valore di Qd risulta inferiore alla soglia di {soglia}, "
-                "quindi ci si trova al di fuori dei limiti ottimali delle equazioni di Henssge.</p>")
+                f"È inferiore ai limiti ottimali per applicare l'equazioni di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
     else:
         return (f"<p style='color:orange;font-size:small;'>Qd = {qd_val:.3f}. "
-                f"Essendo la {condizione_temp}, il valore è ≥ {soglia}, quindi rientra nei limiti di applicabilità delle equazioni.</p>")
+                f"Rientra nei limiti ottimali per applicare l'equazioni di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
