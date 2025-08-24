@@ -19,7 +19,7 @@ def round_quarter_hour(x: float) -> float:
 
 def calcola_raffreddamento(
     Tr: float, Ta: float, T0: float, W: float, CF: float, *,
-    round_minutes: int = 30   # <-- default 30 min
+    round_minutes: int = 30   # default 30 min
 ) -> Tuple[float, float, float, float, float]:
     """
     Ritorna: (t_med, t_min, t_max, t_med_raw, Qd)
@@ -30,17 +30,21 @@ def calcola_raffreddamento(
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     temp_tolerance = 1e-6
-    if Tr <= Ta + temp_tolerance: return np.nan, np.nan, np.nan, np.nan, np.nan
-    if abs(T0 - Ta) < temp_tolerance: return np.nan, np.nan, np.nan, np.nan, np.nan
+    if Tr <= Ta + temp_tolerance:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+    if abs(T0 - Ta) < temp_tolerance:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
 
     Qd = (Tr - Ta) / (T0 - Ta)
-    if np.isnan(Qd) or Qd <= 0 or Qd > 1: return np.nan, np.nan, np.nan, np.nan, np.nan
+    if np.isnan(Qd) or Qd <= 0 or Qd > 1:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
 
     A = 1.25 if Ta <= 23 else 10/9
     B = -1.2815 * (CF * W)**(-5/8) + 0.0284
 
     def Qp(t: float) -> float:
-        if t < 0: return np.inf
+        if t < 0:
+            return np.inf
         try:
             val = A*np.exp(B*t) + (1 - A)*np.exp((A/(A-1))*B*t)
             return np.nan if np.isinf(val) or abs(val) > 1e10 else val
@@ -80,7 +84,7 @@ def ranges_in_disaccordo_completa(r_inizio: List[float], r_fine: List[float]) ->
         e = end if not np.isnan(end) else np.inf
         intervalli.append((s, e))
     for i, (s1, e1) in enumerate(intervalli):
-        if not any(i!=j and s1<=e2 and s2<=e1 for j,(s2,e2) in enumerate(intervalli)):
+        if not any(i != j and s1 <= e2 and s2 <= e1 for j, (s2, e2) in enumerate(intervalli)):
             return True
     return False
 
