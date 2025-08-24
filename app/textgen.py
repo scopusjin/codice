@@ -28,6 +28,7 @@ def _safe_is_nan(x: Optional[float]) -> bool:
 # Frasi conclusive (HTML pronto)
 # ------------------------------------------------------------
 
+
 def build_final_sentence(
     comune_inizio: float,
     comune_fine: float,
@@ -198,10 +199,9 @@ def paragrafo_raffreddamento_dettaglio(
     if (qd_val is not None and not np.isnan(qd_val) and qd_val > 0.2 and
         t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30):
         extra.append(
-            f"<li><span style='color:orange; font-weight:bold;'>"
             f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_round:.1f} h) è superiore alle 30 ore. "
             f"L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-            f"</span></li>"
+            
         )
 
     par = f"<ul><li>{testo_base}"
@@ -313,6 +313,18 @@ def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
         "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
         "ulteriori precisazioni sull’epoca della morte.</li></ul>"
     )
+def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optional[float]) -> List[str]:
+    """
+    Ritorna eventuali avvisi testuali (plain text) relativi al raffreddamento cadaverico.
+    - Avviso >30h sempre, indipendentemente dalla soglia di Qd.
+    """
+    out: List[str] = []
+    if t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30:
+        out.append(
+            f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_round:.1f} h) "
+            "è superiore alle 30 ore. L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
+        )
+    return out
 
 # ------------------------------------------------------------
 # Riepilogo parametri usati
