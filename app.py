@@ -54,10 +54,6 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</
 
 
 
-# --- Dati per Macchie Ipostatiche e Rigidità Cadaverica (Esistenti) ---
-
-
-# --- Funzioni di Utilità e Calcolo Henssge (Esistenti) ---
 
 
 
@@ -131,10 +127,7 @@ with st.container(border=True):
                 value=st.session_state.get("toggle_fattore", False),
                 key="toggle_fattore"
             )
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
-        
+
 
 
 def pannello_suggerisci_fc(peso_default: float = 70.0):
@@ -365,7 +358,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         use_container_width=True
     )
     
-
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
+        
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
