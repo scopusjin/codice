@@ -37,6 +37,7 @@ from app.textgen import (
     paragrafi_parametri_aggiuntivi,
     paragrafo_putrefattive,
     frase_riepilogo_parametri_usati,
+    avvisi_raffreddamento_henssge,
 )
 
 import streamlit as st
