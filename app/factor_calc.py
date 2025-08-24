@@ -331,9 +331,12 @@ def _classifica_superficie_from_key(k: Optional[str]) -> Optional[str]:
         return "molto conduttiva"
     return None
 
-def _format_indumenti(sottili: int, spessi: int) -> Optional[str]:
+def _format_indumenti(sottili: int, spessi: int, stato: Optional[str]) -> Optional[str]:
     if sottili == 0 and spessi == 0:
-        return "corpo nudo"
+        if stato in ("Bagnato", "Immerso"):
+            return "nudo"
+        else:
+            return "corpo nudo"
     if spessi == 0:
         # solo leggeri
         if 1 <= sottili <= 2: return "con indosso pochi strati leggeri"
@@ -350,6 +353,7 @@ def _format_indumenti(sottili: int, spessi: int) -> Optional[str]:
     if 3 <= tot <= 4: return "con indosso alcuni strati di vario spessore"
     if tot >= 5:      return "con indosso molti strati di vario spessore"
     return None
+
 
 def _format_coperte(cop_med: int, cop_pes: int, is_nudo: bool) -> Optional[str]:
     if cop_med == 0 and cop_pes == 0:
