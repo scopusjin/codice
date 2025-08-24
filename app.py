@@ -4,15 +4,14 @@ from app.factor_calc import (
 )
 
 from app.henssge import (
-    round_quarter_hour,
     calcola_raffreddamento,
     ranges_in_disaccordo_completa,
-    INF_HOURS as INF_HOURS_HENSSGE,  # opzionale
+    INF_HOURS as INF_HOURS_HENSSGE,
 )
-
 from app.utils_time import (
     arrotonda_quarto_dora,
     split_hours_minutes as _split_hours_minutes,
+    round_quarter_hour,  
 )
 
 from app.parameters import (
