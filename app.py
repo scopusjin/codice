@@ -36,7 +36,8 @@ import pandas as pd
 # =========================
 # Stato e costanti globali
 # =========================
-st.set_page_config(page_title="Mor-tem", layout="centered")
+st.set_page_config(page_title="Mor-tem", layout="centered", initial_sidebar_state="expanded")
+
 
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
