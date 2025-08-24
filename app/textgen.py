@@ -345,3 +345,21 @@ def frase_riepilogo_parametri_usati(labels: List[str]) -> Optional[str]:
     join += f" e {labels[-1][0].lower() + labels[-1][1:]}"
     return f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
 
+def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
+    """
+    Restituisce una frase con Qd e il confronto con la soglia (0.2 o 0.5 a seconda della T ambiente).
+    """
+    import numpy as np
+    if qd_val is None or np.isnan(qd_val) or ta_val is None or np.isnan(ta_val):
+        return None
+
+    soglia = 0.2 if ta_val <= 23 else 0.5
+    condizione_temp = "T. amb ≤ 23 °C" if ta_val <= 23 else "T. amb > 23 °C"
+
+    if qd_val < soglia:
+        return (f"<p style='color:orange;font-size:small;'>Qd = {qd_val:.3f}. "
+                f"Essendo la {condizione_temp}, il valore di Qd risulta inferiore alla soglia di {soglia}, "
+                "quindi ci si trova al di fuori dei limiti ottimali delle equazioni di Henssge.</p>")
+    else:
+        return (f"<p style='color:orange;font-size:small;'>Qd = {qd_val:.3f}. "
+                f"Essendo la {condizione_temp}, il valore è ≥ {soglia}, quindi rientra nei limiti di applicabilità delle equazioni.</p>")
