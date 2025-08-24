@@ -154,54 +154,61 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         ["Corpo asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key="radio_stato_corpo"
     )
-    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
+    stato_corpo = (
+        "Asciutto" if stato_label == "Corpo asciutto"
+        else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
+    )
 
     # ——— Se Immerso: acqua stagnante/corrente, calcolo immediato e ritorno ———
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("dummy", ["In acqua stagnante", "In acqua corrente"], index=0, horizontal=True, key="radio_acqua")
+        acqua_label = st.radio(
+            "dummy",
+            ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key="radio_acqua"
+        )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
-        # tabelle Excel (solo Tabella 2 serve per peso)
+
         try:
-            tabella2 = load_tabelle_correzione()
+            _, tabella2 = load_tabelle_correzione()
         except Exception:
             tabella2 = None
 
         result = compute_factor(
             stato="Immerso",
             acqua=acqua_mode,
-            counts=DressCounts(),                 # zero strati nel caso Immerso
+            counts=DressCounts(),  # zero strati nel caso Immerso
             superficie_display=None,
             correnti_aria=False,
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
 
-peso_corrente = float(st.session_state.get("peso", peso_default))
-fattore_base = result.fattore_base
-fattore_finale = result.fattore_finale
+        # UI risultato (vecchio stile)
+        peso_corrente = float(st.session_state.get("peso", peso_default))
+        fattore_base = result.fattore_base
+        fattore_finale = result.fattore_finale
 
-if abs(fattore_finale - fattore_base) > 1e-9:
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown(
-            f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-            f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    with col2:
-        st.markdown(
-            f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
-            unsafe_allow_html=True
-        )
-else:
-    st.markdown(
-        f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-        f'Fattore di correzione suggerito: {fattore_finale:.2f}'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-    
+        if abs(fattore_finale - fattore_base) > 1e-9:
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                st.markdown(
+                    f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
+                    f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
+                    f'</div>',
+                    unsafe_allow_html=True
+                )
+            with col2:
+                st.markdown(
+                    f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
+                    unsafe_allow_html=True
+                )
+        else:
+            st.markdown(
+                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
+                f'Fattore di correzione suggerito: {fattore_finale:.2f}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
 
         def _apply(val, riass):
             st.session_state["fattore_correzione"] = round(float(val), 2)
@@ -210,7 +217,12 @@ else:
             st.session_state["toggle_fattore"] = False
             st.session_state["fc_riassunto_contatori"] = riass
 
-        st.button("✅ Usa questo fattore", on_click=_apply, args=(result.fattore_finale, result.riassunto), use_container_width=True)
+        st.button(
+            "✅ Usa questo fattore",
+            on_click=_apply,
+            args=(result.fattore_finale, result.riassunto),
+            use_container_width=True
+        )
         return
 
     # ——— Non Immerso: vestizione/coperte ———
@@ -228,25 +240,40 @@ else:
     if toggle_vestito:
         col_layers, col_blankets = st.columns(2)
         with col_layers:
-            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8, st.session_state.get("strati_sottili", 0), key="strati_sottili")
-            n_spessi  = st.slider("Strati pesanti (indumenti o teli spessi)",  0, 6, st.session_state.get("strati_spessi", 0),  key="strati_spessi")
+            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8,
+                                  st.session_state.get("strati_sottili", 0),
+                                  key="strati_sottili")
+            n_spessi = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6,
+                                 st.session_state.get("strati_spessi", 0),
+                                 key="strati_spessi")
         with col_blankets:
             if stato_corpo == "Asciutto":
-                n_cop_medie   = st.slider("Coperte di medio spessore", 0, 5, st.session_state.get("coperte_medie", 0), key="coperte_medie")
-                n_cop_pesanti = st.slider("Coperte pesanti",          0, 5, st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
+                n_cop_medie = st.slider("Coperte di medio spessore", 0, 5,
+                                        st.session_state.get("coperte_medie", 0),
+                                        key="coperte_medie")
+                n_cop_pesanti = st.slider("Coperte pesanti", 0, 5,
+                                          st.session_state.get("coperte_pesanti", 0),
+                                          key="coperte_pesanti")
 
-    counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
+    counts = DressCounts(
+        sottili=n_sottili, spessi=n_spessi,
+        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+    )
 
     # ——— Superficie (solo Asciutto) ———
     superficie_display_selected = "/"
     if stato_corpo == "Asciutto":
-        # se nudo effettivo, includi opzione “Superficie metallica spessa (all’aperto)”
-        nudo_eff = (not toggle_vestito) or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        nudo_eff = (
+            (not toggle_vestito)
+            or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        )
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
-            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+            options_display = [
+                o for o in options_display
+                if o != "Superficie metallica spessa (all’aperto)"
+            ]
 
-        # mantieni selezione precedente se valida
         prev_display = st.session_state.get("superficie_display_sel")
         if prev_display not in options_display:
             prev_display = options_display[0]
@@ -258,13 +285,13 @@ else:
             key="superficie_display_sel"
         )
 
-    # ——— Correnti d’aria (visibilità simile alla tua logica) ———
+    # ——— Correnti d’aria ———
     correnti_presenti = False
     with corr_placeholder.container():
         mostra_correnti = True
         if stato_corpo == "Asciutto":
             f_vc = fattore_vestiti_coperte(counts)
-            if f_vc >= 1.2:   # come la tua regola: se molto vestito, nascondi toggle
+            if f_vc >= 1.2:
                 mostra_correnti = False
         if mostra_correnti:
             correnti_presenti = st.toggle(
@@ -274,9 +301,9 @@ else:
                 disabled=False
             )
 
-    # ——— Carica Tabella 2 (se disponibile) ———
+    # ——— Carica Tabella 2 ———
     try:
-        tabella2 = load_tabelle_correzione()
+        _, tabella2 = load_tabelle_correzione()
     except Exception:
         tabella2 = None
 
@@ -291,33 +318,32 @@ else:
         tabella2_df=tabella2
     )
 
-    # ——— UI risultato (stile "vecchio") ———
-peso_corrente = float(st.session_state.get("peso", peso_default))
-fattore_base = result.fattore_base         # valore per 70 kg (prima dell'adattamento peso)
-fattore_finale = result.fattore_finale     # valore adattato al peso
+    # ——— UI risultato (vecchio stile) ———
+    peso_corrente = float(st.session_state.get("peso", peso_default))
+    fattore_base = result.fattore_base
+    fattore_finale = result.fattore_finale
 
-if abs(fattore_finale - fattore_base) > 1e-9:
-    col1, col2 = st.columns([2, 1])
-    with col1:
+    if abs(fattore_finale - fattore_base) > 1e-9:
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            st.markdown(
+                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
+                f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+        with col2:
+            st.markdown(
+                f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
+                unsafe_allow_html=True
+            )
+    else:
         st.markdown(
             f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-            f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
+            f'Fattore di correzione suggerito: {fattore_finale:.2f}'
             f'</div>',
             unsafe_allow_html=True
         )
-    with col2:
-        st.markdown(
-            f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
-            unsafe_allow_html=True
-        )
-else:
-    st.markdown(
-        f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-        f'Fattore di correzione suggerito: {fattore_finale:.2f}'
-        f'</div>',
-        unsafe_allow_html=True
-    )
-    
 
     def _apply(val, riass):
         st.session_state["fattore_correzione"] = round(float(val), 2)
@@ -326,18 +352,13 @@ else:
         st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
 
-    st.button("✅ Usa questo fattore", on_click=_apply, args=(result.fattore_finale, result.riassunto), use_container_width=True)
-
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
-
-        
-
-
-
-
-
+    st.button(
+        "✅ Usa questo fattore",
+        on_click=_apply,
+        args=(result.fattore_finale, result.riassunto),
+        use_container_width=True
+    )
+    
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
