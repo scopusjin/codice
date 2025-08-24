@@ -27,6 +27,18 @@ from app.plotting import compute_plot_data, render_ranges_plot
 # altrimenti:
 # from app.data_sources import load_tabelle_correzione
 
+from app.textgen import (
+    build_final_sentence,
+    build_secondary_sentence_senza_potente,
+    paragrafo_raffreddamento_dettaglio,
+    paragrafo_potente,
+    paragrafo_raffreddamento_input,
+    paragrafi_descrizioni_base,
+    paragrafi_parametri_aggiuntivi,
+    paragrafo_putrefattive,
+    frase_riepilogo_parametri_usati,
+)
+
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
