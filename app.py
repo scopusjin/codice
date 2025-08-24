@@ -822,6 +822,7 @@ def aggiorna_grafico():
             Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
             mt_ore=mt_ore if ('mt_ore' in locals()) else None,
             INF_HOURS=INF_HOURS,
+            qd_threshold=qd_threshold,
         )
 
         fig = render_ranges_plot(plot_data)
