@@ -409,7 +409,7 @@ def build_cf_description(
     # Indumenti
     sottili = int(riassunto.get("sottili", 0))
     spessi  = int(riassunto.get("spessi", 0))
-    indumenti_txt = _format_indumenti(sottili, spessi)
+    indumenti_txt = _format_indumenti(sottili, spessi, riassunto.get("stato"))
 
     # Coperte
     cop_med = int(riassunto.get("cop_medie", 0))
