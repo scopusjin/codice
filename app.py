@@ -1153,7 +1153,7 @@ def aggiorna_grafico():
         "</li>"
         f"<li>Peso del cadavere misurato in sala autoptica: {w_txt} kg.</li>"
         f"<li>Temperatura corporea ipotizzata al momento della morte: {t0_txt} °C.</li>"
-        f"<li>Fattore di correzione ipotizzato dagli scriventi in base alle condizioni ambientali (per quanto noto): {cf_descr}</li>"
+        f"<li>Fattore di correzione ipotizzato dagli scriventi in base alle condizioni ambientali (per quanto noto): {cf_descr}.</li>"
         "</ul>"
         "</li></ul>"
     )
