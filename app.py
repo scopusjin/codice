@@ -967,19 +967,7 @@ def aggiorna_grafico():
                     fine_senza_potente=fine_senza_potente,
                 )
 
-    # --- Riepilogo parametri usati (testo arancione) ---
-    if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
-        nomi_parametri_finali_per_riepilogo = []
-        for nome in nomi_parametri_usati_per_intersezione:
-            if ("raffreddamento cadaverico" in nome.lower()
-                and "potente" not in nome.lower()
-                and mt_ore is not None and not np.isnan(mt_ore)
-                and abs(comune_inizio - mt_ore) < 0.25):
-                continue
-            nomi_parametri_finali_per_riepilogo.append(nome)
-        small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
-        if small_html:
-            st.markdown(small_html, unsafe_allow_html=True)
+
 
     # --- Avvertenze e dettagli ---
     if avvisi:
@@ -997,11 +985,23 @@ def aggiorna_grafico():
             )
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
-        
-        small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
-        if small_html:
-            st.markdown(small_html, unsafe_allow_html=True)
 
+        # --- Riepilogo parametri usati (testo arancione) ---
+        if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
+            nomi_parametri_finali_per_riepilogo = []
+            for nome in nomi_parametri_usati_per_intersezione:
+                if ("raffreddamento cadaverico" in nome.lower()
+                    and "potente" not in nome.lower()
+                    and mt_ore is not None and not np.isnan(mt_ore)
+                    and abs(comune_inizio - mt_ore) < 0.25):
+                    continue
+                nomi_parametri_finali_per_riepilogo.append(nome)
+
+            small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
+            if small_html:
+                st.markdown(small_html, unsafe_allow_html=True)
+
+        # --- Nota su Qd ---
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
