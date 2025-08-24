@@ -6,6 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# Formatter numerico: "7.0" -> "7", "7.5" -> "7.5"
+def _fmt(x: float) -> str:
+    return f"{x:.1f}".rstrip("0").rstrip(".")
+
+
 def compute_plot_data(
     *,
     macchie_range: Tuple[float, float] | Tuple[float, float],
@@ -19,6 +24,7 @@ def compute_plot_data(
     Qd_val_check: float | float,
     mt_ore: Optional[float],
     INF_HOURS: float,
+    qd_threshold: float,  # <-- soglia dinamica (0.2 se Ta<=23, 0.5 se Ta>23)
 ) -> Dict[str, Any]:
     """
     Prepara i dati per il grafico. Nessun side-effect. Nessuna dipendenza da Streamlit.
@@ -32,10 +38,10 @@ def compute_plot_data(
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
         if macchie_range[1] < INF_HOURS:
-            label_macchie = f"Ipostasi\n({macchie_range[0]:.1f}–{macchie_range[1]:.1f} h)"
+            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
             end_val = macchie_range[1]
         else:
-            label_macchie = f"Ipostasi\n(≥ {macchie_range[0]:.1f} h)"
+            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
             end_val = INF_HOURS
         labels.append(label_macchie)
         starts.append(macchie_range[0])
@@ -44,10 +50,10 @@ def compute_plot_data(
     # Etichette + range: RIGIDITÀ
     if rigidita_range is not None and not np.isnan(rigidita_range[0]):
         if rigidita_range[1] < INF_HOURS:
-            label_rigidita = f"Rigor\n({rigidita_range[0]:.1f}–{rigidita_range[1]:.1f} h)"
+            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
             end_val = rigidita_range[1]
         else:
-            label_rigidita = f"Rigor\n(≥ {rigidita_range[0]:.1f} h)"
+            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
             end_val = INF_HOURS
         labels.append(label_rigidita)
         starts.append(rigidita_range[0])
@@ -62,38 +68,28 @@ def compute_plot_data(
         t_min_raff_visualizzato = t_min_raff_hensge
         t_max_raff_visualizzato = t_max_raff_hensge
 
-        # Flag condizioni speciali (identiche alla logica del main)
-        raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < 0.2)
-        raff_over_30 = (
-            (not np.isnan(Qd_val_check)) and
-            (Qd_val_check > 0.2) and
-            (t_med_raff_hensge_rounded_raw is not None) and
-            (t_med_raff_hensge_rounded_raw > 30)
-        )
+        # Flag condizioni speciali
+        raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
+        raff_over_48 = (t_med_raff_hensge_rounded_raw is not None) and (t_med_raff_hensge_rounded_raw > 48)
 
+        # Etichetta Henssge
         if raff_only_lower:
-            # Mostra etichetta con “> … h” e anche il range t_min–t_max come nel main
             maggiore_di_valore = t_min_raff_hensge
             if mt_ore is not None and not np.isnan(mt_ore):
                 maggiore_di_valore = float(round(mt_ore))
-                label_h = f"Raffreddamento\n(> {maggiore_di_valore:.0f} h)"
+                label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
             else:
                 label_h = (
-                    f"Raffreddamento\n(> {maggiore_di_valore:.1f} h)\n"
-                    f"({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
+                    f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)\n"
+                    f"({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
                 )
-        elif raff_over_30:
-            maggiore_di_valore = 30.0
-            if mt_ore is not None and not np.isnan(mt_ore):
-                maggiore_di_valore = float(round(mt_ore))
-                label_h = f"Raffreddamento\n(> {maggiore_di_valore:.0f} h)"
-            else:
-                label_h = (
-                    f"Raffreddamento\n(> {maggiore_di_valore:.1f} h)\n"
-                    f"({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
-                )
+        elif raff_over_48:
+            label_h = (
+                f"Raffreddamento\n(> {_fmt(48.0)} h)\n"
+                f"({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
+            )
         else:
-            label_h = f"Raffreddamento\n({t_min_raff_hensge:.1f}–{t_max_raff_hensge:.1f} h)"
+            label_h = f"Raffreddamento\n({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
 
         labels.append(label_h)
         starts.append(t_min_raff_hensge)
@@ -101,9 +97,9 @@ def compute_plot_data(
         raffreddamento_idx = len(labels) - 1
     else:
         raff_only_lower = False
-        raff_over_30 = False
+        raff_over_48 = False
 
-    # Calcolo cap e coda come nel main
+    # Calcolo cap e coda
     LINE_W = 6
     DASH_LS = (0, (2, 1))  # per referenza; usati in render
     TAIL_FACTOR = 1.20
@@ -118,14 +114,18 @@ def compute_plot_data(
         if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
     ]
 
-    # Inizi verdi speciali per raffreddamento
+    # Inizi verdi speciali per raffreddamento (casi che vogliamo far “proseguire” a ∞ in verde)
     special_inf_starts_green: List[float] = []
+    raff_only_lower_start: Optional[float] = None
     if raffreddamento_calcolabile and raffreddamento_idx is not None:
-        if mt_ore is not None and not np.isnan(mt_ore):
-            special_inf_starts_green.append(float(mt_ore))
-        if (not np.isnan(Qd_val_check) and Qd_val_check > 0.2 and
-                t_med_raff_hensge_rounded_raw is not None and t_med_raff_hensge_rounded_raw > 30):
-            special_inf_starts_green.append(30.0)
+        if raff_only_lower:
+            raff_only_lower_start = (
+                float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore))
+                else float(t_min_raff_visualizzato)
+            )
+            special_inf_starts_green.append(raff_only_lower_start)
+        if raff_over_48:
+            special_inf_starts_green.append(48.0)
 
     if infinite_starts_blue or special_inf_starts_green:
         tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green)
@@ -133,7 +133,7 @@ def compute_plot_data(
         tail_base = cap_base
     tail_end = tail_base * TAIL_FACTOR
 
-    # Mediane verdi per ipostasi/rigidità (copiate dal main: stessa semantica)
+    # Mediane verdi per ipostasi/rigidità
     medians: Dict[str, Optional[Tuple[float, float]]] = {
         "Macchie ipostatiche": None,
         "Rigidità cadaverica": None,
@@ -146,14 +146,14 @@ def compute_plot_data(
     # Mappatura y in ordine (coincidente con labels)
     y_map = {lbl.split("\n", 1)[0]: idx for idx, lbl in enumerate(labels)}
 
-    # Dimensione figura dinamica (identica formula del main)
+    # Dimensione figura dinamica
     num_params_grafico = len(labels)
     figsize = (10, max(2, 1.5 + 0.5 * num_params_grafico))
 
     style_flags = dict(
         raff_only_lower=raff_only_lower,
-        raff_over_30=raff_over_30,
-        potente_from=(float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore)) else None),
+        raff_only_lower_start=raff_only_lower_start,
+        raff_over_48=raff_over_48,
         line_w=LINE_W,
         dash_ls=DASH_LS,
     )
@@ -200,8 +200,9 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
     # 1) Segmenti verdi speciali per RAFFREDDAMENTO (sotto)
     if raff_idx is not None:
-        potente_from = style.get("potente_from")
-        raff_over_30 = style.get("raff_over_30", False)
+        raff_over_48 = style.get("raff_over_48", False)
+        raff_only_lower = style.get("raff_only_lower", False)
+        raff_only_lower_start = style.get("raff_only_lower_start")
 
         def _draw_green_segment(y: int, start: float):
             solid_from = max(0.0, start)
@@ -214,10 +215,10 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
                 ax.hlines(y, dash_start, tail_end,
                           color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1, linestyle=DASH_LS)
 
-        if potente_from is not None:
-            _draw_green_segment(raff_idx, float(potente_from))
-        if raff_over_30:
-            _draw_green_segment(raff_idx, 30.0)
+        if raff_only_lower and (raff_only_lower_start is not None):
+            _draw_green_segment(raff_idx, float(raff_only_lower_start))
+        if raff_over_48:
+            _draw_green_segment(raff_idx, 48.0)
 
     # 2) Linee blu base (tutti i range)
     for i, (s, e) in enumerate(zip(starts, ends)):
@@ -269,11 +270,11 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
                     ax.plot([dash_start, tail_end], [y, y],
                             color='mediumseagreen', linewidth=LINE_W, alpha=1.0, linestyle=DASH_LS, zorder=3)
 
-    # Marker corto verde del punto medio raffreddamento (solo se non segmenti speciali)
+    # Marker corto verde del punto medio raffreddamento (solo se NON stiamo facendo tratteggiare all'infinito)
     if raff_idx is not None:
-        potente_from = style.get("potente_from")
-        raff_over_30 = style.get("raff_over_30", False)
-        if potente_from is None and not raff_over_30:
+        raff_over_48 = style.get("raff_over_48", False)
+        raff_only_lower = style.get("raff_only_lower", False)
+        if (not raff_over_48) and (not raff_only_lower):
             if not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
                 pm = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2.0
                 off = 0.1
