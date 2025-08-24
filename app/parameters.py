@@ -31,32 +31,32 @@ macchie_medi = {
 testi_macchie = {
     "Non ancora comparse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "non fossero ancora comparse. Secondo le comuni nozioni della medicina legale, "
-        "le ipostasi compaiono entro 3 ore dal decesso (generalmente entro 15-20 minuti)."
+        "non fossero ancora comparse. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica "
+        "che sono trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
     ),
     "Migrabilità totale": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "si trovassero in una fase di migrabilità totale. Secondo le comuni nozioni della "
-        "medicina legale, tale fase indica che fossero trascorse meno di 6 ore dal decesso. "
+        "si trovassero in una fase di migrabilità totale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica "
+        "che fossero trascorse meno di 6 ore dal decesso. "
         "Generalmente le ipostasi compaiono dopo 20 minuti dal decesso."
     ),
     "Migrabilità parziale": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "si trovassero in una fase di migrabilità parziale. Secondo le comuni nozioni della "
-        "medicina legale, tale fase indica che fossero trascorse tra le 4 ore e le 24 ore dal decesso."
+        "si trovassero in una fase di migrabilità parziale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica "
+        "che fossero trascorse tra le 4 ore e le 24 ore dal decesso."
     ),
     "Migrabilità perlomeno parziale": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
         "in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono "
         "modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione "
         "dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). "
-        "Secondo le comuni nozioni della medicina legale, tale fase indica che fossero trascorse "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica che fossero trascorse "
         "meno di 24 ore dal decesso."
     ),
     "Fissità assoluta": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
-        "in una fase di fissità assoluta. Secondo le comuni nozioni della medicina legale, tale fase "
-        "indica che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non "
+        "in una fase di fissità assoluta. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica "
+        "che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non "
         "modificare la loro posizione alla movimentazione del corpo, ma la loro intensità può affievolirsi)."
     ),
     "Non valutabili/Non attendibili": (
@@ -84,29 +84,29 @@ rigidita_medi = {
 rigidita_descrizioni = {
     "Non ancora comparsa": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. "
-        "Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse meno di 7 ore "
+        "Secondo i limiti massimi segnalati in letteratura scientifica, cioè indica che fossero trascorse meno di 7 ore "
         "dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso)."
     ),
     "In via di formazione, intensificazione e generalizzazione": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di formazione, "
-        "intensificazione e generalizzazione. Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono "
-        "che fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità "
+        "intensificazione e generalizzazione. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica che "
+        "fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità "
         "si completa in 6-10 ore)."
     ),
     "Presente e generalizzata": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse presente e generalizzata. "
-        "Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 2 ore "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica che fossero trascorse almeno 2 ore "
         "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore)."
     ),
     "In via di risoluzione": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di risoluzione. "
-        "Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica che fossero trascorse almeno 24 ore "
         "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi "
         "dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso)."
     ),
     "Ormai risolta": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse ormai risolta. "
-        "Secondo le comuni nozioni della medicina legale, tali caratteristiche suggeriscono che fossero trascorse almeno 24 ore "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, cioè indica che fossero trascorse almeno 24 ore "
         "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni)."
     ),
     "Non valutabile/Non attendibile": (
