@@ -178,7 +178,7 @@ def paragrafo_raffreddamento_dettaglio(
     h2, m2, lbl2 = _fmt_ore_min(t_max_visual)
 
     testo_base = (
-        f"Applicando il nomogramma di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
+        f"Applicando l'equazione di Henssge, è possibile stimare che il decesso sia avvenuto tra circa "
         f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
         f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
         f"prima dei rilievi effettuati al momento dell’ispezione legale."
