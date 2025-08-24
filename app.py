@@ -38,6 +38,7 @@ from app.textgen import (
     paragrafo_putrefattive,
     frase_riepilogo_parametri_usati,
     avvisi_raffreddamento_henssge,
+    frase_qd,
 )
 
 import streamlit as st
@@ -1000,6 +1001,10 @@ def aggiorna_grafico():
         small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
         if small_html:
             st.markdown(small_html, unsafe_allow_html=True)
+
+        frase_qd_html = frase_qd(Qd_val_check, Ta_val)
+            if frase_qd_html:
+            st.markdown(frase_qd_html, unsafe_allow_html=True)
 
     # --- Discordanze ---
     num_potential_ranges_used = sum(
