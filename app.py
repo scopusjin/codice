@@ -516,9 +516,13 @@ def aggiorna_grafico():
     macchie_selezionata = selettore_macchie
     rigidita_selezionata = selettore_rigidita
 
-    t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
-        Tr_val, Ta_val, T0_val, W_val, CF_va, round_minutes=30
+    round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+    t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, \
+    t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+        Tr_val, Ta_val, T0_val, W_val, CF_val,
+        round_minutes=round_minutes
     )
+
     qd_threshold = 0.2 if Ta_val <= 23 else 0.5
     raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
 
