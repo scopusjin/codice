@@ -971,8 +971,13 @@ def aggiorna_grafico():
 
     # --- Avvertenze e dettagli ---
     if avvisi:
-        with st.expander(f"⚠️ Avvertenze ({len(avvisi)})"):
-            st.warning("\n".join(f"- {msg}" for msg in avvisi))
+        with st.expander(f"⚠️ Avvisi ({len(avvisi)})"):
+            for msg in avvisi:
+                st.markdown(
+                    f"<p style='color:orange; font-size:small; margin:0;'>- {msg}</p>",
+                    unsafe_allow_html=True
+                )
+
 
     if frase_finale_html:
         st.markdown(frase_finale_html, unsafe_allow_html=True)
