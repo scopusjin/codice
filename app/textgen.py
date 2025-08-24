@@ -67,8 +67,8 @@ def build_final_sentence(
                 f"La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
                 f"<b>oltre</b> {h} {lbl}{'' if m == 0 else f' {m} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {hh} del {dd}. "
-                f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente quando "
-                f"sono trascorse più di 30 ore dal decesso, e tale dato è da considerarsi del tutto indicativo."
+                f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente"
+                f"qper intervalli superiori a 30 ore dal decesso."
             )
         return f"<b>{testo}</b>"
 
@@ -93,7 +93,7 @@ def build_final_sentence(
         da = isp_dt - datetime.timedelta(hours=comune_fine)
         hh2, dd2 = _fmt_dt(da)
         testo = (
-            f"La valutazione complessiva dei dati tanatologici, integrando i limiti temporali massimi e minimi derivanti dalle considerazioni precedenti, "
+            f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
             f"consente di stimare che la morte sia avvenuta <b>non oltre</b> "
             f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
             f"prima dei rilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {hh2} del {dd2}."
@@ -188,12 +188,11 @@ def paragrafo_raffreddamento_dettaglio(
     if (qd_val is not None and not np.isnan(qd_val) and qd_val < 0.2 and
         t_med_round is not None and not np.isnan(t_med_round)):
         extra.append(
-            f"<li>"
             f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili "
             f"(Valore di Qd ottenuto: <b>{qd_val:.5f}</b>, &lt; 0.2) "
-            f"(il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico - {t_med_round:.1f} ore -, ma tale range è privo di una solida base statistica). "
+            f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_round:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
             f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il raffreddamento cadaverico fosse ormai concluso. "
-            f"Per tale motivo, il range ottenuto è da ritenersi del tutto indicativo e per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
+            f"Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
             f"</li>"
         )
 
