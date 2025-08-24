@@ -233,15 +233,12 @@ def compute_factor(
     peso: float,
     tabella2_df: Optional[pd.DataFrame] = None
 ) -> ComputeResult:
-    """
-    Restituisce fattore_base, fattore_finale (eventualmente adattato per il peso) e
-    un riassunto (dict) utile da salvare in session_state per la parentetica.
-    """
     # Caso IMMERSO
     if stato == "Immerso":
         base = 0.50 if (acqua == "stagnante") else 0.35
         fatt_base = clamp(base)
         fatt_finale = adatta_per_peso(fatt_base, peso, tabella2_df)
+        peso_adattato = (abs(fatt_finale - fatt_base) > 1e-12)
         return ComputeResult(
             fattore_base=fatt_base,
             fattore_finale=fatt_finale,
@@ -249,7 +246,9 @@ def compute_factor(
                 "stato": "Immerso",
                 "sottili": 0, "spessi": 0, "cop_medie": 0, "cop_pesanti": 0,
                 "superficie": "/",
+                "superficie_key": None,
                 "correnti": "in acqua stagnante" if acqua == "stagnante" else "in acqua corrente",
+                "peso_adattato": bool(peso_adattato),
             }
         )
 
@@ -267,8 +266,8 @@ def compute_factor(
     f_corr = clamp(float(f_corr))
 
     fatt_finale = adatta_per_peso(f_corr, peso, tabella2_df)
+    peso_adattato = (abs(fatt_finale - f_corr) > 1e-12)
 
-    # Riassunto per sessione/parentetica
     riass = {
         "stato": stato,
         "sottili": int(counts.sottili),
@@ -276,7 +275,9 @@ def compute_factor(
         "cop_medie": int(counts.coperte_medie),
         "cop_pesanti": int(counts.coperte_pesanti),
         "superficie": superficie_display if stato == "Asciutto" else "/",
-        "correnti": ("Correnti d'aria presenti" if correnti_aria else "Senza correnti d'aria"),
+        "superficie_key": superf_key,
+        "correnti": ("Correnti d'aria presenti" if correnti_aria else None),
+        "peso_adattato": bool(peso_adattato),
     }
     return ComputeResult(fattore_base=f_corr, fattore_finale=fatt_finale, riassunto=riass)
 
@@ -297,7 +298,12 @@ def _classifica_superficie(s: Optional[str]) -> Optional[str]:
 def _format_stato(s: Optional[str]) -> Optional[str]:
     if not s:
         return None
-    return {"Asciutto": "corpo asciutto", "Bagnato": "corpo bagnato", "Immerso": "corpo immerso"}.get(s, str(s).lower())
+    if s == "Immerso":
+        return "corpo immerso"
+    if s == "Bagnato":
+        return "corpo bagnato"
+    # Asciutto non va indicato
+    return None
 
 def _format_corrente(c: Optional[str]) -> Optional[str]:
     if not c or c == "/":
@@ -307,67 +313,127 @@ def _format_corrente(c: Optional[str]) -> Optional[str]:
         return "in acqua corrente"
     if "acqua stagnante" in c_low:
         return "in acqua stagnante"
-    if "senza correnti" in c_low:
-        return "senza correnti d'aria"
-    if "correnti d'aria presenti" in c_low or "esposto a corrente" in c_low or "con correnti" in c_low:
+    if "correnti d'aria" in c_low or "con correnti" in c_low or "esposto a corrente" in c_low:
         return "con correnti d'aria"
-    return c  # fallback
+    return None  # non scrivere se assenti
+
+
+def _classifica_superficie_from_key(k: Optional[str]) -> Optional[str]:
+    if not k or k == SURF_INDIFF:
+        return None
+    if k in {SURF_ISOL, SURF_FOGLIU, SURF_FOGLIS}:
+        return "isolante"
+    if k == SURF_MOLTOI:
+        return "molto isolante"
+    if k == SURF_COND:
+        return "conduttiva"
+    if k == SURF_MOLTOC:
+        return "molto conduttiva"
+    return None
+
+def _format_indumenti(sottili: int, spessi: int) -> Optional[str]:
+    if sottili == 0 and spessi == 0:
+        return "corpo nudo"
+    if spessi == 0:
+        # solo leggeri
+        if 1 <= sottili <= 2: return "con indosso pochi strati leggeri"
+        if 3 <= sottili <= 4: return "con indosso alcuni strati leggeri"
+        if sottili >= 5:      return "con indosso molti strati leggeri"
+    if sottili == 0:
+        # solo pesanti
+        if 1 <= spessi <= 2: return "con indosso pochi strati pesanti"
+        if 3 <= spessi <= 4: return "con indosso vari strati pesanti"
+        if spessi >= 5:      return "con indosso molti strati pesanti"
+    # misto
+    tot = sottili + spessi
+    if 1 <= tot <= 2: return "con indosso pochi strati di vario spessore"
+    if 3 <= tot <= 4: return "con indosso alcuni strati di vario spessore"
+    if tot >= 5:      return "con indosso molti strati di vario spessore"
+    return None
+
+def _format_coperte(cop_med: int, cop_pes: int, is_nudo: bool) -> Optional[str]:
+    if cop_med == 0 and cop_pes == 0:
+        return None
+    # solo medie
+    if cop_med > 0 and cop_pes == 0:
+        if cop_med == 1:  base = "sotto una coperta di medio spessore"
+        elif cop_med == 2: base = "sotto due coperte di medio spessore"
+        else:              base = "sotto varie coperte di medio spessore"
+        return ("corpo nudo " + base) if is_nudo else base
+    # solo pesanti
+    if cop_pes > 0 and cop_med == 0:
+        if cop_pes == 1:  base = "sotto una coperta pesante"
+        elif cop_pes == 2: base = "sotto due coperte pesanti"
+        else:              base = "sotto varie coperte pesanti"
+        return ("corpo nudo " + base) if is_nudo else base
+    # miste
+    tot = cop_med + cop_pes
+    if 1 <= tot <= 2: base = "sotto poche coperte di diverso spessore"
+    elif 3 <= tot <= 4: base = "sotto alcune coperte di diverso spessore"
+    else: base = "sotto molte coperte di diverso spessore"
+    return ("corpo nudo " + base) if is_nudo else base
 
 def build_cf_description(
     cf_value: float,
     riassunto: Optional[Dict[str, Any]],
-    fallback_text: Optional[str] = None
+    fallback_text: Optional[str] = None,
+    manual_override: bool = False  # True se FC inserito/modificato manualmente
 ) -> str:
     """
-    Restituisce stringa tipo:
-    "1.40 (corpo asciutto, con 2 strati sottili e 1 strato spesso, sotto 1 coperta pesante, adagiato su superficie termicamente isolante, con correnti d'aria)"
+    Rende una stringa tipo:
+    "1.40 (corpo nudo sotto una coperta pesante, adagiato su superficie termicamente conduttiva, con correnti d'aria. Il fattore di correzione è stato adattato per il peso corporeo.)"
+    Regole:
+      - Nessuna parentesi se manual_override=True.
+      - Non menzionare 'asciutto'; 'bagnato' non usato; 'Immerso' → 'corpo immerso' + stato acqua.
+      - Superficie solo se ≠ indifferente.
+      - Correnti d'aria solo se presenti.
+      - Aggiungi frase peso se riassunto['peso_adattato'] è True.
     """
     cf_txt = f"{float(cf_value):.2f}"
 
+    # Nessuna parentetica se inserimento manuale
+    if manual_override:
+        return cf_txt
+
+    # Se non abbiamo riassunto strutturato
     if not riassunto:
-        if fallback_text:
-            return f"{cf_txt} (in base ai fattori scelti: {fallback_text})."
-        return f"{cf_txt} (da adattare sulla base dei fattori scelti)."
+        return f"{cf_txt} (in base ai fattori scelti: {fallback_text})." if fallback_text else f"{cf_txt} (da adattare sulla base dei fattori scelti)."
 
     # Stato
     stato_txt = _format_stato(riassunto.get("stato"))
 
-    # Vestiti (da counts)
+    # Indumenti
     sottili = int(riassunto.get("sottili", 0))
     spessi  = int(riassunto.get("spessi", 0))
-    if sottili == 0 and spessi == 0:
-        vestiti_txt = "nudo"
-    else:
-        parti = []
-        if sottili > 0: parti.append(f"{sottili} strati sottili")
-        if spessi  > 0: parti.append(f"{spessi} strati spessi")
-        vestiti_txt = "con " + " e ".join(parti) if parti else None
+    indumenti_txt = _format_indumenti(sottili, spessi)
 
-    # Coperte (da counts)
-    cop_med  = int(riassunto.get("cop_medie", 0))
-    cop_pes  = int(riassunto.get("cop_pesanti", 0))
-    coperte_txt = None
-    if cop_med or cop_pes:
-        pezzi = []
-        if cop_med > 0:
-            pezzi.append(f"{cop_med} coperte medie" if cop_med > 1 else "1 coperta media")
-        if cop_pes > 0:
-            pezzi.append(f"{cop_pes} coperte pesanti" if cop_pes > 1 else "1 coperta pesante")
-        coperte_txt = "sotto " + " e ".join(pezzi)
+    # Coperte
+    cop_med = int(riassunto.get("cop_medie", 0))
+    cop_pes = int(riassunto.get("cop_pesanti", 0))
+    is_nudo = (sottili == 0 and spessi == 0)
+    coperte_txt = _format_coperte(cop_med, cop_pes, is_nudo)
 
-    # Superficie (classificata)
-    superf_cat = _classifica_superficie(riassunto.get("superficie"))
+    # Superficie (solo se non indifferente)
+    superf_cat = _classifica_superficie_from_key(riassunto.get("superficie_key"))
     superf_txt = f"adagiato su superficie termicamente {superf_cat}" if superf_cat else None
 
     # Correnti
     corr_txt = _format_corrente(riassunto.get("correnti"))
 
-    parts = [p for p in [stato_txt, vestiti_txt, coperte_txt, superf_txt, corr_txt] if p]
-    parent = "(" + ", ".join(parts) + ")" if parts else None
+    # Costruzione pezzi nell'ordine definito
+    parts = [p for p in (stato_txt, indumenti_txt, coperte_txt, superf_txt, corr_txt) if p]
 
-    if parent:
-        return f"{cf_txt} {parent}"
-    elif fallback_text:
-        return f"{cf_txt} (in base ai fattori scelti: {fallback_text})."
-    else:
-        return f"{cf_txt} (da adattare sulla base dei fattori scelti)."
+    # Nota su Tabella 2 se applicata
+    nota_peso = "Il fattore di correzione è stato adattato per il peso corporeo." if riassunto.get("peso_adattato") else None
+
+    if parts or nota_peso:
+        inner = ", ".join(parts)
+        if nota_peso:
+            if inner:
+                inner = inner + ". " + nota_peso
+            else:
+                inner = nota_peso
+        return f"{cf_txt} ({inner})"
+
+    # Fallback
+    return f"{cf_txt} (in base ai fattori scelti: {fallback_text})." if fallback_text else f"{cf_txt} (da adattare sulla base dei fattori scelti)."
