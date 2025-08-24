@@ -68,7 +68,7 @@ def build_final_sentence(
                 f"<b>oltre</b> {h} {lbl}{'' if m == 0 else f' {m} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {hh} del {dd}. "
                 f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente"
-                f"qper intervalli superiori a 30 ore dal decesso."
+                f"per intervalli superiori a 30 ore dal decesso."
             )
         return f"<b>{testo}</b>"
 
@@ -308,7 +308,7 @@ def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
     return (
         "<ul><li>Per quanto riguarda i processi trasformativi post-mortali (compresi quelli putrefattivi), "
         "la loro insorgenza è influenzata da numerosi fattori, esogeni (ad esempio temperatura ambientale, "
-        "esposizione ai fenomeni metereologici…) ed endogeni (temperatura corporea, infezioni prima del decesso, "
+        "esposizione ai fenomeni meteorologici…) ed endogeni (temperatura corporea, infezioni prima del decesso, "
         "presenza di ferite…). Poiché tali processi possono manifestarsi in un intervallo temporale estremamente "
         "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
         "ulteriori precisazioni sull’epoca della morte.</li></ul>"
