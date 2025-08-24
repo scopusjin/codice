@@ -875,7 +875,7 @@ def aggiorna_grafico():
 
         # nuovo: avviso >30 h
         avvisi.extend(avvisi_raffreddamento_henssge(
-            t_med_round=t_med_raff_henssge_rounded_raw,
+            t_med_round=t_med_raff_henssge_rounded,
             qd_val=Qd_val_check
         ))
     # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
