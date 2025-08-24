@@ -891,93 +891,96 @@ def aggiorna_grafico():
         cf_value=st.session_state.get("fattore_correzione", 1.0),
         riassunto=st.session_state.get("fc_riassunto_contatori"),
         fallback_text=st.session_state.get("fattori_condizioni_testo")  # opzionale
-)
 
+    # --- Paragrafi descrittivi (textgen.py) ---
+    dettagli.append(paragrafo_raffreddamento_input(
+        isp_dt=data_ora_ispezione,
+        ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val,
+        cf_descr=cf_descr
+    ))
 
-dettagli.append(paragrafo_raffreddamento_input(
-    isp_dt=data_ora_ispezione,
-    ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val,
-    cf_descr=cf_descr
-))
+    par_h = paragrafo_raffreddamento_dettaglio(
+        t_min_visual=t_min_raff_visualizzato,
+        t_max_visual=t_max_raff_visualizzato,
+        t_med_round=t_med_raff_hensge_rounded,
+        qd_val=Qd_val_check,
+        ta_val=Ta_val,
+    )
+    if par_h:
+        dettagli.append(par_h)
 
+    par_p = paragrafo_potente(
+        mt_ore=mt_ore, mt_giorni=mt_giorni,
+        qd_val=Qd_val_check, ta_val=Ta_val,
+        qd_threshold=qd_threshold,
+    )
+    if par_p:
+        dettagli.append(par_p)
 
+    dettagli.extend(paragrafi_descrizioni_base(
+        testo_macchie=testi_macchie[macchie_selezionata],
+        testo_rigidita=rigidita_descrizioni[selettore_rigidita],
+    ))
+    dettagli.extend(paragrafi_parametri_aggiuntivi(
+        parametri=parametri_aggiuntivi_da_considerare
+    ))
+    par_putr = paragrafo_putrefattive(st.session_state.get("alterazioni_putrefattive", False))
+    if par_putr:
+        dettagli.append(par_putr)
 
-par_h = paragrafo_raffreddamento_dettaglio(
-    t_min_visual=t_min_raff_visualizzato,
-    t_max_visual=t_max_raff_visualizzato,
-    t_med_round=t_med_raff_hensge_rounded,
-    qd_val=Qd_val_check,
-    ta_val=Ta_val,
-)
-if par_h:
-    dettagli.append(par_h)
-
-par_p = paragrafo_potente(
-    mt_ore=mt_ore, mt_giorni=mt_giorni,
-    qd_val=Qd_val_check, ta_val=Ta_val,
-    qd_threshold=qd_threshold,
-)
-if par_p:
-    dettagli.append(par_p)
-
-dettagli.extend(paragrafi_descrizioni_base(
-    testo_macchie=testi_macchie[macchie_selezionata],
-    testo_rigidita=rigidita_descrizioni[selettore_rigidita],
-))
-dettagli.extend(paragrafi_parametri_aggiuntivi(
-    parametri=parametri_aggiuntivi_da_considerare
-))
-par_putr = paragrafo_putrefattive(st.session_state.get("alterazioni_putrefattive", False))
-if par_putr:
-    dettagli.append(par_putr)
-
-frase_finale_html = build_final_sentence(
-    comune_inizio, comune_fine, data_ora_ispezione,
-    qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
-)
-
-
-    # --- Variante “Senza considerare Potente” (se applicabile) → mostrata sotto la frase finale, non in expander
-if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
-        range_inizio_senza_potente = []
-        range_fine_senza_potente = []
-frase_secondaria_html = build_secondary_sentence_senza_potente(
-    isp_dt=data_ora_ispezione,
-    inizio_senza_potente=inizio_senza_potente if 'inizio_senza_potente' in locals() else np.nan,
-    fine_senza_potente=fine_senza_potente if 'fine_senza_potente' in locals() else np.nan,
-)
-
-
-if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
-    nomi_parametri_finali_per_riepilogo = []
-    for nome in nomi_parametri_usati_per_intersezione:
-        if ("raffreddamento cadaverico" in nome.lower()
-            and "potente" not in nome.lower()
-            and mt_ore is not None and not np.isnan(mt_ore)
-            and abs(comune_inizio - mt_ore) < 0.25):
-            continue
-        nomi_parametri_finali_per_riepilogo.append(nome)
-
-    small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
-    if small_html:
-        st.markdown(small_html, unsafe_allow_html=True)
-
-
-    # --- Messaggi di discordanza (rossi) → dettagli
-    num_potential_ranges_used = sum(
-        1
-        for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
-        if start is not None and end is not None
+    # --- Frase finale principale ---
+    frase_finale_html = build_final_sentence(
+        comune_inizio, comune_fine, data_ora_ispezione,
+        qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
     )
 
+    # --- Variante “Senza considerare Potente” ---
+    frase_secondaria_html = None
+    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
+        range_inizio_senza_potente, range_fine_senza_potente = [], []
 
-    # === RENDER COMPATTO ===
+        if macchie_range_valido and macchie_range is not None:
+            range_inizio_senza_potente.append(macchie_range[0]); range_fine_senza_potente.append(macchie_range[1])
+        if rigidita_range_valido and rigidita_range is not None:
+            range_inizio_senza_potente.append(rigidita_range[0]); range_fine_senza_potente.append(rigidita_range[1])
+        for p in parametri_aggiuntivi_da_considerare:
+            if not np.isnan(p["range_traslato"][0]) and not np.isnan(p["range_traslato"][1]):
+                range_inizio_senza_potente.append(p["range_traslato"][0]); range_fine_senza_potente.append(p["range_traslato"][1])
+        if raffreddamento_calcolabile:
+            range_inizio_senza_potente.append(t_min_raff_hensge); range_fine_senza_potente.append(t_max_raff_hensge)
+
+        if len(range_inizio_senza_potente) >= 2:
+            inizio_senza_potente = max(range_inizio_senza_potente)
+            fine_senza_potente = min(range_fine_senza_potente)
+            if inizio_senza_potente <= fine_senza_potente:
+                frase_secondaria_html = build_secondary_sentence_senza_potente(
+                    isp_dt=data_ora_ispezione,
+                    inizio_senza_potente=inizio_senza_potente,
+                    fine_senza_potente=fine_senza_potente,
+                )
+
+    # --- Riepilogo parametri usati (testo arancione) ---
+    if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
+        nomi_parametri_finali_per_riepilogo = []
+        for nome in nomi_parametri_usati_per_intersezione:
+            if ("raffreddamento cadaverico" in nome.lower()
+                and "potente" not in nome.lower()
+                and mt_ore is not None and not np.isnan(mt_ore)
+                and abs(comune_inizio - mt_ore) < 0.25):
+                continue
+            nomi_parametri_finali_per_riepilogo.append(nome)
+        small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
+        if small_html:
+            st.markdown(small_html, unsafe_allow_html=True)
+
+    # --- Avvertenze e dettagli ---
     if avvisi:
         with st.expander(f"⚠️ Avvertenze ({len(avvisi)})"):
             st.warning("\n".join(f"- {msg}" for msg in avvisi))
 
     if frase_finale_html:
         st.markdown(frase_finale_html, unsafe_allow_html=True)
+
     with st.expander("Descrizioni dettagliate"):
         if frase_secondaria_html:
             st.markdown(
@@ -987,42 +990,12 @@ if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-
-
- 
-    if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
-        # Filtra la lista dei nomi da mostrare nel riepilogo finale
-        nomi_parametri_finali_per_riepilogo = []
-        for nome in nomi_parametri_usati_per_intersezione:
-            # Escludi il raffreddamento Henssge generico se non usato
-            if (
-                "raffreddamento cadaverico" in nome.lower()
-                and "potente" not in nome.lower()
-                and mt_ore is not None
-                and not np.isnan(mt_ore)
-                and abs(comune_inizio - mt_ore) < 0.25
-            ):
-                continue
-            nomi_parametri_finali_per_riepilogo.append(nome)
-
-        num_parametri_usati_intersezione = len(nomi_parametri_finali_per_riepilogo)
-        if num_parametri_usati_intersezione == 1:
-            p = nomi_parametri_finali_per_riepilogo[0]
-            messaggio_parametri = f"La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}."
-        elif num_parametri_usati_intersezione > 1:
-            parametri_usati_str = ', '.join(p[0].lower() + p[1:] for p in nomi_parametri_finali_per_riepilogo[:-1])
-            parametri_usati_str += f" e {nomi_parametri_finali_per_riepilogo[-1][0].lower() + nomi_parametri_finali_per_riepilogo[-1][1:]}"
-            messaggio_parametri = f"La stima complessiva si basa sui seguenti parametri: {parametri_usati_str}."
-        else:
-            messaggio_parametri = None
-
-        if messaggio_parametri:
-            st.markdown(
-                f"<p style='color:orange;font-size:small;'>{messaggio_parametri}</p>",
-                unsafe_allow_html=True
-            )
-
-    elif not overlap and num_potential_ranges_used >= 2:
+    # --- Discordanze ---
+    num_potential_ranges_used = sum(
+        1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
+        if start is not None and end is not None
+    )
+    if not overlap and num_potential_ranges_used >= 2:
         st.markdown(
             "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
             unsafe_allow_html=True
@@ -1032,6 +1005,7 @@ if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
             "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
             unsafe_allow_html=True
         )
+
 
 
 # Al click del pulsante, esegui la funzione principale
