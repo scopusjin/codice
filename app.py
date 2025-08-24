@@ -1003,7 +1003,7 @@ def aggiorna_grafico():
             st.markdown(small_html, unsafe_allow_html=True)
 
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
-            if frase_qd_html:
+        if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
 
     # --- Discordanze ---
