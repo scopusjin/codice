@@ -873,6 +873,11 @@ def aggiorna_grafico():
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
 
+        # nuovo: avviso >30 h
+        avvisi.extend(avvisi_raffreddamento_henssge(
+            t_med_round=t_med_raff_henssge_rounded_raw,
+            qd_val=Qd_val_check
+        ))
     # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
     try:
         orario_isp = data_ora_ispezione.strftime('%H:%M')
