@@ -871,7 +871,7 @@ def aggiorna_grafico():
             )
             
         if not raffreddamento_calcolabile:
-            avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range del nomogramma).")
+            avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range dell'equazione).")
 
         # nuovo: avviso >30 h
         avvisi.extend(avvisi_raffreddamento_henssge(
@@ -996,6 +996,10 @@ def aggiorna_grafico():
             )
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
+        
+        small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
+        if small_html:
+            st.markdown(small_html, unsafe_allow_html=True)
 
     # --- Discordanze ---
     num_potential_ranges_used = sum(
