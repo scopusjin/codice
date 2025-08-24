@@ -938,7 +938,7 @@ frase_finale_html = build_final_sentence(
 
 
     # --- Variante “Senza considerare Potente” (se applicabile) → mostrata sotto la frase finale, non in expander
-    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
+if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
         range_inizio_senza_potente = []
         range_fine_senza_potente = []
 frase_secondaria_html = build_secondary_sentence_senza_potente(
