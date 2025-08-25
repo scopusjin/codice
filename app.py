@@ -487,6 +487,27 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     pulsante_genera_stima = st.button("STIMA EPOCA DECESSO")
 
+if st.button("Stima età"):
+    # tua logica di calcolo qui
+    aggiorna_grafico()
+
+# --- link fisso in basso a destra ---
+st.markdown(
+    """
+    <div style="
+        position: fixed;
+        bottom: 12px;
+        right: 16px;
+        font-size:x-small;
+        color:#1e90ff;
+    ">
+    📑 <a href="/raccomandazioni" target="_self" style="color:#1e90ff; text-decoration:none;">
+    Raccomandazioni per l’utilizzo dei metodi</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 
 def aggiorna_grafico():
         # --- Raccolta messaggi per nuova UI compatta ---
