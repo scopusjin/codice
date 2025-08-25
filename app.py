@@ -996,24 +996,27 @@ def aggiorna_grafico():
 
 
     with st.expander("Descrizioni dettagliate"):
-        if frase_secondaria_html:
-            st.markdown(
-                f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria_html}</div>",
-                unsafe_allow_html=True
-            )
-
+        # descrizioni singole (henssge, rigidità, ecc.)
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-        # Frase finale: stessa formattazione, ma in grassetto
+        # frase finale principale
         if frase_finale_html:
             st.markdown(
-                f"<ul><li>{frase_finale_html}</li></ul>",
+                f"<li style='font-size:small; color:black; margin-bottom:8px;'><b>{frase_finale_html}</b></li>",
                 unsafe_allow_html=True
             )
 
+        # switch e frase alternativa SENZA Potente
+        if frase_secondaria_html:
+            mostra_senza_potente = st.toggle("Non considerare lo studio di Potente", value=False)
+            if mostra_senza_potente:
+                st.markdown(
+                    f"<div style='font-size:x-small; color:gray; margin-top:4px; margin-bottom:8px;'>{frase_secondaria_html}</div>",
+                    unsafe_allow_html=True
+                )
 
-        # --- Riepilogo parametri usati (testo arancione) ---
+        # riepilogo parametri usati
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
             nomi_parametri_finali_per_riepilogo = []
             for nome in nomi_parametri_usati_per_intersezione:
@@ -1028,7 +1031,7 @@ def aggiorna_grafico():
             if small_html:
                 st.markdown(small_html, unsafe_allow_html=True)
 
-        # --- Nota su Qd ---
+        # nota Qd
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
