@@ -19,18 +19,11 @@ Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Hen
 """
 )
 
-st.markdown(
-    """
-    <div style="
-        text-align:left;
-        font-size:x-small;
-        color:#1e90ff;
-        margin-top:30px;
-    ">
-    ⬅️ <a href="/" target="_self" style="color:#1e90ff; text-decoration:none;">
-    Torna alla pagina principale</a>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+import streamlit as st
+
+# ... codice della pagina secondaria ...
+
+# --- link di ritorno alla home ---
+if st.button("⬅️ Torna alla pagina principale"):
+    st.switch_page("app.py")
 
