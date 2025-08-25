@@ -852,7 +852,7 @@ def aggiorna_grafico():
         )
         if frase_semplice:
             st.markdown(
-                f"<div style='margin-top:6px; font-size:small;'><b>{frase_semplice}</b></div>",
+                f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>",
                 unsafe_allow_html=True
             )
 
