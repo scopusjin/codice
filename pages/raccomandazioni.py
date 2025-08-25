@@ -20,7 +20,7 @@ Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Hen
 )
 
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page("Stima epoca decesso.py")
+    st.switch_page("app.py")
 
 st.markdown(
     """
