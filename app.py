@@ -842,7 +842,8 @@ def aggiorna_grafico():
                 ax.axvline(min(plot_data["tail_end"], comune_fine), color='red', linestyle='--')
 
         st.pyplot(fig)
-# --- Frase semplice sotto al grafico ---
+
+        # --- Frase semplice sotto al grafico ---
         frase_semplice = build_simple_sentence(
             comune_inizio=comune_inizio,
             comune_fine=comune_fine,
@@ -850,10 +851,10 @@ def aggiorna_grafico():
             inf_hours=INF_HOURS
         )
         if frase_semplice:
-           st.markdown(
-           f"<div style='margin-top:6px; font-size:small;'><b>{frase_semplice}</b></div>",
-           unsafe_allow_html=True
-       )
+            st.markdown(
+                f"<div style='margin-top:6px; font-size:small;'><b>{frase_semplice}</b></div>",
+                unsafe_allow_html=True
+            )
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
