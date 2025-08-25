@@ -489,15 +489,14 @@ with col2:
 
 
 
-# --- link fisso in basso a destra ---
 st.markdown(
     """
     <div style="
-        position: fixed;
-        bottom: 12px;
-        left: 16px;
+        text-align:left;
         font-size:x-small;
         color:#1e90ff;
+        margin-top:40px;
+        margin-bottom:10px;
     ">
     📑 <a href="/raccomandazioni" target="_self" style="color:#1e90ff; text-decoration:none;">
     Raccomandazioni per l’utilizzo dei metodi</a>
@@ -505,6 +504,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 
 def aggiorna_grafico():
