@@ -45,3 +45,17 @@ st.image(
     caption="Tabella 3 Henssge",
     use_container_width=True
 )
+st.markdown(
+    """
+    <div style="
+        text-align:left;
+        font-size:x-small;
+        color:#1e90ff;
+        margin-top:30px;
+    ">
+    ⬅️ <a href="/" target="_self" style="color:#1e90ff; text-decoration:none;">
+    Torna alla pagina principale</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
