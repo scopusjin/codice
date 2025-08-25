@@ -136,7 +136,7 @@ def build_secondary_sentence_senza_potente(
     fine_senza_potente: Optional[float]
 ) -> Optional[str]:
     """
-    Frase “Senza considerare Potente…”. Ritorna HTML semplice (non <b> globale).
+    Frase “Senza considerare Potente…”. Restituisce HTML semplice (niente <b>).
     """
     if _safe_is_nan(inizio_senza_potente) or _safe_is_nan(fine_senza_potente):
         return None
@@ -150,7 +150,7 @@ def build_secondary_sentence_senza_potente(
     hh_f, dd_f = _fmt_dt(dt_fine)
 
     return (
-        f"<b>Senza considerare lo studio di Potente</b>, la valutazione complessiva consente di stimare che la morte sia avvenuta tra circa "
+        "Senza considerare lo studio di Potente, la valutazione complessiva consente di stimare che la morte sia avvenuta tra circa "
         f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
         f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
         f"prima dei rilievi, ovvero tra le ore {hh_i} del {dd_i} e le ore {hh_f} del {dd_f}."
