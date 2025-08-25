@@ -1008,7 +1008,7 @@ def aggiorna_grafico():
         # Frase finale: stessa formattazione, ma in grassetto
         if frase_finale_html:
             st.markdown(
-                f"<style='; color:black; margin-bottom:8px;'><b>{frase_finale_html}</b>",
+                f"<ul><li>{frase_finale_html}</li></ul>",
                 unsafe_allow_html=True
             )
 
