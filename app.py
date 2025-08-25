@@ -959,7 +959,7 @@ def aggiorna_grafico():
 
 
 
-    # --- Avvertenze e dettagli ---
+    #     # --- Avvertenze e dettagli ---
     if avvisi:
         with st.expander(f"⚠️ Avvisi ({len(avvisi)})"):
             for msg in avvisi:
@@ -967,7 +967,26 @@ def aggiorna_grafico():
                     f"<p style='color:orange; font-size:small; margin:0;'>- {msg}</p>",
                     unsafe_allow_html=True
                 )
+
+    # --- Discordanze (spostato prima dell’expander dettagli) ---
+    num_potential_ranges_used = sum(
+        1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
+        if start is not None and end is not None
+    )
+    if not overlap and num_potential_ranges_used >= 2:
+        st.markdown(
+            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
+            unsafe_allow_html=True
+        )
+    elif ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
+        st.markdown(
+            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
+            unsafe_allow_html=True
+        )
+
+    # spazio vuoto prima dell’expander
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+
     with st.expander("Descrizioni dettagliate"):
         # descrizioni singole (henssge, rigidità, ecc.)
         for blocco in dettagli:
@@ -978,8 +997,6 @@ def aggiorna_grafico():
                 f"<ul><li><b>{frase_finale_html}</b></li></ul>",
                 unsafe_allow_html=True
             )
-
-
 
         # riepilogo parametri usati
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
@@ -1000,23 +1017,6 @@ def aggiorna_grafico():
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
-
-
-    # --- Discordanze ---
-    num_potential_ranges_used = sum(
-        1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
-        if start is not None and end is not None
-    )
-    if not overlap and num_potential_ranges_used >= 2:
-        st.markdown(
-            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
-            unsafe_allow_html=True
-        )
-    elif ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
-        st.markdown(
-            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
-            unsafe_allow_html=True
-        )
 
 
 
