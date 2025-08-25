@@ -23,7 +23,7 @@ st.session_state["henssge_round_minutes"] = {
 st.success(f"Impostato a {st.session_state['henssge_round_minutes']} minuti.")
 
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page("Stima epoca decesso.py")
+    st.switch_page("app.py")
 
 st.markdown(
     """
