@@ -18,17 +18,25 @@ REFERENCES_MD = """
 
 st.markdown(REFERENCES_MD)
 
+if st.button("⬅️ Torna alla pagina principale", key="back_home"):
+    st.switch_page("Stima epoca decesso.py")
+
 st.markdown(
     """
-    <div style="
-        text-align:left;
-        font-size:x-small;
-        color:#1e90ff;
-        margin-top:30px;
-    ">
-    ⬅️ <a href="/" target="_self" style="color:#1e90ff; text-decoration:none;">
-    Torna alla pagina principale</a>
-    </div>
+    <style>
+    div.stButton > button:first-child {
+        background-color: transparent !important;
+        color: #1e90ff !important;
+        font-size: 10px !important;  /* più piccolo del normale */
+        border: none !important;
+        padding: 0 !important;
+        text-align: left !important;
+    }
+    div.stButton > button:first-child:hover {
+        text-decoration: underline !important;
+        background-color: transparent !important;
+    }
+    </style>
     """,
     unsafe_allow_html=True
 )
