@@ -15,7 +15,7 @@ st.markdown(
 - Aumento significativo della temperatura ambientale (da valori bassi a elevati).  
 
 Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere.
-Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Henssge e alle tabelle realizzate da Wolf Schweitzer, MD, Institute of Legal Medicine, University of Zuerich, Switzerland, ma è da considerarsi del tutto indicativo. Si consiglia di tilizzare varie combinazioni e un range di fattori. 
+Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Henssge e alle tabelle realizzate da Wolf Schweitzer, MD (Istituto di medicina legale, Università di Zurigo), ma è da considerarsi del tutto indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori. 
 """
 )
 
