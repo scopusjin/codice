@@ -958,31 +958,6 @@ def aggiorna_grafico():
         qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
     )
 
-    # --- Variante “Senza considerare Potente” ---
-    frase_secondaria_html = None
-    if any("potente" in nome.lower() for nome in nomi_parametri_usati_per_intersezione):
-        range_inizio_senza_potente, range_fine_senza_potente = [], []
-
-        if macchie_range_valido and macchie_range is not None:
-            range_inizio_senza_potente.append(macchie_range[0]); range_fine_senza_potente.append(macchie_range[1])
-        if rigidita_range_valido and rigidita_range is not None:
-            range_inizio_senza_potente.append(rigidita_range[0]); range_fine_senza_potente.append(rigidita_range[1])
-        for p in parametri_aggiuntivi_da_considerare:
-            if not np.isnan(p["range_traslato"][0]) and not np.isnan(p["range_traslato"][1]):
-                range_inizio_senza_potente.append(p["range_traslato"][0]); range_fine_senza_potente.append(p["range_traslato"][1])
-        if raffreddamento_calcolabile:
-            range_inizio_senza_potente.append(t_min_raff_hensge); range_fine_senza_potente.append(t_max_raff_hensge)
-
-        if len(range_inizio_senza_potente) >= 2:
-            inizio_senza_potente = max(range_inizio_senza_potente)
-            fine_senza_potente = min(range_fine_senza_potente)
-            if inizio_senza_potente <= fine_senza_potente:
-                frase_secondaria_html = build_secondary_sentence_senza_potente(
-                    isp_dt=data_ora_ispezione,
-                    inizio_senza_potente=inizio_senza_potente,
-                    fine_senza_potente=fine_senza_potente,
-                )
-
 
 
     # --- Avvertenze e dettagli ---
