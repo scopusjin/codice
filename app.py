@@ -1005,23 +1005,7 @@ def aggiorna_grafico():
                 unsafe_allow_html=True
             )
 
-        # switch mostrato SOLO se esiste la frase senza Potente
-        if frase_secondaria_html:
-            if "mostra_senza_potente" not in st.session_state:
-                st.session_state["mostra_senza_potente"] = False
 
-            st.session_state["mostra_senza_potente"] = st.toggle(
-                "Non considerare lo studio di Potente",
-                value=st.session_state["mostra_senza_potente"],
-                key="mostra_senza_potente"
-            )
-
-            if st.session_state["mostra_senza_potente"]:
-                # più piccolo e grigio
-                st.markdown(
-                    f"<div style='font-size:x-small; color:gray; margin-top:4px; margin-bottom:8px;'>{frase_secondaria_html}</div>",
-                    unsafe_allow_html=True
-                )
 
         # riepilogo parametri usati
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
