@@ -39,6 +39,7 @@ from app.textgen import (
     frase_riepilogo_parametri_usati,
     avvisi_raffreddamento_henssge,
     frase_qd,
+    build_simple_sentence, 
 )
 
 import streamlit as st
@@ -841,7 +842,18 @@ def aggiorna_grafico():
                 ax.axvline(min(plot_data["tail_end"], comune_fine), color='red', linestyle='--')
 
         st.pyplot(fig)
-
+# --- Frase semplice sotto al grafico ---
+        frase_semplice = build_simple_sentence(
+            comune_inizio=comune_inizio,
+            comune_fine=comune_fine,
+            isp_dt=data_ora_ispezione,
+            inf_hours=INF_HOURS
+        )
+        if frase_semplice:
+           st.markdown(
+           f"<div style='margin-top:6px; font-size:small;'><b>{frase_semplice}</b></div>",
+           unsafe_allow_html=True
+       )
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
@@ -995,6 +1007,10 @@ def aggiorna_grafico():
             )
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
+
+        # dentro l'expander, dopo: for blocco in dettagli: st.markdown(blocco, unsafe_allow_html=True)
+        if frase_finale_html:
+           st.markdown(f"<div style='margin-top:8px; color:gray; font-size:small;'>{frase_finale_html}</div>", unsafe_allow_html=True)
 
         # --- Riepilogo parametri usati (testo arancione) ---
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
