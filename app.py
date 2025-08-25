@@ -957,9 +957,7 @@ def aggiorna_grafico():
         qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
     )
 
-
-
-    #     # --- Avvertenze e dettagli ---
+    # --- Avvertenze ---
     if avvisi:
         with st.expander(f"⚠️ Avvisi ({len(avvisi)})"):
             for msg in avvisi:
@@ -968,7 +966,7 @@ def aggiorna_grafico():
                     unsafe_allow_html=True
                 )
 
-    # --- Discordanze (spostato prima dell’expander dettagli) ---
+    # --- Discordanze (prima dell’expander dettagli) ---
     num_potential_ranges_used = sum(
         1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
         if start is not None and end is not None
@@ -983,7 +981,7 @@ def aggiorna_grafico():
             "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
             unsafe_allow_html=True
         )
-
+        
     # spazio vuoto prima dell’expander
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
