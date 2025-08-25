@@ -357,8 +357,8 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     condizione_temp = "T. amb ≤ 23 °C" if ta_val <= 23 else "T. amb > 23 °C"
 
     if qd_val < soglia:
-        return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha un Qd = {qd_val:.3f}. "
-                f"È inferiore ai limiti ottimali per applicare l'equazione di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
+        return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
+                f"Tale parametro è inferiore ai limiti ottimali per applicare l'equazione di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
     else:
-        return (f"<p style='color:orange;font-size:small;'>Qd = {qd_val:.3f}. "
-                f"Rientra nei limiti ottimali per applicare l'equazione di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
+        return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
+                f"Tale parametro rientra nei limiti ottimali per applicare l'equazione di Henssge (per {condizione_temp}, deve esser superiore a {soglia}).</p>")
