@@ -1008,9 +1008,10 @@ def aggiorna_grafico():
         # Frase finale: stessa formattazione, ma in grassetto
         if frase_finale_html:
             st.markdown(
-                f"<p style='font-size:small; color:gray;'><b>{frase_finale_html}</b></p>",
+                f"<li style='font-size:small; color:black; margin-bottom:8px;'><b>{frase_finale_html}</b></li>",
                 unsafe_allow_html=True
             )
+
 
         # --- Riepilogo parametri usati (testo arancione) ---
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
