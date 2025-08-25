@@ -1008,12 +1008,9 @@ def aggiorna_grafico():
         # dentro l'expander, dopo: for blocco in dettagli: st.markdown(blocco, unsafe_allow_html=True)
 
         if frase_finale_html:
-            st.markdown(
-                f"<ul style='margin-top:8px; color:gray;'>"
-                f"<li><b>{frase_finale_html}</b></li>"
-                f"</ul>",
-                unsafe_allow_html=True
-           )
+            dettagli.append(
+                f"<p style='font-size:small; color:gray;'><b>{frase_finale_html}</b></p>"
+            )
 
         # --- Riepilogo parametri usati (testo arancione) ---
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
