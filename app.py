@@ -29,7 +29,6 @@ from app.plotting import compute_plot_data, render_ranges_plot
 
 from app.textgen import (
     build_final_sentence,
-    build_secondary_sentence_senza_potente,
     paragrafo_raffreddamento_dettaglio,
     paragrafo_potente,
     paragrafo_raffreddamento_input,
