@@ -967,8 +967,8 @@ def aggiorna_grafico():
                     f"<p style='color:orange; font-size:small; margin:0;'>- {msg}</p>",
                     unsafe_allow_html=True
                 )
-
-    with st.expander("Descrizioni dettagliate", expanded=True):
+    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+    with st.expander("Descrizioni dettagliate"):
         # descrizioni singole (henssge, rigidità, ecc.)
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
