@@ -995,21 +995,21 @@ def aggiorna_grafico():
                 )
 
 
-
     with st.expander("Descrizioni dettagliate"):
         if frase_secondaria_html:
             st.markdown(
                 f"<div style='border:1px solid #ccc; padding:10px; color:gray; font-size:small;'>{frase_secondaria_html}</div>",
                 unsafe_allow_html=True
             )
+
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-        # dentro l'expander, dopo: for blocco in dettagli: st.markdown(blocco, unsafe_allow_html=True)
-
+        # Frase finale: stessa formattazione, ma in grassetto
         if frase_finale_html:
-            dettagli.append(
-                f"<p style='font-size:small; color:gray;'><b>{frase_finale_html}</b></p>"
+            st.markdown(
+                f"<p style='font-size:small; color:gray;'><b>{frase_finale_html}</b></p>",
+                unsafe_allow_html=True
             )
 
         # --- Riepilogo parametri usati (testo arancione) ---
@@ -1031,6 +1031,7 @@ def aggiorna_grafico():
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
+
 
     # --- Discordanze ---
     num_potential_ranges_used = sum(
