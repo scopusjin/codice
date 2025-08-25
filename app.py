@@ -490,7 +490,7 @@ with col2:
 
 
 if st.button("📑 Raccomandazioni per l’utilizzo dei metodi", key="to_raccomandazioni"):
-    st.switch_page("raccomandazioni.py")
+    st.switch_page("pages/raccomandazioni.py")
 
 st.markdown(
     """
