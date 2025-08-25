@@ -1,7 +1,7 @@
 # pages/raccomandazioni.py
 import streamlit as st
 
-st.title("Raccomandazioni per l’utilizzo dei metodi")
+st.title("Raccomandazioni")
 
 st.markdown(
 """
