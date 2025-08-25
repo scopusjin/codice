@@ -46,7 +46,7 @@ st.image(
     use_container_width=True
 )
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page("Stima epoca decesso.py")
+    st.switch_page("app.py")
 
 st.markdown(
     """
