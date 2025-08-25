@@ -489,29 +489,6 @@ with col2:
 
 
 
-if st.button("📑 Raccomandazioni per l’utilizzo dei metodi", key="to_raccomandazioni"):
-    st.switch_page("pages/raccomandazioni.py")
-
-st.markdown(
-    """
-    <style>
-    div.stButton > button[kind="secondary"] {
-        background-color: transparent !important;
-        color: #1e90ff !important;
-        font-size: x-small !important;
-        border: none !important;
-        padding: 0 !important;
-        text-align: left !important;
-    }
-    div.stButton > button[kind="secondary"]:hover {
-        text-decoration: underline !important;
-        background-color: transparent !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 
 
 def aggiorna_grafico():
