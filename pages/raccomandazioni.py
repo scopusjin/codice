@@ -21,9 +21,27 @@ Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Hen
 
 import streamlit as st
 
-# ... codice della pagina secondaria ...
-
-# --- link di ritorno alla home ---
-if st.button("⬅️ Torna alla pagina principale"):
+# --- link testuale piccolo ---
+if st.button("⬅️ Torna alla pagina principale", key="back_home"):
     st.switch_page("app.py")
 
+# CSS per renderlo piccolo e azzurro come un link
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        background-color: transparent;
+        color: #1e90ff;
+        font-size: x-small;
+        border: none;
+        padding: 0;
+        text-align: left;
+    }
+    div.stButton > button:first-child:hover {
+        text-decoration: underline;
+        background-color: transparent;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
