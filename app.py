@@ -995,12 +995,6 @@ def aggiorna_grafico():
                 )
 
 
-        if frase_finale_html:
-            st.markdown(
-                f"<div style='margin-top:8px; color:gray; font-size:small;'>{frase_finale_html}</div>",
-                unsafe_allow_html=True
-            )
-
 
     with st.expander("Descrizioni dettagliate"):
         if frase_secondaria_html:
@@ -1012,8 +1006,14 @@ def aggiorna_grafico():
             st.markdown(blocco, unsafe_allow_html=True)
 
         # dentro l'expander, dopo: for blocco in dettagli: st.markdown(blocco, unsafe_allow_html=True)
+
         if frase_finale_html:
-           st.markdown(f"<div style='margin-top:8px; color:gray; font-size:small;'>{frase_finale_html}</div>", unsafe_allow_html=True)
+            st.markdown(
+                f"<ul style='margin-top:8px; color:gray;'>"
+                f"<li><b>{frase_finale_html}</b></li>"
+                f"</ul>",
+                unsafe_allow_html=True
+           )
 
         # --- Riepilogo parametri usati (testo arancione) ---
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
