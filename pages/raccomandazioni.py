@@ -19,29 +19,26 @@ Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Hen
 """
 )
 
-import streamlit as st
-
-# --- link testuale piccolo ---
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page("app.py")
+    st.switch_page("Stima epoca decesso.py")
 
-# CSS per renderlo piccolo e azzurro come un link
 st.markdown(
     """
     <style>
     div.stButton > button:first-child {
-        background-color: transparent;
-        color: #1e90ff;
-        font-size: x-small;
-        border: none;
-        padding: 0;
-        text-align: left;
+        background-color: transparent !important;
+        color: #1e90ff !important;
+        font-size: 10px !important;  /* più piccolo del normale */
+        border: none !important;
+        padding: 0 !important;
+        text-align: left !important;
     }
     div.stButton > button:first-child:hover {
-        text-decoration: underline;
-        background-color: transparent;
+        text-decoration: underline !important;
+        background-color: transparent !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
