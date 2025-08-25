@@ -995,10 +995,12 @@ def aggiorna_grafico():
                 )
 
 
+        if frase_finale_html:
+            st.markdown(
+                f"<div style='margin-top:8px; color:gray; font-size:small;'>{frase_finale_html}</div>",
+                unsafe_allow_html=True
+            )
 
-
-    if frase_finale_html:
-        st.markdown(frase_finale_html, unsafe_allow_html=True)
 
     with st.expander("Descrizioni dettagliate"):
         if frase_secondaria_html:
