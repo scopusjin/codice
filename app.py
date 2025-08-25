@@ -489,18 +489,25 @@ with col2:
 
 
 
+if st.button("📑 Raccomandazioni per l’utilizzo dei metodi", key="to_raccomandazioni"):
+    st.switch_page("raccomandazioni.py")
+
 st.markdown(
     """
-    <div style="
-        text-align:left;
-        font-size:x-small;
-        color:#1e90ff;
-        margin-top:40px;
-        margin-bottom:10px;
-    ">
-    📑 <a href="/raccomandazioni" target="_self" style="color:#1e90ff; text-decoration:none;">
-    Raccomandazioni per l’utilizzo dei metodi</a>
-    </div>
+    <style>
+    div.stButton > button[kind="secondary"] {
+        background-color: transparent !important;
+        color: #1e90ff !important;
+        font-size: x-small !important;
+        border: none !important;
+        padding: 0 !important;
+        text-align: left !important;
+    }
+    div.stButton > button[kind="secondary"]:hover {
+        text-decoration: underline !important;
+        background-color: transparent !important;
+    }
+    </style>
     """,
     unsafe_allow_html=True
 )
