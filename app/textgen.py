@@ -159,6 +159,59 @@ def build_secondary_sentence_senza_potente(
 # ------------------------------------------------------------
 # Paragrafi descrittivi per l’expander “Descrizioni dettagliate”
 # ------------------------------------------------------------
+def build_simple_sentence(
+    comune_inizio: Optional[float],
+    comune_fine: Optional[float],
+    isp_dt: datetime.datetime,
+    *,
+    inf_hours: float = np.inf
+) -> Optional[str]:
+    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
+        return None
+    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
+
+    def _ora_data(h_dec):
+        dt = isp_dt - datetime.timedelta(hours=h_dec)
+        hh, dd = _fmt_dt(dt)
+        return hh, dd
+
+    # 0–X
+    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        hh2, dd2 = _ora_data(comune_fine)
+        return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+                f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+                f"prima dei rilievi effettuati durante l’ispezione legale, "
+                f"ovvero successivamente alle ore {hh2} del {dd2}.")
+
+    # oltre X (limite superiore infinito)
+    if limite_sup_inf and not _safe_is_nan(comune_inizio):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        hh1, dd1 = _ora_data(comune_inizio)
+        return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+                f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
+                f"prima dei rilievi effettuati durante l’ispezione legale, "
+                f"ovvero prima delle ore {hh1} del {dd1}.")
+
+    # A–B
+    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        hh_da, dd_da = _ora_data(comune_fine)
+        hh_aa, dd_aa = _ora_data(comune_inizio)
+        if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
+            return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+                    f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+                    f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+                    f"prima dei rilievi effettuati durante l’ispezione legale, "
+                    f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.")
+        else:
+            return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+                    f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+                    f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+                    f"prima dei rilievi effettuati durante l’ispezione legale, "
+                    f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}.")
+    return None
 
 def paragrafo_raffreddamento_dettaglio(
     *,
