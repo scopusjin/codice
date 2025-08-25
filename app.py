@@ -994,23 +994,22 @@ def aggiorna_grafico():
                     unsafe_allow_html=True
                 )
 
-
     with st.expander("Descrizioni dettagliate"):
         # descrizioni singole (henssge, rigidità, ecc.)
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-        # frase finale principale
         if frase_finale_html:
             st.markdown(
-                f"<li style='font-size:small; color:black; margin-bottom:8px;'><b>{frase_finale_html}</b></li>",
+                f"<ul><li><b>{frase_finale_html}</b></li></ul>",
                 unsafe_allow_html=True
             )
 
-        # switch e frase alternativa SENZA Potente
+        # switch mostrato SOLO se esiste la frase senza Potente
         if frase_secondaria_html:
             mostra_senza_potente = st.toggle("Non considerare lo studio di Potente", value=False)
             if mostra_senza_potente:
+                # più piccolo e grigio
                 st.markdown(
                     f"<div style='font-size:x-small; color:gray; margin-top:4px; margin-bottom:8px;'>{frase_secondaria_html}</div>",
                     unsafe_allow_html=True
@@ -1035,7 +1034,6 @@ def aggiorna_grafico():
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(frase_qd_html, unsafe_allow_html=True)
-
 
     # --- Discordanze ---
     num_potential_ranges_used = sum(
