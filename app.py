@@ -42,7 +42,6 @@ from app.textgen import (
     build_final_sentence_simple,        
     build_simple_sentence_no_dt,        
 )
-)
 
 import streamlit as st
 import matplotlib.pyplot as plt
