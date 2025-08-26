@@ -966,16 +966,16 @@ def aggiorna_grafico():
         1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
         if start is not None and end is not None
     )
-    if not overlap and num_potential_ranges_used >= 2:
+    discordanti = (
+        (not overlap and num_potential_ranges_used >= 2)
+        or ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
+    )
+    if discordanti:
         st.markdown(
             "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
             unsafe_allow_html=True
         )
-    elif ranges_in_disaccordo_completa(ranges_per_intersezione_inizio, ranges_per_intersezione_fine):
-        st.markdown(
-            "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
-            unsafe_allow_html=True
-        )
+
         
     # spazio vuoto prima dell’expander
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
@@ -985,7 +985,8 @@ def aggiorna_grafico():
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-        if frase_finale_html:
+        # mostra la frase finale solo in caso di concordanza
+        if frase_finale_html and overlap and not discordanti:
             st.markdown(
                 f"<ul><li><b>{frase_finale_html}</b></li></ul>",
                 unsafe_allow_html=True
