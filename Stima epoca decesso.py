@@ -393,34 +393,57 @@ def calcola_fattore(peso: float):
 
     # -------------------------------------
         # -------------------------------------
-    # 4) Slider vestizione (se ON)
-    # -------------------------------------
-    n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
-    if toggle_vestito:
-        col_layers, col_blankets = st.columns(2)
-        with col_layers:
-            n_sottili_eq = st.slider(
-                "Strati leggeri (indumenti o teli sottili)",
-                0, 8, st.session_state.get("strati_sottili", 0),
-                key="strati_sottili"
-            )
-            n_spessi_eq = st.slider(
-                "Strati pesanti (indumenti o teli spessi)",
-                0, 6, st.session_state.get("strati_spessi", 0),
-                key="strati_spessi"
-            )
-        with col_blankets:
+    # 
+    #         # 4) Tabella vestizione (se ON)
+        # -------------------------------------
+        n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
+        if toggle_vestito:
+            # dati iniziali
+            dati = {
+                "Parametro": [
+                    "Abiti/teli sottili",
+                    "Abiti/teli spessi"
+                ],
+                "Numero": [
+                    st.session_state.get("strati_sottili", 0),
+                    st.session_state.get("strati_spessi", 0)
+                ]
+            }
+
             if corpo_asciutto:
-                n_cop_medie = st.slider(
-                    "Coperte di medio spessore",
-                    0, 5, st.session_state.get("coperte_medie", 0),
-                    key="coperte_medie"
-                )
-                n_cop_pesanti = st.slider(
-                    "Coperte pesanti",
-                    0, 5, st.session_state.get("coperte_pesanti", 0),
-                    key="coperte_pesanti"
-                )
+                dati["Parametro"] += ["Coperte medie", "Coperte spesse"]
+                dati["Numero"] += [
+                    st.session_state.get("coperte_medie", 0),
+                    st.session_state.get("coperte_pesanti", 0)
+                ]
+
+            import pandas as pd
+            from streamlit import column_config as cc
+            df = pd.DataFrame(dati)
+
+            edited = st.data_editor(
+                df,
+                hide_index=True,
+                use_container_width=True,
+                column_config={
+                    "Parametro": cc.Column(disabled=True),
+                    "Numero": cc.NumberColumn(
+                        "Numero",
+                        min_value=0,
+                        max_value=8,
+                        step=1,
+                        format="%d"
+                    ),
+                },
+                key="editor_vestizione"
+            )
+
+            # Recupero valori aggiornati
+            valori = dict(zip(edited["Parametro"], edited["Numero"]))
+            n_sottili_eq  = valori.get("Abiti/teli sottili", 0)
+            n_spessi_eq   = valori.get("Abiti/teli spessi", 0)
+            n_cop_medie   = valori.get("Coperte medie", 0)
+            n_cop_pesanti = valori.get("Coperte spesse", 0)
 
     # Calcolo SEMPRE il fattore vestizione+coperte (serve per la visibilità del toggle correnti)
     fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
