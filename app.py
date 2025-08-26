@@ -849,7 +849,7 @@ def aggiorna_grafico():
             isp_dt=data_ora_ispezione,
             inf_hours=INF_HOURS
         )
-        if frase_semplice:
+        if frase_semplice and overlap:
             st.markdown(
                 f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>",
                 unsafe_allow_html=True
