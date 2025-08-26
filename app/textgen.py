@@ -1,3 +1,4 @@
+```python
 # -*- coding: utf-8 -*-
 # textgen.py — Generazione testi finali e paragrafi descrittivi
 
@@ -27,7 +28,6 @@ def _safe_is_nan(x: Optional[float]) -> bool:
 # ------------------------------------------------------------
 # Frasi conclusive (HTML pronto)
 # ------------------------------------------------------------
-
 
 def build_final_sentence(
     comune_inizio: float,
@@ -68,7 +68,7 @@ def build_final_sentence(
                 f"La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
                 f"<b>oltre</b> {h} {lbl}{'' if m == 0 else f' {m} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {hh} del {dd}. "
-                f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente"
+                f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente "
                 f"per intervalli superiori a 30 ore dal decesso."
             )
         return f"<b>{testo}</b>"
@@ -159,6 +159,7 @@ def build_secondary_sentence_senza_potente(
 # ------------------------------------------------------------
 # Paragrafi descrittivi per l’expander “Descrizioni dettagliate”
 # ------------------------------------------------------------
+
 def build_simple_sentence(
     comune_inizio: Optional[float],
     comune_fine: Optional[float],
@@ -179,18 +180,18 @@ def build_simple_sentence(
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
         hh2, dd2 = _ora_data(comune_fine)
-        return (f"**EPOCA DEL DECESSO STIMATA**: "
+        return ("**EPOCA DEL DECESSO STIMATA**: "
                 f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                f"prima dei rilievi effettuati durante l’ispezione legale, "
+                "prima dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero successivamente alle ore {hh2} del {dd2}.")
 
     # oltre X (limite superiore infinito)
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         hh1, dd1 = _ora_data(comune_inizio)
-        return (f"**EPOCA DEL DECESSO STIMATA**: "
+        return ("**EPOCA DEL DECESSO STIMATA**: "
                 f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
-                f"prima dei rilievi effettuati durante l’ispezione legale, "
+                "prima dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero prima delle ore {hh1} del {dd1}.")
 
     # A–B
@@ -200,17 +201,55 @@ def build_simple_sentence(
         hh_da, dd_da = _ora_data(comune_fine)
         hh_aa, dd_aa = _ora_data(comune_inizio)
         if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
-            return (f"**EPOCA DEL DECESSO STIMATA**: "
+            return ("**EPOCA DEL DECESSO STIMATA**: "
                     f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
                     f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, "
+                    "prima dei rilievi effettuati durante l’ispezione legale, "
                     f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.")
         else:
-            return (f"**EPOCA DEL DECESSO STIMATA**: "
+            return ("**EPOCA DEL DECESSO STIMATA**: "
                     f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
                     f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, "
+                    "prima dei rilievi effettuati durante l’ispezione legale, "
                     f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}.")
+    return None
+
+def build_simple_sentence_no_dt(
+    comune_inizio: Optional[float],
+    comune_fine: Optional[float],
+    *,
+    inf_hours: float = np.inf
+) -> Optional[str]:
+    """
+    Versione della frase breve sotto al grafico, senza riferimenti a data/ora assoluti.
+    Testo Markdown con **grassetto** sull'etichetta.
+    """
+    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
+        return None
+    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
+
+    # 0–X
+    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return ("**EPOCA DEL DECESSO STIMATA**: "
+                f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+                "prima dei rilievi dei dati tanatologici.")
+
+    # oltre X
+    if limite_sup_inf and not _safe_is_nan(comune_inizio):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        return ("**EPOCA DEL DECESSO STIMATA**: "
+                f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
+                "prima dei rilievi dei dati tanatologici.")
+
+    # A–B
+    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return ("**EPOCA DEL DECESSO STIMATA**: "
+                f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+                f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+                "prima dei rilievi dei dati tanatologici.")
     return None
 
 def paragrafo_raffreddamento_dettaglio(
@@ -242,19 +281,21 @@ def paragrafo_raffreddamento_dettaglio(
     if (qd_val is not None and not np.isnan(qd_val) and qd_val < 0.2 and
         t_med_round is not None and not np.isnan(t_med_round)):
         extra.append(
+            "<li>"
             f"I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
             f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_round:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
             f"In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
             f"Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-            f"</li>"
+            "</li>"
         )
 
     if (qd_val is not None and not np.isnan(qd_val) and qd_val > 0.2 and
         t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30):
         extra.append(
+            "<li>"
             f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_round:.1f} h) è superiore alle 30 ore. "
             f"L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-            
+            "</li>"
         )
 
     par = f"<ul><li>{testo_base}"
@@ -283,7 +324,6 @@ def paragrafo_potente(
     if not (qd_val < qd_threshold):
         return None
 
-    condizione_temp = "T. amb ≤ 23 °C" if ta_val <= 23 else "T. amb > 23 °C"
     return (
         f"<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
         f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso.</li></ul>"
@@ -366,6 +406,7 @@ def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
         "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
         "ulteriori precisazioni sull’epoca della morte.</li></ul>"
     )
+
 def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optional[float]) -> List[str]:
     """
     Ritorna eventuali avvisi testuali (plain text) relativi al raffreddamento cadaverico.
@@ -464,61 +505,4 @@ def build_final_sentence_simple(
         )
 
     return None
-
-
-
-def build_simple_sentence(
-    comune_inizio: Optional[float],
-    comune_fine: Optional[float],
-    isp_dt: datetime.datetime,
-    *,
-    inf_hours: float = np.inf
-) -> Optional[str]:
-    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
-        return None
-    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
-
-    def _ora_data(h_dec):
-        dt = isp_dt - datetime.timedelta(hours=h_dec)
-        hh, dd = _fmt_dt(dt)
-        return hh, dd
-
-    # 0–X
-    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        hh2, dd2 = _ora_data(comune_fine)
-        return (f"<b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                f"prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero successivamente alle ore {hh2} del {dd2}.")
-
-    # oltre X (limite superiore infinito)
-    if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
-        hh1, dd1 = _ora_data(comune_inizio)
-        return (f"<b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
-                f"prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero prima delle ore {hh1} del {dd1}.")
-
-    # A–B
-    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
-        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        hh_da, dd_da = _ora_data(comune_fine)
-        hh_aa, dd_aa = _ora_data(comune_inizio)
-        if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
-            return (f"<b>EPOCA DEL DECESSO STIMATA</b>: "
-                    f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
-                    f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, "
-                    f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.")
-        else:
-            return (f"<b>EPOCA DEL DECESSO STIMATA</b>: "
-                    f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
-                    f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                    f"prima dei rilievi effettuati durante l’ispezione legale, "
-                    f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}.")
-    return None
-
-
+```
