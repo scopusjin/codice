@@ -134,10 +134,9 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</
 # --- Definizione Widget (Streamlit) ---
 with st.container(border=True):
     # 📌 1. Data e ora ispezione legale (nascosti di default)
-    usa_orario_custom = st.toggle("Aggiungi data/ora ispezione legale", value=False, key="usa_orario_custom")
+    usa_orario_custom = st.toggle("Aggiungi data/ora rilievo dei dati tanatologici", value=False, key="usa_orario_custom")
 
     if usa_orario_custom:
-        st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
         col1, col2 = st.columns(2, gap="small")
         with col1:
             input_data_rilievo = st.date_input(
