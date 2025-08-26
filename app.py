@@ -128,19 +128,28 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</
     
 # --- Definizione Widget (Streamlit) ---
 with st.container(border=True):
-    
-    # 📌 1. Data e ora ispezione legale
-    st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2, gap="small")
-    with col1:
-        input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
+    # 📌 1. Data e ora ispezione legale (nascosti di default)
+    usa_orario_custom = st.toggle("Imposta manualmente data/ora ispezione legale", value=False, key="usa_orario_custom")
 
-    with col2:
-        input_ora_rilievo = st.text_input(
-            "Ora ispezione legale (HH:MM):",
-            value="00:00",
-            label_visibility="collapsed"
-        )
+    if usa_orario_custom:
+        st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
+        col1, col2 = st.columns(2, gap="small")
+        with col1:
+            input_data_rilievo = st.date_input(
+                "Data ispezione legale:",
+                value=datetime.date.today(),
+                label_visibility="collapsed"
+            )
+        with col2:
+            input_ora_rilievo = st.text_input(
+                "Ora ispezione legale (HH:MM):",
+                value="00:00",
+                label_visibility="collapsed"
+            )
+    else:
+        # segnaposto per evitare NameError nel resto del codice
+        input_data_rilievo = None
+        input_ora_rilievo = None
 
 # 📌 2. Ipostasi e rigidità (2 colonne stessa riga) — RIQUADRO
 with st.container(border=True):
@@ -512,19 +521,29 @@ def aggiorna_grafico():
     frase_secondaria_html = None  # eventuale variante “Senza considerare Potente…”
 
     # --- Validazione Input Data/Ora Ispezione Legale ---
-    if not input_data_rilievo or not input_ora_rilievo:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
-        return
+    usa_orario_custom = st.session_state.get("usa_orario_custom", False)
 
-    try:
-        ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, '%H:%M')
-        minuti_isp = ora_isp_obj.minute
-    except ValueError:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: Formato ora ispezione legale non valido. Utilizzare il formato HH:MM (es. 14:30).</p>", unsafe_allow_html=True)
-        return
+    if usa_orario_custom:
+        if not input_data_rilievo or not input_ora_rilievo:
+            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
+            return
 
-    data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
-    data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
+        try:
+            ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, '%H:%M')
+            minuti_isp = ora_isp_obj.minute
+        except ValueError:
+            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: formato ora ispezione legale non valido. Usa HH:MM (es. 14:30).</p>", unsafe_allow_html=True)
+            return
+
+        data_ora_ispezione_originale = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+        data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_originale)
+
+    else:
+        # modalità semplice senza data/ora personalizzati
+        minuti_isp = 0
+        # datetime fittizio solo per compatibilità funzioni
+        data_ora_ispezione = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
+
 
     # --- Recupero Valori Input per Calcoli (Esistenti) ---
     Tr_val = input_rt
@@ -855,18 +874,30 @@ def aggiorna_grafico():
 
         st.pyplot(fig)
 
+
         # --- Frase semplice sotto al grafico ---
-        frase_semplice = build_simple_sentence(
-            comune_inizio=comune_inizio,
-            comune_fine=comune_fine,
-            isp_dt=data_ora_ispezione,
-            inf_hours=INF_HOURS
-        )
-        if frase_semplice and overlap:
-            st.markdown(
-                f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>",
-                unsafe_allow_html=True
-            )
+        if overlap:
+            if usa_orario_custom:
+                frase_semplice = build_simple_sentence(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    isp_dt=data_ora_ispezione,
+                    inf_hours=INF_HOURS
+                )
+                if frase_semplice:
+                    st.markdown(f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>", unsafe_allow_html=True)
+            else:
+                # frase senza riferimenti a data/ora assoluti
+                if np.isnan(comune_fine):
+                    st.markdown(
+                        f"<div style='margin-top:10px;'><b>La morte è avvenuta oltre circa {int(round(comune_inizio))} ore prima dei rilievi dei dati tanatologici.</b></div>",
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(
+                        f"<div style='margin-top:10px;'><b>La morte è avvenuta tra circa {int(round(comune_inizio))} e {int(round(comune_fine))} ore prima dei rilievi dei dati tanatologici.</b></div>",
+                        unsafe_allow_html=True
+                    )
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
@@ -1008,11 +1039,26 @@ def aggiorna_grafico():
                 "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
                 unsafe_allow_html=True
             )
-        elif frase_finale_html and overlap:
-            st.markdown(
-                f"<ul><li><b>{frase_finale_html}</b></li></ul>",
-                unsafe_allow_html=True
-            )
+        elif overlap:
+            if usa_orario_custom:
+                frase_finale_html = build_final_sentence(
+                    comune_inizio, comune_fine, data_ora_ispezione,
+                    qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+                )
+                if frase_finale_html:
+                    st.markdown(f"<ul><li><b>{frase_finale_html}</b></li></ul>", unsafe_allow_html=True)
+            else:
+                # versione semplice senza data/ora assoluti
+                if np.isnan(comune_fine):
+                    st.markdown(
+                        f"<ul><li><b>La morte è avvenuta oltre circa {int(round(comune_inizio))} ore prima dei rilievi dei dati tanatologici.</b></li></ul>",
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(
+                        f"<ul><li><b>La morte è avvenuta tra circa {int(round(comune_inizio))} e {int(round(comune_fine))} ore prima dei rilievi dei dati tanatologici.</b></li></ul>",
+                        unsafe_allow_html=True
+                    )
 
 
         # riepilogo parametri usati
