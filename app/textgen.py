@@ -179,7 +179,7 @@ def build_simple_sentence(
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
         hh2, dd2 = _ora_data(comune_fine)
-        return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+        return (f"Epoca della morte stimata: "
                 f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero successivamente alle ore {hh2} del {dd2}.")
@@ -188,7 +188,7 @@ def build_simple_sentence(
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         hh1, dd1 = _ora_data(comune_inizio)
-        return (f"Epoca della morte stimata sulla base dei dati inseriti: "
+        return (f"Epoca della morte stimata: "
                 f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero prima delle ore {hh1} del {dd1}.")
@@ -480,18 +480,18 @@ def build_simple_sentence_no_dt(
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
         return (
-            f"La morte è avvenuta non oltre "
+            f"Epoca della morte stimata: non oltre "
             f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-            f"dai rilievi dei dati tanatologici."
+            f"prima dei rilievi dei dati tanatologici."
         )
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         return (
-            f"La morte è avvenuta oltre "
+            f"Epoca della morte stimata: oltre "
             f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
-            f"dai rilievi dei dati tanatologici."
+            f"prima dei rilievi dei dati tanatologici."
         )
 
     # A–B
@@ -499,9 +499,9 @@ def build_simple_sentence_no_dt(
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
         return (
-            f"La morte è avvenuta tra circa "
+            f"Epoca della morte stimata: tra circa "
             f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
             f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-            f"dai rilievi dei dati tanatologici."
+            f"prima dei rilievi dei dati tanatologici."
         )
     return None
