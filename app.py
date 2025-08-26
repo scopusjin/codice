@@ -237,13 +237,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         _ffin  = fattore_finale
         _fc_box(_ffin, _fbase, peso_corrente)
 
-        else:
-            st.markdown(
-                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-                f'Fattore di correzione suggerito: {fattore_finale:.2f}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
 
         def _apply(val, riass):
             st.session_state["fattore_correzione"] = round(float(val), 2)
