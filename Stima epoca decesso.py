@@ -391,7 +391,7 @@ def calcola_fattore(peso: float):
             key="toggle_vestito"
         )
 
-                # 4) Tabella vestizione (se ON)
+                # 4        # 4) Tabella vestizione (se ON)
         # -------------------------------------
         n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
         if toggle_vestito:
@@ -405,7 +405,6 @@ def calcola_fattore(peso: float):
                     st.session_state.get("strati_spessi", 0),
                 ]
             }
-
             if corpo_asciutto:
                 dati["Parametro"] += ["Coperte medie", "Coperte spesse"]
                 dati["Valore"] += [
@@ -423,23 +422,20 @@ def calcola_fattore(peso: float):
                     "Parametro": cc.Column(disabled=True),
                     "Valore": cc.SelectboxColumn(
                         "Valore",
-                        options={
-                            "Abiti/teli sottili": list(range(0, 9)),   # 0–8
-                            "Abiti/teli spessi": list(range(0, 7)),    # 0–6
-                            "Coperte medie": list(range(0, 6)),        # 0–5
-                            "Coperte spesse": list(range(0, 6)),       # 0–5
-                        },
+                        options=list(range(0, 9)),  # 0–8 per TUTTE le righe
                     ),
                 },
                 key="editor_vestizione_select",
             )
 
             valori = dict(zip(edited["Parametro"], edited["Valore"]))
-            n_sottili_eq  = valori.get("Abiti/teli sottili", 0)
-            n_spessi_eq   = valori.get("Abiti/teli spessi", 0)
-            n_cop_medie   = valori.get("Coperte medie", 0)
-            n_cop_pesanti = valori.get("Coperte spesse", 0)
-            
+
+            # clamp per-riga ai tuoi massimi
+            n_sottili_eq  = int(valori.get("Abiti/teli sottili", 0))            # max 8 già ok
+            n_spessi_eq   = min(int(valori.get("Abiti/teli spessi", 0)), 6)     # 0–6
+            n_cop_medie   = min(int(valori.get("Coperte medie", 0)), 5) if corpo_asciutto else 0
+            n_cop_pesanti = min(int(valori.get("Coperte spesse", 0)), 5) if corpo_asciutto else 0
+
     # Calcolo SEMPRE il fattore vestizione+coperte (serve per la visibilità del toggle correnti)
     fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
         n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
