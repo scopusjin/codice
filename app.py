@@ -887,7 +887,7 @@ def aggiorna_grafico():
                     inf_hours=INF_HOURS
                 )
                 if frase_semplice:
-                    st.markdown(f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>", unsafe_allow_html=True)
+                    st.markdown(frase_semplice)
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
