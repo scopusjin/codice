@@ -1,4 +1,3 @@
-```python
 # -*- coding: utf-8 -*-
 # textgen.py — Generazione testi finali e paragrafi descrittivi
 
