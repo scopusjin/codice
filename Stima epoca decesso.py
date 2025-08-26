@@ -391,51 +391,61 @@ def calcola_fattore(peso: float):
             key="toggle_vestito"
         )
 
-                # 4        # 4) Tabella vestizione (se ON)
-        # -------------------------------------
+        # 4) Vestizione compatta: riga scrollabile con coppie label+numero
+        # ----------------------------------------------------------------
+        st.markdown("""
+        <style>
+        @media (max-width: 700px){
+          /* riga columns: niente wrap e scroll orizzontale */
+          div[data-testid="stHorizontalBlock"] > div:has(> div[data-testid="column"]) {
+            display:flex; overflow-x:auto; gap:8px; padding-bottom:4px;
+          }
+          div[data-testid="column"] { flex: 0 0 auto !important; min-width: 170px; }
+        }
+        /* numeri compatti, etichetta nascosta */
+        [data-testid="stNumberInput"] label { display:none; }
+        [data-testid="stNumberInput"] input { height: 2rem; padding: 2px 6px; }
+        </style>
+        """, unsafe_allow_html=True)
+
         n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
         if toggle_vestito:
-            import pandas as pd
-            from streamlit import column_config as cc
+            # 4 coppie: (label | number_input) * 4
+            cols = st.columns(8, gap="small")  # 4 coppie -> 8 colonne
 
-            dati = {
-                "Parametro": ["Abiti/teli sottili", "Abiti/teli spessi"],
-                "Valore": [
-                    st.session_state.get("strati_sottili", 0),
-                    st.session_state.get("strati_spessi", 0),
-                ]
-            }
+            with cols[0]: st.markdown("Abiti/teli sottili")
+            with cols[1]:
+                n_sottili_eq = st.number_input(
+                    "", min_value=0, max_value=8, step=1,
+                    value=st.session_state.get("strati_sottili", 0),
+                    key="strati_sottili", label_visibility="collapsed"
+                )
+
+            with cols[2]: st.markdown("Abiti/teli spessi")
+            with cols[3]:
+                n_spessi_eq = st.number_input(
+                    "", min_value=0, max_value=6, step=1,
+                    value=st.session_state.get("strati_spessi", 0),
+                    key="strati_spessi", label_visibility="collapsed"
+                )
+
             if corpo_asciutto:
-                dati["Parametro"] += ["Coperte medie", "Coperte spesse"]
-                dati["Valore"] += [
-                    st.session_state.get("coperte_medie", 0),
-                    st.session_state.get("coperte_pesanti", 0),
-                ]
+                with cols[4]: st.markdown("Coperte medie")
+                with cols[5]:
+                    n_cop_medie = st.number_input(
+                        "", min_value=0, max_value=5, step=1,
+                        value=st.session_state.get("coperte_medie", 0),
+                        key="coperte_medie", label_visibility="collapsed"
+                    )
+                with cols[6]: st.markdown("Coperte spesse")
+                with cols[7]:
+                    n_cop_pesanti = st.number_input(
+                        "", min_value=0, max_value=5, step=1,
+                        value=st.session_state.get("coperte_pesanti", 0),
+                        key="coperte_pesanti", label_visibility="collapsed"
+                    )
 
-            df = pd.DataFrame(dati)
-
-            edited = st.data_editor(
-                df,
-                hide_index=True,
-                use_container_width=True,
-                column_config={
-                    "Parametro": cc.Column(disabled=True),
-                    "Valore": cc.SelectboxColumn(
-                        "Valore",
-                        options=list(range(0, 9)),  # 0–8 per TUTTE le righe
-                    ),
-                },
-                key="editor_vestizione_select",
-            )
-
-            valori = dict(zip(edited["Parametro"], edited["Valore"]))
-
-            # clamp per-riga ai tuoi massimi
-            n_sottili_eq  = int(valori.get("Abiti/teli sottili", 0))            # max 8 già ok
-            n_spessi_eq   = min(int(valori.get("Abiti/teli spessi", 0)), 6)     # 0–6
-            n_cop_medie   = min(int(valori.get("Coperte medie", 0)), 5) if corpo_asciutto else 0
-            n_cop_pesanti = min(int(valori.get("Coperte spesse", 0)), 5) if corpo_asciutto else 0
-
+    
     # Calcolo SEMPRE il fattore vestizione+coperte (serve per la visibilità del toggle correnti)
     fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
         n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
