@@ -231,25 +231,12 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
             tabella2_df=tabella2
         )
 
-        # UI risultato (vecchio stile)
+        # UI risultato adattiva
         peso_corrente = float(st.session_state.get("peso", peso_default))
-        fattore_base = result.fattore_base
-        fattore_finale = result.fattore_finale
+        _fbase = fattore_base
+        _ffin  = fattore_finale
+        _fc_box(_ffin, _fbase, peso_corrente)
 
-        if abs(fattore_finale - fattore_base) > 1e-9:
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                st.markdown(
-                    f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-                    f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
-                    f'</div>',
-                    unsafe_allow_html=True
-                )
-            with col2:
-                st.markdown(
-                    f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
-                    unsafe_allow_html=True
-                )
         else:
             st.markdown(
                 f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
@@ -366,32 +353,12 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         tabella2_df=tabella2
     )
 
-    # ——— UI risultato (vecchio stile) ———
+    # ——— UI risultato adattiva ———
     peso_corrente = float(st.session_state.get("peso", peso_default))
-    fattore_base = result.fattore_base
-    fattore_finale = result.fattore_finale
+    _fbase = result.fattore_base
+    _ffin  = result.fattore_finale
+    _fc_box(_ffin, _fbase, peso_corrente)
 
-    if abs(fattore_finale - fattore_base) > 1e-9:
-        col1, col2 = st.columns([2, 1])
-        with col1:
-            st.markdown(
-                f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-                f'Fattore di correzione (adattato per peso {peso_corrente:.1f} kg): {fattore_finale:.2f}'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        with col2:
-            st.markdown(
-                f'<div style="color:gray; padding:10px;">Valore per 70 kg: {fattore_base:.2f}</div>',
-                unsafe_allow_html=True
-            )
-    else:
-        st.markdown(
-            f'<div style="background-color:#e6f4ea; padding:10px; border-radius:5px;">'
-            f'Fattore di correzione suggerito: {fattore_finale:.2f}'
-            f'</div>',
-            unsafe_allow_html=True
-        )
 
     def _apply(val, riass):
         st.session_state["fattore_correzione"] = round(float(val), 2)
