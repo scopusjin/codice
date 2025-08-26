@@ -972,7 +972,8 @@ def aggiorna_grafico():
 
     # --- Avvertenze ---
     if avvisi:
-        with st.expander(f"⚠️ Avvisi ({len(avvisi)})"):
+        mostra_avvisi = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", value=False)
+        if mostra_avvisi:
             for msg in avvisi:
                 _warn_box(msg)
 
