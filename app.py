@@ -1091,5 +1091,5 @@ def aggiorna_grafico():
 
 
 # Al click del pulsante, esegui la funzione principale
-if pulsante_genera_stima:
+if st.session_state.get("show_results", False):
     aggiorna_grafico()
