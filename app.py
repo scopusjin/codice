@@ -233,8 +233,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
 
         # UI risultato adattiva
         peso_corrente = float(st.session_state.get("peso", peso_default))
-        _fbase = fattore_base
-        _ffin  = fattore_finale
+        _fbase = result.fattore_base
+        _ffin  = result.fattore_finale
         _fc_box(_ffin, _fbase, peso_corrente)
 
 
