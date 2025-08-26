@@ -39,6 +39,9 @@ from app.textgen import (
     avvisi_raffreddamento_henssge,
     frase_qd,
     build_simple_sentence, 
+    build_final_sentence_simple,        
+    build_simple_sentence_no_dt,        
+)
 )
 
 import streamlit as st
@@ -875,7 +878,7 @@ def aggiorna_grafico():
         st.pyplot(fig)
 
 
-        # --- Frase semplice sotto al grafico ---
+        # --- Frase sotto al grafico ---
         if overlap:
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
@@ -887,17 +890,14 @@ def aggiorna_grafico():
                 if frase_semplice:
                     st.markdown(f"<div style='margin-top:10px;'><b>{frase_semplice}</b></div>", unsafe_allow_html=True)
             else:
-                # frase senza riferimenti a data/ora assoluti
-                if np.isnan(comune_fine):
-                    st.markdown(
-                        f"<div style='margin-top:10px;'><b>La morte è avvenuta oltre circa {int(round(comune_inizio))} ore prima dei rilievi dei dati tanatologici.</b></div>",
-                        unsafe_allow_html=True
-                    )
-                else:
-                    st.markdown(
-                        f"<div style='margin-top:10px;'><b>La morte è avvenuta tra circa {int(round(comune_inizio))} e {int(round(comune_fine))} ore prima dei rilievi dei dati tanatologici.</b></div>",
-                        unsafe_allow_html=True
-                    )
+                frase_semplice_no_dt = build_simple_sentence_no_dt(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    inf_hours=INF_HOURS
+                )
+                if frase_semplice_no_dt:
+                    st.markdown(f"<div style='margin-top:10px;'>{frase_semplice_no_dt}</div>", unsafe_allow_html=True)
+
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
@@ -1046,19 +1046,16 @@ def aggiorna_grafico():
                     qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
                 )
                 if frase_finale_html:
-                    st.markdown(f"<ul><li><b>{frase_finale_html}</b></li></ul>", unsafe_allow_html=True)
+                    st.markdown(f"<ul><li>{frase_finale_html}</li></ul>", unsafe_allow_html=True)
             else:
-                # versione semplice senza data/ora assoluti
-                if np.isnan(comune_fine):
-                    st.markdown(
-                        f"<ul><li><b>La morte è avvenuta oltre circa {int(round(comune_inizio))} ore prima dei rilievi dei dati tanatologici.</b></li></ul>",
-                        unsafe_allow_html=True
-                    )
-                else:
-                    st.markdown(
-                        f"<ul><li><b>La morte è avvenuta tra circa {int(round(comune_inizio))} e {int(round(comune_fine))} ore prima dei rilievi dei dati tanatologici.</b></li></ul>",
-                        unsafe_allow_html=True
-                    )
+                frase_finale_html_simpl = build_final_sentence_simple(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    inf_hours=INF_HOURS
+                )
+                if frase_finale_html_simpl:
+                    st.markdown(f"<ul><li>{frase_finale_html_simpl}</li></ul>", unsafe_allow_html=True)
+
 
 
         # riepilogo parametri usati
