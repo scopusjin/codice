@@ -985,12 +985,18 @@ def aggiorna_grafico():
         for blocco in dettagli:
             st.markdown(blocco, unsafe_allow_html=True)
 
-        # mostra la frase finale solo in caso di concordanza
-        if frase_finale_html and overlap and not discordanti:
+        # frase finale o messaggio di discordanza
+        if discordanti:
+            st.markdown(
+                "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
+                unsafe_allow_html=True
+            )
+        elif frase_finale_html and overlap:
             st.markdown(
                 f"<ul><li><b>{frase_finale_html}</b></li></ul>",
                 unsafe_allow_html=True
             )
+
 
         # riepilogo parametri usati
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
