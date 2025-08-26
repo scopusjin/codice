@@ -838,6 +838,8 @@ def aggiorna_grafico():
     else:
         comune_inizio, comune_fine = np.nan, np.nan
         overlap = False
+
+    
     # --- Sezione dedicata alla generazione del grafico (spacchettata) ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
@@ -887,6 +889,7 @@ def aggiorna_grafico():
                     inf_hours=INF_HOURS
                 )
                 if frase_semplice:
+                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
                     st.markdown(frase_semplice)
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
@@ -895,7 +898,8 @@ def aggiorna_grafico():
                     inf_hours=INF_HOURS
                 )
                 if frase_semplice_no_dt:
-                    st.markdown(f"<div style='margin-top:10px;'>{frase_semplice_no_dt}</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+                    st.markdown(frase_semplice_no_dt)
 
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
