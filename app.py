@@ -82,6 +82,24 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
         )
     st.markdown(main + side, unsafe_allow_html=True)
 
+def _warn_palette():
+    base = st.get_option("theme.base") or "light"
+    if base.lower() == "dark":
+        return dict(bg="#3b2a00", text="#ffe08a", border="#8a6d1a")
+    else:
+        return dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
+
+def _warn_box(msg: str):
+    pal = _warn_palette()
+    st.markdown(
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:6px;'
+        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
+        f'⚠️ {msg}'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
 # =========================
 # Stato e costanti globali
 # =========================
@@ -956,10 +974,8 @@ def aggiorna_grafico():
     if avvisi:
         with st.expander(f"⚠️ Avvisi ({len(avvisi)})"):
             for msg in avvisi:
-                st.markdown(
-                    f"<p style='color:orange; font-size:small; margin:0;'>- {msg}</p>",
-                    unsafe_allow_html=True
-                )
+                _warn_box(msg)
+
 
     # --- Discordanze (prima dell’expander dettagli) ---
     num_potential_ranges_used = sum(
