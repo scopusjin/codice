@@ -47,6 +47,41 @@ import numpy as np
 import datetime
 import pandas as pd
 
+def _fc_palette():
+    base = st.get_option("theme.base") or "light"
+    if base.lower() == "dark":
+        return dict(
+            bg="#0e3c2f",      # verde scuro leggibile su dark
+            text="#d7fbe8",    # testo chiaro
+            border="#2ea043",  # bordo/accessorio
+            note="#abeacb"     # testo secondario
+        )
+    else:
+        return dict(
+            bg="#e6f4ea",      # verde chiaro per light
+            text="#0f5132",    # testo scuro
+            border="#2ea043",
+            note="#5b7f6b"
+        )
+
+def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
+    pal = _fc_palette()
+    main = (
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:8px;'
+        f'padding:10px;font-weight:600;">'
+        f'Fattore di correzione suggerito: {f_finale:.2f}'
+        f'</div>'
+    )
+    side = ""
+    if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
+        side = (
+            f'<div style="color:{pal["note"]};padding:10px 2px 0 2px;font-size:0.92em;">'
+            f'Valore per 70 kg: {f_base:.2f} • Adattato per {peso_corrente:.1f} kg'
+            f'</div>'
+        )
+    st.markdown(main + side, unsafe_allow_html=True)
+
 # =========================
 # Stato e costanti globali
 # =========================
