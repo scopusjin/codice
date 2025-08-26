@@ -504,4 +504,3 @@ def build_final_sentence_simple(
         )
 
     return None
-```
