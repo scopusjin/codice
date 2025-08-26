@@ -391,34 +391,27 @@ def calcola_fattore(peso: float):
             key="toggle_vestito"
         )
 
-    # -------------------------------------
-        # -------------------------------------
-    # 
-    #         # 4) Tabella vestizione (se ON)
+        # 4) Tabella vestizione (se ON)
         # -------------------------------------
         n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
         if toggle_vestito:
-            # dati iniziali
+            import pandas as pd
+            from streamlit import column_config as cc
+
             dati = {
-                "Parametro": [
-                    "Abiti/teli sottili",
-                    "Abiti/teli spessi"
-                ],
+                "Parametro": ["Abiti/teli sottili", "Abiti/teli spessi"],
                 "Numero": [
                     st.session_state.get("strati_sottili", 0),
-                    st.session_state.get("strati_spessi", 0)
-                ]
+                    st.session_state.get("strati_spessi", 0),
+                ],
             }
-
             if corpo_asciutto:
                 dati["Parametro"] += ["Coperte medie", "Coperte spesse"]
                 dati["Numero"] += [
                     st.session_state.get("coperte_medie", 0),
-                    st.session_state.get("coperte_pesanti", 0)
+                    st.session_state.get("coperte_pesanti", 0),
                 ]
 
-            import pandas as pd
-            from streamlit import column_config as cc
             df = pd.DataFrame(dati)
 
             edited = st.data_editor(
@@ -430,21 +423,20 @@ def calcola_fattore(peso: float):
                     "Numero": cc.NumberColumn(
                         "Numero",
                         min_value=0,
-                        max_value=8,
-                        step=1,
-                        format="%d"
+                        max_value=8,   # uniforme; possiamo differenziare se serve
+                        step=1,        # freccette ±1
+                        format="%d",
                     ),
                 },
-                key="editor_vestizione"
+                key="editor_vestizione",
             )
 
-            # Recupero valori aggiornati
             valori = dict(zip(edited["Parametro"], edited["Numero"]))
             n_sottili_eq  = valori.get("Abiti/teli sottili", 0)
             n_spessi_eq   = valori.get("Abiti/teli spessi", 0)
             n_cop_medie   = valori.get("Coperte medie", 0)
             n_cop_pesanti = valori.get("Coperte spesse", 0)
-
+            
     # Calcolo SEMPRE il fattore vestizione+coperte (serve per la visibilità del toggle correnti)
     fattore_vestiti_coperte = calcola_fattore_vestiti_coperte(
         n_sottili_eq, n_spessi_eq, n_cop_medie, n_cop_pesanti
