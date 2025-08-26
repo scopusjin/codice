@@ -391,7 +391,7 @@ def calcola_fattore(peso: float):
             key="toggle_vestito"
         )
 
-        # 4) Tabella vestizione (se ON)
+                # 4) Tabella vestizione (se ON)
         # -------------------------------------
         n_sottili_eq = n_spessi_eq = n_cop_medie = n_cop_pesanti = 0
         if toggle_vestito:
@@ -400,14 +400,15 @@ def calcola_fattore(peso: float):
 
             dati = {
                 "Parametro": ["Abiti/teli sottili", "Abiti/teli spessi"],
-                "Numero": [
+                "Valore": [
                     st.session_state.get("strati_sottili", 0),
                     st.session_state.get("strati_spessi", 0),
-                ],
+                ]
             }
+
             if corpo_asciutto:
                 dati["Parametro"] += ["Coperte medie", "Coperte spesse"]
-                dati["Numero"] += [
+                dati["Valore"] += [
                     st.session_state.get("coperte_medie", 0),
                     st.session_state.get("coperte_pesanti", 0),
                 ]
@@ -420,18 +421,20 @@ def calcola_fattore(peso: float):
                 use_container_width=True,
                 column_config={
                     "Parametro": cc.Column(disabled=True),
-                    "Numero": cc.NumberColumn(
-                        "Numero",
-                        min_value=0,
-                        max_value=8,   # uniforme; possiamo differenziare se serve
-                        step=1,        # freccette ±1
-                        format="%d",
+                    "Valore": cc.SelectboxColumn(
+                        "Valore",
+                        options={
+                            "Abiti/teli sottili": list(range(0, 9)),   # 0–8
+                            "Abiti/teli spessi": list(range(0, 7)),    # 0–6
+                            "Coperte medie": list(range(0, 6)),        # 0–5
+                            "Coperte spesse": list(range(0, 6)),       # 0–5
+                        },
                     ),
                 },
-                key="editor_vestizione",
+                key="editor_vestizione_select",
             )
 
-            valori = dict(zip(edited["Parametro"], edited["Numero"]))
+            valori = dict(zip(edited["Parametro"], edited["Valore"]))
             n_sottili_eq  = valori.get("Abiti/teli sottili", 0)
             n_spessi_eq   = valori.get("Abiti/teli spessi", 0)
             n_cop_medie   = valori.get("Coperte medie", 0)
