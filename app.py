@@ -513,12 +513,8 @@ st.markdown("""
 col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
-    if st.button("STIMA EPOCA DECESSO"):
+    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
         st.session_state["show_results"] = True
-
-if st.session_state["show_results"]:
-    aggiorna_grafico()
-
 
 
 
