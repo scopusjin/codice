@@ -117,6 +117,9 @@ if "show_img_sopraciliare" not in st.session_state:
 if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
 
+if "show_results" not in st.session_state:
+    st.session_state["show_results"] = False
+
 
 # Titolo più piccolo e con peso medio
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso</h5>", unsafe_allow_html=True)
@@ -508,9 +511,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    pulsante_genera_stima = st.button("STIMA EPOCA DECESSO")
 
+with col2:
+    if st.button("STIMA EPOCA DECESSO"):
+        st.session_state["show_results"] = True
+
+if st.session_state["show_results"]:
+    aggiorna_grafico()
 
 
 
@@ -1006,7 +1013,7 @@ def aggiorna_grafico():
 
     # --- Avvertenze ---
     if avvisi:
-        mostra_avvisi = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", value=False)
+        mostra_avvisi = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
         if mostra_avvisi:
             for msg in avvisi:
                 _warn_box(msg)
