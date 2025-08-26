@@ -415,3 +415,93 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     else:
         return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
                 f"Tale parametro rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve esser superiore a {soglia}).</p>")
+
+def build_final_sentence_simple(
+    comune_inizio: float,
+    comune_fine: float,
+    *,
+    inf_hours: float = np.inf
+) -> Optional[str]:
+    """
+    Versione semplificata della frase conclusiva (senza riferimenti a data/ora assoluti).
+    Restituisce HTML <b>...</b>.
+    """
+    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
+        return None
+    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
+
+    # oltre X
+    if limite_sup_inf and not _safe_is_nan(comune_inizio):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        return (
+            f"<b>La morte è avvenuta oltre circa "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
+            f"prima dei rilievi dei dati tanatologici.</b>"
+        )
+
+    # 0–X
+    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return (
+            f"<b>La morte è avvenuta non oltre "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            f"dai rilievi dei dati tanatologici.</b>"
+        )
+
+    # A–B
+    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return (
+            f"<b>La morte è avvenuta tra circa "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            f"dai rilievi dei dati tanatologici.</b>"
+        )
+
+    return None
+
+
+def build_simple_sentence_no_dt(
+    comune_inizio: Optional[float],
+    comune_fine: Optional[float],
+    *,
+    inf_hours: float = np.inf
+) -> Optional[str]:
+    """
+    Versione della frase breve sotto al grafico, senza riferimenti a data/ora assoluti.
+    Testo plain, non HTML bold.
+    """
+    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
+        return None
+    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
+
+    # 0–X
+    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return (
+            f"La morte è avvenuta non oltre "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            f"dai rilievi dei dati tanatologici."
+        )
+
+    # oltre X
+    if limite_sup_inf and not _safe_is_nan(comune_inizio):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        return (
+            f"La morte è avvenuta oltre "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
+            f"dai rilievi dei dati tanatologici."
+        )
+
+    # A–B
+    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        return (
+            f"La morte è avvenuta tra circa "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            f"dai rilievi dei dati tanatologici."
+        )
+    return None
