@@ -13,6 +13,7 @@ from app.utils_time import (
     split_hours_minutes as _split_hours_minutes,
     round_quarter_hour,  
 )
+from app.cautelativa import compute_raffreddamento_cautelativo
 
 from app.parameters import (
     INF_HOURS,
@@ -220,7 +221,32 @@ with st.container(border=True):
                 key="toggle_fattore"
             )
 
+# --- Stima cautelativa: UI dinamica ---
+st.session_state["stima_cautelativa"] = st.toggle("Stima cautelativa", value=st.session_state.get("stima_cautelativa", False), key="stima_cautelativa")
 
+if st.session_state["stima_cautelativa"]:
+    cc1, cc2 = st.columns(2, gap="small")
+    with cc1:
+        Ta_min = st.number_input("Ta minima (°C)", value=st.session_state.get("Ta_min", max(input_ta - 1.0, -50.0)), step=0.1, format="%.1f")
+        st.session_state["Ta_min"] = Ta_min
+    with cc2:
+        Ta_max = st.number_input("Ta massima (°C)", value=st.session_state.get("Ta_max", input_ta + 1.0), step=0.1, format="%.1f")
+        st.session_state["Ta_max"] = Ta_max
+
+    cc3, cc4 = st.columns(2, gap="small")
+    with cc3:
+        FC_min = st.number_input("FC minimo", value=st.session_state.get("FC_min", max(fattore_correzione - 0.1, 0.1)), step=0.01, format="%.2f")
+        st.session_state["FC_min"] = FC_min
+    with cc4:
+        FC_max = st.number_input("FC massimo", value=st.session_state.get("FC_max", fattore_correzione + 0.1), step=0.01, format="%.2f")
+        st.session_state["FC_max"] = FC_max
+
+    st.session_state["peso_stimato"] = st.toggle("Peso corporeo stimato ±3 kg", value=st.session_state.get("peso_stimato", False), key="peso_stimato")
+else:
+    # pulizia opzionale
+    for k in ("Ta_min","Ta_max","FC_min","FC_max","peso_stimato"):
+        st.session_state.pop(k, None)
+        
 
 def pannello_suggerisci_fc(peso_default: float = 70.0):
     import streamlit as st
