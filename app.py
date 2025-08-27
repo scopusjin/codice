@@ -107,6 +107,18 @@ def _warn_box(msg: str):
 # =========================
 st.set_page_config(page_title="Mor-tem", layout="centered", initial_sidebar_state="expanded")
 
+st.markdown("""
+<style>
+.final-text{
+  font-family: Arial, sans-serif !important;
+  font-size: 10pt !important;
+  line-height: 14pt !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+def _wrap_final(s: str | None) -> str | None:
+    return f'<div class="final-text">{s}</div>' if s else s
 
 if "fattore_correzione" not in st.session_state:
     st.session_state["fattore_correzione"] = 1.0
