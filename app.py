@@ -949,7 +949,7 @@ def aggiorna_grafico():
 
         # nuovo: avviso >30 h
         avvisi.extend(avvisi_raffreddamento_henssge(
-             t_med_round=t_med_raff_henssge_rounded,
+             t_med_round=t_med_raff_hensge_rounded,
              qd_val=Qd_val_check
         ))
 
