@@ -1,4 +1,4 @@
-pfrom app.factor_calc import (
+from app.factor_calc import (
     DressCounts, compute_factor, build_cf_description,
     SURF_DISPLAY_ORDER, fattore_vestiti_coperte,
 )
