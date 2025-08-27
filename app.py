@@ -984,7 +984,7 @@ def aggiorna_grafico():
     par_h = paragrafo_raffreddamento_dettaglio(
         t_min_visual=t_min_raff_visualizzato,
         t_max_visual=t_max_raff_visualizzato,
-        t_med_round=t_med_raff_henssge_rounded,
+        t_med_round=t_med_raff_hensge_rounded,
         qd_val=Qd_val_check,
         ta_val=Ta_val,
     )
