@@ -877,9 +877,7 @@ def aggiorna_grafico():
                 ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
             if not np.isnan(comune_fine) and comune_fine > 0:
                 ax.axvline(min(plot_data["tail_end"], comune_fine), color='red', linestyle='--')
-
         st.pyplot(fig)
-
 
         # --- Frase sotto al grafico ---
         if overlap:
@@ -892,7 +890,7 @@ def aggiorna_grafico():
                 )
                 if frase_semplice:
                     st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-                    st.markdown(frase_semplice)
+                    st.markdown(_wrap_final(frase_semplice), unsafe_allow_html=True)
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
@@ -901,8 +899,7 @@ def aggiorna_grafico():
                 )
                 if frase_semplice_no_dt:
                     st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-                    st.markdown(frase_semplice_no_dt)
-
+                    st.markdown(_wrap_final(frase_semplice_no_dt), unsafe_allow_html=True)
 
     # --- NOTE/AVVISI: raccogli in 'avvisi' (niente stampa diretta) ---
     if nota_globale_range_adattato:
@@ -923,9 +920,9 @@ def aggiorna_grafico():
 
     if hensge_input_forniti:
         if Ta_val > 25:
-            avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
+            avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
         if Ta_val < 18:
-            avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
+            avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
         if temp_difference_small:
             avvisi.append("Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.")
         if abs(Tr_val - T0_val) <= 1.0:
@@ -934,15 +931,16 @@ def aggiorna_grafico():
                 "è possibile che il raffreddamento si trovi ancora nella fase di plateau o non sia ancora iniziato; "
                 "in tale fase la precisione del metodo è ridotta."
             )
-            
+
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range dell'equazione).")
 
         # nuovo: avviso >30 h
         avvisi.extend(avvisi_raffreddamento_henssge(
-             t_med_round=t_med_raff_hensge_rounded,
+             t_med_round=t_med_raff_henssge_rounded,
              qd_val=Qd_val_check
         ))
+
     # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
     try:
         orario_isp = data_ora_ispezione.strftime('%H:%M')
@@ -958,12 +956,12 @@ def aggiorna_grafico():
     cf_val = st.session_state.get('fattore_correzione', CF_val if CF_val is not None else None)
     cf_txt = f"{cf_val:.2f}" if cf_val is not None else "—"
 
-
     cf_descr = build_cf_description(
         cf_value=st.session_state.get("fattore_correzione", 1.0),
         riassunto=st.session_state.get("fc_riassunto_contatori"),
         fallback_text=st.session_state.get("fattori_condizioni_testo")  # opzionale
     )
+
     # --- Paragrafi descrittivi (textgen.py) ---
     dettagli.append(paragrafo_raffreddamento_input(
         isp_dt=data_ora_ispezione,
@@ -974,7 +972,7 @@ def aggiorna_grafico():
     par_h = paragrafo_raffreddamento_dettaglio(
         t_min_visual=t_min_raff_visualizzato,
         t_max_visual=t_max_raff_visualizzato,
-        t_med_round=t_med_raff_hensge_rounded,
+        t_med_round=t_med_raff_henssge_rounded,
         qd_val=Qd_val_check,
         ta_val=Ta_val,
     )
@@ -1013,7 +1011,6 @@ def aggiorna_grafico():
             for msg in avvisi:
                 _warn_box(msg)
 
-
     # --- Discordanze (prima dell’expander dettagli) ---
     num_potential_ranges_used = sum(
         1 for start, end in zip(ranges_per_intersezione_inizio, ranges_per_intersezione_fine)
@@ -1029,19 +1026,18 @@ def aggiorna_grafico():
             unsafe_allow_html=True
         )
 
-        
     # spazio vuoto prima dell’expander
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
     with st.expander("Descrizioni dettagliate"):
         # descrizioni singole (henssge, rigidità, ecc.)
         for blocco in dettagli:
-            st.markdown(blocco, unsafe_allow_html=True)
+            st.markdown(_wrap_final(blocco), unsafe_allow_html=True)
 
         # frase finale o messaggio di discordanza
         if discordanti:
             st.markdown(
-                "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
+                _wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"),
                 unsafe_allow_html=True
             )
         elif overlap:
@@ -1051,7 +1047,7 @@ def aggiorna_grafico():
                     qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
                 )
                 if frase_finale_html:
-                    st.markdown(f"<ul><li>{frase_finale_html}</li></ul>", unsafe_allow_html=True)
+                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"), unsafe_allow_html=True)
             else:
                 frase_finale_html_simpl = build_final_sentence_simple(
                     comune_inizio=comune_inizio,
@@ -1059,9 +1055,7 @@ def aggiorna_grafico():
                     inf_hours=INF_HOURS
                 )
                 if frase_finale_html_simpl:
-                    st.markdown(f"<ul><li>{frase_finale_html_simpl}</li></ul>", unsafe_allow_html=True)
-
-
+                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html_simpl}</li></ul>"), unsafe_allow_html=True)
 
         # riepilogo parametri usati
         if overlap and len(nomi_parametri_usati_per_intersezione) > 0:
@@ -1076,13 +1070,12 @@ def aggiorna_grafico():
 
             small_html = frase_riepilogo_parametri_usati(nomi_parametri_finali_per_riepilogo)
             if small_html:
-                st.markdown(small_html, unsafe_allow_html=True)
+                st.markdown(_wrap_final(small_html), unsafe_allow_html=True)
 
         # nota Qd
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
-            st.markdown(frase_qd_html, unsafe_allow_html=True)
-
+            st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
 
 
 # Al click del pulsante, esegui la funzione principale
