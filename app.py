@@ -1,4 +1,4 @@
-from app.factor_calc import (
+pfrom app.factor_calc import (
     DressCounts, compute_factor, build_cf_description,
     SURF_DISPLAY_ORDER, fattore_vestiti_coperte,
 )
@@ -1041,7 +1041,11 @@ def aggiorna_grafico():
         comune_inizio, comune_fine, data_ora_ispezione,
         qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
     )
-
+# Aggiunge la parentetica della stima cautelativa, se presente
+    _par_extra = st.session_state.get("parentetica_extra", "")
+    if _par_extra:
+        frase_finale_html = (frase_finale_html or "") + " " + _par_extra
+        
     # --- Avvertenze ---
     if avvisi:
         mostra_avvisi = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
