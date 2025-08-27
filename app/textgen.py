@@ -39,15 +39,15 @@ def build_final_sentence(
     inf_hours: float = np.inf
 ) -> Optional[str]:
     """
-    Restituisce la frase conclusiva principale in HTML <b>...</b>.
-    Replica la tua logica: >48 h, caso limite superiore infinito, caso 0–X, caso A–B.
+    Restituisce la frase conclusiva principale in HTML con intestazione in grassetto.
+    Replica la logica: >48 h, limite superiore infinito, 0–X, A–B.
     """
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
 
     limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
 
-    # Caso: Qd basso + inizio > 30h + superiore infinito → testo "oltre"
+    # Caso: Qd basso + inizio > 30h + superiore infinito → “oltre”
     if (
         qd_val is not None and not np.isnan(qd_val) and qd_val < 0.3
         and not _safe_is_nan(comune_inizio) and comune_inizio > 30
@@ -70,11 +70,10 @@ def build_final_sentence(
                 f"Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente "
                 f"per intervalli superiori a 30 ore dal decesso."
             )
-        return f"<b>{testo}</b>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # Caso: limite superiore infinito → “oltre X”
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        # Se Potente presente e ~uguale, allinea a mt_ore
         if mt_ore is not None and not np.isnan(mt_ore) and abs(comune_inizio - mt_ore) < 0.25:
             comune_inizio = round(mt_ore)
         h, m, lbl = _fmt_ore_min(comune_inizio)
@@ -85,7 +84,7 @@ def build_final_sentence(
             f"<b>oltre</b> {h} {lbl}{'' if m == 0 else f' {m} minuti'} "
             f"prima dei rilievi effettuati durante l’ispezione legale, ovvero prima delle ore {hh} del {dd}."
         )
-        return f"<b>{testo}</b>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and comune_inizio == 0:
@@ -98,7 +97,7 @@ def build_final_sentence(
             f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
             f"prima dei rilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {hh2} del {dd2}."
         )
-        return f"<b>{testo}</b>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # Caso: A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -124,7 +123,7 @@ def build_final_sentence(
                 f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
                 f"prima dei rilievi effettuati durante l’ispezione legale, ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}."
             )
-        return f"<b>{testo}</b>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     return None
 
@@ -134,9 +133,7 @@ def build_secondary_sentence_senza_potente(
     inizio_senza_potente: Optional[float],
     fine_senza_potente: Optional[float]
 ) -> Optional[str]:
-    """
-    Frase “Senza considerare Potente…”. Restituisce HTML semplice (niente <b>).
-    """
+    """Frase “Senza considerare Potente…”. HTML semplice."""
     if _safe_is_nan(inizio_senza_potente) or _safe_is_nan(fine_senza_potente):
         return None
 
@@ -156,7 +153,7 @@ def build_secondary_sentence_senza_potente(
     )
 
 # ------------------------------------------------------------
-# Paragrafi descrittivi per l’expander “Descrizioni dettagliate”
+# Frasi brevi per la sezione sotto al grafico
 # ------------------------------------------------------------
 
 def build_simple_sentence(
@@ -166,6 +163,7 @@ def build_simple_sentence(
     *,
     inf_hours: float = np.inf
 ) -> Optional[str]:
+    """Versione breve con data/ora. HTML con intestazione in grassetto."""
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
     limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
@@ -179,19 +177,19 @@ def build_simple_sentence(
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
         hh2, dd2 = _ora_data(comune_fine)
-        return ("**EPOCA DEL DECESSO STIMATA**: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
                 "prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero successivamente alle ore {hh2} del {dd2}.")
+                f"ovvero successivamente alle ore {hh2} del {dd2}.</p>")
 
-    # oltre X (limite superiore infinito)
+    # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         hh1, dd1 = _ora_data(comune_inizio)
-        return ("**EPOCA DEL DECESSO STIMATA**: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
                 "prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero prima delle ore {hh1} del {dd1}.")
+                f"ovvero prima delle ore {hh1} del {dd1}.</p>")
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -200,17 +198,17 @@ def build_simple_sentence(
         hh_da, dd_da = _ora_data(comune_fine)
         hh_aa, dd_aa = _ora_data(comune_inizio)
         if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
-            return ("**EPOCA DEL DECESSO STIMATA**: "
+            return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                     f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
                     f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
                     "prima dei rilievi effettuati durante l’ispezione legale, "
-                    f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.")
+                    f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.</p>")
         else:
-            return ("**EPOCA DEL DECESSO STIMATA**: "
+            return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                     f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
                     f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
                     "prima dei rilievi effettuati durante l’ispezione legale, "
-                    f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}.")
+                    f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}.</p>")
     return None
 
 def build_simple_sentence_no_dt(
@@ -220,8 +218,7 @@ def build_simple_sentence_no_dt(
     inf_hours: float = np.inf
 ) -> Optional[str]:
     """
-    Versione della frase breve sotto al grafico, senza riferimenti a data/ora assoluti.
-    Testo Markdown con **grassetto** sull'etichetta.
+    Versione breve senza data/ora. HTML con intestazione in grassetto.
     """
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
@@ -230,26 +227,81 @@ def build_simple_sentence_no_dt(
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        return ("**EPOCA DEL DECESSO STIMATA**: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"non oltre {h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                "prima dei rilievi dei dati tanatologici.")
+                "prima dei rilievi dei dati tanatologici.</p>")
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
-        return ("**EPOCA DEL DECESSO STIMATA**: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"oltre {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
-                "prima dei rilievi dei dati tanatologici.")
+                "prima dei rilievi dei dati tanatologici.</p>")
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        return ("**EPOCA DEL DECESSO STIMATA**: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"tra circa {h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
                 f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-                "prima dei rilievi dei dati tanatologici.")
+                "prima dei rilievi dei dati tanatologici.</p>")
     return None
+
+def build_final_sentence_simple(
+    comune_inizio: float,
+    comune_fine: float,
+    *,
+    inf_hours: float = np.inf
+) -> Optional[str]:
+    """
+    Versione semplificata per l’expander. HTML con intestazione in grassetto.
+    """
+    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
+        return None
+
+    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
+
+    # oltre X
+    if limite_sup_inf and not _safe_is_nan(comune_inizio):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        testo = (
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
+            f"consente di stimare che la morte sia avvenuta: oltre "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
+            "prima dei rilievi dei dati tanatologici."
+        )
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
+
+    # 0–X
+    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        testo = (
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
+            f"consente di stimare che la morte sia avvenuta: non oltre "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            "prima dei rilievi dei dati tanatologici."
+        )
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
+
+    # A–B
+    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
+        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
+        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
+        testo = (
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
+            f"consente di stimare che la morte sia avvenuta: tra circa "
+            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
+            "prima dei rilievi dei dati tanatologici."
+        )
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
+
+    return None
+
+# ------------------------------------------------------------
+# Paragrafi descrittivi per l’expander “Descrizioni dettagliate”
+# ------------------------------------------------------------
 
 def paragrafo_raffreddamento_dettaglio(
     *,
@@ -367,9 +419,7 @@ def paragrafi_descrizioni_base(
     testo_macchie: str,
     testo_rigidita: str
 ) -> List[str]:
-    """
-    Ritorna due paragrafi HTML <ul><li>...</li></ul> per macchie e rigidità.
-    """
+    """Ritorna due paragrafi HTML <ul><li>...</li></ul> per macchie e rigidità."""
     return [
         f"<ul><li>{testo_macchie}</li></ul>",
         f"<ul><li>{testo_rigidita}</li></ul>",
@@ -442,7 +492,6 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     """
     Restituisce una frase con Qd e il confronto con la soglia (0.2 o 0.5 a seconda della T ambiente).
     """
-    import numpy as np
     if qd_val is None or np.isnan(qd_val) or ta_val is None or np.isnan(ta_val):
         return None
 
@@ -455,52 +504,3 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     else:
         return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
                 f"Tale parametro rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve esser superiore a {soglia}).</p>")
-
-def build_final_sentence_simple(
-    comune_inizio: float,
-    comune_fine: float,
-    *,
-    inf_hours: float = np.inf
-) -> Optional[str]:
-    """
-    Versione semplificata per le descrizioni dettagliate (senza data/ora assolute).
-    L'intera frase è in grassetto.
-    """
-    if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
-        return None
-
-    limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
-
-    # oltre X
-    if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
-        return (
-            f"<b>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
-            f"consente di stimare che la morte sia avvenuta: oltre "
-            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
-            f"prima dei rilievi dei dati tanatologici.</b>"
-        )
-
-    # 0–X
-    if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        return (
-            f"<b>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
-            f"consente di stimare che la morte sia avvenuta: non oltre "
-            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-            f"prima dei rilievi dei dati tanatologici.</b>"
-        )
-
-    # A–B
-    if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
-        h2, m2, lbl2 = _fmt_ore_min(comune_fine)
-        return (
-            f"<b>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
-            f"consente di stimare che la morte sia avvenuta: tra circa "
-            f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} e "
-            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "
-            f"prima dei rilievi dei dati tanatologici.</b>"
-        )
-
-    return None
