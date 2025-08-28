@@ -617,7 +617,7 @@ def aggiorna_grafico():
     rigidita_selezionata = selettore_rigidita
 
 
-qd_threshold = 0.2 if Ta_val <= 23 else 0.5
+    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
 
     if st.session_state.get("stima_cautelativa", False):
         Ta_range = None
