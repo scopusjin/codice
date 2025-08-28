@@ -561,7 +561,6 @@ prev_sig = st.session_state.get("last_run_sig")
 if st.session_state.get("show_results", False) and prev_sig is not None and curr_sig != prev_sig:
     st.session_state["show_results"] = False
 
-:
         if Ta_val > 25:
             avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
         if Ta_val < 18:
