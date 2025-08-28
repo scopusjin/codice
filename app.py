@@ -247,8 +247,8 @@ if st.session_state["stima_cautelativa"]:
     "Peso corporeo stimato ±3 kg",
     value=st.session_state.get("peso_stimato", False),
     key="peso_stimato"
-)
-peso_stimato_flag = st.session_state["peso_stimato"]
+    )
+    peso_stimato_flag = st.session_state["peso_stimato"]
 
 else:
     # pulizia opzionale
