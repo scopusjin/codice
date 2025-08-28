@@ -266,16 +266,22 @@ def build_summary_html(
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
     p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    ore_max_txt = "∞" if math.isfinite(agg_max_raw) and not math.isfinite(ore_max) else f"{ore_max:g} h"
-    # Nota: ore_max può diventare ∞ se applicata la regola 48–∞
+    if ore_max == INF_HOURS:
+        ore_max_txt = f"superiore a {ore_min:g} h"
+        risultato_txt = f"<b>{ore_max_txt}</b> prima dell’ispezione."
+    else:
+       ore_max_txt = f"{ore_max:g} h"
+       risultato_txt = f"<b>{ore_min:g}–{ore_max_txt}</b> ore prima dell’ispezione."
 
     parts = [
-        f"<b>Stima cautelativa attiva</b>",
-        f"Temperatura ambientale considerata: <b>{ta_txt}</b>.",
-        f"Fattore di correzione considerato: <b>{cf_txt}</b>.",
+        f"<b>Per la stima dell'epoca del decesso, per la valutazione del raffreddamento cadaverico secondo l'equazione di Henssge si è tenuto conto di un range di incertezza per alcuni dei parametri, di seguito specificati.</b>",
+        f"Range di variabilità ipotizzato per la temperatura ambientale: <b>{ta_txt}</b>.",
+        f"Range di variabilità ipotizzato per il fattore di correzione considerato: <b>{cf_txt}</b>.",
         f"Peso considerato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
-        f"Risultato aggregato raffreddamento: <b>{ore_min:g}–{ore_max_txt}</b> ore prima dell’ispezione.",
+        f"Tenuto conto dei limiti massimi e minimi ottenuti dalle varie combinazioni dei parametri elencati: {risultato_txt}",
         f"Intervallo temporale: <b>{_fmt_dt(dt_min)} – {_fmt_dt(dt_max)}</b>.",
+     ]
+
     ]
     if qd_min is not None and qd_max is not None:
         parts.append(f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>.")
