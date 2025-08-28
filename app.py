@@ -243,8 +243,13 @@ if st.session_state["stima_cautelativa"]:
     with cc4:
         FC_max = st.number_input("FC massimo", value=st.session_state.get("FC_max", fattore_correzione + 0.1), step=0.01, format="%.2f")
         st.session_state["FC_max"] = FC_max
+    st.toggle(
+    "Peso corporeo stimato ±3 kg",
+    value=st.session_state.get("peso_stimato", False),
+    key="peso_stimato"
+)
+peso_stimato_flag = st.session_state["peso_stimato"]
 
-    st.session_state["peso_stimato"] = st.toggle("Peso corporeo stimato ±3 kg", value=st.session_state.get("peso_stimato", False), key="peso_stimato")
 else:
     # pulizia opzionale
     for k in ("Ta_min","Ta_max","FC_min","FC_max","peso_stimato"):
