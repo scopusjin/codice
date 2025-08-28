@@ -528,7 +528,7 @@ def _inputs_signature():
     return tuple(base + extra)
 
 curr_sig = _inputs_signature()
-prev_sig = st.session_state.get("last_run_sig")
+
 
 st.markdown("""
     <style>
@@ -550,10 +550,10 @@ st.markdown("""
 col1, col2, col3 = st.columns([1, 2, 1])
 
 with col2:
-    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
+    clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima")
+    if clicked:
         st.session_state["show_results"] = True
         st.session_state["last_run_sig"] = curr_sig
-
 
 
 def aggiorna_grafico():
