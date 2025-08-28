@@ -953,13 +953,7 @@ def aggiorna_grafico():
              qd_val=Qd_val_check
         ))
 
-    # --- Dettaglio del raffreddamento cadaverico con dati di input (da mostrare prima del testo Henssge) ---
-    try:
-        orario_isp = data_ora_ispezione.strftime('%H:%M')
-        data_isp = data_ora_ispezione.strftime('%d.%m.%Y')
-    except Exception:
-        orario_isp = input_ora_rilievo or "—"
-        data_isp = input_data_rilievo.strftime('%d.%m.%Y') if input_data_rilievo else "—"
+
 
     ta_txt = f"{Ta_val:.1f}" if Ta_val is not None else "—"
     tr_txt = f"{Tr_val:.1f}" if Tr_val is not None else "—"
