@@ -283,22 +283,22 @@ def build_summary_html(
     # - da 0 a limite        -> "entro Y ore"
     # - intervallo chiuso    -> "tra circa X e Y ore"
     if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"superiore a {ore_min:g} ore"
+        risultato_txt = f"oltre {ore_min:g} ore"
     elif ore_min <= 1e-9:
-        risultato_txt = f"entro {ore_max:g} ore"
+        risultato_txt = f"non oltre {ore_max:g} ore"
     else:
         risultato_txt = f"tra circa {ore_min:g} e {ore_max:g} ore"
 
     # Corpo testuale: intestazione + elenco puntato + frase finale + (intervallo datetimes) + (Qd)
     header = (
         "Per quanto attiene la valutazione del raffreddamento cadaverico, "
-        "sono stati considerati i parametri di seguito indicati."
+        "sono stati stimati i parametri di seguito indicati."
     )
     bullets = (
         "<ul>"
-        f"<li>Range di temperature ambientali considerato per valutare la temperatura ambientale media: <b>{ta_txt}</b>.</li>"
-        f"<li>Fattore di correzione stimato come compreso tra: <b>{cf_txt}</b>.</li>"
-        f"<li>Peso corporeo considerato: <b>{p_txt}</b>.</li>"
+        f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b>.</li>"
+        f"<li>Range per il fattore di correzione: <b>{cf_txt}</b>.</li>"
+        f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
         "</ul>"
     )
     conclusione = (
@@ -307,9 +307,7 @@ def build_summary_html(
         "dell’ispezione legale."
     )
 
-    intervallo_dt = f"Intervallo temporale corrispondente: <b>{_fmt_dt(dt_min)} – {_fmt_dt(dt_max)}</b>."
-    qd_line = f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>." if (qd_min is not None and qd_max is not None) else ""
-
+    
     parts = [header, bullets, conclusione, intervallo_dt]
     if qd_line:
         parts.append(qd_line)
