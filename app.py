@@ -13,7 +13,6 @@ from app.utils_time import (
     split_hours_minutes as _split_hours_minutes,
     round_quarter_hour,  
 )
-from app.cautelativa import compute_raffreddamento_cautelativo
 
 from app.parameters import (
     INF_HOURS,
@@ -220,41 +219,8 @@ with st.container(border=True):
                 value=st.session_state.get("toggle_fattore", False),
                 key="toggle_fattore"
             )
-st.toggle(
-    "Stima cautelativa",
-    value=st.session_state.get("stima_cautelativa", False),
-    key="stima_cautelativa"
-)
-stima_cautelativa = st.session_state["stima_cautelativa"]
 
-if st.session_state["stima_cautelativa"]:
-    cc1, cc2 = st.columns(2, gap="small")
-    with cc1:
-        Ta_min = st.number_input("Ta minima (°C)", value=st.session_state.get("Ta_min", max(input_ta - 1.0, -50.0)), step=0.1, format="%.1f")
-        st.session_state["Ta_min"] = Ta_min
-    with cc2:
-        Ta_max = st.number_input("Ta massima (°C)", value=st.session_state.get("Ta_max", input_ta + 1.0), step=0.1, format="%.1f")
-        st.session_state["Ta_max"] = Ta_max
 
-    cc3, cc4 = st.columns(2, gap="small")
-    with cc3:
-        FC_min = st.number_input("FC minimo", value=st.session_state.get("FC_min", max(fattore_correzione - 0.1, 0.1)), step=0.01, format="%.2f")
-        st.session_state["FC_min"] = FC_min
-    with cc4:
-        FC_max = st.number_input("FC massimo", value=st.session_state.get("FC_max", fattore_correzione + 0.1), step=0.01, format="%.2f")
-        st.session_state["FC_max"] = FC_max
-    st.toggle(
-    "Peso corporeo stimato ±3 kg",
-    value=st.session_state.get("peso_stimato", False),
-    key="peso_stimato"
-    )
-    peso_stimato_flag = st.session_state["peso_stimato"]
-
-else:
-    # pulizia opzionale
-    for k in ("Ta_min","Ta_max","FC_min","FC_max","peso_stimato"):
-        st.session_state.pop(k, None)
-        
 
 def pannello_suggerisci_fc(peso_default: float = 70.0):
     import streamlit as st
@@ -616,57 +582,16 @@ def aggiorna_grafico():
     macchie_selezionata = selettore_macchie
     rigidita_selezionata = selettore_rigidita
 
+    round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+    t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, \
+    t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+        Tr_val, Ta_val, T0_val, W_val, CF_val,
+        round_minutes=round_minutes
+    )
 
     qd_threshold = 0.2 if Ta_val <= 23 else 0.5
+    raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
 
-    if st.session_state.get("stima_cautelativa", False):
-        Ta_range = None
-        CF_range = None
-        if "Ta_min" in st.session_state and "Ta_max" in st.session_state:
-            a, b = float(st.session_state["Ta_min"]), float(st.session_state["Ta_max"])
-            if a > b: a, b = b, a
-            Ta_range = (a, b)
-        if "FC_min" in st.session_state and "FC_max" in st.session_state:
-            a, b = float(st.session_state["FC_min"]), float(st.session_state["FC_max"])
-            if a > b: a, b = b, a
-            CF_range = (a, b)
-
-        res = compute_raffreddamento_cautelativo(
-            dt_ispezione=data_ora_ispezione,
-            Ta_value=float(Ta_val),
-            CF_value=float(CF_val),
-            peso_kg=float(W_val),
-            Ta_range=Ta_range,
-            CF_range=CF_range,
-            peso_stimato=bool(st.session_state.get("peso_stimato", False)),
-            mostra_tabella=False,
-            applica_regola_48_inf=True,
-        )
-
-        t_min_raff_hensge = float(res.ore_min)
-        t_max_raff_hensge = float(res.ore_max) if np.isfinite(res.ore_max) else INF_HOURS
-        _tmed_raw = 0.5 * (t_min_raff_hensge + t_max_raff_hensge) if np.isfinite(t_max_raff_hensge) else 49.0
-        t_med_raff_hensge_rounded_raw = float(_tmed_raw)
-        t_med_raff_hensge_rounded = round_quarter_hour(_tmed_raw)
-        Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
-        raffreddamento_calcolabile = True
-
-        dettagli.append(res.summary_html)
-        st.session_state["parentetica_extra"] = res.parentetica
-
-    else:
-        round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
-        t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, \
-        t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
-            Tr_val, Ta_val, T0_val, W_val, CF_val,
-            round_minutes=round_minutes
-        )
-        raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
-        st.session_state["parentetica_extra"] = ""
-    # --- FINE BLOCCO SOSTITUITO ---
-
-    #  
-    
     temp_difference_small = False
     if Tr_val is not None and Ta_val is not None and (Tr_val - Ta_val) is not None and (Tr_val - Ta_val) < 2.0 and (Tr_val - Ta_val) >= 0:
         temp_difference_small = True
@@ -1024,7 +949,7 @@ def aggiorna_grafico():
 
         # nuovo: avviso >30 h
         avvisi.extend(avvisi_raffreddamento_henssge(
-             t_med_round=t_med_raff_hensge_rounded,
+             t_med_round=t_med_raff_henssge_rounded,
              qd_val=Qd_val_check
         ))
 
@@ -1090,11 +1015,7 @@ def aggiorna_grafico():
         comune_inizio, comune_fine, data_ora_ispezione,
         qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
     )
-# Aggiunge la parentetica della stima cautelativa, se presente
-    _par_extra = st.session_state.get("parentetica_extra", "")
-    if _par_extra:
-        frase_finale_html = (frase_finale_html or "") + " " + _par_extra
-        
+
     # --- Avvertenze ---
     if avvisi:
         mostra_avvisi = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
