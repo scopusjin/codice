@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # app/cautelativa.py — Stima cautelativa per raffreddamento (Henssge) su range.
 
+from app.utils_time import round_quarter_hour, arrotonda_quarto_dora
+
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Iterable, List, Tuple, Optional, Dict, Any
@@ -89,9 +91,10 @@ def _apply_rule_48_inf(ore_max: float) -> float:
 def _to_datetimes(ore_min: float,
                   ore_max: float,
                   dt_ispezione: datetime) -> Tuple[Optional[datetime], Optional[datetime]]:
-    dt_min = round_quarter_hour(dt_ispezione - timedelta(hours=ore_max)) if math.isfinite(ore_max) else None
-    dt_max = round_quarter_hour(dt_ispezione - timedelta(hours=ore_min)) if math.isfinite(ore_min) else None
+    dt_min = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max))) if math.isfinite(ore_max) else None
+    dt_max = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min))) if math.isfinite(ore_min) else None
     return dt_min, dt_max
+
 
 
 # ------------------------
