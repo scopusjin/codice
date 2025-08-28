@@ -89,9 +89,14 @@ def _apply_rule_48_inf(ore_max: float) -> float:
 def _to_datetimes(ore_min: float,
                   ore_max: float,
                   dt_ispezione: datetime) -> Tuple[Optional[datetime], Optional[datetime]]:
-    dt_min = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max))) if math.isfinite(ore_max) else None
-    dt_max = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min))) if math.isfinite(ore_min) else None
+
+    def _is_inf(h: Optional[float]) -> bool:
+        return (h is None) or (not math.isfinite(h)) or (h >= INF_HOURS - 1e-9)
+
+    dt_min = None if _is_inf(ore_max) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max)))
+    dt_max = None if _is_inf(ore_min) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min)))
     return dt_min, dt_max
+
 
 
 
@@ -259,34 +264,31 @@ def build_summary_html(
     qd_min: Optional[float], qd_max: Optional[float],
     *, peso_stimato: bool, agg_max_raw: float
 ) -> str:
-    """
-    Riepilogo sintetico e neutro, pronto per inserimento in expander.
-    """
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
     p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    if ore_max == INF_HOURS:
-        ore_max_txt = f"superiore a {ore_min:g} h"
-        risultato_txt = f"<b>{ore_max_txt}</b> prima dell’ispezione."
+    # Testo risultato (intervallo vs superiore a …)
+    if ore_max >= INF_HOURS - 1e-9:
+        risultato_txt = f"<b>superiore a {ore_min:g} h</b> prima dell’ispezione."
     else:
-       ore_max_txt = f"{ore_max:g} h"
-       risultato_txt = f"<b>{ore_min:g}–{ore_max_txt}</b> ore prima dell’ispezione."
+        risultato_txt = f"<b>{ore_min:g}–{ore_max:g} h</b> ore prima dell’ispezione."
 
     parts = [
-        f"<b>Per la stima dell'epoca del decesso, per la valutazione del raffreddamento cadaverico secondo l'equazione di Henssge si è tenuto conto di un range di incertezza per alcuni dei parametri, di seguito specificati.</b>",
+        ("<b>Per la stima dell'epoca del decesso, per la valutazione del "
+         "raffreddamento cadaverico secondo l'equazione di Henssge si è tenuto "
+         "conto di un range di incertezza per alcuni dei parametri, di seguito specificati.</b>"),
         f"Range di variabilità ipotizzato per la temperatura ambientale: <b>{ta_txt}</b>.",
         f"Range di variabilità ipotizzato per il fattore di correzione considerato: <b>{cf_txt}</b>.",
         f"Peso considerato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
         f"Tenuto conto dei limiti massimi e minimi ottenuti dalle varie combinazioni dei parametri elencati: {risultato_txt}",
         f"Intervallo temporale: <b>{_fmt_dt(dt_min)} – {_fmt_dt(dt_max)}</b>.",
-     ]
-
     ]
     if qd_min is not None and qd_max is not None:
         parts.append(f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>.")
 
     return "<br>".join(parts)
+
 
 
 def build_parentetica_cautelativa(
