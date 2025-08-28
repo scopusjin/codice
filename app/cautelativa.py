@@ -264,28 +264,58 @@ def build_summary_html(
     qd_min: Optional[float], qd_max: Optional[float],
     *, peso_stimato: bool, agg_max_raw: float
 ) -> str:
+    # Formattazioni base
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
-    p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    # Testo risultato (intervallo vs superiore a …)
-    if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"<b>superiore a {ore_min:g} h</b> prima dell’ispezione."
+    # Peso: se "stimato" mostra SEMPRE il range + (stimato),
+    # altrimenti se non stimato e i limiti coincidono mostra singolo valore.
+    if peso_stimato:
+        p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg") + " (stimato)"
     else:
-        risultato_txt = f"<b>{ore_min:g}–{ore_max:g} h</b> ore prima dell’ispezione."
+        if abs(p_lo - p_hi) < 1e-9:
+            p_txt = f"{round(p_lo, 1):g} kg"
+        else:
+            p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    parts = [
-        "Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati "
-         f"Range di temperature ambientali considerato per valutare la temperatura ambientale media: {ta_txt}.",
-        f"Fattore di correzione stimato come compreso tra: {cf_txt}.",
-        f"Peso misurato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
-        f"Applicando l'equazione di Henssge, è possibile stimare che il decesso sia avvenuto tra circa : {risultato_txt} prima dei rilievi effettuati al momento dell’ispezione legale.",
-        
-    ]
-    if qd_min is not None and qd_max is not None:
-        parts.append(f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>.")
+    # Frase risultato nello stile dell’app:
+    # - aperto all’infinito  -> "superiore a X ore"
+    # - da 0 a limite        -> "entro Y ore"
+    # - intervallo chiuso    -> "tra circa X e Y ore"
+    if ore_max >= INF_HOURS - 1e-9:
+        risultato_txt = f"superiore a {ore_min:g} ore"
+    elif ore_min <= 1e-9:
+        risultato_txt = f"entro {ore_max:g} ore"
+    else:
+        risultato_txt = f"tra circa {ore_min:g} e {ore_max:g} ore"
+
+    # Corpo testuale: intestazione + elenco puntato + frase finale + (intervallo datetimes) + (Qd)
+    header = (
+        "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+        "sono stati considerati i parametri di seguito indicati."
+    )
+    bullets = (
+        "<ul>"
+        f"<li>Range di temperature ambientali considerato per valutare la temperatura ambientale media: <b>{ta_txt}</b>.</li>"
+        f"<li>Fattore di correzione stimato come compreso tra: <b>{cf_txt}</b>.</li>"
+        f"<li>Peso corporeo considerato: <b>{p_txt}</b>.</li>"
+        "</ul>"
+    )
+    conclusione = (
+        "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
+        f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
+        "dell’ispezione legale."
+    )
+
+    intervallo_dt = f"Intervallo temporale corrispondente: <b>{_fmt_dt(dt_min)} – {_fmt_dt(dt_max)}</b>."
+    qd_line = f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>." if (qd_min is not None and qd_max is not None) else ""
+
+    parts = [header, bullets, conclusione, intervallo_dt]
+    if qd_line:
+        parts.append(qd_line)
 
     return "<br>".join(parts)
+
 
 
 
