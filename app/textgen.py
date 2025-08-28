@@ -382,7 +382,7 @@ def paragrafo_potente(
 
 def paragrafo_raffreddamento_input(
     *,
-    isp_dt: datetime.datetime,
+    isp_dt: Optional[datetime.datetime],
     ta_val: Optional[float],
     tr_val: Optional[float],
     w_val: Optional[float],
@@ -392,7 +392,13 @@ def paragrafo_raffreddamento_input(
     """
     Paragrafo con riepilogo input Henssge. HTML <ul> nidificata.
     """
-    orario_isp, data_isp = _fmt_dt(isp_dt)
+    if isp_dt is None:
+        # versione senza orario/data
+        titolo_temp = "Temperature misurate nel corso dell’ispezione legale:"
+    else:
+        orario_isp, data_isp = _fmt_dt(isp_dt)
+        titolo_temp = f"Temperature misurate nel corso dell’ispezione legale verso le ore {orario_isp} del {data_isp}:"
+
     ta_txt = f"{ta_val:.1f}" if ta_val is not None else "—"
     tr_txt = f"{tr_val:.1f}" if tr_val is not None else "—"
     w_txt  = f"{w_val:.1f}"  if w_val  is not None else "—"
@@ -401,18 +407,19 @@ def paragrafo_raffreddamento_input(
     return (
         "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
         "<ul>"
-        f"<li>Temperature misurate nel corso dell’ispezione legale verso le ore {orario_isp} del {data_isp}:"
+        f"<li>{titolo_temp}"
         "<ul>"
         f"<li>Temperatura ambientale: {ta_txt} °C.</li>"
         f"<li>Temperatura rettale: {tr_txt} °C.</li>"
         "</ul>"
         "</li>"
-        f"<li>Peso del cadavere misurato in sala autoptica: {w_txt} kg.</li>"
+        f"<li>Peso del cadavere misurato: {w_txt} kg.</li>"
         f"<li>Temperatura corporea ipotizzata al momento della morte: {t0_txt} °C.</li>"
-        f"<li>Fattore di correzione ipotizzato dagli scriventi in base alle condizioni ambientali (per quanto noto): {cf_descr}.</li>"
+        f"<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): {cf_descr}.</li>"
         "</ul>"
         "</li></ul>"
     )
+
 
 def paragrafi_descrizioni_base(
     *,
