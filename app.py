@@ -220,9 +220,12 @@ with st.container(border=True):
                 value=st.session_state.get("toggle_fattore", False),
                 key="toggle_fattore"
             )
-
-# --- Stima cautelativa: UI dinamica ---
-st.session_state["stima_cautelativa"] = st.toggle("Stima cautelativa", value=st.session_state.get("stima_cautelativa", False), key="stima_cautelativa")
+st.toggle(
+    "Stima cautelativa",
+    value=st.session_state.get("stima_cautelativa", False),
+    key="stima_cautelativa"
+)
+stima_cautelativa = st.session_state["stima_cautelativa"]
 
 if st.session_state["stima_cautelativa"]:
     cc1, cc2 = st.columns(2, gap="small")
