@@ -275,7 +275,7 @@ def build_summary_html(
         risultato_txt = f"<b>{ore_min:g}–{ore_max:g} h</b> ore prima dell’ispezione."
 
     parts = [
-        ("Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati "
+        "Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati "
          f"Range di temperature ambientali considerato per valutare la temperatura ambientale media: {ta_txt}.",
         f"Fattore di correzione stimato come compreso tra: {cf_txt}.",
         f"Peso misurato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
