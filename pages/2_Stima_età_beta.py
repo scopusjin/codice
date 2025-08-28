@@ -605,17 +605,21 @@ def aggiorna_grafico():
                 "round_minutes": int(st.session_state.get("henssge_round_minutes", 30)),
             },
         )
-
+        # --- Usa il risultato cautelativo come "raffreddamento" per grafico/testi ---
         t_min_raff_hensge = float(res.ore_min)
-        t_max_raff_hensge = float(res.ore_max) if np.isfinite(res.ore_max) else INF_HOURS
-        _tmed_raw = 0.5 * (t_min_raff_hensge + t_max_raff_hensge) if np.isfinite(t_max_raff_hensge) else 49.0
+        # Limite superiore: se è INF_HOURS -> consideralo "aperto"
+        t_max_raff_hensge = np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS-1e-9) else float(res.ore_max)
+        _tmed_raw = t_min_raff_hensge if np.isnan(t_max_raff_hensge) else 0.5*(t_min_raff_hensge + t_max_raff_hensge)
         t_med_raff_hensge_rounded_raw = float(_tmed_raw)
         t_med_raff_hensge_rounded = round_quarter_hour(_tmed_raw)
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
 
+        # Aggiungi il riepilogo testuale già pronto
         dettagli.append(res.summary_html)
         st.session_state["parentetica_extra"] = res.parentetica
+        
+       
     else:
         # ---- HENSSGE standard ----
         round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
