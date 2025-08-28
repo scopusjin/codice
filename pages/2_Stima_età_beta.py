@@ -903,7 +903,7 @@ def aggiorna_grafico():
         st.pyplot(fig)
 
         # Frase sotto al grafico
-        if overlap:
+        if overlap and (not st.session_state.get("stima_cautelativa_beta", False)):
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
                     comune_inizio=comune_inizio,
@@ -960,28 +960,30 @@ def aggiorna_grafico():
         ))
 
     # --- Paragrafi descrittivi ---
-    cf_descr = build_cf_description(
-        cf_value=st.session_state.get("fattore_correzione", 1.0),
-        riassunto=st.session_state.get("fc_riassunto_contatori"),
-        fallback_text=st.session_state.get("fattori_condizioni_testo")
-    )
+    if not st.session_state.get("stima_cautelativa_beta", False):
+        # SOLO in modalità standard aggiungi i paragrafi classici
+        cf_descr = build_cf_description(
+            cf_value=st.session_state.get("fattore_correzione", 1.0),
+            riassunto=st.session_state.get("fc_riassunto_contatori"),
+            fallback_text=st.session_state.get("fattori_condizioni_testo")
+        )
+        dettagli.append(paragrafo_raffreddamento_input(
+            isp_dt=data_ora_ispezione if usa_orario_custom else None,
+            ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val,
+            cf_descr=cf_descr
+        ))
 
-    dettagli.append(paragrafo_raffreddamento_input(
-        isp_dt=data_ora_ispezione if usa_orario_custom else None,
-        ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val,
-        cf_descr=cf_descr
-    ))
+        par_h = paragrafo_raffreddamento_dettaglio(
+            t_min_visual=t_min_raff_visualizzato,
+            t_max_visual=t_max_raff_visualizzato,
+            t_med_round=t_med_raff_hensge_rounded,
+            qd_val=Qd_val_check,
+            ta_val=Ta_val,
+        )
+        if par_h:
+            dettagli.append(par_h)
 
-    par_h = paragrafo_raffreddamento_dettaglio(
-        t_min_visual=t_min_raff_visualizzato,
-        t_max_visual=t_max_raff_visualizzato,
-        t_med_round=t_med_raff_hensge_rounded,
-        qd_val=Qd_val_check,
-        ta_val=Ta_val,
-    )
-    if par_h:
-        dettagli.append(par_h)
-
+    # Sempre: Potente + altri paragrafi
     par_p = paragrafo_potente(
         mt_ore=mt_ore, mt_giorni=mt_giorni,
         qd_val=Qd_val_check, ta_val=Ta_val,
@@ -1002,10 +1004,13 @@ def aggiorna_grafico():
         dettagli.append(par_putr)
 
     # --- Frase finale principale ---
-    frase_finale_html = build_final_sentence(
-        comune_inizio, comune_fine, data_ora_ispezione,
-        qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
-    )
+    frase_finale_html = None
+    if not st.session_state.get("stima_cautelativa_beta", False):
+        frase_finale_html = build_final_sentence(
+            comune_inizio, comune_fine, data_ora_ispezione,
+            qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+        )
+
     # NEW: aggiungi parentetica extra se presente (cautelativa)
     _par_extra = st.session_state.get("parentetica_extra", "")
     if _par_extra:
@@ -1044,7 +1049,7 @@ def aggiorna_grafico():
                 _wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"),
                 unsafe_allow_html=True
             )
-        elif overlap:
+        elif overlap and (not st.session_state.get("stima_cautelativa_beta", False)):
             if usa_orario_custom:
                 frase_finale_html2 = build_final_sentence(
                     comune_inizio, comune_fine, data_ora_ispezione,
@@ -1083,6 +1088,7 @@ def aggiorna_grafico():
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
+
 
 # ---- Trigger run ----
 if st.session_state.get("show_results", False):
