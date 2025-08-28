@@ -99,16 +99,23 @@ def _to_datetimes(ore_min: float,
 # ------------------------
 def _default_solver(Ta: float, CF: float, peso_kg: float, **kwargs) -> Tuple[float, float, Optional[float]]:
     """
-    Adattatore minimale al tuo calcolatore Henssge.
-    Deve restituire: (ore_min, ore_max, qd) per quella combinazione.
-    Modifica qui i parametri in ingresso secondo la tua firma di `calcola_raffreddamento`.
+    Adattatore alla tua calcola_raffreddamento(Tr, Ta, T0, W, CF, round_minutes=...).
+    Ritorna (ore_min, ore_max, Qd) per la combinazione corrente.
     """
-    # Esempio generico: calcola_raffreddamento(...)-> dict con chiavi "ore_min","ore_max","Qd"
-    out = calcola_raffreddamento(Ta=Ta, fattore_correttivo=CF, peso_kg=peso_kg, **kwargs)
-    ore_min = float(out["ore_min"])
-    ore_max = float(out["ore_max"])
-    qd = float(out["Qd"]) if "Qd" in out and out["Qd"] is not None else None
+    Tr = kwargs.get("Tr")
+    T0 = kwargs.get("T0")
+    round_minutes = kwargs.get("round_minutes", 30)
+
+    # chiamata POSIZIONALE coerente con la tua app.henssge.calcola_raffreddamento
+    t_med_round, t_min, t_max, t_med_raw, Qd = calcola_raffreddamento(
+        Tr, Ta, T0, peso_kg, CF, round_minutes=round_minutes
+    )
+
+    ore_min = float(t_min)
+    ore_max = float(t_max)
+    qd = float(Qd) if (Qd is not None and np.isfinite(Qd)) else None
     return ore_min, ore_max, qd
+
 
 
 # ------------------------
