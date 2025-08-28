@@ -616,16 +616,64 @@ def aggiorna_grafico():
     macchie_selezionata = selettore_macchie
     rigidita_selezionata = selettore_rigidita
 
+
+qd_threshold = 0.2 if Ta_val <= 23 else 0.5
+
+if st.session_state.get("stima_cautelativa", False):
+    # Costruisci i range solo se inseriti; None => default ±1 °C e ±0.1
+    Ta_range = None
+    CF_range = None
+    if "Ta_min" in st.session_state and "Ta_max" in st.session_state:
+        a, b = float(st.session_state["Ta_min"]), float(st.session_state["Ta_max"])
+        if a > b: a, b = b, a
+        Ta_range = (a, b)
+    if "FC_min" in st.session_state and "FC_max" in st.session_state:
+        a, b = float(st.session_state["FC_min"]), float(st.session_state["FC_max"])
+        if a > b: a, b = b, a
+        CF_range = (a, b)
+
+    res = compute_raffreddamento_cautelativo(
+        dt_ispezione=data_ora_ispezione,
+        Ta_value=float(Ta_val),
+        CF_value=float(CF_val),
+        peso_kg=float(W_val),
+        Ta_range=Ta_range,
+        CF_range=CF_range,
+        peso_stimato=bool(st.session_state.get("peso_stimato", False)),
+        mostra_tabella=False,
+        applica_regola_48_inf=True,
+    )
+
+    # Intervallo unico da usare nel resto del codice
+    t_min_raff_hensge = float(res.ore_min)
+    t_max_raff_hensge = float(res.ore_max) if np.isfinite(res.ore_max) else INF_HOURS
+
+    # Stima “media” per grafico e logiche >48 h
+    if np.isfinite(t_max_raff_hensge):
+        _tmed_raw = 0.5 * (t_min_raff_hensge + t_max_raff_hensge)
+    else:
+        _tmed_raw = 49.0  # forza ramo >48h
+    t_med_raff_hensge_rounded_raw = float(_tmed_raw)
+    t_med_raff_hensge_rounded = round_quarter_hour(_tmed_raw)
+
+    Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
+    raffreddamento_calcolabile = True
+
+    # Riepilogo e parentetica
+    dettagli.append(res.summary_html)
+    st.session_state["parentetica_extra"] = res.parentetica
+
+else:
     round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
     t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, \
     t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
         Tr_val, Ta_val, T0_val, W_val, CF_val,
         round_minutes=round_minutes
     )
-
-    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
     raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
-
+    st.session_state["parentetica_extra"] = ""
+    
+    
     temp_difference_small = False
     if Tr_val is not None and Ta_val is not None and (Tr_val - Ta_val) is not None and (Tr_val - Ta_val) < 2.0 and (Tr_val - Ta_val) >= 0:
         temp_difference_small = True
