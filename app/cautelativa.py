@@ -275,14 +275,12 @@ def build_summary_html(
         risultato_txt = f"<b>{ore_min:g}–{ore_max:g} h</b> ore prima dell’ispezione."
 
     parts = [
-        ("<b>Per la stima dell'epoca del decesso, per la valutazione del "
-         "raffreddamento cadaverico secondo l'equazione di Henssge si è tenuto "
-         "conto di un range di incertezza per alcuni dei parametri, di seguito specificati.</b>"),
-        f"Range di variabilità ipotizzato per la temperatura ambientale: <b>{ta_txt}</b>.",
-        f"Range di variabilità ipotizzato per il fattore di correzione considerato: <b>{cf_txt}</b>.",
-        f"Peso considerato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
-        f"Tenuto conto dei limiti massimi e minimi ottenuti dalle varie combinazioni dei parametri elencati: {risultato_txt}",
-        f"Intervallo temporale: <b>{_fmt_dt(dt_min)} – {_fmt_dt(dt_max)}</b>.",
+        ("Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati "
+         f"Range di temperature ambientali considerato per valutare la temperatura ambientale media: {ta_txt}.",
+        f"Fattore di correzione stimato come compreso tra: {cf_txt}.",
+        f"Peso misurato: <b>{p_txt}</b>" + (" (peso stimato)" if peso_stimato else "") + ".",
+        f"Applicando l'equazione di Henssge, è possibile stimare che il decesso sia avvenuto tra circa : {risultato_txt} prima dei rilievi effettuati al momento dell’ispezione legale.",
+        
     ]
     if qd_min is not None and qd_max is not None:
         parts.append(f"Qd aggregato: <b>{qd_min:.3f}–{qd_max:.3f}</b>.")
