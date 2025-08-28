@@ -2,20 +2,18 @@
 # -*- coding: utf-8 -*-
 # app/cautelativa.py — Stima cautelativa per raffreddamento (Henssge) su range.
 
-from app.utils_time import round_quarter_hour, arrotonda_quarto_dora
-
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Tuple, Optional, Dict, Any
+from typing import Callable, List, Tuple, Optional, Dict, Any
 import itertools
 import math
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Dipendenze del tuo progetto
-from app.henssge import calcola_raffreddamento  # adattare ai tuoi parametri
-from app.utils_time import round_quarter_hour
+from app.henssge import calcola_raffreddamento
+from app.utils_time import arrotonda_quarto_dora   # <-- SOLO questa
 from app.parameters import INF_HOURS
 
 # ------------------------
@@ -94,6 +92,7 @@ def _to_datetimes(ore_min: float,
     dt_min = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max))) if math.isfinite(ore_max) else None
     dt_max = arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min))) if math.isfinite(ore_min) else None
     return dt_min, dt_max
+
 
 
 
