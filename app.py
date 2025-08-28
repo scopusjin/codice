@@ -554,7 +554,12 @@ with col2:
     if clicked:
         st.session_state["show_results"] = True
         st.session_state["last_run_sig"] = curr_sig
+# usa la firma aggiornata dal click (se c'è stato)
+prev_sig = st.session_state.get("last_run_sig")
 
+# Chiudi i risultati se gli input sono cambiati dopo l'ultimo run
+if st.session_state.get("show_results", False) and prev_sig is not None and curr_sig != prev_sig:
+    st.session_state["show_results"] = False
 
 def aggiorna_grafico():
         # --- Raccolta messaggi per nuova UI compatta ---
