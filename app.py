@@ -976,7 +976,7 @@ def aggiorna_grafico():
 
     # --- Paragrafi descrittivi (textgen.py) ---
     dettagli.append(paragrafo_raffreddamento_input(
-        isp_dt=data_ora_ispezione,
+        isp_dt=data_ora_ispezione if usa_orario_custom else None,
         ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val,
         cf_descr=cf_descr
     ))
