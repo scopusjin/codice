@@ -503,7 +503,33 @@ if mostra_parametri_aggiuntivi:
         st.session_state["alterazioni_putrefattive"] = chk_putrefattive
 else:
     st.session_state["alterazioni_putrefattive"] = False
-    
+# --- Firma degli input che influenzano la stima ---
+def _inputs_signature():
+    base = [
+        st.session_state.get("usa_orario_custom", False),
+        str(input_data_rilievo) if input_data_rilievo else None,
+        str(input_ora_rilievo) if input_ora_rilievo else None,
+        selettore_macchie,
+        selettore_rigidita,
+        float(input_rt) if input_rt is not None else None,
+        float(input_ta) if input_ta is not None else None,
+        float(input_tm) if input_tm is not None else None,
+        float(input_w) if input_w is not None else None,
+        float(st.session_state.get("fattore_correzione", 1.0)),
+        bool(mostra_parametri_aggiuntivi),
+        bool(st.session_state.get("alterazioni_putrefattive", False)),
+    ]
+    extra = []
+    for nome_parametro, _ in dati_parametri_aggiuntivi.items():
+        extra.append(st.session_state.get(f"{nome_parametro}_selector"))
+        extra.append(st.session_state.get(f"{nome_parametro}_diversa"))
+        extra.append(str(st.session_state.get(f"{nome_parametro}_data")) if st.session_state.get(f"{nome_parametro}_data") else None)
+        extra.append(st.session_state.get(f"{nome_parametro}_ora"))
+    return tuple(base + extra)
+
+curr_sig = _inputs_signature()
+prev_sig = st.session_state.get("last_run_sig")
+
 st.markdown("""
     <style>
     div.stButton > button {
@@ -526,6 +552,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
         st.session_state["show_results"] = True
+        st.session_state["last_run_sig"] = curr_sig
 
 
 
@@ -1083,7 +1110,10 @@ def aggiorna_grafico():
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
 
-
+# Chiudi i risultati se gli input sono cambiati dopo l'ultimo run
+if st.session_state.get("show_results", False) and prev_sig is not None and curr_sig != prev_sig:
+    st.session_state["show_results"] = False
+    
 # Al click del pulsante, esegui la funzione principale
 if st.session_state.get("show_results", False):
     aggiorna_grafico()
