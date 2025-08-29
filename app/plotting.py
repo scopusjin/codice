@@ -102,6 +102,7 @@ def compute_plot_data(
                 lab = str(e.get("label", "Parametro"))
                 s = float(e.get("start", np.nan))
                 ed_raw = e.get("end", np.nan)
+                adattato = e.get("adattato", False)
             except Exception:
                 continue
             if np.isnan(s):
