@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple, Any
 import numpy as np
 import streamlit as st
 
+from app.factor_calc import build_cf_description
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
 from app.parameters import (
     INF_HOURS, opzioni_macchie, macchie_medi, testi_macchie,
