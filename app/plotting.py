@@ -212,6 +212,18 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
     fig, ax = plt.subplots(figsize=data["figsize"])
 
+        # Parametri aggiuntivi extra (se presenti)
+    extra_params = data.get("extra_params", [])
+    for ep in extra_params:
+        label = ep["label"]
+        start = ep["start"]
+        end = ep["end"]
+        if not np.isnan(start):
+            labels.append(label)
+            starts.append(start)
+            ends.append(end if np.isfinite(end) else INF_HOURS)
+
+
     # 1) Segmenti verdi speciali per RAFFREDDAMENTO (sotto)
     if raff_idx is not None:
         raff_over_48 = style.get("raff_over_48", False)
