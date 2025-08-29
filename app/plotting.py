@@ -12,20 +12,21 @@ def _fmt(x: float) -> str:
 
 
 def compute_plot_data(
-    *,
-    macchie_range: Tuple[float, float] | Tuple[float, float],
-    macchie_medi_range: Optional[Tuple[float, float]],
-    rigidita_range: Tuple[float, float] | Tuple[float, float],
-    rigidita_medi_range: Optional[Tuple[float, float]],
-    raffreddamento_calcolabile: bool,
-    t_min_raff_henssge: float | float,
-    t_max_raff_henssge: float | float,
-    t_med_raff_henssge_rounded_raw: float | float,
-    Qd_val_check: float | float,
-    mt_ore: Optional[float],
-    INF_HOURS: float,
-    qd_threshold: float,  # <-- soglia dinamica (0.2 se Ta<=23, 0.5 se Ta>23)
-) -> Dict[str, Any]:
+        *,
+        macchie_range: Tuple[float, float] | Tuple[float, float],
+        macchie_medi_range: Optional[Tuple[float, float]],
+        rigidita_range: Tuple[float, float] | Tuple[float, float],
+        rigidita_medi_range: Optional[Tuple[float, float]],
+        raffreddamento_calcolabile: bool,
+        t_min_raff_henssge: float | float,
+        t_max_raff_henssge: float | float,
+        t_med_raff_henssge_rounded_raw: float | float,
+        Qd_val_check: float | float,
+        mt_ore: Optional[float],
+        INF_HOURS: float,
+        qd_threshold: float,
+        extra_params: Optional[List[Dict[str, float]]] = None,  
+    ) -> Dict[str, Any]:
     """
     Prepara i dati per il grafico. Nessun side-effect. Nessuna dipendenza da Streamlit.
     Restituisce un dict consumato da `render_ranges_plot`.
@@ -37,32 +38,45 @@ def compute_plot_data(
 
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
-        if macchie_range[1] < INF_HOURS:
-            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
-            end_val = macchie_range[1]
-        else:
-            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
-            end_val = INF_HOURS
+        ...
         labels.append(label_macchie)
         starts.append(macchie_range[0])
         ends.append(end_val)
 
     # Etichette + range: RIGIDITÀ
     if rigidita_range is not None and not np.isnan(rigidita_range[0]):
-        if rigidita_range[1] < INF_HOURS:
-            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
-            end_val = rigidita_range[1]
-        else:
-            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
-            end_val = INF_HOURS
+        ...
         labels.append(label_rigidita)
         starts.append(rigidita_range[0])
         ends.append(end_val)
+
+  
+    # Parametri extra (altri range orari da mostrare come barre)
+    if extra_params:
+        for e in extra_params:
+            try:
+                lab = str(e.get("label", "Parametro"))
+                s = float(e.get("start", np.nan))
+                ed = e.get("end", np.nan)
+            except Exception:
+                continue
+            if np.isnan(s):
+                continue
+            if np.isnan(ed) or ed >= INF_HOURS:
+                lbl = f"{lab}\n(≥ {_fmt(s)} h)"
+                end_val = INF_HOURS
+            else:
+                end_val = float(ed)
+                lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
+            labels.append(lbl)
+            starts.append(float(s))
+            ends.append(end_val)
 
     # Etichette + range: RAFFREDDAMENTO
     raffreddamento_idx: Optional[int] = None
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
+
 
     if raffreddamento_calcolabile:
         t_min_raff_visualizzato = t_min_raff_henssge
