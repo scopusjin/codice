@@ -267,7 +267,7 @@ def build_summary_html(
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
 
-    # Peso: se stimato mostra sempre il range + (stimato); altrimenti singolo valore se coincidenti
+    # Peso
     if peso_stimato:
         p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg") + " (stimato)"
     else:
@@ -276,7 +276,7 @@ def build_summary_html(
         else:
             p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    # Frase risultato (aperto/chiuso)
+    # Frase risultato
     if ore_max >= INF_HOURS - 1e-9:
         risultato_txt = f"oltre {ore_min:g} ore"
     elif ore_min <= 1e-9:
@@ -284,7 +284,6 @@ def build_summary_html(
     else:
         risultato_txt = f"tra circa {ore_min:g} e {ore_max:g} ore"
 
-    # Intestazione e bullet
     header = (
         "Per quanto attiene la valutazione del raffreddamento cadaverico, "
         "sono stati stimati i parametri di seguito indicati."
@@ -296,26 +295,32 @@ def build_summary_html(
         f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
         "</ul>"
     )
-
-
-    # Conclusione
     conclusione = (
-        "Applicando l'equazione di Henssge sulla base dei parametri riepilogati, è possibile stimare che il decesso "
+        "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
         f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
         "dell’ispezione legale."
     )
+
+    # ✨ QUI: definisci le variabili mancanti
+    intervallo_dt = f"Intervallo temporale approssimativo: <b>{_fmt_dt(dt_min)}</b> – <b>{_fmt_dt(dt_max)}</b>"
+
+    qd_line = ""
+    if (qd_min is not None) or (qd_max is not None):
+        if (qd_min is not None) and (qd_max is not None):
+            if abs(qd_min - qd_max) < 1e-9:
+                qd_line = f"Quota di decremento (Qd) stimata: <b>{qd_min:.3f}</b>."
+            else:
+                qd_line = f"Quota di decremento (Qd) compresa tra <b>{qd_min:.3f}</b> e <b>{qd_max:.3f}</b>."
+        elif qd_min is not None:
+            qd_line = f"Quota di decremento (Qd) minima stimata: <b>{qd_min:.3f}</b>."
+        else:
+            qd_line = f"Quota di decremento (Qd) massima stimata: <b>{qd_max:.3f}</b>."
 
     parts = [header, bullets, conclusione, intervallo_dt]
     if qd_line:
         parts.append(qd_line)
 
     return "<br>".join(parts)
-
-
-
-
-
-
 
 def build_parentetica_cautelativa(
     Ta_lo: float, Ta_hi: float,
