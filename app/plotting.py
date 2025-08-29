@@ -86,7 +86,7 @@ def compute_plot_data(
         elif raff_over_48:
             label_h = (
                 f"Raffreddamento\n(> {_fmt(48.0)} h)\n"
-                f"({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
+                f"({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
             )
         else:
             label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
