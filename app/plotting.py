@@ -186,6 +186,7 @@ def compute_plot_data(
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
+        extra_params=extra_params,
     )
 
 
