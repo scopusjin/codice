@@ -307,8 +307,14 @@ def aggiorna_grafico(
         lo, hi = p["range_traslato"]
         if _is_num(lo):
             label = nomi_brevi.get(p["nome"], p["nome"])
-            extra_params_for_plot.append({"label": label, "start": float(lo), "end": float(hi) if _is_num(hi) else np.inf})
-
+            extra_params_for_plot.append({
+            "label": label,
+            "start": float(lo),
+            "end": float(hi) if _is_num(hi) else np.inf,
+            "order": idx,
+            "adattato": p.get("adattato", False),  # <-- aggiunto
+        })
+            
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
