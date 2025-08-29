@@ -830,9 +830,9 @@ def aggiorna_grafico():
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
 
         else:
-            if t_med_raff_hensge_rounded_raw > 48:
+            if t_med_raff_henssge_rounded_raw > 48:
                 if altri_parametri_con_range:
-                    if t_min_raff_hensge > 48:
+                    if t_min_raff_henssge > 48:
                         ranges_per_intersezione_inizio.append(48.0)
                         ranges_per_intersezione_fine.append(np.nan)
                         nome_raffreddamento_intersezione = (
