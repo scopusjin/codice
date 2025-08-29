@@ -732,12 +732,12 @@ def aggiorna_grafico():
     nomi_parametri_usati_per_intersezione = []
 
     # Determina se visualizzare il range Henssge sul grafico
-    visualizza_hensge_grafico = raffreddamento_calcolabile
+    visualizza_henssge_grafico = raffreddamento_calcolabile
 
-    if visualizza_hensge_grafico:
+    if visualizza_henssge_grafico:
         # Usa i limiti calcolati da calcola_raffreddamento per la visualizzazione
-        t_min_raff_visualizzato = t_min_raff_hensge
-        t_max_raff_visualizzato = t_max_raff_hensge
+        t_min_raff_visualizzato = t_min_raff_henssge
+        t_max_raff_visualizzato = t_max_raff_henssge
     else:
         # Se non visualizzabile, imposta NaN
         t_min_raff_visualizzato = np.nan
