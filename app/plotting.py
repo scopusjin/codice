@@ -10,95 +10,41 @@ import matplotlib.pyplot as plt
 def _fmt(x: float) -> str:
     return f"{x:.1f}".rstrip("0").rstrip(".")
 
-
 def compute_plot_data(
-        *,
-        macchie_range: Tuple[float, float] | Tuple[float, float],
-        macchie_medi_range: Optional[Tuple[float, float]],
-        rigidita_range: Tuple[float, float] | Tuple[float, float],
-        rigidita_medi_range: Optional[Tuple[float, float]],
-        raffreddamento_calcolabile: bool,
-        t_min_raff_henssge: float | float,
-        t_max_raff_henssge: float | float,
-        t_med_raff_henssge_rounded_raw: float | float,
-        Qd_val_check: float | float,
-        mt_ore: Optional[float],
-        INF_HOURS: float,
-        qd_threshold: float,
-        extra_params: Optional[List[Dict[str, float]]] = None,  
-    ) -> Dict[str, Any]:
+    *,
+    macchie_range: Tuple[float, float] | Tuple[float, float],
+    macchie_medi_range: Optional[Tuple[float, float]],
+    rigidita_range: Tuple[float, float] | Tuple[float, float],
+    rigidita_medi_range: Optional[Tuple[float, float]],
+    raffreddamento_calcolabile: bool,
+    t_min_raff_henssge: float | float,
+    t_max_raff_henssge: float | float,
+    t_med_raff_henssge_rounded_raw: float | float,
+    Qd_val_check: float | float,
+    mt_ore: Optional[float],
+    INF_HOURS: float,
+    qd_threshold: float,
+    extra_params: Optional[List[Dict[str, Any]]] = None,  # supporta 'label', 'start', 'end', 'order'
+) -> Dict[str, Any]:
     """
-    Prepara i dati per il grafico. Nessun side-effect. Nessuna dipendenza da Streamlit.
-    Restituisce un dict consumato da `render_ranges_plot`.
+    Ordine barre: Raffreddamento → Ipostasi → Rigidità → Extra (ordinati per 'order').
     """
-    # Contenitori paralleli
     labels: List[str] = []
     starts: List[float] = []
     ends: List[float] = []
 
-        
-    # Etichette + range: IPOSTASI
-    if macchie_range is not None and not np.isnan(macchie_range[0]):
-        if macchie_range[1] < INF_HOURS:
-            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
-            end_val = macchie_range[1]
-        else:
-            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
-            end_val = INF_HOURS
-        labels.append(label_macchie)
-        starts.append(float(macchie_range[0]))
-        ends.append(float(end_val))
-
-    # Etichette + range: RIGIDITÀ
-    if rigidita_range is not None and not np.isnan(rigidita_range[0]):
-        if rigidita_range[1] < INF_HOURS:
-            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
-            end_val = rigidita_range[1]
-        else:
-            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
-            end_val = INF_HOURS
-        labels.append(label_rigidita)
-        starts.append(float(rigidita_range[0]))
-        ends.append(float(end_val))
-        
-
-  
-    # Parametri extra (altri range orari da mostrare come barre)
-    if extra_params:
-        for e in extra_params:
-            try:
-                lab = str(e.get("label", "Parametro"))
-                s = float(e.get("start", np.nan))
-                ed = e.get("end", np.nan)
-            except Exception:
-                continue
-            if np.isnan(s):
-                continue
-            if np.isnan(ed) or ed >= INF_HOURS:
-                lbl = f"{lab}\n(≥ {_fmt(s)} h)"
-                end_val = INF_HOURS
-            else:
-                end_val = float(ed)
-                lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
-            labels.append(lbl)
-            starts.append(float(s))
-            ends.append(end_val)
-
-    # Etichette + range: RAFFREDDAMENTO
+    # --- RAFFREDDAMENTO (PRIMO) ---
     raffreddamento_idx: Optional[int] = None
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
-
 
     if raffreddamento_calcolabile:
         t_min_raff_visualizzato = t_min_raff_henssge
         t_max_raff_visualizzato = t_max_raff_henssge
 
-        # Flag condizioni speciali
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
         raff_over_48 = (t_med_raff_henssge_rounded_raw is not None) and (t_med_raff_henssge_rounded_raw > 48)
 
-        # Etichetta Henssge
         if raff_only_lower:
             maggiore_di_valore = t_min_raff_henssge
             if mt_ore is not None and not np.isnan(mt_ore):
@@ -120,27 +66,70 @@ def compute_plot_data(
         labels.append(label_h)
         starts.append(t_min_raff_henssge)
         ends.append(t_max_raff_henssge)
-        raffreddamento_idx = len(labels) - 1
+        raffreddamento_idx = 0  # è il primo
     else:
         raff_only_lower = False
         raff_over_48 = False
 
-    # Calcolo cap e coda
+    # --- IPOSTASI ---
+    if macchie_range is not None and not np.isnan(macchie_range[0]):
+        if macchie_range[1] < INF_HOURS:
+            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
+            end_val = macchie_range[1]
+        else:
+            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
+            end_val = INF_HOURS
+        labels.append(label_macchie)
+        starts.append(macchie_range[0])
+        ends.append(end_val)
+
+    # --- RIGIDITÀ ---
+    if rigidita_range is not None and not np.isnan(rigidita_range[0]):
+        if rigidita_range[1] < INF_HOURS:
+            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
+            end_val = rigidita_range[1]
+        else:
+            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
+            end_val = INF_HOURS
+        labels.append(label_rigidita)
+        starts.append(rigidita_range[0])
+        ends.append(end_val)
+
+    # --- EXTRA PARAMS (ordinati per 'order') ---
+    if extra_params:
+        for e in sorted(extra_params, key=lambda x: x.get("order", 0)):
+            try:
+                lab = str(e.get("label", "Parametro"))
+                s = float(e.get("start", np.nan))
+                ed_raw = e.get("end", np.nan)
+            except Exception:
+                continue
+            if np.isnan(s):
+                continue
+            if np.isnan(ed_raw) or ed_raw >= INF_HOURS:
+                lbl = f"{lab}\n(≥ {_fmt(s)} h)"
+                end_val = INF_HOURS
+            else:
+                end_val = float(ed_raw)
+                lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
+            labels.append(lbl)
+            starts.append(float(s))
+            ends.append(end_val)
+
+    # --- Calcolo cap e coda ---
     LINE_W = 6
-    DASH_LS = (0, (2, 1))  # per referenza; usati in render
+    DASH_LS = (0, (2, 1))
     TAIL_FACTOR = 1.20
     DEFAULT_CAP_IF_NO_FINITE = 72.0
 
     finite_ends_all = [e for e in ends if not np.isnan(e) and e < INF_HOURS]
     cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
 
-    # Inizi dei segmenti infiniti blu
     infinite_starts_blue = [
         s for s, e in zip(starts, ends)
         if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
     ]
 
-    # Inizi verdi speciali per raffreddamento (casi che vogliamo far “proseguire” a ∞ in verde)
     special_inf_starts_green: List[float] = []
     raff_only_lower_start: Optional[float] = None
     if raffreddamento_calcolabile and raffreddamento_idx is not None:
@@ -159,7 +148,7 @@ def compute_plot_data(
         tail_base = cap_base
     tail_end = tail_base * TAIL_FACTOR
 
-    # Mediane verdi per ipostasi/rigidità
+    # --- Mediane verdi per ipostasi/rigidità ---
     medians: Dict[str, Optional[Tuple[float, float]]] = {
         "Macchie ipostatiche": None,
         "Rigidità cadaverica": None,
@@ -169,10 +158,8 @@ def compute_plot_data(
     if rigidita_medi_range is not None:
         medians["Rigidità cadaverica"] = rigidita_medi_range
 
-    # Mappatura y in ordine (coincidente con labels)
+    # --- y map, figura, style flags ---
     y_map = {lbl.split("\n", 1)[0]: idx for idx, lbl in enumerate(labels)}
-
-    # Dimensione figura dinamica
     num_params_grafico = len(labels)
     figsize = (10, max(2, 1.5 + 0.5 * num_params_grafico))
 
@@ -198,7 +185,6 @@ def compute_plot_data(
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
-        extra_params=extra_params,
     )
 
 
