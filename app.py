@@ -615,14 +615,14 @@ def aggiorna_grafico():
     rigidita_selezionata = selettore_rigidita
 
     round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
-    t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, \
-    t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+    t_med_raff_henssge_rounded, t_min_raff_henssge, t_max_raff_henssge, \
+    t_med_raff_henssge_rounded_raw, Qd_val_check = calcola_raffreddamento(
         Tr_val, Ta_val, T0_val, W_val, CF_val,
         round_minutes=round_minutes
     )
 
     qd_threshold = 0.2 if Ta_val <= 23 else 0.5
-    raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
+    raffreddamento_calcolabile = not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
 
     temp_difference_small = False
     if Tr_val is not None and Ta_val is not None and (Tr_val - Ta_val) is not None and (Tr_val - Ta_val) < 2.0 and (Tr_val - Ta_val) >= 0:
