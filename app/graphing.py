@@ -483,7 +483,11 @@ def aggiorna_grafico(
                 if frase_finale_html:
                     st.markdown(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"), unsafe_allow_html=True)
             else:
-                frase_finale_html_simpl = build_final_sentence_simple(comune_inizio, comune_fine, INF_HOURS)
+                frase_finale_html_simpl = build_final_sentence_simple(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    inf_hours=INF_HOURS,
+                )
                 if frase_finale_html_simpl:
                     st.markdown(_wrap_final(f"<ul><li>{frase_finale_html_simpl}</li></ul>"), unsafe_allow_html=True)
 
