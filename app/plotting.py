@@ -303,6 +303,7 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     ax.margins(x=0)
     ax.set_yticks(range(len(labels)))
     ax.set_yticklabels(labels, fontsize=15)
+    ax.invert_yaxis()
     ax.set_xlabel("Ore dal decesso")
     ax.grid(True, axis='x', linestyle=':', alpha=0.6)
 
