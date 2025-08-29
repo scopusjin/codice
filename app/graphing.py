@@ -1,0 +1,418 @@
+# app/graphing.py
+from __future__ import annotations
+import datetime
+import numpy as np
+import streamlit as st
+from typing import Dict, List, Tuple, Any
+
+from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
+from app.parameters import (
+    INF_HOURS, opzioni_macchie, macchie_medi, testi_macchie,
+    opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
+    dati_parametri_aggiuntivi, nomi_brevi,
+)
+from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
+from app.plotting import compute_plot_data, render_ranges_plot
+from app.textgen import (
+    build_final_sentence, paragrafo_raffreddamento_dettaglio, paragrafo_potente,
+    paragrafo_raffreddamento_input, paragrafi_descrizioni_base,
+    paragrafi_parametri_aggiuntivi, paragrafo_putrefattive,
+    frase_riepilogo_parametri_usati, avvisi_raffreddamento_henssge,
+    frase_qd, build_simple_sentence, build_final_sentence_simple, build_simple_sentence_no_dt,
+)
+
+# --------- helpers locali ----------
+def _is_num(x): return x is not None and not (isinstance(x, float) and np.isnan(x))
+
+def _warn_box(msg: str):
+    pal = dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
+    base = st.get_option("theme.base") or "light"
+    if base.lower() == "dark":
+        pal = dict(bg="#3b2a00", text="#ffe08a", border="#8a6d1a")
+    st.markdown(
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:6px;'
+        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
+        f'⚠️ {msg}</div>', unsafe_allow_html=True
+    )
+
+def _wrap_final(s: str | None) -> str | None:
+    return f'<div class="final-text">{s}</div>' if s else s
+
+# --------- pubblico: funzione entrypoint ----------
+def aggiorna_grafico(
+    *,
+    selettore_macchie: str,
+    selettore_rigidita: str,
+    input_rt: float, input_ta: float, input_tm: float, input_w: float,
+    fattore_correzione: float,
+    widgets_parametri_aggiuntivi: Dict[str, Dict[str, Any]],
+    usa_orario_custom: bool,
+    input_data_rilievo: datetime.date | None,
+    input_ora_rilievo: str | None,
+    alterazioni_putrefattive: bool,
+):
+    avvisi: List[str] = []
+    dettagli: List[str] = []
+
+    # --- data/ora ispezione ---
+    if usa_orario_custom:
+        if not input_data_rilievo or not input_ora_rilievo:
+            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
+            return
+        try:
+            ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, "%H:%M")
+            minuti_isp = ora_isp_obj.minute
+        except ValueError:
+            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: formato ora ispezione legale non valido. Usa HH:MM.</p>", unsafe_allow_html=True)
+            return
+        data_ora_ispezione = arrotonda_quarto_dora(datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time()))
+    else:
+        minuti_isp = 0
+        data_ora_ispezione = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
+
+    # --- validazioni base ---
+    if input_w is None or input_w <= 0:
+        st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
+        return
+    if fattore_correzione is None or fattore_correzione <= 0:
+        st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
+        return
+    if any(v is None for v in [input_rt, input_ta, input_tm]):
+        st.error("⚠️ Temperature mancanti.")
+        return
+
+    Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
+
+    # --- Henssge ---
+    round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+    t_med_raff_hensge_rounded, t_min_raff_henssge, t_max_raff_henssge, t_med_raff_henssge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+        Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
+    )
+    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
+    raffreddamento_calcolabile = not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+    temp_difference_small = (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0
+
+    # --- macchie/rigidità ---
+    macchie_range_valido = selettore_macchie != "Non valutabili/Non attendibili"
+    macchie_range = opzioni_macchie.get(selettore_macchie) if macchie_range_valido else (np.nan, np.nan)
+    macchie_medi_range = macchie_medi.get(selettore_macchie) if macchie_range_valido else None
+
+    rigidita_range_valido = selettore_rigidita != "Non valutabile/Non attendibile"
+    rigidita_range = opzioni_rigidita.get(selettore_rigidita) if rigidita_range_valido else (np.nan, np.nan)
+    rigidita_medi_range = rigidita_medi.get(selettore_rigidita) if rigidita_range_valido else None
+
+    # --- parametri aggiuntivi: traduzione + traslazione ---
+    parametri_aggiuntivi_da_considerare: List[Dict[str, Any]] = []
+    nota_globale_range_adattato = False
+
+    for nome_parametro, widgets in widgets_parametri_aggiuntivi.items():
+        stato_selezionato = widgets["selettore"]
+        if stato_selezionato == "Non valutata":
+            continue
+        data_rilievo_param = widgets["data_rilievo"]
+        ora_rilievo_param_str = widgets["ora_rilievo"]
+
+        # orario
+        if not ora_rilievo_param_str or not str(ora_rilievo_param_str).strip():
+            ora_rilievo_time = data_ora_ispezione.time()
+        else:
+            try:
+                ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, "%H:%M").time()
+            except ValueError:
+                avvisi.append(f"⚠️ {nome_parametro}: ora '{ora_rilievo_param_str}' non valida (usa HH:MM) → escluso.")
+                continue
+
+        if data_rilievo_param is None:
+            data_rilievo_param = data_ora_ispezione.date()
+
+        chiave_descrizione = (stato_selezionato.split(':')[0].strip()
+                              if nome_parametro == "Eccitabilità elettrica peribuccale"
+                              else stato_selezionato.strip())
+
+        # match chiave robusto
+        chiave_esatta = None
+        for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
+            if k.strip() == chiave_descrizione:
+                chiave_esatta = k
+                break
+
+        range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
+        if range_valori:
+            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
+                chiave_descrizione, f"Descrizione non trovata per '{stato_selezionato}'."
+            )
+            data_ora_param = arrotonda_quarto_dora(datetime.datetime.combine(data_rilievo_param, ora_rilievo_time))
+            diff_h = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
+            if range_valori[1] >= INF_HOURS:
+                range_trasl = (range_valori[0] - diff_h, INF_HOURS)
+            else:
+                range_trasl = (range_valori[0] - diff_h, range_valori[1] - diff_h)
+            lo, hi = round_quarter_hour(range_trasl[0]), round_quarter_hour(range_trasl[1])
+            lo = max(0, lo)
+            parametri_aggiuntivi_da_considerare.append(dict(
+                nome=nome_parametro, stato=stato_selezionato,
+                range_traslato=(lo, hi), descrizione=descrizione,
+                differenza_ore=diff_h, adattato=(diff_h != 0)
+            ))
+            diffs = {p["differenza_ore"] for p in parametri_aggiuntivi_da_considerare if p.get("adattato")}
+            nota_globale_range_adattato = len(diffs) == 1 and len(diffs) > 0
+        else:
+            if dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
+                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
+                    chiave_descrizione, f"{nome_parametro} ({stato_selezionato}) senza range definito."
+                )
+                parametri_aggiuntivi_da_considerare.append(dict(
+                    nome=nome_parametro, stato=stato_selezionato,
+                    range_traslato=(np.nan, np.nan), descrizione=descrizione
+                ))
+
+    # --- range Henssge per grafico ---
+    t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
+    t_max_raff_visualizzato = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
+
+    # --- intersezione: accumula sorgenti ---
+    inizio, fine = [], []
+    nomi_usati = []
+    if macchie_range_valido:
+        inizio.append(macchie_range[0]); fine.append(macchie_range[1]); nomi_usati.append("macchie ipostatiche")
+    if rigidita_range_valido:
+        inizio.append(rigidita_range[0]); fine.append(rigidita_range[1]); nomi_usati.append("rigidità cadaverica")
+
+    # Potente (minimo) per UI
+    mt_ore = None; mt_giorni = None
+    if not any(np.isnan(v) for v in [Tr_val, Ta_val, CF_val, W_val]) and Tr_val > Ta_val + 1e-6:
+        Qd_pot = (Tr_val - Ta_val) / (37.2 - Ta_val)
+        if Qd_pot < qd_threshold:
+            B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
+            ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
+            mt_ore = round(ln_term / B, 1)
+            mt_giorni = round((mt_ore or 0) / 24, 1)
+    usa_potente = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold) and (mt_ore is not None) and (not np.isnan(mt_ore))
+
+    # extra nelle liste d’intersezione
+    for p in parametri_aggiuntivi_da_considerare:
+        lo, hi = p["range_traslato"]
+        if _is_num(lo):
+            inizio.append(lo)
+            fine.append(hi if (_is_num(hi) and hi < INF_HOURS) else np.nan)
+            nomi_usati.append(p["nome"])
+
+    # Henssge/Potente nell’intersezione
+    if raffreddamento_calcolabile:
+        only_lower = (not np.isnan(Qd_val_check)) and Qd_val_check < 0.2
+        altri_con_fine = any([
+            macchie_range_valido and macchie_range[1] < INF_HOURS,
+            rigidita_range_valido and rigidita_range[1] < INF_HOURS,
+            any(_is_num(p["range_traslato"][0]) and _is_num(p["range_traslato"][1]) and p["range_traslato"][1] < INF_HOURS
+                for p in parametri_aggiuntivi_da_considerare)
+        ])
+        if usa_potente:
+            inizio.append(mt_ore); fine.append(np.nan)
+            nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+        elif only_lower:
+            src = mt_ore if (mt_ore is not None and not np.isnan(mt_ore)) else t_min_raff_henssge
+            inizio.append(src); fine.append(np.nan)
+            nomi_usati.append("raffreddamento cadaverico (solo limite inferiore, affidabilità limitata)")
+        else:
+            if t_med_raff_henssge_rounded_raw > 48 and altri_con_fine:
+                if t_min_raff_henssge > 48:
+                    inizio.append(48.0); fine.append(np.nan); nomi_usati.append("raffreddamento cadaverico (>48h)")
+                else:
+                    inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+            else:
+                inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+
+    if (not usa_potente) and (mt_ore is not None) and (not np.isnan(mt_ore)):
+        inizio.append(mt_ore); fine.append(np.nan)
+
+    # intersezione
+    starts_clean = [s for s in inizio if _is_num(s)]
+    if not starts_clean:
+        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
+    else:
+        comune_inizio = max(starts_clean)
+        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
+        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
+
+    # --- extra per grafico ---
+    extra_params_for_plot = []
+    for p in parametri_aggiuntivi_da_considerare:
+        lo, hi = p["range_traslato"]
+        if _is_num(lo):
+            label = nomi_brevi.get(p["nome"], p["nome"])
+            extra_params_for_plot.append({"label": label, "start": float(lo), "end": float(hi) if _is_num(hi) else np.inf})
+
+    # --- grafico ---
+    num_params_grafico = 0
+    if macchie_range_valido: num_params_grafico += 1
+    if rigidita_range_valido: num_params_grafico += 1
+    if raffreddamento_calcolabile: num_params_grafico += 1
+    num_params_grafico += len(extra_params_for_plot)
+
+    if num_params_grafico > 0:
+        try:
+            plot_data = compute_plot_data(
+                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+                raffreddamento_calcolabile=raffreddamento_calcolabile,
+                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+                t_med_raff_hensge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                mt_ore=mt_ore,
+                INF_HOURS=INF_HOURS,
+                qd_threshold=qd_threshold,
+                extra_params=extra_params_for_plot,
+            )
+        except TypeError:
+            plot_data = compute_plot_data(
+                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+                raffreddamento_calcolabile=raffreddamento_calcolabile,
+                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+                t_med_raff_hensge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                mt_ore=mt_ore,
+                INF_HOURS=INF_HOURS,
+                qd_threshold=qd_threshold,
+            )
+            plot_data["extra_params"] = extra_params_for_plot
+
+        tail = plot_data.get("tail_end", 72.0)
+        for e in extra_params_for_plot:
+            if not np.isfinite(e["end"]) or e["end"] > tail:
+                e["end"] = tail
+
+        try:
+            fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
+        except TypeError:
+            fig = render_ranges_plot(plot_data)
+
+        if overlap and (np.isnan(comune_fine) or comune_fine > 0):
+            ax = fig.axes[0]
+            if comune_inizio < plot_data["tail_end"]:
+                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+            if not np.isnan(comune_fine) and comune_fine > 0:
+                ax.axvline(min(plot_data["tail_end"], comune_fine), color='red', linestyle='--')
+
+        st.pyplot(fig)
+
+        # frase sotto al grafico
+        if overlap:
+            if usa_orario_custom:
+                frase_semplice = build_simple_sentence(comune_inizio, comune_fine, data_ora_ispezione, INF_HOURS)
+                if frase_semplice:
+                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+                    st.markdown(_wrap_final(frase_semplice), unsafe_allow_html=True)
+            else:
+                frase_semplice_no_dt = build_simple_sentence_no_dt(comune_inizio, comune_fine, INF_HOURS)
+                if frase_semplice_no_dt:
+                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+                    st.markdown(_wrap_final(frase_semplice_no_dt), unsafe_allow_html=True)
+
+    # --- avvisi ---
+    if nota_globale_range_adattato:
+        dettagli.append("<p style='color:gray;font-size:small;'>* alcuni parametri sono stati valutati a orari diversi; i range sono stati traslati per renderli confrontabili.</p>")
+
+    if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
+        avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
+
+    if all(v is not None for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
+        if Ta_val > 25:
+            avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
+        if Ta_val < 18:
+            avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
+        if temp_difference_small:
+            avvisi.append("Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.")
+        if abs(Tr_val - T0_val) <= 1.0:
+            avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, la fase di plateau può ridurre la precisione del metodo.")
+        if not raffreddamento_calcolabile:
+            avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
+        avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_hensg e_rounded, qd_val=Qd_val_check))
+
+    # --- paragrafi descrittivi ---
+    cf_descr = build_cf_description(
+        cf_value=st.session_state.get("fattore_correzione", 1.0),
+        riassunto=st.session_state.get("fc_riassunto_contatori"),
+        fallback_text=st.session_state.get("fattori_condizioni_testo")
+    )
+    dettagli.append(paragrafo_raffreddamento_input(
+        isp_dt=data_ora_ispezione if usa_orario_custom else None,
+        ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+    ))
+    par_h = paragrafo_raffreddamento_dettaglio(
+        t_min_visual=t_min_raff_visualizzato, t_max_visual=t_max_raff_visualizzato,
+        t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check, ta_val=Ta_val,
+    )
+    if par_h: dettagli.append(par_h)
+
+    par_p = paragrafo_potente(
+        mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
+    )
+    if par_p: dettagli.append(par_p)
+
+    dettagli.extend(paragrafi_descrizioni_base(
+        testo_macchie=testi_macchie[selettore_macchie],
+        testo_rigidita=rigidita_descrizioni[selettore_rigidita],
+    ))
+    dettagli.extend(paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare))
+    par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
+    if par_putr: dettagli.append(par_putr)
+
+    frase_finale_html = build_final_sentence(
+        comune_inizio, comune_fine, data_ora_ispezione, qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+    )
+
+    # toggle avvisi
+    if avvisi:
+        mostra = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
+        if mostra:
+            for m in avvisi: _warn_box(m)
+
+    # discordanze
+    def _is_num_or_inf(x): return _is_num(x) or (isinstance(x, float) and np.isnan(x))
+    num_potential = sum(1 for s, e in zip(inizio, fine) if _is_num(s) and _is_num_or_inf(e))
+    discordanti = ((not overlap and num_potential >= 2) or ranges_in_disaccordo_completa(inizio, fine))
+    if discordanti:
+        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
+
+    # expander dettagli
+    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+    with st.expander("Descrizioni dettagliate"):
+        for blocco in dettagli:
+            st.markdown(_wrap_final(blocco), unsafe_allow_html=True)
+
+        if discordanti:
+            st.markdown(_wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"), unsafe_allow_html=True)
+        elif overlap:
+            if usa_orario_custom:
+                if frase_finale_html:
+                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"), unsafe_allow_html=True)
+            else:
+                frase_finale_html_simpl = build_final_sentence_simple(comune_inizio, comune_fine, INF_HOURS)
+                if frase_finale_html_simpl:
+                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html_simpl}</li></ul>"), unsafe_allow_html=True)
+
+        if overlap and len(nomi_usati) > 0:
+            nomi_finali = []
+            for nome in nomi_usati:
+                if ("raffreddamento cadaverico" in nome.lower()
+                    and "potente" not in nome.lower()
+                    and mt_ore is not None and not np.isnan(mt_ore)
+                    and abs(comune_inizio - mt_ore) < 0.25):
+                    continue
+                nomi_finali.append(nome)
+            small_html = frase_riepilogo_parametri_usati(nomi_finali)
+            if small_html:
+                st.markdown(_wrap_final(small_html), unsafe_allow_html=True)
+
+        frase_qd_html = frase_qd(Qd_val_check, Ta_val)
+        if frase_qd_html:
+            st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
