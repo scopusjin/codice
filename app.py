@@ -954,7 +954,7 @@ def aggiorna_grafico():
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
-    hensge_input_forniti = (
+    henssge_input_forniti = (
         input_rt is not None and
         input_ta is not None and
         input_tm is not None and
@@ -962,7 +962,7 @@ def aggiorna_grafico():
         st.session_state.get('fattore_correzione', None) is not None
     )
 
-    if hensge_input_forniti:
+    if henssge_input_forniti:
         if Ta_val > 25:
             avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
         if Ta_val < 18:
