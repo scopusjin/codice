@@ -536,7 +536,3 @@ if st.session_state.get("show_results", False):
         input_ora_rilievo=input_ora_rilievo,
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
     )
-    
-# ---- Trigger run ----
-if st.session_state.get("show_results", False):
-    aggiorna_grafico()
