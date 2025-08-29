@@ -372,15 +372,25 @@ def aggiorna_grafico(
         # frase sotto al grafico
         if overlap:
             if usa_orario_custom:
-                frase_semplice = build_simple_sentence(comune_inizio, comune_fine, data_ora_ispezione, INF_HOURS)
+                frase_semplice = build_simple_sentence(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    isp_dt=data_ora_ispezione,
+                    inf_hours=INF_HOURS,
+                )
                 if frase_semplice:
                     st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
                     st.markdown(_wrap_final(frase_semplice), unsafe_allow_html=True)
             else:
-                frase_semplice_no_dt = build_simple_sentence_no_dt(comune_inizio, comune_fine, INF_HOURS)
+                frase_semplice_no_dt = build_simple_sentence_no_dt(
+                    comune_inizio=comune_inizio,
+                    comune_fine=comune_fine,
+                    inf_hours=INF_HOURS,
+                )
                 if frase_semplice_no_dt:
                     st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
                     st.markdown(_wrap_final(frase_semplice_no_dt), unsafe_allow_html=True)
+
 
     # --- avvisi ---
     if nota_globale_range_adattato:
