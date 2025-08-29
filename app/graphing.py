@@ -1,9 +1,10 @@
 # app/graphing.py
 from __future__ import annotations
 import datetime
+from typing import Dict, List, Tuple, Any
+
 import numpy as np
 import streamlit as st
-from typing import Dict, List, Tuple, Any
 
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
 from app.parameters import (
@@ -20,8 +21,10 @@ from app.textgen import (
     frase_riepilogo_parametri_usati, avvisi_raffreddamento_henssge,
     frase_qd, build_simple_sentence, build_final_sentence_simple, build_simple_sentence_no_dt,
 )
+from app.factor_calc import build_cf_description
+from app.cautelativa import compute_raffreddamento_cautelativo
 
-# --------- helpers locali ----------
+# --------- helpers ----------
 def _is_num(x): return x is not None and not (isinstance(x, float) and np.isnan(x))
 
 def _warn_box(msg: str):
@@ -39,7 +42,7 @@ def _warn_box(msg: str):
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
 
-# --------- pubblico: funzione entrypoint ----------
+# --------- pubblico ----------
 def aggiorna_grafico(
     *,
     selettore_macchie: str,
@@ -84,13 +87,65 @@ def aggiorna_grafico(
 
     Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
 
-    # --- Henssge ---
-    round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
-    t_med_raff_hensge_rounded, t_min_raff_henssge, t_max_raff_henssge, t_med_raff_henssge_rounded_raw, Qd_val_check = calcola_raffreddamento(
-        Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
-    )
+    # =========================
+    # Henssge standard / Cautelativa
+    # =========================
     qd_threshold = 0.2 if Ta_val <= 23 else 0.5
-    raffreddamento_calcolabile = not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+
+    if st.session_state.get("stima_cautelativa_beta", False):
+        # range opzionali da session_state
+        Ta_range = None
+        CF_range = None
+        if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
+            a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
+            if a > b: a, b = b, a
+            Ta_range = (a, b)
+        if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+            a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
+            if a > b: a, b = b, a
+            CF_range = (a, b)
+
+        res = compute_raffreddamento_cautelativo(
+            dt_ispezione=data_ora_ispezione,
+            Ta_value=float(Ta_val),
+            CF_value=float(CF_val),
+            peso_kg=float(W_val),
+            Ta_range=Ta_range,
+            CF_range=CF_range,
+            peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
+            mostra_tabella=False,
+            applica_regola_48_inf=True,
+            solver_kwargs={
+                "Tr": float(Tr_val),
+                "T0": float(T0_val),
+                "round_minutes": int(st.session_state.get("henssge_round_minutes", 30)),
+            },
+        )
+
+        # mappa output cautelativa
+        t_min_raff_hensge = float(res.ore_min)
+        t_max_raff_hensge = (np.nan
+                             if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
+                             else float(res.ore_max))
+        _tmed_raw = t_min_raff_hensge if np.isnan(t_max_raff_hensge) else 0.5 * (t_min_raff_hensge + t_max_raff_hensge)
+        t_med_raff_hensge_rounded_raw = float(_tmed_raw)
+        t_med_raff_hensge_rounded = round_quarter_hour(_tmed_raw)
+        Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
+        raffreddamento_calcolabile = True
+
+        # testi cautelativa
+        dettagli.append(res.summary_html)
+        st.session_state["parentetica_extra"] = res.parentetica
+    else:
+        # Henssge standard
+        round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+        t_med_raff_hensge_rounded, t_min_raff_hensge, t_max_raff_hensge, t_med_raff_hensge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+            Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
+        )
+        raffreddamento_calcolabile = not np.isnan(t_med_raff_hensge_rounded) and t_med_raff_hensge_rounded >= 0
+        st.session_state["parentetica_extra"] = ""
+
+    # --- differenza piccola Tr-Ta ---
     temp_difference_small = (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0
 
     # --- macchie/rigidità ---
@@ -102,7 +157,7 @@ def aggiorna_grafico(
     rigidita_range = opzioni_rigidita.get(selettore_rigidita) if rigidita_range_valido else (np.nan, np.nan)
     rigidita_medi_range = rigidita_medi.get(selettore_rigidita) if rigidita_range_valido else None
 
-    # --- parametri aggiuntivi: traduzione + traslazione ---
+    # --- parametri aggiuntivi ---
     parametri_aggiuntivi_da_considerare: List[Dict[str, Any]] = []
     nota_globale_range_adattato = False
 
@@ -168,10 +223,10 @@ def aggiorna_grafico(
                 ))
 
     # --- range Henssge per grafico ---
-    t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
-    t_max_raff_visualizzato = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
+    t_min_raff_visualizzato = t_min_raff_hensge if raffreddamento_calcolabile else np.nan
+    t_max_raff_visualizzato = t_max_raff_hensge if raffreddamento_calcolabile else np.nan
 
-    # --- intersezione: accumula sorgenti ---
+    # --- intersezione ---
     inizio, fine = [], []
     nomi_usati = []
     if macchie_range_valido:
@@ -179,7 +234,7 @@ def aggiorna_grafico(
     if rigidita_range_valido:
         inizio.append(rigidita_range[0]); fine.append(rigidita_range[1]); nomi_usati.append("rigidità cadaverica")
 
-    # Potente (minimo) per UI
+    # Potente minimo
     mt_ore = None; mt_giorni = None
     if not any(np.isnan(v) for v in [Tr_val, Ta_val, CF_val, W_val]) and Tr_val > Ta_val + 1e-6:
         Qd_pot = (Tr_val - Ta_val) / (37.2 - Ta_val)
@@ -190,7 +245,7 @@ def aggiorna_grafico(
             mt_giorni = round((mt_ore or 0) / 24, 1)
     usa_potente = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold) and (mt_ore is not None) and (not np.isnan(mt_ore))
 
-    # extra nelle liste d’intersezione
+    # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
         lo, hi = p["range_traslato"]
         if _is_num(lo):
@@ -200,33 +255,39 @@ def aggiorna_grafico(
 
     # Henssge/Potente nell’intersezione
     if raffreddamento_calcolabile:
-        only_lower = (not np.isnan(Qd_val_check)) and Qd_val_check < 0.2
-        altri_con_fine = any([
-            macchie_range_valido and macchie_range[1] < INF_HOURS,
-            rigidita_range_valido and rigidita_range[1] < INF_HOURS,
-            any(_is_num(p["range_traslato"][0]) and _is_num(p["range_traslato"][1]) and p["range_traslato"][1] < INF_HOURS
-                for p in parametri_aggiuntivi_da_considerare)
-        ])
-        if usa_potente:
-            inizio.append(mt_ore); fine.append(np.nan)
-            nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
-        elif only_lower:
-            src = mt_ore if (mt_ore is not None and not np.isnan(mt_ore)) else t_min_raff_henssge
-            inizio.append(src); fine.append(np.nan)
-            nomi_usati.append("raffreddamento cadaverico (solo limite inferiore, affidabilità limitata)")
+        # caso cautelativa: limite superiore aperto (NaN)
+        if np.isnan(t_max_raff_hensge):
+            inizio.append(t_min_raff_hensge)
+            fine.append(np.nan)
+            nomi_usati.append("raffreddamento cadaverico (cautelativo: limite superiore aperto)")
         else:
-            if t_med_raff_henssge_rounded_raw > 48 and altri_con_fine:
-                if t_min_raff_henssge > 48:
-                    inizio.append(48.0); fine.append(np.nan); nomi_usati.append("raffreddamento cadaverico (>48h)")
-                else:
-                    inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+            only_lower = (not np.isnan(Qd_val_check)) and Qd_val_check < 0.2
+            altri_con_fine = any([
+                macchie_range_valido and macchie_range[1] < INF_HOURS,
+                rigidita_range_valido and rigidita_range[1] < INF_HOURS,
+                any(_is_num(p["range_traslato"][0]) and _is_num(p["range_traslato"][1]) and p["range_traslato"][1] < INF_HOURS
+                    for p in parametri_aggiuntivi_da_considerare)
+            ])
+            if usa_potente:
+                inizio.append(mt_ore); fine.append(np.nan)
+                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+            elif only_lower:
+                src = mt_ore if (mt_ore is not None and not np.isnan(mt_ore)) else t_min_raff_hensge
+                inizio.append(src); fine.append(np.nan)
+                nomi_usati.append("raffreddamento cadaverico (solo limite inferiore, affidabilità limitata)")
             else:
-                inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+                if t_med_raff_hensge_rounded_raw > 48 and altri_con_fine:
+                    if t_min_raff_hensge > 48:
+                        inizio.append(48.0); fine.append(np.nan); nomi_usati.append("raffreddamento cadaverico (>48h)")
+                    else:
+                        inizio.append(t_min_raff_hensge); fine.append(t_max_raff_hensge); nomi_usati.append("raffreddamento cadaverico")
+                else:
+                    inizio.append(t_min_raff_hensge); fine.append(t_max_raff_hensge); nomi_usati.append("raffreddamento cadaverico")
 
     if (not usa_potente) and (mt_ore is not None) and (not np.isnan(mt_ore)):
         inizio.append(mt_ore); fine.append(np.nan)
 
-    # intersezione
+    # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
         comune_inizio, comune_fine, overlap = np.nan, np.nan, False
@@ -234,6 +295,9 @@ def aggiorna_grafico(
         comune_inizio = max(starts_clean)
         superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
         comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+        # se cautelativa e nessuno chiude → lascia aperto
+        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_hensge) and not superiori_finiti:
+            comune_fine = np.nan
         overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
 
     # --- extra per grafico ---
@@ -259,9 +323,9 @@ def aggiorna_grafico(
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
                 raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_hensge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                t_min_raff_henssge=t_min_raff_hensge if raffreddamento_calcolabile else np.nan,
+                t_max_raff_henssge=t_max_raff_hensge if raffreddamento_calcolabile else np.nan,
+                t_med_raff_henssge_rounded_raw=t_med_raff_hensge_rounded_raw if raffreddamento_calcolabile else np.nan,
                 Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
                 mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
@@ -275,15 +339,15 @@ def aggiorna_grafico(
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
                 raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_hensge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                t_min_raff_henssge=t_min_raff_hensge if raffreddamento_calcolabile else np.nan,
+                t_max_raff_henssge=t_max_raff_hensge if raffreddamento_calcolabile else np.nan,
+                t_med_raff_henssge_rounded_raw=t_med_raff_hensge_rounded_raw if raffreddamento_calcolabile else np.nan,
                 Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
                 mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
                 qd_threshold=qd_threshold,
             )
-            plot_data["extra_params"] = extra_params_for_plot
+            plot_data["extra_params"] = extra_params_for_plot  # compat renderer legacy
 
         tail = plot_data.get("tail_end", 72.0)
         for e in extra_params_for_plot:
@@ -335,28 +399,31 @@ def aggiorna_grafico(
             avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, la fase di plateau può ridurre la precisione del metodo.")
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
-        avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_hensg e_rounded, qd_val=Qd_val_check))
+        avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_hensge_rounded, qd_val=Qd_val_check))
 
     # --- paragrafi descrittivi ---
-    cf_descr = build_cf_description(
-        cf_value=st.session_state.get("fattore_correzione", 1.0),
-        riassunto=st.session_state.get("fc_riassunto_contatori"),
-        fallback_text=st.session_state.get("fattori_condizioni_testo")
-    )
-    dettagli.append(paragrafo_raffreddamento_input(
-        isp_dt=data_ora_ispezione if usa_orario_custom else None,
-        ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
-    ))
-    par_h = paragrafo_raffreddamento_dettaglio(
-        t_min_visual=t_min_raff_visualizzato, t_max_visual=t_max_raff_visualizzato,
-        t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check, ta_val=Ta_val,
-    )
-    if par_h: dettagli.append(par_h)
+    if not st.session_state.get("stima_cautelativa_beta", False):
+        cf_descr = build_cf_description(
+            cf_value=st.session_state.get("fattore_correzione", 1.0),
+            riassunto=st.session_state.get("fc_riassunto_contatori"),
+            fallback_text=st.session_state.get("fattori_condizioni_testo")
+        )
+        dettagli.append(paragrafo_raffreddamento_input(
+            isp_dt=data_ora_ispezione if usa_orario_custom else None,
+            ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+        ))
+        par_h = paragrafo_raffreddamento_dettaglio(
+            t_min_visual=t_min_raff_visualizzato, t_max_visual=t_max_raff_visualizzato,
+            t_med_round=t_med_raff_hensge_rounded, qd_val=Qd_val_check, ta_val=Ta_val,
+        )
+        if par_h:
+            dettagli.append(par_h)
 
     par_p = paragrafo_potente(
         mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
     )
-    if par_p: dettagli.append(par_p)
+    if par_p:
+        dettagli.append(par_p)
 
     dettagli.extend(paragrafi_descrizioni_base(
         testo_macchie=testi_macchie[selettore_macchie],
@@ -364,11 +431,20 @@ def aggiorna_grafico(
     ))
     dettagli.extend(paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare))
     par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
-    if par_putr: dettagli.append(par_putr)
+    if par_putr:
+        dettagli.append(par_putr)
 
-    frase_finale_html = build_final_sentence(
-        comune_inizio, comune_fine, data_ora_ispezione, qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
-    )
+    # frase finale complessiva
+    frase_finale_html = None
+    if not st.session_state.get("stima_cautelativa_beta", False):
+        frase_finale_html = build_final_sentence(
+            comune_inizio, comune_fine, data_ora_ispezione, qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+        )
+
+    # parentetica extra (cautelativa)
+    _par_extra = st.session_state.get("parentetica_extra", "")
+    if _par_extra:
+        frase_finale_html = ((frase_finale_html or "").strip() + (" " if frase_finale_html else "") + _par_extra).strip()
 
     # toggle avvisi
     if avvisi:
