@@ -36,19 +36,31 @@ def compute_plot_data(
     starts: List[float] = []
     ends: List[float] = []
 
+        
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
-        ...
+        if macchie_range[1] < INF_HOURS:
+            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
+            end_val = macchie_range[1]
+        else:
+            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
+            end_val = INF_HOURS
         labels.append(label_macchie)
-        starts.append(macchie_range[0])
-        ends.append(end_val)
+        starts.append(float(macchie_range[0]))
+        ends.append(float(end_val))
 
     # Etichette + range: RIGIDITÀ
     if rigidita_range is not None and not np.isnan(rigidita_range[0]):
-        ...
+        if rigidita_range[1] < INF_HOURS:
+            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
+            end_val = rigidita_range[1]
+        else:
+            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
+            end_val = INF_HOURS
         labels.append(label_rigidita)
-        starts.append(rigidita_range[0])
-        ends.append(end_val)
+        starts.append(float(rigidita_range[0]))
+        ends.append(float(end_val))
+        
 
   
     # Parametri extra (altri range orari da mostrare come barre)
