@@ -41,10 +41,9 @@ from app.textgen import (
     build_simple_sentence_no_dt,        
 )
 
-# NEW (beta)
 from app.cautelativa import compute_raffreddamento_cautelativo
 
-
+from app.graphing import aggiorna_grafico  # in cima al file
 
 import streamlit as st
 import matplotlib.pyplot as plt
