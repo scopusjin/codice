@@ -821,7 +821,7 @@ def aggiorna_grafico():
                 nome_raffreddamento_intersezione = "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
             else:
-                ranges_per_intersezione_inizio.append(t_min_raff_hensge)
+                ranges_per_intersezione_inizio.append(t_min_raff_henssge)
                 ranges_per_intersezione_fine.append(np.nan)
                 nome_raffreddamento_intersezione = (
                     "raffreddamento cadaverico (è stato considerato solo il limite inferiore, "
@@ -841,13 +841,13 @@ def aggiorna_grafico():
                         )
                         nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
                     else:
-                        ranges_per_intersezione_inizio.append(t_min_raff_hensge)
-                        ranges_per_intersezione_fine.append(t_max_raff_hensge)
+                        ranges_per_intersezione_inizio.append(t_min_raff_henssge)
+                        ranges_per_intersezione_fine.append(t_max_raff_henssge)
                         nome_raffreddamento_intersezione = "raffreddamento cadaverico"
                         nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
             else:
-                ranges_per_intersezione_inizio.append(t_min_raff_hensge)
-                ranges_per_intersezione_fine.append(t_max_raff_hensge)
+                ranges_per_intersezione_inizio.append(t_min_raff_henssge)
+                ranges_per_intersezione_fine.append(t_max_raff_henssge)
                 nome_raffreddamento_intersezione = "raffreddamento cadaverico"
                 nomi_parametri_usati_per_intersezione.append(nome_raffreddamento_intersezione)
 
