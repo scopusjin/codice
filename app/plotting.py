@@ -65,23 +65,23 @@ def compute_plot_data(
     t_max_raff_visualizzato = np.nan
 
     if raffreddamento_calcolabile:
-        t_min_raff_visualizzato = t_min_raff_hensge
-        t_max_raff_visualizzato = t_max_raff_hensge
+        t_min_raff_visualizzato = t_min_raff_henssge
+        t_max_raff_visualizzato = t_max_raff_henssge
 
         # Flag condizioni speciali
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-        raff_over_48 = (t_med_raff_hensge_rounded_raw is not None) and (t_med_raff_hensge_rounded_raw > 48)
+        raff_over_48 = (t_med_raff_henssge_rounded_raw is not None) and (t_med_raff_henssge_rounded_raw > 48)
 
         # Etichetta Henssge
         if raff_only_lower:
-            maggiore_di_valore = t_min_raff_hensge
+            maggiore_di_valore = t_min_raff_henssge
             if mt_ore is not None and not np.isnan(mt_ore):
                 maggiore_di_valore = float(round(mt_ore))
                 label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
             else:
                 label_h = (
                     f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)\n"
-                    f"({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
+                    f"({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
                 )
         elif raff_over_48:
             label_h = (
@@ -89,11 +89,11 @@ def compute_plot_data(
                 f"({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
             )
         else:
-            label_h = f"Raffreddamento\n({_fmt(t_min_raff_hensge)}–{_fmt(t_max_raff_hensge)} h)"
+            label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
 
         labels.append(label_h)
-        starts.append(t_min_raff_hensge)
-        ends.append(t_max_raff_hensge)
+        starts.append(t_min_raff_henssge)
+        ends.append(t_max_raff_henssge)
         raffreddamento_idx = len(labels) - 1
     else:
         raff_only_lower = False
