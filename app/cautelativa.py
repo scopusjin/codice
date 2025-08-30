@@ -254,7 +254,7 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
         return "∞"
     return dt.strftime("%d.%m.%Y, %H:%M")
 
-def build_summary_html(
+
 def build_summary_html(
     Ta_lo: float, Ta_hi: float,
     CF_lo: float, CF_hi: float,
