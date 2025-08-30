@@ -254,6 +254,25 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
         return "∞"
     return dt.strftime("%d.%m.%Y, %H:%M")
 
+def _fmt_ore(ore: float) -> str:
+    """
+    Converte ore decimali in stringa leggibile: es. 1.5 -> '1 ora e 30 minuti'.
+    Gestisce singolare/plurale.
+    """
+    if ore is None or not math.isfinite(ore):
+        return "—"
+    h = int(ore)
+    m = int(round((ore - h) * 60))
+    parts = []
+    if h > 0:
+        parts.append(f"{h} {'ora' if h == 1 else 'ore'}")
+    if m > 0:
+        parts.append(f"{m} {'minuto' if m == 1 else 'minuti'}")
+    if not parts:  # caso 0
+        return "0 ore"
+    return " e ".join(parts)
+    
+
 def _lbl_ore(x: float) -> str:
     """Ritorna 'ora' al singolare se =1, altrimenti 'ore'."""
     return "ora" if abs(x - 1.0) < 1e-9 else "ore"
