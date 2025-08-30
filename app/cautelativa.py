@@ -304,19 +304,8 @@ def build_summary_html(
     # ✨ QUI: definisci le variabili mancanti
     intervallo_dt = f"Intervallo temporale approssimativo: <b>{_fmt_dt(dt_min)}</b> – <b>{_fmt_dt(dt_max)}</b>"
 
-    qd_line = ""
-    if (qd_min is not None) or (qd_max is not None):
-        if (qd_min is not None) and (qd_max is not None):
-            if abs(qd_min - qd_max) < 1e-9:
-                qd_line = f"Quota di decremento (Qd) stimata: <b>{qd_min:.3f}</b>."
-            else:
-                qd_line = f"Quota di decremento (Qd) compresa tra <b>{qd_min:.3f}</b> e <b>{qd_max:.3f}</b>."
-        elif qd_min is not None:
-            qd_line = f"Quota di decremento (Qd) minima stimata: <b>{qd_min:.3f}</b>."
-        else:
-            qd_line = f"Quota di decremento (Qd) massima stimata: <b>{qd_max:.3f}</b>."
-
-    parts = [header, conclusione]
+    
+    parts = [header, bullets, conclusione]
     if qd_line:
         parts.append(qd_line)
 
