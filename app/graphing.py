@@ -303,17 +303,20 @@ def aggiorna_grafico(
 
     # --- extra per grafico ---
     extra_params_for_plot = []
-    for p in parametri_aggiuntivi_da_considerare:
+    for idx, p in enumerate(parametri_aggiuntivi_da_considerare):
         lo, hi = p["range_traslato"]
         if _is_num(lo):
             label = nomi_brevi.get(p["nome"], p["nome"])
+            if p.get("adattato"):
+                label += "*"  # segna orario adattato
             extra_params_for_plot.append({
-            "label": label,
-            "start": float(lo),
-            "end": float(hi) if _is_num(hi) else np.inf,
-            "order": idx,
-            "adattato": p.get("adattato", False),  # <-- aggiunto
-        })
+                "label": label,
+                "start": float(lo),
+                "end": float(hi) if _is_num(hi) else np.inf,
+                "order": idx,  # <-- ora esiste
+                "adattato": bool(p.get("adattato", False)),
+            })
+            
             
     # --- grafico ---
     num_params_grafico = 0
