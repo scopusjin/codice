@@ -255,6 +255,7 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
     return dt.strftime("%d.%m.%Y, %H:%M")
 
 def build_summary_html(
+def build_summary_html(
     Ta_lo: float, Ta_hi: float,
     CF_lo: float, CF_hi: float,
     p_lo: float, p_hi: float,
@@ -271,10 +272,7 @@ def build_summary_html(
     if peso_stimato:
         p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg") + " (stimato)"
     else:
-        if abs(p_lo - p_hi) < 1e-9:
-            p_txt = f"{round(p_lo, 1):g} kg"
-        else:
-            p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+        p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
     # Frase risultato
     if ore_max >= INF_HOURS - 1e-9:
@@ -301,15 +299,8 @@ def build_summary_html(
         "dell’ispezione legale."
     )
 
-    # ✨ QUI: definisci le variabili mancanti
-    intervallo_dt = f"Intervallo temporale approssimativo: <b>{_fmt_dt(dt_min)}</b> – <b>{_fmt_dt(dt_max)}</b>"
-
+    return "<br>".join([header, bullets, conclusione])
     
-    parts = [header, bullets, conclusione]
-    if qd_line:
-        parts.append(qd_line)
-
-    return "<br>".join(parts)
 
 def build_parentetica_cautelativa(
     Ta_lo: float, Ta_hi: float,
