@@ -254,6 +254,10 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
         return "∞"
     return dt.strftime("%d.%m.%Y, %H:%M")
 
+def _lbl_ore(x: float) -> str:
+    """Ritorna 'ora' al singolare se =1, altrimenti 'ore'."""
+    return "ora" if abs(x - 1.0) < 1e-9 else "ore"
+    
 
 def build_summary_html(
     Ta_lo: float, Ta_hi: float,
@@ -274,14 +278,18 @@ def build_summary_html(
     else:
         p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    # Frase risultato
+    
+        # Frase risultato con singolare/plurale corretto
     if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"oltre {ore_min:g} ore"
+        risultato_txt = f"oltre {ore_min:g} {_lbl_ore(ore_min)}"
     elif ore_min <= 1e-9:
-        risultato_txt = f"non oltre {ore_max:g} ore"
+        risultato_txt = f"non oltre {ore_max:g} {_lbl_ore(ore_max)}"
     else:
-        risultato_txt = f"tra circa {ore_min:g} e {ore_max:g} ore"
-
+        risultato_txt = (
+            f"tra circa {ore_min:g} {_lbl_ore(ore_min)} "
+            f"e {ore_max:g} {_lbl_ore(ore_max)}"
+        )
+        
     header = (
         "Per quanto attiene la valutazione del raffreddamento cadaverico, "
         "sono stati stimati i parametri di seguito indicati."
