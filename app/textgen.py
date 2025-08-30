@@ -94,8 +94,10 @@ def build_final_sentence(
         testo = (
             f"La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
             f"consente di stimare che la morte sia avvenuta <b>non oltre</b> "
-            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} "ilievi effettuati durante l’ispezione legale, ovvero successivamente alle ore {hh2} del {dd2}."
+            f"{h2} {lbl2}{'' if m2 == 0 else f' {m2} minuti'} prima dei rilievi effettuati durante l’ispezione legale, "
+            f"ovvero successivamente alle ore {hh2} del {dd2}."
         )
+
         return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
 
     # Caso: A–B
@@ -266,7 +268,7 @@ def build_final_sentence_simple(
         h1, m1, lbl1 = _fmt_ore_min(comune_inizio)
         testo = (
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
-            f"consente di stimare che la morte sia avvenuta più di"
+            f"consente di stimare che la morte sia avvenuta più di "
             f"{h1} {lbl1}{'' if m1 == 0 else f' {m1} minuti'} "
             "prima dei rilievi dei dati tanatologici."
         )
