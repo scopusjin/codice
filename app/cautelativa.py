@@ -316,7 +316,7 @@ def build_summary_html(
         else:
             qd_line = f"Quota di decremento (Qd) massima stimata: <b>{qd_max:.3f}</b>."
 
-    parts = [header, bullets, conclusione, intervallo_dt]
+    parts = [header, conclusione]
     if qd_line:
         parts.append(qd_line)
 
