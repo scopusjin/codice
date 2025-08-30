@@ -298,16 +298,14 @@ def build_summary_html(
         p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
     
-        # Frase risultato con singolare/plurale corretto
+        #     # Frase risultato (usando _fmt_ore per ore decimali)
     if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"oltre {ore_min:g} {_lbl_ore(ore_min)}"
+        risultato_txt = f"oltre {_fmt_ore(ore_min)}"
     elif ore_min <= 1e-9:
-        risultato_txt = f"non oltre {ore_max:g} {_lbl_ore(ore_max)}"
+        risultato_txt = f"non oltre {_fmt_ore(ore_max)}"
     else:
-        risultato_txt = (
-            f"tra circa {ore_min:g} {_lbl_ore(ore_min)} "
-            f"e {ore_max:g} {_lbl_ore(ore_max)}"
-        )
+        risultato_txt = f"tra circa {_fmt_ore(ore_min)} e {_fmt_ore(ore_max)}"
+
         
     header = (
         "Per quanto attiene la valutazione del raffreddamento cadaverico, "
