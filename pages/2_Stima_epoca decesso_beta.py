@@ -398,10 +398,21 @@ if mostra_parametri_aggiuntivi:
     with st.container(border=True):
         usa_orario_custom_globale = st.session_state.get("usa_orario_custom", False)
 
+        # Messaggio generale (mostrato una volta sola) se la data/ora iniziale NON è attiva
+        if not usa_orario_custom_globale:
+            st.markdown(
+                "<div style='font-size:0.9rem; color:#666; padding:6px 8px; "
+                "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
+                "Per specificare orari diversi per i singoli parametri, attiva in alto "
+                "<b>“Aggiungi data/ora rilievo dei dati tanatologici”</b>."
+                "</div>",
+                unsafe_allow_html=True
+            )
+
         for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
             col1, col2 = st.columns([1, 2], gap="small")
 
-            # ---- Colonna etichetta + (eventuali) immagini di aiuto ----
+            # ---- Colonna etichetta + eventuale immagine di aiuto ----
             with col1:
                 subcol1, subcol2 = st.columns([1, 0.5])
                 with subcol1:
@@ -432,14 +443,14 @@ if mostra_parametri_aggiuntivi:
                     label_visibility="collapsed"
                 )
 
-            # ---- Orario diverso? + helper “?” ----
+            # ---- Campi "orario diverso" (visibili solo se globale attivo) ----
             data_picker = None
             ora_input = None
             usa_orario_personalizzato = False
 
-            if selettore != "Non valutata":
+            if selettore != "Non valutata" and usa_orario_custom_globale:
                 chiave_checkbox = f"{nome_parametro}_diversa"
-                colx1, colx2, colx3 = st.columns([0.55, 0.15, 0.05], gap="small")
+                colx1, colx2 = st.columns([0.75, 0.25], gap="small")
                 with colx1:
                     st.markdown(
                         "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
@@ -449,16 +460,9 @@ if mostra_parametri_aggiuntivi:
                     )
                 with colx2:
                     usa_orario_personalizzato = st.checkbox(label="", key=chiave_checkbox)
-                with colx3:
-                    if not usa_orario_custom_globale:
-                        with st.popover("?", help="Per specificare orari diversi, attiva 'Aggiungi data/ora rilievo dei dati tanatologici' in alto."):
-                            st.markdown(
-                                "Per indicare data/ora specifiche dei singoli parametri, "
-                                "attiva prima l'opzione in alto: **Aggiungi data/ora rilievo dei dati tanatologici**."
-                            )
 
             # ---- Campi data/ora SOLO se: globale attivo + checkbox attiva ----
-            if usa_orario_personalizzato and usa_orario_custom_globale:
+            if usa_orario_custom_globale and usa_orario_personalizzato:
                 coly1, coly2 = st.columns(2)
                 with coly1:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
@@ -493,6 +497,8 @@ if mostra_parametri_aggiuntivi:
 else:
     st.session_state["alterazioni_putrefattive"] = False
     
+    
+            
 
 # --- Firma degli input che influenzano la stima ---
 def _inputs_signature():
