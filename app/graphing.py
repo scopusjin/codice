@@ -402,9 +402,12 @@ def aggiorna_grafico(
 
 
     # --- avvisi ---
+# --- avvisi ---
     if nota_globale_range_adattato:
-        avvisi.append("<p style='color:gray;font-size:small;'>* alcuni parametri sono stati valutati a orari diversi; i range sono stati traslati per renderli confrontabili.</p>")
-
+        avvisi.append(
+            "Alcuni parametri sono stati rilevati in orari diversi; i range sono stati traslati per renderli confrontabili."
+    )
+    
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
