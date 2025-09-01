@@ -130,8 +130,33 @@ if "show_img_peribuccale" not in st.session_state:
 if "show_results" not in st.session_state:
     st.session_state["show_results"] = False
 
+# --- INIT per cautelativa: intervallo FC proposto dal pannello "Suggerisci FC"
+if "fc_suggested_vals" not in st.session_state:
+    st.session_state["fc_suggested_vals"] = []  # float arrotondati a 2 decimali
+
+def _add_fc_suggestion(val: float):
+    """Aggiunge un FC all'intervallo (dedup, ordina). Se >2 → tiene solo min e max."""
+    v = round(float(val), 2)
+    arr = list({*st.session_state["fc_suggested_vals"], v})  # dedup
+    arr.sort()
+    if len(arr) > 2:
+        arr = [arr[0], arr[-1]]  # estremi
+    st.session_state["fc_suggested_vals"] = arr
+    if len(arr) == 2:
+        st.session_state["FC_min_beta"] = arr[0]
+        st.session_state["FC_max_beta"] = arr[1]
+    elif len(arr) == 1:
+        st.session_state.pop("FC_min_beta", None)
+        st.session_state.pop("FC_max_beta", None)
+
+def _clear_fc_suggestions():
+    st.session_state["fc_suggested_vals"] = []
+    st.session_state.pop("FC_min_beta", None)
+    st.session_state.pop("FC_max_beta", None)
+
+
 # Titolo
-st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso — BETA</h5>", unsafe_allow_html=True)
+st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
 
 # --- Definizione Widget (Streamlit) ---
 with st.container(border=True):
