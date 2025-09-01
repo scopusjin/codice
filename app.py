@@ -233,7 +233,7 @@ with st.container(border=True):
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
             input_rt = st.number_input("T. rettale (°C):", value=st.session_state.get("rt_val", 35.0), step=0.1, format="%.1f", label_visibility="collapsed", key="rt_val")
         with c2:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             input_tm = st.number_input("T. ante-mortem stimata (°C):", value=st.session_state.get("tm_val", 37.2), step=0.1, format="%.1f", label_visibility="collapsed", key="tm_val")
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
@@ -243,15 +243,15 @@ with st.container(border=True):
             st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
 
         # Riga 2: T. ambientale media + toggle “Specifica range diverso”
-        st.markdown("<div style='font-size: 0.88rem;'>Temperatura ambientale media (°C):</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
         r2c1, r2c2, r2c3 = st.columns([1, 1, 1.2], gap="small")
         with r2c1:
             input_ta = st.number_input("TA base", value=st.session_state.get("ta_base_val", 20.0), step=0.1, format="%.1f", label_visibility="collapsed", key="ta_base_val")
         with r2c2:
-            ta_range_toggle = st.toggle("Specifica range diverso", value=st.session_state.get("ta_range_toggle_beta", False), key="ta_range_toggle_beta")
+            ta_range_toggle = st.toggle("Specifica range", value=st.session_state.get("ta_range_toggle_beta", False), key="ta_range_toggle_beta")
         with r2c3:
             if not ta_range_toggle:
-                st.caption("Verrà considerato un range ±1.0 °C dal valore inserito.")
+                st.caption("Verrà considerato un range ±1.0 °C.")
         if ta_range_toggle:
             r2c4, r2c5 = st.columns([1, 1], gap="small")
             with r2c4:
@@ -264,7 +264,7 @@ with st.container(border=True):
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
 
-        # Riga 3: FC + toggle “Specifica altro range” + switch “Suggerisci FC”
+        # Riga 3: FC + toggle “Specifica range” + switch “Suggerisci FC”
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
         r3c1, r3c2, r3c3 = st.columns([1, 1, 1], gap="small")
         with r3c1:
