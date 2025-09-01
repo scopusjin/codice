@@ -90,22 +90,38 @@ def aggiorna_grafico(
     Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
 
     # =========================
+    # =========================
     # Henssge standard / Cautelativa
     # =========================
     qd_threshold = 0.2 if Ta_val <= 23 else 0.5
 
     if st.session_state.get("stima_cautelativa_beta", False):
-        # range opzionali da session_state
+        # --- TA range ---
         Ta_range = None
-        CF_range = None
         if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
             a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
-            if a > b: a, b = b, a
+            if a > b:
+                a, b = b, a
             Ta_range = (a, b)
-        if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-            a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
-            if a > b: a, b = b, a
-            CF_range = (a, b)
+
+        # --- FC range (manuale → suggeritore → default) ---
+        CF_range = None
+        if st.session_state.get("fc_manual_range_beta", False):
+            if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+                a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
+                if a > b:
+                    a, b = b, a
+                CF_range = (max(a, 0.01), max(b, 0.01))
+        else:
+            vals = st.session_state.get("fc_suggested_vals", [])
+            if len(vals) == 2:
+                a, b = sorted([float(vals[0]), float(vals[1])])
+                CF_range = (max(a, 0.01), max(b, 0.01))
+            elif len(vals) == 1:
+                v = float(vals[0])
+                CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
+            else:
+                CF_range = None  # il core userà ±0.10 su CF_value
 
         res = compute_raffreddamento_cautelativo(
             dt_ispezione=data_ora_ispezione,
@@ -126,9 +142,10 @@ def aggiorna_grafico(
 
         # mappa output cautelativa
         t_min_raff_henssge = float(res.ore_min)
-        t_max_raff_henssge = (np.nan
-                              if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
-                              else float(res.ore_max))
+        t_max_raff_henssge = (
+            np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
+            else float(res.ore_max)
+        )
         _tmed_raw = t_min_raff_henssge if np.isnan(t_max_raff_henssge) else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
         t_med_raff_henssge_rounded_raw = float(_tmed_raw)
         t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
@@ -138,13 +155,22 @@ def aggiorna_grafico(
         # testi cautelativa
         dettagli.append(res.summary_html)
         st.session_state["parentetica_extra"] = res.parentetica
+
     else:
         # Henssge standard
         round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
-        t_med_raff_henssge_rounded, t_min_raff_henssge, t_max_raff_henssge, t_med_raff_henssge_rounded_raw, Qd_val_check = calcola_raffreddamento(
+        (
+            t_med_raff_henssge_rounded,
+            t_min_raff_henssge,
+            t_max_raff_henssge,
+            t_med_raff_henssge_rounded_raw,
+            Qd_val_check,
+        ) = calcola_raffreddamento(
             Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
         )
-        raffreddamento_calcolabile = not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+        raffreddamento_calcolabile = (
+            not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+        )
         st.session_state["parentetica_extra"] = ""
 
     # --- differenza piccola Tr-Ta ---
