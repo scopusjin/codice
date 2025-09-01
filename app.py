@@ -345,6 +345,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             st.session_state.pop("FC_min_beta", None)
             st.session_state.pop("FC_max_beta", None)
 
+        # forza il refresh dell'interfaccia per mostrare subito il campo aggiuntivo
+        st.rerun()
+
+
     def _clear_fc_suggestions() -> None:
         st.session_state["fc_suggested_vals"] = []
         st.session_state.pop("FC_min_beta", None)
