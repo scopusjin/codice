@@ -318,14 +318,7 @@ with st.container(border=True):
             with subcol2:
                 st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
 
-# --- Pannello "Suggerisci FC" ---
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(
-            peso_default=st.session_state.get("peso", 70.0),
-            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-        )
-        
+
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
@@ -516,7 +509,14 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                       use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc"))
             
 
-
+# --- Pannello "Suggerisci FC" ---
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        pannello_suggerisci_fc(
+            peso_default=st.session_state.get("peso", 70.0),
+            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+        )
+        
 
 
 # Parametri aggiuntivi (identico alla app principale)
