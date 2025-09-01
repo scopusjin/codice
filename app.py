@@ -628,45 +628,33 @@ else:
 
 # --- Firma degli input che influenzano la stima ---
 def _inputs_signature():
-    data_sig = st.session_state.get("input_data_rilievo")
-    ora_sig  = st.session_state.get("input_ora_rilievo")
+    import numpy as np
+    import datetime as _dt
 
-    base = [
-        st.session_state.get("usa_orario_custom", False),
-        str(data_sig) if data_sig else None,
-        str(ora_sig) if ora_sig else None,
-        selettore_macchie,
-        selettore_rigidita,
-        float(input_rt) if input_rt is not None else None,
-        float(input_ta) if input_ta is not None else None,
-        float(input_tm) if input_tm is not None else None,
-        float(input_w) if input_w is not None else None,
-        float(st.session_state.get("fattore_correzione", 1.0)),
-        bool(mostra_parametri_aggiuntivi),
-        bool(st.session_state.get("alterazioni_putrefattive", False)),
-    ]
-    extra = []
-    for nome_parametro, _ in dati_parametri_aggiuntivi.items():
-        extra.append(st.session_state.get(f"{nome_parametro}_selector"))
-        extra.append(st.session_state.get(f"{nome_parametro}_diversa"))
-        extra.append(str(st.session_state.get(f"{nome_parametro}_data")) if st.session_state.get(f"{nome_parametro}_data") else None)
-        extra.append(st.session_state.get(f"{nome_parametro}_ora"))
-
-    base.extend([
-        bool(st.session_state.get("stima_cautelativa_beta", False)),
-        st.session_state.get("Ta_min_beta"),
-        st.session_state.get("Ta_max_beta"),
-        st.session_state.get("FC_min_beta"),
-        st.session_state.get("FC_max_beta"),
-        bool(st.session_state.get("peso_stimato_beta", False)),
-        # 🔽 NUOVI CAMPI DA AGGIUNGERE 🔽
-        bool(st.session_state.get("ta_range_toggle_beta", False)),
-        st.session_state.get("ta_other_val"),
-        bool(st.session_state.get("fc_manual_range_beta", False)),
-        st.session_state.get("fc_other_val"),
-    ])
-    
-    return tuple(base + extra)
+    def _freeze(v):
+        # None o bool OK
+        if v is None or isinstance(v, bool):
+            return v
+        # numeri numpy -> float/int native
+        if isinstance(v, (np.floating,)):
+            return float(v)
+        if isinstance(v, (np.integer,)):
+            return int(v)
+        # numeri python
+        if isinstance(v, (int, float)):
+            return v
+        # date/datetime -> stringa ISO (immutabile e confrontabile)
+        if isinstance(v, (_dt.date, _dt.datetime, _dt.time)):
+            try:
+                return v.isoformat()
+            except Exception:
+                return str(v)
+        # liste/tuple -> tupla ricorsiva
+        if isinstance(v, (list, tuple)):
+            return tuple(_freeze(x) for x in v)
+        # dict -> tupla ordinata di coppie (chiave,valore) freezate
+        if isinstance(v, dict
+                      
 
 # Stile bottone
 st.markdown("""
