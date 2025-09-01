@@ -240,79 +240,82 @@ st.toggle(
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
 if stima_cautelativa_beta:
-    # --- Ta ---
-    cc1, cc2 = st.columns(2, gap="small")
-    with cc1:
+    # --- Ta: range su una riga ---
+    st.markdown("<div style='font-size:0.88rem;'>Range Temperatura ambientale media (°C):</div>", unsafe_allow_html=True)
+    col_ta1, col_ta2 = st.columns(2, gap="small")
+    with col_ta1:
         Ta_min = st.number_input(
-            "Range Temperatura ambientale media (°C)",
+            "Ta min",
             value=st.session_state.get("Ta_min_beta", max(input_ta - 1.0, -50.0)),
-            step=0.1, format="%.1f"
+            step=0.1, format="%.1f",
+            label_visibility="collapsed"
         )
-        st.session_state["Ta_min_beta"] = Ta_min
-    with cc2:
+    with col_ta2:
         Ta_max = st.number_input(
+            "Ta max",
             value=st.session_state.get("Ta_max_beta", input_ta + 1.0),
-            step=0.1, format="%.1f"
+            step=0.1, format="%.1f",
+            label_visibility="collapsed"
         )
-        st.session_state["Ta_max_beta"] = Ta_max
+    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = sorted([Ta_min, Ta_max])
 
-    # --- FC: intervallo manuale opzionale + riepilogo suggerimenti ---
-    fc_vals = st.session_state.get("fc_suggested_vals", [])  # eventuali FC aggiunti dal pannello "Suggerisci FC"
+    # --- FC: range su una riga (se attivo manuale) ---
+    fc_vals = st.session_state.get("fc_suggested_vals", [])
     if len(fc_vals) == 2:
         st.markdown(
             f"<div style='font-size:0.9rem; color:#0f5132;'>"
-            f"Range Fattore di correzione: <b>{fc_vals[0]:.2f}–{fc_vals[1]:.2f}</b>"
-            f"</div>",
-            unsafe_allow_html=True
+            f"Range Fattore di correzione dai suggerimenti: <b>{fc_vals[0]:.2f} – {fc_vals[1]:.2f}</b>"
+            f"</div>", unsafe_allow_html=True
         )
     elif len(fc_vals) == 1:
         st.markdown(
             f"<div style='font-size:0.9rem; color:#0f5132;'>"
-            f"Fattore di correzione: <b>{fc_vals[0]:.2f}</b> (se non imposti un intervallo manuale, verrà considerato, catamente, un range  ±0.10 rispetto al valore inserito di FC)"
-            f"</div>",
-            unsafe_allow_html=True
+            f"Fattore di correzione: <b>{fc_vals[0]:.2f}</b> "
+            f"(se non imposti un intervallo manuale, verrà considerato ±0.10 attorno al valore inserito)"
+            f"</div>", unsafe_allow_html=True
         )
     else:
         st.markdown(
             "<div style='font-size:0.9rem; color:#666;'>"
             "Nessun intervallo FC dai suggerimenti. Se non imposti un intervallo manuale verrà usato il default ±0.10."
-            "</div>",
-            unsafe_allow_html=True
+            "</div>", unsafe_allow_html=True
         )
 
     fc_manual = st.checkbox(
-        "Specifica il range di FC",
+        "Specifica manualmente il range di FC",
         value=st.session_state.get("fc_manual_range_beta", False),
         key="fc_manual_range_beta"
     )
 
     if fc_manual:
-        cc3, cc4 = st.columns(2, gap="small")
-        with cc3:
+        st.markdown("<div style='font-size:0.88rem;'>Range Fattore di correzione:</div>", unsafe_allow_html=True)
+        col_fc1, col_fc2 = st.columns(2, gap="small")
+        with col_fc1:
             FC_min = st.number_input(
+                "FC min",
                 value=st.session_state.get(
                     "FC_min_beta",
                     max(st.session_state.get("fattore_correzione", 1.0) - 0.1, 0.01)
                 ),
-                step=0.01, format="%.2f"
+                step=0.01, format="%.2f",
+                label_visibility="collapsed"
             )
-            st.session_state["FC_min_beta"] = FC_min
-        with cc4:
+        with col_fc2:
             FC_max = st.number_input(
-                "FC massimo",
+                "FC max",
                 value=st.session_state.get(
                     "FC_max_beta",
                     st.session_state.get("fattore_correzione", 1.0) + 0.1
                 ),
-                step=0.01, format="%.2f"
+                step=0.01, format="%.2f",
+                label_visibility="collapsed"
             )
-            st.session_state["FC_max_beta"] = FC_max
+        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = sorted([FC_min, FC_max])
     else:
-        # Non usare range manuale → lasciali assenti così il calcolo userà suggerimenti o default ±0.1
         st.session_state.pop("FC_min_beta", None)
         st.session_state.pop("FC_max_beta", None)
 
-    # --- Peso stimato ±3 kg (come prima) ---
+    # --- Peso stimato ±3 kg ---
     st.toggle(
         "Peso corporeo stimato ±3 kg",
         value=st.session_state.get("peso_stimato_beta", False),
@@ -323,9 +326,32 @@ else:
         st.session_state.pop(k, None)
 
 
+
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
 def pannello_suggerisci_fc(peso_default: float = 70.0):
     import streamlit as st
+
+    # --- helpers locali per gestire l'intervallo FC in modalità cautelativa ---
+    def _add_fc_suggestion(val: float) -> None:
+        vals = st.session_state.get("fc_suggested_vals", [])
+        vals.append(float(val))
+        # tieni solo min e max (elimini l'eventuale valore centrale)
+        vals = sorted(set(vals))
+        if len(vals) >= 3:
+            vals = [vals[0], vals[-1]]
+        st.session_state["fc_suggested_vals"] = vals
+
+    def _clear_fc_suggestions() -> None:
+        st.session_state["fc_suggested_vals"] = []
+
+    def _apply_fc(val: float, riass: str | None) -> None:
+        st.session_state["fattore_correzione"] = round(float(val), 2)
+        st.session_state["fattori_condizioni_parentetica"] = None
+        st.session_state["fattori_condizioni_testo"] = None
+        st.session_state["toggle_fattore"] = False
+        st.session_state["fc_riassunto_contatori"] = riass
+
+    # --- CSS compatto ---
     st.markdown(
         """
         <style>
@@ -339,16 +365,24 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         unsafe_allow_html=True
     )
 
-    # Stato corpo
-    stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"],
-                           index=0, horizontal=True, key="radio_stato_corpo")
+    # --- Stato corpo ---
+    stato_label = st.radio(
+        "dummy",
+        ["Corpo asciutto", "Bagnato", "Immerso"],
+        index=0, horizontal=True, key="radio_stato_corpo"
+    )
     stato_corpo = ("Asciutto" if stato_label == "Corpo asciutto"
                    else ("Bagnato" if stato_label == "Bagnato" else "Immerso"))
 
-    # Se Immerso: calcolo diretto
+    # =========================
+    # Branch: Immerso
+    # =========================
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("dummy", ["In acqua stagnante", "In acqua corrente"],
-                               index=0, horizontal=True, key="radio_acqua")
+        acqua_label = st.radio(
+            "dummy",
+            ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key="radio_acqua"
+        )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
         try:
@@ -359,7 +393,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         result = compute_factor(
             stato="Immerso",
             acqua=acqua_mode,
-            counts=DressCounts(),
+            counts=DressCounts(),  # nessuno strato
             superficie_display=None,
             correnti_aria=False,
             peso=float(st.session_state.get("peso", peso_default)),
@@ -368,16 +402,185 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         peso_corrente = float(st.session_state.get("peso", peso_default))
         _fc_box(result.fattore_finale, result.fattore_base, peso_corrente)
 
-        def _apply(val, riass):
-            st.session_state["fattore_correzione"] = round(float(val), 2)
-            st.session_state["fattori_condizioni_parentetica"] = None
-            st.session_state["fattori_condizioni_testo"] = None
-            st.session_state["toggle_fattore"] = False
-            st.session_state["fc_riassunto_contatori"] = riass
-        st.button("✅ Usa questo fattore", on_click=_apply,
-                  args=(result.fattore_finale, result.riassunto),
-                  use_container_width=True)
-        return
+        # --- pulsante: usa subito questo FC ---
+        st.button(
+            "✅ Usa questo fattore",
+            on_click=_apply_fc,
+            args=(result.fattore_finale, result.riassunto),
+            use_container_width=True
+        )
+
+        # --- SOLO se cautelativa attiva: aggiungi/reset intervallo FC dal suggeritore ---
+        if st.session_state.get("stima_cautelativa_beta", False):
+            c1, c2 = st.columns([1, 1])
+            with c1:
+                st.button(
+                    "➕ Aggiungi a intervallo FC (cautelativa)",
+                    use_container_width=True,
+                    on_click=_add_fc_suggestion,
+                    args=(result.fattore_finale,)
+                )
+            with c2:
+                st.button(
+                    "🗑️ Reset intervallo FC",
+                    use_container_width=True,
+                    on_click=_clear_fc_suggestions
+                )
+
+            vals = st.session_state.get("fc_suggested_vals", [])
+            if len(vals) == 2:
+                st.markdown(
+                    f"<div style='font-size:0.9rem;color:#0f5132;'>"
+                    f"FC cautelativo corrente: <b>{vals[0]:.2f}–{vals[1]:.2f}</b>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+            elif len(vals) == 1:
+                st.markdown(
+                    f"<div style='font-size:0.9rem;color:#0f5132;'>"
+                    f"FC proposto (1 solo valore): <b>{vals[0]:.2f}</b> — verrà usato il default ±0.10"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+        return  # fine branch Immerso
+
+    # =========================
+    # Branch: Asciutto / Bagnato
+    # =========================
+    col_corr, col_vest = st.columns([1.0, 1.3])
+    with col_corr:
+        corr_placeholder = st.empty()
+    with col_vest:
+        toggle_vestito = st.toggle(
+            "Vestito/coperto?",
+            value=st.session_state.get("toggle_vestito", False),
+            key="toggle_vestito"
+        )
+
+    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
+    if toggle_vestito:
+        col_layers, col_blankets = st.columns(2)
+        with col_layers:
+            n_sottili = st.slider(
+                "Strati leggeri (indumenti o teli sottili)", 0, 8,
+                st.session_state.get("strati_sottili", 0), key="strati_sottili"
+            )
+            n_spessi = st.slider(
+                "Strati pesanti (indumenti o teli spessi)", 0, 6,
+                st.session_state.get("strati_spessi", 0), key="strati_spessi"
+            )
+        with col_blankets:
+            if stato_corpo == "Asciutto":
+                n_cop_medie = st.slider(
+                    "Coperte di medio spessore", 0, 5,
+                    st.session_state.get("coperte_medie", 0), key="coperte_medie"
+                )
+                n_cop_pesanti = st.slider(
+                    "Coperte pesanti", 0, 5,
+                    st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti"
+                )
+
+    counts = DressCounts(
+        sottili=n_sottili, spessi=n_spessi,
+        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+    )
+
+    superficie_display_selected = "/"
+    if stato_corpo == "Asciutto":
+        nudo_eff = (
+            (not toggle_vestito)
+            or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        )
+        options_display = SURF_DISPLAY_ORDER.copy()
+        if not nudo_eff:
+            options_display = [
+                o for o in options_display
+                if o != "Superficie metallica spessa (all’aperto)"
+            ]
+        prev_display = st.session_state.get("superficie_display_sel")
+        if prev_display not in options_display:
+            prev_display = options_display[0]
+        superficie_display_selected = st.selectbox(
+            "Superficie di appoggio",
+            options_display,
+            index=options_display.index(prev_display),
+            key="superficie_display_sel"
+        )
+
+    correnti_presenti = False
+    with corr_placeholder.container():
+        mostra_correnti = True
+        if stato_corpo == "Asciutto":
+            from app.factor_calc import fattore_vestiti_coperte
+            f_vc = fattore_vestiti_coperte(counts)
+            if f_vc >= 1.2:
+                mostra_correnti = False
+        if mostra_correnti:
+            correnti_presenti = st.toggle(
+                "Correnti d'aria presenti?",
+                value=st.session_state.get("toggle_correnti_fc", False),
+                key="toggle_correnti_fc",
+                disabled=False
+            )
+
+    try:
+        tabella2 = load_tabelle_correzione()
+    except Exception:
+        tabella2 = None
+
+    result = compute_factor(
+        stato=stato_corpo,
+        acqua=None,
+        counts=counts,
+        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
+        correnti_aria=correnti_presenti,
+        peso=float(st.session_state.get("peso", peso_default)),
+        tabella2_df=tabella2
+    )
+    peso_corrente = float(st.session_state.get("peso", peso_default))
+    _fc_box(result.fattore_finale, result.fattore_base, peso_corrente)
+
+    # --- pulsante: usa subito questo FC ---
+    st.button(
+        "✅ Usa questo fattore",
+        on_click=_apply_fc,
+        args=(result.fattore_finale, result.riassunto),
+        use_container_width=True
+    )
+
+    # --- SOLO se cautelativa attiva: aggiungi/reset intervallo FC dal suggeritore ---
+    if st.session_state.get("stima_cautelativa_beta", False):
+        c1, c2 = st.columns([1, 1])
+        with c1:
+            st.button(
+                "➕ Aggiungi a intervallo FC (cautelativa)",
+                use_container_width=True,
+                on_click=_add_fc_suggestion,
+                args=(result.fattore_finale,)
+            )
+        with c2:
+            st.button(
+                "🗑️ Reset intervallo FC",
+                use_container_width=True,
+                on_click=_clear_fc_suggestions
+            )
+
+        vals = st.session_state.get("fc_suggested_vals", [])
+        if len(vals) == 2:
+            st.markdown(
+                f"<div style='font-size:0.9rem;color:#0f5132;'>"
+                f"FC cautelativo corrente: <b>{vals[0]:.2f}–{vals[1]:.2f}</b>"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+        elif len(vals) == 1:
+            st.markdown(
+                f"<div style='font-size:0.9rem;color:#0f5132;'>"
+                f"FC proposto (1 solo valore): <b>{vals[0]:.2f}</b> — verrà usato il default ±0.10"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
 
     # Non Immerso
     col_corr, col_vest = st.columns([1.0, 1.3])
