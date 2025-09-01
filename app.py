@@ -1,4 +1,4 @@
-# pages/2_Stima_età_beta.py
+
 
 from app.factor_calc import (
     DressCounts, compute_factor, build_cf_description,
@@ -104,7 +104,7 @@ def _warn_box(msg: str):
 # =========================
 # Stato e costanti globali
 # =========================
-st.set_page_config(page_title="Mor-tem — BETA", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Mor-tem", layout="centered", initial_sidebar_state="expanded")
 
 st.markdown("""
 <style>
@@ -132,7 +132,7 @@ if "show_results" not in st.session_state:
 
 # --- INIT per cautelativa: intervallo FC proposto dal pannello "Suggerisci FC"
 if "fc_suggested_vals" not in st.session_state:
-    st.session_state["fc_suggested_vals"] = []  # float arrotondati a 2 decimali
+    st.session_state["fc_suggested_vals"] = [] 
 
 
 # usa gli helper GLOBALI che già sbloccano/chiudono il toggle range
@@ -583,7 +583,7 @@ if mostra_parametri_aggiuntivi:
                 with colx1:
                     st.markdown(
                         "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                        "Il dato è stato valutato a un orario diverso rispetto a quello precedentemente indicato?"
+                        "Valutato ad un'ora diversa?"
                         "</div>",
                         unsafe_allow_html=True
                     )
