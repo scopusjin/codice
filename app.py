@@ -659,8 +659,13 @@ def _inputs_signature():
         st.session_state.get("FC_min_beta"),
         st.session_state.get("FC_max_beta"),
         bool(st.session_state.get("peso_stimato_beta", False)),
+        # 🔽 NUOVI CAMPI DA AGGIUNGERE 🔽
+        bool(st.session_state.get("ta_range_toggle_beta", False)),
+        st.session_state.get("ta_other_val"),
         bool(st.session_state.get("fc_manual_range_beta", False)),
+        st.session_state.get("fc_other_val"),
     ])
+    
     return tuple(base + extra)
 
 # Stile bottone
