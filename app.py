@@ -328,14 +328,16 @@ else:
 
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
-def pannello_suggerisci_fc(peso_default: float = 70.0):
+def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
     import streamlit as st
 
-    # --- helpers locali per gestire l'intervallo FC in modalità cautelativa ---
+    def k(name: str) -> str:
+        return f"{key_prefix}_{name}"
+
+    # --- helpers cautelativa ---
     def _add_fc_suggestion(val: float) -> None:
         vals = st.session_state.get("fc_suggested_vals", [])
         vals.append(float(val))
-        # tieni solo min e max (elimini l'eventuale valore centrale)
         vals = sorted(set(vals))
         if len(vals) >= 3:
             vals = [vals[0], vals[-1]]
@@ -352,8 +354,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         st.session_state["fc_riassunto_contatori"] = riass
 
     # --- CSS compatto ---
-    st.markdown(
-        """
+    st.markdown("""
         <style>
           div[data-testid="stRadio"] > label {display:none !important;}
           div[data-testid="stRadio"] {margin-top:-14px; margin-bottom:-10px;}
@@ -361,27 +362,21 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
           div[data-testid="stToggle"] {margin-top:-6px; margin-bottom:-6px;}
           div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
         </style>
-        """,
-        unsafe_allow_html=True
-    )
+    """, unsafe_allow_html=True)
 
     # --- Stato corpo ---
     stato_label = st.radio(
         "dummy",
         ["Corpo asciutto", "Bagnato", "Immerso"],
-        index=0, horizontal=True, key="radio_stato_corpo"
+        index=0, horizontal=True, key=k("radio_stato_corpo")
     )
-    stato_corpo = ("Asciutto" if stato_label == "Corpo asciutto"
-                   else ("Bagnato" if stato_label == "Bagnato" else "Immerso"))
+    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
 
-    # =========================
-    # Branch: Immerso
-    # =========================
+    # ============== Immerso ==============
     if stato_corpo == "Immerso":
         acqua_label = st.radio(
-            "dummy",
-            ["In acqua stagnante", "In acqua corrente"],
-            index=0, horizontal=True, key="radio_acqua"
+            "dummy", ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key=k("radio_acqua")
         )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
@@ -391,120 +386,79 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
             tabella2 = None
 
         result = compute_factor(
-            stato="Immerso",
-            acqua=acqua_mode,
-            counts=DressCounts(),  # nessuno strato
-            superficie_display=None,
-            correnti_aria=False,
+            stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
+            superficie_display=None, correnti_aria=False,
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        peso_corrente = float(st.session_state.get("peso", peso_default))
-        _fc_box(result.fattore_finale, result.fattore_base, peso_corrente)
+        _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
-        # --- pulsante: usa subito questo FC ---
-        st.button(
-            "✅ Usa questo fattore",
-            on_click=_apply_fc,
-            args=(result.fattore_finale, result.riassunto),
-            use_container_width=True
-        )
+        st.button("✅ Usa questo fattore", on_click=_apply_fc,
+                  args=(result.fattore_finale, result.riassunto),
+                  use_container_width=True, key=k("btn_usa_fc_imm"))
 
-        # --- SOLO se cautelativa attiva: aggiungi/reset intervallo FC dal suggeritore ---
         if st.session_state.get("stima_cautelativa_beta", False):
-            c1, c2 = st.columns([1, 1])
+            c1, c2 = st.columns(2)
             with c1:
-                st.button(
-                    "➕ Aggiungi a intervallo FC (cautelativa)",
-                    use_container_width=True,
-                    on_click=_add_fc_suggestion,
-                    args=(result.fattore_finale,)
-                )
+                st.button("➕ Aggiungi a intervallo FC (cautelativa)",
+                          use_container_width=True, on_click=_add_fc_suggestion,
+                          args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
             with c2:
-                st.button(
-                    "🗑️ Reset intervallo FC",
-                    use_container_width=True,
-                    on_click=_clear_fc_suggestions
-                )
+                st.button("🗑️ Reset intervallo FC",
+                          use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc_imm"))
 
             vals = st.session_state.get("fc_suggested_vals", [])
             if len(vals) == 2:
-                st.markdown(
-                    f"<div style='font-size:0.9rem;color:#0f5132;'>"
-                    f"FC cautelativo corrente: <b>{vals[0]:.2f}–{vals[1]:.2f}</b>"
-                    f"</div>",
-                    unsafe_allow_html=True
-                )
+                st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC cautelativo corrente: "
+                            f"<b>{vals[0]:.2f}–{vals[1]:.2f}</b></div>", unsafe_allow_html=True)
             elif len(vals) == 1:
-                st.markdown(
-                    f"<div style='font-size:0.9rem;color:#0f5132;'>"
-                    f"FC proposto (1 solo valore): <b>{vals[0]:.2f}</b> — verrà usato il default ±0.10"
-                    f"</div>",
-                    unsafe_allow_html=True
-                )
-        return  # fine branch Immerso
+                st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC proposto (1 solo valore): "
+                            f"<b>{vals[0]:.2f}</b> — verrà usato il default ±0.10</div>", unsafe_allow_html=True)
+        return
 
-    # =========================
-    # Branch: Asciutto / Bagnato
-    # =========================
+    # ============== Asciutto / Bagnato ==============
     col_corr, col_vest = st.columns([1.0, 1.3])
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
         toggle_vestito = st.toggle(
             "Vestito/coperto?",
-            value=st.session_state.get("toggle_vestito", False),
-            key="toggle_vestito"
+            value=st.session_state.get(k("toggle_vestito"), False),
+            key=k("toggle_vestito")
         )
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
         col_layers, col_blankets = st.columns(2)
         with col_layers:
-            n_sottili = st.slider(
-                "Strati leggeri (indumenti o teli sottili)", 0, 8,
-                st.session_state.get("strati_sottili", 0), key="strati_sottili"
-            )
-            n_spessi = st.slider(
-                "Strati pesanti (indumenti o teli spessi)", 0, 6,
-                st.session_state.get("strati_spessi", 0), key="strati_spessi"
-            )
+            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8,
+                                  st.session_state.get(k("strati_sottili"), 0), key=k("strati_sottili"))
+            n_spessi = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6,
+                                 st.session_state.get(k("strati_spessi"), 0), key=k("strati_spessi"))
         with col_blankets:
             if stato_corpo == "Asciutto":
-                n_cop_medie = st.slider(
-                    "Coperte di medio spessore", 0, 5,
-                    st.session_state.get("coperte_medie", 0), key="coperte_medie"
-                )
-                n_cop_pesanti = st.slider(
-                    "Coperte pesanti", 0, 5,
-                    st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti"
-                )
+                n_cop_medie = st.slider("Coperte di medio spessore", 0, 5,
+                                        st.session_state.get(k("coperte_medie"), 0), key=k("coperte_medie"))
+                n_cop_pesanti = st.slider("Coperte pesanti", 0, 5,
+                                          st.session_state.get(k("coperte_pesanti"), 0), key=k("coperte_pesanti"))
 
-    counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
-    )
+    counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
 
     superficie_display_selected = "/"
     if stato_corpo == "Asciutto":
-        nudo_eff = (
-            (not toggle_vestito)
-            or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
-        )
+        nudo_eff = ((not toggle_vestito)
+                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
-            options_display = [
-                o for o in options_display
-                if o != "Superficie metallica spessa (all’aperto)"
-            ]
-        prev_display = st.session_state.get("superficie_display_sel")
+            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+        prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
         superficie_display_selected = st.selectbox(
             "Superficie di appoggio",
             options_display,
             index=options_display.index(prev_display),
-            key="superficie_display_sel"
+            key=k("superficie_display_sel")
         )
 
     correnti_presenti = False
@@ -518,8 +472,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         if mostra_correnti:
             correnti_presenti = st.toggle(
                 "Correnti d'aria presenti?",
-                value=st.session_state.get("toggle_correnti_fc", False),
-                key="toggle_correnti_fc",
+                value=st.session_state.get(k("toggle_correnti_fc"), False),
+                key=k("toggle_correnti_fc"),
                 disabled=False
             )
 
@@ -529,152 +483,35 @@ def pannello_suggerisci_fc(peso_default: float = 70.0):
         tabella2 = None
 
     result = compute_factor(
-        stato=stato_corpo,
-        acqua=None,
-        counts=counts,
+        stato=stato_corpo, acqua=None, counts=counts,
         superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
         correnti_aria=correnti_presenti,
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
     )
-    peso_corrente = float(st.session_state.get("peso", peso_default))
-    _fc_box(result.fattore_finale, result.fattore_base, peso_corrente)
+    _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
-    # --- pulsante: usa subito questo FC ---
-    st.button(
-        "✅ Usa questo fattore",
-        on_click=_apply_fc,
-        args=(result.fattore_finale, result.riassunto),
-        use_container_width=True
-    )
+    st.button("✅ Usa questo fattore", on_click=_apply_fc,
+              args=(result.fattore_finale, result.riassunto),
+              use_container_width=True, key=k("btn_usa_fc"))
 
-    # --- SOLO se cautelativa attiva: aggiungi/reset intervallo FC dal suggeritore ---
     if st.session_state.get("stima_cautelativa_beta", False):
-        c1, c2 = st.columns([1, 1])
+        c1, c2 = st.columns(2)
         with c1:
-            st.button(
-                "➕ Aggiungi a intervallo FC (cautelativa)",
-                use_container_width=True,
-                on_click=_add_fc_suggestion,
-                args=(result.fattore_finale,)
-            )
+            st.button("➕ Aggiungi a intervallo FC (cautelativa)",
+                      use_container_width=True, on_click=_add_fc_suggestion,
+                      args=(result.fattore_finale,), key=k("btn_add_fc"))
         with c2:
-            st.button(
-                "🗑️ Reset intervallo FC",
-                use_container_width=True,
-                on_click=_clear_fc_suggestions
-            )
+            st.button("🗑️ Reset intervallo FC",
+                      use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc"))
 
         vals = st.session_state.get("fc_suggested_vals", [])
         if len(vals) == 2:
-            st.markdown(
-                f"<div style='font-size:0.9rem;color:#0f5132;'>"
-                f"FC cautelativo corrente: <b>{vals[0]:.2f}–{vals[1]:.2f}</b>"
-                f"</div>",
-                unsafe_allow_html=True
-            )
+            st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC cautelativo corrente: "
+                        f"<b>{vals[0]:.2f}–{vals[1]:.2f}</b></div>", unsafe_allow_html=True)
         elif len(vals) == 1:
-            st.markdown(
-                f"<div style='font-size:0.9rem;color:#0f5132;'>"
-                f"FC proposto (1 solo valore): <b>{vals[0]:.2f}</b> — verrà usato il default ±0.10"
-                f"</div>",
-                unsafe_allow_html=True
-            )
-
-
-    # Non Immerso
-    col_corr, col_vest = st.columns([1.0, 1.3])
-    with col_corr:
-        corr_placeholder = st.empty()
-    with col_vest:
-        toggle_vestito = st.toggle(
-            "Vestito/coperto?",
-            value=st.session_state.get("toggle_vestito", False),
-            key="toggle_vestito"
-        )
-
-    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
-    if toggle_vestito:
-        col_layers, col_blankets = st.columns(2)
-        with col_layers:
-            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8,
-                                  st.session_state.get("strati_sottili", 0), key="strati_sottili")
-            n_spessi = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6,
-                                 st.session_state.get("strati_spessi", 0), key="strati_spessi")
-        with col_blankets:
-            if stato_corpo == "Asciutto":
-                n_cop_medie = st.slider("Coperte di medio spessore", 0, 5,
-                                        st.session_state.get("coperte_medie", 0), key="coperte_medie")
-                n_cop_pesanti = st.slider("Coperte pesanti", 0, 5,
-                                          st.session_state.get("coperte_pesanti", 0), key="coperte_pesanti")
-
-    counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
-    )
-
-    superficie_display_selected = "/"
-    if stato_corpo == "Asciutto":
-        nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = SURF_DISPLAY_ORDER.copy()
-        if not nudo_eff:
-            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
-        prev_display = st.session_state.get("superficie_display_sel")
-        if prev_display not in options_display:
-            prev_display = options_display[0]
-        superficie_display_selected = st.selectbox(
-            "Superficie di appoggio",
-            options_display,
-            index=options_display.index(prev_display),
-            key="superficie_display_sel"
-        )
-
-    correnti_presenti = False
-    with corr_placeholder.container():
-        mostra_correnti = True
-        if stato_corpo == "Asciutto":
-            f_vc = fattore_vestiti_coperte(counts)
-            if f_vc >= 1.2:
-                mostra_correnti = False
-        if mostra_correnti:
-            correnti_presenti = st.toggle(
-                "Correnti d'aria presenti?",
-                value=st.session_state.get("toggle_correnti_fc", False),
-                key="toggle_correnti_fc",
-                disabled=False
-            )
-
-    try:
-        tabella2 = load_tabelle_correzione()
-    except Exception:
-        tabella2 = None
-
-    result = compute_factor(
-        stato=stato_corpo,
-        acqua=None,
-        counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
-        correnti_aria=correnti_presenti,
-        peso=float(st.session_state.get("peso", peso_default)),
-        tabella2_df=tabella2
-    )
-    peso_corrente = float(st.session_state.get("peso", peso_default))
-    _fc_box(result.fattore_finale, result.fattore_base, peso_corrente)
-
-    def _apply(val, riass):
-        st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["fattori_condizioni_parentetica"] = None
-        st.session_state["fattori_condizioni_testo"] = None
-        st.session_state["toggle_fattore"] = False
-        st.session_state["fc_riassunto_contatori"] = riass
-    st.button("✅ Usa questo fattore", on_click=_apply,
-              args=(result.fattore_finale, result.riassunto),
-              use_container_width=True)
-
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
+            st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC proposto (1 solo valore): "
+                        f"<b>{vals[0]:.2f}</b> — verrà usato il default ±0.10</div>", unsafe_allow_html=True)
 
 # Parametri aggiuntivi (identico alla app principale)
 mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
@@ -689,8 +526,8 @@ if mostra_parametri_aggiuntivi:
             st.markdown(
                 "<div style='font-size:0.9rem; color:#666; padding:6px 8px; "
                 "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-                "Per specificare orari diversi per i singoli parametri, attiva in alto "
-                "<b>“Aggiungi data/ora rilievo dei dati tanatologici”</b>."
+                "Per specificare orari dei rilievi, attiva in alto "
+                "<b>“Aggiungi data/ora rilievi”</b>."
                 "</div>",
                 unsafe_allow_html=True
             )
