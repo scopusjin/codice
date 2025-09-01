@@ -703,8 +703,16 @@ def _inputs_signature():
 
     return tuple(_freeze(base + extra + caut))
             
+# --- Firma degli input che influenzano la stima ---
+curr_sig = _inputs_signature()
 
-# Stile bottone
+# Stato iniziale sicuro
+if "last_run_sig" not in st.session_state:
+    st.session_state["last_run_sig"] = None
+if "show_results" not in st.session_state:
+    st.session_state["show_results"] = False
+
+# (opzionale) stile bottone
 st.markdown("""
     <style>
     div.stButton > button {
@@ -715,25 +723,23 @@ st.markdown("""
         border-radius: 8px !important;
         padding: 0.6em 2em !important;
     }
-    div.stButton > button:hover {
-        background-color: #E3F2FD !important;
-        cursor: pointer;
-    }
+    div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
     </style>
 """, unsafe_allow_html=True)
 
+# --- Bottone: esegue il calcolo SOLO su click ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima")
-    if clicked:
-        st.session_state["show_results"] = True
+    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
         st.session_state["last_run_sig"] = curr_sig
+        st.session_state["show_results"] = True
 
-prev_sig = st.session_state.get("last_run_sig")
-if st.session_state.get("show_results", False) and prev_sig is not None and curr_sig != prev_sig:
+# --- Se QUALSIASI input cambia: nascondi risultati (NON ricalcolare) ---
+if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr_sig:
     st.session_state["show_results"] = False
 
-if st.session_state.get("show_results", False):
+# --- Mostra risultati SOLO se richiesti e firma invariata ---
+if st.session_state["show_results"]:
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
@@ -741,7 +747,8 @@ if st.session_state.get("show_results", False):
         fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
         widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
         usa_orario_custom=st.session_state.get("usa_orario_custom", False),
-        input_data_rilievo=input_data_rilievo,      # <-- da sessione
-        input_ora_rilievo=input_ora_rilievo,        # <-- da sessione
+        input_data_rilievo=st.session_state.get("input_data_rilievo"),
+        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
-    )
+)
+    
