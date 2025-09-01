@@ -159,6 +159,37 @@ def _clear_fc_suggestions():
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
 
 # --- Definizione Widget (Streamlit) ---
+
+# --- Data/Ora ispezione legale ---
+with st.container(border=True):
+    usa_orario_custom = st.toggle(
+        "Aggiungi data/ora rilievo dei dati tanatologici",
+        value=st.session_state.get("usa_orario_custom", False),
+        key="usa_orario_custom",
+    )
+
+    if usa_orario_custom:
+        col1, col2 = st.columns(2, gap="small")
+        with col1:
+            input_data_rilievo = st.date_input(
+                "Data ispezione legale:",
+                value=st.session_state.get("input_data_rilievo") or datetime.date.today(),
+                label_visibility="collapsed",
+                key="input_data_rilievo_widget",
+            )
+            st.session_state["input_data_rilievo"] = input_data_rilievo
+        with col2:
+            input_ora_rilievo = st.text_input(
+                "Ora ispezione legale (HH:MM):",
+                value=st.session_state.get("input_ora_rilievo") or "00:00",
+                label_visibility="collapsed",
+                key="input_ora_rilievo_widget",
+            )
+            st.session_state["input_ora_rilievo"] = input_ora_rilievo
+    else:
+        st.session_state["input_data_rilievo"] = None
+        st.session_state["input_ora_rilievo"] = None
+
 # 📌 2. Ipostasi e rigidità — RIQUADRO (INVARIATO)
 with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
