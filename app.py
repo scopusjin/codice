@@ -240,30 +240,88 @@ st.toggle(
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
 if stima_cautelativa_beta:
+    # --- Ta ---
     cc1, cc2 = st.columns(2, gap="small")
     with cc1:
-        Ta_min = st.number_input("Ta minima (°C)", value=st.session_state.get("Ta_min_beta", max(input_ta - 1.0, -50.0)), step=0.1, format="%.1f")
+        Ta_min = st.number_input(
+            "Range Temperatura ambientale media (°C)",
+            value=st.session_state.get("Ta_min_beta", max(input_ta - 1.0, -50.0)),
+            step=0.1, format="%.1f"
+        )
         st.session_state["Ta_min_beta"] = Ta_min
     with cc2:
-        Ta_max = st.number_input("Ta massima (°C)", value=st.session_state.get("Ta_max_beta", input_ta + 1.0), step=0.1, format="%.1f")
+        Ta_max = st.number_input(
+            value=st.session_state.get("Ta_max_beta", input_ta + 1.0),
+            step=0.1, format="%.1f"
+        )
         st.session_state["Ta_max_beta"] = Ta_max
 
-    cc3, cc4 = st.columns(2, gap="small")
-    with cc3:
-        FC_min = st.number_input("FC minimo", value=st.session_state.get("FC_min_beta", max(st.session_state.get("fattore_correzione", 1.0) - 0.1, 0.01)), step=0.01, format="%.2f")
-        st.session_state["FC_min_beta"] = FC_min
-    with cc4:
-        FC_max = st.number_input("FC massimo", value=st.session_state.get("FC_max_beta", st.session_state.get("fattore_correzione", 1.0) + 0.1), step=0.01, format="%.2f")
-        st.session_state["FC_max_beta"] = FC_max
+    # --- FC: intervallo manuale opzionale + riepilogo suggerimenti ---
+    fc_vals = st.session_state.get("fc_suggested_vals", [])  # eventuali FC aggiunti dal pannello "Suggerisci FC"
+    if len(fc_vals) == 2:
+        st.markdown(
+            f"<div style='font-size:0.9rem; color:#0f5132;'>"
+            f"Range Fattore di correzione: <b>{fc_vals[0]:.2f}–{fc_vals[1]:.2f}</b>"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+    elif len(fc_vals) == 1:
+        st.markdown(
+            f"<div style='font-size:0.9rem; color:#0f5132;'>"
+            f"Fattore di correzione: <b>{fc_vals[0]:.2f}</b> (se non imposti un intervallo manuale, verrà considerato, catamente, un range  ±0.10 rispetto al valore inserito di FC)"
+            f"</div>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            "<div style='font-size:0.9rem; color:#666;'>"
+            "Nessun intervallo FC dai suggerimenti. Se non imposti un intervallo manuale verrà usato il default ±0.10."
+            "</div>",
+            unsafe_allow_html=True
+        )
 
+    fc_manual = st.checkbox(
+        "Specifica il range di FC",
+        value=st.session_state.get("fc_manual_range_beta", False),
+        key="fc_manual_range_beta"
+    )
+
+    if fc_manual:
+        cc3, cc4 = st.columns(2, gap="small")
+        with cc3:
+            FC_min = st.number_input(
+                value=st.session_state.get(
+                    "FC_min_beta",
+                    max(st.session_state.get("fattore_correzione", 1.0) - 0.1, 0.01)
+                ),
+                step=0.01, format="%.2f"
+            )
+            st.session_state["FC_min_beta"] = FC_min
+        with cc4:
+            FC_max = st.number_input(
+                "FC massimo",
+                value=st.session_state.get(
+                    "FC_max_beta",
+                    st.session_state.get("fattore_correzione", 1.0) + 0.1
+                ),
+                step=0.01, format="%.2f"
+            )
+            st.session_state["FC_max_beta"] = FC_max
+    else:
+        # Non usare range manuale → lasciali assenti così il calcolo userà suggerimenti o default ±0.1
+        st.session_state.pop("FC_min_beta", None)
+        st.session_state.pop("FC_max_beta", None)
+
+    # --- Peso stimato ±3 kg (come prima) ---
     st.toggle(
         "Peso corporeo stimato ±3 kg",
         value=st.session_state.get("peso_stimato_beta", False),
         key="peso_stimato_beta"
     )
 else:
-    for k in ("Ta_min_beta","Ta_max_beta","FC_min_beta","FC_max_beta","peso_stimato_beta"):
+    for k in ("Ta_min_beta","Ta_max_beta","FC_min_beta","FC_max_beta","peso_stimato_beta","fc_manual_range_beta"):
         st.session_state.pop(k, None)
+
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
 def pannello_suggerisci_fc(peso_default: float = 70.0):
