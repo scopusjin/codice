@@ -541,84 +541,126 @@ def ranges_in_disaccordo_completa(r_inizio, r_fine):
 
 # --- Definizione Widget (Streamlit) ---
 with st.container():
-    
-    # 📌 1. Data e ora ispezione legale
-    st.markdown("<div style='font-size: 0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
+    # 📌 1) Data e ora rilievi
+    st.markdown("<div style='font-size:0.88rem;'>Data e ora dei rilievi tanatologici:</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2, gap="small")
     with col1:
         input_data_rilievo = st.date_input("Data ispezione legale:", value=datetime.date.today(), label_visibility="collapsed")
-
     with col2:
-        input_ora_rilievo = st.text_input(
-            "Ora ispezione legale (HH:MM):",
-            value="00:00",
-            label_visibility="collapsed"
-        )
-    # 📌 2. Ipostasi e rigidità (2 colonne stessa riga)
+        input_ora_rilievo = st.text_input("Ora ispezione legale (HH:MM):", value="00:00", label_visibility="collapsed")
+
+    # 📌 2) Ipostasi e rigidità
     col1, col2 = st.columns(2, gap="small")
     with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
         selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
+        st.markdown("<div style='font-size:0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-    # 📌 3. Temperature (3 colonne gap large)
-    col1, col2, col3 = st.columns(3, gap="small")
-    with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-        input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
-    with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-        input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
-    with col3:
-        st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
-        input_tm = st.number_input("T. ante-mortem stimata (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
+# =========================
+# Maschera RAFFREDDAMENTO (standard vs cautelativa)
+# =========================
+st.toggle("Stima cautelativa (beta)", value=st.session_state.get("stima_cautelativa_beta", False), key="stima_cautelativa_beta")
+_is_caut = st.session_state["stima_cautelativa_beta"]
 
-    # 📌 4. Peso + Fattore di correzione + pulsante "Suggerisci" (mini-link)
+with st.container(border=True):
+    if _is_caut:
+        # ---------- CAUTELATIVA: 3 righe dedicate ----------
+        # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
+        c1, c2, c3, c4 = st.columns([1, 1, 1, 0.7], gap="small")
+        with c1:
+            st.markdown("<div style='font-size:0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
+            input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        with c2:
+            st.markdown("<div style='font-size:0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+            input_tm = st.number_input("T. ante-mortem (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
+        with c3:
+            st.markdown("<div style='font-size:0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
+            input_w = st.number_input("Peso (kg):", value=float(st.session_state.get("peso", 70.0)), step=1.0, format="%.1f", label_visibility="collapsed")
+            st.session_state["peso"] = input_w
+        with c4:
+            st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
 
-    col1, col2 = st.columns([1, 3], gap="small")
-    with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-        input_w = st.number_input("Peso (kg):", value=70.0, step=1.0, format="%.1f", label_visibility="collapsed")
-        st.session_state["peso"] = input_w
+        # Riga 2: Ta + pulsante “Specifica range diverso”
+        c5, c6, c7 = st.columns([1, 1, 1], gap="small")
+        with c5:
+            st.markdown("<div style='font-size:0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+            input_ta = st.number_input("T. ambientale media (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        with c6:
+            ta_has_range = st.button("Specifica range diverso", key="btn_ta_range")
+        with c7:
+            if not st.session_state.get("ta_range_active", False) and ta_has_range:
+                st.session_state["ta_range_active"] = True
+            if st.session_state.get("ta_range_active", False):
+                Ta_alt = st.number_input("Secondo valore Ta (°C):", value=input_ta + 1.0, step=0.1, format="%.1f", label_visibility="collapsed")
+                # normalizza in sessione (min, max)
+                lo, hi = sorted([float(input_ta), float(Ta_alt)])
+                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo, hi
+            else:
+                st.markdown("<div style='font-size:0.9rem; color:#666;'>Range automatico: <b>±1 °C</b> dal valore inserito.</div>", unsafe_allow_html=True)
+                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = None, None  # usa default nel calcolo
 
-    with col2:
-        subcol1, subcol2 = st.columns([1.5, 1], gap="small")
-        with subcol1:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            fattore_correzione = st.number_input(
-                "Fattore di correzione:",
-                step=0.1,
-                format="%.2f",
-                label_visibility="collapsed",
-                key="fattore_correzione"
-            )
+        # Riga 3: FC + pulsante “Specifica altro range” + switch “Suggerisci FC”
+        c8, c9, c10 = st.columns([1, 1, 1], gap="small")
+        with c8:
+            st.markdown("<div style='font-size:0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+            fattore_correzione = st.number_input("FC:", value=float(st.session_state.get("fattore_correzione", 1.0)), step=0.01, format="%.2f", label_visibility="collapsed", key="fattore_correzione")
+        with c9:
+            fc_has_range = st.button("Specifica altro range", key="btn_fc_range")
+        with c10:
+            st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
 
-        with subcol2:
-            st.empty()
+        if not st.session_state.get("fc_range_active", False) and fc_has_range:
+            st.session_state["fc_range_active"] = True
 
+        if st.session_state.get("fc_range_active", False):
+            d1, d2 = st.columns(2, gap="small")
+            with d1:
+                FC_alt = st.number_input("Secondo valore FC:", value=float(st.session_state.get("fattore_correzione", 1.0)) + 0.1, step=0.01, format="%.2f", label_visibility="collapsed")
+            with d2:
+                st.write("")  # spazio
+            lo_fc, hi_fc = sorted([float(st.session_state.get("fattore_correzione", 1.0)), float(FC_alt)])
+            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+        else:
+            st.markdown("<div style='font-size:0.9rem; color:#666;'>Range automatico: <b>±0.10</b> dal valore inserito.</div>", unsafe_allow_html=True)
+            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = None, None  # usa default nel calcolo
 
+    else:
+        # ---------- STANDARD (come prima) ----------
+        # 3 colonne temperature
+        col1, col2, col3 = st.columns(3, gap="small")
+        with col1:
+            st.markdown("<div style='font-size:0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
+            input_rt = st.number_input("T. rettale (°C):", value=35.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        with col2:
+            st.markdown("<div style='font-size:0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+            input_ta = st.number_input("T. ambientale (°C):", value=20.0, step=0.1, format="%.1f", label_visibility="collapsed")
+        with col3:
+            st.markdown("<div style='font-size:0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+            input_tm = st.number_input("T. ante-mortem (°C):", value=37.2, step=0.1, format="%.1f", label_visibility="collapsed")
 
+        # Peso + FC
+        col1, col2 = st.columns([1, 3], gap="small")
+        with col1:
+            st.markdown("<div style='font-size:0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+            input_w = st.number_input("Peso (kg):", value=float(st.session_state.get("peso", 70.0)), step=1.0, format="%.1f", label_visibility="collapsed")
+            st.session_state["peso"] = input_w
+        with col2:
+            subcol1, subcol2 = st.columns([1.5, 1], gap="small")
+            with subcol1:
+                st.markdown("<div style='font-size:0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+                fattore_correzione = st.number_input("Fattore di correzione:", value=float(st.session_state.get("fattore_correzione", 1.0)), step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione")
+            with subcol2:
+                st.empty()
 
-
-# 📌 Expander con apertura/chiusura controllata da session_state
-if not st.session_state["mostra_modulo_fattore"]:
-    # pulsante (o link) per aprire l’expander
-    st.button(
-        "Stima fattore di correzione",
-        key="open_fattore_btn",
-        on_click=lambda: st.session_state.update(mostra_modulo_fattore=True)
-    )
+# 📌 Expander (o toggle) “Suggerisci FC”
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        pannello_suggerisci_fc(peso_default=st.session_state.get("peso", 70.0))
 else:
-    with st.expander("Stima fattore di correzione", expanded=True):
-        st.markdown(
-            '<div style="background-color:#f0f0f5; padding:10px; border-radius:5px;">',
-            unsafe_allow_html=True
-        )
-        calcola_fattore(peso=st.session_state.get("peso", 70))
-        st.markdown('</div>', unsafe_allow_html=True)
-
+    # bottone rapido per aprire (solo se non cautelativa o se vuoi mantenerlo separato)
+    st.button("Stima fattore di correzione", key="open_fattore_btn_alt", on_click=lambda: st.session_state.update(toggle_fattore=True))
 
 
 # Pulsante per mostrare/nascondere i parametri aggiuntivi
