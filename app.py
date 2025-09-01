@@ -134,26 +134,30 @@ if "show_results" not in st.session_state:
 if "fc_suggested_vals" not in st.session_state:
     st.session_state["fc_suggested_vals"] = []  # float arrotondati a 2 decimali
 
-def _add_fc_suggestion(val: float):
-    """Aggiunge un FC all'intervallo (dedup, ordina). Se >2 → tiene solo min e max."""
+def _add_fc_suggestion(val: float) -> None:
     v = round(float(val), 2)
-    arr = list({*st.session_state["fc_suggested_vals"], v})  # dedup
-    arr.sort()
-    if len(arr) > 2:
-        arr = [arr[0], arr[-1]]  # estremi
-    st.session_state["fc_suggested_vals"] = arr
-    if len(arr) == 2:
-        st.session_state["FC_min_beta"] = arr[0]
-        st.session_state["FC_max_beta"] = arr[1]
-    elif len(arr) == 1:
+    vals = st.session_state.get("fc_suggested_vals", [])
+    vals = sorted(set(vals + [v]))
+    if len(vals) >= 3:
+        vals = [vals[0], vals[-1]]  # tieni solo gli estremi
+    st.session_state["fc_suggested_vals"] = vals
+
+    # sblocca automaticamente il toggle del range manuale
+    st.session_state["fc_manual_range_beta"] = True
+
+    # se ho 2 estremi, popola subito FC_min/max; con 1 valore lasciali vuoti (li inserirà l'utente)
+    if len(vals) == 2:
+        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[1]
+    else:
         st.session_state.pop("FC_min_beta", None)
         st.session_state.pop("FC_max_beta", None)
 
-def _clear_fc_suggestions():
+def _clear_fc_suggestions() -> None:
     st.session_state["fc_suggested_vals"] = []
     st.session_state.pop("FC_min_beta", None)
     st.session_state.pop("FC_max_beta", None)
-
+    # richiudi il range manuale
+    st.session_state["fc_manual_range_beta"] = False
 
 # Titolo
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
@@ -163,7 +167,7 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</
 # --- Data/Ora ispezione legale ---
 with st.container(border=True):
     usa_orario_custom = st.toggle(
-        "Aggiungi data/ora rilievo dei dati tanatologici",
+        "Aggiungi data/ora rilievi tanatologici",
         value=st.session_state.get("usa_orario_custom", False),
         key="usa_orario_custom",
     )
@@ -270,7 +274,7 @@ with st.container(border=True):
         with r3c1:
             fattore_correzione = st.number_input("FC base", value=st.session_state.get("fattore_correzione", 1.0), step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione")
         with r3c2:
-            fc_manual = st.toggle("Specifica altro range", value=st.session_state.get("fc_manual_range_beta", False), key="fc_manual_range_beta")
+            fc_manual = st.toggle("Specifica range", value=st.session_state.get("fc_manual_range_beta", False), key="fc_manual_range_beta")
         with r3c3:
             st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
 
@@ -288,10 +292,8 @@ with st.container(border=True):
 
         # Messaggi di riepilogo per FC suggeriti (se presenti)
         fc_vals = st.session_state.get("fc_suggested_vals", [])
-        if len(fc_vals) == 2:
-            st.markdown(f"<div style='font-size:0.9rem; color:#0f5132;'>Range FC da suggerimenti: <b>{fc_vals[0]:.2f}–{fc_vals[1]:.2f}</b></div>", unsafe_allow_html=True)
-        elif len(fc_vals) == 1 and not fc_manual:
-            st.markdown(f"<div style='font-size:0.9rem; color:#0f5132;'>FC suggerito: <b>{fc_vals[0]:.2f}</b> (se non imposti un intervallo manuale, verrà considerato ±0.10)</div>", unsafe_allow_html=True)
+        if len(fc_vals) == 1 and not fc_manual:
+            st.markdown(f"<div style='font-size:0.9rem; color:#0f5132;'>se non imposti un range, verrà considerato ±0.10)</div>", unsafe_allow_html=True)
 
     else:
         # -------------------------
