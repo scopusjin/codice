@@ -134,30 +134,17 @@ if "show_results" not in st.session_state:
 if "fc_suggested_vals" not in st.session_state:
     st.session_state["fc_suggested_vals"] = []  # float arrotondati a 2 decimali
 
-def _add_fc_suggestion(val: float) -> None:
-    v = round(float(val), 2)
-    vals = st.session_state.get("fc_suggested_vals", [])
-    vals = sorted(set(vals + [v]))
-    if len(vals) >= 3:
-        vals = [vals[0], vals[-1]]  # tieni solo gli estremi
-    st.session_state["fc_suggested_vals"] = vals
 
-    # sblocca automaticamente il toggle del range manuale
-    st.session_state["fc_manual_range_beta"] = True
+# usa gli helper GLOBALI che già sbloccano/chiudono il toggle range
+def _add_fc_suggestion_local(val: float) -> None:
+    _add_fc_suggestion(val)  # <-- globale definito sopra
 
-    # se ho 2 estremi, popola subito FC_min/max; con 1 valore lasciali vuoti (li inserirà l'utente)
-    if len(vals) == 2:
-        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[1]
-    else:
-        st.session_state.pop("FC_min_beta", None)
-        st.session_state.pop("FC_max_beta", None)
+def _clear_fc_suggestions_local() -> None:
+    _clear_fc_suggestions()  # <-- globale definito sopra
+    
 
-def _clear_fc_suggestions() -> None:
-    st.session_state["fc_suggested_vals"] = []
-    st.session_state.pop("FC_min_beta", None)
-    st.session_state.pop("FC_max_beta", None)
-    # richiudi il range manuale
-    st.session_state["fc_manual_range_beta"] = False
+
+
 
 # Titolo
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
@@ -510,14 +497,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             st.button("🗑️ Reset intervallo FC",
                       use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc"))
 
-        vals = st.session_state.get("fc_suggested_vals", [])
-        if len(vals) == 2:
-            st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC cautelativo corrente: "
-                        f"<b>{vals[0]:.2f}–{vals[1]:.2f}</b></div>", unsafe_allow_html=True)
-        elif len(vals) == 1:
-            st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC proposto (1 solo valore): "
-                        f"<b>{vals[0]:.2f}</b> — verrà usato il default ±0.10</div>", unsafe_allow_html=True)
-# --- Pannello "Suggerisci FC" ---
+        # --- Pannello "Suggerisci FC" ---
 if st.session_state.get("toggle_fattore", False):
     with st.container(border=True):
         # usa un key_prefix diverso per evitare collisioni di chiavi
