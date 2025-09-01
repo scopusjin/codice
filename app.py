@@ -515,6 +515,15 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         elif len(vals) == 1:
             st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC proposto (1 solo valore): "
                         f"<b>{vals[0]:.2f}</b> — verrà usato il default ±0.10</div>", unsafe_allow_html=True)
+# --- Pannello "Suggerisci FC" ---
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        # usa un key_prefix diverso per evitare collisioni di chiavi
+        pannello_suggerisci_fc(
+            peso_default=st.session_state.get("peso", 70.0),
+            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                           )
+
 
 # Parametri aggiuntivi (identico alla app principale)
 mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
