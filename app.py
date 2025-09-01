@@ -328,15 +328,29 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     # --- helpers cautelativa ---
     def _add_fc_suggestion(val: float) -> None:
+        v = round(float(val), 2)
         vals = st.session_state.get("fc_suggested_vals", [])
-        vals.append(float(val))
-        vals = sorted(set(vals))
+        vals = sorted(set(vals + [v]))
         if len(vals) >= 3:
-            vals = [vals[0], vals[-1]]
+            vals = [vals[0], vals[-1]]  # tieni solo gli estremi
         st.session_state["fc_suggested_vals"] = vals
+
+        # sblocca automaticamente il range manuale
+        st.session_state["fc_manual_range_beta"] = True
+
+        # se ho 2 estremi, popola subito FC_min/max; con 1 valore lasciali vuoti (default ±0.10)
+        if len(vals) == 2:
+            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[1]
+        else:
+            st.session_state.pop("FC_min_beta", None)
+            st.session_state.pop("FC_max_beta", None)
 
     def _clear_fc_suggestions() -> None:
         st.session_state["fc_suggested_vals"] = []
+        st.session_state.pop("FC_min_beta", None)
+        st.session_state.pop("FC_max_beta", None)
+        # richiudi il range manuale
+        st.session_state["fc_manual_range_beta"] = False
 
     def _apply_fc(val: float, riass: str | None) -> None:
         st.session_state["fattore_correzione"] = round(float(val), 2)
@@ -398,14 +412,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             with c2:
                 st.button("🗑️ Reset intervallo FC",
                           use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc_imm"))
-
-            vals = st.session_state.get("fc_suggested_vals", [])
-            if len(vals) == 2:
-                st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC cautelativo corrente: "
-                            f"<b>{vals[0]:.2f}–{vals[1]:.2f}</b></div>", unsafe_allow_html=True)
-            elif len(vals) == 1:
-                st.markdown(f"<div style='font-size:0.9rem;color:#0f5132;'>FC proposto (1 solo valore): "
-                            f"<b>{vals[0]:.2f}</b> — verrà usato il default ±0.10</div>", unsafe_allow_html=True)
         return
 
     # ============== Asciutto / Bagnato ==============
@@ -496,15 +502,9 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         with c2:
             st.button("🗑️ Reset intervallo FC",
                       use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc"))
+            
 
-        # --- Pannello "Suggerisci FC" ---
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        # usa un key_prefix diverso per evitare collisioni di chiavi
-        pannello_suggerisci_fc(
-            peso_default=st.session_state.get("peso", 70.0),
-            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-                           )
+
 
 
 # Parametri aggiuntivi (identico alla app principale)
