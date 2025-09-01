@@ -619,10 +619,13 @@ else:
 
 # --- Firma degli input che influenzano la stima ---
 def _inputs_signature():
+    data_sig = st.session_state.get("input_data_rilievo")
+    ora_sig  = st.session_state.get("input_ora_rilievo")
+
     base = [
         st.session_state.get("usa_orario_custom", False),
-        str(input_data_rilievo) if input_data_rilievo else None,
-        str(input_ora_rilievo) if input_ora_rilievo else None,
+        str(data_sig) if data_sig else None,
+        str(ora_sig) if ora_sig else None,
         selettore_macchie,
         selettore_rigidita,
         float(input_rt) if input_rt is not None else None,
@@ -640,7 +643,6 @@ def _inputs_signature():
         extra.append(str(st.session_state.get(f"{nome_parametro}_data")) if st.session_state.get(f"{nome_parametro}_data") else None)
         extra.append(st.session_state.get(f"{nome_parametro}_ora"))
 
-    # NEW: firma campi beta
     base.extend([
         bool(st.session_state.get("stima_cautelativa_beta", False)),
         st.session_state.get("Ta_min_beta"),
@@ -648,10 +650,9 @@ def _inputs_signature():
         st.session_state.get("FC_min_beta"),
         st.session_state.get("FC_max_beta"),
         bool(st.session_state.get("peso_stimato_beta", False)),
+        bool(st.session_state.get("fc_manual_range_beta", False)),
     ])
     return tuple(base + extra)
-
-curr_sig = _inputs_signature()
 
 # Stile bottone
 st.markdown("""
