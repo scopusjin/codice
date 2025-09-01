@@ -189,10 +189,16 @@ with st.container(border=True):
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
-# alias locali dai valori salvati in sessione
-input_data_rilievo = st.session_state.get("input_data_rilievo", input_data_rilievo)
-input_ora_rilievo  = st.session_state.get("input_ora_rilievo", input_ora_rilievo)
-    
+# Assicurati che le variabili esistano sempre
+if "input_data_rilievo" not in st.session_state:
+    st.session_state["input_data_rilievo"] = None
+if "input_ora_rilievo" not in st.session_state:
+    st.session_state["input_ora_rilievo"] = None
+
+# Alias locali dai valori salvati in sessione
+input_data_rilievo = st.session_state["input_data_rilievo"]
+input_ora_rilievo  = st.session_state["input_ora_rilievo"]
+
 # 📌 2. Ipostasi e rigidità — RIQUADRO (INVARIATO)
 with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
