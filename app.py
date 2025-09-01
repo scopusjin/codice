@@ -626,16 +626,16 @@ else:
     
             
 
-# --- Firma degli input che influenzano la stima ---
 def _inputs_signature():
     import numpy as np
     import datetime as _dt
+    import streamlit as st
 
     def _freeze(v):
-        # None o bool OK
+        # None / bool
         if v is None or isinstance(v, bool):
             return v
-        # numeri numpy -> float/int native
+        # numpy numerici -> python
         if isinstance(v, (np.floating,)):
             return float(v)
         if isinstance(v, (np.integer,)):
@@ -643,18 +643,66 @@ def _inputs_signature():
         # numeri python
         if isinstance(v, (int, float)):
             return v
-        # date/datetime -> stringa ISO (immutabile e confrontabile)
+        # date/time/datetime -> ISO
         if isinstance(v, (_dt.date, _dt.datetime, _dt.time)):
             try:
                 return v.isoformat()
             except Exception:
                 return str(v)
-        # liste/tuple -> tupla ricorsiva
+        # sequenze -> tupla
         if isinstance(v, (list, tuple)):
             return tuple(_freeze(x) for x in v)
-        # dict -> tupla ordinata di coppie (chiave,valore) freezate
-        if isinstance(v, dict
-                      
+        # dict -> tupla ordinata di coppie (chiave,valore)
+        if isinstance(v, dict):
+            return tuple(sorted((k, _freeze(val)) for k, val in v.items()))
+        # fallback
+        return str(v)
+
+    # Valori base (come prima)
+    base = [
+        bool(st.session_state.get("usa_orario_custom", False)),
+        _freeze(st.session_state.get("input_data_rilievo")),
+        _freeze(st.session_state.get("input_ora_rilievo")),
+        _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
+        _freeze(st.session_state.get("selettore_rigidita") if "selettore_rigidita" in st.session_state else None),
+        _freeze(st.session_state.get("rt_val")),
+        _freeze(st.session_state.get("ta_base_val") if "ta_base_val" in st.session_state else None),
+        _freeze(st.session_state.get("tm_val")),
+        _freeze(st.session_state.get("peso")),
+        _freeze(st.session_state.get("fattore_correzione", 1.0)),
+        bool(st.session_state.get("alterazioni_putrefattive", False)),
+        bool(st.session_state.get("stima_cautelativa_beta", False)),
+    ]
+
+    # Parametri aggiuntivi (se presenti in app)
+    try:
+        from app.parameters import dati_parametri_aggiuntivi
+        extra = []
+        for nome_parametro, _ in dati_parametri_aggiuntivi.items():
+            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_selector")))
+            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_diversa")))
+            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_data")))
+            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_ora")))
+    except Exception:
+        extra = []
+
+    # Campi CAUTELATIVA (nuovi trigger di ricalcolo)
+    caut = [
+        _freeze(st.session_state.get("Ta_min_beta")),
+        _freeze(st.session_state.get("Ta_max_beta")),
+        _freeze(st.session_state.get("FC_min_beta")),
+        _freeze(st.session_state.get("FC_max_beta")),
+        bool(st.session_state.get("peso_stimato_beta", False)),
+        bool(st.session_state.get("ta_range_toggle_beta", False)),
+        _freeze(st.session_state.get("ta_other_val")),
+        bool(st.session_state.get("fc_manual_range_beta", False)),
+        _freeze(st.session_state.get("fc_other_val")),
+        # anche l’intervallo FC raccolto dai suggerimenti (ordinato) se presente
+        tuple(sorted(_freeze(st.session_state.get("fc_suggested_vals", [])))),
+    ]
+
+    return tuple(_freeze(base + extra + caut))
+            
 
 # Stile bottone
 st.markdown("""
