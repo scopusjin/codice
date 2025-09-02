@@ -323,28 +323,33 @@ with st.container(border=True):
 
         # Riga 3: FC + "Suggerisci FC" (range governato dal toggle unico)
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        r3c1, r3c2 = st.columns([1, 1], gap="small")
-        with r3c1:
-            fattore_correzione = st.number_input(
-                "FC base",
-                value=st.session_state.get("fattore_correzione", 1.0),
-                step=0.01, format="%.2f",
-                label_visibility="collapsed",
-                key="fattore_correzione"
-            )
-        with r3c2:
-            st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
 
-        if range_unico:
+        if not range_unico:
+            r3c1, r3c2 = st.columns([1, 1], gap="small")
+            with r3c1:
+                fattore_correzione = st.number_input(
+                    "FC",
+                    value=st.session_state.get("fattore_correzione", 1.0),
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fattore_correzione"
+                )
+            with r3c2:
+                st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
+            # nessun range manuale → usa ±0.10 nella cautelativa
+            st.session_state.pop("FC_min_beta", None)
+            st.session_state.pop("FC_max_beta", None)
+        else:
+            # SOLO min e max, niente campo "base"
             r3c4, r3c5 = st.columns([1, 1], gap="small")
-            fc_min_default = st.session_state.get("FC_min_beta", float(fattore_correzione))
+            fc_min_default = st.session_state.get("FC_min_beta", float(st.session_state.get("fattore_correzione", 1.0)))
             fc_max_default = st.session_state.get(
                 "FC_max_beta",
-                st.session_state.get("fc_other_val", float(fattore_correzione) + 0.10)
+                st.session_state.get("fc_other_val", float(st.session_state.get("fattore_correzione", 1.0)) + 0.10)
             )
             with r3c4:
                 fc_min = st.number_input(
-                    "FC base (min)",
+                    "FC min",
                     value=fc_min_default,
                     step=0.01, format="%.2f",
                     label_visibility="collapsed",
@@ -352,7 +357,7 @@ with st.container(border=True):
                 )
             with r3c5:
                 fc_max = st.number_input(
-                    "FC altro estremo (max)",
+                    "FC max",
                     value=fc_max_default,
                     step=0.01, format="%.2f",
                     label_visibility="collapsed",
@@ -360,18 +365,8 @@ with st.container(border=True):
                 )
             lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
             st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-        else:
-            # nessun range manuale → usa ±0.10 in compute_raffreddamento_cautelativo
-            st.session_state.pop("FC_min_beta", None)
-            st.session_state.pop("FC_max_beta", None)
-
-        # Messaggio riepilogo quando c'è un solo suggerimento e range non specificato
-        fc_vals = st.session_state.get("fc_suggested_vals", [])
-        if len(fc_vals) == 1 and not range_unico:
-            st.markdown(
-                "<div style='font-size:0.9rem; color:#0f5132;'>se non imposti un range, verrà considerato ±0.10)</div>",
-                unsafe_allow_html=True
-            )
+            # imposta "base" come media, utile per moduli che leggono un singolo valore
+            st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
 
     else:
         # -------------------------
