@@ -160,12 +160,12 @@ def add_fc_suggestion_global(val: float) -> None:
         vals = [vals[0], vals[-1]]
     st.session_state["fc_suggested_vals"] = vals
     _sync_fc_range_from_suggestions()
-    st.rerun()
+    
 
 def clear_fc_suggestions_global() -> None:
     st.session_state["fc_suggested_vals"] = []
     _sync_fc_range_from_suggestions()
-    st.rerun()
+    
     
 
 
