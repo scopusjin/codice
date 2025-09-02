@@ -1,4 +1,4 @@
-lo
+
 
 from app.factor_calc import (
     DressCounts, compute_factor, build_cf_description,
