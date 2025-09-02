@@ -351,36 +351,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
 
-    # --- helpers cautelativa ---
-    def _add_fc_suggestion(val: float) -> None:
-        v = round(float(val), 2)
-        vals = st.session_state.get("fc_suggested_vals", [])
-        vals = sorted(set(vals + [v]))
-        if len(vals) >= 3:
-            vals = [vals[0], vals[-1]]  # tieni solo gli estremi
-        st.session_state["fc_suggested_vals"] = vals
 
-        # sblocca automaticamente il range manuale
-        st.session_state["fc_manual_range_beta"] = True
-
-        # se ho 2 estremi, popola subito FC_min/max; con 1 valore lasciali vuoti (default ±0.10)
-        if len(vals) == 2:
-            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[1]
-        else:
-            st.session_state.pop("FC_min_beta", None)
-            st.session_state.pop("FC_max_beta", None)
-
-        # forza il refresh dell'interfaccia per mostrare subito il campo aggiuntivo
-        st.rerun()
-
-
-    def _clear_fc_suggestions() -> None:
-        st.session_state["fc_suggested_vals"] = []
-        st.session_state.pop("FC_min_beta", None)
-        st.session_state.pop("FC_max_beta", None)
-        # richiudi il range manuale
-        st.session_state["fc_manual_range_beta"] = False
-
+    
     def _apply_fc(val: float, riass: str | None) -> None:
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["fattori_condizioni_parentetica"] = None
@@ -435,11 +407,11 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         if st.session_state.get("stima_cautelativa_beta", False):
             c1, c2 = st.columns(2)
             with c1:
-                st.button("➕ Aggiungi a intervallo FC (cautelativa)",
+                st.button("➕ Aggiungi a range FC",
                           use_container_width=True, on_click=add_fc_suggestion_global,
                           args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
             with c2:
-                st.button("🗑️ Reset intervallo FC",
+                st.button("🗑️ Reset range FC",
                           use_container_width=True, on_click=clear_fc_suggestions_global, key=k("btn_reset_fc_imm"))
         return
 
