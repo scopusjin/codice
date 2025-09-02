@@ -252,7 +252,7 @@ with st.container(border=True):
             )
         # mantieni in sync le vecchie chiavi per compatibilità
         st.session_state["ta_range_toggle_beta"] = range_unico
-        st.session_state["fc_manual_range_beta"] = range_unico
+    
 
         with rg2:
             st.caption("Quando attivo, inserisci gli estremi sia per T. ambientale sia per il Fattore di correzione.")
@@ -321,26 +321,27 @@ with st.container(border=True):
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
 
-        # Riga 3: FC + "Suggerisci FC" (range governato dal toggle unico)
+                # Riga 3: FC + "Suggerisci FC" (range governato dal toggle unico dei campi min/max TA; FC ha logica indipendente)
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
 
+        # Toggle pannello suggeritore: sempre visibile
+        st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
+
         if not range_unico:
-            r3c1, r3c2 = st.columns([1, 1], gap="small")
-            with r3c1:
-                fattore_correzione = st.number_input(
-                    "FC",
-                    value=st.session_state.get("fattore_correzione", 1.0),
-                    step=0.01, format="%.2f",
-                    label_visibility="collapsed",
-                    key="fattore_correzione"
-                )
-            with r3c2:
-                st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
-            # nessun range manuale → usa ±0.10 nella cautelativa
-            st.session_state.pop("FC_min_beta", None)
-            st.session_state.pop("FC_max_beta", None)
+            # Campo singolo FC
+            fattore_correzione = st.number_input(
+                "FC",
+                value=st.session_state.get("fattore_correzione", 1.0),
+                step=0.01, format="%.2f",
+                label_visibility="collapsed",
+                key="fattore_correzione"
+            )
+            # Non cancellare min/max se esistono da suggerimenti o manuale
+            if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
+                st.session_state.pop("FC_min_beta", None)
+                st.session_state.pop("FC_max_beta", None)
         else:
-            # SOLO min e max, niente campo "base"
+            # Range esplicito di FC: solo min e max
             r3c4, r3c5 = st.columns([1, 1], gap="small")
             fc_min_default = st.session_state.get("FC_min_beta", float(st.session_state.get("fattore_correzione", 1.0)))
             fc_max_default = st.session_state.get(
@@ -365,9 +366,15 @@ with st.container(border=True):
                 )
             lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
             st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-            # imposta "base" come media, utile per moduli che leggono un singolo valore
             st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
 
+
+
+
+
+
+
+    
     else:
         # -------------------------
         # 🔷 MASCHERA STANDARD
