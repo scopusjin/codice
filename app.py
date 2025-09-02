@@ -283,23 +283,66 @@ with st.container(border=True):
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
         r3c1, r3c2, r3c3 = st.columns([1, 1, 1], gap="small")
         with r3c1:
-            fattore_correzione = st.number_input("FC base", value=st.session_state.get("fattore_correzione", 1.0), step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione")
+            fattore_correzione = st.number_input(
+                "FC base",
+                value=st.session_state.get("fattore_correzione", 1.0),
+                step=0.01, format="%.2f",
+                label_visibility="collapsed",
+                key="fattore_correzione"
+            )
         with r3c2:
-            fc_manual = st.toggle("Specifica range", value=st.session_state.get("fc_manual_range_beta", False), key="fc_manual_range_beta")
+            fc_manual = st.toggle(
+                "Specifica range",
+                value=st.session_state.get("fc_manual_range_beta", False),
+                key="fc_manual_range_beta"
+            )
         with r3c3:
             st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
 
+        # Se ho raccolto suggerimenti, forza l’apertura del range e usa gli estremi calcolati
+        if not fc_manual and (
+            st.session_state.get("FC_min_beta") is not None
+            or st.session_state.get("FC_max_beta") is not None
+            or st.session_state.get("fc_suggested_vals")
+        ):
+            fc_manual = True
+            st.session_state["fc_manual_range_beta"] = True
+
         if fc_manual:
             r3c4, r3c5 = st.columns([1, 1], gap="small")
+
+            # default presi da FC_min/max calcolati dai suggerimenti (se esistono)
+            fc_min_default = st.session_state.get("FC_min_beta", float(fattore_correzione))
+            fc_max_default = st.session_state.get(
+                "FC_max_beta",
+                st.session_state.get("fc_other_val", float(fattore_correzione) + 0.10)
+            )
+
             with r3c4:
-                fc_other = st.number_input("FC altro estremo", value=st.session_state.get("fc_other_val", fattore_correzione + 0.10), step=0.01, format="%.2f", label_visibility="collapsed", key="fc_other_val")
+                fattore_correzione = st.number_input(
+                    "FC base (min)",
+                    value=fc_min_default,
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fattore_correzione"  # stessa key
+                )
+            with r3c5:
+                fc_other = st.number_input(
+                    "FC altro estremo (max)",
+                    value=fc_max_default,
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fc_other_val"
+                )
+
             # salva ordinato come min/max
             lo_fc, hi_fc = sorted([float(fattore_correzione), float(fc_other)])
             st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
         else:
-            # nessun range manuale → lascia None per usare ±0.10 in compute_raffreddamento_cautelativo
+            # nessun range manuale → lascia None per usare ±0.10 nella cautelativa
             st.session_state.pop("FC_min_beta", None)
             st.session_state.pop("FC_max_beta", None)
+
 
         # Messaggi di riepilogo per FC suggeriti (se presenti)
         fc_vals = st.session_state.get("fc_suggested_vals", [])
@@ -316,11 +359,13 @@ with st.container(border=True):
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
             input_rt = st.number_input("T. rettale (°C):", value=st.session_state.get("rt_val", 35.0), step=0.1, format="%.1f", label_visibility="collapsed", key="rt_val")
         with col2:
+            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+            input_tm = st.number_input("T. ante-mortem stimata (°C):", value=st.session_state.get("tm_val", 37.2), step=0.1, format="%.1f", label_visibility="collapsed", key="tm_val")
             st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
             input_ta = st.number_input("T. ambientale (°C):", value=st.session_state.get("ta_base_val", 20.0), step=0.1, format="%.1f", label_visibility="collapsed", key="ta_base_val")
         with col3:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
-            input_tm = st.number_input("T. ante-mortem stimata (°C):", value=st.session_state.get("tm_val", 37.2), step=0.1, format="%.1f", label_visibility="collapsed", key="tm_val")
+            st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+            input_ta = st.number_input("T. ambientale (°C):", value=st.session_state.get("ta_base_val", 20.0), step=0.1, format="%.1f", label_visibility="collapsed", key="ta_base_val")
 
         # 4. Peso + FC + Suggerisci
         col1, col2 = st.columns([1, 3], gap="small")
