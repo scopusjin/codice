@@ -575,15 +575,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
               use_container_width=True, key=k("btn_usa_fc"))
 
     if st.session_state.get("stima_cautelativa_beta", False):
-        c1, c2 = st.columns(2)
-        with c1:
             st.button("➕ Aggiungi a range FC",
                       use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc"))
-        with c2:
-            st.button("🗑️ Reset rage FC",
-                      use_container_width=True, on_click=clear_fc_suggestions_global, key=k("btn_reset_fc"))
-            
+        
 
 # --- Pannello "Suggerisci FC" ---
 if st.session_state.get("toggle_fattore", False):
