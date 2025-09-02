@@ -787,8 +787,8 @@ def _inputs_signature():
         tuple(sorted(_freeze(st.session_state.get("fc_suggested_vals", [])))),
     ]
 
-
     return tuple(_freeze(base + extra + caut))
+
             
 # --- Firma degli input che influenzano la stima ---
 curr_sig = _inputs_signature()
