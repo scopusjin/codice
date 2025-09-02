@@ -372,9 +372,10 @@ with st.container(border=True):
             if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
                 st.session_state.pop("FC_min_beta", None)
                 st.session_state.pop("FC_max_beta", None)
-                
 
-
+        # --- Toggle pannello suggeritore in fondo al riquadro ---
+        st.toggle("Suggerisci FC", value=st.session_state.get("toggle_fattore", False), key="toggle_fattore")
+        
 
     
     else:
