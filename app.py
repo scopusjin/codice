@@ -262,7 +262,7 @@ with st.container(border=True):
     
 
         with rg2:
-            st.caption("Quando attivo, inserisci gli estremi sia per T. ambientale sia per il Fattore di correzione.")
+            st.caption("se non specificato, verrà considerato un range di ± 1 °C per la di T. amb e di ± 0.1 per FC.")
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3, c4 = st.columns([1, 1, 1, 0.7], gap="small")
