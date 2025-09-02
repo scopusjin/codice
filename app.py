@@ -384,7 +384,7 @@ with st.container(border=True):
                 key="rt_val"
             )
         with col2:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem stimata (°C):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             input_tm = st.number_input(
                 "T. ante-mortem stimata (°C):",
                 value=st.session_state.get("tm_val", 37.2),
@@ -489,14 +489,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                   use_container_width=True, key=k("btn_usa_fc_imm"))
 
         if st.session_state.get("stima_cautelativa_beta", False):
-            c1, c2 = st.columns(2)
-            with c1:
                 st.button("➕ Aggiungi a range FC",
                           use_container_width=True, on_click=add_fc_suggestion_global,
                           args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
-            with c2:
-                st.button("🗑️ Reset range FC",
-                          use_container_width=True, on_click=clear_fc_suggestions_global, key=k("btn_reset_fc_imm"))
+            
         return
 
     # ============== Asciutto / Bagnato ==============
