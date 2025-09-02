@@ -134,32 +134,39 @@ if "show_results" not in st.session_state:
 if "fc_suggested_vals" not in st.session_state:
     st.session_state["fc_suggested_vals"] = [] 
 
-# --- Helpers FC cautelativa (GLOBALI) ---
-def _sync_fc_range_from_suggestions():
+# def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({round(float(v), 2) for v in vals})
-    if len(vals) >= 2:
-        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[-1]
-        st.session_state["fc_manual_range_beta"] = True
-    elif len(vals) == 1:
-        # un solo valore -> lasciare None per usare ±0.10 di default
-        st.session_state.pop("FC_min_beta", None)
-        st.session_state.pop("FC_max_beta", None)
-        st.session_state["fc_manual_range_beta"] = True
-    else:
+
+    if not vals:
         st.session_state.pop("FC_min_beta", None)
         st.session_state.pop("FC_max_beta", None)
         st.session_state["fc_manual_range_beta"] = False
+        return
+
+    # con 1 solo valore: applica ±0.10 di default
+    if len(vals) == 1:
+        lo, hi = vals[0] - 0.10, vals[0] + 0.10
+    else:
+        lo, hi = vals[0], vals[-1]
+
+    # scrivi range e media come "base" per coerenza con i moduli che leggono un singolo valore
+    st.session_state["FC_min_beta"] = round(lo, 2)
+    st.session_state["FC_max_beta"] = round(hi, 2)
+    st.session_state["fattore_correzione"] = round((lo + hi) / 2.0, 2)
+    st.session_state["fc_manual_range_beta"] = True
+
 
 def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({*vals, v})
+    # se >2 valori, mantieni solo gli estremi
     if len(vals) >= 3:
-        # tieni solo gli estremi
         vals = [vals[0], vals[-1]]
     st.session_state["fc_suggested_vals"] = vals
     _sync_fc_range_from_suggestions()
+
     
 
 def clear_fc_suggestions_global() -> None:
