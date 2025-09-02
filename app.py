@@ -781,13 +781,12 @@ def _inputs_signature():
         _freeze(st.session_state.get("FC_min_beta")),
         _freeze(st.session_state.get("FC_max_beta")),
         bool(st.session_state.get("peso_stimato_beta", False)),
-        bool(st.session_state.get("ta_range_toggle_beta", False)),
+        bool(st.session_state.get("range_unico_beta", False)),  # nuovo toggle unico
         _freeze(st.session_state.get("ta_other_val")),
-        bool(st.session_state.get("fc_manual_range_beta", False)),
         _freeze(st.session_state.get("fc_other_val")),
-        # anche l’intervallo FC raccolto dai suggerimenti (ordinato) se presente
         tuple(sorted(_freeze(st.session_state.get("fc_suggested_vals", [])))),
     ]
+
 
     return tuple(_freeze(base + extra + caut))
             
