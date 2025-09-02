@@ -134,7 +134,7 @@ if "show_results" not in st.session_state:
 if "fc_suggested_vals" not in st.session_state:
     st.session_state["fc_suggested_vals"] = [] 
 
-# def _sync_fc_range_from_suggestions():
+def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({round(float(v), 2) for v in vals})
 
