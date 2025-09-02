@@ -134,15 +134,39 @@ if "show_results" not in st.session_state:
 if "fc_suggested_vals" not in st.session_state:
     st.session_state["fc_suggested_vals"] = [] 
 
+# --- Helpers FC cautelativa (GLOBALI) ---
+def _sync_fc_range_from_suggestions():
+    vals = st.session_state.get("fc_suggested_vals", [])
+    vals = sorted({round(float(v), 2) for v in vals})
+    if len(vals) >= 2:
+        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = vals[0], vals[-1]
+        st.session_state["fc_manual_range_beta"] = True
+    elif len(vals) == 1:
+        # un solo valore -> lasciare None per usare ±0.10 di default
+        st.session_state.pop("FC_min_beta", None)
+        st.session_state.pop("FC_max_beta", None)
+        st.session_state["fc_manual_range_beta"] = True
+    else:
+        st.session_state.pop("FC_min_beta", None)
+        st.session_state.pop("FC_max_beta", None)
+        st.session_state["fc_manual_range_beta"] = False
 
-# usa gli helper GLOBALI che già sbloccano/chiudono il toggle range
-def _add_fc_suggestion_local(val: float) -> None:
-    _add_fc_suggestion(val)  # <-- globale definito sopra
+def add_fc_suggestion_global(val: float) -> None:
+    v = round(float(val), 2)
+    vals = st.session_state.get("fc_suggested_vals", [])
+    vals = sorted({*vals, v})
+    if len(vals) >= 3:
+        # tieni solo gli estremi
+        vals = [vals[0], vals[-1]]
+    st.session_state["fc_suggested_vals"] = vals
+    _sync_fc_range_from_suggestions()
+    st.rerun()
 
-def _clear_fc_suggestions_local() -> None:
-    _clear_fc_suggestions()  # <-- globale definito sopra
+def clear_fc_suggestions_global() -> None:
+    st.session_state["fc_suggested_vals"] = []
+    _sync_fc_range_from_suggestions()
+    st.rerun()
     
-
 
 
 
@@ -412,11 +436,11 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             c1, c2 = st.columns(2)
             with c1:
                 st.button("➕ Aggiungi a intervallo FC (cautelativa)",
-                          use_container_width=True, on_click=_add_fc_suggestion,
+                          use_container_width=True, on_click=add_fc_suggestion_global,
                           args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
             with c2:
                 st.button("🗑️ Reset intervallo FC",
-                          use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc_imm"))
+                          use_container_width=True, on_click=clear_fc_suggestions_global, key=k("btn_reset_fc_imm"))
         return
 
     # ============== Asciutto / Bagnato ==============
@@ -501,12 +525,12 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     if st.session_state.get("stima_cautelativa_beta", False):
         c1, c2 = st.columns(2)
         with c1:
-            st.button("➕ Aggiungi a intervallo FC (cautelativa)",
-                      use_container_width=True, on_click=_add_fc_suggestion,
+            st.button("➕ Aggiungi a range FC",
+                      use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc"))
         with c2:
-            st.button("🗑️ Reset intervallo FC",
-                      use_container_width=True, on_click=_clear_fc_suggestions, key=k("btn_reset_fc"))
+            st.button("🗑️ Reset rage FC",
+                      use_container_width=True, on_click=clear_fc_suggestions_global, key=k("btn_reset_fc"))
             
 
 # --- Pannello "Suggerisci FC" ---
