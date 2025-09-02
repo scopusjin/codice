@@ -226,7 +226,7 @@ with st.container(border=True):
 
 # === Switch generale Cautelativa ===
 st.toggle(
-    "Stima cautelativa (beta)",
+    "Stima prudente (utilizza margini di incertezza per alcuni parametri)",
     value=st.session_state.get("stima_cautelativa_beta", False),
     key="stima_cautelativa_beta"
 )
