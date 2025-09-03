@@ -326,7 +326,7 @@ with st.container(border=True):
             with r2c2:
                 st.empty()
             with r2c3:
-                st.caption("Verrà considerato un range ±1.0 °C.")
+                pass
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
 
