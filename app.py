@@ -525,16 +525,18 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         )
         _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
-        st.button("✅ Usa questo fattore", on_click=_apply_fc,
-                  args=(result.fattore_finale, result.riassunto),
-                  use_container_width=True, key=k("btn_usa_fc_imm"))
+        if not st.session_state.get("range_unico_beta", False):
+            st.button("✅ Usa questo fattore", on_click=_apply_fc,
+                      args=(result.fattore_finale, result.riassunto),
+                      use_container_width=True, key=k("btn_usa_fc_imm"))
 
         if st.session_state.get("stima_cautelativa_beta", False):
-                st.button("➕ Aggiungi a range FC",
-                          use_container_width=True, on_click=add_fc_suggestion_global,
-                          args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
+            st.button("➕ Aggiungi a range FC",
+                      use_container_width=True, on_click=add_fc_suggestion_global,
+                      args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
             
         return
+
 
     # ============== Asciutto / Bagnato ==============
     col_corr, col_vest = st.columns([1.0, 1.3])
