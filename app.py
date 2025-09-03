@@ -558,9 +558,19 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
             })
 
-        rows = [{"Parametro": nome, "Valore": val} for nome, val in defaults.items()]
+        rows = [{"": nome, "Quanti?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
-
+        st.markdown("""
+        <style>
+        /* Nascondi header */
+        [data-testid="stDataFrameContainer"] thead {display: none;}
+        /* Nascondi barra strumenti (download, ricerca) */
+        [data-testid="stElementToolbar"] {display: none;}
+        /* Nascondi indice della tabella */
+        [data-testid="stDataFrameContainer"] tbody th {display: none;}
+        </style>
+        """, unsafe_allow_html=True)
+        
         edited = st.data_editor(
             df,
             hide_index=True,
