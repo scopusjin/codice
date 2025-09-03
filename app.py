@@ -154,10 +154,6 @@ def _sync_fc_range_from_suggestions():
     st.session_state["range_unico_beta"] = True
     st.session_state["ta_range_toggle_beta"] = True
 
-    # 📌 sincronizza i widget dei number_input solo se valori validi
-    st.session_state["fc_min_val"] = float(lo)
-    st.session_state["fc_other_val"] = float(hi)
-
 
 def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
@@ -293,6 +289,20 @@ with st.container(border=True):
         # mantieni in sync le vecchie chiavi per compatibilità
         st.session_state["ta_range_toggle_beta"] = range_unico
 
+        # seed per i widget FC quando arrivano da suggerimenti/range
+        if range_unico:
+            lo_seed = st.session_state.get("FC_min_beta")
+            hi_seed = st.session_state.get("FC_max_beta")
+            if lo_seed is not None and "fc_min_val" not in st.session_state:
+                st.session_state["fc_min_val"] = float(lo_seed)
+            if hi_seed is not None and "fc_other_val" not in st.session_state:
+                st.session_state["fc_other_val"] = float(hi_seed)
+        else:
+            # pulizia quando esci dalla modalità range
+            for k in ("fc_min_val","fc_other_val"):
+                st.session_state.pop(k, None)
+        
+
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
         with c1:
@@ -365,11 +375,11 @@ with st.container(border=True):
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
         fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
-        with fc_c1:
+                with fc_c1:
             if range_unico:
                 fc_min = st.number_input(
                     "FC min",
-                    value=st.session_state.get("FC_min_beta", 1.0),
+                    value=st.session_state.get("fc_min_val", st.session_state.get("FC_min_beta", 1.0)),
                     step=0.01, format="%.2f",
                     label_visibility="collapsed",
                     key="fc_min_val"
@@ -386,12 +396,11 @@ with st.container(border=True):
                     st.session_state.pop("FC_min_beta", None)
                     st.session_state.pop("FC_max_beta", None)
 
-
         with fc_c2:
             if range_unico:
                 fc_max = st.number_input(
                     "FC max",
-                    value=st.session_state.get("FC_max_beta", 1.10),
+                    value=st.session_state.get("fc_other_val", st.session_state.get("FC_max_beta", 1.10)),
                     step=0.01, format="%.2f",
                     label_visibility="collapsed",
                     key="fc_other_val"
@@ -399,12 +408,9 @@ with st.container(border=True):
                 lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
                 st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
                 st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
-
-                # ⬇️ sincronizza i widget SOLO ora che esistono
-                st.session_state["fc_min_val"] = float(st.session_state["FC_min_beta"])
-                st.session_state["fc_other_val"] = float(st.session_state["FC_max_beta"])
             else:
                 st.empty()
+
 
         with fc_c3:
             st.toggle(
@@ -544,8 +550,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             st.button("➕ Aggiungi a range FC",
                       use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
-
-     
 
         return
 
