@@ -344,11 +344,11 @@ with st.container(border=True):
                 pass
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
-        # Riga FC — intestazione + input/s + toggle
-        fc_col1, fc_col2, fc_col3 = st.columns([1, 1, 0.8], gap="small")
+        # FC — titolo come gli altri, poi riga con input allineati e toggle
+        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 0.8], gap="small")
 
-        with fc_col1:
-                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+        with fc_c1:
                 if range_unico:
                         fc_min = st.number_input(
                                 "FC min",
@@ -369,7 +369,7 @@ with st.container(border=True):
                                 st.session_state.pop("FC_min_beta", None)
                                 st.session_state.pop("FC_max_beta", None)
 
-        with fc_col2:
+        with fc_c2:
                 if range_unico:
                         fc_max = st.number_input(
                                 "FC max",
@@ -381,16 +381,19 @@ with st.container(border=True):
                         lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
                         st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
                         st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+                else:
+                        st.empty()  # mantiene l’allineamento della riga
 
-        with fc_col3:
+        with fc_c3:
                 st.toggle(
                         "Suggerisci FC",
                         value=st.session_state.get("toggle_fattore_inline", False),
                         key="toggle_fattore_inline",
                 )
 
-        # Sincronizza il pannello suggeritore
+        # sincronizza con il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+
 
     
     else:
