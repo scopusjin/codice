@@ -217,10 +217,10 @@ def compute_raffreddamento_cautelativo(
     df = pd.DataFrame.from_records(recs) if (mostra_tabella and recs) else None
 
     # 7) Frasi di riepilogo e parentetica
-       summary = build_summary_html(
-        Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
-        agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
-        peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
+    summary = build_summary_html(
+    Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
+    agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
+    peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
     )
 
     # robusto
