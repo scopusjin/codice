@@ -57,13 +57,10 @@ import pandas as pd
 def _fc_palette():
     base = st.get_option("theme.base") or "light"
     if base.lower() == "dark":
-        return dict(
-            bg="#0e3c2f", text="#d7fbe8", border="#2ea043", note="#abeacb"
-        )
+        return dict(bg="#0d2a47", text="#d6e9ff", border="#1976d2", note="#a7c7ff")
     else:
-        return dict(
-            bg="#e6f4ea", text="#0f5132", border="#2ea043", note="#5b7f6b"
-        )
+        return dict(bg="#e8f0fe", text="#0d47a1", border="#1976d2", note="#3f6fb5")
+            
 
 def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
     pal = _fc_palette()
