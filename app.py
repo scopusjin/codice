@@ -625,12 +625,17 @@ st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_bottom
 
 # --- Pannello "Suggerisci FC" ---
 if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(
-            peso_default=st.session_state.get("peso", 70.0),
-            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-        )
-        
+    st.markdown(
+        """
+        <div style="border:2px solid #1976d2; border-radius:8px; padding:12px; margin:6px 0;">
+        """,
+        unsafe_allow_html=True
+    )
+    pannello_suggerisci_fc(
+        peso_default=st.session_state.get("peso", 70.0),
+        key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 # Parametri aggiuntivi (identico alla app principale)
