@@ -314,10 +314,10 @@ with st.container(border=True):
             st.session_state["peso"] = input_w
             st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
 
-        # Riga 2: T. ambientale media + range unico
+                # Riga 2: T. ambientale media + range unico
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-        r2c1, r2c2, r2c3 = st.columns([1, 1, 1.2], gap="small")
-        with r2c1:
+        ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1], gap="small")
+        with ta_c1:
             input_ta = st.number_input(
                 "TA base",
                 value=st.session_state.get("ta_base_val", 20.0),
@@ -325,8 +325,8 @@ with st.container(border=True):
                 label_visibility="collapsed",
                 key="ta_base_val"
             )
-        if range_unico:
-            with r2c2:
+        with ta_c2:
+            if range_unico:
                 ta_other = st.number_input(
                     "TA altro estremo",
                     value=st.session_state.get("ta_other_val", input_ta + 1.0),
@@ -334,73 +334,75 @@ with st.container(border=True):
                     label_visibility="collapsed",
                     key="ta_other_val"
                 )
-            lo_ta, hi_ta = sorted([input_ta, ta_other])
-            st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-        else:
-            with r2c2:
+                lo_ta, hi_ta = sorted([input_ta, ta_other])
+                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+            else:
                 st.empty()
-            with r2c3:
-                pass
+        with ta_c3:
+            if not range_unico:
+                st.caption("Verrà considerato un range ±1.0 °C.")
+            else:
+                st.empty()
+        if not range_unico:
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
-        # FC — titolo come gli altri, poi riga con input allineati e toggle
+
+        # Riga 3: Fattore di correzione
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 0.8], gap="small")
+        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1], gap="small")
 
         with fc_c1:
-                if range_unico:
-                        fc_min = st.number_input(
-                                "FC min",
-                                value=st.session_state.get("FC_min_beta", 1.00),
-                                step=0.01, format="%.2f",
-                                label_visibility="collapsed",
-                                key="fc_min_val",
-                        )
-                else:
-                        fattore_correzione = st.number_input(
-                                "FC",
-                                value=st.session_state.get("fattore_correzione", 1.00),
-                                step=0.01, format="%.2f",
-                                label_visibility="collapsed",
-                                key="fattore_correzione",
-                        )
-                        if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
-                                st.session_state.pop("FC_min_beta", None)
-                                st.session_state.pop("FC_max_beta", None)
+            if range_unico:
+                fc_min = st.number_input(
+                    "FC min",
+                    value=st.session_state.get("FC_min_beta", 1.0),
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fc_min_val"
+                )
+            else:
+                fattore_correzione = st.number_input(
+                    "FC",
+                    value=st.session_state.get("fattore_correzione", 1.0),
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fattore_correzione"
+                )
+                if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
+                    st.session_state.pop("FC_min_beta", None)
+                    st.session_state.pop("FC_max_beta", None)
 
         with fc_c2:
-                if range_unico:
-                        fc_max = st.number_input(
-                                "FC max",
-                                value=st.session_state.get("FC_max_beta", 1.10),
-                                step=0.01, format="%.2f",
-                                label_visibility="collapsed",
-                                key="fc_other_val",
-                        )
-                        lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
-                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                        st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
-                else:
-                        st.empty()  # mantiene l’allineamento della riga
+            if range_unico:
+                fc_max = st.number_input(
+                    "FC max",
+                    value=st.session_state.get("FC_max_beta", 1.10),
+                    step=0.01, format="%.2f",
+                    label_visibility="collapsed",
+                    key="fc_other_val"
+                )
+                lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
+                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+            else:
+                st.empty()
 
         with fc_c3:
-                st.toggle(
-                        "Suggerisci FC",
-                        value=st.session_state.get("toggle_fattore_inline", False),
-                        key="toggle_fattore_inline",
-                )
+            st.toggle(
+                "Suggerisci FC",
+                value=st.session_state.get("toggle_fattore_inline", False),
+                key="toggle_fattore_inline"
+            )
 
         # sincronizza con il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
-
-    
     else:
         # -------------------------
         # 🔷 MASCHERA STANDARD
         # -------------------------
-        # 3. Temperature
-        col1, col2, col3 = st.columns(3, gap="small")
+                # 3. Temperature
+        col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
             input_rt = st.number_input(
@@ -420,18 +422,6 @@ with st.container(border=True):
                 key="tm_val"
             )
         with col3:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
-            input_w = st.number_input(
-                        "Peso (kg):",
-                        value=st.session_state.get("peso", 70.0),
-                        step=1.0, format="%.1f",
-                        label_visibility="collapsed"
-                )
-            st.session_state["peso"] = input_w
-            
-        # 4. Peso + FC + Suggerisci (STANDARD)
-        col1, col2, col3 = st.columns(3, gap="small")
-        with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
             input_ta = st.number_input(
                 "T. ambientale (°C):",
@@ -440,23 +430,34 @@ with st.container(border=True):
                 label_visibility="collapsed",
                 key="ta_base_val"
             )
-        with col2:
-                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-                fattore_correzione = st.number_input(
-                        "Fattore di correzione:",
-                         value=st.session_state.get("fattore_correzione", 1.0),
-                         step=0.01, format="%.2f",
-                         label_visibility="collapsed",
-                         key="fattore_correzione"
-                    )
-        with col3:
-                st.toggle(
-                    "Suggerisci FC",
-                    value=st.session_state.get("toggle_fattore_inline", False),
-                    key="toggle_fattore_inline"
-                )
 
-st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+        # 4. Peso + FC
+        col1, col2, col3 = st.columns([1, 1, 1], gap="small")
+        with col1:
+            st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+            input_w = st.number_input(
+                "Peso (kg):",
+                value=st.session_state.get("peso", 70.0),
+                step=1.0, format="%.1f",
+                label_visibility="collapsed"
+            )
+            st.session_state["peso"] = input_w
+        with col2:
+            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+            fattore_correzione = st.number_input(
+                "Fattore di correzione:",
+                value=st.session_state.get("fattore_correzione", 1.0),
+                step=0.01, format="%.2f",
+                label_visibility="collapsed",
+                key="fattore_correzione"
+            )
+        with col3:
+            st.toggle(
+                "Suggerisci FC",
+                value=st.session_state.get("toggle_fattore_inline_std", False),
+                key="toggle_fattore_inline_std"
+            )
+            st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
 
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
