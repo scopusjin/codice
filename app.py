@@ -331,7 +331,7 @@ with st.container(border=True):
         with fc_head1:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
         with fc_head2:
-        
+            pass
 
         if range_unico:
             r3c1, r3c2 = st.columns([1, 1], gap="small")
@@ -435,7 +435,7 @@ with st.container(border=True):
                     key="fattore_correzione"
                 )
             with subcol2:
-
+                pass
 
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
