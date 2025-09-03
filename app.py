@@ -344,16 +344,12 @@ with st.container(border=True):
                 pass
             st.session_state.pop("Ta_min_beta", None)
             st.session_state.pop("Ta_max_beta", None)
-
-        # Riga 3: FC — intestazione (label a sinistra, toggle a destra) su UNA riga
-                # Riga FC — label, input/s, toggle (tutto su UNA riga)
-        fc_col1, fc_col2, fc_col3, fc_col4 = st.columns([1, 1, 1, 0.8], gap="small")
+        # Riga FC — intestazione + input/s + toggle
+        fc_col1, fc_col2, fc_col3 = st.columns([1, 1, 0.8], gap="small")
 
         with fc_col1:
                 st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-
-        if range_unico:
-                with fc_col2:
+                if range_unico:
                         fc_min = st.number_input(
                                 "FC min",
                                 value=st.session_state.get("FC_min_beta", 1.00),
@@ -361,19 +357,7 @@ with st.container(border=True):
                                 label_visibility="collapsed",
                                 key="fc_min_val",
                         )
-                with fc_col3:
-                        fc_max = st.number_input(
-                                "FC max",
-                                value=st.session_state.get("FC_max_beta", 1.10),
-                                step=0.01, format="%.2f",
-                                label_visibility="collapsed",
-                                key="fc_other_val",
-                        )
-                lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
-                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
-        else:
-                with fc_col2:
+                else:
                         fattore_correzione = st.number_input(
                                 "FC",
                                 value=st.session_state.get("fattore_correzione", 1.00),
@@ -381,13 +365,24 @@ with st.container(border=True):
                                 label_visibility="collapsed",
                                 key="fattore_correzione",
                         )
-                with fc_col3:
-                        st.empty()
-                if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
+                        if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
+                                st.session_state.pop("FC_min_beta", None)
+                                st.session_state.pop("FC_max_beta", None)
 
-        with fc_col4:
+        with fc_col2:
+                if range_unico:
+                        fc_max = st.number_input(
+                                "FC max",
+                                value=st.session_state.get("FC_max_beta", 1.10),
+                                step=0.01, format="%.2f",
+                                label_visibility="collapsed",
+                                key="fc_other_val",
+                        )
+                        lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
+                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                        st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+
+        with fc_col3:
                 st.toggle(
                         "Suggerisci FC",
                         value=st.session_state.get("toggle_fattore_inline", False),
@@ -396,7 +391,6 @@ with st.container(border=True):
 
         # Sincronizza il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
-
 
     
     else:
