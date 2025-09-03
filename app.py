@@ -254,7 +254,12 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
         
-        st.markdown(
+       
+         )
+        # --- Toggle unico per i range TA e FC + messaggio generale ---
+        rg1, rg2 = st.columns([3, 1], gap="small")
+        with rg1:
+             st.markdown(
             "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
             "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
             "Se non diversamente specificato, verrà considerato di default, prudenzialmente, "
@@ -262,10 +267,9 @@ with st.container(border=True):
             "e di ±0.10 per il fattore di correzione (FC)."
              "</div>",
             unsafe_allow_html=True
-         )
-        # --- Toggle unico per i range TA e FC + messaggio generale ---
-        rg1, rg2 = st.columns([0.6, 1.4], gap="small")
-        with rg1:
+    
+
+        with rg2:
             range_unico = st.toggle(
                 "Specifica range",
                 value=st.session_state.get("range_unico_beta", False),
@@ -273,13 +277,9 @@ with st.container(border=True):
             )
         # mantieni in sync le vecchie chiavi per compatibilità
         st.session_state["ta_range_toggle_beta"] = range_unico
-    
-
-        with rg2:
-            pass
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
-        c1, c2, c3 = st.columns([1, 1, 1], gap="small")
+        c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
         with c1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
             input_rt = st.number_input(
@@ -315,7 +315,7 @@ with st.container(border=True):
 
                 # Riga 2: T. ambientale media + range unico
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-        ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1], gap="small")
+        ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
         with ta_c1:
             input_ta = st.number_input(
                 "TA base",
@@ -348,7 +348,7 @@ with st.container(border=True):
 
         # Riga 3: Fattore di correzione
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1], gap="small")
+        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
         with fc_c1:
             if range_unico:
@@ -433,7 +433,7 @@ with st.container(border=True):
         # 4. Peso + FC
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
             input_w = st.number_input(
                 "Peso (kg):",
                 value=st.session_state.get("peso", 70.0),
