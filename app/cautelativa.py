@@ -222,7 +222,28 @@ def compute_raffreddamento_cautelativo(
         agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
         peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
     )
-    
+    paren = build_parentetica_cautelativa(
+    Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
+    )
+
+def build_parentetica_cautelativa(
+    Ta_lo: float, Ta_hi: float,
+    CF_lo: float, CF_hi: float,
+    p_lo: float, p_hi: float,
+    peso_stimato: bool
+) -> str:
+    ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
+    cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
+    p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+    suffix = ", peso stimato" if peso_stimato else ""
+    return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
+
+    try:
+    paren = build_parentetica_cautelativa(
+        Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
+    )
+except Exception as e:
+    paren = ""
 
     return CautelativaResult(
         ore_min=agg_min,
