@@ -231,8 +231,7 @@ with st.container(border=True):
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
         selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
 
-# === Switch generale Cautelativa ===
-st.toggle(
+
 # === Switch generale Cautelativa ===
 if "stima_cautelativa_beta" not in st.session_state:
     st.session_state["stima_cautelativa_beta"] = True  # default ON
