@@ -386,6 +386,7 @@ with st.container(border=True):
                     st.session_state.pop("FC_min_beta", None)
                     st.session_state.pop("FC_max_beta", None)
 
+
         with fc_c2:
             if range_unico:
                 fc_max = st.number_input(
@@ -398,6 +399,10 @@ with st.container(border=True):
                 lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
                 st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
                 st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+
+                # ⬇️ sincronizza i widget SOLO ora che esistono
+                st.session_state["fc_min_val"] = float(st.session_state["FC_min_beta"])
+                st.session_state["fc_other_val"] = float(st.session_state["FC_max_beta"])
             else:
                 st.empty()
 
@@ -540,11 +545,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                       use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
 
-        lo = st.session_state.get("FC_min_beta")
-        hi = st.session_state.get("FC_max_beta")
-        if lo is not None and hi is not None:
-            st.session_state["fc_min_val"] = float(lo)
-            st.session_state["fc_other_val"] = float(hi)
+     
 
         return
 
