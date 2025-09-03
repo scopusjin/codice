@@ -406,6 +406,18 @@ with st.container(border=True):
                 key="tm_val"
             )
         with col3:
+            st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+                input_w = st.number_input(
+                        "Peso (kg):",
+                        value=st.session_state.get("peso", 70.0),
+                        step=1.0, format="%.1f",
+                        label_visibility="collapsed"
+                )
+                st.session_state["peso"] = input_w
+            
+        # 4. Peso + FC + Suggerisci (STANDARD)
+        col1, col2, col3 = st.columns(3, gap="small")
+        with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
             input_ta = st.number_input(
                 "T. ambientale (°C):",
@@ -414,18 +426,6 @@ with st.container(border=True):
                 label_visibility="collapsed",
                 key="ta_base_val"
             )
-
-        # 4. Peso + FC + Suggerisci (STANDARD)
-        col1, col2, col3 = st.columns(3, gap="small")
-        with col1:
-                st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-                input_w = st.number_input(
-                        "Peso (kg):",
-                        value=st.session_state.get("peso", 70.0),
-                        step=1.0, format="%.1f",
-                        label_visibility="collapsed"
-                )
-                st.session_state["peso"] = input_w
         with col2:
                 st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
                 fattore_correzione = st.number_input(
