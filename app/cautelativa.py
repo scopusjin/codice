@@ -222,9 +222,7 @@ def compute_raffreddamento_cautelativo(
         agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
         peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
     )
-    paren = build_parentetica_cautelativa(
-        Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
-    )
+    
 
     return CautelativaResult(
         ore_min=agg_min,
@@ -313,8 +311,8 @@ def build_summary_html(
     )
     bullets = (
         "<ul>"
-        f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b>.</li>"
-        f"<li>Range per il fattore di correzione: <b>{cf_txt}</b>.</li>"
+        f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
+        f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
         f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
         "</ul>"
     )
@@ -327,38 +325,6 @@ def build_summary_html(
     return "<br>".join([header, bullets, conclusione])
     
 
-def build_parentetica_cautelativa(
-    Ta_lo: float, Ta_hi: float,
-    CF_lo: float, CF_hi: float,
-    p_lo: float, p_hi: float,
-    peso_stimato: bool
-) -> str:
-    """
-    Parentetica breve e standardizzata per la frase complessiva.
-    Esempio: "(raffreddamento stimato su Ta 18–20 °C, CF 1.2–1.3, peso 68–74 kg)"
-    """
-    ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
-    cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
-    p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
-    suffix = ", peso stimato" if peso_stimato else ""
-    return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
 
 
-# ------------------------
-# Hook per Streamlit (facoltativo)
-# ------------------------
-def render_tabella_combinazioni(df: pd.DataFrame) -> None:
-    """
-    Mostra una tabella compatta con colonne essenziali.
-    Integra dove già mostri le tabelle opzionali.
-    """
-    import streamlit as st
-    if df is None or df.empty:
-        return
-    with st.expander(f"Combinazioni calcolate ({len(df)})"):
-        st.dataframe(
-            df[["Ta", "CF", "peso_kg", "ore_min", "ore_max", "Qd"]]
-              .sort_values(["ore_min", "ore_max"]).reset_index(drop=True),
-            use_container_width=True,
-            hide_index=True,
-        )
+#
