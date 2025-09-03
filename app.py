@@ -284,7 +284,7 @@ with st.container(border=True):
             pass
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
-        c1, c2, c3, c4 = st.columns([1, 1, 1, 0.7], gap="small")
+        c1, c2, c3 = st.columns([1, 1, 1], gap="small")
         with c1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
             input_rt = st.number_input(
@@ -312,7 +312,6 @@ with st.container(border=True):
                 label_visibility="collapsed"
             )
             st.session_state["peso"] = input_w
-        with c4:
             st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
 
         # Riga 2: T. ambientale media + range unico
