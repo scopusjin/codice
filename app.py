@@ -300,7 +300,7 @@ with st.container(border=True):
             )
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
-            pc1, pc2 = st.columns([1, 0.6], gap="small")
+            pc1, pc2 = st.columns([1, 0.8], gap="small")
             with pc1:
                 input_w = st.number_input(
                     "Peso (kg):",
