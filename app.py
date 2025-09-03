@@ -448,6 +448,7 @@ with st.container(border=True):
                                 key="fattore_correzione"
                         )
 
+st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
