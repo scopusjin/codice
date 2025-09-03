@@ -244,16 +244,7 @@ st.toggle(
 )
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
-# Messaggio informativo iniziale
-st.markdown(
-    "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
-    "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-    "Se non diversamente specificato, verrà considerato di default, prudenzialmente, "
-    "un range di incertezza di ±1.0 °C per la temperatura ambientale media "
-    "e di ±0.10 per il fattore di correzione."
-    "</div>",
-    unsafe_allow_html=True
-)
+
 
 
 
@@ -267,7 +258,15 @@ with st.container(border=True):
         # -------------------------
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
-
+        st.markdown(
+            "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
+            "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
+            "Se non diversamente specificato, verrà considerato di default, prudenzialmente, "
+            "un range di incertezza di ±1.0 °C per la temperatura ambientale media "
+            "e di ±0.10 per il fattore di correzione (FC)."
+             "</div>",
+            unsafe_allow_html=True
+         )
         # --- Toggle unico per i range TA e FC + messaggio generale ---
         rg1, rg2 = st.columns([0.6, 1.4], gap="small")
         with rg1:
