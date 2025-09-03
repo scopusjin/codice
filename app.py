@@ -158,13 +158,16 @@ def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({*vals, v})
-    # se >2 valori, mantieni solo gli estremi
     if len(vals) >= 3:
         vals = [vals[0], vals[-1]]
     st.session_state["fc_suggested_vals"] = vals
-    _sync_fc_range_from_suggestions()
 
-    
+    # forza la modalità range
+    st.session_state["range_unico_beta"] = True
+    st.session_state["ta_range_toggle_beta"] = True
+    st.session_state["fc_manual_range_beta"] = True
+
+    _sync_fc_range_from_suggestions()
 
 def clear_fc_suggestions_global() -> None:
     st.session_state["fc_suggested_vals"] = []
@@ -576,8 +579,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             hide_index=True,
             use_container_width=True,
             column_config={
-                "Parametro": st.column_config.TextColumn(disabled=True, width="medium"),
-                "Valore": st.column_config.NumberColumn(
+                "--": st.column_config.TextColumn(disabled=True, width="medium"),
+                "Numero?": st.column_config.NumberColumn(
                     min_value=0, max_value=8, step=1, width="small"
                 ),
             },
