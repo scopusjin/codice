@@ -226,10 +226,20 @@ with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox("Macchie ipostatiche:", options=list(opzioni_macchie.keys()), label_visibility="collapsed")
+        selettore_macchie = st.selectbox(
+            "Macchie ipostatiche:",
+            options=list(opzioni_macchie.keys()),
+            key="selettore_macchie",
+            label_visibility="collapsed"
+        )
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox("Rigidità cadaverica:", options=list(opzioni_rigidita.keys()), label_visibility="collapsed")
+        selettore_rigidita = st.selectbox(
+            "Rigidità cadaverica:",
+            options=list(opzioni_rigidita.keys()),
+            key="selettore_rigidita",
+            label_visibility="collapsed"
+        )
 
 
 # === Switch generale Cautelativa ===
@@ -387,8 +397,9 @@ with st.container(border=True):
                 st.empty()
 
         with fc_c3:
+            st.markdown("<div style='color:#1976d2;font-weight:600;'>Suggerisci FC</div>", unsafe_allow_html=True)
             st.toggle(
-                "Suggerisci FC",
+                "",
                 value=st.session_state.get("toggle_fattore_inline", False),
                 key="toggle_fattore_inline"
             )
@@ -451,8 +462,9 @@ with st.container(border=True):
                 key="fattore_correzione"
             )
         with col3:
+            st.markdown("<div style='color:#1976d2;font-weight:600;'>Suggerisci FC</div>", unsafe_allow_html=True)
             st.toggle(
-                "Suggerisci FC",
+                "",
                 value=st.session_state.get("toggle_fattore_inline_std", False),
                 key="toggle_fattore_inline_std"
             )
