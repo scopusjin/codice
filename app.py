@@ -546,20 +546,47 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
-        col_layers, col_blankets = st.columns(2)
-        with col_layers:
-            n_sottili = st.slider("Strati leggeri (indumenti o teli sottili)", 0, 8,
-                                  st.session_state.get(k("strati_sottili"), 0), key=k("strati_sottili"))
-            n_spessi = st.slider("Strati pesanti (indumenti o teli spessi)", 0, 6,
-                                 st.session_state.get(k("strati_spessi"), 0), key=k("strati_spessi"))
-        with col_blankets:
-            if stato_corpo == "Asciutto":
-                n_cop_medie = st.slider("Coperte di medio spessore", 0, 5,
-                                        st.session_state.get(k("coperte_medie"), 0), key=k("coperte_medie"))
-                n_cop_pesanti = st.slider("Coperte pesanti", 0, 5,
-                                          st.session_state.get(k("coperte_pesanti"), 0), key=k("coperte_pesanti"))
+        import pandas as pd
 
-    counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
+        defaults = {
+            "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
+            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
+        }
+        if stato_corpo == "Asciutto":
+            defaults.update({
+                "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
+                "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
+            })
+
+        rows = [{"Parametro": nome, "Valore": val} for nome, val in defaults.items()]
+        df = pd.DataFrame(rows)
+
+        edited = st.data_editor(
+            df,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "Parametro": st.column_config.TextColumn(disabled=True, width="medium"),
+                "Valore": st.column_config.NumberColumn(
+                    min_value=0, max_value=8, step=1, width="small"
+                ),
+            },
+        )
+
+        vals = {r["Parametro"]: int(r["Valore"] or 0) for _, r in edited.iterrows()}
+
+        n_sottili = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
+        n_spessi = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
+        n_cop_medie = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti", 0) if stato_corpo == "Asciutto" else 0
+
+    counts = DressCounts(
+        sottili=n_sottili,
+        spessi=n_spessi,
+        coperte_medie=n_cop_medie,
+        coperte_pesanti=n_cop_pesanti,
+    )
+
 
     superficie_display_selected = "/"
     if stato_corpo == "Asciutto":
