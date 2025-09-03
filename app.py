@@ -257,7 +257,7 @@ with st.container(border=True):
        
         
         # --- Toggle unico per i range TA e FC + messaggio generale ---
-        rg1, rg2 = st.columns([3, 1], gap="small")
+        rg1, rg2 = st.columns([5, 1], gap="small")
         with rg1:
              st.markdown(
             "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
