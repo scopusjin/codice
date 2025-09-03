@@ -258,6 +258,7 @@ with st.container(border=True):
         # -------------------------
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
+        
         st.markdown(
             "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
             "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
@@ -345,54 +346,57 @@ with st.container(border=True):
             st.session_state.pop("Ta_max_beta", None)
 
         # Riga 3: FC — intestazione (label a sinistra, toggle a destra) su UNA riga
-        fc_head_left, fc_head_right = st.columns([1, 0.6], gap="small")
-        with fc_head_left:
-                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        with fc_head_right:
-                st.toggle(
-                        "Suggerisci FC",
-                        value=st.session_state.get("toggle_fattore_inline", False),
-                        key="toggle_fattore_inline"
-                )
+                # Riga FC — label, input/s, toggle (tutto su UNA riga)
+        fc_col1, fc_col2, fc_col3, fc_col4 = st.columns([1, 1, 1, 0.8], gap="small")
 
-        # Riga 4: FC — campi di input su riga separata
+        with fc_col1:
+                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+
         if range_unico:
-                fc_in_left, fc_in_right = st.columns([1, 1], gap="small")
-                with fc_in_left:
+                with fc_col2:
                         fc_min = st.number_input(
                                 "FC min",
-                                value=st.session_state.get("FC_min_beta", 1.0),
+                                value=st.session_state.get("FC_min_beta", 1.00),
                                 step=0.01, format="%.2f",
                                 label_visibility="collapsed",
-                                key="fc_min_val"
+                                key="fc_min_val",
                         )
-                with fc_in_right:
+                with fc_col3:
                         fc_max = st.number_input(
                                 "FC max",
                                 value=st.session_state.get("FC_max_beta", 1.10),
                                 step=0.01, format="%.2f",
                                 label_visibility="collapsed",
-                                key="fc_other_val"
+                                key="fc_other_val",
                         )
                 lo_fc, hi_fc = sorted([float(fc_min), float(fc_max)])
                 st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
                 st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
         else:
-                fc_in_left, _ = st.columns([1, 1], gap="small")
-                with fc_in_left:
+                with fc_col2:
                         fattore_correzione = st.number_input(
                                 "FC",
-                                value=st.session_state.get("fattore_correzione", 1.0),
+                                value=st.session_state.get("fattore_correzione", 1.00),
                                 step=0.01, format="%.2f",
                                 label_visibility="collapsed",
-                                key="fattore_correzione"
+                                key="fattore_correzione",
                         )
+                with fc_col3:
+                        st.empty()
                 if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
                         st.session_state.pop("FC_min_beta", None)
                         st.session_state.pop("FC_max_beta", None)
 
-        # Sincronizza lo stato del toggle locale con quello usato dal pannello suggeritore
+        with fc_col4:
+                st.toggle(
+                        "Suggerisci FC",
+                        value=st.session_state.get("toggle_fattore_inline", False),
+                        key="toggle_fattore_inline",
+                )
+
+        # Sincronizza il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+
 
     
     else:
