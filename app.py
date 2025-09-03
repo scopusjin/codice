@@ -255,7 +255,7 @@ with st.container(border=True):
         # -------------------------
         
        
-         )
+        
         # --- Toggle unico per i range TA e FC + messaggio generale ---
         rg1, rg2 = st.columns([3, 1], gap="small")
         with rg1:
