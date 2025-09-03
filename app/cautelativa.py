@@ -217,13 +217,31 @@ def compute_raffreddamento_cautelativo(
     df = pd.DataFrame.from_records(recs) if (mostra_tabella and recs) else None
 
     # 7) Frasi di riepilogo e parentetica
-    summary = build_summary_html(
+       summary = build_summary_html(
         Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
         agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
         peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
     )
-    paren = build_parentetica_cautelativa(
-    Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
+
+    # robusto
+    try:
+        paren = build_parentetica_cautelativa(
+            Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
+        )
+    except Exception:
+        paren = ""
+
+    return CautelativaResult(
+        ore_min=agg_min,
+        ore_max=agg_max,
+        dt_min=dt_min,
+        dt_max=dt_max if math.isfinite(agg_max) else None,
+        qd_min=qd_min,
+        qd_max=qd_max,
+        n_combinazioni=len(recs) if recs else (len(Ta_vals)*len(CF_vals)*len(P_vals)),
+        df_combinazioni=df,
+        summary_html=summary,
+        parentetica=paren,
     )
 
 def build_parentetica_cautelativa(
@@ -237,6 +255,8 @@ def build_parentetica_cautelativa(
     p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
     suffix = ", peso stimato" if peso_stimato else ""
     return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
+
+
 
     try:
     paren = build_parentetica_cautelativa(
