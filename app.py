@@ -407,13 +407,13 @@ with st.container(border=True):
             )
         with col3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-                input_w = st.number_input(
+            input_w = st.number_input(
                         "Peso (kg):",
                         value=st.session_state.get("peso", 70.0),
                         step=1.0, format="%.1f",
                         label_visibility="collapsed"
                 )
-                st.session_state["peso"] = input_w
+            st.session_state["peso"] = input_w
             
         # 4. Peso + FC + Suggerisci (STANDARD)
         col1, col2, col3 = st.columns(3, gap="small")
