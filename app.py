@@ -433,7 +433,7 @@ with st.container(border=True):
                     value=st.session_state.get("toggle_fattore_inline", False),
                     key="toggle_fattore_inline"
                 )
-       with col3:
+        with col3:
                 fattore_correzione = st.number_input(
                         "Fattore di correzione:",
                          value=st.session_state.get("fattore_correzione", 1.0),
