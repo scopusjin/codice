@@ -558,7 +558,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
             })
 
-        rows = [{"": nome, "Quanti?": val} for nome, val in defaults.items()]
+        rows = [{"--": nome, "Numero?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
         st.markdown("""
         <style>
@@ -583,7 +583,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             },
         )
 
-        vals = {r["Parametro"]: int(r["Valore"] or 0) for _, r in edited.iterrows()}
+        vals = {r["--"]: int(r["Numero?"] or 0) for _, r in edited.iterrows()}
 
         n_sottili = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
