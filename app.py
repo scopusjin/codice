@@ -539,9 +539,15 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             st.button("➕ Aggiungi a range FC",
                       use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
-        st.session_state["fc_min_val"] = st.session_state.get("FC_min_beta")
-        st.session_state["fc_other_val"] = st.session_state.get("FC_max_beta")    
+
+        lo = st.session_state.get("FC_min_beta")
+        hi = st.session_state.get("FC_max_beta")
+        if lo is not None and hi is not None:
+            st.session_state["fc_min_val"] = float(lo)
+            st.session_state["fc_other_val"] = float(hi)
+
         return
+
 
 
     # ============== Asciutto / Bagnato ==============
