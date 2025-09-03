@@ -267,7 +267,7 @@ with st.container(border=True):
             "e di ±0.10 per il fattore di correzione (FC)."
              "</div>",
             unsafe_allow_html=True
-    
+             )
 
         with rg2:
             range_unico = st.toggle(
