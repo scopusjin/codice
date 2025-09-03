@@ -593,7 +593,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                       args=(result.fattore_finale,), key=k("btn_add_fc"))
 # --- Toggle pannello suggeritore in fondo al riquadro ---
 _togg_val = st.session_state.get("toggle_fattore", False)
-st.toggle("Suggerisci FC", value=_togg_val, key="toggle_fattore_bottom")
 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_bottom", _togg_val)
 
 
