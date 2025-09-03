@@ -258,12 +258,7 @@ def build_parentetica_cautelativa(
 
 
 
-    try:
-    paren = build_parentetica_cautelativa(
-        Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
-    )
-except Exception as e:
-    paren = ""
+
 
     return CautelativaResult(
         ore_min=agg_min,
