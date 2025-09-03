@@ -394,9 +394,8 @@ with st.container(border=True):
                 st.empty()
 
         with fc_c3:
-            st.markdown("<div style='color:#1976d2;font-weight:600;'>Suggerisci FC</div>", unsafe_allow_html=True)
             st.toggle(
-                "",
+                "Suggerisci FC",
                 value=st.session_state.get("toggle_fattore_inline", False),
                 key="toggle_fattore_inline"
             )
@@ -459,9 +458,8 @@ with st.container(border=True):
                 key="fattore_correzione"
             )
         with col3:
-            st.markdown("<div style='color:#1976d2;font-weight:600;'>Suggerisci FC</div>", unsafe_allow_html=True)
             st.toggle(
-                "",
+                "Suggerisci FC",
                 value=st.session_state.get("toggle_fattore_inline_std", False),
                 key="toggle_fattore_inline_std"
             )
