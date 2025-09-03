@@ -134,25 +134,20 @@ if "fc_suggested_vals" not in st.session_state:
 def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({round(float(v), 2) for v in vals})
-
     if not vals:
-        for k in ("FC_min_beta","FC_max_beta","fc_min_val","fc_other_val"):
+        for k in ("FC_min_beta","FC_max_beta"):
             st.session_state.pop(k, None)
         st.session_state["fc_manual_range_beta"] = False
         return
-
-    if len(vals) == 1:
-        lo, hi = vals[0] - 0.10, vals[0] + 0.10
-    else:
-        lo, hi = vals[0], vals[-1]
-
+    lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals)==1 else (vals[0], vals[-1])
     lo, hi = round(lo, 2), round(hi, 2)
     st.session_state["FC_min_beta"] = lo
     st.session_state["FC_max_beta"] = hi
-    st.session_state["fattore_correzione"] = round((lo + hi) / 2.0, 2)
+    st.session_state["fattore_correzione"] = round((lo+hi)/2.0, 2)
     st.session_state["fc_manual_range_beta"] = True
     st.session_state["range_unico_beta"] = True
     st.session_state["ta_range_toggle_beta"] = True
+
 
 
 def add_fc_suggestion_global(val: float) -> None:
