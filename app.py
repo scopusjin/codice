@@ -428,12 +428,6 @@ with st.container(border=True):
                 st.session_state["peso"] = input_w
         with col2:
                 st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-                st.toggle(
-                    "Suggerisci FC",
-                    value=st.session_state.get("toggle_fattore_inline", False),
-                    key="toggle_fattore_inline"
-                )
-        with col3:
                 fattore_correzione = st.number_input(
                         "Fattore di correzione:",
                          value=st.session_state.get("fattore_correzione", 1.0),
@@ -441,6 +435,12 @@ with st.container(border=True):
                          label_visibility="collapsed",
                          key="fattore_correzione"
                     )
+        with col3:
+                st.toggle(
+                    "Suggerisci FC",
+                    value=st.session_state.get("toggle_fattore_inline", False),
+                    key="toggle_fattore_inline"
+                )
 
 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
