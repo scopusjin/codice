@@ -416,7 +416,7 @@ with st.container(border=True):
             )
 
         # 4. Peso + FC + Suggerisci (STANDARD)
-        col1, col2 = st.columns([1, 3], gap="small")
+        col1, col2, col 3 = st.columns(3, gap="small")
         with col1:
                 st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
                 input_w = st.number_input(
@@ -427,26 +427,20 @@ with st.container(border=True):
                 )
                 st.session_state["peso"] = input_w
         with col2:
-                # Riga etichetta FC + toggle (stessa UX della cautelativa)
-                head_l, head_r = st.columns([1, 0.6], gap="small")
-                with head_l:
-                        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-                with head_r:
-                        st.toggle(
-                                "Suggerisci FC",
-                                value=st.session_state.get("toggle_fattore_inline", False),
-                                key="toggle_fattore_inline"
-                        )
-                # Riga input FC
-                in_l, _ = st.columns([1, 1], gap="small")
-                with in_l:
-                        fattore_correzione = st.number_input(
-                                "Fattore di correzione:",
-                                value=st.session_state.get("fattore_correzione", 1.0),
-                                step=0.01, format="%.2f",
-                                label_visibility="collapsed",
-                                key="fattore_correzione"
-                        )
+                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+                st.toggle(
+                    "Suggerisci FC",
+                    value=st.session_state.get("toggle_fattore_inline", False),
+                    key="toggle_fattore_inline"
+                )
+       with col3:
+                fattore_correzione = st.number_input(
+                        "Fattore di correzione:",
+                         value=st.session_state.get("fattore_correzione", 1.0),
+                         step=0.01, format="%.2f",
+                         label_visibility="collapsed",
+                         key="fattore_correzione"
+                    )
 
 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
