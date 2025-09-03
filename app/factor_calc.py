@@ -81,7 +81,7 @@ def fattore_vestiti_coperte(c: DressCounts) -> float:
         f = 1.8 + max(0, c.coperte_medie - 1) * 0.2
     else:
         f = 1.0
-    f += c.sottili * 0.075 + c.spessi * 0.15
+    f += c.sottili * 0.07 + c.spessi * 0.14
     return float(f)
 
 def applica_regole_superficie(fatt: float, superficie_key: Optional[str], stato: str, c: DressCounts) -> float:
