@@ -151,12 +151,12 @@ def _sync_fc_range_from_suggestions():
     st.session_state["FC_max_beta"] = hi
     st.session_state["fattore_correzione"] = round((lo + hi) / 2.0, 2)
     st.session_state["fc_manual_range_beta"] = True
-
-    # allinea i widget dei number_input
-    st.session_state["fc_min_val"] = lo
-    st.session_state["fc_other_val"] = hi
     st.session_state["range_unico_beta"] = True
     st.session_state["ta_range_toggle_beta"] = True
+
+    # 📌 sincronizza i widget dei number_input solo se valori validi
+    st.session_state["fc_min_val"] = float(lo)
+    st.session_state["fc_other_val"] = float(hi)
 
 
 def add_fc_suggestion_global(val: float) -> None:
