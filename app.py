@@ -293,9 +293,9 @@ with st.container(border=True):
             if hi_seed is not None and "fc_other_val" not in st.session_state:
                 st.session_state["fc_other_val"] = float(hi_seed)
         else:
-            # pulizia quando esci dalla modalità range
             for k in ("fc_min_val","fc_other_val"):
                 st.session_state.pop(k, None)
+
         
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
