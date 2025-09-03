@@ -375,7 +375,7 @@ with st.container(border=True):
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
         fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
-                with fc_c1:
+        with fc_c1:
             if range_unico:
                 fc_min = st.number_input(
                     "FC min",
