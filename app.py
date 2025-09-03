@@ -233,6 +233,7 @@ with st.container(border=True):
 
 
 # === Switch generale Cautelativa ===
+# === Switch generale Cautelativa ===
 if "stima_cautelativa_beta" not in st.session_state:
     st.session_state["stima_cautelativa_beta"] = True  # default ON
 
@@ -242,6 +243,20 @@ st.toggle(
     key="stima_cautelativa_beta",
 )
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
+
+# Messaggio informativo iniziale
+st.markdown(
+    "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
+    "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
+    "Se non diversamente specificato, verrà considerato di default, prudenzialmente, "
+    "un range di incertezza di ±1.0 °C per la temperatura ambientale media "
+    "e di ±0.10 per il fattore di correzione."
+    "</div>",
+    unsafe_allow_html=True
+)
+
+
+
 
 # # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
@@ -406,7 +421,7 @@ with st.container(border=True):
                 key="tm_val"
             )
         with col3:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
             input_w = st.number_input(
                         "Peso (kg):",
                         value=st.session_state.get("peso", 70.0),
