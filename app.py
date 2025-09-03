@@ -415,30 +415,39 @@ with st.container(border=True):
                 key="ta_base_val"
             )
 
-        # 4. Peso + FC + Suggerisci
+        # 4. Peso + FC + Suggerisci (STANDARD)
         col1, col2 = st.columns([1, 3], gap="small")
         with col1:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
-            input_w = st.number_input(
-                "Peso (kg):",
-                value=st.session_state.get("peso", 70.0),
-                step=1.0, format="%.1f",
-                label_visibility="collapsed"
-            )
-            st.session_state["peso"] = input_w
-        with col2:
-            subcol1, subcol2 = st.columns([1.5, 1], gap="small")
-            with subcol1:
-                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-                fattore_correzione = st.number_input(
-                    "Fattore di correzione:",
-                    value=st.session_state.get("fattore_correzione", 1.0),
-                    step=0.01, format="%.2f",
-                    label_visibility="collapsed",
-                    key="fattore_correzione"
+                st.markdown("<div style='font-size: 0.88rem;'>Peso corporeo (kg):</div>", unsafe_allow_html=True)
+                input_w = st.number_input(
+                        "Peso (kg):",
+                        value=st.session_state.get("peso", 70.0),
+                        step=1.0, format="%.1f",
+                        label_visibility="collapsed"
                 )
-            with subcol2:
-                pass
+                st.session_state["peso"] = input_w
+        with col2:
+                # Riga etichetta FC + toggle (stessa UX della cautelativa)
+                head_l, head_r = st.columns([1, 0.6], gap="small")
+                with head_l:
+                        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+                with head_r:
+                        st.toggle(
+                                "Suggerisci FC",
+                                value=st.session_state.get("toggle_fattore_inline", False),
+                                key="toggle_fattore_inline"
+                        )
+                # Riga input FC
+                in_l, _ = st.columns([1, 1], gap="small")
+                with in_l:
+                        fattore_correzione = st.number_input(
+                                "Fattore di correzione:",
+                                value=st.session_state.get("fattore_correzione", 1.0),
+                                step=0.01, format="%.2f",
+                                label_visibility="collapsed",
+                                key="fattore_correzione"
+                        )
+
 
 
 # --- Pannello “Suggerisci FC” (identico alla app principale) ---
