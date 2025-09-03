@@ -340,7 +340,7 @@ with st.container(border=True):
                 st.empty()
         with ta_c3:
             if not range_unico:
-                st.caption("Verrà considerato un range ±1.0 °C.")
+                st.empty()
             else:
                 st.empty()
         if not range_unico:
