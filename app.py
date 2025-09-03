@@ -233,7 +233,6 @@ with st.container(border=True):
 
 
 # === Switch generale Cautelativa ===
-# === Switch generale Cautelativa ===
 if "stima_cautelativa_beta" not in st.session_state:
     st.session_state["stima_cautelativa_beta"] = True  # default ON
 
@@ -243,10 +242,6 @@ st.toggle(
     key="stima_cautelativa_beta",
 )
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
-
-
-
-
 
 
 # # ================================
@@ -305,14 +300,18 @@ with st.container(border=True):
             )
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
-            input_w = st.number_input(
-                "Peso (kg):",
-                value=st.session_state.get("peso", 70.0),
-                step=1.0, format="%.1f",
-                label_visibility="collapsed"
-            )
-            st.session_state["peso"] = input_w
-            st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
+            pc1, pc2 = st.columns([1, 0.6], gap="small")
+            with pc1:
+                input_w = st.number_input(
+                    "Peso (kg):",
+                    value=st.session_state.get("peso", 70.0),
+                    step=1.0, format="%.1f",
+                    label_visibility="collapsed"
+                )
+                st.session_state["peso"] = input_w
+            with pc2:
+                st.toggle("±3 kg", value=st.session_state.get("peso_stimato_beta", False), key="peso_stimato_beta")
+
 
                 # Riga 2: T. ambientale media + range unico
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
