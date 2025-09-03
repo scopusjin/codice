@@ -441,13 +441,6 @@ with st.container(border=True):
                 pass
 
 
-# --- Pannello “Suggerisci FC” (identico alla app principale) ---
-def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
-    import streamlit as st
-
-    def k(name: str) -> str:
-        return f"{key_prefix}_{name}"
-
 
     
     def _apply_fc(val: float, riass: str | None) -> None:
