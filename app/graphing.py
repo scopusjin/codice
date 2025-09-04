@@ -484,17 +484,24 @@ def aggiorna_grafico(
         dettagli.append(par_putr)
 
     # frase finale complessiva
-    frase_finale_html = None
-    if not st.session_state.get("stima_cautelativa_beta", False):
+    if usa_orario_custom:
         frase_finale_html = build_final_sentence(
-            comune_inizio, comune_fine, data_ora_ispezione, qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+           comune_inizio, comune_fine, data_ora_ispezione,
+           qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+        )
+    else:
+        frase_finale_html = build_final_sentence_simple(
+            comune_inizio=comune_inizio,
+            comune_fine=comune_fine,
+            inf_hours=INF_HOURS,
         )
 
-    # parentetica extra (cautelativa)
+# parentetica extra (cautelativa)
     _par_extra = st.session_state.get("parentetica_extra", "")
     if _par_extra:
-        frase_finale_html = ((frase_finale_html or "").strip() + (" " if frase_finale_html else "") + _par_extra).strip()
-
+        frase_finale_html = ((frase_finale_html or "").strip()
+                         + (" " if frase_finale_html else "")
+                         + _par_extra).strip()
     # toggle avvisi
     if avvisi:
         mostra = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
@@ -515,19 +522,32 @@ def aggiorna_grafico(
             st.markdown(_wrap_final(blocco), unsafe_allow_html=True)
 
         if discordanti:
-            st.markdown(_wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"), unsafe_allow_html=True)
-        elif overlap:
-            if usa_orario_custom:
-                if frase_finale_html:
-                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"), unsafe_allow_html=True)
-            else:
-                frase_finale_html_simpl = build_final_sentence_simple(
-                    comune_inizio=comune_inizio,
-                    comune_fine=comune_fine,
-                    inf_hours=INF_HOURS,
-                )
-                if frase_finale_html_simpl:
-                    st.markdown(_wrap_final(f"<ul><li>{frase_finale_html_simpl}</li></ul>"), unsafe_allow_html=True)
+            st.markdown(
+                _wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"),
+                unsafe_allow_html=True
+            )
+        elif overlap and frase_finale_html:
+            st.markdown(
+                _wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"),
+                unsafe_allow_html=True
+            )
+
+        if overlap and len(nomi_usati) > 0:
+            nomi_finali = []
+            for nome in nomi_usati:
+                if ("raffreddamento cadaverico" in nome.lower()
+                    and "potente" not in nome.lower()
+                    and mt_ore is not None and not np.isnan(mt_ore)
+                    and abs(comune_inizio - mt_ore) < 0.25):
+                    continue
+                nomi_finali.append(nome)
+            small_html = frase_riepilogo_parametri_usati(nomi_finali)
+            if small_html:
+                st.markdown(_wrap_final(small_html), unsafe_allow_html=True)
+
+        frase_qd_html = frase_qd(Qd_val_check, Ta_val)
+        if frase_qd_html:
+            st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
 
         if overlap and len(nomi_usati) > 0:
             nomi_finali = []
