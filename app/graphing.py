@@ -152,8 +152,24 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
 
-        # testi cautelativa
+                # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
+
+        # aggiungi header, bullets e conclusione dal modulo cautelativa
+        if raffreddamento_calcolabile:
+            header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
+            bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
+            conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
+
+            def _as_html(x: str | None) -> str | None:
+                if not x:
+                    return None
+                return x if x.lstrip().startswith("<") else f"<p>{x}</p>"
+
+            for blk in (_as_html(header_blk), _as_html(bullets_blk), _as_html(conclusione_blk)):
+                if blk:
+                    dettagli.append(blk)
+
 
     else:
         # Henssge standard
