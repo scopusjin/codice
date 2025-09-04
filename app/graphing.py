@@ -358,14 +358,17 @@ def aggiorna_grafico(
         inizio.append(rigidita_range[0]); fine.append(rigidita_range[1]); nomi_usati.append("rigidità cadaverica")
 
     # Potente minimo
+        # Potente minimo
     mt_ore = None; mt_giorni = None
     if not any(np.isnan(v) for v in [Tr_val, Ta_val, CF_val, W_val]) and Tr_val > Ta_val + 1e-6:
         Qd_pot = (Tr_val - Ta_val) / (37.2 - Ta_val)
         if Qd_pot < qd_threshold:
             B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
             ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
-            mt_ore = round(ln_term / B, 1)
-            mt_giorni = round((mt_ore or 0) / 24, 1)
+            mt_ore_raw = ln_term / B
+            mt_ore = round_quarter_hour(float(mt_ore_raw))   # <-- arrotonda al quarto d’ora
+            mt_giorni = round(mt_ore / 24.0, 1)              # <-- ricalcola i giorni dal valore arrotondato
+
     usa_potente = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold) and (mt_ore is not None) and (not np.isnan(mt_ore))
 
     # extra da parametri aggiuntivi
@@ -516,7 +519,18 @@ def aggiorna_grafico(
             fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
         except TypeError:
             fig = render_ranges_plot(plot_data)
+# Stampa solo se è una Figure. Se il renderer ha già disegnato internamente, salta.
+        import matplotlib.figure as _mplfig
+        if isinstance(fig_or_none, _mplfig.Figure):
+            fig = fig_or_none
+            if overlap and (np.isnan(comune_fine) or comune_fine > 0):
+                ax = fig.axes[0]
+                if comune_inizio < tail:
+                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+                if not np.isnan(comune_fine) and comune_fine > 0:
+                    ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
 
+        st.pyplot(fig)
         if overlap and (np.isnan(comune_fine) or comune_fine > 0):
             ax = fig.axes[0]
             if comune_inizio < tail:
