@@ -161,25 +161,35 @@ def aggiorna_grafico(
         conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
         if not (header_blk and bullets_blk and conclusione_blk):
-            # costruzione fallback (come nel modulo cautelativa)
-            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-                ta_txt = f"{float(st.session_state['Ta_min_beta']):.1f}–{float(st.session_state['Ta_max_beta']):.1f} °C"
-            else:
-                ta_txt = f"{Ta_val:.1f} °C"
+                    # Range Ta/CF per cautelativa con default (Ta ±1 °C, CF ±0.10)
+        if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
+            ta_lo = float(st.session_state["Ta_min_beta"])
+            ta_hi = float(st.session_state["Ta_max_beta"])
+        else:
+            ta_lo = float(Ta_val) - 1.0
+            ta_hi = float(Ta_val) + 1.0
+        ta_txt = f"{ta_lo:.1f}–{ta_hi:.1f} °C"
 
-            if st.session_state.get("fc_manual_range_beta", False) and \
-               "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-                cf_txt = f"{float(st.session_state['FC_min_beta']):.2f}–{float(st.session_state['FC_max_beta']):.2f}"
+        if st.session_state.get("fc_manual_range_beta", False) and \
+           "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+            cf_lo = float(st.session_state["FC_min_beta"])
+            cf_hi = float(st.session_state["FC_max_beta"])
+        else:
+            vals = st.session_state.get("fc_suggested_vals", [])
+            if len(vals) == 2:
+                a, b = sorted([float(vals[0]), float(vals[1])])
+                cf_lo, cf_hi = a, b
+            elif len(vals) == 1:
+                v = float(vals[0])
+                cf_lo, cf_hi = v - 0.10, v + 0.10
             else:
-                vals = st.session_state.get("fc_suggested_vals", [])
-                if len(vals) == 2:
-                    a, b = sorted([float(vals[0]), float(vals[1])])
-                    cf_txt = f"{a:.2f}–{b:.2f}"
-                elif len(vals) == 1:
-                    v = float(vals[0])
-                    cf_txt = f"{max(v-0.10, 0.01):.2f}–{max(v+0.10, 0.01):.2f}"
-                else:
-                    cf_txt = f"{CF_val:.2f}"
+                v = float(CF_val)
+                cf_lo, cf_hi = v - 0.10, v + 0.10
+        cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
+        cf_txt = f"{cf_lo:.2f}–{cf_hi:.2f}"
+
+        p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
+
 
 
             p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
