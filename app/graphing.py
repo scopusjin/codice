@@ -151,24 +151,21 @@ def aggiorna_grafico(
         t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
-
-                # testi cautelativa
+        # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
-        # Header/Bullets/Conclusione: preferisci quelli forniti da res, altrimenti costruisci fallback
+        # header / bullets / conclusione dal modulo cautelativa o fallback
         header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
         bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
         conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
         if not (header_blk and bullets_blk and conclusione_blk):
-            # ---- FALLBACK costruttivo (stesso formato del modulo cautelativa) ----
-            # Testi range Ta
+            # costruzione fallback (come nel modulo cautelativa)
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 ta_txt = f"{float(st.session_state['Ta_min_beta']):.1f}–{float(st.session_state['Ta_max_beta']):.1f} °C"
             else:
                 ta_txt = f"{Ta_val:.1f} °C"
 
-            # Testi range CF
             if st.session_state.get("fc_manual_range_beta", False) and \
                "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
                 cf_txt = f"{float(st.session_state['FC_min_beta']):.2f}–{float(st.session_state['FC_max_beta']):.2f}"
@@ -183,10 +180,8 @@ def aggiorna_grafico(
                 else:
                     cf_txt = f"{CF_val:.2f}"
 
-            # Testo peso
             p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
-            # Risultato (usa stringa di res se disponibile, altrimenti sintetizza)
             risultato_txt = getattr(res, "risultato_txt", None)
             if not risultato_txt:
                 t_lo = round_quarter_hour(t_min_raff_henssge)
@@ -202,9 +197,9 @@ def aggiorna_grafico(
             )
             bullets_blk = (
                 "<ul>"
-                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
-                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
-                f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+                f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b></li>"
+                f"<li>Range per il fattore di correzione: <b>{cf_txt}</b></li>"
+                f"<li>Peso corporeo: <b>{p_txt}</b></li>"
                 "</ul>"
             )
             conclusione_blk = (
@@ -212,12 +207,18 @@ def aggiorna_grafico(
                 f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
                 "dell’ispezione legale."
             )
-            # ---- fine FALLBACK ----
 
-        # Aggiungi ai dettagli
-        for blk in (header_blk, bullets_blk, conclusione_blk):
-            if blk:
-                dettagli.append(blk)
+        # aggiungi al dettaglio come elenco puntato
+        elenco_html = "<ul>"
+        if header_blk:
+            elenco_html += f"<li>{header_blk}</li>"
+        if bullets_blk:
+            elenco_html += f"<li>{bullets_blk}</li>"
+        if conclusione_blk:
+            elenco_html += f"<li>{conclusione_blk}</li>"
+        elenco_html += "</ul>"
+
+        dettagli.append(elenco_html)
 
 
 
