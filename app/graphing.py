@@ -152,9 +152,7 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
 
-        # testi cautelativa
-        dettagli.append(res.summary_html)
-        st.session_state["parentetica_extra"] = res.parentetica
+
 
     else:
         # Henssge standard
