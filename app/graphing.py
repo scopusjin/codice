@@ -152,16 +152,10 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
         
-        # testi cautelativa
+                # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
-        # header / bullets / conclusione dal modulo cautelativa o fallback
-        header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
-        bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
-        conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
-
-        if not (header_blk and bullets_blk and conclusione_blk):
-                    # Range Ta/CF per cautelativa con default (Ta ±1 °C, CF ±0.10)
+        # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
         if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
             ta_lo = float(st.session_state["Ta_min_beta"])
             ta_hi = float(st.session_state["Ta_max_beta"])
@@ -190,10 +184,12 @@ def aggiorna_grafico(
 
         p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
+        # header / bullets / conclusione dal modulo cautelativa o fallback
+        header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
+        bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
+        conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
-
-            p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
-
+        if not (header_blk and bullets_blk and conclusione_blk):
             risultato_txt = getattr(res, "risultato_txt", None)
             if not risultato_txt:
                 t_lo = round_quarter_hour(t_min_raff_henssge)
@@ -219,17 +215,15 @@ def aggiorna_grafico(
                 f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
                 "dell’ispezione legale."
             )
-        # costruisci elenco con sottopunti (pallini bianchi, rientrati)
+
+        # elenco con sottopunti
         elenco_html = "<ul>"
         if header_blk:
             elenco_html += f"<li>{header_blk}"
-            # sottopunti
             elenco_html += "<ul style='list-style-type: circle; margin-left: 20px;'>"
             elenco_html += (
-                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): "
-                f"<b>{ta_txt}</b>.</li>"
-                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): "
-                f"<b>{cf_txt}</b>.</li>"
+                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
+                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
                 f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
             )
             elenco_html += "</ul></li>"
@@ -238,6 +232,7 @@ def aggiorna_grafico(
         elenco_html += "</ul>"
 
         dettagli.append(elenco_html)
+
 
 
 
