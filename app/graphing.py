@@ -162,7 +162,7 @@ def aggiorna_grafico(
         else:
             ta_lo = float(Ta_val) - 1.0
             ta_hi = float(Ta_val) + 1.0
-        ta_txt = f"{ta_lo:.1f}–{ta_hi:.1f} °C"
+        ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
         if st.session_state.get("fc_manual_range_beta", False) and \
            "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
@@ -180,7 +180,7 @@ def aggiorna_grafico(
                 v = float(CF_val)
                 cf_lo, cf_hi = v - 0.10, v + 0.10
         cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
-        cf_txt = f"{cf_lo:.2f}–{cf_hi:.2f}"
+        cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
 
         p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
