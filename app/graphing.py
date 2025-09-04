@@ -190,14 +190,27 @@ def aggiorna_grafico(
         conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
         if not (header_blk and bullets_blk and conclusione_blk):
-            risultato_txt = getattr(res, "risultato_txt", None)
-            if not risultato_txt:
-                t_lo = round_quarter_hour(t_min_raff_henssge)
-                if np.isnan(t_max_raff_henssge):
-                    risultato_txt = f"almeno {t_lo:.2f} ore"
-                else:
-                    t_hi = round_quarter_hour(t_max_raff_henssge)
-                    risultato_txt = f"tra circa {t_lo:.2f} e {t_hi:.2f} ore"
+            # --- formatter ore/minuti ---
+            def _fmt_ore_min(h: float) -> str:
+                if not np.isfinite(h):
+                    return ""
+                ore = int(h)
+                minuti = int(round((h - ore) * 60))
+                if minuti == 60:
+                    ore += 1
+                    minuti = 0
+                if minuti == 0:
+                    return f"{ore} {'ora' if ore == 1 else 'ore'}"
+                return f"{ore} {'ora' if ore == 1 else 'ore'} {minuti} minuti"
+
+            # risultato in forma testuale
+            t_lo = round_quarter_hour(t_min_raff_henssge)
+            if np.isnan(t_max_raff_henssge):
+                risultato_txt = f"almeno {_fmt_ore_min(t_lo)}"
+            else:
+                t_hi = round_quarter_hour(t_max_raff_henssge)
+                risultato_txt = f"tra {_fmt_ore_min(t_lo)} e {_fmt_ore_min(t_hi)}"
+
 
             header_blk = (
                 "Per quanto attiene la valutazione del raffreddamento cadaverico, "
