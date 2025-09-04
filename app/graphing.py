@@ -548,19 +548,3 @@ def aggiorna_grafico(
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
 
-        if overlap and len(nomi_usati) > 0:
-            nomi_finali = []
-            for nome in nomi_usati:
-                if ("raffreddamento cadaverico" in nome.lower()
-                    and "potente" not in nome.lower()
-                    and mt_ore is not None and not np.isnan(mt_ore)
-                    and abs(comune_inizio - mt_ore) < 0.25):
-                    continue
-                nomi_finali.append(nome)
-            small_html = frase_riepilogo_parametri_usati(nomi_finali)
-            if small_html:
-                st.markdown(_wrap_final(small_html), unsafe_allow_html=True)
-
-        frase_qd_html = frase_qd(Qd_val_check, Ta_val)
-        if frase_qd_html:
-            st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
