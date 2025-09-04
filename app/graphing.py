@@ -461,43 +461,43 @@ def aggiorna_grafico(
     num_params_grafico += len(extra_params_for_plot)
 
     if num_params_grafico > 0:
-        try:
-            plot_data = compute_plot_data(
-                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
-                mt_ore=mt_ore,
-                INF_HOURS=INF_HOURS,
-                qd_threshold=qd_threshold,
-                extra_params=extra_params_for_plot,
-            )
-        except TypeError:
-            plot_data = compute_plot_data(
-                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
-                mt_ore=mt_ore,
-                INF_HOURS=INF_HOURS,
-                qd_threshold=qd_threshold,
-            )
-            plot_data["extra_params"] = extra_params_for_plot  # compat renderer legacy
+            try:
+        plot_data = compute_plot_data(
+            macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+            macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+            rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+            rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+            raffreddamento_calcolabile=raffreddamento_calcolabile,
+            t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+            t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+            t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+            Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+            mt_ore=mt_ore,
+            INF_HOURS=INF_HOURS,
+            qd_threshold=qd_threshold,
+            extra_params=extra_params_for_plot,  # se supportato
+        )
+    except TypeError:
+        plot_data = compute_plot_data(
+            macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+            macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+            rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+            rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+            raffreddamento_calcolabile=raffreddamento_calcolabile,
+            t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+            t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+            t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+            Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+            mt_ore=mt_ore,
+            INF_HOURS=INF_HOURS,
+            qd_threshold=qd_threshold,
+        )
+        # niente assegnazione a plot_data qui
 
-        tail = plot_data.get("tail_end", 72.0)
-        for e in extra_params_for_plot:
-            if not np.isfinite(e["end"]) or e["end"] > tail:
-                e["end"] = tail
+    # se e solo se è un dict, aggiungi la chiave
+    if isinstance(plot_data, dict):
+        plot_data["extra_params"] = extra_params_for_plot
+
 
         try:
             fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
