@@ -181,6 +181,7 @@ def aggiorna_grafico(
                 else:
                     cf_txt = f"{CF_val:.2f}"
 
+
             p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
             risultato_txt = getattr(res, "risultato_txt", None)
