@@ -207,18 +207,19 @@ def aggiorna_grafico(
                 f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
                 "dell’ispezione legale."
             )
-
         # aggiungi al dettaglio come elenco puntato
         elenco_html = "<ul>"
         if header_blk:
             elenco_html += f"<li>{header_blk}</li>"
         if bullets_blk:
-            elenco_html += f"<li>{bullets_blk}</li>"
+            # bullets già in forma <ul>, lo inseriamo come è, senza <li> esterno
+            elenco_html += f"{bullets_blk}"
         if conclusione_blk:
             elenco_html += f"<li>{conclusione_blk}</li>"
         elenco_html += "</ul>"
 
         dettagli.append(elenco_html)
+
 
 
 
