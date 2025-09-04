@@ -152,23 +152,73 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
 
-        # testi cautelativa
+                # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
-        # aggiungi header, bullets e conclusione dal modulo cautelativa
-        if raffreddamento_calcolabile:
-            header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
-            bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
-            conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
+        # Header/Bullets/Conclusione: preferisci quelli forniti da res, altrimenti costruisci fallback
+        header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
+        bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
+        conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
-            def _as_html(x: str | None) -> str | None:
-                if not x:
-                    return None
-                return x if x.lstrip().startswith("<") else f"<p>{x}</p>"
+        if not (header_blk and bullets_blk and conclusione_blk):
+            # ---- FALLBACK costruttivo (stesso formato del modulo cautelativa) ----
+            # Testi range Ta
+            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
+                ta_txt = f"{float(st.session_state['Ta_min_beta']):.1f}–{float(st.session_state['Ta_max_beta']):.1f} °C"
+            else:
+                ta_txt = f"{Ta_val:.1f} °C"
 
-            for blk in (_as_html(header_blk), _as_html(bullets_blk), _as_html(conclusione_blk)):
-                if blk:
-                    dettagli.append(blk)
+            # Testi range CF
+            if st.session_state.get("fc_manual_range_beta", False) and \
+               "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+                cf_txt = f"{float(st.session_state['FC_min_beta']):.2f}–{float(st.session_state['FC_max_beta']):.2f}"
+            else:
+                vals = st.session_state.get("fc_suggested_vals", [])
+                if len(vals) == 2:
+                    a, b = sorted([float(vals[0]), float(vals[1])])
+                    cf_txt = f"{a:.2f}–{b:.2f}"
+                elif len(vals) == 1:
+                    v = float(vals[0])
+                    cf_txt = f"{max(v-0.10, 0.01):.2f}–{max(v+0.10, 0.01):.2f}"
+                else:
+                    cf_txt = f"{CF_val:.2f}"
+
+            # Testo peso
+            p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
+
+            # Risultato (usa stringa di res se disponibile, altrimenti sintetizza)
+            risultato_txt = getattr(res, "risultato_txt", None)
+            if not risultato_txt:
+                t_lo = round_quarter_hour(t_min_raff_henssge)
+                if np.isnan(t_max_raff_henssge):
+                    risultato_txt = f"almeno {t_lo:.2f} ore"
+                else:
+                    t_hi = round_quarter_hour(t_max_raff_henssge)
+                    risultato_txt = f"tra circa {t_lo:.2f} e {t_hi:.2f} ore"
+
+            header_blk = (
+                "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+                "sono stati stimati i parametri di seguito indicati."
+            )
+            bullets_blk = (
+                "<ul>"
+                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
+                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
+                f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+                "</ul>"
+            )
+            conclusione_blk = (
+                "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
+                f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
+                "dell’ispezione legale."
+            )
+            # ---- fine FALLBACK ----
+
+        # Aggiungi ai dettagli
+        for blk in (header_blk, bullets_blk, conclusione_blk):
+            if blk:
+                dettagli.append(blk)
+
 
 
     else:
