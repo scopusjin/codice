@@ -449,23 +449,62 @@ def aggiorna_grafico(
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
 
-    # --- paragrafi descrittivi ---
+        # --- paragrafi descrittivi ---
     if not st.session_state.get("stima_cautelativa_beta", False):
+        # Riepilogo preciso (modalità normale)
         cf_descr = build_cf_description(
             cf_value=st.session_state.get("fattore_correzione", 1.0),
             riassunto=st.session_state.get("fc_riassunto_contatori"),
-            fallback_text=st.session_state.get("fattori_condizioni_testo")
+            fallback_text=st.session_state.get("fattori_condizioni_testo"),
         )
         dettagli.append(paragrafo_raffreddamento_input(
             isp_dt=data_ora_ispezione if usa_orario_custom else None,
             ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
         ))
+
         par_h = paragrafo_raffreddamento_dettaglio(
             t_min_visual=t_min_raff_visualizzato, t_max_visual=t_max_raff_visualizzato,
             t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check, ta_val=Ta_val,
         )
         if par_h:
             dettagli.append(par_h)
+
+    else:
+        # Riepilogo con range (modalità cautelativa)
+        ta_txt = (
+            f"{float(st.session_state['Ta_min_beta']):.1f}–{float(st.session_state['Ta_max_beta']):.1f} °C"
+            if ("Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state)
+            else f"{Ta_val:.1f} °C"
+        )
+
+        if st.session_state.get("fc_manual_range_beta", False):
+            if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+                cf_txt = f"{float(st.session_state['FC_min_beta']):.2f}–{float(st.session_state['FC_max_beta']):.2f}"
+            else:
+                cf_txt = f"{CF_val:.2f}"
+        else:
+            vals = st.session_state.get("fc_suggested_vals", [])
+            if len(vals) == 2:
+                a, b = sorted([float(vals[0]), float(vals[1])])
+                cf_txt = f"{a:.2f}–{b:.2f}"
+            elif len(vals) == 1:
+                v = float(vals[0])
+                cf_txt = f"{max(v-0.10, 0.01):.2f}–{max(v+0.10, 0.01):.2f}"
+            else:
+                cf_txt = f"{CF_val:.2f}"
+
+        if st.session_state.get("peso_stimato_beta", False):
+            w_txt = f"{max(W_val-3, 1):.0f}–{(W_val+3):.0f} kg"
+        else:
+            w_txt = f"{W_val:.0f} kg"
+
+        riepilogo_range_html = _wrap_final(
+            f"<b>Parametri Henssge (range):</b> Ta {ta_txt}, CF {cf_txt}, peso {w_txt}."
+        )
+        if riepilogo_range_html:
+            st.markdown(riepilogo_range_html, unsafe_allow_html=True)
+        dettagli.append(riepilogo_range_html)
+
 
     par_p = paragrafo_potente(
         mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
