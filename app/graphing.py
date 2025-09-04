@@ -152,7 +152,7 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
 
-                # testi cautelativa
+        # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
         # aggiungi header, bullets e conclusione dal modulo cautelativa
