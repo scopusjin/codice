@@ -443,7 +443,7 @@ def aggiorna_grafico(
 
 
     # --- avvisi ---
-# --- avvisi ---
+
     if nota_globale_range_adattato:
         avvisi.append(
             "Alcuni parametri sono stati rilevati in orari diversi; i range sono stati traslati per renderli confrontabili."
