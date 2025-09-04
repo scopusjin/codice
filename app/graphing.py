@@ -460,44 +460,61 @@ def aggiorna_grafico(
     if raffreddamento_calcolabile: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
 
-    if num_params_grafico > 0:
+        if num_params_grafico > 0:
             try:
-        plot_data = compute_plot_data(
-            macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-            macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-            rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-            rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-            raffreddamento_calcolabile=raffreddamento_calcolabile,
-            t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-            t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-            t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-            Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
-            mt_ore=mt_ore,
-            INF_HOURS=INF_HOURS,
-            qd_threshold=qd_threshold,
-            extra_params=extra_params_for_plot,  # se supportato
-        )
-    except TypeError:
-        plot_data = compute_plot_data(
-            macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-            macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-            rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-            rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-            raffreddamento_calcolabile=raffreddamento_calcolabile,
-            t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-            t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-            t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-            Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
-            mt_ore=mt_ore,
-            INF_HOURS=INF_HOURS,
-            qd_threshold=qd_threshold,
-        )
-        # niente assegnazione a plot_data qui
+                plot_data = compute_plot_data(
+                    macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+                    macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+                    rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+                    rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+                    raffreddamento_calcolabile=raffreddamento_calcolabile,
+                    t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+                    t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+                    t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                    Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                    mt_ore=mt_ore,
+                    INF_HOURS=INF_HOURS,
+                    qd_threshold=qd_threshold,
+                    extra_params=extra_params_for_plot,
+                )
+            except TypeError:
+                    plot_data = compute_plot_data(
+                    macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+                    macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+                    rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+                    rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+                    raffreddamento_calcolabile=raffreddamento_calcolabile,
+                    t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
+                    t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
+                    t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
+                    Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                    mt_ore=mt_ore,
+                    INF_HOURS=INF_HOURS,
+                    qd_threshold=qd_threshold,
+                )
 
-    # se e solo se è un dict, aggiungi la chiave
-    if isinstance(plot_data, dict):
-        plot_data["extra_params"] = extra_params_for_plot
+        if isinstance(plot_data, dict):
+            plot_data["extra_params"] = extra_params_for_plot
 
+        # clamp degli extra alla coda del grafico
+        tail = (plot_data.get("tail_end", 72.0) if isinstance(plot_data, dict) else 72.0)
+        for e in extra_params_for_plot:
+            if (not np.isfinite(e["end"])) or (e["end"] > tail):
+                e["end"] = tail
+
+        try:
+            fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
+        except TypeError:
+            fig = render_ranges_plot(plot_data)
+
+        if overlap and (np.isnan(comune_fine) or comune_fine > 0):
+            ax = fig.axes[0]
+            if comune_inizio < tail:
+                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+            if not np.isnan(comune_fine) and comune_fine > 0:
+                ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
+
+        st.pyplot(fig)
 
         try:
             fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
@@ -610,7 +627,7 @@ def aggiorna_grafico(
             inf_hours=INF_HOURS,
         )
 
-# parentetica extra (cautelativa)
+    # parentetica extra (cautelativa)
     _par_extra = st.session_state.get("parentetica_extra", "")
     if _par_extra:
         frase_finale_html = ((frase_finale_html or "").strip()
