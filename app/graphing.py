@@ -382,6 +382,12 @@ def aggiorna_grafico(
             inizio.append(t_min_raff_henssge)
             fine.append(np.nan)
             nomi_usati.append("raffreddamento cadaverico (cautelativo: limite superiore aperto)")
+
+            # NEW: se Potente è attivo, aggiungi anche il suo minimo
+            if usa_potente and (mt_ore is not None) and (not np.isnan(mt_ore)):
+                inizio.append(mt_ore)
+                fine.append(np.nan)
+                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
         else:
             only_lower = (not np.isnan(Qd_val_check)) and Qd_val_check < 0.2
             altri_con_fine = any([
@@ -391,37 +397,33 @@ def aggiorna_grafico(
                     for p in parametri_aggiuntivi_da_considerare)
             ])
             if usa_potente:
-                inizio.append(mt_ore); fine.append(np.nan)
+                inizio.append(mt_ore)
+                fine.append(np.nan)
                 nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
             elif only_lower:
                 src = mt_ore if (mt_ore is not None and not np.isnan(mt_ore)) else t_min_raff_henssge
-                inizio.append(src); fine.append(np.nan)
+                inizio.append(src)
+                fine.append(np.nan)
                 nomi_usati.append("raffreddamento cadaverico (solo limite inferiore, affidabilità limitata)")
             else:
                 if t_med_raff_henssge_rounded_raw > 48 and altri_con_fine:
                     if t_min_raff_henssge > 48:
-                        inizio.append(48.0); fine.append(np.nan); nomi_usati.append("raffreddamento cadaverico (>48h)")
+                        inizio.append(48.0)
+                        fine.append(np.nan)
+                        nomi_usati.append("raffreddamento cadaverico (>48h)")
                     else:
-                        inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+                        inizio.append(t_min_raff_henssge)
+                        fine.append(t_max_raff_henssge)
+                        nomi_usati.append("raffreddamento cadaverico")
                 else:
-                    inizio.append(t_min_raff_henssge); fine.append(t_max_raff_henssge); nomi_usati.append("raffreddamento cadaverico")
+                    inizio.append(t_min_raff_henssge)
+                    fine.append(t_max_raff_henssge)
+                    nomi_usati.append("raffreddamento cadaverico")
 
     if (not usa_potente) and (mt_ore is not None) and (not np.isnan(mt_ore)):
-        inizio.append(mt_ore); fine.append(np.nan)
-
-    # intersezione finale
-    starts_clean = [s for s in inizio if _is_num(s)]
-    if not starts_clean:
-        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
-    else:
-        comune_inizio = max(starts_clean)
-        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
-        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
-        # se cautelativa e nessuno chiude → lascia aperto
-        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
-            comune_fine = np.nan
-        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
-
+        inizio.append(mt_ore)
+        fine.append(np.nan)
+        
     # --- extra per grafico ---
     extra_params_for_plot = []
     for idx, p in enumerate(parametri_aggiuntivi_da_considerare):
@@ -438,7 +440,7 @@ def aggiorna_grafico(
                 "adattato": bool(p.get("adattato", False)),
             })
             
-            
+        
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
