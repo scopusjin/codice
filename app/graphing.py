@@ -151,6 +151,7 @@ def aggiorna_grafico(
         t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
+        
         # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
@@ -207,18 +208,26 @@ def aggiorna_grafico(
                 f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
                 "dell’ispezione legale."
             )
-        # aggiungi al dettaglio come elenco puntato
+        # costruisci elenco con sottopunti (pallini bianchi, rientrati)
         elenco_html = "<ul>"
         if header_blk:
-            elenco_html += f"<li>{header_blk}</li>"
-        if bullets_blk:
-            # bullets già in forma <ul>, lo inseriamo come è, senza <li> esterno
-            elenco_html += f"{bullets_blk}"
+            elenco_html += f"<li>{header_blk}"
+            # sottopunti
+            elenco_html += "<ul style='list-style-type: circle; margin-left: 20px;'>"
+            elenco_html += (
+                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): "
+                f"<b>{ta_txt}</b>.</li>"
+                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): "
+                f"<b>{cf_txt}</b>.</li>"
+                f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+            )
+            elenco_html += "</ul></li>"
         if conclusione_blk:
             elenco_html += f"<li>{conclusione_blk}</li>"
         elenco_html += "</ul>"
 
         dettagli.append(elenco_html)
+
 
 
 
