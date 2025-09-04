@@ -153,7 +153,6 @@ def aggiorna_grafico(
         raffreddamento_calcolabile = True
 
         # testi cautelativa
-        dettagli.append(res.summary_html)
         st.session_state["parentetica_extra"] = res.parentetica
 
     else:
