@@ -152,7 +152,7 @@ def aggiorna_grafico(
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
         
-                # testi cautelativa
+        # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
         # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
@@ -389,7 +389,7 @@ def aggiorna_grafico(
                 fine.append(np.nan)
                 nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
         else:
-            only_lower = (not np.isnan(Qd_val_check)) and Qd_val_check < 0.2
+            only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
             altri_con_fine = any([
                 macchie_range_valido and macchie_range[1] < INF_HOURS,
                 rigidita_range_valido and rigidita_range[1] < INF_HOURS,
@@ -423,6 +423,18 @@ def aggiorna_grafico(
     if (not usa_potente) and (mt_ore is not None) and (not np.isnan(mt_ore)):
         inizio.append(mt_ore)
         fine.append(np.nan)
+    # intersezione finale
+    starts_clean = [s for s in inizio if _is_num(s)]
+    if not starts_clean:
+        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
+    else:
+        comune_inizio = max(starts_clean)
+        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
+        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+        # se cautelativa e nessuno chiude → lascia aperto
+        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
+            comune_fine = np.nan
+        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
         
     # --- extra per grafico ---
     extra_params_for_plot = []
