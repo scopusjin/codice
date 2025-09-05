@@ -238,15 +238,10 @@ with st.container(border=True):
         )
 
 
-# === Switch generale Cautelativa ===
 if "stima_cautelativa_beta" not in st.session_state:
     st.session_state["stima_cautelativa_beta"] = True  # default ON
 
-st.toggle(
-    "Stima prudente",  # lo switch la disattiva se messo su OFF
-    value=st.session_state["stima_cautelativa_beta"],
-    key="stima_cautelativa_beta",
-)
+st.toggle("Stima prudente", key="stima_cautelativa_beta")
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
 
