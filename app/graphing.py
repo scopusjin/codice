@@ -592,67 +592,59 @@ def aggiorna_grafico(
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
 
-        # --- paragrafi descrittivi ---
-    if not st.session_state.get("stima_cautelativa_beta", False):
-        # Riepilogo preciso (modalità normale)
-        cf_descr = build_cf_description(
-            cf_value=st.session_state.get("fattore_correzione", 1.0),
-            riassunto=st.session_state.get("fc_riassunto_contatori"),
-            fallback_text=st.session_state.get("fattori_condizioni_testo"),
+         # --- paragrafi descrittivi ---
+        if not st.session_state.get("stima_cautelativa_beta", False):
+            # Riepilogo preciso (modalità normale)
+            cf_descr = build_cf_description(
+                cf_value=st.session_state.get("fattore_correzione", 1.0),
+                riassunto=st.session_state.get("fc_riassunto_contatori"),
+                fallback_text=st.session_state.get("fattori_condizioni_testo"),
+            )
+            dettagli.append(paragrafo_raffreddamento_input(
+                isp_dt=data_ora_ispezione if usa_orario_custom else None,
+                ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+            ))
+
+            par_h = paragrafo_raffreddamento_dettaglio(
+                t_min_visual=t_min_raff_visualizzato,
+                t_max_visual=t_max_raff_visualizzato,
+                t_med_round=t_med_raff_henssge_rounded,
+                qd_val=Qd_val_check,
+                ta_val=Ta_val,
+            )
+            if par_h:
+                dettagli.append(par_h)
+
+        par_p = paragrafo_potente(
+            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
         )
-        dettagli.append(paragrafo_raffreddamento_input(
-            isp_dt=data_ora_ispezione if usa_orario_custom else None,
-            ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+        if par_p:
+            dettagli.append(par_p)
+
+        # Nota ±20% quando Qd è sotto soglia (vale per entrambe le soglie: 0.2 se Ta ≤ 23 °C, altrimenti 0.5)
+        if (
+            Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
+            and t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)
+        ):
+            dettagli.append(
+                "<ul><li>"
+                "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
+                f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
+                "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
+                "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
+                "</li></ul>"
+            )
+
+        dettagli.extend(paragrafi_descrizioni_base(
+            testo_macchie=testi_macchie[selettore_macchie],
+            testo_rigidita=rigidita_descrizioni[selettore_rigidita],
         ))
+        dettagli.extend(paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare))
+        par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
+        if par_putr:
+            dettagli.append(par_putr)
 
-        par_h = paragrafo_raffreddamento_dettaglio(
-            t_min_visual=t_min_raff_visualizzato, t_max_visual=t_max_raff_visualizzato,
-            t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check, ta_val=Ta_val,
-        )
-        if par_h:
-            dettagli.append(par_h)
-
-
-
-
-    par_p = paragrafo_potente(
-        mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
-    )
-    if par_p:
-        dettagli.append(par_p)
-# Nota ±20% quando Qd è sotto soglia (vale per entrambe le soglie: 0.2 se Ta ≤ 23 °C, altrimenti 0.5)
-    if (Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold and
-        t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)):
-        dettagli.append(
-            "<ul><li>"
-            "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
-            f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-            "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-            "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-            "</li></ul>"
-        )
-    dettagli.extend(paragrafi_descrizioni_base(
-        testo_macchie=testi_macchie[selettore_macchie],
-        testo_rigidita=rigidita_descrizioni[selettore_rigidita],
-    ))
-    dettagli.extend(paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare))
-    par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
-    if par_putr:
-        dettagli.append(par_putr)
-
-    # frase finale complessiva
-    if usa_orario_custom:
-        frase_finale_html = build_final_sentence(
-           comune_inizio, comune_fine, data_ora_ispezione,
-           qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
-        )
-    else:
-        frase_finale_html = build_final_sentence_simple(
-            comune_inizio=comune_inizio,
-            comune_fine=comune_fine,
-            inf_hours=INF_HOURS,
-        )
-
+    
     # parentetica extra (cautelativa)
     _par_extra = st.session_state.get("parentetica_extra", "")
     if _par_extra:
