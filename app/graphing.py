@@ -621,16 +621,16 @@ def aggiorna_grafico(
     if par_p:
         dettagli.append(par_p)
 # Nota ±20% quando Qd è sotto soglia (vale per entrambe le soglie: 0.2 se Ta ≤ 23 °C, altrimenti 0.5)
-        if (Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold and
-            t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)):
-            dettagli.append(
-                "<ul><li>"
-                "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
-                f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-                "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-                "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-                "</li></ul>"
-            )
+    if (Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold and
+        t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)):
+        dettagli.append(
+            "<ul><li>"
+            "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
+            f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
+            "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
+            "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
+            "</li></ul>"
+        )
     dettagli.extend(paragrafi_descrizioni_base(
         testo_macchie=testi_macchie[selettore_macchie],
         testo_rigidita=rigidita_descrizioni[selettore_rigidita],
