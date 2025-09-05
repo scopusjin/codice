@@ -381,18 +381,35 @@ def aggiorna_grafico(
     _append_range_safe(macchie_range, "Macchie ipostatiche")
     _append_range_safe(rigidita_range, "Rigidità cadaverica")
 
-    # Potente minimo
-    mt_ore = None; mt_giorni = None
-    if not any(np.isnan(v) for v in [Tr_val, Ta_val, CF_val, W_val]) and Tr_val > Ta_val + 1e-6:
-        Qd_pot = (Tr_val - Ta_val) / (37.2 - Ta_val)
-        if Qd_pot < qd_threshold:
-            B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
-            ln_term = np.log(0.16) if Ta_val <= 23 else np.log(0.45)
-            mt_ore_raw = ln_term / B
-            mt_ore = round_quarter_hour(float(mt_ore_raw))   # <-- arrotonda al quarto d’ora
-            mt_giorni = round(mt_ore / 24.0, 1)              # <-- ricalcola i giorni dal valore arrotondato
+    # --- helper: arrotonda al mezz'ora ---
+    def _round_half_hour(x: float) -> float:
+        return float(np.round(x * 2.0) / 2.0)
 
-    usa_potente = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold) and (mt_ore is not None) and (not np.isnan(mt_ore))
+    # Potente minimo (prevale come limite inferiore se attivo)
+    mt_ore = None
+    mt_giorni = None
+
+    # in cautelativa usa la Ta "peggiore" (Ta_max) per coerenza con qd_min
+    Ta_for_pot = Ta_val
+    if st.session_state.get("stima_cautelativa_beta", False):
+        Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val))
+
+    if not any(np.isnan(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val]) and Tr_val > Ta_for_pot + 1e-6:
+        Qd_pot = (Tr_val - Ta_for_pot) / (37.2 - Ta_for_pot)
+        qd_threshold_pot = 0.2 if Ta_for_pot <= 23 else 0.5
+        if Qd_pot < qd_threshold_pot:
+            B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
+            ln_term = np.log(0.16) if Ta_for_pot <= 23 else np.log(0.45)
+            mt_ore_raw = ln_term / B
+            mt_ore = _round_half_hour(float(mt_ore_raw))   # <-- arrotonda al mezz’ora
+            mt_giorni = round(mt_ore / 24.0, 1)
+
+    usa_potente = (
+        not np.isnan(Qd_val_check)
+        and (Qd_val_check < qd_threshold)
+        and (mt_ore is not None)
+        and (not np.isnan(mt_ore))
+    )
 
     # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
@@ -404,49 +421,28 @@ def aggiorna_grafico(
 
     # Henssge/Potente nell’intersezione
     if raffreddamento_calcolabile:
+        # se Potente è attivo, usa mt_ore come limite inferiore del raffreddamento
         if np.isnan(t_max_raff_henssge):  # cautelativa: limite superiore aperto
-            inizio.append(t_min_raff_henssge)
+            start = mt_ore if usa_potente else t_min_raff_henssge
+            inizio.append(start)
             fine.append(np.nan)
-            nomi_usati.append("raffreddamento cadaverico (cautelativo: limite superiore aperto)")
-
-            # NEW: se Potente è attivo, aggiungi anche il suo minimo
-            if usa_potente and (mt_ore is not None) and (not np.isnan(mt_ore)):
-                inizio.append(mt_ore)
-                fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+            nomi_usati.append(
+                "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
+                if usa_potente else
+                "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
+            )
         else:
-            only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-            altri_con_fine = any([
-                macchie_range_valido and macchie_range[1] < INF_HOURS,
-                rigidita_range_valido and rigidita_range[1] < INF_HOURS,
-                any(_is_num(p["range_traslato"][0]) and _is_num(p["range_traslato"][1]) and p["range_traslato"][1] < INF_HOURS
-                    for p in parametri_aggiuntivi_da_considerare)
-            ])
             if usa_potente:
-                inizio.append(mt_ore)
-                fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
-            elif only_lower:
-                src = mt_ore if (mt_ore is not None and not np.isnan(mt_ore)) else t_min_raff_henssge
-                inizio.append(src)
-                fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (solo limite inferiore, affidabilità limitata)")
+                # limite inferiore da Potente, superiore da Henssge
+                start = min(mt_ore, t_max_raff_henssge)  # sicurezza nel caso patologico
+                inizio.append(start)
+                fine.append(t_max_raff_henssge)
+                nomi_usati.append("raffreddamento cadaverico (limite inferiore da Potente et al.)")
             else:
-                if t_med_raff_henssge_rounded_raw > 48 and altri_con_fine:
-                    if t_min_raff_henssge > 48:
-                        inizio.append(48.0)
-                        fine.append(np.nan)
-                        nomi_usati.append("raffreddamento cadaverico (>48h)")
-                    else:
-                        inizio.append(t_min_raff_henssge)
-                        fine.append(t_max_raff_henssge)
-                        nomi_usati.append("raffreddamento cadaverico")
-                else:
-                    inizio.append(t_min_raff_henssge)
-                    fine.append(t_max_raff_henssge)
-                    nomi_usati.append("raffreddamento cadaverico")
-
-
+                inizio.append(t_min_raff_henssge)
+                fine.append(t_max_raff_henssge)
+                nomi_usati.append("raffreddamento cadaverico")
+                
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
