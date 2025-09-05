@@ -258,8 +258,7 @@ def aggiorna_grafico(
             qd_val=Qd_val_check,
             ta_val=Ta_val,
         )
-        if par_h_caut:
-            dettagli.append(par_h_caut)
+
 
 
 
