@@ -264,7 +264,7 @@ with st.container(border=True):
             "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
             "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
             "Se non diversamente specificato, si considererà "
-            "un range di incertezza di ±1.0 °C per la t. ambientale media "
+            "un range di incertezza di ±1.0 °C per la T. ambientale media "
             "e di ±0.10 per il fattore di correzione."
              "</div>",
             unsafe_allow_html=True
