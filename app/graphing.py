@@ -645,26 +645,42 @@ def aggiorna_grafico(
         if mostra:
             for m in avvisi: _warn_box(m)
 
-    # --- discordanze (robusto: ignora 'Non valutate' e NaN) ---
-    def _finite(x): 
+
+    # --- discordanze (ignora 'Non valutate', NaN e duplicati per famiglia) ---
+    def _finite(x):
         return isinstance(x, (int, float)) and np.isfinite(x)
 
-    # Considera solo coppie con start finito e end finito o aperto (NaN)
-    valid_pairs = [(s, e) for s, e in zip(inizio, fine) if _finite(s) and (_finite(e) or np.isnan(e))]
-    num_potential = len(valid_pairs)
+    labeled_pairs = [(s, e, l) for s, e, l in zip(inizio, fine, nomi_usati)
+                     if _finite(s) and (_finite(e) or np.isnan(e))]
 
-    if valid_pairs:
-        # Per la funzione di disaccordo, tratta i limiti aperti come INF_HOURS
-        pairs_for_discord = [(s, (e if _finite(e) else INF_HOURS)) for s, e in valid_pairs]
-        v_inizio = [s for s, _ in pairs_for_discord]
-        v_fine   = [e for _, e in pairs_for_discord]
+    # deduplica per famiglia (prima della parentesi)
+    def _family(label: str) -> str:
+        return label.lower().split("(")[0].strip()
 
-        discordanti = ((not overlap and num_potential >= 2) or ranges_in_disaccordo_completa(v_inizio, v_fine))
+    fam_best = {}
+    for s, e, l in labeled_pairs:
+        f = _family(l)
+        cur = fam_best.get(f)
+        if cur is None:
+            fam_best[f] = (s, e, l)
+        else:
+            s0, e0, _ = cur
+            if np.isnan(e0) and _finite(e):
+                fam_best[f] = (s, e, l)
+            elif _finite(e0) and _finite(e) and (e - s) < (e0 - s0):
+                fam_best[f] = (s, e, l)
+
+    compact = list(fam_best.values())
+    if len(compact) >= 2:
+        v_inizio = [s for s, _, _ in compact]
+        v_fine   = [(e if _finite(e) else INF_HOURS) for _, e, _ in compact]
+        discordanti = ((not overlap) or ranges_in_disaccordo_completa(v_inizio, v_fine))
     else:
         discordanti = False
 
     if discordanti:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
+
 
     # expander dettagli
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
