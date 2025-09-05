@@ -445,9 +445,7 @@ def aggiorna_grafico(
                     fine.append(t_max_raff_henssge)
                     nomi_usati.append("raffreddamento cadaverico")
 
-    if (not usa_potente) and (mt_ore is not None) and (not np.isnan(mt_ore)):
-        inizio.append(mt_ore)
-        fine.append(np.nan)
+
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
