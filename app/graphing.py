@@ -592,7 +592,7 @@ def aggiorna_grafico(
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
 
-         # --- paragrafi descrittivi ---
+        # --- paragrafi descrittivi ---
         if not st.session_state.get("stima_cautelativa_beta", False):
             # Riepilogo preciso (modalità normale)
             cf_descr = build_cf_description(
@@ -605,21 +605,16 @@ def aggiorna_grafico(
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
             ))
 
-            par_h = paragrafo_raffreddamento_dettaglio(
-                t_min_visual=t_min_raff_visualizzato,
-                t_max_visual=t_max_raff_visualizzato,
-                t_med_round=t_med_raff_henssge_rounded,
-                qd_val=Qd_val_check,
-                ta_val=Ta_val,
-            )
-            if par_h:
-                dettagli.append(par_h)
-
-        par_p = paragrafo_potente(
-            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
+        # Paragrafo Henssge sempre (anche in cautelativa)
+        par_h = paragrafo_raffreddamento_dettaglio(
+            t_min_visual=t_min_raff_visualizzato,
+            t_max_visual=t_max_raff_visualizzato,
+            t_med_round=t_med_raff_henssge_rounded,
+            qd_val=Qd_val_check,
+            ta_val=Ta_val,
         )
-        if par_p:
-            dettagli.append(par_p)
+        if par_h:
+            dettagli.append(par_h)
 
         # Nota ±20% quando Qd è sotto soglia (vale per entrambe le soglie: 0.2 se Ta ≤ 23 °C, altrimenti 0.5)
         if (
@@ -635,6 +630,13 @@ def aggiorna_grafico(
                 "</li></ul>"
             )
 
+        # Paragrafo Potente (dopo Henssge e nota ±20%)
+        par_p = paragrafo_potente(
+            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
+        )
+        if par_p:
+            dettagli.append(par_p)
+
         dettagli.extend(paragrafi_descrizioni_base(
             testo_macchie=testi_macchie[selettore_macchie],
             testo_rigidita=rigidita_descrizioni[selettore_rigidita],
@@ -644,22 +646,23 @@ def aggiorna_grafico(
         if par_putr:
             dettagli.append(par_putr)
 
+        # --- frase finale complessiva ---
         frase_finale_html: str = ""  # inizializza sempre
 
         if usa_orario_custom:
-             _tmp = build_final_sentence(
-                 comune_inizio, comune_fine, data_ora_ispezione,
-                 qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
-              )
+            _tmp = build_final_sentence(
+                comune_inizio, comune_fine, data_ora_ispezione,
+                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+            )
         else:
-              _tmp = build_final_sentence_simple(
+            _tmp = build_final_sentence_simple(
                 comune_inizio=comune_inizio,
                 comune_fine=comune_fine,
                 inf_hours=INF_HOURS,
-          )
+            )
 
         if isinstance(_tmp, str):
-             frase_finale_html = _tmp
+            frase_finale_html = _tmp
 
     
     # parentetica extra (cautelativa)
