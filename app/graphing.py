@@ -246,6 +246,18 @@ def aggiorna_grafico(
 
         dettagli.append(elenco_html)
 
+        # --- Dettaglio raffreddamento anche in cautelativa (abilita la nota ±20% in textgen) ---
+        t_min_vis = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
+        t_max_vis = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
+        par_h_caut = paragrafo_raffreddamento_dettaglio(
+            t_min_visual=t_min_vis,
+            t_max_visual=t_max_vis,
+            t_med_round=t_med_raff_henssge_rounded,
+            qd_val=Qd_val_check,
+            ta_val=Ta_val,
+        )
+        if par_h_caut:
+            dettagli.append(par_h_caut)
 
 
 
