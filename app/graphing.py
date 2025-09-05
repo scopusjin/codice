@@ -241,10 +241,10 @@ def aggiorna_grafico(
             )
             elenco_html += "</ul></li>"
         if conclusione_blk:
-        elenco_html += "</ul>"
-        dettagli.append(elenco_html)
+           elenco_html += "</ul>"
+           dettagli.append(elenco_html)
 
-        dettagli.append(elenco_html)
+ 
 
         # --- Dettaglio raffreddamento anche in cautelativa (abilita la nota ±20% in textgen) ---
         t_min_vis = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
