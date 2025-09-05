@@ -29,7 +29,7 @@ def _hm_from_hours(ore_float: float) -> tuple[int, int]:
 def _fmt_hm_full(h: int, m: int) -> str:
     """'1 ora e 30 minuti' / '2 ore' / '45 minuti' / '1 minuto'."""
     if h > 0 and m > 0:
-        return f"{h} {'ora' if h == 1 else 'ore'} e {m} {'minuto' if m == 1 else 'minuti'}"
+        return f"{h} {'ora' if h == 1 else 'ore'} {m} {'minuto' if m == 1 else 'minuti'}"
     if h > 0:
         return f"{h} {'ora' if h == 1 else 'ore'}"
     if m > 0:
