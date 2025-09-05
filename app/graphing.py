@@ -498,61 +498,33 @@ def aggiorna_grafico(
 
         if isinstance(plot_data, dict):
             plot_data["extra_params"] = extra_params_for_plot
+            tail = plot_data.get("tail_end", 72.0)
+        else:
+            tail = 72.0
 
-        tail = (plot_data.get("tail_end", 72.0) if isinstance(plot_data, dict) else 72.0)
+        # clamp extra alla coda
         for e in extra_params_for_plot:
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
+        # render una sola volta
         try:
-            fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
+            fig_or_none = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
         except TypeError:
-            fig = render_ranges_plot(plot_data)
+            fig_or_none = render_ranges_plot(plot_data)
 
-        # clamp degli extra alla coda del grafico
-        tail = (plot_data.get("tail_end", 72.0) if isinstance(plot_data, dict) else 72.0)
-        for e in extra_params_for_plot:
-            if (not np.isfinite(e["end"])) or (e["end"] > tail):
-                e["end"] = tail
-
-        try:
-            fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
-        except TypeError:
-            fig = render_ranges_plot(plot_data)
-# Stampa solo se è una Figure. Se il renderer ha già disegnato internamente, salta.
         import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
             fig = fig_or_none
             if overlap and (np.isnan(comune_fine) or comune_fine > 0):
                 ax = fig.axes[0]
                 if comune_inizio < tail:
-                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
+                    ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
                 if not np.isnan(comune_fine) and comune_fine > 0:
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
+            st.pyplot(fig)
 
-        st.pyplot(fig)
-        if overlap and (np.isnan(comune_fine) or comune_fine > 0):
-            ax = fig.axes[0]
-            if comune_inizio < tail:
-                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
-            if not np.isnan(comune_fine) and comune_fine > 0:
-                ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
-
-        st.pyplot(fig)
-
-        try:
-            fig = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
-        except TypeError:
-            fig = render_ranges_plot(plot_data)
-
-        if overlap and (np.isnan(comune_fine) or comune_fine > 0):
-            ax = fig.axes[0]
-            if comune_inizio < plot_data["tail_end"]:
-                ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
-            if not np.isnan(comune_fine) and comune_fine > 0:
-                ax.axvline(min(plot_data["tail_end"], comune_fine), color='red', linestyle='--')
-
-        st.pyplot(fig)
+       
 
         # frase sotto al grafico
         if overlap:
