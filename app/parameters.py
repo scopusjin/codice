@@ -13,39 +13,46 @@ INF_HOURS = 200  # usato per “infinito” sui range aperti
 
 # --- Macchie ipostatiche ---
 opzioni_macchie = {
+    "Non valutate": None,  # default
     "Non ancora comparse": (0, 3),
-    "Migrabilità totale": (0, 6),
-    "Migrabilità parziale": (4, 24),
-    "Migrabilità perlomeno parziale": (0, 24),
-    "Fissità assoluta": (10, INF_HOURS),
+    "Completamente migrabili": (0, 6),                 # rinomina di "Migrabilità totale"
+    "Parzialmente migrabili": (4, 24),                  # rinomina di "Migrabilità parziale"
+    "Migrabili perlomeno parzialmente": (0, 24),        # rinomina di "Migrabilità perlomeno parziale"
+    "In via di confluenza": (1, 4),                     # nuovo valore
+    "Fisse": (10, INF_HOURS),                           # rinomina di "Fissità assoluta"
     "Non valutabili/Non attendibili": None,
 }
 macchie_medi = {
+    "Non valutate": None,
     "Non ancora comparse": (0, 0.33),
-    "Migrabilità totale": (0.33, 6),
-    "Migrabilità parziale": (6, 12),
-    "Migrabilità perlomeno parziale": None,
-    "Fissità assoluta": (12, INF_HOURS),
+    "Completamente migrabili": (0.33, 6),
+    "Parzialmente migrabili": (6, 12),
+    "Migrabili perlomeno parzialmente": None,
+    "In via di confluenza": (1.5, 3.5),                 # nuovo valore
+    "Fisse": (12, INF_HOURS),
     "Non valutabili/Non attendibili": None,
 }
 testi_macchie = {
+    "Non valutate": (
+        "Le macchie ipostatiche non sono state valutate."
+    ),
     "Non ancora comparse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "non fossero ancora comparse. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
         "che sono trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
     ),
-    "Migrabilità totale": (
+    "Completamente migrabili": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "si trovassero in una fase di migrabilità totale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
         "che fossero trascorse meno di 6 ore dal decesso. "
         "Generalmente le ipostasi compaiono dopo 20 minuti dal decesso."
     ),
-    "Migrabilità parziale": (
+    "Parzialmente migrabili": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "si trovassero in una fase di migrabilità parziale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
         "che fossero trascorse tra le 4 ore e le 24 ore dal decesso."
     ),
-    "Migrabilità perlomeno parziale": (
+    "Migrabili perlomeno parzialmente": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
         "in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono "
         "modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione "
@@ -53,7 +60,12 @@ testi_macchie = {
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse "
         "meno di 24 ore dal decesso."
     ),
-    "Fissità assoluta": (
+    "In via di confluenza": (
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse più di 1 ora ma meno di 4 ore "
+        "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
+    ),
+    "Fisse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
         "in una fase di fissità assoluta. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
         "che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non "
@@ -67,33 +79,38 @@ testi_macchie = {
 
 # --- Rigidità cadaverica ---
 opzioni_rigidita = {
-    "Non ancora comparsa": (0, 7),
-    "In via di formazione, intensificazione e generalizzazione": (0.5, 20),
-    "Presente e generalizzata": (2, 96),
+    "Non valutate": None,  # default
+    "Non ancora apprezzabile": (0, 7),  # rinomina di "Non ancora comparsa"
+    "Presente e in via di intensificazione e generalizzazione": (0.5, 20),  # rinomina
+    "Presente, intenso e generalizzato": (2, 96),  # rinomina
     "In via di risoluzione": (24, 192),
-    "Ormai risolta": (24, INF_HOURS),
+    "Risolto": (24, INF_HOURS),  # rinomina di "Ormai risolta"
     "Non valutabile/Non attendibile": None,
 }
 rigidita_medi = {
-    "Non ancora comparsa": (0, 3),
-    "In via di formazione, intensificazione e generalizzazione": (2, 10),
-    "Presente e generalizzata": (10, 85),
+    "Non valutate": None,
+    "Non ancora apprezzabile": (0, 3),
+    "Presente e in via di intensificazione e generalizzazione": (2, 10),
+    "Presente, intenso e generalizzato": (10, 85),
     "In via di risoluzione": (29, 140),
-    "Ormai risolta": (76, INF_HOURS),
+    "Risolto": (76, INF_HOURS),
 }
 rigidita_descrizioni = {
-    "Non ancora comparsa": (
+    "Non valutate": (
+        "La rigidità cadaverica non è stata valutata."
+    ),
+    "Non ancora apprezzabile": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. "
         "Secondo i limiti massimi segnalati in letteratura scientifica, questo indica che fossero trascorse meno di 7 ore "
         "dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso)."
     ),
-    "In via di formazione, intensificazione e generalizzazione": (
+    "Presente e in via di intensificazione e generalizzazione": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di formazione, "
         "intensificazione e generalizzazione. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che "
         "fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità "
         "si completa in 6-10 ore)."
     ),
-    "Presente e generalizzata": (
+    "Presente, intenso e generalizzato": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse presente e generalizzata. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 2 ore "
         "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore)."
@@ -104,7 +121,7 @@ rigidita_descrizioni = {
         "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi "
         "dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso)."
     ),
-    "Ormai risolta": (
+    "Risolto": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse ormai risolta. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
         "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni)."
@@ -304,4 +321,3 @@ __all__ = [
     "opzioni_rigidita", "rigidita_medi", "rigidita_descrizioni",
     "dati_parametri_aggiuntivi", "nomi_brevi",
 ]
-
