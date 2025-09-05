@@ -241,8 +241,8 @@ def aggiorna_grafico(
             )
             elenco_html += "</ul></li>"
         if conclusione_blk:
-            elenco_html += f"<li>{conclusione_blk}</li>"
         elenco_html += "</ul>"
+        dettagli.append(elenco_html)
 
         dettagli.append(elenco_html)
 
