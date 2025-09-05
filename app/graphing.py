@@ -271,14 +271,18 @@ def aggiorna_grafico(
     # --- differenza piccola Tr-Ta ---
     temp_difference_small = (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0
 
+
     # --- macchie/rigidità ---
-    macchie_range_valido = selettore_macchie != "Non valutabili/Non attendibili"
-    macchie_range = opzioni_macchie.get(selettore_macchie) if macchie_range_valido else (np.nan, np.nan)
+    macchie_range = opzioni_macchie.get(selettore_macchie)
+    macchie_range_valido = isinstance(macchie_range, tuple)
+
     macchie_medi_range = macchie_medi.get(selettore_macchie) if macchie_range_valido else None
 
-    rigidita_range_valido = selettore_rigidita != "Non valutabile/Non attendibile"
-    rigidita_range = opzioni_rigidita.get(selettore_rigidita) if rigidita_range_valido else (np.nan, np.nan)
+    rigidita_range = opzioni_rigidita.get(selettore_rigidita)
+    rigidita_range_valido = isinstance(rigidita_range, tuple)
+
     rigidita_medi_range = rigidita_medi.get(selettore_rigidita) if rigidita_range_valido else None
+
 
     # --- parametri aggiuntivi ---
     parametri_aggiuntivi_da_considerare: List[Dict[str, Any]] = []
@@ -349,16 +353,22 @@ def aggiorna_grafico(
     t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
     t_max_raff_visualizzato = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
 
+
+    def _append_range_safe(rng, label):
+        if isinstance(rng, tuple) and len(rng) == 2:
+            lo, hi = rng
+            if _is_num(lo):
+                inizio.append(lo)
+                fine.append(hi if _is_num(hi) and hi < INF_HOURS else np.nan)
+                nomi_usati.append(label)
+
     # --- intersezione ---
     inizio, fine = [], []
     nomi_usati = []
-    if macchie_range_valido:
-        inizio.append(macchie_range[0]); fine.append(macchie_range[1]); nomi_usati.append("macchie ipostatiche")
-    if rigidita_range_valido:
-        inizio.append(rigidita_range[0]); fine.append(rigidita_range[1]); nomi_usati.append("rigidità cadaverica")
+    _append_range_safe(macchie_range, "Macchie ipostatiche")
+    _append_range_safe(rigidita_range, "Rigidità cadaverica")
 
     # Potente minimo
-        # Potente minimo
     mt_ore = None; mt_giorni = None
     if not any(np.isnan(v) for v in [Tr_val, Ta_val, CF_val, W_val]) and Tr_val > Ta_val + 1e-6:
         Qd_pot = (Tr_val - Ta_val) / (37.2 - Ta_val)
