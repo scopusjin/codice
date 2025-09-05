@@ -367,7 +367,7 @@ with st.container(border=True):
             st.session_state.pop("Ta_max_beta", None)
 
         # Riga 3: Fattore di correzione
-        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
         fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
         with fc_c1:
