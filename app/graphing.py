@@ -648,9 +648,8 @@ def aggiorna_grafico(
     # parentetica extra (cautelativa)
     _par_extra = st.session_state.get("parentetica_extra", "")
     if _par_extra:
-        frase_finale_html = ((frase_finale_html or "").strip()
-                         + (" " if frase_finale_html else "")
-                         + _par_extra).strip()
+        base = frase_finale_html if isinstance(frase_finale_html, str) else ""
+        frase_finale_html = (base.strip() + (" " if base else "") + _par_extra).strip()
     # toggle avvisi
     if avvisi:
         mostra = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
