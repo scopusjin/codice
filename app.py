@@ -282,8 +282,8 @@ with st.container(border=True):
         label_ta = "T. ambientale media (°C):"
         label_fc = "Fattore di correzione (FC):"
         if range_unico:
-            label_ta = "range di T. ambientale media (°C):"
-            label_fc = "range del fattore di correzione (FC):"
+            label_ta = "Range di T. ambientale media (°C):"
+            label_fc = "Range del fattore di correzione (FC):"
         # seed per i widget FC quando arrivano da suggerimenti/range
         if range_unico:
             lo_seed = st.session_state.get("FC_min_beta")
