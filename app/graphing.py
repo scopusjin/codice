@@ -645,10 +645,24 @@ def aggiorna_grafico(
         if mostra:
             for m in avvisi: _warn_box(m)
 
-    # discordanze
-    def _is_num_or_inf(x): return _is_num(x) or (isinstance(x, float) and np.isnan(x))
-    num_potential = sum(1 for s, e in zip(inizio, fine) if _is_num(s) and _is_num_or_inf(e))
-    discordanti = ((not overlap and num_potential >= 2) or ranges_in_disaccordo_completa(inizio, fine))
+    # --- discordanze (robusto: ignora 'Non valutate' e NaN) ---
+    def _finite(x): 
+        return isinstance(x, (int, float)) and np.isfinite(x)
+
+    # Considera solo coppie con start finito e end finito o aperto (NaN)
+    valid_pairs = [(s, e) for s, e in zip(inizio, fine) if _finite(s) and (_finite(e) or np.isnan(e))]
+    num_potential = len(valid_pairs)
+
+    if valid_pairs:
+        # Per la funzione di disaccordo, tratta i limiti aperti come INF_HOURS
+        pairs_for_discord = [(s, (e if _finite(e) else INF_HOURS)) for s, e in valid_pairs]
+        v_inizio = [s for s, _ in pairs_for_discord]
+        v_fine   = [e for _, e in pairs_for_discord]
+
+        discordanti = ((not overlap and num_potential >= 2) or ranges_in_disaccordo_completa(v_inizio, v_fine))
+    else:
+        discordanti = False
+
     if discordanti:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
 
