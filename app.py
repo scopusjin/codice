@@ -463,7 +463,7 @@ with st.container(border=True):
             )
             st.session_state["peso"] = input_w
         with col2:
-            st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             fattore_correzione = st.number_input(
                 "Fattore di correzione:",
                 value=st.session_state.get("fattore_correzione", 1.0),
