@@ -334,7 +334,7 @@ with st.container(border=True):
 
 
                 # Riga 2: T. ambientale media + range unico
-        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
         ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
         with ta_c1:
             input_ta = st.number_input(
