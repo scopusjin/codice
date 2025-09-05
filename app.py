@@ -279,6 +279,11 @@ with st.container(border=True):
         # mantieni in sync le vecchie chiavi per compatibilità
         st.session_state["ta_range_toggle_beta"] = range_unico
 
+        label_ta = "T. ambientale media (°C):"
+        label_fc = "Fattore di correzione (FC):"
+        if range_unico:
+            label_ta = "range di T. ambientale media (°C):"
+            label_fc = "range del fattore di correzione (FC):"
         # seed per i widget FC quando arrivano da suggerimenti/range
         if range_unico:
             lo_seed = st.session_state.get("FC_min_beta")
