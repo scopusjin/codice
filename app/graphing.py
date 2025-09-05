@@ -605,10 +605,13 @@ def aggiorna_grafico(
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
             ))
 
-        # Paragrafo Henssge sempre (anche in cautelativa)
+        # Henssge sempre per primo (anche in cautelativa) usando valori "vis"
+        t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
+        t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
+
         par_h = paragrafo_raffreddamento_dettaglio(
-            t_min_visual=t_min_raff_visualizzato,
-            t_max_visual=t_max_raff_visualizzato,
+            t_min_visual=t_min_vis,
+            t_max_visual=t_max_vis,
             t_med_round=t_med_raff_henssge_rounded,
             qd_val=Qd_val_check,
             ta_val=Ta_val,
@@ -616,7 +619,7 @@ def aggiorna_grafico(
         if par_h:
             dettagli.append(par_h)
 
-        # Nota ±20% quando Qd è sotto soglia (vale per entrambe le soglie: 0.2 se Ta ≤ 23 °C, altrimenti 0.5)
+        # Nota ±20% quando Qd è sotto soglia (0.2 se Ta ≤ 23 °C, altrimenti 0.5)
         if (
             Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
             and t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)
@@ -630,7 +633,7 @@ def aggiorna_grafico(
                 "</li></ul>"
             )
 
-        # Paragrafo Potente (dopo Henssge e nota ±20%)
+        # Poi Potente (se applicabile)
         par_p = paragrafo_potente(
             mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
         )
@@ -645,6 +648,7 @@ def aggiorna_grafico(
         par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
         if par_putr:
             dettagli.append(par_putr)
+
 
         # --- frase finale complessiva ---
         frase_finale_html: str = ""  # inizializza sempre
