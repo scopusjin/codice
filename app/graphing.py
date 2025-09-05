@@ -587,7 +587,7 @@ def aggiorna_grafico(
         if temp_difference_small:
             avvisi.append("Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.")
         if abs(Tr_val - T0_val) <= 1.0:
-            avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, la fase di plateau può ridurre la precisione del metodo.")
+            avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, è verosimile che il raffreddamento corporeo non fosse ancora iniziato e/o si trovasse nella fase di plateau. In tale fase, la precisione del metodo è ridotta.")
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
