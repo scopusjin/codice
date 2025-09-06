@@ -417,15 +417,14 @@ def aggiorna_grafico(
     # Henssge/Potente nell’intersezione
     if raffreddamento_calcolabile:
         # se Potente è attivo, usa mt_ore come limite inferiore del raffreddamento
-        if np.isnan(t_max_raff_henssge):  # cautelativa: limite superiore aperto
-            start = mt_ore if usa_potente else t_min_raff_henssge
-            inizio.append(start)
-            fine.append(np.nan)
-            nomi_usati.append(
-                "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)"
-                if usa_potente else
-                "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
-            )
+        if np.isnan(t_max_raff_henssge):
+            if usa_potente:
+                inizio.append(mt_ore)
+                fine.append(np.nan)
+                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+            else:
+                # niente intervallo aperto di solo Henssge
+                pass
         else:
             if usa_potente:
                 # limite inferiore da Potente, superiore da Henssge
@@ -437,7 +436,7 @@ def aggiorna_grafico(
                 inizio.append(t_min_raff_henssge)
                 fine.append(t_max_raff_henssge)
                 nomi_usati.append("raffreddamento cadaverico")
-
+                
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
