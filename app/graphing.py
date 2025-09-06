@@ -141,7 +141,7 @@ def aggiorna_grafico(
             CF_range=CF_range,
             peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
             mostra_tabella=False,
-            applica_regola_48_inf=True,
+            applica_regola_48_inf=False,
             solver_kwargs={
                 "Tr": float(Tr_val),
                 "T0": float(T0_val),
