@@ -75,32 +75,7 @@ def build_final_sentence(
 
     limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
 
-    # Caso: Qd basso + inizio > 30h + superiore infinito → “oltre”
-    if (
-        qd_val is not None and not np.isnan(qd_val) and qd_val < 0.3
-        and not _safe_is_nan(comune_inizio) and comune_inizio > 30
-        and limite_sup_inf
-    ):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        da = isp_dt - datetime.timedelta(hours=comune_inizio)
-        hh, dd = _fmt_dt(da)
-        if qd_val <= 0.2 and mt_ore is not None and not np.isnan(mt_ore) and mt_ore > 30:
-            testo = (
-                "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
-                f"<b>oltre</b> {_fmt_hm_full(h1, m1)} "
-                "prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero prima delle ore {hh} del {dd}."
-            )
-        else:
-            testo = (
-                "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
-                f"<b>oltre</b> {_fmt_hm_full(h1, m1)} "
-                "prima dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero prima delle ore {hh} del {dd}. "
-                "Occorre tener conto che l'affidabilità del metodo di Henssge diminuisce significativamente "
-                "per intervalli superiori a 30 ore dal decesso."
-            )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+
 
     # Caso: limite superiore infinito → “oltre X”
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
