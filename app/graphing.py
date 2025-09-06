@@ -432,28 +432,21 @@ if raffreddamento_calcolabile:
             "raffreddamento cadaverico"
         )
 
-    # intersezione finale
-    starts_clean = [s for s in inizio if _is_num(s)]
-    if not starts_clean:
-        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
-    else:
-        comune_inizio = max(starts_clean)
-        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
-        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
-        # se cautelativa e nessuno chiude → lascia aperto SOLO se Potente attivo
-        if (
-            st.session_state.get("stima_cautelativa_beta", False)
-            and np.isnan(t_max_raff_henssge)
-            and not superiori_finiti
-            and usa_potente
-        ):
-            comune_fine = np.nan
-
-        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
-        # se cautelativa e nessuno chiude → lascia aperto
-        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
-            comune_fine = np.nan
-        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
+# intersezione finale
+starts_clean = [s for s in inizio if _is_num(s)]
+if not starts_clean:
+    comune_inizio, comune_fine, overlap = np.nan, np.nan, False
+else:
+    comune_inizio = max(starts_clean)
+    superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
+    comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+    # se cautelativa e nessuno chiude → lascia aperto
+    if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
+        comune_fine = np.nan
+    # se Potente prevale e nessuno chiude → lascia aperto
+    if usa_potente and not superiori_finiti:
+        comune_fine = np.nan
+    overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
 
     # --- extra per grafico ---
     extra_params_for_plot = []
