@@ -79,7 +79,7 @@ def build_final_sentence(
 
     # Caso: limite superiore infinito → “oltre X”
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        start = round(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore) and abs(comune_inizio - mt_ore) < 0.25) else comune_inizio
+        start = mt_ore if (mt_ore is not None and not np.isnan(mt_ore) and abs(comune_inizio - mt_ore) < 0.25) else comune_inizio
         h1, m1 = _hm_from_hours(start)
         da = isp_dt - datetime.timedelta(hours=start)
         hh, dd = _fmt_dt(da)
