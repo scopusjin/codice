@@ -415,38 +415,38 @@ def aggiorna_grafico(
             nomi_usati.append(p["nome"])
 
     # # Henssge/Potente nell’intersezione
-if raffreddamento_calcolabile:
-    if usa_potente:
+    if raffreddamento_calcolabile:
+        if usa_potente:
         # Potente prevale: minimo = mt_ore, superiore aperto
-        if mt_ore is not None and not np.isnan(mt_ore):
-            inizio.append(mt_ore)
-            fine.append(np.nan)
-            nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
-    else:
-        # Solo Henssge
-        inizio.append(t_min_raff_henssge)
-        fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
-        nomi_usati.append(
-            "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
-            if np.isnan(t_max_raff_henssge) else
-            "raffreddamento cadaverico"
-        )
+            if mt_ore is not None and not np.isnan(mt_ore):
+                inizio.append(mt_ore)
+                fine.append(np.nan)
+                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+        else:
+            # Solo Henssge
+            inizio.append(t_min_raff_henssge)
+            fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
+            nomi_usati.append(
+                "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
+                if np.isnan(t_max_raff_henssge) else
+                "raffreddamento cadaverico"
+            )
 
 # intersezione finale
-starts_clean = [s for s in inizio if _is_num(s)]
-if not starts_clean:
-    comune_inizio, comune_fine, overlap = np.nan, np.nan, False
-else:
-    comune_inizio = max(starts_clean)
-    superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
-    comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+    starts_clean = [s for s in inizio if _is_num(s)]
+    if not starts_clean:
+        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
+    else:
+        comune_inizio = max(starts_clean)
+        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
+        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
     # se cautelativa e nessuno chiude → lascia aperto
-    if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
-        comune_fine = np.nan
+        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
+            comune_fine = np.nan
     # se Potente prevale e nessuno chiude → lascia aperto
-    if usa_potente and not superiori_finiti:
-        comune_fine = np.nan
-    overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
+        if usa_potente and not superiori_finiti:
+            comune_fine = np.nan
+        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
 
     # --- extra per grafico ---
     extra_params_for_plot = []
