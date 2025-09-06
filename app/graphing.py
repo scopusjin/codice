@@ -60,6 +60,16 @@ def aggiorna_grafico(
     avvisi: List[str] = []
     dettagli: List[str] = []
 
+    # --- anti-duplicati per i paragrafi ---
+    _dettagli_seen: set[str] = set()
+    def _add_det(blocco: str | None):
+        if isinstance(blocco, str):
+            key = blocco.strip()
+            if key and key not in _dettagli_seen:
+                dettagli.append(key)
+                _dettagli_seen.add(key)
+    henssge_detail_added = False
+
     # --- data/ora ispezione ---
     if usa_orario_custom:
         if not input_data_rilievo or not input_ora_rilievo:
@@ -150,7 +160,7 @@ def aggiorna_grafico(
         t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
         Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
         raffreddamento_calcolabile = True
-        
+
         # testi cautelativa
         st.session_state["parentetica_extra"] = res.parentetica
 
@@ -227,7 +237,7 @@ def aggiorna_grafico(
                 "dell’ispezione legale."
             )
 
-        # elenco con sottopunti
+        # elenco con sottopunti (senza la conclusione per evitare duplicati)
         elenco_html = "<ul>"
         if header_blk:
             elenco_html += f"<li>{header_blk}"
@@ -238,11 +248,8 @@ def aggiorna_grafico(
                 f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
             )
             elenco_html += "</ul></li>"
-        if conclusione_blk:
-            elenco_html += f"<li>{conclusione_blk}</li>"
         elenco_html += "</ul>"
-
-        dettagli.append(elenco_html)
+        _add_det(elenco_html)
 
         # --- Dettaglio raffreddamento anche in cautelativa (abilita la nota ±20% in textgen) ---
         t_min_vis = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
@@ -255,7 +262,8 @@ def aggiorna_grafico(
             ta_val=Ta_val,
         )
         if par_h_caut:
-            dettagli.append(par_h_caut)
+            _add_det(par_h_caut)
+            henssge_detail_added = True
 
     else:
         # Henssge standard
@@ -273,7 +281,6 @@ def aggiorna_grafico(
             not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
         )
         st.session_state["parentetica_extra"] = ""
-
     # --- differenza piccola Tr-Ta ---
     temp_difference_small = (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0
 
@@ -444,7 +451,7 @@ def aggiorna_grafico(
             comune_fine = np.nan
         overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
 
-# --- extra per grafico ---
+    # --- extra per grafico ---
     extra_params_for_plot = []
     for idx, p in enumerate(parametri_aggiuntivi_da_considerare):
         lo, hi = p["range_traslato"]
@@ -459,6 +466,7 @@ def aggiorna_grafico(
                 "order": idx,
                 "adattato": bool(p.get("adattato", False)),
             })
+
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
@@ -551,10 +559,7 @@ def aggiorna_grafico(
 
     # --- avvisi ---
     if nota_globale_range_adattato:
-        avvisi.append(
-            "Alcuni parametri sono stati rilevati in orari diversi; i range sono stati traslati per renderli confrontabili."
-        )
-    
+        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range sono stati traslati per renderli confrontabili.")
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
@@ -579,15 +584,14 @@ def aggiorna_grafico(
                 riassunto=st.session_state.get("fc_riassunto_contatori"),
                 fallback_text=st.session_state.get("fattori_condizioni_testo"),
             )
-            dettagli.append(paragrafo_raffreddamento_input(
+            _add_det(paragrafo_raffreddamento_input(
                 isp_dt=data_ora_ispezione if usa_orario_custom else None,
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
             ))
 
-        # Henssge sempre per primo (anche in cautelativa) usando valori "vis"
+        # Henssge sempre per primo (una sola volta) usando valori "vis"
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
         t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
-
         par_h = paragrafo_raffreddamento_dettaglio(
             t_min_visual=t_min_vis,
             t_max_visual=t_max_vis,
@@ -595,15 +599,16 @@ def aggiorna_grafico(
             qd_val=Qd_val_check,
             ta_val=Ta_val,
         )
-        if par_h:
-            dettagli.append(par_h)
+        if par_h and not henssge_detail_added:
+            _add_det(par_h)
+            henssge_detail_added = True
 
-        # Nota ±20% quando Qd è sotto soglia (0.2 se Ta ≤ 23 °C, altrimenti 0.5)
+        # Nota ±20% quando Qd è sotto soglia
         if (
             Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
             and t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)
         ):
-            dettagli.append(
+            _add_det(
                 "<ul><li>"
                 "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
                 f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
@@ -616,17 +621,17 @@ def aggiorna_grafico(
         par_p = paragrafo_potente(
             mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
         )
-        if par_p:
-            dettagli.append(par_p)
+        _add_det(par_p)
 
-        dettagli.extend(paragrafi_descrizioni_base(
+        # Macchie/rigidità + parametri aggiuntivi
+        for blocco in paragrafi_descrizioni_base(
             testo_macchie=testi_macchie[selettore_macchie],
             testo_rigidita=rigidita_descrizioni[selettore_rigidita],
-        ))
-        dettagli.extend(paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare))
-        par_putr = paragrafo_putrefattive(alterazioni_putrefattive)
-        if par_putr:
-            dettagli.append(par_putr)
+        ):
+            _add_det(blocco)
+        for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
+            _add_det(blocco)
+        _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
 
         # --- frase finale complessiva ---
         frase_finale_html: str = ""  # inizializza sempre
@@ -644,11 +649,9 @@ def aggiorna_grafico(
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
 
-    # parentetica extra (cautelativa)
-    _par_extra = st.session_state.get("parentetica_extra", "")
-    if _par_extra:
-        base = frase_finale_html if isinstance(frase_finale_html, str) else ""
-        frase_finale_html = (base.strip() + (" " if base else "") + _par_extra).strip()
+    # ⛔️ Niente parentetica extra accodata alla frase finale
+    # (rimuove la riga tipo: "(raffreddamento stimato su Ta ..., CF ..., peso ...)")
+    st.session_state["parentetica_extra"] = ""
 
     # toggle avvisi
     if avvisi:
@@ -657,7 +660,7 @@ def aggiorna_grafico(
             for m in avvisi:
                 _warn_box(m)
 
-    # --- discordanze ---
+    # ---     # --- discordanze ---
     def _finite(x):
         return isinstance(x, (int, float)) and np.isfinite(x)
 
@@ -724,6 +727,4 @@ def aggiorna_grafico(
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
-
-
-
+            
