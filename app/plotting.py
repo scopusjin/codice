@@ -97,10 +97,10 @@ def compute_plot_data(
 
         # Etichetta Henssge
         if raff_only_lower:
-            maggiore_di_valore = t_min_raff_henssge
-            if mt_ore is not None and not np.isnan(mt_ore):
-                maggiore_di_valore = float(round(mt_ore))
-                label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
+    # usa mt_ore così com'è (es. 29.5), altrimenti il minimo Henssge
+            maggiore_di_valore = float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore)) else float(t_min_raff_henssge)
+            label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
+
             else:
                 label_h = (
                     f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)\n"
