@@ -598,19 +598,7 @@ else:
         if par_h:
             _add_det(par_h)
 
-        # Nota ±20% quando Qd è sotto soglia
-        if (
-            Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
-            and t_med_raff_henssge_rounded is not None and not np.isnan(t_med_raff_henssge_rounded)
-        ):
-            _add_det(
-                "<ul><li>"
-                "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
-                f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_raff_henssge_rounded:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-                "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-                "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-                "</li></ul>"
-            )
+
 
         # Poi Potente (se applicabile)
         par_p = paragrafo_potente(
