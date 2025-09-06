@@ -384,26 +384,27 @@ def aggiorna_grafico(
     mt_ore = None
     mt_giorni = None
 
-    # in cautelativa usa la Ta "peggiore" (Ta_max) per coerenza con qd_min
-    Ta_for_pot = Ta_val
-    if st.session_state.get("stima_cautelativa_beta", False):
-        Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val))
+    # Potente minimo (prevale come limite inferiore se attivo)
+    mt_ore = None
+    mt_giorni = None
 
-    if not any(np.isnan(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val]) and Tr_val > Ta_for_pot + 1e-6:
-        Qd_pot = (Tr_val - Ta_for_pot) / (37.2 - Ta_for_pot)
-        qd_threshold_pot = 0.2 if Ta_for_pot <= 23 else 0.5
-        if Qd_pot < qd_threshold_pot:
-            B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
-            ln_term = np.log(0.16) if Ta_for_pot <= 23 else np.log(0.45)
-            mt_ore_raw = ln_term / B
-            mt_ore = _round_half_hour(float(mt_ore_raw))   # <-- arrotonda al mezz’ora
-            mt_giorni = round(mt_ore / 24.0, 1)
+    # Ta da usare per Potente: allineata al calcolo di Qd_val_check
+    Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val)) \
+        if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)
+
+    # Se la Qd “ufficiale” è sotto soglia, calcola Potente e fallo prevalere
+    if (Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
+        and not any(np.isnan(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
+        and Tr_val > Ta_for_pot + 1e-6):
+        B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
+        ln_term = np.log(0.16) if Ta_for_pot <= 23 else np.log(0.45)
+        mt_ore_raw = ln_term / B
+        mt_ore = _round_half_hour(float(mt_ore_raw))   # arrotonda al mezz’ora
+        mt_giorni = round(mt_ore / 24.0, 1)
 
     usa_potente = (
-        not np.isnan(Qd_val_check)
-        and (Qd_val_check < qd_threshold)
-        and (mt_ore is not None)
-        and (not np.isnan(mt_ore))
+        Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
+        and (mt_ore is not None) and (not np.isnan(mt_ore))
     )
 
     # extra da parametri aggiuntivi
