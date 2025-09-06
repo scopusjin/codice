@@ -414,29 +414,24 @@ def aggiorna_grafico(
             fine.append(hi if (_is_num(hi) and hi < INF_HOURS) else np.nan)
             nomi_usati.append(p["nome"])
 
-    # Henssge/Potente nell’intersezione
-    if raffreddamento_calcolabile:
-        # se Potente è attivo, usa mt_ore come limite inferiore del raffreddamento
-        if np.isnan(t_max_raff_henssge):
-            if usa_potente:
-                inizio.append(mt_ore)
-                fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
-            else:
-                # niente intervallo aperto di solo Henssge
-                pass
-        else:
-            if usa_potente:
-                # limite inferiore da Potente, superiore da Henssge
-                start = min(mt_ore, t_max_raff_henssge)  # sicurezza nel caso patologico
-                inizio.append(start)
-                fine.append(t_max_raff_henssge)
-                nomi_usati.append("raffreddamento cadaverico (limite inferiore da Potente et al.)")
-            else:
-                inizio.append(t_min_raff_henssge)
-                fine.append(t_max_raff_henssge)
-                nomi_usati.append("raffreddamento cadaverico")
-                
+    # # Henssge/Potente nell’intersezione
+if raffreddamento_calcolabile:
+    if usa_potente:
+        # Potente prevale: minimo = mt_ore, superiore aperto
+        if mt_ore is not None and not np.isnan(mt_ore):
+            inizio.append(mt_ore)
+            fine.append(np.nan)
+            nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+    else:
+        # Solo Henssge
+        inizio.append(t_min_raff_henssge)
+        fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
+        nomi_usati.append(
+            "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
+            if np.isnan(t_max_raff_henssge) else
+            "raffreddamento cadaverico"
+        )
+
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
