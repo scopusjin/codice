@@ -432,7 +432,7 @@ def aggiorna_grafico(
                 "raffreddamento cadaverico"
             )
 
-# intersezione finale
+    # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
         comune_inizio, comune_fine, overlap = np.nan, np.nan, False
