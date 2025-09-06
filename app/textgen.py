@@ -377,10 +377,12 @@ def paragrafo_potente(
     if not (qd_val < qd_threshold):
         return None
 
+    h, m = _hm_from_hours(mt_ore)
     return (
         "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
-        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{mt_ore:.0f}</b> ore (≈ {mt_giorni:.1f} giorni) dal decesso.</li></ul>"
+        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{_fmt_hm_full(h, m)}</b> (≈ {mt_giorni:.1f} giorni) dal decesso.</li></ul>"
     )
+
 
 def paragrafo_raffreddamento_input(
     *,
