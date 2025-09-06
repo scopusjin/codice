@@ -584,7 +584,6 @@ def aggiorna_grafico(
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
-
         # --- paragrafi descrittivi ---
         if not st.session_state.get("stima_cautelativa_beta", False):
             # Riepilogo preciso (modalità normale)
@@ -598,7 +597,7 @@ def aggiorna_grafico(
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
             ))
 
-        # Henssge sempre per primo (una sola volta) usando valori "vis"
+        # Henssge sempre per primo (anche se Potente apre l’intervallo)
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
         t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
         par_h = paragrafo_raffreddamento_dettaglio(
@@ -608,9 +607,8 @@ def aggiorna_grafico(
             qd_val=Qd_val_check,
             ta_val=Ta_val,
         )
-        if par_h and not henssge_detail_added:
+        if par_h:
             _add_det(par_h)
-            henssge_detail_added = True
 
         # Nota ±20% quando Qd è sotto soglia
         if (
@@ -643,7 +641,7 @@ def aggiorna_grafico(
         _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
 
         # --- frase finale complessiva ---
-        frase_finale_html: str = ""  # inizializza sempre
+        frase_finale_html: str = ""
         if usa_orario_custom:
             _tmp = build_final_sentence(
                 comune_inizio, comune_fine, data_ora_ispezione,
@@ -657,6 +655,7 @@ def aggiorna_grafico(
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
+
 
     # ⛔️ Niente parentetica extra accodata alla frase finale
     # (rimuove la riga tipo: "(raffreddamento stimato su Ta ..., CF ..., peso ...)")
