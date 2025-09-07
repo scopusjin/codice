@@ -13,25 +13,29 @@ INF_HOURS = 200  # usato per “infinito” sui range aperti
 
 # --- Macchie ipostatiche ---
 opzioni_macchie = {
-    "Non valutate": None,  # default
+# --- Macchie ipostatiche ---
+opzioni_macchie = {
+    "Non valutate": None,
     "Non ancora comparse": (0, 3),
-    "Completamente migrabili": (0, 6),                 # rinomina di "Migrabilità totale"
-    "Parzialmente migrabili": (4, 24),                  # rinomina di "Migrabilità parziale"
-    "Migrabili perlomeno parzialmente": (0, 24),        # rinomina di "Migrabilità perlomeno parziale"
-    "In via di confluenza": (1, 4),                     # nuovo valore
-    "Fisse": (10, INF_HOURS),                           # rinomina di "Fissità assoluta"
+    "In via di confluenza": (1, 4),
+    "Completamente migrabili": (0, 6),
+    "Parzialmente migrabili": (4, 24),
+    "Migrabili perlomeno parzialmente": (0, 24),
+    "Fisse": (10, INF_HOURS),
     "Non valutabili/Non attendibili": None,
 }
+
 macchie_medi = {
     "Non valutate": None,
     "Non ancora comparse": (0, 0.33),
+    "In via di confluenza": (1.5, 3.5),
     "Completamente migrabili": (0.33, 6),
     "Parzialmente migrabili": (6, 12),
     "Migrabili perlomeno parzialmente": None,
-    "In via di confluenza": (1.5, 3.5),                 # nuovo valore
     "Fisse": (12, INF_HOURS),
     "Non valutabili/Non attendibili": None,
 }
+
 testi_macchie = {
     "Non valutate": (
         "Le macchie ipostatiche non sono state valutate."
@@ -40,6 +44,11 @@ testi_macchie = {
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "non fossero ancora comparse. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
         "che sono trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
+    ),
+    "In via di confluenza": (
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
+        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse più di 1 ora ma meno di 4 ore "
+        "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
     ),
     "Completamente migrabili": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
@@ -57,13 +66,8 @@ testi_macchie = {
         "in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono "
         "modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione "
         "dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). "
-        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse "
+        "Sulla base di tali caratteristiche e dei limiti massimi e minimi indicati in letteratura scientifica, questo indica che fossero trascorse "
         "meno di 24 ore dal decesso."
-    ),
-    "In via di confluenza": (
-        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
-        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse più di 1 ora ma meno di 4 ore "
-        "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
     ),
     "Fisse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
@@ -76,6 +80,8 @@ testi_macchie = {
         "per la stima dell'epoca della morte."
     ),
 }
+
+
 
 # --- Rigidità cadaverica ---
 opzioni_rigidita = {
