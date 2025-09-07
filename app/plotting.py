@@ -95,18 +95,11 @@ def compute_plot_data(
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
         raff_over_48 = False
 
-        # Etichetta Henssge
+        #         # Etichetta Henssge
         if raff_only_lower:
-    # usa mt_ore così com'è (es. 29.5), altrimenti il minimo Henssge
+            # usa mt_ore così com'è (es. 29.5), altrimenti il minimo Henssge
             maggiore_di_valore = float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore)) else float(t_min_raff_henssge)
             label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
-
-            else:
-                label_h = (
-                    f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)\n"
-                    f"({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
-                )
-        
         else:
             label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
 
@@ -117,6 +110,7 @@ def compute_plot_data(
     else:
         raff_only_lower = False
         raff_over_48 = False
+
 
     # Calcolo cap e coda
     LINE_W = 6
