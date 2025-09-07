@@ -11,8 +11,7 @@ Dizionari statici per:
 
 INF_HOURS = 200  # usato per “infinito” sui range aperti
 
-# --- Macchie ipostatiche ---
-opzioni_macchie = {
+
 # --- Macchie ipostatiche ---
 opzioni_macchie = {
     "Non valutate": None,
