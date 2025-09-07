@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 # app/cautelativa.py — Stima cautelativa per raffreddamento (Henssge) su range.
 
@@ -36,7 +35,7 @@ MAX_POINTS_PER_DIM = 25
 class CautelativaResult:
     # Aggregati
     ore_min: float
-    ore_max: float  # può valere INF_HOURS se applicata la regola 48–∞
+    ore_max: float  # può valere INF_HOURS se infinito
     dt_min: Optional[datetime]
     dt_max: Optional[datetime]  # None se infinito
     qd_min: Optional[float]
@@ -67,23 +66,12 @@ def _discretize(lo: float, hi: float, step: float,
         return [float(lo)]
     n = int(math.floor((hi - lo) / step)) + 1
     if n <= max_points:
-        # Serie a step costante
         vals = [lo + i * step for i in range(n)]
-        # Garantisce inclusione dell'estremo superiore
         if vals[-1] < hi - 1e-9:
             vals.append(hi)
         return [round(v, 6) for v in vals]
-    # Sottocampionamento uniforme se troppi punti
     arr = np.linspace(lo, hi, max_points)
     return [float(round(v, 6)) for v in arr]
-
-
-def _apply_rule_48_inf(ore_max: float) -> float:
-    if ore_max is None:
-        return INF_HOURS
-    if ore_max > 48:
-        return INF_HOURS
-    return ore_max
 
 
 def _to_datetimes(ore_min: float,
@@ -98,22 +86,18 @@ def _to_datetimes(ore_min: float,
     return dt_min, dt_max
 
 
-
-
-
 # ------------------------
 # Solver adapter
 # ------------------------
 def _default_solver(Ta: float, CF: float, peso_kg: float, **kwargs) -> Tuple[float, float, Optional[float]]:
     """
-    Adattatore alla tua calcola_raffreddamento(Tr, Ta, T0, W, CF, round_minutes=...).
+    Adattatore a app.henssge.calcola_raffreddamento(Tr, Ta, T0, W, CF, round_minutes=...).
     Ritorna (ore_min, ore_max, Qd) per la combinazione corrente.
     """
     Tr = kwargs.get("Tr")
     T0 = kwargs.get("T0")
     round_minutes = kwargs.get("round_minutes", 30)
 
-    # chiamata POSIZIONALE coerente con la tua app.henssge.calcola_raffreddamento
     t_med_round, t_min, t_max, t_med_raw, Qd = calcola_raffreddamento(
         Tr, Ta, T0, peso_kg, CF, round_minutes=round_minutes
     )
@@ -122,7 +106,6 @@ def _default_solver(Ta: float, CF: float, peso_kg: float, **kwargs) -> Tuple[flo
     ore_max = float(t_max)
     qd = float(Qd) if (Qd is not None and np.isfinite(Qd)) else None
     return ore_min, ore_max, qd
-
 
 
 # ------------------------
@@ -149,7 +132,6 @@ def compute_raffreddamento_cautelativo(
     solver_kwargs: Optional[Dict[str, Any]] = None,
     # Opzioni
     mostra_tabella: bool = True,
-    applica_regola_48_inf: bool = True,
 ) -> CautelativaResult:
     """
     Esegue il prodotto cartesiano delle combinazioni (Ta, CF, peso) e aggrega il range.
@@ -204,8 +186,7 @@ def compute_raffreddamento_cautelativo(
 
     # 4) Aggregati
     agg_min = float(min(ore_mins)) if ore_mins else float("inf")
-    agg_max_raw = float(max(ore_maxs)) if ore_maxs else float("inf")
-    agg_max = _apply_rule_48_inf(agg_max_raw) if applica_regola_48_inf else agg_max_raw
+    agg_max = float(max(ore_maxs)) if ore_maxs else float("inf")
 
     qd_min = float(min(qds)) if qds else None
     qd_max = float(max(qds)) if qds else None
@@ -218,12 +199,11 @@ def compute_raffreddamento_cautelativo(
 
     # 7) Frasi di riepilogo e parentetica
     summary = build_summary_html(
-    Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
-    agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
-    peso_stimato=peso_stimato, agg_max_raw=agg_max_raw,
+        Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
+        agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
+        peso_stimato=peso_stimato, agg_max_raw=agg_max,
     )
 
-    # robusto
     try:
         paren = build_parentetica_cautelativa(
             Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi, peso_stimato
@@ -244,6 +224,7 @@ def compute_raffreddamento_cautelativo(
         parentetica=paren,
     )
 
+
 def build_parentetica_cautelativa(
     Ta_lo: float, Ta_hi: float,
     CF_lo: float, CF_hi: float,
@@ -255,23 +236,6 @@ def build_parentetica_cautelativa(
     p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
     suffix = ", peso stimato" if peso_stimato else ""
     return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
-
-
-
-
-
-    return CautelativaResult(
-        ore_min=agg_min,
-        ore_max=agg_max,
-        dt_min=dt_min,
-        dt_max=dt_max if math.isfinite(agg_max) else None,
-        qd_min=qd_min,
-        qd_max=qd_max,
-        n_combinazioni=len(recs) if recs else (len(Ta_vals)*len(CF_vals)*len(P_vals)),
-        df_combinazioni=df,
-        summary_html=summary,
-        parentetica=paren,
-    )
 
 
 # ------------------------
@@ -287,6 +251,7 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
     if dt is None:
         return "∞"
     return dt.strftime("%d.%m.%Y, %H:%M")
+
 
 def _fmt_ore(ore: float) -> str:
     """
@@ -305,12 +270,12 @@ def _fmt_ore(ore: float) -> str:
     if not parts:  # caso 0
         return "0 ore"
     return " e ".join(parts)
-    
+
 
 def _lbl_ore(x: float) -> str:
     """Ritorna 'ora' al singolare se =1, altrimenti 'ore'."""
     return "ora" if abs(x - 1.0) < 1e-9 else "ore"
-    
+
 
 def build_summary_html(
     Ta_lo: float, Ta_hi: float,
@@ -331,8 +296,7 @@ def build_summary_html(
     else:
         p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    
-        #     # Frase risultato (usando _fmt_ore per ore decimali)
+    # Frase risultato (usando _fmt_ore per ore decimali)
     if ore_max >= INF_HOURS - 1e-9:
         risultato_txt = f"oltre {_fmt_ore(ore_min)}"
     elif ore_min <= 1e-9:
@@ -340,7 +304,6 @@ def build_summary_html(
     else:
         risultato_txt = f"tra circa {_fmt_ore(ore_min)} e {_fmt_ore(ore_max)}"
 
-        
     header = (
         "Per quanto attiene la valutazione del raffreddamento cadaverico, "
         "sono stati stimati i parametri di seguito indicati."
@@ -359,8 +322,3 @@ def build_summary_html(
     )
 
     return "<br>".join([header, bullets, conclusione])
-    
-
-
-
-#
