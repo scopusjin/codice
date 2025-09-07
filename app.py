@@ -294,19 +294,18 @@ with st.container(border=True):
         if range_unico:
             label_ta = "Range di T. ambientale media (°C):"
             label_fc = "Range del fattore di correzione (FC):"
-        # seed per i widget FC quando arrivano da suggerimenti/range
+        # #         # seed sempre allineato ai valori beta
         if range_unico:
             lo_seed = st.session_state.get("FC_min_beta")
             hi_seed = st.session_state.get("FC_max_beta")
-            if lo_seed is not None and "fc_min_val" not in st.session_state:
+            if lo_seed is not None:
                 st.session_state["fc_min_val"] = float(lo_seed)
-            if hi_seed is not None and "fc_other_val" not in st.session_state:
+            if hi_seed is not None:
                 st.session_state["fc_other_val"] = float(hi_seed)
         else:
-            for k in ("fc_min_val","fc_other_val"):
+            for k in ("fc_min_val", "fc_other_val"):
                 st.session_state.pop(k, None)
 
-        
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
