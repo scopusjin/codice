@@ -323,11 +323,19 @@ def paragrafo_raffreddamento_dettaglio(
     h1, m1 = _hm_from_hours(t_min_visual)
     h2, m2 = _hm_from_hours(t_max_visual)
 
+    # Se il limite inferiore è 0 → “non oltre X”
+    intervallo_txt = (
+        f"non oltre {_fmt_hm_full(h2, m2)}"
+        if (h1 == 0 and m1 == 0)
+        else _fmt_range_hm(h1, m1, h2, m2)
+    )
+
     testo_base = (
         "Applicando l'equazione di Henssge, è possibile stimare che il decesso sia avvenuto, all'incirca, "
-        f"{_fmt_range_hm(h1, m1, h2, m2)} "
+        f"{intervallo_txt} "
         "prima dei rilievi effettuati al momento dell’ispezione legale."
     )
+
 
     extra = []
 
