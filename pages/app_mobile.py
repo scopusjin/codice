@@ -319,6 +319,19 @@ st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
 
 # Peso ±3 kg
 st.session_state["peso_stimato_beta"] = True
+# Delta fissi SOLO mobile
+st.session_state["stima_cautelativa_beta"] = True
+st.session_state["range_unico_beta"] = True
+st.session_state["ta_range_toggle_beta"] = True
+
+ta_center = float(st.session_state.get("ta_base_val", 20.0))
+fc_center = float(st.session_state.get("fattore_correzione", 1.0))
+
+st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
+st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
+st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
+st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+st.session_state["peso_stimato_beta"] = True
 
 # ---------------------------
 # Bottone e output
