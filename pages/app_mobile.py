@@ -88,20 +88,47 @@ with st.container(border=True):
 # ------------------------------------------------------------
 # Ipostasi e rigidità
 # ------------------------------------------------------------
+# ------------------------------------------------------------
+# Ipostasi e rigidità (versione mobile semplificata)
+# ------------------------------------------------------------
+
+# Mappa ridotta per ipostasi
+_IPOSTASI_MOBILE = {
+    "Assenti": "Non ancora comparse",
+    "Almeno parzialmente migrabili": "Migrabili perlomeno parzialmente",  # copre anche Completamente / Parzialmente
+    "Fisse": "Fisse",
+    "/": "Non valutate",  # usato anche per Non valutabili
+}
+
+# Mappa ridotta per rigidità
+_RIGIDITA_MOBILE = {
+    "Assente": "Non ancora apprezzabile",
+    "Presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
+    "Completa e massima": "Presente, intenso e generalizzato",
+    "In risoluzione": "In via di risoluzione",
+    "Risolta": "Risolto",
+    "/": "Non valutata",  # usato anche per Non valutabile
+}
+
 with st.container(border=True):
     c1, c2 = st.columns(2, gap="small")
+
     with c1:
-        selettore_macchie = st.selectbox(
+        scelta_ipostasi_lbl = st.selectbox(
             "Macchie ipostatiche:",
-            options=list(opzioni_macchie.keys()),
-            key="selettore_macchie",
+            options=list(_IPOSTASI_MOBILE.keys()),
+            key="selettore_macchie_mobile",
         )
+        selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
+
     with c2:
-        selettore_rigidita = st.selectbox(
+        scelta_rigidita_lbl = st.selectbox(
             "Rigidità cadaverica:",
-            options=list(opzioni_rigidita.keys()),
-            key="selettore_rigidita",
+            options=list(_RIGIDITA_MOBILE.keys()),
+            key="selettore_rigidita_mobile",
         )
+        selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
+
 
 # ------------------------------------------------------------
 # Temperature e parametri principali
