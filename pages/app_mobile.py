@@ -143,7 +143,7 @@ with st.container(border=True):
         )
 
     with c3:
-        st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
         fattore_correzione = st.number_input(
             "Fattore di correzione:",
             value=st.session_state.get("fattore_correzione", 1.0),
