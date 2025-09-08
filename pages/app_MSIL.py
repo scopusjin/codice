@@ -184,7 +184,7 @@ with st.container(border=True):
             key="fattore_correzione"
         )
         st.toggle(
-            "Suggerisci FC",
+            "Suggerisci fattore di correzione",
             value=st.session_state.get("toggle_fattore_inline_mobile", False),
             key="toggle_fattore_inline_mobile",
         )
@@ -193,6 +193,8 @@ with st.container(border=True):
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
+
+
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -204,6 +206,13 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
 
+    # funzione di conversione sicura
+    def _safe_int(x):
+        try:
+            return int(x)
+        except Exception:
+            return 0
+
     st.markdown("""
         <style>
           div[data-testid="stRadio"] > label {display:none !important;}
@@ -214,13 +223,13 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         </style>
     """, unsafe_allow_html=True)
 
-    # Stato corpo (etichette compatte)
+    # Stato corpo
     stato_label = st.radio(
         "Stato del corpo",
         ["Asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo")
     )
-    stato_corpo = stato_label  # mapping diretto
+    stato_corpo = stato_label
 
     # Caso Immerso
     if stato_corpo == "Immerso":
@@ -255,7 +264,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         corr_placeholder = st.empty()
     with col_vest:
         toggle_vestito = st.toggle(
-            "Vestito/coperto?",
+            "Vestiti/coperte su addome/bacino?",
             value=st.session_state.get(k("toggle_vestito"), False),
             key=k("toggle_vestito")
         )
@@ -282,7 +291,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
             },
         )
-        vals = {r["Voce"]: int(r["Numero?"] or 0) for _, r in edited.iterrows()}
+        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
@@ -296,7 +305,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     superficie_display_selected = "/"
     if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
+                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.cop_pesanti == 0))
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
             options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
