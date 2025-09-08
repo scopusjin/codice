@@ -284,8 +284,21 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
         rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
+
+        # CSS per nascondere la riga di intestazione
+        st.markdown(
+            """
+            <style>
+            thead tr th {display:none}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
         edited = st.data_editor(
-            df, hide_index=True, use_container_width=True,
+            df,
+            hide_index=True,
+            use_container_width=True,
             column_config={
                 "Voce": st.column_config.TextColumn(disabled=True, width="medium"),
                 "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
