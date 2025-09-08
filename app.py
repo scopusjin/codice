@@ -384,7 +384,7 @@ with st.container(border=True):
                 fc_min = st.number_input(
                     "FC min",
                     value=st.session_state.get("fc_min_val", st.session_state.get("FC_min_beta", 1.0)),
-                    step=0.01, format="%.2f",
+                    step=0.1, format="%.2f",
                     label_visibility="collapsed",
                     key="fc_min_val"
                 )
