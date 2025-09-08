@@ -15,7 +15,11 @@ from app.factor_calc import (
 # ---------------------------
 st.set_page_config(page_title="Mor-tem Mobile", layout="centered")
 
-st.markdown("## Stima epoca decesso — mobile")
+# Titolo più piccolo e nuovo nome pagina
+st.markdown(
+    "<h6 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso MSIL</h6>",
+    unsafe_allow_html=True
+)
 
 # ---------------------------
 # Helpers UI
