@@ -94,68 +94,53 @@ with st.container(border=True):
             key="selettore_rigidita",
         )
 
-# ---------------------------
-# # ---------------------------
-# Temperature e altri parametri
-# ---------------------------
-with st.container(border=True):
-    # Campo T. rettale rimane singolo
-    st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-    input_rt = st.number_input(
-        "T. rettale (°C):",
-        value=st.session_state.get("rt_val", 35.0),
-        step=0.1, format="%.1f",
-        key="rt_val",
+#  Stili etichette compattate
+
+st.markdown("""
+<style>
+.lbl{font-size:0.88rem;}
+.lbl .unc{font-size:0.78rem; color:#555; white-space:nowrap;}
+</style>
+""", unsafe_allow_html=True)
+
+# Tre colonne: Peso, TA, FC (etichette con incertezza inline)
+c1, c2, c3 = st.columns([1, 1, 1.2], gap="small")
+
+with c1:
+    st.markdown("<div class='lbl'>Peso (kg) <span class='unc'>— considerando di default un'incertezza di ±3</span></div>", unsafe_allow_html=True)
+    input_w = st.number_input(
+        "Peso (kg):",
+        value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f",
         label_visibility="collapsed",
+        key="peso"
     )
 
-    # Info incertezze di default
-    st.markdown(
-        "<div style='font-size:0.82rem; color:#444; "
-        "padding:4px 6px; border-left:3px solid #bbb; background:#f7f7f7; margin:6px 0;'>"
-        "⚖️ Incertezze di default: ±1 °C (T. ambientale media), ±0.10 (FC), ±3 kg (Peso)"
-        "</div>",
-        unsafe_allow_html=True
+with c2:
+    st.markdown("<div class='lbl'>T. ambientale media (°C) <span class='unc'>— considerando di default un'incertezza di ±1</span></div>", unsafe_allow_html=True)
+    input_ta = st.number_input(
+        "T. ambientale media (°C):",
+        value=st.session_state.get("ta_base_val", 20.0),
+        step=0.1, format="%.1f",
+        label_visibility="collapsed",
+        key="ta_base_val"
     )
 
-    # Tre colonne: Peso, TA, FC
-    c1, c2, c3 = st.columns([1, 1, 1.2], gap="small")
-
-    with c1:
-        st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
-        input_w = st.number_input(
-            "Peso (kg):",
-            value=st.session_state.get("peso", 70.0),
-            step=1.0, format="%.1f",
-            label_visibility="collapsed",
-            key="peso"
-        )
-
-    with c2:
-        st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-        input_ta = st.number_input(
-            "T. ambientale media (°C):",
-            value=st.session_state.get("ta_base_val", 20.0),
-            step=0.1, format="%.1f",
-            label_visibility="collapsed",
-            key="ta_base_val"
-        )
-
-    with c3:
-        st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        fattore_correzione = st.number_input(
-            "Fattore di correzione (FC):",
-            value=st.session_state.get("fattore_correzione", 1.0),
-            step=0.01, format="%.2f",
-            label_visibility="collapsed",
-            key="fattore_correzione"
-        )
-        st.toggle(
-            "Suggerisci FC",
-            value=st.session_state.get("toggle_fattore_inline_mobile", False),
-            key="toggle_fattore_inline_mobile",
-        )
-        st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
+with c3:
+    st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— considerando di default un'incertezza di ±0.10</span></div>", unsafe_allow_html=True)
+    fattore_correzione = st.number_input(
+        "Fattore di correzione (FC):",
+        value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.01, format="%.2f",
+        label_visibility="collapsed",
+        key="fattore_correzione"
+    )
+    st.toggle(
+        "Suggerisci FC",
+        value=st.session_state.get("toggle_fattore_inline_mobile", False),
+        key="toggle_fattore_inline_mobile",
+    )
+    st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 # ---------------------------
 # Pannello “Suggerisci FC”
