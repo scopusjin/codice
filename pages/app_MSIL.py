@@ -303,9 +303,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     )
 
     superficie_display_selected = "/"
-    if stato_corpo == "Asciutto":
-        nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.cop_pesanti == 0))
+        nudo_eff = (
+            (not toggle_vestito)
+            or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        )
+
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
             options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
