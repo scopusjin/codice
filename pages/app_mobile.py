@@ -300,57 +300,20 @@ if st.session_state.get("toggle_fattore", False):
         )
 
 # ---------------------------
-# Delta fissi SOLO mobile
-# ---------------------------
-# Applicati internamente, nessuna UI aggiuntiva.
-st.session_state["stima_cautelativa_beta"] = True             # sempre prudente
-st.session_state["range_unico_beta"] = True
-st.session_state["ta_range_toggle_beta"] = True
-
-# TA ±1.0 °C
-ta_center = float(st.session_state.get("ta_base_val", 20.0))
-st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
-st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
-
-# FC ±0.10
-fc_center = float(st.session_state.get("fattore_correzione", 1.0))
-st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
-st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
-
-# Peso ±3 kg
-st.session_state["peso_stimato_beta"] = True
-# Delta fissi SOLO mobile
-st.session_state["stima_cautelativa_beta"] = True
-st.session_state["range_unico_beta"] = True
-st.session_state["ta_range_toggle_beta"] = True
-
-ta_center = float(st.session_state.get("ta_base_val", 20.0))
-fc_center = float(st.session_state.get("fattore_correzione", 1.0))
-
-st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
-st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
-st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
-st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
-st.session_state["peso_stimato_beta"] = True
-# — Fix: inizializzazioni per cautelativa —
-# range e pesi sempre attivi in mobile
+# --- Delta fissi SOLO mobile (una sola volta, prima del bottone) ---
 st.session_state["stima_cautelativa_beta"] = True
 st.session_state["range_unico_beta"] = True
 st.session_state["ta_range_toggle_beta"] = True
 st.session_state["fc_manual_range_beta"] = True
-
-# default strutture usate nel backend
 st.session_state.setdefault("fc_suggested_vals", [])
 
-# centra TA/FC e applica i delta fissi
 ta_center = float(st.session_state.get("ta_base_val", 20.0))
 fc_center = float(st.session_state.get("fattore_correzione", 1.0))
+
 st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
 st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
 st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
 st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
-
-# peso stimato ±3 kg
 st.session_state["peso_stimato_beta"] = True
 
 # ---------------------------
