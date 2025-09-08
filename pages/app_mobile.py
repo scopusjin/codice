@@ -145,14 +145,14 @@ with st.container(border=True):
     with c3:
         st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
         fattore_correzione = st.number_input(
-            "Fattore di correzione (FC):",
+            "Fattore di correzione:",
             value=st.session_state.get("fattore_correzione", 1.0),
-            step=0.01, format="%.2f",
+            step=0.1, format="%.2f",
             label_visibility="collapsed",
             key="fattore_correzione"
         )
         st.toggle(
-            "Suggerisci FC",
+            "Suggerisci fattore di correzione",
             value=st.session_state.get("toggle_fattore_inline_mobile", False),
             key="toggle_fattore_inline_mobile",
         )
@@ -185,7 +185,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     # Stato corpo
     stato_label = st.radio(
         "Stato del corpo",
-        ["Corpo asciutto", "Bagnato", "Immerso"],
+        ["Asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo")
     )
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
