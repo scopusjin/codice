@@ -107,7 +107,7 @@ st.markdown("""
 c1, c2, c3 = st.columns([1, 1, 1.2], gap="small")
 
 with c1:
-    st.markdown("<div class='lbl'>Peso (kg) <span class='unc'>— considerando di default un'incertezza di ±3</span></div>", unsafe_allow_html=True)
+    st.markdown("<div class='lbl'>Peso (kg) <span class='unc'>— incertezza di ±3</span></div>", unsafe_allow_html=True)
     input_w = st.number_input(
         "Peso (kg):",
         value=st.session_state.get("peso", 70.0),
@@ -117,7 +117,7 @@ with c1:
     )
 
 with c2:
-    st.markdown("<div class='lbl'>T. ambientale media (°C) <span class='unc'>— considerando di default un'incertezza di ±1</span></div>", unsafe_allow_html=True)
+    st.markdown("<div class='lbl'>T. ambientale media (°C) <span class='unc'>— incertezza di ±1</span></div>", unsafe_allow_html=True)
     input_ta = st.number_input(
         "T. ambientale media (°C):",
         value=st.session_state.get("ta_base_val", 20.0),
@@ -127,7 +127,7 @@ with c2:
     )
 
 with c3:
-    st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— considerando di default un'incertezza di ±0.10</span></div>", unsafe_allow_html=True)
+    st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— incertezza di ±0.10</span></div>", unsafe_allow_html=True)
     fattore_correzione = st.number_input(
         "Fattore di correzione (FC):",
         value=st.session_state.get("fattore_correzione", 1.0),
