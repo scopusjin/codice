@@ -193,7 +193,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         ["Asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo")
     )
-    stato_corpo = stato_label  # già pronto
+    stato_corpo = stato_label  # mapping diretto
 
     # Caso Immerso
     if stato_corpo == "Immerso":
@@ -346,12 +346,12 @@ st.session_state["peso_stimato_beta"] = True
 # Toggle avvisi + bottone + output persistente
 # ------------------------------------------------------------
 with st.container(border=True):
-    show_avvisi = st.toggle(
+    st.toggle(
         "Mostra avvisi",
-        value=st.session_state["show_avvisi"],
+        value=st.session_state.get("show_avvisi", True),
         key="show_avvisi"
     )
-    st.session_state["show_avvisi"] = show_avvisi
+# Non riassegnare manualmente la stessa key qui.
 
 # Clic: memorizza intenzione di mostrare i risultati
 if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
