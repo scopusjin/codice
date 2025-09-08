@@ -303,6 +303,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     )
 
     superficie_display_selected = "/"
+    if stato_corpo == "Asciutto":
         nudo_eff = (
             (not toggle_vestito)
             or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
@@ -320,6 +321,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             index=options_display.index(prev_display),
             key=k("superficie_display_sel")
         )
+
 
     correnti_presenti = False
     with corr_placeholder.container():
