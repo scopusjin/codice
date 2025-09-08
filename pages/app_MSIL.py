@@ -13,7 +13,7 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 # Config + stato persistente
 # ------------------------------------------------------------
-st.set_page_config(page_title="Stima epoca decesso MSIL", layout="centered")
+st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
 if "run_stima_mobile" not in st.session_state:
     st.session_state["run_stima_mobile"] = False
@@ -350,7 +350,20 @@ if st.session_state.get("toggle_fattore", False):
             peso_default=st.session_state.get("peso", 70.0),
             key_prefix="fcpanel_mobile"
         )
-
+# --- Firma degli input (mobile) ---
+def _inputs_signature_mobile():
+    return (
+        bool(st.session_state.get("usa_orario_custom", False)),
+        str(st.session_state.get("input_data_rilievo")),
+        str(st.session_state.get("input_ora_rilievo")),
+        st.session_state.get("selettore_macchie_mobile"),   # label scelta nel select mobile
+        st.session_state.get("selettore_rigidita_mobile"),  # label scelta nel select mobile
+        float(st.session_state.get("rt_val", 0.0)),
+        float(st.session_state.get("ta_base_val", 0.0)),
+        float(st.session_state.get("peso", 0.0)),
+        float(st.session_state.get("fattore_correzione", 0.0)),
+    )
+    
 # ------------------------------------------------------------
 # Delta fissi SOLO mobile (una volta, prima del bottone)
 # ------------------------------------------------------------
@@ -369,27 +382,44 @@ st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
 st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
 st.session_state["peso_stimato_beta"] = True
 
+# --- Calcolo firma corrente ---
+curr_sig = _inputs_signature_mobile()
+if "last_run_sig_mobile" not in st.session_state:
+    st.session_state["last_run_sig_mobile"] = curr_sig
+    
 # ------------------------------------------------------------
-# Toggle avvisi + bottone + output persistente
+# # ------------------------------------------------------------
+# Toggle avvisi (invariato)
 # ------------------------------------------------------------
+with st.container(border=True):
+    st.toggle(
+        "Mostra avvisi",
+        value=st.session_state.get("show_avvisi", True),
+        key="show_avvisi"
+    )
 
-# Non riassegnare manualmente la stessa key qui.
-
-# Clic: memorizza intenzione di mostrare i risultati
+# ------------------------------------------------------------
+# Bottone e logica di invalidazione output
+# ------------------------------------------------------------
 if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
     st.session_state["run_stima_mobile"] = True
+    st.session_state["last_run_sig_mobile"] = curr_sig
 
-# Mostra/ricalcola anche dopo i rerun (es. tocco del toggle)
+# Se gli input cambiano, nascondi i risultati finché non si preme di nuovo
+if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_sig_mobile") != curr_sig:
+    st.session_state["run_stima_mobile"] = False
+
+# Mostra risultati solo se firma invariata dopo l'ultimo click
 if st.session_state.get("run_stima_mobile"):
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
         input_rt=input_rt,
         input_ta=input_ta,
-        input_tm=37.2,  # fisso default
+        input_tm=37.2,
         input_w=input_w,
         fattore_correzione=st.session_state["fattore_correzione"],
-        widgets_parametri_aggiuntivi={},           # nessun parametro extra in mobile
+        widgets_parametri_aggiuntivi={},
         usa_orario_custom=st.session_state["usa_orario_custom"],
         input_data_rilievo=st.session_state["input_data_rilievo"],
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
