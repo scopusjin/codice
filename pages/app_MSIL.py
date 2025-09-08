@@ -388,15 +388,6 @@ if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
     
 # ------------------------------------------------------------
-# # ------------------------------------------------------------
-# Toggle avvisi (invariato)
-# ------------------------------------------------------------
-with st.container(border=True):
-    st.toggle(
-        "Mostra avvisi",
-        value=st.session_state.get("show_avvisi", True),
-        key="show_avvisi"
-    )
 
 # ------------------------------------------------------------
 # Bottone e logica di invalidazione output
