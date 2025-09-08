@@ -1,14 +1,55 @@
 # pages/app_mobile.py
-import streamlit as st
+# -*- coding: utf-8 -*-
 import datetime
+import streamlit as st
+
 from app.parameters import opzioni_macchie, opzioni_rigidita
 from app.graphing import aggiorna_grafico
+from app.data_sources import load_tabelle_correzione
+from app.factor_calc import (
+    DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte
+)
 
+# ---------------------------
+# Config
+# ---------------------------
 st.set_page_config(page_title="Mor-tem Mobile", layout="centered")
 
-st.markdown("## Stima epoca decesso (mobile)")
+st.markdown("## Stima epoca decesso — mobile")
 
-# --- Data/Ora ispezione ---
+# ---------------------------
+# Helpers UI
+# ---------------------------
+def _fc_palette():
+    base = st.get_option("theme.base") or "light"
+    return dict(
+        bg=("#0d2a47" if base.lower() == "dark" else "#e8f0fe"),
+        text=("#d6e9ff" if base.lower() == "dark" else "#0d47a1"),
+        border="#1976d2",
+        note=("#a7c7ff" if base.lower() == "dark" else "#3f6fb5"),
+    )
+
+def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
+    pal = _fc_palette()
+    main = (
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:8px;'
+        f'padding:10px;font-weight:600;">'
+        f'Fattore di correzione suggerito: {f_finale:.2f}'
+        f'</div>'
+    )
+    side = ""
+    if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
+        side = (
+            f'<div style="color:{pal["note"]};padding:8px 2px 0 2px;font-size:0.92em;">'
+            f'Valore per 70 kg: {f_base:.2f} • Adattato per {peso_corrente:.1f} kg'
+            f'</div>'
+        )
+    st.markdown(main + side, unsafe_allow_html=True)
+
+# ---------------------------
+# Data/Ora ispezione
+# ---------------------------
 with st.container(border=True):
     usa_orario_custom = st.toggle(
         "Aggiungi data/ora rilievi tanatologici",
@@ -16,90 +57,272 @@ with st.container(border=True):
         key="usa_orario_custom",
     )
     if usa_orario_custom:
-        col1, col2 = st.columns(2, gap="small")
-        with col1:
+        c1, c2 = st.columns(2, gap="small")
+        with c1:
             input_data_rilievo = st.date_input(
                 "Data ispezione legale:",
                 value=st.session_state.get("input_data_rilievo") or datetime.date.today(),
                 key="input_data_rilievo_widget",
-                label_visibility="collapsed",
             )
             st.session_state["input_data_rilievo"] = input_data_rilievo
-        with col2:
+        with c2:
             input_ora_rilievo = st.text_input(
                 "Ora ispezione legale (HH:MM):",
                 value=st.session_state.get("input_ora_rilievo") or "00:00",
                 key="input_ora_rilievo_widget",
-                label_visibility="collapsed",
             )
             st.session_state["input_ora_rilievo"] = input_ora_rilievo
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
 
-# --- Ipostasi e rigidità ---
+# ---------------------------
+# Ipostasi e rigidità
+# ---------------------------
 with st.container(border=True):
-    col1, col2 = st.columns(2, gap="small")
-    with col1:
+    c1, c2 = st.columns(2, gap="small")
+    with c1:
         selettore_macchie = st.selectbox(
             "Macchie ipostatiche:",
             options=list(opzioni_macchie.keys()),
             key="selettore_macchie",
-            label_visibility="collapsed",
         )
-    with col2:
+    with c2:
         selettore_rigidita = st.selectbox(
             "Rigidità cadaverica:",
             options=list(opzioni_rigidita.keys()),
             key="selettore_rigidita",
-            label_visibility="collapsed",
         )
 
-# --- Temperature e peso ---
+# ---------------------------
+# Temperature e peso
+# ---------------------------
 with st.container(border=True):
-    col1, col2, col3 = st.columns([1, 1, 1.3], gap="small")
-    with col1:
+    c1, c2, c3 = st.columns([1, 1, 1.3], gap="small")
+    with c1:
         input_rt = st.number_input(
             "T. rettale (°C):",
             value=st.session_state.get("rt_val", 35.0),
             step=0.1, format="%.1f",
             key="rt_val",
-            label_visibility="collapsed",
         )
-    with col2:
+    with c2:
         input_ta = st.number_input(
             "T. ambientale media (°C):",
             value=st.session_state.get("ta_base_val", 20.0),
             step=0.1, format="%.1f",
             key="ta_base_val",
-            label_visibility="collapsed",
         )
-    with col3:
+    with c3:
         input_w = st.number_input(
             "Peso (kg):",
             value=st.session_state.get("peso", 70.0),
             step=1.0, format="%.1f",
             key="peso",
-            label_visibility="collapsed",
         )
 
-# --- Fattore di correzione (singolo) ---
+# ---------------------------
+# Fattore di correzione
+# ---------------------------
 with st.container(border=True):
     fattore_correzione = st.number_input(
         "Fattore di correzione (FC):",
         value=st.session_state.get("fattore_correzione", 1.0),
         step=0.01, format="%.2f",
         key="fattore_correzione",
-        label_visibility="collapsed",
     )
     st.toggle(
         "Suggerisci FC",
-        value=st.session_state.get("toggle_fattore_inline", False),
-        key="toggle_fattore_inline",
+        value=st.session_state.get("toggle_fattore_inline_mobile", False),
+        key="toggle_fattore_inline_mobile",
     )
-    st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline"]
+    st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# --- Bottone e output ---
+# ---------------------------
+# Pannello “Suggerisci FC”
+# ---------------------------
+def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
+    def k(name: str) -> str:
+        return f"{key_prefix}_{name}"
+
+    def _apply_fc(val: float, riass: str | None) -> None:
+        st.session_state["fattore_correzione"] = round(float(val), 2)
+        st.session_state["fattori_condizioni_parentetica"] = None
+        st.session_state["fattori_condizioni_testo"] = None
+        st.session_state["toggle_fattore"] = False
+        st.session_state["fc_riassunto_contatori"] = riass
+
+    st.markdown("""
+        <style>
+          div[data-testid="stRadio"] > label {display:none !important;}
+          div[data-testid="stRadio"] {margin-top:-6px; margin-bottom:-6px;}
+          div[data-testid="stRadio"] div[role="radiogroup"] {gap:0.4rem;}
+          div[data-testid="stToggle"] {margin-top:-6px; margin-bottom:-6px;}
+          div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Stato corpo
+    stato_label = st.radio(
+        "Stato del corpo",
+        ["Corpo asciutto", "Bagnato", "Immerso"],
+        index=0, horizontal=True, key=k("radio_stato_corpo")
+    )
+    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
+
+    # Caso Immerso
+    if stato_corpo == "Immerso":
+        acqua_label = st.radio(
+            "Condizione in acqua",
+            ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key=k("radio_acqua")
+        )
+        acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
+
+        try:
+            tabella2 = load_tabelle_correzione()
+        except Exception:
+            tabella2 = None
+
+        result = compute_factor(
+            stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
+            superficie_display=None, correnti_aria=False,
+            peso=float(st.session_state.get("peso", peso_default)),
+            tabella2_df=tabella2
+        )
+        _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
+
+        st.button("✅ Usa questo fattore", on_click=_apply_fc,
+                  args=(result.fattore_finale, result.riassunto),
+                  use_container_width=True, key=k("btn_usa_fc_imm"))
+        return
+
+    # Asciutto / Bagnato
+    col_corr, col_vest = st.columns([1.0, 1.3])
+    with col_corr:
+        corr_placeholder = st.empty()
+    with col_vest:
+        toggle_vestito = st.toggle(
+            "Vestito/coperto?",
+            value=st.session_state.get(k("toggle_vestito"), False),
+            key=k("toggle_vestito")
+        )
+
+    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
+    if toggle_vestito:
+        import pandas as pd
+        defaults = {
+            "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
+            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
+        }
+        if stato_corpo == "Asciutto":
+            defaults.update({
+                "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
+                "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
+            })
+
+        rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
+        df = pd.DataFrame(rows)
+        edited = st.data_editor(
+            df, hide_index=True, use_container_width=True,
+            column_config={
+                "Voce": st.column_config.TextColumn(disabled=True, width="medium"),
+                "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
+            },
+        )
+        vals = {r["Voce"]: int(r["Numero?"] or 0) for _, r in edited.iterrows()}
+        n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
+        n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
+        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
+
+    counts = DressCounts(
+        sottili=n_sottili, spessi=n_spessi,
+        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+    )
+
+    superficie_display_selected = "/"
+    if stato_corpo == "Asciutto":
+        nudo_eff = ((not toggle_vestito)
+                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
+        options_display = SURF_DISPLAY_ORDER.copy()
+        if not nudo_eff:
+            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+        prev_display = st.session_state.get(k("superficie_display_sel"))
+        if prev_display not in options_display:
+            prev_display = options_display[0]
+        superficie_display_selected = st.selectbox(
+            "Superficie di appoggio",
+            options_display,
+            index=options_display.index(prev_display),
+            key=k("superficie_display_sel")
+        )
+
+    correnti_presenti = False
+    with corr_placeholder.container():
+        mostra_correnti = True
+        if stato_corpo == "Asciutto":
+            f_vc = fattore_vestiti_coperte(counts)
+            if f_vc >= 1.2:
+                mostra_correnti = False
+        if mostra_correnti:
+            correnti_presenti = st.toggle(
+                "Correnti d'aria presenti?",
+                value=st.session_state.get(k("toggle_correnti_fc"), False),
+                key=k("toggle_correnti_fc"),
+                disabled=False
+            )
+
+    try:
+        tabella2 = load_tabelle_correzione()
+    except Exception:
+        tabella2 = None
+
+    result = compute_factor(
+        stato=stato_corpo, acqua=None, counts=counts,
+        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
+        correnti_aria=correnti_presenti,
+        peso=float(st.session_state.get("peso", peso_default)),
+        tabella2_df=tabella2
+    )
+    _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
+
+    st.button("✅ Usa questo fattore", on_click=_apply_fc,
+              args=(result.fattore_finale, result.riassunto),
+              use_container_width=True, key=k("btn_usa_fc"))
+
+# Toggle pannello
+if st.session_state.get("toggle_fattore", False):
+    with st.container(border=True):
+        pannello_suggerisci_fc_mobile(
+            peso_default=st.session_state.get("peso", 70.0),
+            key_prefix="fcpanel_mobile"
+        )
+
+# ---------------------------
+# Delta fissi SOLO mobile
+# ---------------------------
+# Applicati internamente, nessuna UI aggiuntiva.
+st.session_state["stima_cautelativa_beta"] = True             # sempre prudente
+st.session_state["range_unico_beta"] = True
+st.session_state["ta_range_toggle_beta"] = True
+
+# TA ±1.0 °C
+ta_center = float(st.session_state.get("ta_base_val", 20.0))
+st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
+st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
+
+# FC ±0.10
+fc_center = float(st.session_state.get("fattore_correzione", 1.0))
+st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
+st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+
+# Peso ±3 kg
+st.session_state["peso_stimato_beta"] = True
+
+# ---------------------------
+# Bottone e output
+# ---------------------------
 if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
@@ -109,10 +332,10 @@ if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
         input_tm=37.2,  # fisso default
         input_w=input_w,
         fattore_correzione=st.session_state["fattore_correzione"],
-        widgets_parametri_aggiuntivi={},  # no extra
+        widgets_parametri_aggiuntivi={},           # nessun parametro extra in mobile
         usa_orario_custom=st.session_state["usa_orario_custom"],
         input_data_rilievo=st.session_state["input_data_rilievo"],
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
     )
-  
+    
