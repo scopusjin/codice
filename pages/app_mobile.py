@@ -179,7 +179,7 @@ with st.container(border=True):
         fattore_correzione = st.number_input(
             "Fattore di correzione (FC):",
             value=st.session_state.get("fattore_correzione", 1.0),
-            step=0.01, format="%.2f",
+            step=0.1, format="%.2f",
             label_visibility="collapsed",
             key="fattore_correzione"
         )
