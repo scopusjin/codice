@@ -345,12 +345,7 @@ st.session_state["peso_stimato_beta"] = True
 # ------------------------------------------------------------
 # Toggle avvisi + bottone + output persistente
 # ------------------------------------------------------------
-with st.container(border=True):
-    st.toggle(
-        "Mostra avvisi",
-        value=st.session_state.get("show_avvisi", True),
-        key="show_avvisi"
-    )
+
 # Non riassegnare manualmente la stessa key qui.
 
 # Clic: memorizza intenzione di mostrare i risultati
