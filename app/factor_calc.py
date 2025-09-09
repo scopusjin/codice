@@ -43,11 +43,11 @@ SURF_FOGLIS = "FOGLIE_SECCHE"
 
 SURF_DISPLAY_TO_KEY = {
     "Pavimento di casa, piano in legno.": SURF_INDIFF,
-    "Terreno, prato o asfalto asciutti": SURF_INDIFF,
+    "Asfalto, terreno o prato asciutti": SURF_INDIFF,
     "Materasso o tappeto spesso": SURF_ISOL,
     "Divano imbottito, sacco a pelo tecnico, polistirolo": SURF_MOLTOI,
     "Cemento, pietra, PVC": SURF_COND,
-    "Pavimentazione fredda (all’esterno, in cantina…)": SURF_COND,
+    "Pavimento freddo (all'aperto, in cantina…)": SURF_COND,
     "Piano metallico (in ambiente interno)": SURF_COND,
     "Superficie metallica spessa (all’aperto)": SURF_MOLTOC,
     "Strato di foglie umide (≥2 cm)": SURF_FOGLIU,
@@ -56,11 +56,11 @@ SURF_DISPLAY_TO_KEY = {
 
 SURF_DISPLAY_ORDER = [
     "Pavimento di casa, piano in legno.",
-    "Terreno, prato o asfalto asciutti",
+    "Asfalto, terreno o prato asciutti",
     "Materasso o tappeto spesso",
     "Divano imbottito, sacco a pelo tecnico, polistirolo",
     "Cemento, pietra, PVC",
-    "Pavimentazione fredda (all’esterno, in cantina…)",
+    "Pavimento freddo (all'aperto, in cantina…)",
     "Piano metallico (in ambiente interno)",
     "Superficie metallica spessa (all’aperto)",
     "Strato di foglie umide (≥2 cm)",
