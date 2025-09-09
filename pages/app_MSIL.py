@@ -285,11 +285,14 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
 
-        # CSS per nascondere la riga di intestazione
+        # CSS per nascondere intestazioni, toolbar e indice
         st.markdown(
             """
             <style>
-            thead tr th {display:none}
+            div[data-testid="stDataEditor"] thead {display:none !important;}
+            div[data-testid="stDataEditor"] [role="columnheader"] {display:none !important;}
+            div[data-testid="stDataEditor"] .column-header {display:none !important;}
+            [data-testid="stElementToolbar"] {display:none !important;}
             </style>
             """,
             unsafe_allow_html=True
