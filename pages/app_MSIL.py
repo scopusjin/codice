@@ -205,6 +205,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         st.session_state["fattori_condizioni_testo"] = None
         st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
+        st.session_state["toggle_fattore"] = False
+        st.session_state["toggle_fattore_inline_mobile"] = False
 
     # funzione di conversione sicura
     def _safe_int(x):
