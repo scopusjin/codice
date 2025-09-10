@@ -19,6 +19,6 @@ if qp.get("mode") == ["desktop"]:
 
 # Carica l'app corretta
 if is_mobile:
-    exec(open("app_mobile.py", "r", encoding="utf-8").read(), {})
+    exec(open("App_MSIL.py", "r", encoding="utf-8").read(), {})
 else:
-    exec(open("app.py", "r", encoding="utf-8").read(), {})
+    exec(open("Stima_epoca_decesso.py", "r", encoding="utf-8").read(), {})
