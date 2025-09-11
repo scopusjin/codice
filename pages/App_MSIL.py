@@ -106,7 +106,7 @@ _RIGIDITA_MOBILE = {
     "Completa e massima": "Presente, intenso e generalizzato",
     "In risoluzione": "In via di risoluzione",
     "Risolta": "Risolto",
-    "/": "Non valutata",  # usato anche per Non valutabile
+    "/": "Non valutata/Non attendibile", 
 }
 
 with st.container(border=True):
