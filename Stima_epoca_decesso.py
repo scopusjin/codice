@@ -354,18 +354,37 @@ with st.container(border=True):
 
         with fc_c1:
             if range_unico:
-                st.number_input("FC min", step=0.01, format="%.2f", key="fc_min_val", label_visibility="collapsed")
+                st.number_input(
+                    "FC min",
+                    step=0.01, format="%.2f",
+                    key="fc_min_val",
+                    label_visibility="collapsed"
+                )
             else:
-                st.number_input("FC", step=0.01, format="%.2f", key="fattore_correzione", label_visibility="collapsed")
+                st.number_input(
+                    "FC",
+                    step=0.01, format="%.2f",
+                    key="fattore_correzione",
+                    label_visibility="collapsed"
+                )
                 if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
                     st.session_state.pop("FC_min_beta", None)
                     st.session_state.pop("FC_max_beta", None)
 
         with fc_c2:
             if range_unico:
-                st.number_input("FC max", step=0.01, format="%.2f", key="fc_other_val", label_visibility="collapsed")
-                lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
-                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                st.number_input(
+                    "FC max",
+                    step=0.01, format="%.2f",
+                    key="fc_other_val",
+                    label_visibility="collapsed"
+                )
+                lo_fc, hi_fc = sorted([
+                    float(st.session_state["fc_min_val"]),
+                    float(st.session_state["fc_other_val"])
+                ])
+                st.session_state["FC_min_beta"] = lo_fc
+                st.session_state["FC_max_beta"] = hi_fc
                 st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
             else:
                 st.empty()
