@@ -786,16 +786,4 @@ if st.session_state["show_results"]:
         input_data_rilievo=st.session_state.get("input_data_rilievo"),
         input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
-
-        # --- parametri modalità cautelativa ---
-        stima_cautelativa=st.session_state.get("stima_cautelativa_beta", False),
-        range_unico=st.session_state.get("range_unico_beta", False),
-        ta_min=st.session_state.get("Ta_min_beta"),
-        ta_max=st.session_state.get("Ta_max_beta"),
-        fc_min=st.session_state.get("FC_min_beta"),
-        fc_max=st.session_state.get("FC_max_beta"),
-        peso_stimato=st.session_state.get("peso_stimato_beta", False),
-        fc_suggested_vals=tuple(sorted(st.session_state.get("fc_suggested_vals", []))),
     )
-
-
