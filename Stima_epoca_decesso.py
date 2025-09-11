@@ -147,30 +147,36 @@ def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({round(float(v), 2) for v in vals})
     if not vals:
-        for k in ("FC_min_beta","FC_max_beta","fc_min_val","fc_other_val"):
+        # NON cancellare i widget dei number_input
+        for k in ("FC_min_beta", "FC_max_beta"):
             st.session_state.pop(k, None)
         st.session_state["fc_manual_range_beta"] = False
+
+        # se il range è attivo, assicurati di avere seed coerenti
+        if st.session_state.get("range_unico_beta", False):
+            fc0 = float(st.session_state.get("fattore_correzione", 1.0))
+            st.session_state.setdefault("fc_min_val", round(fc0 - 0.10, 2))
+            st.session_state.setdefault("fc_other_val", round(fc0 + 0.10, 2))
         return
 
-    lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals)==1 else (vals[0], vals[-1])
+    lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals) == 1 else (vals[0], vals[-1])
     lo, hi = round(lo, 2), round(hi, 2)
 
     # Range “beta”
     st.session_state["FC_min_beta"] = lo
     st.session_state["FC_max_beta"] = hi
 
-    # ⚠️ Sincronizza i widget visibili
+    # ⚠️ Sincronizza i widget visibili ma senza azzeramenti
     st.session_state["fc_min_val"]  = lo
     st.session_state["fc_other_val"] = hi
 
-    # Valore medio per FC singolo
-    st.session_state["fattore_correzione"] = round((lo+hi)/2.0, 2)
+    # Valore medio utile altrove
+    st.session_state["fattore_correzione"] = round((lo + hi) / 2.0, 2)
 
     # Forza modalità range
     st.session_state["fc_manual_range_beta"] = True
     st.session_state["range_unico_beta"] = True
     st.session_state["ta_range_toggle_beta"] = True
-
 
 def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
