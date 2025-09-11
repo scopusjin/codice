@@ -45,3 +45,25 @@ st.image(
     caption="Tabella 3 Henssge",
     use_container_width=True
 )
+if st.button("⬅️ Torna alla pagina principale", key="back_home"):
+    st.switch_page("app.py")
+
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        background-color: transparent !important;
+        color: #1e90ff !important;
+        font-size: 10px !important;  /* più piccolo del normale */
+        border: none !important;
+        padding: 0 !important;
+        text-align: left !important;
+    }
+    div.stButton > button:first-child:hover {
+        text-decoration: underline !important;
+        background-color: transparent !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)

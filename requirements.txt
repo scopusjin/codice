@@ -3,3 +3,4 @@ matplotlib
 numpy
 scipy
 components
+openpyxl>=3.1
