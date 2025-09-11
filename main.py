@@ -1,36 +1,44 @@
 # main.py
 import streamlit as st
-import streamlit.components.v1 as components
 
-# 1) Leggi override manuale
-mode = st.query_params.get("mode")  # "mobile" | "desktop" | None
+# Leggi/scrivi query params in modo compatibile
+def get_mode():
+    try:
+        return st.query_params.get("mode")
+    except Exception:
+        # fallback per versioni vecchie
+        return None
 
-# 2) Se assente, rileva via JS e reindirizza aggiungendo ?mode=...
-if mode is None:
-    components.html(
-        """
-        <script>
-        (function () {
-          const ua = navigator.userAgent || "";
-          const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-          const small = Math.min(screen.width, screen.height) <= 820 || window.innerWidth <= 820;
-          const isMobile = mobileUA || small;
-          const url = new URL(window.location.href);
-          if (!url.searchParams.get('mode')) {
-            url.searchParams.set('mode', isMobile ? 'mobile' : 'desktop');
-            window.location.replace(url.toString());
-          }
-        })();
-        </script>
-        """,
-        height=0,
-    )
+def set_mode(val: str):
+    try:
+        st.query_params["mode"] = val
+    except Exception:
+        st.experimental_set_query_params(mode=val)  # fallback
+
+mode = get_mode()
+
+st.title("Seleziona interfaccia")
+col1, col2 = st.columns(2)
+
+if mode not in {"mobile", "desktop"}:
+    with col1:
+        if st.button("Apri versione Mobile"):
+            set_mode("mobile")
+            st.rerun()
+    with col2:
+        if st.button("Apri versione Desktop"):
+            set_mode("desktop")
+            st.rerun()
+    st.info("Oppure usa ?mode=mobile o ?mode=desktop nell’URL.")
     st.stop()
 
-# 3) Carica l’app corretta
+# Carica l’app selezionata
 is_mobile = (mode == "mobile")
-if is_mobile:
-    exec(open("App_MSIL.py", "r", encoding="utf-8").read(), {})
-else:
-    exec(open("Stima_epoca_decesso.py", "r", encoding="utf-8").read(), {})
-    
+file_to_run = "App_MSIL.py" if is_mobile else "Stima_epoca_decesso.py"
+
+# Mostra quale file stai aprendo, così vedi che funziona
+st.caption(f"Caricamento: {file_to_run} (mode={mode})")
+
+with open(file_to_run, "r", encoding="utf-8") as f:
+    code = f.read()
+exec(code, {})
