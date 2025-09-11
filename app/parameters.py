@@ -84,24 +84,24 @@ testi_macchie = {
 
 # --- Rigidità cadaverica ---
 opzioni_rigidita = {
-    "Non valutate": None,  # default
+    "Non valutata": None,  # default
     "Non ancora apprezzabile": (0, 7),  # rinomina di "Non ancora comparsa"
     "Presente e in via di intensificazione e generalizzazione": (0.5, 20),  # rinomina
-    "Presente, intenso e generalizzato": (2, 96),  # rinomina
+    "Presente, intensa e generalizzata": (2, 96),  # rinomina
     "In via di risoluzione": (24, 192),
-    "Risolto": (24, INF_HOURS),  # rinomina di "Ormai risolta"
+    "Risolta": (24, INF_HOURS),  # rinomina di "Ormai risolta"
     "Non valutabile/Non attendibile": None,
 }
 rigidita_medi = {
-    "Non valutate": None,
+    "Non valutata": None,
     "Non ancora apprezzabile": (0, 3),
     "Presente e in via di intensificazione e generalizzazione": (2, 10),
-    "Presente, intenso e generalizzato": (10, 85),
+    "Presente, intensa e generalizzata": (10, 85),
     "In via di risoluzione": (29, 140),
-    "Risolto": (76, INF_HOURS),
+    "Risolta": (76, INF_HOURS),
 }
 rigidita_descrizioni = {
-    "Non valutate": (
+    "Non valutata": (
         "La rigidità cadaverica non è stata valutata."
     ),
     "Non ancora apprezzabile": (
@@ -115,7 +115,7 @@ rigidita_descrizioni = {
         "fossero trascorsi almeno 30 minuti dal decesso ma meno di 20 ore da esso (generalmente la formazione della rigidità "
         "si completa in 6-10 ore)."
     ),
-    "Presente, intenso e generalizzato": (
+    "Presente, intensa e generalizzata": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse presente e generalizzata. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 2 ore "
         "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità persiste sino a 29 – 85 ore)."
@@ -126,7 +126,7 @@ rigidita_descrizioni = {
         "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi "
         "dopo 57 ore, cioè dopo 2 giorni e mezzo dal decesso)."
     ),
-    "Risolto": (
+    "Risolta": (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse ormai risolta. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
         "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni)."
