@@ -184,10 +184,9 @@ with st.container(border=True):
         )
 
     with c3:
-        st.markdown("<div class='lbl'>Fattore di correzione (FC) <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
         fattore_correzione = st.number_input(
             "Fattore di correzione (FC):",
-            value=st.session_state.get("fattore_correzione", 1.0),
             step=0.1, format="%.2f",   # step invariato come richiesto
             label_visibility="collapsed",
             key="fattore_correzione"
