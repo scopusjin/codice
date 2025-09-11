@@ -1,9 +1,9 @@
 # pages/app_mobile.py
 # -*- coding: utf-8 -*-
 import datetime
+import pandas as pd
 import streamlit as st
 
-from app.parameters import opzioni_macchie, opzioni_rigidita
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
 from app.factor_calc import (
@@ -80,14 +80,13 @@ with st.container(border=True):
                 value=st.session_state.get("input_ora_rilievo") or "00:00",
                 key="input_ora_rilievo_widget",
             )
+            if not input_ora_rilievo:
+                input_ora_rilievo = "00:00"
             st.session_state["input_ora_rilievo"] = input_ora_rilievo
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
 
-# ------------------------------------------------------------
-# Ipostasi e rigidità
-# ------------------------------------------------------------
 # ------------------------------------------------------------
 # Ipostasi e rigidità (versione mobile semplificata)
 # ------------------------------------------------------------
@@ -114,22 +113,26 @@ with st.container(border=True):
     c1, c2 = st.columns(2, gap="small")
 
     with c1:
+        ipostasi_options = list(_IPOSTASI_MOBILE.keys())
+        ip_default_idx = ipostasi_options.index("/") if "/" in ipostasi_options else 0
         scelta_ipostasi_lbl = st.selectbox(
             "Macchie ipostatiche:",
-            options=list(_IPOSTASI_MOBILE.keys()),
+            options=ipostasi_options,
+            index=ip_default_idx,
             key="selettore_macchie_mobile",
         )
         selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 
     with c2:
+        rigidita_options = list(_RIGIDITA_MOBILE.keys())
+        rg_default_idx = rigidita_options.index("/") if "/" in rigidita_options else 0
         scelta_rigidita_lbl = st.selectbox(
             "Rigidità cadaverica:",
-            options=list(_RIGIDITA_MOBILE.keys()),
+            options=rigidita_options,
+            index=rg_default_idx,
             key="selettore_rigidita_mobile",
         )
         selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
-
-
 # ------------------------------------------------------------
 # Temperature e parametri principali
 # ------------------------------------------------------------
@@ -179,7 +182,7 @@ with st.container(border=True):
         fattore_correzione = st.number_input(
             "Fattore di correzione (FC):",
             value=st.session_state.get("fattore_correzione", 1.0),
-            step=0.1, format="%.2f",
+            step=0.1, format="%.2f",   # step invariato come richiesto
             label_visibility="collapsed",
             key="fattore_correzione"
         )
@@ -193,8 +196,6 @@ with st.container(border=True):
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
-
-
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -203,7 +204,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["fattori_condizioni_parentetica"] = None
         st.session_state["fattori_condizioni_testo"] = None
-        st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
         st.session_state["toggle_fattore"] = False
         st.session_state["toggle_fattore_inline_mobile"] = False
@@ -273,7 +273,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
-        import pandas as pd
         defaults = {
             "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
             "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
@@ -320,7 +319,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
     )
 
-    superficie_display_selected = "/"
+    superficie_display_selected = None
     if stato_corpo == "Asciutto":
         nudo_eff = (
             (not toggle_vestito)
@@ -339,7 +338,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             index=options_display.index(prev_display),
             key=k("superficie_display_sel")
         )
-
 
     correnti_presenti = False
     with corr_placeholder.container():
@@ -382,19 +380,19 @@ if st.session_state.get("toggle_fattore", False):
             key_prefix="fcpanel_mobile"
         )
 # --- Firma degli input (mobile) ---
-def _inputs_signature_mobile():
+def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
         bool(st.session_state.get("usa_orario_custom", False)),
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
-        st.session_state.get("selettore_macchie_mobile"),   # label scelta nel select mobile
-        st.session_state.get("selettore_rigidita_mobile"),  # label scelta nel select mobile
+        selettore_macchie,   # già mappati ai valori interni
+        selettore_rigidita,  # già mappati ai valori interni
         float(st.session_state.get("rt_val", 0.0)),
         float(st.session_state.get("ta_base_val", 0.0)),
         float(st.session_state.get("peso", 0.0)),
         float(st.session_state.get("fattore_correzione", 0.0)),
     )
-    
+
 # ------------------------------------------------------------
 # Delta fissi SOLO mobile (una volta, prima del bottone)
 # ------------------------------------------------------------
@@ -414,11 +412,9 @@ st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
 st.session_state["peso_stimato_beta"] = True
 
 # --- Calcolo firma corrente ---
-curr_sig = _inputs_signature_mobile()
+curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
-    
-# ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # Bottone e logica di invalidazione output
@@ -447,3 +443,4 @@ if st.session_state.get("run_stima_mobile"):
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
     )
+    
