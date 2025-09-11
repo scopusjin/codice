@@ -88,10 +88,7 @@ with st.container(border=True):
         st.session_state["input_ora_rilievo"] = None
 
 # ------------------------------------------------------------
-# Ipostasi e rigidità (versione mobile semplificata)
 # ------------------------------------------------------------
-
-# # ------------------------------------------------------------
 # Ipostasi e rigidità (versione mobile semplificata)
 # ------------------------------------------------------------
 
@@ -137,6 +134,11 @@ with st.container(border=True):
             key="selettore_rigidita_mobile",
         )
         selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
+
+# -------------------------------------------
+# Temperature e parametri principali
+# ------------------------------------------------------------
+
 #------------------------------------------
 # Temperature e parametri principali
 # ------------------------------------------------------------
