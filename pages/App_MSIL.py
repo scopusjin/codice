@@ -137,7 +137,7 @@ with st.container(border=True):
             key="selettore_rigidita_mobile",
         )
         selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
--------------------------------------------
+#------------------------------------------
 # Temperature e parametri principali
 # ------------------------------------------------------------
 with st.container(border=True):
