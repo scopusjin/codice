@@ -104,10 +104,10 @@ _IPOSTASI_MOBILE = {
 _RIGIDITA_MOBILE = {
     "Assente": "Non ancora apprezzabile",
     "Presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
-    "Completa e massima": "Presente, intenso e generalizzato",
+    "Completa e massima": "Presente, intensa e generalizzata",
     "In risoluzione": "In via di risoluzione",
-    "Risolta": "Risolto",
-    "/": "Non valutata/Non attendibile",
+    "Risolta": "Risolta",
+    "/": "Non valutata",
 }
 
 with st.container(border=True):
