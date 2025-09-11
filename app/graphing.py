@@ -56,6 +56,7 @@ def aggiorna_grafico(
     input_data_rilievo: datetime.date | None,
     input_ora_rilievo: str | None,
     alterazioni_putrefattive: bool,
+    **kwargs,
 ):
     avvisi: List[str] = []
     dettagli: List[str] = []
