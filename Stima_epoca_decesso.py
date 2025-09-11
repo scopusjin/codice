@@ -278,17 +278,29 @@ with st.container(border=True):
         range_unico = st.toggle("Specifica range", key="range_unico_beta")
 
         # Etichette dinamiche
-        label_ta = "Range di T. ambientale media (°C):" if range_unico else "T. ambientale media (°C):"
-        label_fc = "Range del fattore di correzione (FC):" if range_unico else "Fattore di correzione (FC):"
-
-        # Seed coerenti per i widget di range, prima del rendering
+        label_ta = "T. ambientale media (°C):" 
+        label_fc = "Fattore di correzione (FC):"
         if range_unico:
-            if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-                st.session_state.setdefault("fc_min_val", float(st.session_state["FC_min_beta"]))
-                st.session_state.setdefault("fc_other_val", float(st.session_state["FC_max_beta"]))
-            st.session_state.setdefault("ta_other_val", st.session_state.get("ta_base_val", 20.0) + 1.0)
+            label_ta = "Range di T. ambientale media (°C):"
+            label_fc = "Range del fattore di correzione (FC):"
+
+        # Seed coerenti per TA e FC
+        if range_unico:
+            # --- TA ---
+            st.session_state.setdefault("ta_base_val", 20.0)
+            st.session_state.setdefault("ta_other_val", float(st.session_state["ta_base_val"]) + 1.0)
+            lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
+            st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+
+            # --- FC ---
+            fc0 = float(st.session_state.get("fattore_correzione", 1.0))
+            st.session_state.setdefault("fc_min_val", round(fc0 - 0.10, 2))
+            st.session_state.setdefault("fc_other_val", round(fc0 + 0.10, 2))
+            lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
+            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+            st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
         else:
-            for k in ("fc_min_val", "fc_other_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"):
+            for k in ("Ta_min_beta", "Ta_max_beta", "FC_min_beta", "FC_max_beta"):
                 st.session_state.pop(k, None)
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
@@ -306,21 +318,35 @@ with st.container(border=True):
                 st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed")
             with pc2:
                 st.toggle("±3 kg", key="peso_stimato_beta")
-
         # Riga 2: T. ambientale media + range unico
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
         ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
         with ta_c1:
-            st.number_input("TA base", step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
+            st.number_input(
+                "TA base",
+                step=0.1, format="%.1f",
+                key="ta_base_val",
+                label_visibility="collapsed"
+            )
         with ta_c2:
             if range_unico:
-                st.number_input("TA altro estremo", step=0.1, format="%.1f", key="ta_other_val", label_visibility="collapsed")
-                lo_ta, hi_ta = sorted([st.session_state["ta_base_val"], st.session_state["ta_other_val"]])
-                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                st.number_input(
+                    "TA altro estremo",
+                    step=0.1, format="%.1f",
+                    key="ta_other_val",
+                    label_visibility="collapsed"
+                )
+                lo_ta, hi_ta = sorted([
+                    float(st.session_state["ta_base_val"]),
+                    float(st.session_state["ta_other_val"])
+                ])
+                st.session_state["Ta_min_beta"] = lo_ta
+                st.session_state["Ta_max_beta"] = hi_ta
             else:
                 st.empty()
         with ta_c3:
             st.empty()
+            
 
         # Riga 3: Fattore di correzione
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
