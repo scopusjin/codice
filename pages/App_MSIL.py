@@ -91,6 +91,10 @@ with st.container(border=True):
 # Ipostasi e rigidità (versione mobile semplificata)
 # ------------------------------------------------------------
 
+# # ------------------------------------------------------------
+# Ipostasi e rigidità (versione mobile semplificata)
+# ------------------------------------------------------------
+
 # Mappa ridotta per ipostasi
 _IPOSTASI_MOBILE = {
     "Assenti": "Non ancora comparse",
@@ -106,7 +110,7 @@ _RIGIDITA_MOBILE = {
     "Completa e massima": "Presente, intenso e generalizzato",
     "In risoluzione": "In via di risoluzione",
     "Risolta": "Risolto",
-    "/": "Non valutata/Non attendibile", 
+    "/": "Non valutata/Non attendibile",
 }
 
 with st.container(border=True):
@@ -133,7 +137,7 @@ with st.container(border=True):
             key="selettore_rigidita_mobile",
         )
         selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
-# ------------------------------------------------------------
+-------------------------------------------
 # Temperature e parametri principali
 # ------------------------------------------------------------
 with st.container(border=True):
