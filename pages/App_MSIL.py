@@ -19,6 +19,18 @@ if "run_stima_mobile" not in st.session_state:
     st.session_state["run_stima_mobile"] = False
 if "show_avvisi" not in st.session_state:
     st.session_state["show_avvisi"] = True
+# Defaults UI
+st.session_state.setdefault("rt_val", 35.0)
+st.session_state.setdefault("ta_base_val", 20.0)
+st.session_state.setdefault("peso", 70.0)
+st.session_state.setdefault("fattore_correzione", 1.0)
+
+st.session_state.setdefault("usa_orario_custom", False)
+st.session_state.setdefault("input_data_rilievo", None)
+st.session_state.setdefault("input_ora_rilievo", None)
+
+st.session_state.setdefault("run_stima_mobile", False)
+st.session_state.setdefault("show_avvisi", True)
 
 # Titolo compatto
 st.markdown(
