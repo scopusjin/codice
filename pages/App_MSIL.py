@@ -197,7 +197,7 @@ with st.container(border=True):
         )
 
     # RIGA 2: Fattore di correzione + switch suggerimento
-    c3, c4 = st.columns([1.2, 1], gap="small")
+    c3, c4 = st.columns([1, 1], gap="small")
 
     with c3:
         st.markdown("<div class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
