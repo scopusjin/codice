@@ -343,6 +343,7 @@ with st.container(border=True):
         with ta_c1:
             st.number_input(
                 "TA base",
+                value=float(st.session_state.get("ta_base_val", 20.0)),
                 step=0.1, format="%.1f",
                 key="ta_base_val",
                 label_visibility="collapsed"
@@ -351,6 +352,7 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "TA altro estremo",
+                    value=float(st.session_state.get("ta_other_val", float(st.session_state.get("ta_base_val", 20.0)) + 1.0)),
                     step=0.1, format="%.1f",
                     key="ta_other_val",
                     label_visibility="collapsed"
@@ -375,6 +377,7 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "FC min",
+                    value=float(st.session_state.get("fc_min_val", round(float(st.session_state.get("fattore_correzione", 1.0)) - 0.10, 2))),
                     step=0.01, format="%.2f",
                     key="fc_min_val",
                     label_visibility="collapsed"
@@ -394,6 +397,7 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "FC max",
+                    value=float(st.session_state.get("fc_other_val", round(float(st.session_state.get("fattore_correzione", 1.0)) + 0.10, 2))),
                     step=0.01, format="%.2f",
                     key="fc_other_val",
                     label_visibility="collapsed"
