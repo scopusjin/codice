@@ -284,11 +284,23 @@ with st.container(border=True):
         range_unico = st.toggle("Specifica range", key="range_unico_beta")
 
         # Etichette dinamiche
-        label_ta = "T. ambientale media (°C):" 
+        label_ta = "T. ambientale media (°C):"
         label_fc = "Fattore di correzione (FC):"
         if range_unico:
             label_ta = "Range di T. ambientale media (°C):"
             label_fc = "Range del fattore di correzione (FC):"
+
+        # Guardie anti-zero prima del render dei widget
+        if range_unico:
+            if float(st.session_state.get("ta_base_val", 0)) == 0.0:
+                st.session_state["ta_base_val"] = 20.0
+            if float(st.session_state.get("ta_other_val", 0)) == 0.0:
+                st.session_state["ta_other_val"] = float(st.session_state["ta_base_val"]) + 1.0
+            if (float(st.session_state.get("fc_min_val", 0)) == 0.0 and
+                float(st.session_state.get("fc_other_val", 0)) == 0.0):
+                fc0 = float(st.session_state.get("fattore_correzione", 1.0))
+                st.session_state["fc_min_val"] = round(fc0 - 0.10, 2)
+                st.session_state["fc_other_val"] = round(fc0 + 0.10, 2)
 
         # Seed coerenti per TA e FC
         if range_unico:
@@ -308,6 +320,7 @@ with st.container(border=True):
         else:
             for k in ("Ta_min_beta", "Ta_max_beta", "FC_min_beta", "FC_max_beta"):
                 st.session_state.pop(k, None)
+
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
