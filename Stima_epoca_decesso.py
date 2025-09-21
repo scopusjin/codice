@@ -135,12 +135,36 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
+def _as_float(x):
+    try:
+        v = float(x)
+        return v if np.isfinite(v) else None
+    except Exception:
+        return None
+
+def _seed_nonzero(key: str, fallback: float):
+    v = _as_float(st.session_state.get(key))
+    if v is None or v == 0.0:
+        st.session_state[key] = float(fallback)
+
 if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
 if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
 if "show_results" not in st.session_state:
     st.session_state["show_results"] = False
+
+# --- Normalizzazione seed anti-0 su ogni rerun ---
+_seed_nonzero("ta_base_val", 20.0)
+_seed_nonzero("fattore_correzione", 1.0)
+
+# Derivati usati nei widget di range
+fc0 = float(st.session_state["fattore_correzione"])
+ta0 = float(st.session_state["ta_base_val"])
+_seed_nonzero("fc_min_val", round(fc0 - 0.10, 2))
+_seed_nonzero("fc_other_val", round(fc0 + 0.10, 2))
+_seed_nonzero("ta_other_val", ta0 + 1.0)
+
 
 # --- INIT per cautelativa: intervallo FC proposto dal pannello "Suggerisci FC"
 def _sync_fc_range_from_suggestions():
