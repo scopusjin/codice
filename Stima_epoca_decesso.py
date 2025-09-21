@@ -157,6 +157,9 @@ if "show_results" not in st.session_state:
 # --- Normalizzazione seed anti-0 su ogni rerun ---
 _seed_nonzero("ta_base_val", 20.0)
 _seed_nonzero("fattore_correzione", 1.0)
+_seed_nonzero("rt_val", 35.0)     # <- aggiungi
+_seed_nonzero("tm_val", 37.2)     # <- aggiungi
+_seed_nonzero("peso", 70.0)       # <- aggiungi
 
 # Derivati usati nei widget di range
 fc0 = float(st.session_state["fattore_correzione"])
