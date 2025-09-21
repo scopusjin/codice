@@ -173,7 +173,8 @@ with st.container(border=True):
     </style>
     """, unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns([1, 1, 1.2], gap="small")
+    # RIGA 1: Peso + T. ambientale
+    c1, c2 = st.columns([1, 1], gap="small")
 
     with c1:
         st.markdown("<div class='lbl'>Peso (kg) <span class='unc'>— default ±3</span></div>", unsafe_allow_html=True)
@@ -195,21 +196,27 @@ with st.container(border=True):
             key="ta_base_val"
         )
 
+    # RIGA 2: Fattore di correzione + switch suggerimento
+    c3, c4 = st.columns([1.2, 1], gap="small")
+
     with c3:
         st.markdown("<div class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
         fattore_correzione = st.number_input(
             "Fattore di correzione (FC):",
-            step=0.1, format="%.2f",   # step invariato come richiesto
+            step=0.1, format="%.2f",
             label_visibility="collapsed",
             key="fattore_correzione"
         )
+
+    with c4:
+        st.markdown("&nbsp;", unsafe_allow_html=True)  # spaziatore per allineare
         st.toggle(
             "Suggerisci fattore di correzione",
             value=st.session_state.get("toggle_fattore_inline_mobile", False),
             key="toggle_fattore_inline_mobile",
         )
         st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
-
+  
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
