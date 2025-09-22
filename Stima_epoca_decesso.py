@@ -467,13 +467,14 @@ with st.container(border=True):
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f", key="tm_val", label_visibility="collapsed")
         with col3:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ambientale (°C):", step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
+            st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
+            st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed")            
 
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
-            st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed")
+            st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+            st.number_input("T. ambientale (°C):", step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
+
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             st.number_input("Fattore di correzione:", step=0.01, format="%.2f", key="fattore_correzione", label_visibility="collapsed")
