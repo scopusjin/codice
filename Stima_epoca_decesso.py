@@ -308,7 +308,8 @@ with st.container(border=True):
                 unsafe_allow_html=True
             )
 
-        range_unico = st.toggle("Specifica range", key="range_unico_beta")
+        with rg1:
+            range_unico = st.toggle("Specifica range", key="range_unico_beta")
 
         # Etichette dinamiche
         label_ta = "T. ambientale media (°C):"
