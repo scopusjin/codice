@@ -446,10 +446,19 @@ with st.container(border=True):
         # sincronizza con il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
+
     else:
         # -------------------------
         # 🔷 MASCHERA STANDARD
         # -------------------------
+
+        # Guardie anti-0 quando si entra nella modalità standard
+        _seed_nonzero("rt_val", 35.0)
+        _seed_nonzero("tm_val", 37.2)
+        _seed_nonzero("ta_base_val", 20.0)
+        _seed_nonzero("peso", 70.0)
+        _seed_nonzero("fattore_correzione", 1.0)
+
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
@@ -471,6 +480,7 @@ with st.container(border=True):
         with col3:
             st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
             st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+
 
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
