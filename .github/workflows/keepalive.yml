@@ -1,8 +1,9 @@
 name: Keep Streamlit Awake
 
 on:
+  workflow_dispatch:          # permette l'avvio manuale dal tab Actions
   schedule:
-    - cron: '0 */10 * * *'   # ogni 10 ore (UTC)
+    - cron: '0 */10 * * *'    # ogni 10 ore (UTC)
 
 permissions:
   contents: write
