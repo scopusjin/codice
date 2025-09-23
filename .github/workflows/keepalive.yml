@@ -1,15 +1,22 @@
 name: Keep Streamlit Awake
 
 on:
-  workflow_dispatch:          # permette l'avvio manuale dal tab Actions
+  workflow_dispatch:          # avvio manuale dal tab Actions
   schedule:
-    - cron: '0 */10 * * *'    # ogni 10 ore (UTC)
+    - cron: '0 */3 * * *'     # ogni 3 ore (UTC)
 
 permissions:
   contents: write
 
 jobs:
-  keep-awake:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app
+        run: |
+          curl -sS -L --max-time 20 "https://mor-tem.streamlit.app/" -o /dev/null
+
+  empty-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
