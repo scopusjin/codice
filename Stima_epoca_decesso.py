@@ -203,7 +203,6 @@ _seed_nonzero("fc_min_val", round(fc0 - 0.10, 2))
 _seed_nonzero("fc_other_val", round(fc0 + 0.10, 2))
 _seed_nonzero("ta_other_val", ta0 + 1.0)
 
-
 # --- INIT per cautelativa: intervallo FC proposto dal pannello "Suggerisci FC"
 def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
@@ -383,34 +382,38 @@ with st.container(border=True):
             st.session_state.setdefault("fc_other_val", round(fc0 + 0.10, 2))
             lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
             st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-            st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+            _sticky_set("fattore_correzione", round((lo_fc + hi_fc) / 2.0, 2))
         else:
             for k in ("Ta_min_beta", "Ta_max_beta", "FC_min_beta", "FC_max_beta"):
                 st.session_state.pop(k, None)
-
-
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
         with c1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):", step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed", on_change=_mk_on_change("rt_val"))
+            st.number_input("T. rettale (°C):", step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed",
+                            on_change=_mk_on_change("rt_val"))
         with c2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f", key="tm_val", label_visibility="collapsed", on_change=_mk_on_change("tm_val"))
+            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed",
+                            on_change=_mk_on_change("tm_val"))
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
             pc1, pc2 = st.columns([1, 0.8], gap="small")
             with pc1:
-                st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed", on_change=_mk_on_change("peso"))
+                st.number_input("Peso (kg):", step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed",
+                                on_change=_mk_on_change("peso"))
             with pc2:
                 st.toggle("±3 kg", key="peso_stimato_beta")
+
         # Riga 2: T. ambientale media + range unico
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
         ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
         with ta_c1:
             st.number_input(
                 "TA base",
-                value=float(st.session_state.get("ta_base_val", 20.0)),
                 step=0.1, format="%.1f",
                 key="ta_base_val",
                 label_visibility="collapsed",
@@ -420,7 +423,6 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "TA altro estremo",
-                    value=float(st.session_state.get("ta_other_val", float(st.session_state.get("ta_base_val", 20.0)) + 1.0)),
                     step=0.1, format="%.1f",
                     key="ta_other_val",
                     label_visibility="collapsed",
@@ -436,7 +438,6 @@ with st.container(border=True):
                 st.empty()
         with ta_c3:
             st.empty()
-            
 
         # Riga 3: Fattore di correzione
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
@@ -446,18 +447,18 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "FC min",
-                    value=float(st.session_state.get("fc_min_val", round(float(st.session_state.get("fattore_correzione", 1.0)) - 0.10, 2))),
                     step=0.1, format="%.2f",
                     key="fc_min_val",
                     label_visibility="collapsed",
-                    on_change=_mk_on_change("fattore_correzione")
+                    on_change=_mk_on_change("fc_min_val")
                 )
             else:
                 st.number_input(
                     "FC",
                     step=0.1, format="%.2f",
                     key="fattore_correzione",
-                    label_visibility="collapsed"
+                    label_visibility="collapsed",
+                    on_change=_mk_on_change("fattore_correzione")
                 )
                 if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
                     st.session_state.pop("FC_min_beta", None)
@@ -467,10 +468,10 @@ with st.container(border=True):
             if range_unico:
                 st.number_input(
                     "FC max",
-                    value=float(st.session_state.get("fc_other_val", round(float(st.session_state.get("fattore_correzione", 1.0)) + 0.10, 2))),
                     step=0.1, format="%.2f",
                     key="fc_other_val",
-                    label_visibility="collapsed"
+                    label_visibility="collapsed",
+                    on_change=_mk_on_change("fc_other_val")
                 )
                 lo_fc, hi_fc = sorted([
                     float(st.session_state["fc_min_val"]),
@@ -478,7 +479,7 @@ with st.container(border=True):
                 ])
                 st.session_state["FC_min_beta"] = lo_fc
                 st.session_state["FC_max_beta"] = hi_fc
-                st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+                _sticky_set("fattore_correzione", round((lo_fc + hi_fc) / 2.0, 2))
             else:
                 st.empty()
 
@@ -487,7 +488,6 @@ with st.container(border=True):
 
         # sincronizza con il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
-
 
     else:
         # -------------------------
@@ -504,26 +504,35 @@ with st.container(border=True):
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):", step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed", on_change=_mk_on_change("rt_val"))
+            st.number_input("T. rettale (°C):", step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed",
+                            on_change=_mk_on_change("rt_val"))
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f", key="tm_val", label_visibility="collapsed", on_change=_mk_on_change("tm_val"))
+            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed",
+                            on_change=_mk_on_change("tm_val"))
         with col3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
-            st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed", on_change=_mk_on_change("peso"))            
+            st.number_input("Peso (kg):", step=1.0, format="%.1f",
+                            key="peso", label_visibility="collapsed",
+                            on_change=_mk_on_change("peso"))
 
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ambientale (°C):", step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed", on_change=_mk_on_change("ta_base_val"))
+            st.number_input("T. ambientale (°C):", step=0.1, format="%.1f",
+                            key="ta_base_val", label_visibility="collapsed",
+                            on_change=_mk_on_change("ta_base_val"))
 
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            st.number_input("Fattore di correzione:", step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed")
+            st.number_input("Fattore di correzione:", step=0.1, format="%.2f",
+                            key="fattore_correzione", label_visibility="collapsed",
+                            on_change=_mk_on_change("fattore_correzione"))
         with col3:
             st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
             st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
-
 
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
@@ -875,8 +884,10 @@ if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr
     st.session_state["show_results"] = False
 
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
-# --- Mostra risultati SOLO se richiesti e firma invariata ---
 if st.session_state["show_results"]:
+    # Guardia finale anti-zero prima del calcolo
+    _restore_if_zero("ta_base_val", "fattore_correzione", "rt_val", "tm_val", "peso")
+
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
