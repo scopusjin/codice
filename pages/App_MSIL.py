@@ -136,18 +136,18 @@ else:
 
 # --------------------- Ipostasi e rigidità --------------------
 _IPOSTASI_MOBILE = {
-    "Assenti": "Non ancora comparse",
-    "Almeno parzialmente migrabili": "Migrabili perlomeno parzialmente",
-    "Fisse": "Fisse",
-    "/": "Non valutate",
+    "Ipostasi assenti": "Non ancora comparse",
+    "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
+    "Ipostasi non migrabili": "Fisse",
+    "Ipostasi?": "Non valutate",
 }
 _RIGIDITA_MOBILE = {
-    "Assente": "Non ancora apprezzabile",
-    "Presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
-    "Completa e massima": "Presente, intensa e generalizzata",
-    "In risoluzione": "In via di risoluzione",
-    "Risolta": "Risolta",
-    "/": "Non valutata",
+    "Rigor assente": "Non ancora apprezzabile",
+    "Rigor presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
+    "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
+    "Rigor in risoluzione": "In via di risoluzione",
+    "Rigor risolto": "Risolta",
+    "Rigor mortis?": "Non valutata",
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
@@ -156,7 +156,7 @@ with c_ip:
         list(_IPOSTASI_MOBILE.keys()),
         index=(list(_IPOSTASI_MOBILE.keys()).index("/") if "/" in _IPOSTASI_MOBILE else 0),
         key="selettore_macchie_mobile",
-        label_visibility="visible"
+        label_visibility="collapsed"
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
@@ -165,7 +165,7 @@ with c_rg:
         list(_RIGIDITA_MOBILE.keys()),
         index=(list(_RIGIDITA_MOBILE.keys()).index("/") if "/" in _RIGIDITA_MOBILE else 0),
         key="selettore_rigidita_mobile",
-        label_visibility="visible"
+        label_visibility="collapsed"
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
