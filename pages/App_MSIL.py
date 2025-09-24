@@ -13,7 +13,6 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 # Config + stato persistente
 # ------------------------------------------------------------
-st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
 # --- CSS bottone evidenziato + sticky bar
 st.markdown("""
