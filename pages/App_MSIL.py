@@ -52,6 +52,21 @@ div[data-testid="stSlider"]{margin-top:-4px;margin-bottom:-2px;}
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+/* comprimi margini verticali dei widget */
+div[data-testid="stVerticalBlock"]{margin-top:0px!important;margin-bottom:0px!important;}
+div[data-testid="stVerticalBlock"] > div{margin-top:2px!important;margin-bottom:2px!important;}
+/* input e selectbox senza padding extra */
+div[data-baseweb="input"], div[data-baseweb="select"]{margin-top:0!important;margin-bottom:0!important;}
+/* label vicine all’input */
+div[data-testid="stNumberInput"] label,
+div[data-testid="stSelectbox"] label{margin-bottom:0!important;}
+/* colonne senza distacco */
+div[data-testid="stHorizontalBlock"]{margin-bottom:0!important;}
+</style>
+""", unsafe_allow_html=True)
+
 # defaults
 _defaults = {
     "run_stima_mobile": False,
