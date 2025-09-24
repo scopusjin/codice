@@ -213,7 +213,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     # stato del corpo senza label visibile
     stato_corpo = st.radio(
-        "", ["Asciutto", "Bagnato", "Immerso"],
+        "", ["Corpo asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo"),
         label_visibility="collapsed"
     )
@@ -257,7 +257,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
             "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
         }
-        if stato_corpo == "Asciutto":
+        if stato_corpo == "Corpo asciutto":
             defaults.update({
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
@@ -281,7 +281,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                          coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
 
     superficie_display_selected = None
-    if stato_corpo == "Asciutto":
+    if stato_corpo == "Corpo asciutto":
         nudo_eff = ((not toggle_vestito)
                     or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
         options_display = SURF_DISPLAY_ORDER.copy()
@@ -301,7 +301,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     correnti_presenti = False
     with corr_placeholder.container():
         mostra_correnti = True
-        if stato_corpo == "Asciutto":
+        if stato_corpo == "Corpo asciutto":
             f_vc = fattore_vestiti_coperte(counts)
             if f_vc >= 1.2:
                 mostra_correnti = False
