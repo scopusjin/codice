@@ -23,35 +23,36 @@ section.main, div.block-container{padding-top:0!important;margin-top:0!important
 /* contenitori e blocchi */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
-div[data-testid="stVerticalBlock"] > div{margin:1px 0!important}
-div[data-testid="stHorizontalBlock"]{gap:.18rem!important;margin:0!important}
+div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
+div[data-testid="stHorizontalBlock"]{gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important}
 
-/* etichette inline */
-label{display:block;margin:0!important;padding:0!important;line-height:1.04!important;font-size:.82rem}
-.small{font-size:.72rem;color:#555;white-space:nowrap}
-
-/* markdown neutro */
-div[data-testid="stMarkdown"]{margin:0!important;padding:0!important;line-height:1.04!important}
-div[data-testid="stMarkdown"] + div{margin-top:0!important}
-
-/* widget uniformi e compatti */
+/* widget uniformi: margini minimi uguali per tutti */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
 div[data-testid="stTextInput"]{
-  margin-top:1px!important;margin-bottom:1px!important;padding:0!important
+  margin-top:2px!important;margin-bottom:2px!important;padding:0!important
 }
-div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="textarea"]{margin:0!important}
+
+/* etichette native e input compatti */
+div[data-testid="stNumberInput"] > label,
+div[data-testid="stSelectbox"] > label,
+div[data-testid="stToggle"] > label,
+div[data-testid="stRadio"] > label,
+div[data-testid="stDateInput"] > label,
+div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem}
+
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
 /* radio/toggle */
-div[data-testid="stRadio"], div[data-testid="stToggle"]{margin:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.16rem!important}
+div[data-testid="stRadio"]{margin:0!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.18rem!important}
+div[data-testid="stToggle"]{margin:0!important}
 
 /* data editor */
 div[data-testid="stDataEditor"] thead,
@@ -60,7 +61,7 @@ div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
 
 /* box FC */
-.fcbox{border:1px solid #1976d2;border-radius:6px;padding:5px;font-weight:600;margin:1px 0}
+.fcbox{border:1px solid #1976d2;border-radius:6px;padding:5px;font-weight:600;margin:2px 0}
 html[data-theme="light"] .fcbox{background:#e8f0fe;color:#0d47a1}
 html[data-theme="dark"] .fcbox{background:#0d2a47;color:#d6e9ff}
 .fcsub{padding:1px 0 0 0;font-size:.84em}
@@ -116,11 +117,11 @@ if st.session_state["usa_orario_custom"]:
         st.session_state["input_ora_rilievo"] = "00:00"
     c1, c2 = st.columns(2, gap="small")
     with c1:
-        st.date_input("Data ispezione legale:", value=st.session_state["input_data_rilievo"],
-                      label_visibility="collapsed", key="input_data_rilievo")
+        st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
+                      label_visibility="visible", key="input_data_rilievo")
     with c2:
-        st.text_input("Ora ispezione legale (HH:MM):", value=st.session_state["input_ora_rilievo"],
-                      label_visibility="collapsed", key="input_ora_rilievo")
+        st.text_input("Ora ispezione legale (HH:MM)", value=st.session_state["input_ora_rilievo"],
+                      label_visibility="visible", key="input_ora_rilievo")
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
@@ -142,44 +143,48 @@ _RIGIDITA_MOBILE = {
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
-    st.markdown("<label>Macchie ipostatiche</label>", unsafe_allow_html=True)
     scelta_ipostasi_lbl = st.selectbox(
-        "Macchie ipostatiche:", list(_IPOSTASI_MOBILE.keys()),
+        "Macchie ipostatiche",
+        list(_IPOSTASI_MOBILE.keys()),
         index=(list(_IPOSTASI_MOBILE.keys()).index("/") if "/" in _IPOSTASI_MOBILE else 0),
-        key="selettore_macchie_mobile", label_visibility="collapsed"
+        key="selettore_macchie_mobile", label_visibility="visible"
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
-    st.markdown("<label>Rigidità cadaverica</label>", unsafe_allow_html=True)
     scelta_rigidita_lbl = st.selectbox(
-        "Rigidità cadaverica:", list(_RIGIDITA_MOBILE.keys()),
+        "Rigidità cadaverica",
+        list(_RIGIDITA_MOBILE.keys()),
         index=(list(_RIGIDITA_MOBILE.keys()).index("/") if "/" in _RIGIDITA_MOBILE else 0),
-        key="selettore_rigidita_mobile", label_visibility="collapsed"
+        key="selettore_rigidita_mobile", label_visibility="visible"
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # --------------- Temperature e parametri principali ------------
-st.markdown("<label>T. rettale (°C)</label>", unsafe_allow_html=True)
-input_rt = st.number_input("T. rettale (°C):", value=st.session_state.get("rt_val", 35.0),
-                           step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed")
+input_rt = st.number_input(
+    "T. rettale (°C)",
+    value=st.session_state.get("rt_val", 35.0),
+    step=0.1, format="%.1f", key="rt_val", label_visibility="visible"
+)
 
 c1, c2 = st.columns([1, 1], gap="small")
 with c1:
-    st.markdown("<label>Peso (kg) <span class='small'>— default ±3</span></label>", unsafe_allow_html=True)
-    input_w = st.number_input("Peso (kg):", value=st.session_state.get("peso", 70.0),
-                              step=1.0, format="%.1f", label_visibility="collapsed", key="peso")
+    input_w = st.number_input("Peso (kg)",
+                              value=st.session_state.get("peso", 70.0),
+                              step=1.0, format="%.1f",
+                              label_visibility="visible", key="peso")
 with c2:
-    st.markdown("<label>T. ambientale media (°C) <span class='small'>— default ±1</span></label>", unsafe_allow_html=True)
-    input_ta = st.number_input("T. ambientale media (°C):", value=st.session_state.get("ta_base_val", 20.0),
-                               step=0.1, format="%.1f", label_visibility="collapsed", key="ta_base_val")
+    input_ta = st.number_input("T. ambientale media (°C)",
+                               value=st.session_state.get("ta_base_val", 20.0),
+                               step=0.1, format="%.1f",
+                               label_visibility="visible", key="ta_base_val")
 
 c3, c4 = st.columns([1, 0.9], gap="small")
 with c3:
-    st.markdown("<label>Fattore di correzione <span class='small'>— default ±0.10</span></label>", unsafe_allow_html=True)
     fattore_correzione = st.number_input(
-        "Fattore di correzione (FC):",
+        "Fattore di correzione (FC)",
         value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione"
+        step=0.1, format="%.2f",
+        label_visibility="visible", key="fattore_correzione"
     )
 with c4:
     st.toggle("Suggerisci fattore di correzione",
@@ -187,7 +192,7 @@ with c4:
               key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” inline, senza titolo -------
+# -------- Pannello “Suggerisci FC” inline, senza markdown -----
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -207,19 +212,25 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             return 0
 
     # stato del corpo senza label visibile
-    stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"],
-                           index=0, horizontal=True, key=k("radio_stato_corpo"),
-                           label_visibility="collapsed")
+    stato_corpo = st.radio(
+        "", ["Asciutto", "Bagnato", "Immerso"],
+        index=0, horizontal=True, key=k("radio_stato_corpo"),
+        label_visibility="collapsed"
+    )
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
-                               index=0, horizontal=True, key=k("radio_acqua"),
-                               label_visibility="collapsed")
+        acqua_label = st.radio(
+            "", ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key=k("radio_acqua"),
+            label_visibility="collapsed"
+        )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
+
         try:
             tabella2 = load_tabelle_correzione()
         except Exception:
             tabella2 = None
+
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
             superficie_display=None, correnti_aria=False,
@@ -227,7 +238,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             tabella2_df=tabella2
         )
         _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
-        st.button("✅ Usa questo fattore", on_click=_apply_fc,
+        st.button("Usa questo fattore", on_click=_apply_fc,
                   args=(result.fattore_finale, result.riassunto),
                   use_container_width=True, key=k("btn_usa_fc_imm"))
         return
@@ -279,11 +290,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
-        st.markdown("<label>Superficie di appoggio</label>", unsafe_allow_html=True)
         superficie_display_selected = st.selectbox(
-            "Superficie di appoggio", options_display,
+            "Superficie di appoggio",
+            options_display,
             index=options_display.index(prev_display),
-            key=k("superficie_display_sel"), label_visibility="collapsed"
+            key=k("superficie_display_sel"),
+            label_visibility="visible"
         )
 
     correnti_presenti = False
@@ -294,10 +306,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             if f_vc >= 1.2:
                 mostra_correnti = False
         if mostra_correnti:
-            correnti_presenti = st.toggle("Correnti d'aria presenti?",
-                                          value=st.session_state.get(k("toggle_correnti_fc"), False),
-                                          key=k("toggle_correnti_fc"),
-                                          disabled=False)
+            correnti_presenti = st.toggle(
+                "Correnti d'aria presenti?",
+                value=st.session_state.get(k("toggle_correnti_fc"), False),
+                key=k("toggle_correnti_fc"),
+                disabled=False
+            )
 
     try:
         tabella2 = load_tabelle_correzione()
@@ -312,7 +326,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2_df=tabella2
     )
     _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
-    st.button("✅ Usa questo fattore", on_click=_apply_fc,
+
+    st.button("Usa questo fattore", on_click=_apply_fc,
               args=(result.fattore_finale, result.riassunto),
               use_container_width=True, key=k("btn_usa_fc"))
 
@@ -383,4 +398,5 @@ if st.session_state.get("run_stima_mobile"):
         input_data_rilievo=st.session_state["input_data_rilievo"],
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
-    )
+            )
+    
