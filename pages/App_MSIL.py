@@ -151,23 +151,35 @@ _RIGIDITA_MOBILE = {
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
+    ip_keys = list(_IPOSTASI_MOBILE.keys())
+    try:
+        ip_default = ip_keys.index("Ipostasi?")
+    except ValueError:
+        ip_default = 0
     scelta_ipostasi_lbl = st.selectbox(
         "Macchie ipostatiche",
-        list(_IPOSTASI_MOBILE.keys()),
-        index=(list(_IPOSTASI_MOBILE.keys()).index("/") if "/" in _IPOSTASI_MOBILE else 0),
+        ip_keys,
+        index=ip_default,
         key="selettore_macchie_mobile",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
+
 with c_rg:
+    rg_keys = list(_RIGIDITA_MOBILE.keys())
+    try:
+        rg_default = rg_keys.index("Rigor mortis?")
+    except ValueError:
+        rg_default = 0
     scelta_rigidita_lbl = st.selectbox(
         "Rigidità cadaverica",
-        list(_RIGIDITA_MOBILE.keys()),
-        index=(list(_RIGIDITA_MOBILE.keys()).index("/") if "/" in _RIGIDITA_MOBILE else 0),
+        rg_keys,
+        index=rg_default,
         key="selettore_rigidita_mobile",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
+    
 
 # --------------- Temperature e parametri principali ------------
 input_rt = st.number_input(
