@@ -274,8 +274,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
+        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Corpo asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Corpo asciutto" else 0
 
     counts = DressCounts(sottili=n_sottili, spessi=n_spessi,
                          coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
