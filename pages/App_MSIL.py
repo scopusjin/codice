@@ -320,7 +320,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     result = compute_factor(
         stato=stato_corpo, acqua=None, counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
+        superficie_display=superficie_display_selected if stato_corpo == "Corpo asciutto" else None,
         correnti_aria=correnti_presenti,
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
