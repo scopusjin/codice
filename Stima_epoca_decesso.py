@@ -143,6 +143,10 @@ st.session_state.setdefault("fc_single", 1.0)
 st.session_state.setdefault("fc_min", 0.90)
 st.session_state.setdefault("fc_max", 1.10)
 
+# Mirror legacy per compatibilità
+st.session_state.setdefault("ta_base_val", float(st.session_state["ta_single"]))
+st.session_state.setdefault("fattore_correzione", float(st.session_state["fc_single"]))
+
 def _as_float(x):
     try:
         v = float(x)
@@ -272,7 +276,7 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
 
-        # --- Messaggio generale + toggle range ---
+        # --- Messaggio generale + toggle range compatto ---
         rg1, rg2 = st.columns([3.6, 1], gap="small")
         with rg1:
             st.markdown(
@@ -307,71 +311,68 @@ with st.container(border=True):
             with pc2:
                 st.toggle("±3 kg", key="peso_stimato_beta")
 
-        # Riga 2: T. ambientale media — schema stabile
+        # ---------------- TA compatto ----------------
         st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-        ta_c1, ta_c2, ta_c3 = st.columns([1, 0.9, 0.9], gap="small")
-        with ta_c1:
+        ta_c = st.columns([1.2, 0.7, 0.45], gap="small")
+        with ta_c[0]:
             st.number_input("T. ambientale (°C)", step=0.1, format="%.1f",
                             key="ta_single", label_visibility="collapsed",
                             disabled=range_unico)
-        with ta_c2:
-            st.number_input("TA min (°C)", step=0.1, format="%.1f",
-                            key="ta_min", label_visibility="collapsed",
-                            disabled=not range_unico)
-        with ta_c3:
-            st.number_input("TA max (°C)", step=0.1, format="%.1f",
-                            key="ta_max", label_visibility="collapsed",
-                            disabled=not range_unico)
+        with ta_c[1]:
+            if range_unico:
+                lo = float(st.session_state.get("ta_min", 20.0))
+                hi = float(st.session_state.get("ta_max", max(21.0, lo + 0.1)))
+                st.markdown(f"<div style='padding-top:6px;'><b>{lo:.1f}–{hi:.1f} °C</b></div>", unsafe_allow_html=True)
+        with ta_c[2]:
+            if range_unico:
+                with st.popover("Modifica TA"):
+                    st.number_input("TA min (°C)", step=0.1, format="%.1f", key="ta_min")
+                    st.number_input("TA max (°C)", step=0.1, format="%.1f", key="ta_max")
+                _tmin = float(st.session_state["ta_min"])
+                _tmax = float(st.session_state["ta_max"])
+                if _tmax < _tmin:
+                    _tmin, _tmax = _tmax, _tmin
+                    st.session_state["ta_min"], st.session_state["ta_max"] = _tmin, _tmax
+                st.session_state["Ta_min_beta"] = _tmin
+                st.session_state["Ta_max_beta"] = _tmax
+            else:
+                for k in ("Ta_min_beta", "Ta_max_beta"):
+                    st.session_state.pop(k, None)
+        st.session_state["ta_base_val"] = float(st.session_state.get("ta_single", 20.0))
 
-        # Riga 3: Fattore di correzione — schema stabile, step FC = 0.1
+        # ---------------- FC compatto ----------------
         st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-        fc_c1, fc_c2, fc_c3 = st.columns([1, 0.9, 0.9], gap="small")
-        with fc_c1:
+        fc_c = st.columns([1.2, 0.7, 0.45], gap="small")
+        with fc_c[0]:
             st.number_input("FC", step=0.1, format="%.2f",
                             key="fc_single", label_visibility="collapsed",
                             disabled=range_unico)
-        with fc_c2:
-            st.number_input("FC min", step=0.1, format="%.2f",
-                            key="fc_min", label_visibility="collapsed",
-                            disabled=not range_unico)
-        with fc_c3:
-            st.number_input("FC max", step=0.1, format="%.2f",
-                            key="fc_max", label_visibility="collapsed",
-                            disabled=not range_unico)
+        with fc_c[1]:
+            if range_unico:
+                flo = float(st.session_state.get("fc_min", 0.90))
+                fhi = float(st.session_state.get("fc_max", 1.10))
+                st.markdown(f"<div style='padding-top:6px;'><b>{flo:.2f}–{fhi:.2f}</b></div>", unsafe_allow_html=True)
+        with fc_c[2]:
+            if range_unico:
+                with st.popover("Modifica FC"):
+                    st.number_input("FC min", step=0.1, format="%.2f", key="fc_min")
+                    st.number_input("FC max", step=0.1, format="%.2f", key="fc_max")
+                _fmin = float(st.session_state["fc_min"])
+                _fmax = float(st.session_state["fc_max"])
+                if _fmax < _fmin:
+                    _fmin, _fmax = _fmax, _fmin
+                    st.session_state["fc_min"], st.session_state["fc_max"] = _fmin, _fmax
+                st.session_state["FC_min_beta"] = _fmin
+                st.session_state["FC_max_beta"] = _fmax
+                st.session_state["fattore_correzione"] = round((_fmin + _fmax) / 2.0, 2)
+            else:
+                for k in ("FC_min_beta", "FC_max_beta"):
+                    st.session_state.pop(k, None)
+                st.session_state["fattore_correzione"] = float(st.session_state.get("fc_single", 1.0))
 
         # Toggle pannello suggeritore
         st.toggle("Suggerisci FC", key="toggle_fattore_inline")
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
-
-        # Valori effettivi + sincronizzazioni compatibilità
-        if range_unico:
-            # TA effettiva per funzioni che leggono Beta
-            tmin = float(st.session_state["ta_min"])
-            tmax = float(st.session_state["ta_max"])
-            if tmax < tmin:
-                tmin, tmax = tmax, tmin
-                st.session_state["ta_min"], st.session_state["ta_max"] = tmin, tmax
-            st.session_state["Ta_min_beta"] = tmin
-            st.session_state["Ta_max_beta"] = tmax
-
-            # FC effettivo come media, e anche Beta
-            fmin = float(st.session_state["fc_min"])
-            fmax = float(st.session_state["fc_max"])
-            if fmax < fmin:
-                fmin, fmax = fmax, fmin
-                st.session_state["fc_min"], st.session_state["fc_max"] = fmin, fmax
-            st.session_state["FC_min_beta"] = fmin
-            st.session_state["FC_max_beta"] = fmax
-            st.session_state["fattore_correzione"] = round((fmin + fmax) / 2.0, 2)
-
-            # Mantieni compatibilità col resto del codice
-            st.session_state["ta_base_val"] = float(st.session_state["ta_single"])
-        else:
-            # modalità singola
-            st.session_state["ta_base_val"] = float(st.session_state["ta_single"])
-            st.session_state["fattore_correzione"] = float(st.session_state["fc_single"])
-            for k in ("Ta_min_beta", "Ta_max_beta", "FC_min_beta", "FC_max_beta"):
-                st.session_state.pop(k, None)
 
     else:
         # -------------------------
@@ -406,14 +407,14 @@ with st.container(border=True):
                             key="ta_single", label_visibility="collapsed")
 
         with col2:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size:  0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
             st.number_input("Fattore di correzione:", step=0.1, format="%.2f",
                             key="fc_single", label_visibility="collapsed")
         with col3:
             st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
             st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
 
-        # sincronizza chiavi usate dal resto del codice
+        # sincronizza chiavi legacy usate altrove
         st.session_state["ta_base_val"] = float(st.session_state["ta_single"])
         st.session_state["fattore_correzione"] = float(st.session_state["fc_single"])
 # --- Pannello “Suggerisci FC”
@@ -429,6 +430,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         st.session_state["fattori_condizioni_testo"] = None
         st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
+        # mirror legacy
+        st.session_state["fattore_correzione"] = float(st.session_state["fc_single"])
 
     # --- CSS compatto ---
     st.markdown("""
@@ -576,6 +579,7 @@ if st.session_state.get("toggle_fattore", False):
             peso_default=st.session_state.get("peso", 70.0),
             key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
         )
+
 # Parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
 widgets_parametri_aggiuntivi = {}
@@ -664,7 +668,6 @@ if mostra_parametri_aggiuntivi:
         st.session_state["alterazioni_putrefattive"] = chk_putrefattive
 else:
     st.session_state["alterazioni_putrefattive"] = False
-
 def _inputs_signature():
     import numpy as np
     import datetime as _dt
@@ -697,7 +700,7 @@ def _inputs_signature():
         _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
         _freeze(st.session_state.get("selettore_rigidita") if "selettore_rigidita" in st.session_state else None),
         _freeze(st.session_state.get("rt_val")),
-        _freeze(st.session_state.get("ta_single") if "ta_single" in st.session_state else None),
+        _freeze(st.session_state.get("ta_single")),
         _freeze(st.session_state.get("tm_val")),
         _freeze(st.session_state.get("peso")),
         _freeze(st.session_state.get("fc_single", 1.0)),
@@ -773,10 +776,10 @@ if st.session_state["show_results"]:
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
         input_rt=st.session_state.get("rt_val"),
-        input_ta=st.session_state.get("ta_base_val"),           # già sincronizzato con ta_single
+        input_ta=st.session_state.get("ta_single", 20.0),
         input_tm=st.session_state.get("tm_val"),
         input_w=st.session_state.get("peso"),
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),  # già sync con fc_single o media range
+        fattore_correzione=st.session_state.get("fc_single", 1.0),
         widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
         usa_orario_custom=st.session_state.get("usa_orario_custom", False),
         input_data_rilievo=st.session_state.get("input_data_rilievo"),
