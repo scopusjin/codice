@@ -67,7 +67,7 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
     if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
         side = (
             f'<div style="color:{pal["note"]};padding:8px 2px 0 2px;font-size:0.92em;">'
-            f'Valore per 70 kg: {f_base:.2f} • Adattato per {peso_corrente:.1f} kg'
+            f'Adattato per {peso_corrente:.1f} kg (valore per 70 kg: {f_base:.2f})'
             f'</div>'
         )
     st.markdown(main + side, unsafe_allow_html=True)
