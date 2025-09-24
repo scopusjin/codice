@@ -13,6 +13,7 @@ from app.factor_calc import (
 # --------------------------- Config ---------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
+# ----------------------------- CSS ----------------------------
 st.markdown("""
 <style>
 /* header e top gap */
@@ -23,24 +24,34 @@ section.main, div.block-container{padding-top:0!important;margin-top:0!important
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
 div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
-div[data-testid="stHorizontalBlock"]{gap:.22rem!important;margin:0!important}
-div[data-testid="column"]{padding:0!important;margin:0!important}
 
-/* widget */
+/* orizzontali responsive */
+div[data-testid="stHorizontalBlock"]{
+  display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important
+}
+div[data-testid="column"]{
+  padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important
+}
+
+/* widget compatti */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
-div[data-testid="stTextInput"]{margin-top:2px!important;margin-bottom:2px!important;padding:0!important}
+div[data-testid="stTextInput"]{
+  margin-top:2px!important;margin-bottom:2px!important;padding:0!important
+}
 
-/* etichette e input compatti */
+/* etichette e input */
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label,
 div[data-testid="stDateInput"] > label,
-div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem}
+div[data-testid="stTextInput"] > label{
+  margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem
+}
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
@@ -87,7 +98,6 @@ a[href^="https://share.streamlit.io"]{display:none!important;}
 footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
-
 
 # --------------------------- Defaults -------------------------
 _defaults = {
@@ -185,40 +195,44 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# --------------- Temperature e parametri principali ------------
-input_rt = st.number_input(
-    "T. rettale (°C)",
-    value=st.session_state.get("rt_val", 35.0),
-    step=0.1, format="%.1f", key="rt_val", label_visibility="visible"
-)
+# -------- Parametri principali in un'unica riga responsive ----
+c_rt, c_ta, c_w, c_fc, c_toggle = st.columns([1,1,1,1,0.9], gap="small")
 
-c1, c2 = st.columns([1, 1], gap="small")
-with c1:
-    input_w = st.number_input(
-        "Peso (kg)",
-        value=st.session_state.get("peso", 70.0),
-        step=1.0, format="%.1f",
-        label_visibility="visible", key="peso"
+with c_rt:
+    input_rt = st.number_input(
+        "T. rettale (°C)",
+        value=st.session_state.get("rt_val", 35.0),
+        step=0.1, format="%.1f",
+        key="rt_val", label_visibility="visible"
     )
-with c2:
+
+with c_ta:
     input_ta = st.number_input(
         "T. ambientale media (°C)",
         value=st.session_state.get("ta_base_val", 20.0),
         step=0.1, format="%.1f",
-        label_visibility="visible", key="ta_base_val"
+        key="ta_base_val", label_visibility="visible"
     )
 
-c3, c4 = st.columns([1, 0.9], gap="small")
-with c3:
+with c_w:
+    input_w = st.number_input(
+        "Peso (kg)",
+        value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f",
+        key="peso", label_visibility="visible"
+    )
+
+with c_fc:
     fattore_correzione = st.number_input(
         "Fattore di correzione (FC)",
         value=st.session_state.get("fattore_correzione", 1.0),
         step=0.1, format="%.2f",
-        label_visibility="visible", key="fattore_correzione"
+        key="fattore_correzione", label_visibility="visible"
     )
-with c4:
+
+with c_toggle:
     st.toggle(
-        "Suggerisci fattore di correzione",
+        "Suggerisci FC",
         value=st.session_state.get("toggle_fattore_inline_mobile", False),
         key="toggle_fattore_inline_mobile"
     )
@@ -446,3 +460,4 @@ if st.session_state.get("run_stima_mobile"):
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
     )
+    
