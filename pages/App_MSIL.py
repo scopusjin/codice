@@ -80,6 +80,11 @@ div.stButton>button{width:100%!important;font-size:.95rem!important;font-weight:
   letter-spacing:.2px!important;border-radius:6px!important;box-shadow:0 2px 6px rgba(0,0,0,.12)!important}
 html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important}
 html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important}
+
+/* nascondi menu e toolbar di gestione + footer */
+#stDecoration, [data-testid="stDecoration"] {display: none !important;}
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -114,7 +119,7 @@ if st.session_state["usa_orario_custom"]:
     if st.session_state.get("input_data_rilievo") is None:
         st.session_state["input_data_rilievo"] = datetime.date.today()
     if not st.session_state.get("input_ora_rilievo"):
-        st.session_state["input_ora_rilievo"] = "00:00"
+        st.session_state["input_ora_rilievo"] = datetime.datetime.now().strftime("%H:%M")
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input(
@@ -164,7 +169,6 @@ with c_ip:
         label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
-
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     try:
@@ -179,7 +183,6 @@ with c_rg:
         label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
-    
 
 # --------------- Temperature e parametri principali ------------
 input_rt = st.number_input(
@@ -220,7 +223,7 @@ with c4:
     )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” inline, senza markdown -----
+# -------- Pannello “Suggerisci FC” inline ---------------------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -239,7 +242,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         except Exception:
             return 0
 
-    # UI labels -> backend values
+    # UI -> backend
     stato_label = st.radio(
         "", ["Corpo asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo"),
