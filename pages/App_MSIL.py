@@ -10,14 +10,10 @@ from app.factor_calc import (
     DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte
 )
 
-# ------------------------------------------------------------
-# Config
-# ------------------------------------------------------------
+# --------------------------- Config ---------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-# ------------------------------------------------------------
-# CSS super-compatto
-# ------------------------------------------------------------
+# ----------------------------- CSS ----------------------------
 st.markdown("""
 <style>
 /* header e top gap */
@@ -28,45 +24,40 @@ section.main, div.block-container{padding-top:0!important;margin-top:0!important
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
 div[data-testid="stVerticalBlock"] > div{margin:1px 0!important}
-div[data-testid="stHorizontalBlock"]{gap:.2rem!important;margin:0!important}
+div[data-testid="stHorizontalBlock"]{gap:.18rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important}
 
-/* widget uniformi */
+/* etichette inline */
+label{display:block;margin:0!important;padding:0!important;line-height:1.04!important;font-size:.82rem}
+.small{font-size:.72rem;color:#555;white-space:nowrap}
+
+/* markdown neutro */
+div[data-testid="stMarkdown"]{margin:0!important;padding:0!important;line-height:1.04!important}
+div[data-testid="stMarkdown"] + div{margin-top:0!important}
+
+/* widget uniformi e compatti */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
 div[data-testid="stTextInput"]{
-  margin-top:1px!important;
-  margin-bottom:1px!important;
-  padding-top:0!important;
-  padding-bottom:0!important;
+  margin-top:1px!important;margin-bottom:1px!important;padding:0!important
 }
 div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="textarea"]{margin:0!important}
-
-/* input height */
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
-/* markdown come etichetta */
-div[data-testid="stMarkdown"]{margin:0!important;padding:0!important;line-height:1.05!important}
-div[data-testid="stMarkdown"] + div{margin-top:0!important}
-
-/* radio/toggle compressi */
+/* radio/toggle */
 div[data-testid="stRadio"], div[data-testid="stToggle"]{margin:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.18rem!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.16rem!important}
 
-/* editor tabelle */
+/* data editor */
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
-
-/* etichette piccole */
-.lbl{font-size:.82rem}
-.lbl .unc{font-size:.72rem;color:#555;white-space:nowrap}
 
 /* box FC */
 .fcbox{border:1px solid #1976d2;border-radius:6px;padding:5px;font-weight:600;margin:1px 0}
@@ -91,9 +82,7 @@ html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#
 </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# defaults
-# ------------------------------------------------------------
+# --------------------------- Defaults -------------------------
 _defaults = {
     "run_stima_mobile": False,
     "show_avvisi": True,
@@ -110,9 +99,7 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-# ------------------------------------------------------------
-# Helpers
-# ------------------------------------------------------------
+# --------------------------- Helpers --------------------------
 def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
     main = f'<div class="fcbox">Fattore di correzione suggerito: {f_finale:.2f}</div>'
     side = ""
@@ -120,29 +107,27 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
         side = f'<div class="fcsub">Valore per 70 kg: {f_base:.2f} • Adattato per {peso_corrente:.1f} kg</div>'
     st.markdown(main + side, unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# Data/Ora ispezione
-# ------------------------------------------------------------
+# ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
 if st.session_state["usa_orario_custom"]:
     if st.session_state.get("input_data_rilievo") is None:
         st.session_state["input_data_rilievo"] = datetime.date.today()
     if not st.session_state.get("input_ora_rilievo"):
         st.session_state["input_ora_rilievo"] = "00:00"
-    col1, col2 = st.columns(2, gap="small")
-    with col1:
+    c1, c2 = st.columns(2, gap="small")
+    with c1:
+        st.markdown("<label>Data ispezione legale</label>", unsafe_allow_html=True)
         st.date_input("Data ispezione legale:", value=st.session_state["input_data_rilievo"],
                       label_visibility="collapsed", key="input_data_rilievo")
-    with col2:
+    with c2:
+        st.markdown("<label>Ora ispezione legale (HH:MM)</label>", unsafe_allow_html=True)
         st.text_input("Ora ispezione legale (HH:MM):", value=st.session_state["input_ora_rilievo"],
                       label_visibility="collapsed", key="input_ora_rilievo")
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
 
-# ------------------------------------------------------------
-# Ipostasi e rigidità
-# ------------------------------------------------------------
+# --------------------- Ipostasi e rigidità --------------------
 _IPOSTASI_MOBILE = {
     "Assenti": "Non ancora comparse",
     "Almeno parzialmente migrabili": "Migrabili perlomeno parzialmente",
@@ -159,51 +144,52 @@ _RIGIDITA_MOBILE = {
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
-    ip_opts = list(_IPOSTASI_MOBILE.keys())
-    ip_idx = ip_opts.index("/") if "/" in ip_opts else 0
-    scelta_ipostasi_lbl = st.selectbox("Macchie ipostatiche:", ip_opts, index=ip_idx,
-                                       key="selettore_macchie_mobile")
+    st.markdown("<label>Macchie ipostatiche</label>", unsafe_allow_html=True)
+    scelta_ipostasi_lbl = st.selectbox(
+        "Macchie ipostatiche:", list(_IPOSTASI_MOBILE.keys()),
+        index=(list(_IPOSTASI_MOBILE.keys()).index("/") if "/" in _IPOSTASI_MOBILE else 0),
+        key="selettore_macchie_mobile", label_visibility="collapsed"
+    )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
-    rg_opts = list(_RIGIDITA_MOBILE.keys())
-    rg_idx = rg_opts.index("/") if "/" in rg_opts else 0
-    scelta_rigidita_lbl = st.selectbox("Rigidità cadaverica:", rg_opts, index=rg_idx,
-                                       key="selettore_rigidita_mobile")
+    st.markdown("<label>Rigidità cadaverica</label>", unsafe_allow_html=True)
+    scelta_rigidita_lbl = st.selectbox(
+        "Rigidità cadaverica:", list(_RIGIDITA_MOBILE.keys()),
+        index=(list(_RIGIDITA_MOBILE.keys()).index("/") if "/" in _RIGIDITA_MOBILE else 0),
+        key="selettore_rigidita_mobile", label_visibility="collapsed"
+    )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ------------------------------------------------------------
-# Temperature e parametri principali
-# ------------------------------------------------------------
-st.markdown("<span class='lbl'>T. rettale (°C):</span>", unsafe_allow_html=True)
+# --------------- Temperature e parametri principali ------------
+st.markdown("<label>T. rettale (°C)</label>", unsafe_allow_html=True)
 input_rt = st.number_input("T. rettale (°C):", value=st.session_state.get("rt_val", 35.0),
                            step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed")
 
 c1, c2 = st.columns([1, 1], gap="small")
 with c1:
-    st.markdown("<span class='lbl'>Peso (kg) <span class='unc'>— default ±3</span></span>", unsafe_allow_html=True)
+    st.markdown("<label>Peso (kg) <span class='small'>— default ±3</span></label>", unsafe_allow_html=True)
     input_w = st.number_input("Peso (kg):", value=st.session_state.get("peso", 70.0),
                               step=1.0, format="%.1f", label_visibility="collapsed", key="peso")
 with c2:
-    st.markdown("<span class='lbl'>T. ambientale media (°C) <span class='unc'>— default ±1</span></span>", unsafe_allow_html=True)
+    st.markdown("<label>T. ambientale media (°C) <span class='small'>— default ±1</span></label>", unsafe_allow_html=True)
     input_ta = st.number_input("T. ambientale media (°C):", value=st.session_state.get("ta_base_val", 20.0),
                                step=0.1, format="%.1f", label_visibility="collapsed", key="ta_base_val")
 
 c3, c4 = st.columns([1, 0.9], gap="small")
 with c3:
-    st.markdown("<span class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></span>", unsafe_allow_html=True)
-    fattore_correzione = st.number_input("Fattore di correzione (FC):",
-                                         value=st.session_state.get("fattore_correzione", 1.0),
-                                         step=0.1, format="%.2f",
-                                         label_visibility="collapsed", key="fattore_correzione")
+    st.markdown("<label>Fattore di correzione <span class='small'>— default ±0.10</span></label>", unsafe_allow_html=True)
+    fattore_correzione = st.number_input(
+        "Fattore di correzione (FC):",
+        value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f", label_visibility="collapsed", key="fattore_correzione"
+    )
 with c4:
     st.toggle("Suggerisci fattore di correzione",
               value=st.session_state.get("toggle_fattore_inline_mobile", False),
               key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# ------------------------------------------------------------
-# Pannello “Suggerisci FC” inline, senza titolo
-# ------------------------------------------------------------
+# -------- Pannello “Suggerisci FC” inline, senza titolo -------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -222,26 +208,20 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         except Exception:
             return 0
 
-    # Stato del corpo senza label
-    stato_corpo = st.radio(
-        "", ["Asciutto", "Bagnato", "Immerso"],
-        index=0, horizontal=True, key=k("radio_stato_corpo"),
-        label_visibility="collapsed"
-    )
+    # stato del corpo senza label visibile
+    stato_corpo = st.radio("", ["Asciutto", "Bagnato", "Immerso"],
+                           index=0, horizontal=True, key=k("radio_stato_corpo"),
+                           label_visibility="collapsed")
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio(
-            "", ["In acqua stagnante", "In acqua corrente"],
-            index=0, horizontal=True, key=k("radio_acqua"),
-            label_visibility="collapsed"
-        )
+        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
+                               index=0, horizontal=True, key=k("radio_acqua"),
+                               label_visibility="collapsed")
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
-
         try:
             tabella2 = load_tabelle_correzione()
         except Exception:
             tabella2 = None
-
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
             superficie_display=None, correnti_aria=False,
@@ -275,7 +255,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             })
         rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
-
         edited = st.data_editor(
             df, hide_index=True, use_container_width=True,
             column_config={
@@ -289,10 +268,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
         n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
 
-    counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
-    )
+    counts = DressCounts(sottili=n_sottili, spessi=n_spessi,
+                         coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
 
     superficie_display_selected = None
     if stato_corpo == "Asciutto":
@@ -304,11 +281,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
+        st.markdown("<label>Superficie di appoggio</label>", unsafe_allow_html=True)
         superficie_display_selected = st.selectbox(
-            "Superficie di appoggio",
-            options_display,
+            "Superficie di appoggio", options_display,
             index=options_display.index(prev_display),
-            key=k("superficie_display_sel")
+            key=k("superficie_display_sel"), label_visibility="collapsed"
         )
 
     correnti_presenti = False
@@ -319,12 +296,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             if f_vc >= 1.2:
                 mostra_correnti = False
         if mostra_correnti:
-            correnti_presenti = st.toggle(
-                "Correnti d'aria presenti?",
-                value=st.session_state.get(k("toggle_correnti_fc"), False),
-                key=k("toggle_correnti_fc"),
-                disabled=False
-            )
+            correnti_presenti = st.toggle("Correnti d'aria presenti?",
+                                          value=st.session_state.get(k("toggle_correnti_fc"), False),
+                                          key=k("toggle_correnti_fc"),
+                                          disabled=False)
 
     try:
         tabella2 = load_tabelle_correzione()
@@ -339,7 +314,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2_df=tabella2
     )
     _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
-
     st.button("✅ Usa questo fattore", on_click=_apply_fc,
               args=(result.fattore_finale, result.riassunto),
               use_container_width=True, key=k("btn_usa_fc"))
@@ -351,9 +325,7 @@ if st.session_state.get("toggle_fattore", False):
         key_prefix="fcpanel_mobile"
     )
 
-# ------------------------------------------------------------
-# Firma input e range fissi mobile
-# ------------------------------------------------------------
+# ----------------- Firma input e range fissi mobile -----------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
         bool(st.session_state.get("usa_orario_custom", False)),
@@ -367,7 +339,6 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         float(st.session_state.get("fattore_correzione", 0.0)),
     )
 
-# Delta range fissi lato mobile
 st.session_state["stima_cautelativa_beta"] = True
 st.session_state["range_unico_beta"] = True
 st.session_state["ta_range_toggle_beta"] = True
@@ -382,14 +353,11 @@ st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
 st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
 st.session_state["peso_stimato_beta"] = True
 
-# Firma corrente
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
 
-# ------------------------------------------------------------
-# CTA sticky
-# ------------------------------------------------------------
+# --------------------------- CTA ------------------------------
 st.markdown('<div class="sticky-cta">', unsafe_allow_html=True)
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile",
                     use_container_width=True, type="primary")
@@ -402,9 +370,7 @@ if clicked:
 if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_sig_mobile") != curr_sig:
     st.session_state["run_stima_mobile"] = False
 
-# ------------------------------------------------------------
-# Output
-# ------------------------------------------------------------
+# -------------------------- Output ---------------------------
 if st.session_state.get("run_stima_mobile"):
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
