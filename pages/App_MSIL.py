@@ -117,11 +117,19 @@ if st.session_state["usa_orario_custom"]:
         st.session_state["input_ora_rilievo"] = "00:00"
     c1, c2 = st.columns(2, gap="small")
     with c1:
-        st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
-                      label_visibility="collapsed", key="input_data_rilievo")
+        st.date_input(
+            "Data ispezione legale",
+            value=st.session_state["input_data_rilievo"],
+            label_visibility="collapsed",
+            key="input_data_rilievo"
+        )
     with c2:
-        st.text_input("Ora ispezione legale (HH:MM)", value=st.session_state["input_ora_rilievo"],
-                      label_visibility="collapsed", key="input_ora_rilievo")
+        st.text_input(
+            "Ora ispezione legale (HH:MM)",
+            value=st.session_state["input_ora_rilievo"],
+            label_visibility="collapsed",
+            key="input_ora_rilievo"
+        )
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
@@ -147,7 +155,8 @@ with c_ip:
         "Macchie ipostatiche",
         list(_IPOSTASI_MOBILE.keys()),
         index=(list(_IPOSTASI_MOBILE.keys()).index("/") if "/" in _IPOSTASI_MOBILE else 0),
-        key="selettore_macchie_mobile", label_visibility="visible"
+        key="selettore_macchie_mobile",
+        label_visibility="visible"
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
@@ -155,7 +164,8 @@ with c_rg:
         "Rigidità cadaverica",
         list(_RIGIDITA_MOBILE.keys()),
         index=(list(_RIGIDITA_MOBILE.keys()).index("/") if "/" in _RIGIDITA_MOBILE else 0),
-        key="selettore_rigidita_mobile", label_visibility="visible"
+        key="selettore_rigidita_mobile",
+        label_visibility="visible"
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
@@ -168,15 +178,19 @@ input_rt = st.number_input(
 
 c1, c2 = st.columns([1, 1], gap="small")
 with c1:
-    input_w = st.number_input("Peso (kg)",
-                              value=st.session_state.get("peso", 70.0),
-                              step=1.0, format="%.1f",
-                              label_visibility="visible", key="peso")
+    input_w = st.number_input(
+        "Peso (kg)",
+        value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f",
+        label_visibility="visible", key="peso"
+    )
 with c2:
-    input_ta = st.number_input("T. ambientale media (°C)",
-                               value=st.session_state.get("ta_base_val", 20.0),
-                               step=0.1, format="%.1f",
-                               label_visibility="visible", key="ta_base_val")
+    input_ta = st.number_input(
+        "T. ambientale media (°C)",
+        value=st.session_state.get("ta_base_val", 20.0),
+        step=0.1, format="%.1f",
+        label_visibility="visible", key="ta_base_val"
+    )
 
 c3, c4 = st.columns([1, 0.9], gap="small")
 with c3:
@@ -187,9 +201,11 @@ with c3:
         label_visibility="visible", key="fattore_correzione"
     )
 with c4:
-    st.toggle("Suggerisci fattore di correzione",
-              value=st.session_state.get("toggle_fattore_inline_mobile", False),
-              key="toggle_fattore_inline_mobile")
+    st.toggle(
+        "Suggerisci fattore di correzione",
+        value=st.session_state.get("toggle_fattore_inline_mobile", False),
+        key="toggle_fattore_inline_mobile"
+    )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 # -------- Pannello “Suggerisci FC” inline, senza markdown -----
@@ -211,12 +227,13 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         except Exception:
             return 0
 
-    # stato del corpo senza label visibile
-    stato_corpo = st.radio(
+    # UI labels -> backend values
+    stato_label = st.radio(
         "", ["Corpo asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo"),
         label_visibility="collapsed"
     )
+    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
     if stato_corpo == "Immerso":
         acqua_label = st.radio(
@@ -238,18 +255,23 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             tabella2_df=tabella2
         )
         _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
-        st.button("Usa questo fattore", on_click=_apply_fc,
-                  args=(result.fattore_finale, result.riassunto),
-                  use_container_width=True, key=k("btn_usa_fc_imm"))
+        st.button(
+            "Usa questo fattore",
+            on_click=_apply_fc,
+            args=(result.fattore_finale, result.riassunto),
+            use_container_width=True, key=k("btn_usa_fc_imm")
+        )
         return
 
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
-                                   value=st.session_state.get(k("toggle_vestito"), False),
-                                   key=k("toggle_vestito"))
+        toggle_vestito = st.toggle(
+            "Vestiti/coperte su addome/bacino?",
+            value=st.session_state.get(k("toggle_vestito"), False),
+            key=k("toggle_vestito")
+        )
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -257,7 +279,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
             "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
         }
-        if stato_corpo == "Corpo asciutto":
+        if stato_corpo == "Asciutto":
             defaults.update({
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
@@ -274,14 +296,16 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Corpo asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Corpo asciutto" else 0
+        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
 
-    counts = DressCounts(sottili=n_sottili, spessi=n_spessi,
-                         coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
+    counts = DressCounts(
+        sottili=n_sottili, spessi=n_spessi,
+        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+    )
 
     superficie_display_selected = None
-    if stato_corpo == "Corpo asciutto":
+    if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito)
                     or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
         options_display = SURF_DISPLAY_ORDER.copy()
@@ -301,7 +325,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     correnti_presenti = False
     with corr_placeholder.container():
         mostra_correnti = True
-        if stato_corpo == "Corpo asciutto":
+        if stato_corpo == "Asciutto":
             f_vc = fattore_vestiti_coperte(counts)
             if f_vc >= 1.2:
                 mostra_correnti = False
@@ -320,16 +344,19 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     result = compute_factor(
         stato=stato_corpo, acqua=None, counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Corpo asciutto" else None,
+        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
         correnti_aria=correnti_presenti,
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
     )
     _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
-    st.button("Usa questo fattore", on_click=_apply_fc,
-              args=(result.fattore_finale, result.riassunto),
-              use_container_width=True, key=k("btn_usa_fc"))
+    st.button(
+        "Usa questo fattore",
+        on_click=_apply_fc,
+        args=(result.fattore_finale, result.riassunto),
+        use_container_width=True, key=k("btn_usa_fc")
+    )
 
 # mostra pannello inline solo se richiesto
 if st.session_state.get("toggle_fattore", False):
@@ -372,8 +399,12 @@ if "last_run_sig_mobile" not in st.session_state:
 
 # --------------------------- CTA ------------------------------
 st.markdown('<div class="sticky-cta">', unsafe_allow_html=True)
-clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile",
-                    use_container_width=True, type="primary")
+clicked = st.button(
+    "STIMA EPOCA DECESSO",
+    key="btn_stima_mobile",
+    use_container_width=True,
+    type="primary"
+)
 st.markdown('</div>', unsafe_allow_html=True)
 
 if clicked:
@@ -398,5 +429,4 @@ if st.session_state.get("run_stima_mobile"):
         input_data_rilievo=st.session_state["input_data_rilievo"],
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
-            )
-    
+    )
