@@ -183,11 +183,12 @@ with c3:
                                          step=0.1, format="%.2f",
                                          label_visibility="collapsed", key="fattore_correzione")
 with c4:
-    st.markdown("<div class='lbl'>&nbsp;</div>", unsafe_allow_html=True)
-    st.toggle("Suggerisci fattore di correzione",
-              value=st.session_state.get("toggle_fattore_inline_mobile", False),
-              key="toggle_fattore_inline_mobile")
-st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
+    st.empty()  # nessun contenuto visibile né margini
+    st.toggle(
+        "Suggerisci fattore di correzione",
+        value=st.session_state.get("toggle_fattore_inline_mobile", False),
+        key="toggle_fattore_inline_mobile",
+    )
 
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
