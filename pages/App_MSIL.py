@@ -13,6 +13,7 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 # Config + stato persistente
 # ------------------------------------------------------------
+st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
 # --- CSS bottone evidenziato + sticky bar
 st.markdown("""
@@ -40,12 +41,6 @@ _defaults = {
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
-
-# Titolo compatto
-st.markdown(
-    "<h6 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO - MSIL</h6>",
-    unsafe_allow_html=True
-)
 
 # ------------------------------------------------------------
 # Helpers UI
