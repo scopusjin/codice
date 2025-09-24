@@ -66,6 +66,9 @@ div.stButton>button:hover{filter:brightness(1.06)}
 </style>
 """, unsafe_allow_html=True)
 
+# forziamo il primo mount senza margini residui del viewer
+st.markdown("<style>body > div:first-child{margin-top:0!important;padding-top:0!important}</style>", unsafe_allow_html=True)
+
 # CSS ultra-compatto + rimozione spazio alto + sticky CTA
 st.markdown("""
 <style>
