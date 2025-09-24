@@ -88,6 +88,21 @@ footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+/* nascondi badge/pulsante Cloud in basso a destra e tooltip "Manage app" */
+#stDecoration,
+[data-testid="stDecoration"],
+[data-testid="viewerBadge"],
+a[data-testid="viewerBadge"],
+[class^="viewerBadge_"],
+[class*=" viewerBadge_"],
+a[href^="https://streamlit.io/cloud"],
+a[href^="https://share.streamlit.io"] { display: none !important; }
+
+/* menu e footer standard */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+    
+
 # --------------------------- Defaults -------------------------
 _defaults = {
     "run_stima_mobile": False,
