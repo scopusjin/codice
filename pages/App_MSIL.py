@@ -13,7 +13,6 @@ from app.factor_calc import (
 # --------------------------- Config ---------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-# ----------------------------- CSS ----------------------------
 st.markdown("""
 <style>
 /* header e top gap */
@@ -27,24 +26,21 @@ div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
 div[data-testid="stHorizontalBlock"]{gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important}
 
-/* widget uniformi: margini minimi uguali per tutti */
+/* widget */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
-div[data-testid="stTextInput"]{
-  margin-top:2px!important;margin-bottom:2px!important;padding:0!important
-}
+div[data-testid="stTextInput"]{margin-top:2px!important;margin-bottom:2px!important;padding:0!important}
 
-/* etichette native e input compatti */
+/* etichette e input compatti */
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label,
 div[data-testid="stDateInput"] > label,
 div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem}
-
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
@@ -68,7 +64,7 @@ html[data-theme="dark"] .fcbox{background:#0d2a47;color:#d6e9ff}
 html[data-theme="light"] .fcsub{color:#3f6fb5}
 html[data-theme="dark"] .fcsub{color:#a7c7ff}
 
-/* pulsanti compatti */
+/* pulsanti */
 div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
@@ -81,27 +77,17 @@ div.stButton>button{width:100%!important;font-size:.95rem!important;font-weight:
 html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important}
 html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important}
 
-/* nascondi menu e toolbar di gestione + footer */
-#stDecoration, [data-testid="stDecoration"] {display: none !important;}
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
+/* nascondi badge/pulsante Cloud “Manage app”, menu e footer */
+#stDecoration, [data-testid="stDecoration"],
+[data-testid="viewerBadge"], a[data-testid="viewerBadge"],
+[class^="viewerBadge_"], [class*=" viewerBadge_"],
+a[href^="https://streamlit.io/cloud"],
+a[href^="https://share.streamlit.io"]{display:none!important;}
+#MainMenu{visibility:hidden;}
+footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-/* nascondi badge/pulsante Cloud in basso a destra e tooltip "Manage app" */
-#stDecoration,
-[data-testid="stDecoration"],
-[data-testid="viewerBadge"],
-a[data-testid="viewerBadge"],
-[class^="viewerBadge_"],
-[class*=" viewerBadge_"],
-a[href^="https://streamlit.io/cloud"],
-a[href^="https://share.streamlit.io"] { display: none !important; }
-
-/* menu e footer standard */
-#MainMenu { visibility: hidden; }
-footer { visibility: hidden; }
-    
 
 # --------------------------- Defaults -------------------------
 _defaults = {
