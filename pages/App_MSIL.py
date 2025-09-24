@@ -14,72 +14,21 @@ from app.factor_calc import (
 # Config + stato
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
+
+# CSS: rimuove header e spazio vuoto, interfaccia compatta
 st.markdown("""
 <style>
-/* —————— rimuovi header/toolbars/residui top —————— */
-html, body, .stApp{margin:0!important;padding:0!important;height:100%}
-header, header[data-testid="stHeader"]{display:none!important;height:0!important;min-height:0!important}
-div[data-testid="stDecoration"]{display:none!important}
-div[data-testid="stStatusWidget"]{display:none!important}
-div[data-testid="stToolbar"]{display:none!important}
-div[data-testid="collapsedControl"]{display:none!important}
+/* elimina header e spazio superiore */
+header[data-testid="stHeader"]{display:none!important;}
+div.block-container{padding-top:0rem!important;margin-top:0!important;}
+section.main{padding-top:0!important;margin-top:0!important;}
 
-/* gutter superiore del main a zero */
-section.main{padding-top:0!important;margin-top:0!important}
-section.main > div.block-container{padding-top:0!important;margin-top:0!important}
-section.main > div.block-container > div:first-child{margin-top:0!important;padding-top:0!important}
-/* wrapper primo elemento: azzera padding/margine che Streamlit aggiunge */
-section.main .block-container .element-container:first-child{margin-top:0!important;padding-top:0!important}
-
-/* —————— compatta tutto il resto —————— */
-div[data-testid="stContainer"]{padding:0;margin:0}
-div[data-testid="stVerticalBlock"]{margin-top:0!important;margin-bottom:0!important}
-div[data-testid="stVerticalBlock"] > div{margin-top:2px!important;margin-bottom:2px!important}
-div[data-testid="stHorizontalBlock"]{gap:.32rem!important;margin:0!important}
-div[data-baseweb="input"],div[data-baseweb="select"],div[data-baseweb="textarea"]{margin:0!important}
-div[data-testid="stNumberInput"] > label,
-div[data-testid="stSelectbox"] > label,
-div[data-testid="stToggle"] > label,
-div[data-testid="stRadio"] > label{margin:0 0 2px 0!important;line-height:1.1}
-label,p,small{margin:0!important}
-div[data-testid="stSelectbox"] .stSelect{min-height:36px}
-div.stButton{margin:2px 0!important}
-div.stButton>button{min-height:44px}
-
-/* editor tabelle compatto */
-div[data-testid="stDataEditor"] thead,
-div[data-testid="stDataEditor"] [role="columnheader"],
-div[data-testid="stDataEditor"] .column-header{display:none!important}
-[data-testid="stElementToolbar"]{display:none!important}
-div[data-testid="stRadio"]{margin:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.28rem}
-div[data-testid="stToggle"],div[data-testid="stSlider"]{margin:0!important}
-
-/* sticky CTA */
-.sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);
-  padding:8px 8px 12px 8px;border-top:1px solid #e0e0e0}
-div.stButton>button{width:100%!important;height:56px!important;font-size:1.05rem!important;font-weight:700!important;
-  letter-spacing:.3px!important;border-radius:10px!important;box-shadow:0 4px 12px rgba(0,0,0,.12)!important}
-html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important}
-html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important}
-div.stButton>button:hover{filter:brightness(1.06)}
-</style>
-""", unsafe_allow_html=True)
-
-# forziamo il primo mount senza margini residui del viewer
-st.markdown("<style>body > div:first-child{margin-top:0!important;padding-top:0!important}</style>", unsafe_allow_html=True)
-
-# CSS ultra-compatto + rimozione spazio alto + sticky CTA
-st.markdown("""
-<style>
-/* elimina spazio superiore pagina e margini iniziali */
-section.main > div.block-container{padding-top:0!important;padding-bottom:64px!important;}
-section.main > div.block-container > div:first-child{margin-top:0!important;}
 /* contenitori e blocchi più densi */
 div[data-testid="stContainer"]{padding:0;margin:0;}
 div[data-testid="stVerticalBlock"]{margin-top:0!important;margin-bottom:0!important;}
 div[data-testid="stVerticalBlock"] > div{margin-top:2px!important;margin-bottom:2px!important;}
-div[data-testid="stHorizontalBlock"]{gap:.32rem!important;margin-top:0!important;margin-bottom:0!important;}
+div[data-testid="stHorizontalBlock"]{gap:.32rem!important;margin:0!important;}
+
 /* widget senza margini extra */
 div[data-baseweb="input"],div[data-baseweb="select"],div[data-baseweb="textarea"]{margin:0!important;}
 div[data-testid="stNumberInput"] > label,
@@ -87,23 +36,25 @@ div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label{margin:0 0 2px 0!important;line-height:1.1;}
 label,p,small{margin:0!important;}
-/* altezza minima controllata */
-div[data-testid="stSelectbox"] .stSelect{min-height:36px}
+div[data-testid="stSelectbox"] .stSelect{min-height:36px;}
 div.stButton{margin:2px 0!important;}
-div.stButton>button{min-height:44px}
+div.stButton>button{min-height:44px;}
+
 /* editor tabelle compatto */
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important;}
 [data-testid="stElementToolbar"]{display:none!important;}
+
 /* radio/slider margini minimi */
 div[data-testid="stRadio"]{margin:0!important;}
 div[data-testid="stRadio"] div[role="radiogroup"]{gap:.28rem;}
-div[data-testid="stToggle"]{margin:0!important;}
-div[data-testid="stSlider"]{margin:0!important;}
+div[data-testid="stToggle"],div[data-testid="stSlider"]{margin:0!important;}
+
 /* etichette piccole */
 .lbl{font-size:.88rem;}
 .lbl .unc{font-size:.78rem;color:#555;white-space:nowrap;}
+
 /* box FC */
 .fcbox{border:1px solid #1976d2;border-radius:8px;padding:10px;font-weight:600;}
 html[data-theme="light"] .fcbox{background:#e8f0fe;color:#0d47a1;}
@@ -111,16 +62,21 @@ html[data-theme="dark"] .fcbox{background:#0d2a47;color:#d6e9ff;}
 .fcsub{padding:6px 2px 0 2px;font-size:.92em;}
 html[data-theme="light"] .fcsub{color:#3f6fb5;}
 html[data-theme="dark"] .fcsub{color:#a7c7ff;}
+
 /* sticky CTA */
-.sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);padding:8px 8px 12px 8px;border-top:1px solid #e0e0e0;}
-div.stButton>button{width:100%!important;height:56px!important;font-size:1.05rem!important;font-weight:700!important;letter-spacing:.3px!important;border-radius:10px!important;box-shadow:0 4px 12px rgba(0,0,0,.12)!important;}
+.sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);
+  padding:8px 8px 12px 8px;border-top:1px solid #e0e0e0;}
+div.stButton>button{width:100%!important;height:56px!important;font-size:1.05rem!important;font-weight:700!important;
+  letter-spacing:.3px!important;border-radius:10px!important;box-shadow:0 4px 12px rgba(0,0,0,.12)!important;}
 html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important;}
 html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important;}
 div.stButton>button:hover{filter:brightness(1.06);}
 </style>
 """, unsafe_allow_html=True)
 
+# ------------------------------------------------------------
 # defaults
+# ------------------------------------------------------------
 _defaults = {
     "run_stima_mobile": False,
     "show_avvisi": True,
@@ -135,6 +91,10 @@ _defaults = {
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
+
+# … resto del codice invariato (helper, ipostasi/rigidità, input parametri,
+# pannello suggerisci FC, firma input, CTA sticky, aggiorna_grafico)
+
 
 # ------------------------------------------------------------
 # Helpers
