@@ -118,10 +118,10 @@ if st.session_state["usa_orario_custom"]:
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
-                      label_visibility="visible", key="input_data_rilievo")
+                      label_visibility="collapsed", key="input_data_rilievo")
     with c2:
         st.text_input("Ora ispezione legale (HH:MM)", value=st.session_state["input_ora_rilievo"],
-                      label_visibility="visible", key="input_ora_rilievo")
+                      label_visibility="collapsed", key="input_ora_rilievo")
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
