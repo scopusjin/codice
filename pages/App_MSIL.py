@@ -14,7 +14,15 @@ from app.factor_calc import (
 # Config + stato
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
-
+st.markdown("""
+<style>
+/* azzera header invisibile Streamlit */
+header[data-testid="stHeader"]{display:none !important;}
+/* togli padding e margine anche al primo contenitore */
+section.main > div.block-container{padding-top:0!important;margin-top:0!important;}
+section.main > div.block-container > div:first-child{margin-top:0!important;}
+</style>
+""", unsafe_allow_html=True)
 # CSS ultra-compatto + rimozione spazio alto + sticky CTA
 st.markdown("""
 <style>
