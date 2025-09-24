@@ -15,41 +15,43 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-# CSS: rimuove header e spazio vuoto, interfaccia compatta
+# CSS: rimuove header/spazio top, uniforma distanze, compatta UI
 st.markdown("""
 <style>
-/* elimina header e spazio superiore */
+/* remove header + top gap */
 header[data-testid="stHeader"]{display:none!important;}
-div.block-container{padding-top:0rem!important;margin-top:0!important;}
 section.main{padding-top:0!important;margin-top:0!important;}
+div.block-container{padding-top:0!important;margin-top:0!important;}
 
-/* contenitori e blocchi più densi */
+/* layout densità */
 div[data-testid="stContainer"]{padding:0;margin:0;}
 div[data-testid="stVerticalBlock"]{margin-top:0!important;margin-bottom:0!important;}
 div[data-testid="stVerticalBlock"] > div{margin-top:2px!important;margin-bottom:2px!important;}
 div[data-testid="stHorizontalBlock"]{gap:.32rem!important;margin:0!important;}
 
-/* widget senza margini extra */
+/* widget base: altezze e margini */
 div[data-baseweb="input"],div[data-baseweb="select"],div[data-baseweb="textarea"]{margin:0!important;}
+div[data-testid="stNumberInput"] input{height:36px!important;padding:6px 8px!important;}
+div[data-baseweb="select"] > div{min-height:36px!important;}
+div[data-testid="stSelectbox"] svg{margin-top:-2px!important;}
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label{margin:0 0 2px 0!important;line-height:1.1;}
-label,p,small{margin:0!important;}
-div[data-testid="stSelectbox"] .stSelect{min-height:36px;}
-div.stButton{margin:2px 0!important;}
-div.stButton>button{min-height:44px;}
+div[data-testid="stMarkdown"]{margin:0!important;padding:0!important;line-height:1.1!important;}
 
-/* editor tabelle compatto */
+/* toggle e radio più schiacciati */
+div[data-testid="stToggle"]{margin:0!important;}
+div[data-testid="stRadio"]{margin:0!important;}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.28rem;}
+/* nel row FC, schiaccia il toggle a destra */
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stToggle"]{margin-top:-10px!important;}
+
+/* data editor compatto */
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important;}
 [data-testid="stElementToolbar"]{display:none!important;}
-
-/* radio/slider margini minimi */
-div[data-testid="stRadio"]{margin:0!important;}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.28rem;}
-div[data-testid="stToggle"],div[data-testid="stSlider"]{margin:0!important;}
 
 /* etichette piccole */
 .lbl{font-size:.88rem;}
@@ -66,6 +68,7 @@ html[data-theme="dark"] .fcsub{color:#a7c7ff;}
 /* sticky CTA */
 .sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);
   padding:8px 8px 12px 8px;border-top:1px solid #e0e0e0;}
+div.stButton{margin:2px 0!important;}
 div.stButton>button{width:100%!important;height:56px!important;font-size:1.05rem!important;font-weight:700!important;
   letter-spacing:.3px!important;border-radius:10px!important;box-shadow:0 4px 12px rgba(0,0,0,.12)!important;}
 html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important;}
@@ -91,10 +94,6 @@ _defaults = {
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
-
-# … resto del codice invariato (helper, ipostasi/rigidità, input parametri,
-# pannello suggerisci FC, firma input, CTA sticky, aggiorna_grafico)
-
 
 # ------------------------------------------------------------
 # Helpers
@@ -183,15 +182,14 @@ with c3:
                                          step=0.1, format="%.2f",
                                          label_visibility="collapsed", key="fattore_correzione")
 with c4:
-    st.empty()  # nessun contenuto visibile né margini
-    st.toggle(
-        "Suggerisci fattore di correzione",
-        value=st.session_state.get("toggle_fattore_inline_mobile", False),
-        key="toggle_fattore_inline_mobile",
-    )
+    st.toggle("Suggerisci fattore di correzione",
+              value=st.session_state.get("toggle_fattore_inline_mobile", False),
+              key="toggle_fattore_inline_mobile")
+# sincronizza flag globale usato più sotto
+st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 # ------------------------------------------------------------
-# Pannello “Suggerisci FC”
+# Pannello “Suggerisci FC” (EXPANDER)
 # ------------------------------------------------------------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
@@ -320,12 +318,13 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
               args=(result.fattore_finale, result.riassunto),
               use_container_width=True, key=k("btn_usa_fc"))
 
-# Toggle pannello Suggerisci FC
+# Expander collegato al toggle
 if st.session_state.get("toggle_fattore", False):
-    pannello_suggerisci_fc_mobile(
-        peso_default=st.session_state.get("peso", 70.0),
-        key_prefix="fcpanel_mobile"
-    )
+    with st.expander("Suggerisci fattore di correzione", expanded=True):
+        pannello_suggerisci_fc_mobile(
+            peso_default=st.session_state.get("peso", 70.0),
+            key_prefix="fcpanel_mobile"
+        )
 
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
