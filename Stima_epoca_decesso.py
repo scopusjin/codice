@@ -115,7 +115,13 @@ st.markdown("""
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
 
-# Defaults una sola volta (evita warning "default + Session State")
+# Helper: default stabile per ogni widget
+def sget(key, default):
+    if key not in st.session_state:
+        st.session_state[key] = default
+    return st.session_state[key]
+
+# Defaults iniziali una sola volta
 _defaults = {
     "rt_val": 35.0,
     "tm_val": 37.2,
@@ -131,114 +137,35 @@ _defaults = {
     "toggle_fattore_inline": False,
     "toggle_fattore_inline_std": False,
     "fc_suggested_vals": [],
-}
-
-# --- Sticky non-zero ---
-STICKY_KEYS = {
-    "rt_val": 35.0,
-    "tm_val": 37.2,
-    "ta_base_val": 20.0,
-    "peso": 70.0,
-    "fattore_correzione": 1.0,
+    # range widgets
     "fc_min_val": 0.90,
     "fc_other_val": 1.10,
     "ta_other_val": 21.0,
 }
-st.session_state.setdefault("_sticky", {})
-for k, v in STICKY_KEYS.items():
-    st.session_state.setdefault(k, v)
-    st.session_state["_sticky"].setdefault(k, st.session_state[k])
-
-def _sticky_set(k: str, v: float):
-    st.session_state[k] = v
-    if isinstance(v, (int, float)) and np.isfinite(v) and v != 0.0:
-        st.session_state["_sticky"][k] = float(v)
-
-def _restore_if_zero(*keys: str):
-    for k in keys:
-        v = st.session_state.get(k)
-        if v in (None, 0, 0.0) and k in st.session_state["_sticky"]:
-            st.session_state[k] = st.session_state["_sticky"][k]
-
-def _mk_on_change(key):
-    def _f():
-        v = st.session_state.get(key)
-        if isinstance(v, (int, float)) and np.isfinite(v) and v != 0.0:
-            st.session_state["_sticky"][key] = float(v)
-    return _f
-
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-def _as_float(x):
-    try:
-        v = float(x)
-        return v if np.isfinite(v) else None
-    except Exception:
-        return None
-
-def _seed_nonzero(key: str, fallback: float):
-    v = _as_float(st.session_state.get(key))
-    if v is None or v == 0.0:
-        st.session_state[key] = float(fallback)
-
+if "show_results" not in st.session_state:
+    st.session_state["show_results"] = False
 if "show_img_sopraciliare" not in st.session_state:
     st.session_state["show_img_sopraciliare"] = False
 if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
-if "show_results" not in st.session_state:
-    st.session_state["show_results"] = False
-
-# --- Normalizzazione seed anti-0 su ogni rerun ---
-_seed_nonzero("ta_base_val", 20.0)
-_seed_nonzero("fattore_correzione", 1.0)
-_seed_nonzero("rt_val", 35.0)     # <- aggiungi
-_seed_nonzero("tm_val", 37.2)     # <- aggiungi
-_seed_nonzero("peso", 70.0)       # <- aggiungi
-
-# Derivati usati nei widget di range
-fc0 = float(st.session_state["fattore_correzione"])
-ta0 = float(st.session_state["ta_base_val"])
-_seed_nonzero("fc_min_val", round(fc0 - 0.10, 2))
-_seed_nonzero("fc_other_val", round(fc0 + 0.10, 2))
-_seed_nonzero("ta_other_val", ta0 + 1.0)
-
 
 # --- INIT per cautelativa: intervallo FC proposto dal pannello "Suggerisci FC"
 def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
-    vals = sorted({round(float(v), 2) for v in vals})
+    vals = sorted({round(float(v), 2) for v in vals if v is not None})
     if not vals:
-        # NON cancellare i widget dei number_input
-        for k in ("FC_min_beta", "FC_max_beta"):
-            st.session_state.pop(k, None)
-        st.session_state["fc_manual_range_beta"] = False
-
-        # se il range è attivo, assicurati di avere seed coerenti
-        if st.session_state.get("range_unico_beta", False):
-            fc0 = float(st.session_state.get("fattore_correzione", 1.0))
-            st.session_state.setdefault("fc_min_val", round(fc0 - 0.10, 2))
-            st.session_state.setdefault("fc_other_val", round(fc0 + 0.10, 2))
         return
-
     lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals) == 1 else (vals[0], vals[-1])
     lo, hi = round(lo, 2), round(hi, 2)
-
-    # Range “beta”
+    # aggiorna range visibile e chiavi beta
+    st.session_state["fc_min_val"] = lo
+    st.session_state["fc_other_val"] = hi
     st.session_state["FC_min_beta"] = lo
     st.session_state["FC_max_beta"] = hi
-
-    # ⚠️ Sincronizza i widget visibili ma senza azzeramenti
-    st.session_state["fc_min_val"]  = lo
-    st.session_state["fc_other_val"] = hi
-
-    # Valore medio utile altrove
-    st.session_state["fattore_correzione"] = round((lo + hi) / 2.0, 2)
-
-    # Forza modalità range
-    st.session_state["fc_manual_range_beta"] = True
     st.session_state["range_unico_beta"] = True
-    st.session_state["ta_range_toggle_beta"] = True
 
 def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
@@ -247,17 +174,10 @@ def add_fc_suggestion_global(val: float) -> None:
     if len(vals) >= 3:
         vals = [vals[0], vals[-1]]
     st.session_state["fc_suggested_vals"] = vals
-
-    # forza la modalità range
-    st.session_state["range_unico_beta"] = True
-    st.session_state["ta_range_toggle_beta"] = True
-    st.session_state["fc_manual_range_beta"] = True
-
     _sync_fc_range_from_suggestions()
 
 def clear_fc_suggestions_global() -> None:
     st.session_state["fc_suggested_vals"] = []
-    _sync_fc_range_from_suggestions()
 
 # Titolo
 st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
@@ -271,31 +191,29 @@ with st.container(border=True):
         key="usa_orario_custom",
     )
 
-    if usa_orario_custom:
+    if st.session_state["usa_orario_custom"]:
         col1, col2 = st.columns(2, gap="small")
         with col1:
             input_data_rilievo = st.date_input(
                 "Data ispezione legale:",
-                value=st.session_state.get("input_data_rilievo") or datetime.date.today(),
+                value=sget("input_data_rilievo", datetime.date.today()),
                 label_visibility="collapsed",
-                key="input_data_rilievo_widget",
+                key="input_data_rilievo",
             )
-            st.session_state["input_data_rilievo"] = input_data_rilievo
         with col2:
             input_ora_rilievo = st.text_input(
                 "Ora ispezione legale (HH:MM):",
-                value=st.session_state.get("input_ora_rilievo") or "00:00",
+                value=sget("input_ora_rilievo", "00:00"),
                 label_visibility="collapsed",
-                key="input_ora_rilievo_widget",
+                key="input_ora_rilievo",
             )
-            st.session_state["input_ora_rilievo"] = input_ora_rilievo
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
 
 # Alias locali
-input_data_rilievo = st.session_state["input_data_rilievo"]
-input_ora_rilievo  = st.session_state["input_ora_rilievo"]
+input_data_rilievo = st.session_state.get("input_data_rilievo")
+input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 
 # 📌 2. Ipostasi e rigidità — RIQUADRO
 with st.container(border=True):
@@ -305,6 +223,7 @@ with st.container(border=True):
         selettore_macchie = st.selectbox(
             "Macchie ipostatiche:",
             options=list(opzioni_macchie.keys()),
+            index=list(opzioni_macchie.keys()).index(sget("selettore_macchie", list(opzioni_macchie.keys())[0])) if "selettore_macchie" in st.session_state else 0,
             key="selettore_macchie",
             label_visibility="collapsed"
         )
@@ -313,21 +232,21 @@ with st.container(border=True):
         selettore_rigidita = st.selectbox(
             "Rigidità cadaverica:",
             options=list(opzioni_rigidita.keys()),
+            index=list(opzioni_rigidita.keys()).index(sget("selettore_rigidita", list(opzioni_rigidita.keys())[0])) if "selettore_rigidita" in st.session_state else 0,
             key="selettore_rigidita",
             label_visibility="collapsed"
         )
 
 # Toggle principale
 st.toggle("Stima prudente", key="stima_cautelativa_beta")
-# Ripristina valori se si sono azzerati a causa del rerun
-_restore_if_zero("ta_base_val", "fattore_correzione", "rt_val", "tm_val", "peso")
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
+
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 with st.container(border=True):
 
-    if st.session_state.get("stima_cautelativa_beta", False):
+    if stima_cautelativa_beta:
         # -------------------------
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
@@ -347,184 +266,142 @@ with st.container(border=True):
 
         with rg2:
             range_unico = st.toggle("Specifica range", key="range_unico_beta")
-            # Se il cambio di toggle ha portato a 0, ripristina
-            _restore_if_zero("ta_base_val", "ta_other_val", "fc_min_val", "fc_other_val", "fattore_correzione")
 
         # Etichette dinamiche
         label_ta = "T. ambientale media (°C):"
         label_fc = "Fattore di correzione (FC):"
-        if range_unico:
+        if st.session_state.get("range_unico_beta", False):
             label_ta = "Range di T. ambientale media (°C):"
             label_fc = "Range del fattore di correzione (FC):"
-
-        # Guardie anti-zero prima del render dei widget
-        if range_unico:
-            if float(st.session_state.get("ta_base_val", 0)) == 0.0:
-                st.session_state["ta_base_val"] = 20.0
-            if float(st.session_state.get("ta_other_val", 0)) == 0.0:
-                st.session_state["ta_other_val"] = float(st.session_state["ta_base_val"]) + 1.0
-            if (float(st.session_state.get("fc_min_val", 0)) == 0.0 and
-                float(st.session_state.get("fc_other_val", 0)) == 0.0):
-                fc0 = float(st.session_state.get("fattore_correzione", 1.0))
-                st.session_state["fc_min_val"] = round(fc0 - 0.10, 2)
-                st.session_state["fc_other_val"] = round(fc0 + 0.10, 2)
-
-        # Seed coerenti per TA e FC
-        if range_unico:
-            # --- TA ---
-            st.session_state.setdefault("ta_base_val", 20.0)
-            st.session_state.setdefault("ta_other_val", float(st.session_state["ta_base_val"]) + 1.0)
-            lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
-            st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-
-            # --- FC ---
-            fc0 = float(st.session_state.get("fattore_correzione", 1.0))
-            st.session_state.setdefault("fc_min_val", round(fc0 - 0.10, 2))
-            st.session_state.setdefault("fc_other_val", round(fc0 + 0.10, 2))
-            lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
-            st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-            st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
-        else:
-            for k in ("Ta_min_beta", "Ta_max_beta", "FC_min_beta", "FC_max_beta"):
-                st.session_state.pop(k, None)
-
 
         # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
         c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
         with c1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):", step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed", on_change=_mk_on_change("rt_val"))
+            st.number_input("T. rettale (°C):",
+                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed")
         with c2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f", key="tm_val", label_visibility="collapsed", on_change=_mk_on_change("tm_val"))
+            st.number_input("T. ante-mortem stimata (°C):",
+                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed")
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
             pc1, pc2 = st.columns([1, 0.8], gap="small")
             with pc1:
-                st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed", on_change=_mk_on_change("peso"))
+                st.number_input("Peso (kg):",
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed")
             with pc2:
                 st.toggle("±3 kg", key="peso_stimato_beta")
+
         # Riga 2: T. ambientale media + range unico
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
         ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
         with ta_c1:
-            st.number_input(
+            ta_base_val = st.number_input(
                 "TA base",
-                value=float(st.session_state.get("ta_base_val", 20.0)),
+                value=sget("ta_base_val", 20.0),
                 step=0.1, format="%.1f",
                 key="ta_base_val",
-                label_visibility="collapsed",
-                on_change=_mk_on_change("ta_base_val")
+                label_visibility="collapsed"
             )
         with ta_c2:
-            if range_unico:
-                st.number_input(
+            if st.session_state.get("range_unico_beta", False):
+                ta_other_val = st.number_input(
                     "TA altro estremo",
-                    value=float(st.session_state.get("ta_other_val", float(st.session_state.get("ta_base_val", 20.0)) + 1.0)),
+                    value=sget("ta_other_val", ta_base_val + 1.0),
                     step=0.1, format="%.1f",
                     key="ta_other_val",
-                    label_visibility="collapsed",
-                    on_change=_mk_on_change("ta_other_val")
+                    label_visibility="collapsed"
                 )
-                lo_ta, hi_ta = sorted([
-                    float(st.session_state["ta_base_val"]),
-                    float(st.session_state["ta_other_val"])
-                ])
-                st.session_state["Ta_min_beta"] = lo_ta
-                st.session_state["Ta_max_beta"] = hi_ta
+                lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
+                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
             else:
                 st.empty()
         with ta_c3:
             st.empty()
-            
 
         # Riga 3: Fattore di correzione
         st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
         fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
         with fc_c1:
-            if range_unico:
-                st.number_input(
+            if st.session_state.get("range_unico_beta", False):
+                fc_min_val = st.number_input(
                     "FC min",
-                    value=float(st.session_state.get("fc_min_val", round(float(st.session_state.get("fattore_correzione", 1.0)) - 0.10, 2))),
+                    value=sget("fc_min_val", round(sget("fattore_correzione", 1.0) - 0.10, 2)),
                     step=0.1, format="%.2f",
                     key="fc_min_val",
-                    label_visibility="collapsed",
-                    on_change=_mk_on_change("fattore_correzione")
+                    label_visibility="collapsed"
                 )
             else:
                 st.number_input(
                     "FC",
+                    value=sget("fattore_correzione", 1.0),
                     step=0.1, format="%.2f",
                     key="fattore_correzione",
                     label_visibility="collapsed"
                 )
-                if not st.session_state.get("fc_manual_range_beta", False) and not st.session_state.get("fc_suggested_vals"):
+                if not st.session_state.get("fc_suggested_vals"):
                     st.session_state.pop("FC_min_beta", None)
                     st.session_state.pop("FC_max_beta", None)
 
         with fc_c2:
-            if range_unico:
-                st.number_input(
+            if st.session_state.get("range_unico_beta", False):
+                fc_other_val = st.number_input(
                     "FC max",
-                    value=float(st.session_state.get("fc_other_val", round(float(st.session_state.get("fattore_correzione", 1.0)) + 0.10, 2))),
+                    value=sget("fc_other_val", round(sget("fattore_correzione", 1.0) + 0.10, 2)),
                     step=0.1, format="%.2f",
                     key="fc_other_val",
                     label_visibility="collapsed"
                 )
-                lo_fc, hi_fc = sorted([
-                    float(st.session_state["fc_min_val"]),
-                    float(st.session_state["fc_other_val"])
-                ])
-                st.session_state["FC_min_beta"] = lo_fc
-                st.session_state["FC_max_beta"] = hi_fc
-                st.session_state["fattore_correzione"] = round((lo_fc + hi_fc) / 2.0, 2)
+                lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
+                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
             else:
                 st.empty()
 
         with fc_c3:
             st.toggle("Suggerisci FC", key="toggle_fattore_inline")
-
-        # sincronizza con il pannello suggeritore
         st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
-
 
     else:
         # -------------------------
         # 🔷 MASCHERA STANDARD
         # -------------------------
-
-        # Guardie anti-0 quando si entra nella modalità standard
-        _seed_nonzero("rt_val", 35.0)
-        _seed_nonzero("tm_val", 37.2)
-        _seed_nonzero("ta_base_val", 20.0)
-        _seed_nonzero("peso", 70.0)
-        _seed_nonzero("fattore_correzione", 1.0)
-
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):", step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed", on_change=_mk_on_change("rt_val"))
+            st.number_input("T. rettale (°C):",
+                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed")
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):", step=0.1, format="%.1f", key="tm_val", label_visibility="collapsed", on_change=_mk_on_change("tm_val"))
+            st.number_input("T. ante-mortem stimata (°C):",
+                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed")
         with col3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
-            st.number_input("Peso (kg):", step=1.0, format="%.1f", key="peso", label_visibility="collapsed", on_change=_mk_on_change("peso"))            
+            st.number_input("Peso (kg):",
+                            value=sget("peso", 70.0), step=1.0, format="%.1f",
+                            key="peso", label_visibility="collapsed")
 
         col1, col2, col3 = st.columns([1, 1, 1], gap="small")
         with col1:
             st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ambientale (°C):", step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed", on_change=_mk_on_change("ta_base_val"))
+            st.number_input("T. ambientale (°C):",
+                            value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                            key="ta_base_val", label_visibility="collapsed")
 
         with col2:
             st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            st.number_input("Fattore di correzione:", step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed")
+            st.number_input("Fattore di correzione:",
+                            value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                            key="fattore_correzione", label_visibility="collapsed")
         with col3:
             st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
             st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
-
-
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
     import streamlit as st
@@ -685,6 +562,7 @@ if st.session_state.get("toggle_fattore", False):
             peso_default=st.session_state.get("peso", 70.0),
             key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
         )
+
 # Parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
 widgets_parametri_aggiuntivi = {}
@@ -874,7 +752,6 @@ with col2:
 if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr_sig:
     st.session_state["show_results"] = False
 
-# --- Mostra risultati SOLO se richiesti e firma invariata ---
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
 if st.session_state["show_results"]:
     aggiorna_grafico(
