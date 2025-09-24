@@ -15,22 +15,21 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-if "run_stima_mobile" not in st.session_state:
-    st.session_state["run_stima_mobile"] = False
-if "show_avvisi" not in st.session_state:
-    st.session_state["show_avvisi"] = True
-# Defaults UI
-st.session_state.setdefault("rt_val", 35.0)
-st.session_state.setdefault("ta_base_val", 20.0)
-st.session_state.setdefault("peso", 70.0)
-st.session_state.setdefault("fattore_correzione", 1.0)
-
-st.session_state.setdefault("usa_orario_custom", False)
-st.session_state.setdefault("input_data_rilievo", None)
-st.session_state.setdefault("input_ora_rilievo", None)
-
-st.session_state.setdefault("run_stima_mobile", False)
-st.session_state.setdefault("show_avvisi", True)
+# defaults una sola volta
+_defaults = {
+    "run_stima_mobile": False,
+    "show_avvisi": True,
+    "rt_val": 35.0,
+    "ta_base_val": 20.0,
+    "peso": 70.0,
+    "fattore_correzione": 1.0,   # step 0.1
+    "usa_orario_custom": False,
+    "input_data_rilievo": None,
+    "input_ora_rilievo": None,
+    "toggle_fattore_inline_mobile": False,
+}
+for k, v in _defaults.items():
+    st.session_state.setdefault(k, v)
 
 # Titolo compatto
 st.markdown(
@@ -70,15 +69,15 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
 
 # ------------------------------------------------------------
 # Data/Ora ispezione
-
+# ------------------------------------------------------------
 with st.container(border=True):
-    usa_orario_custom = st.toggle(
+    st.toggle(
         "Aggiungi data/ora rilievi tanatologici",
         key="usa_orario_custom",
     )
 
     if st.session_state["usa_orario_custom"]:
-        # Se erano None, ripristina i default PRIMA di renderizzare i widget
+        # auto-default se erano None/empty
         if st.session_state.get("input_data_rilievo") is None:
             st.session_state["input_data_rilievo"] = datetime.date.today()
         if not st.session_state.get("input_ora_rilievo"):
@@ -103,21 +102,16 @@ with st.container(border=True):
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
 
-
-# ------------------------------------------------------------
 # ------------------------------------------------------------
 # Ipostasi e rigidità (versione mobile semplificata)
 # ------------------------------------------------------------
-
-# Mappa ridotta per ipostasi
 _IPOSTASI_MOBILE = {
     "Assenti": "Non ancora comparse",
-    "Almeno parzialmente migrabili": "Migrabili perlomeno parzialmente",  # copre anche Completamente / Parzialmente
+    "Almeno parzialmente migrabili": "Migrabili perlomeno parzialmente",
     "Fisse": "Fisse",
-    "/": "Non valutate",  # usato anche per Non valutabili
+    "/": "Non valutate",
 }
 
-# Mappa ridotta per rigidità
 _RIGIDITA_MOBILE = {
     "Assente": "Non ancora apprezzabile",
     "Presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
@@ -129,7 +123,6 @@ _RIGIDITA_MOBILE = {
 
 with st.container(border=True):
     c1, c2 = st.columns(2, gap="small")
-
     with c1:
         ipostasi_options = list(_IPOSTASI_MOBILE.keys())
         ip_default_idx = ipostasi_options.index("/") if "/" in ipostasi_options else 0
@@ -140,7 +133,6 @@ with st.container(border=True):
             key="selettore_macchie_mobile",
         )
         selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
-
     with c2:
         rigidita_options = list(_RIGIDITA_MOBILE.keys())
         rg_default_idx = rigidita_options.index("/") if "/" in rigidita_options else 0
@@ -152,11 +144,7 @@ with st.container(border=True):
         )
         selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# -------------------------------------------
-# Temperature e parametri principali
 # ------------------------------------------------------------
-
-#------------------------------------------
 # Temperature e parametri principali
 # ------------------------------------------------------------
 with st.container(border=True):
@@ -170,7 +158,6 @@ with st.container(border=True):
         label_visibility="collapsed",
     )
 
-    # Etichette compatte con incertezze inline
     st.markdown("""
     <style>
     .lbl{font-size:0.88rem;}
@@ -180,7 +167,6 @@ with st.container(border=True):
 
     # RIGA 1: Peso + T. ambientale
     c1, c2 = st.columns([1, 1], gap="small")
-
     with c1:
         st.markdown("<div class='lbl'>Peso (kg) <span class='unc'>— default ±3</span></div>", unsafe_allow_html=True)
         input_w = st.number_input(
@@ -190,7 +176,6 @@ with st.container(border=True):
             label_visibility="collapsed",
             key="peso"
         )
-
     with c2:
         st.markdown("<div class='lbl'>T. ambientale media (°C) <span class='unc'>— default ±1</span></div>", unsafe_allow_html=True)
         input_ta = st.number_input(
@@ -203,25 +188,24 @@ with st.container(border=True):
 
     # RIGA 2: Fattore di correzione + switch suggerimento
     c3, c4 = st.columns([1, 1], gap="small")
-
     with c3:
         st.markdown("<div class='lbl'>Fattore di correzione <span class='unc'>— default ±0.10</span></div>", unsafe_allow_html=True)
         fattore_correzione = st.number_input(
             "Fattore di correzione (FC):",
+            value=st.session_state.get("fattore_correzione", 1.0),
             step=0.1, format="%.2f",
             label_visibility="collapsed",
             key="fattore_correzione"
         )
-
     with c4:
-        st.markdown("&nbsp;", unsafe_allow_html=True)  # spaziatore per allineare
+        st.markdown("&nbsp;", unsafe_allow_html=True)
         st.toggle(
             "Suggerisci fattore di correzione",
             value=st.session_state.get("toggle_fattore_inline_mobile", False),
             key="toggle_fattore_inline_mobile",
         )
         st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
-  
+
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
@@ -237,7 +221,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         st.session_state["toggle_fattore"] = False
         st.session_state["toggle_fattore_inline_mobile"] = False
 
-    # funzione di conversione sicura
     def _safe_int(x):
         try:
             return int(x)
@@ -254,19 +237,15 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         </style>
     """, unsafe_allow_html=True)
 
-    # Stato corpo
     stato_label = st.radio(
-        "Stato del corpo",
-        ["Asciutto", "Bagnato", "Immerso"],
+        "Stato del corpo", ["Asciutto", "Bagnato", "Immerso"],
         index=0, horizontal=True, key=k("radio_stato_corpo")
     )
     stato_corpo = stato_label
 
-    # Caso Immerso
     if stato_corpo == "Immerso":
         acqua_label = st.radio(
-            "Condizione in acqua",
-            ["In acqua stagnante", "In acqua corrente"],
+            "Condizione in acqua", ["In acqua stagnante", "In acqua corrente"],
             index=0, horizontal=True, key=k("radio_acqua")
         )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
@@ -289,7 +268,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                   use_container_width=True, key=k("btn_usa_fc_imm"))
         return
 
-    # Asciutto / Bagnato
     col_corr, col_vest = st.columns([1.0, 1.3])
     with col_corr:
         corr_placeholder = st.empty()
@@ -315,7 +293,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
 
-        # CSS per nascondere intestazioni, toolbar e indice
         st.markdown(
             """
             <style>
@@ -354,7 +331,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             (not toggle_vestito)
             or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
         )
-
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
             options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
@@ -408,14 +384,15 @@ if st.session_state.get("toggle_fattore", False):
             peso_default=st.session_state.get("peso", 70.0),
             key_prefix="fcpanel_mobile"
         )
+
 # --- Firma degli input (mobile) ---
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
         bool(st.session_state.get("usa_orario_custom", False)),
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
-        selettore_macchie,   # già mappati ai valori interni
-        selettore_rigidita,  # già mappati ai valori interni
+        selettore_macchie,
+        selettore_rigidita,
         float(st.session_state.get("rt_val", 0.0)),
         float(st.session_state.get("ta_base_val", 0.0)),
         float(st.session_state.get("peso", 0.0)),
@@ -423,7 +400,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     )
 
 # ------------------------------------------------------------
-# Delta fissi SOLO mobile (una volta, prima del bottone)
+# Delta range fissi lato mobile
 # ------------------------------------------------------------
 st.session_state["stima_cautelativa_beta"] = True
 st.session_state["range_unico_beta"] = True
@@ -446,17 +423,15 @@ if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
 
 # ------------------------------------------------------------
-# Bottone e logica di invalidazione output
+# Bottone e invalidazione output
 # ------------------------------------------------------------
 if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
     st.session_state["run_stima_mobile"] = True
     st.session_state["last_run_sig_mobile"] = curr_sig
 
-# Se gli input cambiano, nascondi i risultati finché non si preme di nuovo
 if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_sig_mobile") != curr_sig:
     st.session_state["run_stima_mobile"] = False
 
-# Mostra risultati solo se firma invariata dopo l'ultimo click
 if st.session_state.get("run_stima_mobile"):
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
@@ -472,4 +447,3 @@ if st.session_state.get("run_stima_mobile"):
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
     )
-    
