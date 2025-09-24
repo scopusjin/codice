@@ -116,11 +116,9 @@ if st.session_state["usa_orario_custom"]:
         st.session_state["input_ora_rilievo"] = "00:00"
     c1, c2 = st.columns(2, gap="small")
     with c1:
-        st.markdown("<label>Data ispezione legale</label>", unsafe_allow_html=True)
         st.date_input("Data ispezione legale:", value=st.session_state["input_data_rilievo"],
                       label_visibility="collapsed", key="input_data_rilievo")
     with c2:
-        st.markdown("<label>Ora ispezione legale (HH:MM)</label>", unsafe_allow_html=True)
         st.text_input("Ora ispezione legale (HH:MM):", value=st.session_state["input_ora_rilievo"],
                       label_visibility="collapsed", key="input_ora_rilievo")
 else:
