@@ -33,7 +33,7 @@ for k, v in _defaults.items():
 
 # Titolo compatto
 st.markdown(
-    "<h6 style='margin-top:0; margin-bottom:10px;'>Stima epoca decesso MSIL</h6>",
+    "<h6 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO - MSIL</h6>",
     unsafe_allow_html=True
 )
 
