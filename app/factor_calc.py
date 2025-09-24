@@ -209,25 +209,100 @@ def _parse_peso_header(col: str) -> Optional[float]:
         return None
 
 def adatta_per_peso(fattore_base: float, peso: float, tabella2: Optional[pd.DataFrame]) -> float:
-    if tabella2 is None or np.isnan(fattore_base) or peso is None:
-        return float(fattore_base)
-    if fattore_base < 1.4 or float(peso) == 70.0:
-        return float(fattore_base)
+    """
+    Adattamento con doppia interpolazione:
+      1) tra RIGHE usando la colonna ~70 kg
+      2) tra PESI usando le colonne peso adiacenti a 'peso'
+    Restituisce sempre un valore clampato [0.35, 3.0] e arrotondato a 2 decimali.
+    """
+    try:
+        if tabella2 is None or np.isnan(fattore_base) or peso is None:
+            return round(clamp(float(fattore_base)), 2)
+        if float(peso) == 70.0 and fattore_base < 1.4:
+            return round(clamp(float(fattore_base)), 2)
+    except Exception:
+        return round(clamp(float(fattore_base)), 2)
 
+    # --- parse colonne peso ---
     pesi_col = {col: _parse_peso_header(col) for col in tabella2.columns}
     pesi_col = {col: w for col, w in pesi_col.items() if w is not None}
-    if not pesi_col:
-        return float(fattore_base)
+    if len(pesi_col) < 2:
+        return round(clamp(float(fattore_base)), 2)
 
-    col_70 = min(pesi_col.keys(), key=lambda c: abs(pesi_col[c] - 70.0))
-    serie70 = pd.to_numeric(tabella2[col_70], errors='coerce')
-    idx_match = (serie70 - fattore_base).abs().idxmin()
+    # ordina per peso crescente
+    cols_sorted = sorted(pesi_col.items(), key=lambda x: x[1])
+    col_names = [c for c, _ in cols_sorted]
+    col_weights = np.array([w for _, w in cols_sorted], dtype=float)
 
-    col_user = min(pesi_col.keys(), key=lambda c: abs(pesi_col[c] - float(peso)))
-    val_user = pd.to_numeric(tabella2.loc[idx_match, col_user], errors='coerce')
-    if pd.notna(val_user):
-        return clamp(float(val_user))
-    return clamp(float(fattore_base))
+    # colonna di riferimento ~70 kg
+    ref_idx = int(np.argmin(np.abs(col_weights - 70.0)))
+    col70 = col_names[ref_idx]
+
+    # serie 70 kg numerica
+    v70 = pd.to_numeric(tabella2[col70], errors="coerce")
+    valid_idx = v70.dropna().index
+    if len(valid_idx) == 0:
+        return round(clamp(float(fattore_base)), 2)
+
+    # ordina le righe per valore a 70 kg
+    v70_valid = v70.loc[valid_idx]
+    order = np.argsort(v70_valid.values)
+    v_sorted = v70_valid.values[order]
+    idx_sorted = v70_valid.index.values[order]
+
+    fb = float(fattore_base)
+
+    # trova r_low, r_high e t sulla colonna 70 kg
+    if fb <= v_sorted[0]:
+        r_low = r_high = idx_sorted[0]
+        t = 0.0
+    elif fb >= v_sorted[-1]:
+        r_low = r_high = idx_sorted[-1]
+        t = 0.0
+    else:
+        pos = int(np.searchsorted(v_sorted, fb, side="left"))
+        r_low = idx_sorted[pos - 1]
+        r_high = idx_sorted[pos]
+        denom = (v_sorted[pos] - v_sorted[pos - 1])
+        t = 0.0 if denom == 0 else float((fb - v_sorted[pos - 1]) / denom)
+
+    # helper: valore alla riga r e al peso desiderato con interp tra colonne adiacenti
+    def _val_row_at_weight(row_idx) -> Optional[float]:
+        row_vals = pd.to_numeric(tabella2.loc[row_idx, col_names], errors="coerce").values.astype(float)
+
+        if peso <= col_weights[0]:
+            return row_vals[0] if np.isfinite(row_vals[0]) else None
+        if peso >= col_weights[-1]:
+            return row_vals[-1] if np.isfinite(row_vals[-1]) else None
+
+        hi = int(np.searchsorted(col_weights, peso, side="right"))
+        lo = hi - 1
+        w_lo, w_hi = col_weights[lo], col_weights[hi]
+        v_lo, v_hi = row_vals[lo], row_vals[hi]
+
+        if not np.isfinite(v_lo) and np.isfinite(v_hi):
+            return float(v_hi)
+        if not np.isfinite(v_hi) and np.isfinite(v_lo):
+            return float(v_lo)
+        if not (np.isfinite(v_lo) and np.isfinite(v_hi)):
+            return None
+
+        alpha = (float(peso) - w_lo) / (w_hi - w_lo)
+        return float(v_lo + alpha * (v_hi - v_lo))
+
+    val_low = _val_row_at_weight(r_low)
+    val_high = _val_row_at_weight(r_high)
+
+    if val_low is None and val_high is None:
+        return round(clamp(float(fattore_base)), 2)
+    if r_low == r_high or val_high is None:
+        return round(clamp(float(val_low)), 2)
+    if val_low is None:
+        return round(clamp(float(val_high)), 2)
+
+    fc_user = float(val_low + t * (val_high - val_low))
+    return round(clamp(fc_user), 2)
+
 
 # --------------------------------
 # API principale di calcolo
