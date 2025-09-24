@@ -70,34 +70,39 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
 
 # ------------------------------------------------------------
 # Data/Ora ispezione
-# ------------------------------------------------------------
+
 with st.container(border=True):
     usa_orario_custom = st.toggle(
         "Aggiungi data/ora rilievi tanatologici",
-        value=st.session_state.get("usa_orario_custom", False),
         key="usa_orario_custom",
     )
-    if usa_orario_custom:
-        c1, c2 = st.columns(2, gap="small")
-        with c1:
-            input_data_rilievo = st.date_input(
+
+    if st.session_state["usa_orario_custom"]:
+        # Se erano None, ripristina i default PRIMA di renderizzare i widget
+        if st.session_state.get("input_data_rilievo") is None:
+            st.session_state["input_data_rilievo"] = datetime.date.today()
+        if not st.session_state.get("input_ora_rilievo"):
+            st.session_state["input_ora_rilievo"] = "00:00"
+
+        col1, col2 = st.columns(2, gap="small")
+        with col1:
+            st.date_input(
                 "Data ispezione legale:",
-                value=st.session_state.get("input_data_rilievo") or datetime.date.today(),
-                key="input_data_rilievo_widget",
+                value=st.session_state["input_data_rilievo"],
+                label_visibility="collapsed",
+                key="input_data_rilievo",
             )
-            st.session_state["input_data_rilievo"] = input_data_rilievo
-        with c2:
-            input_ora_rilievo = st.text_input(
+        with col2:
+            st.text_input(
                 "Ora ispezione legale (HH:MM):",
-                value=st.session_state.get("input_ora_rilievo") or "00:00",
-                key="input_ora_rilievo_widget",
+                value=st.session_state["input_ora_rilievo"],
+                label_visibility="collapsed",
+                key="input_ora_rilievo",
             )
-            if not input_ora_rilievo:
-                input_ora_rilievo = "00:00"
-            st.session_state["input_ora_rilievo"] = input_ora_rilievo
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
+
 
 # ------------------------------------------------------------
 # ------------------------------------------------------------
