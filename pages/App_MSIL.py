@@ -15,6 +15,17 @@ from app.factor_calc import (
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
+# --- CSS bottone evidenziato + sticky bar
+st.markdown("""
+<style>
+.sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);padding:10px 8px 14px 8px;border-top:1px solid #e0e0e0;}
+div.stButton>button{width:100%!important;height:56px!important;font-size:1.05rem!important;font-weight:700!important;letter-spacing:.3px!important;border-radius:10px!important;box-shadow:0 4px 12px rgba(0,0,0,.12)!important;}
+html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important;}
+html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important;}
+div.stButton>button:hover{filter:brightness(1.06);}
+</style>
+""", unsafe_allow_html=True)
+
 # defaults una sola volta
 _defaults = {
     "run_stima_mobile": False,
@@ -425,12 +436,24 @@ if "last_run_sig_mobile" not in st.session_state:
 # ------------------------------------------------------------
 # Bottone e invalidazione output
 # ------------------------------------------------------------
-if st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile"):
+
+with st.container():
+    st.markdown('<div class="sticky-cta">', unsafe_allow_html=True)
+    clicked = st.button(
+        "STIMA EPOCA DECESSO",
+        key="btn_stima_mobile",
+        use_container_width=True,
+        type="primary",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+if clicked:
     st.session_state["run_stima_mobile"] = True
     st.session_state["last_run_sig_mobile"] = curr_sig
 
 if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_sig_mobile") != curr_sig:
     st.session_state["run_stima_mobile"] = False
+
 
 if st.session_state.get("run_stima_mobile"):
     aggiorna_grafico(
