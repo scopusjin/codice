@@ -59,9 +59,20 @@ def compute_plot_data(
         starts.append(rigidita_range[0])
         ends.append(end_val)
 
+    # Costruisci extra locali e aggiungi Potente se attivo
+    _extra: List[Dict[str, Any]] = list(extra_params) if extra_params else []
+    potente_attivo = (Qd_val_check is not None) and (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
+    if potente_attivo and (mt_ore is not None) and (not np.isnan(mt_ore)):
+        _extra.append({
+            "label": "Potente et al.",
+            "start": float(mt_ore),
+            "end": np.nan,         # infinito a destra
+            "adattato": False
+        })
+
     # Parametri extra (altri range orari da mostrare come barre)
-    if extra_params:
-        for e in extra_params:
+    if _extra:
+        for e in _extra:
             try:
                 lab = str(e.get("label", "Parametro"))
                 if e.get("adattato", False):
@@ -82,14 +93,11 @@ def compute_plot_data(
             starts.append(float(s))
             ends.append(end_val)
 
-    # Etichette + range: RAFFREDDAMENTO
+    # Etichette + range: RAFFREDDAMENTO (Henssge) — mostrato solo se Potente NON attivo
     raffreddamento_idx: Optional[int] = None
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
 
-    # Potente attivo se Qd sotto soglia
-    potente_attivo = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-    # Mostra Henssge solo se calcolabile e Potente NON attivo
     mostra_raffreddamento = bool(raffreddamento_calcolabile) and (not potente_attivo)
 
     # Flag iniziali
@@ -102,7 +110,7 @@ def compute_plot_data(
         t_max_raff_visualizzato = t_max_raff_henssge
 
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-        raff_over_48 = False  # mantieni se in futuro servirà il caso >48
+        raff_over_48 = False
 
         if raff_only_lower:
             maggiore_di_valore = (
@@ -187,7 +195,7 @@ def compute_plot_data(
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
-        extra_params=extra_params,
+        extra_params=_extra,  # include Potente se attivo
     )
 
 
