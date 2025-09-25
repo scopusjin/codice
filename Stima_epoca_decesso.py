@@ -797,4 +797,74 @@ def _apply_default_prudent_ranges():
 
 # --- Pulizia chiavi dei widget di range quando si torna OFF ---
 if not st.session_state.get("range_unico_beta", False):
-    for _tmpk in ("ta_
+    for _tmpk in ("ta_other_val", "fc_min_val", "fc_other_val"):
+        if _tmpk in st.session_state:
+            try:
+                st.session_state.pop(_tmpk)
+            except Exception:
+                pass
+
+# --- Bottone: esegue il calcolo SOLO su click ---
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
+        st.session_state["last_run_sig"] = curr_sig
+        st.session_state["show_results"] = True
+
+# --- Se QUALSIASI input cambia: nascondi risultati (NON ricalcolare) ---
+if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr_sig:
+    st.session_state["show_results"] = False
+
+# --- Mostra risultati SOLO se richiesti e firma invariata ---
+if st.session_state["show_results"]:
+    # Applica sempre i range prudenziali di default se necessari
+    _apply_default_prudent_ranges()
+
+    input_rt = st.session_state.get("rt_val")
+    input_ta = st.session_state.get("ta_base_val")
+    input_tm = st.session_state.get("tm_val")
+    input_w  = st.session_state.get("peso")
+
+    no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
+    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
+    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
+
+    if no_rt and no_macchie and no_rigidita:
+        st.warning("Nessun dato inserito per la stima")
+        st.stop()
+
+    base_ok = (
+        not no_rt and
+        input_ta is not None and
+        input_tm is not None and
+        input_w  is not None and input_w > 0
+    )
+
+    prudente_ok = True
+    if base_ok and st.session_state.get("stima_cautelativa_beta", False):
+        ta_vals = _build_ta_values_from_ui()
+        if not ta_vals and _is_num(input_ta):
+            ta_vals = [float(input_ta)]
+        prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
+        if not prudente_ok:
+            _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
+
+    considera_raffreddamento = base_ok and (
+        not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
+    )
+
+    aggiorna_grafico(
+        selettore_macchie=selettore_macchie,
+        selettore_rigidita=selettore_rigidita,
+        input_rt=(input_rt if considera_raffreddamento else None),
+        input_ta=(input_ta if considera_raffreddamento else None),
+        input_tm=(input_tm if considera_raffreddamento else None),
+        input_w=(input_w if considera_raffreddamento else None),
+        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+        widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
+        usa_orario_custom=st.session_state.get("usa_orario_custom", False),
+        input_data_rilievo=st.session_state.get("input_data_rilievo"),
+        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
+        alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
+        skip_warnings=True,
+    )
