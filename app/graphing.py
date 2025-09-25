@@ -718,13 +718,9 @@ def aggiorna_grafico(
             no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
             no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
             if not no_macchie or not no_rigidita:
-                st.markdown(
-                    _wrap_final(
-                        paragrafi_descrizioni_base(
-                            testo_macchie=testi_macchie.get(selettore_macchie),
-                            testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
-                        )
-                    ),
-                    unsafe_allow_html=True
-                )
+                for blk in paragrafi_descrizioni_base(
+                    testo_macchie=testi_macchie.get(selettore_macchie),
+                    testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
+                ):
+                    st.markdown(_wrap_final(blk), unsafe_allow_html=True)
 
