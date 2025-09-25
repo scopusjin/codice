@@ -142,17 +142,17 @@ with c_rt:
                                step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed")
 
 with c_ta:
-    _label("T. ambientale media (°C)", "±1 °C predef.")
+    _label("T. ambientale media (°C)", " incertezza ±1 °C")
     input_ta = st.number_input("", value=st.session_state.get("ta_base_val", 20.0),
                                step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
 
 with c_w:
-    _label("Peso (kg)", "±3 kg predef.")
+    _label("Peso (kg)", "incertezza ±3 kg")
     input_w = st.number_input("", value=st.session_state.get("peso", 70.0),
                               step=1.0, format="%.1f", key="peso", label_visibility="collapsed")
 
 with c_fc:
-    _label("Fattore di correzione (FC)", "±0.10 predef.")
+    _label("Fattore di correzione (FC)", "incertezza ±0.10")
     fc_placeholder = st.empty()   # il widget FC verrà creato DOPO il pannello
 
 # ------------------ 2) Toggle “Suggerisci FC” -----------------
