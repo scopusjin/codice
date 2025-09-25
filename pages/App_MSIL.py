@@ -26,12 +26,8 @@ div[data-testid="stVerticalBlock"]{margin:0!important}
 div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
 
 /* orizzontali responsive */
-div[data-testid="stHorizontalBlock"]{
-  display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important
-}
-div[data-testid="column"]{
-  padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important
-}
+div[data-testid="stHorizontalBlock"]{display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important}
+div[data-testid="column"]{padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important}
 
 /* widget compatti */
 div[data-testid="stSelectbox"],
@@ -39,9 +35,7 @@ div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
-div[data-testid="stTextInput"]{
-  margin-top:2px!important;margin-bottom:2px!important;padding:0!important
-}
+div[data-testid="stTextInput"]{margin-top:2px!important;margin-bottom:2px!important;padding:0!important}
 
 /* etichette e input */
 div[data-testid="stNumberInput"] > label,
@@ -49,17 +43,15 @@ div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label,
 div[data-testid="stDateInput"] > label,
-div[data-testid="stTextInput"] > label{
-  margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem
-}
+div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem}
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
 /* radio/toggle */
 div[data-testid="stRadio"]{margin:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.18rem!important}
-div[data-testid="stToggle"]{margin:0!important}
+div[data-testid="stRadio"] > div{padding:0!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.14rem!important}
 
 /* data editor */
 div[data-testid="stDataEditor"] thead,
@@ -67,31 +59,15 @@ div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
 
-/* box info FC */
-.fcbox{border:1px solid #1976d2;border-radius:6px;padding:5px;font-weight:600;margin:2px 0}
-html[data-theme="light"] .fcbox{background:#e8f0fe;color:#0d47a1}
-html[data-theme="dark"] .fcbox{background:#0d2a47;color:#d6e9ff}
-.fcsub{padding:1px 0 0 0;font-size:.84em}
-html[data-theme="light"] .fcsub{color:#3f6fb5}
-html[data-theme="dark"] .fcsub{color:#a7c7ff}
-
 /* pannello FC compatto */
 .fcpanel div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
 .fcpanel div[data-testid="stRadio"]{margin:0!important}
-.fcpanel .fcbox{margin:2px 0!important}
+.fcpanel div[data-testid="stRadio"] > div{padding:0!important}
 
 /* pulsanti */
 div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
-
-/* sticky CTA */
-.sticky-cta{position:sticky;bottom:0;z-index:999;background:rgba(255,255,255,.95);
-  padding:2px 4px 4px 4px;border-top:1px solid #e0e0e0}
-div.stButton>button{width:100%!important;font-size:.95rem!important;font-weight:700!important;
-  letter-spacing:.2px!important;border-radius:6px!important;box-shadow:0 2px 6px rgba(0,0,0,.12)!important}
-html[data-theme="light"] div.stButton>button{background:#1976d2!important;color:#fff!important;border:0!important}
-html[data-theme="dark"] div.stButton>button{background:#2196f3!important;color:#0b1020!important;border:0!important}
 
 /* nascondi badge/pulsante Cloud “Manage app”, menu e footer */
 #stDecoration, [data-testid="stDecoration"],
@@ -127,9 +103,6 @@ def _safe_int(x):
         return int(x)
     except Exception:
         return 0
-
-def _fc_box_info(text: str):
-    st.markdown(f'<div class="fcbox">{text}</div>', unsafe_allow_html=True)
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
@@ -186,14 +159,10 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ======= TOGGLE + PANNELLO "SUGGERISCI FC" PRIMA DEI WIDGET PRINCIPALI =======
-c_toggle = st.columns(1)[0]
-with c_toggle:
-    st.toggle(
-        "Suggerisci FC",
-        value=st.session_state.get("toggle_fattore_inline_mobile", False),
-        key="toggle_fattore_inline_mobile"
-    )
+# ---------------- Toggle + pannello "Suggerisci FC" ----------------
+st.toggle("Suggerisci FC",
+          value=st.session_state.get("toggle_fattore_inline_mobile", False),
+          key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
@@ -201,7 +170,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     st.markdown('<div class="fcpanel">', unsafe_allow_html=True)
 
-    # Stato corpo
+    # Stato corpo molto compatto
     stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
                            index=0, horizontal=True, key=k("radio_stato_corpo"),
                            label_visibility="collapsed")
@@ -224,10 +193,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        new_fc = round(float(result.fattore_finale), 2)
-        if abs(new_fc - float(st.session_state.get("fattore_correzione", 1.0))) > 1e-9:
-            st.session_state["fattore_correzione"] = new_fc
-        _fc_box_info(f"FC aggiornato automaticamente a {st.session_state['fattore_correzione']:.2f}")
+        st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
         st.markdown('</div>', unsafe_allow_html=True)
         return
 
@@ -315,14 +281,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
     )
-
-    new_fc = round(float(result.fattore_finale), 2)
-    if abs(new_fc - float(st.session_state.get("fattore_correzione", 1.0))) > 1e-9:
-        st.session_state["fattore_correzione"] = new_fc
-    _fc_box_info(f"FC aggiornato automaticamente a {st.session_state['fattore_correzione']:.2f}")
+    st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# mostra pannello prima dei widget principali
 if st.session_state.get("toggle_fattore", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
@@ -333,36 +294,31 @@ if st.session_state.get("toggle_fattore", False):
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
-    input_rt = st.number_input(
-        "T. rettale (°C)",
-        value=st.session_state.get("rt_val", 35.0),
-        step=0.1, format="%.1f",
-        key="rt_val", label_visibility="visible"
-    )
+    input_rt = st.number_input("T. rettale (°C)",
+                               value=st.session_state.get("rt_val", 35.0),
+                               step=0.1, format="%.1f",
+                               key="rt_val", label_visibility="visible")
 
 with c_ta:
-    input_ta = st.number_input(
-        "T. ambientale media (°C)",
-        value=st.session_state.get("ta_base_val", 20.0),
-        step=0.1, format="%.1f",
-        key="ta_base_val", label_visibility="visible"
-    )
+    input_ta = st.number_input("T. ambientale media (°C)",
+                               value=st.session_state.get("ta_base_val", 20.0),
+                               step=0.1, format="%.1f",
+                               key="ta_base_val", label_visibility="visible")
 
 with c_w:
-    input_w = st.number_input(
-        "Peso (kg)",
-        value=st.session_state.get("peso", 70.0),
-        step=1.0, format="%.1f",
-        key="peso", label_visibility="visible"
-    )
+    input_w = st.number_input("Peso (kg)",
+                              value=st.session_state.get("peso", 70.0),
+                              step=1.0, format="%.1f",
+                              key="peso", label_visibility="visible")
 
 with c_fc:
-    st.number_input(
-        "Fattore di correzione (FC)",
-        value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f",
-        key="fattore_correzione", label_visibility="visible"
-    )
+    st.number_input("Fattore di correzione (FC)",
+                    value=st.session_state.get("fattore_correzione", 1.0),
+                    step=0.1, format="%.2f",
+                    key="fattore_correzione", label_visibility="visible")
+
+# --------------------------- CTA sotto al campo FC ------------
+clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ----------------- Firma input e range fissi mobile -----------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
@@ -395,16 +351,6 @@ st.session_state["peso_stimato_beta"] = True
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
-
-# --------------------------- CTA ------------------------------
-st.markdown('<div class="sticky-cta">', unsafe_allow_html=True)
-clicked = st.button(
-    "STIMA EPOCA DECESSO",
-    key="btn_stima_mobile",
-    use_container_width=True,
-    type="primary"
-)
-st.markdown('</div>', unsafe_allow_html=True)
 
 if clicked:
     st.session_state["run_stima_mobile"] = True
