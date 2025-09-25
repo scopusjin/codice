@@ -761,17 +761,30 @@ if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr
 
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
 if st.session_state["show_results"]:
+    input_rt = st.session_state.get("rt_val")
+    input_ta = st.session_state.get("ta_base_val")
+    input_tm = st.session_state.get("tm_val")
+    input_w  = st.session_state.get("peso")
+
+    considera_raffreddamento = (
+        input_rt is not None and
+        input_ta is not None and
+        input_tm is not None and
+        input_w  is not None and input_w > 0
+    )
+
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        input_rt=st.session_state.get("rt_val"),
-        input_ta=st.session_state.get("ta_base_val"),
-        input_tm=st.session_state.get("tm_val"),
-        input_w=st.session_state.get("peso"),
+        input_rt=(input_rt if considera_raffreddamento else None),
+        input_ta=(input_ta if considera_raffreddamento else None),
+        input_tm=(input_tm if considera_raffreddamento else None),
+        input_w=(input_w if considera_raffreddamento else None),
         fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
         widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
         usa_orario_custom=st.session_state.get("usa_orario_custom", False),
         input_data_rilievo=st.session_state.get("input_data_rilievo"),
         input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
+        skip_warnings=True,  # niente error-blocking: Henssge disattivato se input mancanti
     )
