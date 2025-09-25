@@ -26,7 +26,8 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 
 
 # --------- helpers ----------
-def _is_num(x): return x is not None and not (isinstance(x, float) and np.isnan(x))
+def _is_num(x): 
+    return x is not None and not (isinstance(x, float) and np.isnan(x))
 
 def _warn_box(msg: str):
     pal = dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
@@ -56,6 +57,7 @@ def aggiorna_grafico(
     input_data_rilievo: datetime.date | None,
     input_ora_rilievo: str | None,
     alterazioni_putrefattive: bool,
+    skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
     **kwargs,
 ):
     avvisi: List[str] = []
@@ -87,202 +89,221 @@ def aggiorna_grafico(
         minuti_isp = 0
         data_ora_ispezione = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
 
-    # --- validazioni base ---
-    if input_w is None or input_w <= 0:
-        st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
-        return
-    if fattore_correzione is None or fattore_correzione <= 0:
-        st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
-        return
-    if any(v is None for v in [input_rt, input_ta, input_tm]):
-        st.error("⚠️ Temperature mancanti.")
-        return
+    # --- validazioni base (configurabili) ---
+    if not skip_warnings:
+        if input_w is None or input_w <= 0:
+            st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
+            return
+        if fattore_correzione is None or fattore_correzione <= 0:
+            st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
+            return
+        if any(v is None for v in [input_rt, input_ta, input_tm]):
+            st.error("⚠️ Temperature mancanti.")
+            return
 
+    # --- normalizza locali; modalità silenziosa disattiva Henssge se mancano input ---
     Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
+
+    # placeholder valori calcolati
+    t_min_raff_henssge = np.nan
+    t_max_raff_henssge = np.nan
+    t_med_raff_henssge_rounded_raw = np.nan
+    t_med_raff_henssge_rounded = np.nan
+    Qd_val_check = np.nan
+    raffreddamento_calcolabile = True
+
+    if skip_warnings and (
+        W_val is None or W_val <= 0 or any(v is None for v in [Tr_val, Ta_val, T0_val])
+    ):
+        Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
+        raffreddamento_calcolabile = False
+
+    # soglia Qd
+    qd_threshold = 0.2 if (_is_num(Ta_val) and Ta_val <= 23) else 0.5
 
     # =========================
     # Henssge standard / Cautelativa
     # =========================
-    qd_threshold = 0.2 if Ta_val <= 23 else 0.5
-
     if st.session_state.get("stima_cautelativa_beta", False):
-        # --- TA range ---
-        Ta_range = None
-        if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-            a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
-            if a > b:
-                a, b = b, a
-            Ta_range = (a, b)
-
-        # --- FC range (manuale → suggeritore → default) ---
-        CF_range = None
-        if st.session_state.get("fc_manual_range_beta", False):
-            if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-                a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
+        if raffreddamento_calcolabile:
+            # --- TA range ---
+            Ta_range = None
+            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
+                a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
                 if a > b:
                     a, b = b, a
-                CF_range = (max(a, 0.01), max(b, 0.01))
-        else:
-            vals = st.session_state.get("fc_suggested_vals", [])
-            if len(vals) == 2:
-                a, b = sorted([float(vals[0]), float(vals[1])])
-                CF_range = (max(a, 0.01), max(b, 0.01))
-            elif len(vals) == 1:
-                v = float(vals[0])
-                CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
+                Ta_range = (a, b)
+
+            # --- FC range (manuale → suggeritore → default) ---
+            CF_range = None
+            if st.session_state.get("fc_manual_range_beta", False):
+                if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+                    a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
+                    if a > b:
+                        a, b = b, a
+                    CF_range = (max(a, 0.01), max(b, 0.01))
             else:
-                CF_range = None  # il core userà ±0.10 su CF_value
+                vals = st.session_state.get("fc_suggested_vals", [])
+                if len(vals) == 2:
+                    a, b = sorted([float(vals[0]), float(vals[1])])
+                    CF_range = (max(a, 0.01), max(b, 0.01))
+                elif len(vals) == 1:
+                    v = float(vals[0])
+                    CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
+                else:
+                    CF_range = None  # il core userà ±0.10 su CF_value
 
-        res = compute_raffreddamento_cautelativo(
-            dt_ispezione=data_ora_ispezione,
-            Ta_value=float(Ta_val),
-            CF_value=float(CF_val),
-            peso_kg=float(W_val),
-            Ta_range=Ta_range,
-            CF_range=CF_range,
-            peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
-            mostra_tabella=False,
-            solver_kwargs={
-                "Tr": float(Tr_val),
-                "T0": float(T0_val),
-                "round_minutes": int(st.session_state.get("henssge_round_minutes", 30)),
-            },
-        )
+            res = compute_raffreddamento_cautelativo(
+                dt_ispezione=data_ora_ispezione,
+                Ta_value=float(Ta_val),
+                CF_value=float(CF_val),
+                peso_kg=float(W_val),
+                Ta_range=Ta_range,
+                CF_range=CF_range,
+                peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
+                mostra_tabella=False,
+                solver_kwargs={
+                    "Tr": float(Tr_val),
+                    "T0": float(T0_val),
+                    "round_minutes": int(st.session_state.get("henssge_round_minutes", 30)),
+                },
+            )
 
-        # mappa output cautelativa
-        t_min_raff_henssge = float(res.ore_min)
-        t_max_raff_henssge = (
-            np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
-            else float(res.ore_max)
-        )
-        _tmed_raw = t_min_raff_henssge if np.isnan(t_max_raff_henssge) else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
-        t_med_raff_henssge_rounded_raw = float(_tmed_raw)
-        t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
-        Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
-        raffreddamento_calcolabile = True
+            # mappa output cautelativa
+            t_min_raff_henssge = float(res.ore_min)
+            t_max_raff_henssge = (
+                np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
+                else float(res.ore_max)
+            )
+            _tmed_raw = t_min_raff_henssge if np.isnan(t_max_raff_henssge) else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
+            t_med_raff_henssge_rounded_raw = float(_tmed_raw)
+            t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
+            Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
+            raffreddamento_calcolabile = True
 
-        # testi cautelativa
-        st.session_state["parentetica_extra"] = res.parentetica
+            # testi cautelativa
+            st.session_state["parentetica_extra"] = res.parentetica
 
-        # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
-        if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-            ta_lo = float(st.session_state["Ta_min_beta"])
-            ta_hi = float(st.session_state["Ta_max_beta"])
-        else:
-            ta_lo = float(Ta_val) - 1.0
-            ta_hi = float(Ta_val) + 1.0
-        ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
-
-        if st.session_state.get("fc_manual_range_beta", False) and \
-           "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-            cf_lo = float(st.session_state["FC_min_beta"])
-            cf_hi = float(st.session_state["FC_max_beta"])
-        else:
-            vals = st.session_state.get("fc_suggested_vals", [])
-            if len(vals) == 2:
-                a, b = sorted([float(vals[0]), float(vals[1])])
-                cf_lo, cf_hi = a, b
-            elif len(vals) == 1:
-                v = float(vals[0])
-                cf_lo, cf_hi = v - 0.10, v + 0.10
+            # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
+            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
+                ta_lo = float(st.session_state["Ta_min_beta"])
+                ta_hi = float(st.session_state["Ta_max_beta"])
             else:
-                v = float(CF_val)
-                cf_lo, cf_hi = v - 0.10, v + 0.10
-        cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
-        cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
+                ta_lo = float(Ta_val) - 1.0
+                ta_hi = float(Ta_val) + 1.0
+            ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
-        p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
-
-        # header / bullets / conclusione dal modulo cautelativa o fallback
-        header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
-        bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
-        conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
-
-        if not (header_blk and bullets_blk and conclusione_blk):
-            # --- formatter ore/minuti ---
-            def _fmt_ore_min(h: float) -> str:
-                if not np.isfinite(h):
-                    return ""
-                ore = int(h)
-                minuti = int(round((h - ore) * 60))
-                if minuti == 60:
-                    ore += 1
-                    minuti = 0
-                if minuti == 0:
-                    return f"{ore} {'ora' if ore == 1 else 'ore'}"
-                return f"{ore} {'ora' if ore == 1 else 'ore'} {minuti} minuti"
-
-            # risultato in forma testuale
-            t_lo = round_quarter_hour(t_min_raff_henssge)
-            if np.isnan(t_max_raff_henssge):
-                risultato_txt = f"almeno {_fmt_ore_min(t_lo)}"
+            if st.session_state.get("fc_manual_range_beta", False) and \
+               "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+                cf_lo = float(st.session_state["FC_min_beta"])
+                cf_hi = float(st.session_state["FC_max_beta"])
             else:
-                t_hi = round_quarter_hour(t_max_raff_henssge)
-                risultato_txt = f"tra {_fmt_ore_min(t_lo)} e {_fmt_ore_min(t_hi)}"
+                vals = st.session_state.get("fc_suggested_vals", [])
+                if len(vals) == 2:
+                    a, b = sorted([float(vals[0]), float(vals[1])])
+                    cf_lo, cf_hi = a, b
+                elif len(vals) == 1:
+                    v = float(vals[0])
+                    cf_lo, cf_hi = v - 0.10, v + 0.10
+                else:
+                    v = float(CF_val)
+                    cf_lo, cf_hi = v - 0.10, v + 0.10
+            cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
+            cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
 
-            header_blk = (
-                "Per quanto attiene la valutazione del raffreddamento cadaverico, "
-                "sono stati stimati i parametri di seguito indicati."
-            )
-            bullets_blk = (
-                "<ul>"
-                f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b></li>"
-                f"<li>Range per il fattore di correzione: <b>{cf_txt}</b></li>"
-                f"<li>Peso corporeo: <b>{p_txt}</b></li>"
-                "</ul>"
-            )
-            conclusione_blk = (
-                "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-                f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
-                "dell’ispezione legale."
-            )
+            p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
-        # elenco con sottopunti (senza la conclusione per evitare duplicati)
-        elenco_html = "<ul>"
-        if header_blk:
-            elenco_html += f"<li>{header_blk}"
-            elenco_html += "<ul style='list-style-type: circle; margin-left: 20px;'>"
-            elenco_html += (
-                f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
-                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
-                f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+            # header / bullets / conclusione dal modulo cautelativa o fallback
+            header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
+            bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
+            conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
+
+            if not (header_blk and bullets_blk and conclusione_blk):
+                def _fmt_ore_min(h: float) -> str:
+                    if not np.isfinite(h):
+                        return ""
+                    ore = int(h)
+                    minuti = int(round((h - ore) * 60))
+                    if minuti == 60:
+                        ore += 1
+                        minuti = 0
+                    if minuti == 0:
+                        return f"{ore} {'ora' if ore == 1 else 'ore'}"
+                    return f"{ore} {'ora' if ore == 1 else 'ore'} {minuti} minuti"
+
+                t_lo = round_quarter_hour(t_min_raff_henssge)
+                if np.isnan(t_max_raff_henssge):
+                    risultato_txt = f"almeno {_fmt_ore_min(t_lo)}"
+                else:
+                    t_hi = round_quarter_hour(t_max_raff_henssge)
+                    risultato_txt = f"tra {_fmt_ore_min(t_lo)} e {_fmt_ore_min(t_hi)}"
+
+                header_blk = (
+                    "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+                    "sono stati stimati i parametri di seguito indicati."
+                )
+                bullets_blk = (
+                    "<ul>"
+                    f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b></li>"
+                    f"<li>Range per il fattore di correzione: <b>{cf_txt}</b></li>"
+                    f"<li>Peso corporeo: <b>{p_txt}</b></li>"
+                    "</ul>"
+                )
+                conclusione_blk = (
+                    "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
+                    f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
+                    "dell’ispezione legale."
+                )
+
+            elenco_html = "<ul>"
+            if header_blk:
+                elenco_html += f"<li>{header_blk}"
+                elenco_html += "<ul style='list-style-type: circle; margin-left: 20px;'>"
+                elenco_html += (
+                    f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
+                    f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
+                    f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+                )
+                elenco_html += "</ul></li>"
+            elenco_html += "</ul>"
+            _add_det(elenco_html)
+
+            t_min_vis = t_min_raff_henssge
+            t_max_vis = t_max_raff_henssge
+            par_h_caut = paragrafo_raffreddamento_dettaglio(
+                t_min_visual=t_min_vis,
+                t_max_visual=t_max_vis,
+                t_med_round=t_med_raff_henssge_rounded,
+                qd_val=Qd_val_check,
+                ta_val=Ta_val,
             )
-            elenco_html += "</ul></li>"
-        elenco_html += "</ul>"
-        _add_det(elenco_html)
-
-        # --- Dettaglio raffreddamento anche in cautelativa (abilita la nota ±20% in textgen) ---
-        t_min_vis = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
-        t_max_vis = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
-        par_h_caut = paragrafo_raffreddamento_dettaglio(
-            t_min_visual=t_min_vis,
-            t_max_visual=t_max_vis,
-            t_med_round=t_med_raff_henssge_rounded,
-            qd_val=Qd_val_check,
-            ta_val=Ta_val,
-        )
-        if par_h_caut:
-            _add_det(par_h_caut)
-            henssge_detail_added = True
-
+            if par_h_caut:
+                _add_det(par_h_caut)
+                henssge_detail_added = True
+        else:
+            # Henssge escluso
+            st.session_state["parentetica_extra"] = ""
     else:
-        # Henssge standard
-        round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
-        (
-            t_med_raff_henssge_rounded,
-            t_min_raff_henssge,
-            t_max_raff_henssge,
-            t_med_raff_henssge_rounded_raw,
-            Qd_val_check,
-        ) = calcola_raffreddamento(
-            Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
-        )
-        raffreddamento_calcolabile = (
-            not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
-        )
-        st.session_state["parentetica_extra"] = ""
+        if raffreddamento_calcolabile:
+            round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+            (
+                t_med_raff_henssge_rounded,
+                t_min_raff_henssge,
+                t_max_raff_henssge,
+                t_med_raff_henssge_rounded_raw,
+                Qd_val_check,
+            ) = calcola_raffreddamento(
+                Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
+            )
+            raffreddamento_calcolabile = (
+                not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+            )
+            st.session_state["parentetica_extra"] = ""
+        else:
+            st.session_state["parentetica_extra"] = ""
+
     # --- differenza piccola Tr-Ta ---
-    temp_difference_small = (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0
+    temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
 
     # --- macchie/rigidità ---
     macchie_range = opzioni_macchie.get(selettore_macchie)
@@ -321,7 +342,6 @@ def aggiorna_grafico(
                               if nome_parametro == "Eccitabilità elettrica peribuccale"
                               else stato_selezionato.strip())
 
-        # match chiave robusto
         chiave_esatta = None
         for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
             if k.strip() == chiave_descrizione:
@@ -376,36 +396,27 @@ def aggiorna_grafico(
     _append_range_safe(macchie_range, "Macchie ipostatiche")
     _append_range_safe(rigidita_range, "Rigidità cadaverica")
 
-    # --- helper: arrotonda al mezz'ora ---
     def _round_half_hour(x: float) -> float:
         return float(np.round(x * 2.0) / 2.0)
 
-    # Potente minimo (prevale come limite inferiore se attivo)
+    # Potente minimo
     mt_ore = None
     mt_giorni = None
 
-    # Potente minimo (prevale come limite inferiore se attivo)
-    mt_ore = None
-    mt_giorni = None
+    # Ta da usare per Potente
+    Ta_for_pot = (float(st.session_state.get("Ta_max_beta", Ta_val))
+                  if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)) if _is_num(Ta_val) else np.nan
 
-    # Ta da usare per Potente: allineata al calcolo di Qd_val_check
-    Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val)) \
-        if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)
-
-    # Se la Qd “ufficiale” è sotto soglia, calcola Potente e fallo prevalere
-    if (Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
-        and not any(np.isnan(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
+    if (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
+        and all(_is_num(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
         and Tr_val > Ta_for_pot + 1e-6):
         B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
-        ln_term = np.log(0.16) if Ta_for_pot <= 23 else np.log(0.45)
+        ln_term = np.log(0.16) if _is_num(Ta_for_pot) and Ta_for_pot <= 23 else np.log(0.45)
         mt_ore_raw = ln_term / B
-        mt_ore = _round_half_hour(float(mt_ore_raw))   # arrotonda al mezz’ora
+        mt_ore = _round_half_hour(float(mt_ore_raw))
         mt_giorni = round(mt_ore / 24.0, 1)
 
-    usa_potente = (
-        Qd_val_check is not None and not np.isnan(Qd_val_check) and Qd_val_check < qd_threshold
-        and (mt_ore is not None) and (not np.isnan(mt_ore))
-    )
+    usa_potente = (_is_num(Qd_val_check) and Qd_val_check < qd_threshold and (mt_ore is not None) and (not np.isnan(mt_ore)))
 
     # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
@@ -415,16 +426,14 @@ def aggiorna_grafico(
             fine.append(hi if (_is_num(hi) and hi < INF_HOURS) else np.nan)
             nomi_usati.append(p["nome"])
 
-    # # Henssge/Potente nell’intersezione
+    # Henssge/Potente nell’intersezione
     if raffreddamento_calcolabile:
         if usa_potente:
-        # Potente prevale: minimo = mt_ore, superiore aperto
             if mt_ore is not None and not np.isnan(mt_ore):
                 inizio.append(mt_ore)
                 fine.append(np.nan)
                 nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
         else:
-            # Solo Henssge
             inizio.append(t_min_raff_henssge)
             fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
             nomi_usati.append(
@@ -441,10 +450,8 @@ def aggiorna_grafico(
         comune_inizio = max(starts_clean)
         superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
         comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
-    # se cautelativa e nessuno chiude → lascia aperto
         if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
             comune_fine = np.nan
-    # se Potente prevale e nessuno chiude → lascia aperto
         if usa_potente and not superiori_finiti:
             comune_fine = np.nan
         overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
@@ -456,7 +463,7 @@ def aggiorna_grafico(
         if _is_num(lo):
             label = nomi_brevi.get(p["nome"], p["nome"])
             if p.get("adattato"):
-                label += "*"  # segna orario adattato
+                label += "*"
             extra_params_for_plot.append({
                 "label": label,
                 "start": float(lo),
@@ -511,12 +518,10 @@ def aggiorna_grafico(
         else:
             tail = 72.0
 
-        # clamp extra alla coda
         for e in extra_params_for_plot:
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
-        # render una sola volta
         try:
             fig_or_none = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
         except TypeError:
@@ -561,7 +566,7 @@ def aggiorna_grafico(
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
-    if all(v is not None for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
+    if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
             avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
         if Ta_val < 18:
@@ -573,9 +578,7 @@ def aggiorna_grafico(
         if not raffreddamento_calcolabile:
             avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
-        # --- paragrafi descrittivi ---
         if not st.session_state.get("stima_cautelativa_beta", False):
-            # Riepilogo preciso (modalità normale)
             cf_descr = build_cf_description(
                 cf_value=st.session_state.get("fattore_correzione", 1.0),
                 riassunto=st.session_state.get("fc_riassunto_contatori"),
@@ -586,7 +589,6 @@ def aggiorna_grafico(
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
             ))
 
-        # Henssge sempre per primo (anche se Potente apre l’intervallo)
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
         t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
         par_h = paragrafo_raffreddamento_dettaglio(
@@ -599,15 +601,11 @@ def aggiorna_grafico(
         if par_h:
             _add_det(par_h)
 
-
-
-        # Poi Potente (se applicabile)
         par_p = paragrafo_potente(
             mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
         )
         _add_det(par_p)
 
-        # Macchie/rigidità + parametri aggiuntivi
         for blocco in paragrafi_descrizioni_base(
             testo_macchie=testi_macchie[selettore_macchie],
             testo_rigidita=rigidita_descrizioni[selettore_rigidita],
@@ -633,9 +631,7 @@ def aggiorna_grafico(
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
 
-
     # ⛔️ Niente parentetica extra accodata alla frase finale
-    # (rimuove la riga tipo: "(raffreddamento stimato su Ta ..., CF ..., peso ...)")
     st.session_state["parentetica_extra"] = ""
 
     # toggle avvisi
@@ -712,4 +708,3 @@ def aggiorna_grafico(
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
-            
