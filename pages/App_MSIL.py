@@ -10,8 +10,14 @@ from app.factor_calc import (
     DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte
 )
 
+# ------------------------------------------------------------
+# Config pagina
+# ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
+# ------------------------------------------------------------
+# CSS compatto + nascondi header/footer/badge
+# ------------------------------------------------------------
 st.markdown("""
 <style>
 /* Header e padding pagina */
@@ -21,7 +27,7 @@ section.main, div.block-container{padding-top:0!important;margin-top:0!important
 /* Layout base */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
-div[data-testid="stVerticalBlock"] > div{margin:0!important}          /* zero spazio tra i widget */
+div[data-testid="stVerticalBlock"] > div{margin:0!important}
 div[data-testid="stHorizontalBlock"]{display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important}
 
@@ -42,7 +48,7 @@ div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!imp
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
-/* --- RADIO SUPER-COMPATTI --- */
+/* Radio compatti */
 div[data-testid="stRadio"]{margin:0!important;padding:0!important}
 div[data-testid="stRadio"] > label{display:none!important;height:0!important;margin:0!important;padding:0!important}
 div[data-testid="stRadio"] div[role="radiogroup"]{gap:.20rem!important;margin:0!important;padding:0!important}
@@ -77,26 +83,45 @@ footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-
+# ------------------------------------------------------------
+# Stato iniziale
+# ------------------------------------------------------------
 _defaults = {
     "run_stima_mobile": False,
     "show_avvisi": True,
-    "rt_val": 35.0,
-    "ta_base_val": 20.0,
-    "peso": 70.0,
+
+    # Termici/peso SENZA default: opzionali
+    "rt_val": None,
+    "ta_base_val": None,
+    "tm_val": None,
+    "peso": None,
+
     "fattore_correzione": 1.0,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
     "toggle_fattore_inline_mobile": False,
     "fc_riassunto_contatori": None,
+
+    # Flag stima su range
+    "stima_cautelativa_beta": True,
+    "range_unico_beta": True,
+    "ta_range_toggle_beta": True,
+    "fc_manual_range_beta": True,
+    "fc_suggested_vals": [],
+    "peso_stimato_beta": True,
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
+# ------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------
 def _safe_int(x):
-    try: return int(x)
-    except Exception: return 0
+    try:
+        return int(x)
+    except Exception:
+        return 0
 
 def _label(text, hint=None):
     if hint:
@@ -104,9 +129,24 @@ def _label(text, hint=None):
     else:
         st.markdown(f"<div class='tight-label'>{text}</div>", unsafe_allow_html=True)
 
-# ---------------------- Data/Ora ispezione --------------------
-# ---------------------- Data/Ora ispezione (Europe/Zurich) ----------------------
-# Fuso orario CH sicuro (ZoneInfo -> pytz -> fallback)
+def _to_float_or_none(s):
+    try:
+        if s is None:
+            return None
+        s = str(s).strip().replace(",", ".")
+        return float(s) if s != "" else None
+    except Exception:
+        return None
+
+def _sig_val(x):
+    # firma input robusta a None
+    if x is None:
+        return "∅"
+    return x
+
+# ------------------------------------------------------------
+# Data/Ora ispezione (Europe/Zurich)
+# ------------------------------------------------------------
 try:
     from zoneinfo import ZoneInfo
     _TZ_CH = ZoneInfo("Europe/Zurich")
@@ -117,7 +157,6 @@ except Exception:
     except Exception:
         _TZ_CH = None
 
-# Ora corrente locale CH (fallback UTC)
 now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
@@ -147,8 +186,9 @@ else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
 
-
-# --------------------- Ipostasi e rigidità --------------------
+# ------------------------------------------------------------
+# Ipostasi e rigidità
+# ------------------------------------------------------------
 _IPOSTASI_MOBILE = {
     "Ipostasi assenti": "Non ancora comparse",
     "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
@@ -181,35 +221,53 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ------------------ 1) Campi di input (FC placeholder) --------
+# ------------------------------------------------------------
+# 1) Campi di input: RT / TM / TA / Peso OPZIONALI
+# ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     _label("T. rettale (°C)")
-    input_rt = st.number_input("", value=st.session_state.get("rt_val", 35.0),
-                               step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed")
+    _rt_txt = st.text_input(
+        "", value=("" if st.session_state.get("rt_val") is None else str(st.session_state.get("rt_val"))),
+        key="rt_txt", label_visibility="collapsed"
+    )
+    input_rt = _to_float_or_none(_rt_txt)
+    st.session_state["rt_val"] = input_rt
 
 with c_ta:
     _label("T. ambientale media (°C)", " incertezza ±1 °C")
-    input_ta = st.number_input("", value=st.session_state.get("ta_base_val", 20.0),
-                               step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
+    _ta_txt = st.text_input(
+        "", value=("" if st.session_state.get("ta_base_val") is None else str(st.session_state.get("ta_base_val"))),
+        key="ta_txt", label_visibility="collapsed"
+    )
+    input_ta = _to_float_or_none(_ta_txt)
+    st.session_state["ta_base_val"] = input_ta
 
 with c_w:
     _label("Peso (kg)", "incertezza ±3 kg")
-    input_w = st.number_input("", value=st.session_state.get("peso", 70.0),
-                              step=1.0, format="%.1f", key="peso", label_visibility="collapsed")
+    _w_txt = st.text_input(
+        "", value=("" if st.session_state.get("peso") is None else str(st.session_state.get("peso"))),
+        key="peso_txt", label_visibility="collapsed"
+    )
+    input_w = _to_float_or_none(_w_txt)
+    st.session_state["peso"] = input_w
 
 with c_fc:
     _label("Fattore di correzione (FC)", "incertezza ±0.10")
     fc_placeholder = st.empty()   # il widget FC verrà creato DOPO il pannello
 
-# ------------------ 2) Toggle “Suggerisci FC” -----------------
+# ------------------------------------------------------------
+# 2) Toggle “Suggerisci FC”
+# ------------------------------------------------------------
 st.toggle("Suggerisci FC",
           value=st.session_state.get("toggle_fattore_inline_mobile", False),
           key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” (calcola __next_fc) --------
+# ------------------------------------------------------------
+# Pannello “Suggerisci FC”
+# ------------------------------------------------------------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
@@ -223,6 +281,15 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     except Exception:
         tabella2 = None
 
+    # Peso robusto: se non inserito usa default
+    peso_eff = st.session_state.get("peso")
+    if peso_eff is None:
+        peso_eff = peso_default
+    try:
+        peso_eff = float(peso_eff)
+    except Exception:
+        peso_eff = float(peso_default)
+
     if stato_corpo == "Immerso":
         acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
                                index=0, horizontal=True, key=k("radio_acqua"),
@@ -232,11 +299,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
             superficie_display=None, correnti_aria=False,
-            peso=float(st.session_state.get("peso", peso_default)),
-            tabella2_df=tabella2
+            peso=peso_eff, tabella2_df=tabella2
         )
         st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-        
         return
 
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
@@ -316,33 +381,38 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         stato=stato_corpo, acqua=None, counts=counts,
         superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
         correnti_aria=correnti_presenti,
-        peso=float(st.session_state.get("peso", peso_default)),
-        tabella2_df=tabella2
+        peso=peso_eff, tabella2_df=tabella2
     )
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
     st.markdown("</div>", unsafe_allow_html=True)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
-        peso_default=st.session_state.get("peso", 70.0),
+        peso_default=70.0 if st.session_state.get("peso") is None else st.session_state.get("peso"),
         key_prefix="fcpanel_mobile"
     )
 
-# ---- Applica l'eventuale FC calcolato PRIMA di creare il widget FC ----
+# ------------------------------------------------------------
+# Applica eventuale FC calcolato PRIMA di creare il widget FC
+# ------------------------------------------------------------
 if "__next_fc" in st.session_state:
     st.session_state["fattore_correzione"] = st.session_state.pop("__next_fc")
 
-# Crea ORA il widget FC nel placeholder (ultima posizione della riga input)
+# Crea ORA il widget FC nel placeholder
 with c_fc:
     fc_placeholder.number_input(
         "", value=st.session_state.get("fattore_correzione", 1.0),
         step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
     )
 
-# ------------------ 3) Pulsante finale ------------------------
+# ------------------------------------------------------------
+# 3) Pulsante finale
+# ------------------------------------------------------------
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
-# ----------------- Firma input e range fissi mobile -----------
+# ------------------------------------------------------------
+# Firma input e range fissi mobile
+# ------------------------------------------------------------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
         bool(st.session_state.get("usa_orario_custom", False)),
@@ -350,25 +420,31 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         str(st.session_state.get("input_ora_rilievo")),
         selettore_macchie,
         selettore_rigidita,
-        float(st.session_state.get("rt_val", 0.0)),
-        float(st.session_state.get("ta_base_val", 0.0)),
-        float(st.session_state.get("peso", 0.0)),
-        float(st.session_state.get("fattore_correzione", 0.0)),
+        _sig_val(st.session_state.get("rt_val")),
+        _sig_val(st.session_state.get("ta_base_val")),
+        _sig_val(st.session_state.get("peso")),
+        _sig_val(st.session_state.get("fattore_correzione")),
+        _sig_val(st.session_state.get("tm_val")),
     )
 
-st.session_state["stima_cautelativa_beta"] = True
-st.session_state["range_unico_beta"] = True
-st.session_state["ta_range_toggle_beta"] = True
-st.session_state["fc_manual_range_beta"] = True
-st.session_state.setdefault("fc_suggested_vals", [])
-
-ta_center = float(st.session_state.get("ta_base_val", 20.0))
+# Range TA e FC: solo se TA presente
+ta_center = st.session_state.get("ta_base_val")
 fc_center = float(st.session_state.get("fattore_correzione", 1.0))
-st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
-st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
+
+if ta_center is not None:
+    try:
+        ta_center = float(ta_center)
+        st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
+        st.session_state["Ta_max_beta"] = round(ta_center + 1.0, 2)
+    except Exception:
+        st.session_state.pop("Ta_min_beta", None)
+        st.session_state.pop("Ta_max_beta", None)
+else:
+    st.session_state.pop("Ta_min_beta", None)
+    st.session_state.pop("Ta_max_beta", None)
+
 st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
 st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
-st.session_state["peso_stimato_beta"] = True
 
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
@@ -381,19 +457,28 @@ if clicked:
 if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_sig_mobile") != curr_sig:
     st.session_state["run_stima_mobile"] = False
 
-# -------------------------- Output ---------------------------
+# ------------------------------------------------------------
+# Output
+# ------------------------------------------------------------
 if st.session_state.get("run_stima_mobile"):
+    # Condizione di attivazione raffreddamento: servono T rettale, T ante-mortem, T ambientale, peso
+    input_tm = st.session_state.get("tm_val")
+    considera_raffreddamento = all(v is not None for v in (st.session_state.get("rt_val"),
+                                                           st.session_state.get("tm_val"),
+                                                           st.session_state.get("ta_base_val"),
+                                                           st.session_state.get("peso")))
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        input_rt=input_rt,
-        input_ta=input_ta,
-        input_tm=37.2,
-        input_w=input_w,
-        fattore_correzione=st.session_state["fattore_correzione"],
+        # Se mancano dati, passa None: Henssge deve essere ignorato a valle
+        input_rt=(st.session_state.get("rt_val") if considera_raffreddamento else None),
+        input_ta=(st.session_state.get("ta_base_val") if considera_raffreddamento else None),
+        input_tm=(input_tm if considera_raffreddamento else None),
+        input_w=(st.session_state.get("peso") if considera_raffreddamento else None),
+        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
         widgets_parametri_aggiuntivi={},
-        usa_orario_custom=st.session_state["usa_orario_custom"],
-        input_data_rilievo=st.session_state["input_data_rilievo"],
-        input_ora_rilievo=st.session_state["input_ora_rilievo"],
+        usa_orario_custom=st.session_state.get("usa_orario_custom"),
+        input_data_rilievo=st.session_state.get("input_data_rilievo"),
+        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=False,
     )
