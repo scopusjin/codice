@@ -36,9 +36,32 @@ div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
-div[data-testid="stRadio"]{margin:0!important}
-div[data-testid="stRadio"] > div{padding:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.10rem!important}
+/* --- RADIO SUPER-COMPATTI --- */
+div[data-testid="stRadio"]{
+  margin:0!important;
+  padding:0!important;
+}
+div[data-testid="stRadio"] > label{
+  display:none!important;   /* elimina spazio riservato alla label */
+  height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+div[data-testid="stRadio"] div[role="radiogroup"]{
+  gap:.20rem!important;     /* distanza orizzontale minima tra le opzioni */
+  margin:0!important;
+  padding:0!important;
+}
+div[data-testid="stRadio"] div[role="radiogroup"] > label{
+  margin:0!important;       /* rimuove margini di ciascuna opzione */
+  padding:.05rem .2rem!important;
+  line-height:1!important;
+}
+
+/* pannello FC senza cuscinetti */
+.fcpanel{margin:0!important;padding:0!important}
+.fcpanel > div{margin:0!important}
+
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
