@@ -76,34 +76,15 @@ def _build_fc_values_from_ui():
     vals = [float(v) for v in vals if _is_num(v)]
     return sorted(set(vals))
 
-
-def _prudente_runs_validi(Tr_val, T0_val, W_val, ta_vals, fc_vals):
-    valid = []
-    for Ta_val in ta_vals:
-        if not all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val]):
-            continue
-        if Tr_val <= Ta_val:
-            continue
-        for CF_val in fc_vals:
-            if not _is_num(CF_val):
-                continue
-            try:
-                out = calcola_raffreddamento(
-                    Tr_val=Tr_val, Ta_val=Ta_val, T0_val=T0_val,
-                    W_val=W_val, CF_val=CF_val
-                )
-            except Exception:
-                continue
-
-            ok_flag = bool(out.get("raffreddamento_calcolabile", True))
-            if not ok_flag:
-                continue
-
-            # ACCETTA anche intervalli con infinito (es. 48–∞)
-            ore_min = out.get("ore_min"); ore_max = out.get("ore_max")
-            if _is_num(ore_min) or _is_num(ore_max):
-                valid.append(out)
-    return valid
+def _prudente_any_combination_possible(Tr_val, ta_vals):
+    """True se esiste almeno una combinazione fisicamente calcolabile (Tr > Ta)."""
+    if not _is_num(Tr_val):
+        return False
+    tv = [float(t) for t in ta_vals if _is_num(t)]
+    if not tv:
+        return False
+    tr = float(Tr_val)
+    return any(tr > ta for ta in tv)
 
 # ---------------------------
 # Palette / UI helpers
@@ -838,25 +819,17 @@ if st.session_state["show_results"]:
     )
 
     # Filtro prudente SOLO se base_ok
-    prudente_runs_empty = False
+    prudente_ok = True
     if base_ok and st.session_state.get("stima_cautelativa_beta", False):
         ta_vals = _build_ta_values_from_ui()
-        fc_vals = _build_fc_values_from_ui()
-        # fallback singolo se range vuoto
-        if not ta_vals and _is_num(input_ta): ta_vals = [float(input_ta)]
-        if not fc_vals: fc_vals = [float(st.session_state.get("fattore_correzione", 1.0))]
-        runs = _prudente_runs_validi(
-            Tr_val=input_rt, T0_val=input_tm, W_val=input_w,
-            ta_vals=ta_vals, fc_vals=fc_vals
-        )
-        prudente_runs_empty = (len(runs) == 0)
-        st.session_state["prudente_runs_empty"] = prudente_runs_empty
-        if prudente_runs_empty:
+        if not ta_vals and _is_num(input_ta):
+            ta_vals = [float(input_ta)]
+        prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
+        if not prudente_ok:
             _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
 
     considera_raffreddamento = base_ok and (
-        not st.session_state.get("stima_cautelativa_beta", False) or
-        not prudente_runs_empty
+        not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
     )
 
     aggiorna_grafico(
