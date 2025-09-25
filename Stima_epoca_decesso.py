@@ -63,7 +63,6 @@ def _build_ta_values_from_ui():
         vals.extend([st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")])
     else:
         vals.append(st.session_state.get("ta_base_val"))
-    # filtra None/NaN e deduplica
     vals = [float(v) for v in vals if _is_num(v)]
     return sorted(set(vals))
 
@@ -196,7 +195,6 @@ def _sync_fc_range_from_suggestions():
         return
     lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals) == 1 else (vals[0], vals[-1])
     lo, hi = round(lo, 2), round(hi, 2)
-    # aggiorna range visibile e chiavi beta
     st.session_state["fc_min_val"] = lo
     st.session_state["fc_other_val"] = hi
     st.session_state["FC_min_beta"] = lo
@@ -221,7 +219,6 @@ st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
-# --- Data/Ora ispezione legale ---
 with st.container(border=True):
     usa_orario_custom = st.toggle(
         "Aggiungi data/ora rilievi tanatologici",
@@ -229,7 +226,6 @@ with st.container(border=True):
     )
 
     if st.session_state["usa_orario_custom"]:
-        # Se erano None, ripristina i default PRIMA di renderizzare i widget
         if st.session_state.get("input_data_rilievo") is None:
             st.session_state["input_data_rilievo"] = datetime.date.today()
         if not st.session_state.get("input_ora_rilievo"):
@@ -293,8 +289,6 @@ with st.container(border=True):
         # -------------------------
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
-
-        # --- Toggle unico per i range TA e FC + messaggio generale ---
         rg1, rg2 = st.columns([3, 1], gap="small")
         with rg1:
             st.markdown(
@@ -469,7 +463,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
           div[data-testid="stSlider"] {margin-top:-4px; margin-bottom:-2px;}
         </style>
     """, unsafe_allow_html=True)
-
     # --- Stato corpo ---
     stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"], index=0, horizontal=True, key=k("radio_stato_corpo"))
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
@@ -784,66 +777,24 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Bottone: esegue il calcolo SOLO su click ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
-        st.session_state["last_run_sig"] = curr_sig
-        st.session_state["show_results"] = True
+# --- Helper: applica range prudente di default quando "Specifica range" è OFF ---
+def _apply_default_prudent_ranges():
+    if not st.session_state.get("stima_cautelativa_beta", False):
+        return
+    if not st.session_state.get("range_unico_beta", False):
+        ta = st.session_state.get("ta_base_val")
+        if _is_num(ta):
+            st.session_state["Ta_min_beta"] = round(float(ta) - 1.0, 2)
+            st.session_state["Ta_max_beta"] = round(float(ta) + 1.0, 2)
+        else:
+            st.session_state.pop("Ta_min_beta", None)
+            st.session_state.pop("Ta_max_beta", None)
 
-# --- Se QUALSIASI input cambia: nascondi risultati (NON ricalcolare) ---
-if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr_sig:
-    st.session_state["show_results"] = False
+        if not st.session_state.get("fc_suggested_vals"):
+            fc = st.session_state.get("fattore_correzione", 1.0)
+            st.session_state["FC_min_beta"] = round(float(fc) - 0.10, 2)
+            st.session_state["FC_max_beta"] = round(float(fc) + 0.10, 2)
 
-# --- Mostra risultati SOLO se richiesti e firma invariata ---
-if st.session_state["show_results"]:
-    input_rt = st.session_state.get("rt_val")
-    input_ta = st.session_state.get("ta_base_val")
-    input_tm = st.session_state.get("tm_val")
-    input_w  = st.session_state.get("peso")
-
-    no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
-    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
-    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
-
-    if no_rt and no_macchie and no_rigidita:
-        st.warning("Nessun dato inserito per la stima")
-        st.stop()
-
-    # Presenza minima per considerare il raffreddamento
-    base_ok = (
-        not no_rt and
-        input_ta is not None and
-        input_tm is not None and
-        input_w  is not None and input_w > 0
-    )
-
-    # Filtro prudente SOLO se base_ok
-    prudente_ok = True
-    if base_ok and st.session_state.get("stima_cautelativa_beta", False):
-        ta_vals = _build_ta_values_from_ui()
-        if not ta_vals and _is_num(input_ta):
-            ta_vals = [float(input_ta)]
-        prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
-        if not prudente_ok:
-            _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
-
-    considera_raffreddamento = base_ok and (
-        not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
-    )
-
-    aggiorna_grafico(
-        selettore_macchie=selettore_macchie,
-        selettore_rigidita=selettore_rigidita,
-        input_rt=(input_rt if considera_raffreddamento else None),
-        input_ta=(input_ta if considera_raffreddamento else None),
-        input_tm=(input_tm if considera_raffreddamento else None),
-        input_w=(input_w if considera_raffreddamento else None),
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
-        widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
-        usa_orario_custom=st.session_state.get("usa_orario_custom", False),
-        input_data_rilievo=st.session_state.get("input_data_rilievo"),
-        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
-        alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
-        skip_warnings=True,
-    )
+# --- Pulizia chiavi dei widget di range quando si torna OFF ---
+if not st.session_state.get("range_unico_beta", False):
+    for _tmpk in ("ta_
