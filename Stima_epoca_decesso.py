@@ -321,7 +321,7 @@ with st.container(border=True):
         with c2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             st.number_input("T. ante-mortem stimata (°C):",
-                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                            step=0.1, format="%.1f",
                             key="tm_val", label_visibility="collapsed")
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
