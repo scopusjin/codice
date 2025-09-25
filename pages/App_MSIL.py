@@ -10,32 +10,23 @@ from app.factor_calc import (
     DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte
 )
 
-# --------------------------- Config ---------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-# ----------------------------- CSS ----------------------------
 st.markdown("""
 <style>
-/* header e top gap */
 header[data-testid="stHeader"]{display:none!important;}
 section.main, div.block-container{padding-top:0!important;margin-top:0!important}
-
-/* contenitori e blocchi */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
 div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
 div[data-testid="stHorizontalBlock"]{display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important}
-
-/* widget compatti */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
 div[data-testid="stTextInput"]{margin-top:2px!important;margin-bottom:2px!important;padding:0!important}
-
-/* etichette e input */
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
@@ -45,40 +36,26 @@ div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
-
-/* radio/toggle compatti */
 div[data-testid="stRadio"]{margin:0!important}
 div[data-testid="stRadio"] > div{padding:0!important}
 div[data-testid="stRadio"] div[role="radiogroup"]{gap:.10rem!important}
-
-/* data editor */
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
-
-/* hint e label strette */
 .tight-label{margin:0!important;padding:0!important;line-height:1.05}
 .tight-label p{margin:0!important}
 .hint{font-size:.72rem;opacity:.75;margin-left:.25rem}
-
-/* pulsanti */
 div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
-
-/* nascondi badge/pulsante Cloud “Manage app”, menu e footer */
-#stDecoration, [data-testid="stDecoration"],
-[data-testid="viewerBadge"], a[data-testid="viewerBadge"],
-[class^="viewerBadge_"], [class*=" viewerBadge_"],
-a[href^="https://streamlit.io/cloud"],
+#stDecoration,[data-testid="stDecoration"],[data-testid="viewerBadge"],a[data-testid="viewerBadge"],
+[class^="viewerBadge_"],[class*=" viewerBadge_"],a[href^="https://streamlit.io/cloud"],
 a[href^="https://share.streamlit.io"]{display:none!important;}
-#MainMenu{visibility:hidden;}
-footer{visibility:hidden;}
+#MainMenu{visibility:hidden;} footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------- Defaults -------------------------
 _defaults = {
     "run_stima_mobile": False,
     "show_avvisi": True,
@@ -95,12 +72,9 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-# --------------------------- Helpers --------------------------
 def _safe_int(x):
-    try:
-        return int(x)
-    except Exception:
-        return 0
+    try: return int(x)
+    except Exception: return 0
 
 def _label(text, hint=None):
     if hint:
@@ -145,75 +119,57 @@ c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
     scelta_ipostasi_lbl = st.selectbox(
-        "Macchie ipostatiche",
-        ip_keys,
+        "Macchie ipostatiche", ip_keys,
         index=(ip_keys.index("Ipostasi?") if "Ipostasi?" in ip_keys else 0),
-        key="selettore_macchie_mobile",
-        label_visibility="collapsed",
+        key="selettore_macchie_mobile", label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
-        "Rigidità cadaverica",
-        rg_keys,
+        "Rigidità cadaverica", rg_keys,
         index=(rg_keys.index("Rigor mortis?") if "Rigor mortis?" in rg_keys else 0),
-        key="selettore_rigidita_mobile",
-        label_visibility="collapsed",
+        key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ------------------ 1) Campi di input (ultimo FC) -------------
+# ------------------ 1) Campi di input (FC placeholder) --------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     _label("T. rettale (°C)")
-    input_rt = st.number_input(
-        "", value=st.session_state.get("rt_val", 35.0),
-        step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed"
-    )
+    input_rt = st.number_input("", value=st.session_state.get("rt_val", 35.0),
+                               step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed")
 
 with c_ta:
     _label("T. ambientale media (°C)", "±1 °C predef.")
-    input_ta = st.number_input(
-        "", value=st.session_state.get("ta_base_val", 20.0),
-        step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed"
-    )
+    input_ta = st.number_input("", value=st.session_state.get("ta_base_val", 20.0),
+                               step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed")
 
 with c_w:
     _label("Peso (kg)", "±3 kg predef.")
-    input_w = st.number_input(
-        "", value=st.session_state.get("peso", 70.0),
-        step=1.0, format="%.1f", key="peso", label_visibility="collapsed"
-    )
+    input_w = st.number_input("", value=st.session_state.get("peso", 70.0),
+                              step=1.0, format="%.1f", key="peso", label_visibility="collapsed")
 
 with c_fc:
     _label("Fattore di correzione (FC)", "±0.10 predef.")
-    st.number_input(
-        "", value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
-    )
+    fc_placeholder = st.empty()   # il widget FC verrà creato DOPO il pannello
 
 # ------------------ 2) Toggle “Suggerisci FC” -----------------
-st.toggle(
-    "Suggerisci FC",
-    value=st.session_state.get("toggle_fattore_inline_mobile", False),
-    key="toggle_fattore_inline_mobile"
-)
+st.toggle("Suggerisci FC",
+          value=st.session_state.get("toggle_fattore_inline_mobile", False),
+          key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” sotto gli input ------------
+# -------- Pannello “Suggerisci FC” (calcola __next_fc) --------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
     st.markdown("<div class='fcpanel'>", unsafe_allow_html=True)
 
-    # Stato corpo compatto
-    stato_label = st.radio(
-        "", ["Corpo asciutto", "Bagnato", "Immerso"],
-        index=0, horizontal=True, key=k("radio_stato_corpo"),
-        label_visibility="collapsed"
-    )
+    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
+                           index=0, horizontal=True, key=k("radio_stato_corpo"),
+                           label_visibility="collapsed")
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
     try:
@@ -222,11 +178,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio(
-            "", ["In acqua stagnante", "In acqua corrente"],
-            index=0, horizontal=True, key=k("radio_acqua"),
-            label_visibility="collapsed"
-        )
+        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
+                               index=0, horizontal=True, key=k("radio_acqua"),
+                               label_visibility="collapsed")
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
         result = compute_factor(
@@ -235,20 +189,17 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
+        st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
         st.markdown("</div>", unsafe_allow_html=True)
         return
 
-    # Non immerso: vestiti/coperte
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle(
-            "Vestiti/coperte su addome/bacino?",
-            value=st.session_state.get(k("toggle_vestito"), False),
-            key=k("toggle_vestito")
-        )
+        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
+                                   value=st.session_state.get(k("toggle_vestito"), False),
+                                   key=k("toggle_vestito"))
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -291,11 +242,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         if prev_display not in options_display:
             prev_display = options_display[0]
         superficie_display_selected = st.selectbox(
-            "Superficie di appoggio",
-            options_display,
+            "Superficie di appoggio", options_display,
             index=options_display.index(prev_display),
-            key=k("superficie_display_sel"),
-            label_visibility="visible"
+            key=k("superficie_display_sel"), label_visibility="visible"
         )
 
     correnti_presenti = False
@@ -309,8 +258,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             correnti_presenti = st.toggle(
                 "Correnti d'aria presenti?",
                 value=st.session_state.get(k("toggle_correnti_fc"), False),
-                key=k("toggle_correnti_fc"),
-                disabled=False
+                key=k("toggle_correnti_fc"), disabled=False
             )
 
     try:
@@ -325,13 +273,24 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
     )
-    st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
+    st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
     st.markdown("</div>", unsafe_allow_html=True)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
         key_prefix="fcpanel_mobile"
+    )
+
+# ---- Applica l'eventuale FC calcolato PRIMA di creare il widget FC ----
+if "__next_fc" in st.session_state:
+    st.session_state["fattore_correzione"] = st.session_state.pop("__next_fc")
+
+# Crea ORA il widget FC nel placeholder (ultima posizione della riga input)
+with c_fc:
+    fc_placeholder.number_input(
+        "", value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
     )
 
 # ------------------ 3) Pulsante finale ------------------------
