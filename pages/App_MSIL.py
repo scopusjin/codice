@@ -14,19 +14,24 @@ st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
 st.markdown("""
 <style>
+/* Header e padding pagina */
 header[data-testid="stHeader"]{display:none!important;}
 section.main, div.block-container{padding-top:0!important;margin-top:0!important}
+
+/* Layout base */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
-div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
+div[data-testid="stVerticalBlock"] > div{margin:0!important}          /* zero spazio tra i widget */
 div[data-testid="stHorizontalBlock"]{display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important}
+
+/* Widget uniformi */
 div[data-testid="stSelectbox"],
 div[data-testid="stNumberInput"],
 div[data-testid="stToggle"],
 div[data-testid="stRadio"],
 div[data-testid="stDateInput"],
-div[data-testid="stTextInput"]{margin-top:2px!important;margin-bottom:2px!important;padding:0!important}
+div[data-testid="stTextInput"]{margin:2px 0!important;padding:0!important}
 div[data-testid="stNumberInput"] > label,
 div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
@@ -36,48 +41,42 @@ div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
+
 /* --- RADIO SUPER-COMPATTI --- */
-div[data-testid="stRadio"]{
-  margin:0!important;
-  padding:0!important;
-}
-div[data-testid="stRadio"] > label{
-  display:none!important;   /* elimina spazio riservato alla label */
-  height:0!important;
-  margin:0!important;
-  padding:0!important;
-}
-div[data-testid="stRadio"] div[role="radiogroup"]{
-  gap:.20rem!important;     /* distanza orizzontale minima tra le opzioni */
-  margin:0!important;
-  padding:0!important;
-}
-div[data-testid="stRadio"] div[role="radiogroup"] > label{
-  margin:0!important;       /* rimuove margini di ciascuna opzione */
-  padding:.05rem .2rem!important;
-  line-height:1!important;
-}
+div[data-testid="stRadio"]{margin:0!important;padding:0!important}
+div[data-testid="stRadio"] > label{display:none!important;height:0!important;margin:0!important;padding:0!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.20rem!important;margin:0!important;padding:0!important}
+div[data-testid="stRadio"] div[role="radiogroup"] > label{margin:0!important;padding:.05rem .2rem!important;line-height:1!important}
 
-/* pannello FC senza cuscinetti */
-.fcpanel{margin:0!important;padding:0!important}
-.fcpanel > div{margin:0!important}
+/* Toggle compatti */
+div[data-testid="stToggle"]{margin:0!important;padding:0!important}
 
+/* Data editor asciutto */
 div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
+
+/* Etichette custom compatte */
 .tight-label{margin:0!important;padding:0!important;line-height:1.05}
 .tight-label p{margin:0!important}
 .hint{font-size:.72rem;opacity:.75;margin-left:.25rem}
+
+/* Pulsanti */
 div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
-#stDecoration,[data-testid="stDecoration"],[data-testid="viewerBadge"],a[data-testid="viewerBadge"],
-[class^="viewerBadge_"],[class*=" viewerBadge_"],a[href^="https://streamlit.io/cloud"],
-a[href^="https://share.streamlit.io"]{display:none!important;}
-#MainMenu{visibility:hidden;} footer{visibility:hidden;}
+
+/* Nascondi footer/badge Streamlit */
+#stDecoration,[data-testid="stDecoration"],
+[data-testid="viewerBadge"],a[data-testid="viewerBadge"],
+[class^="viewerBadge_"],[class*=" viewerBadge_"],
+a[href^="https://streamlit.io/cloud"], a[href^="https://share.streamlit.io"]{display:none!important;}
+#MainMenu{visibility:hidden;}
+footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
+
 
 _defaults = {
     "run_stima_mobile": False,
@@ -188,8 +187,6 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
-    st.markdown("<div class='fcpanel'>", unsafe_allow_html=True)
-
     stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
                            index=0, horizontal=True, key=k("radio_stato_corpo"),
                            label_visibility="collapsed")
@@ -213,7 +210,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             tabella2_df=tabella2
         )
         st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-        st.markdown("</div>", unsafe_allow_html=True)
+        
         return
 
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
