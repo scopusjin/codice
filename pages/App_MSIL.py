@@ -93,8 +93,10 @@ _defaults = {
     # Termici/peso SENZA default: opzionali
     "rt_val": None,
     "ta_base_val": None,
-    "tm_val": None,
     "peso": None,
+
+    # TM fisso e non editabile
+    "tm_val": 37.2,
 
     "fattore_correzione": 1.0,
     "usa_orario_custom": False,
@@ -113,6 +115,9 @@ _defaults = {
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
+
+# Garantisce TM fisso anche se sessione già avviata
+st.session_state["tm_val"] = 37.2
 
 # ------------------------------------------------------------
 # Helpers
@@ -139,10 +144,7 @@ def _to_float_or_none(s):
         return None
 
 def _sig_val(x):
-    # firma input robusta a None
-    if x is None:
-        return "∅"
-    return x
+    return "∅" if x is None else x
 
 # ------------------------------------------------------------
 # Data/Ora ispezione (Europe/Zurich)
@@ -222,7 +224,7 @@ with c_rg:
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # ------------------------------------------------------------
-# 1) Campi di input: RT / TM / TA / Peso OPZIONALI
+# 1) Campi di input: RT / TA / Peso OPZIONALI (text_input, niente ±)
 # ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
@@ -281,12 +283,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     except Exception:
         tabella2 = None
 
-    # Peso robusto: se non inserito usa default
+    # Peso robusto per FC: fallback a 70 se mancante o non valido
     peso_eff = st.session_state.get("peso")
-    if peso_eff is None:
-        peso_eff = peso_default
     try:
-        peso_eff = float(peso_eff)
+        peso_eff = float(peso_eff) if peso_eff is not None else float(peso_default)
+        if peso_eff <= 0:
+            peso_eff = float(peso_default)
     except Exception:
         peso_eff = float(peso_default)
 
@@ -388,7 +390,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
-        peso_default=70.0 if st.session_state.get("peso") is None else st.session_state.get("peso"),
+        peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
         key_prefix="fcpanel_mobile"
     )
 
@@ -424,7 +426,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         _sig_val(st.session_state.get("ta_base_val")),
         _sig_val(st.session_state.get("peso")),
         _sig_val(st.session_state.get("fattore_correzione")),
-        _sig_val(st.session_state.get("tm_val")),
+        37.2,  # TM fisso
     )
 
 # Range TA e FC: solo se TA presente
@@ -461,20 +463,24 @@ if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_s
 # Output
 # ------------------------------------------------------------
 if st.session_state.get("run_stima_mobile"):
-    # Condizione di attivazione raffreddamento: servono T rettale, T ante-mortem, T ambientale, peso
-    input_tm = st.session_state.get("tm_val")
-    considera_raffreddamento = all(v is not None for v in (st.session_state.get("rt_val"),
-                                                           st.session_state.get("tm_val"),
-                                                           st.session_state.get("ta_base_val"),
-                                                           st.session_state.get("peso")))
+    # Attiva Henssge solo se tutti presenti e peso > 0
+    input_rt = st.session_state.get("rt_val")
+    input_ta = st.session_state.get("ta_base_val")
+    input_w  = st.session_state.get("peso")
+    considera_raffreddamento = (
+        input_rt is not None and
+        input_ta is not None and
+        input_w is not None and input_w > 0
+    )
+
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        # Se mancano dati, passa None: Henssge deve essere ignorato a valle
-        input_rt=(st.session_state.get("rt_val") if considera_raffreddamento else None),
-        input_ta=(st.session_state.get("ta_base_val") if considera_raffreddamento else None),
-        input_tm=(input_tm if considera_raffreddamento else None),
-        input_w=(st.session_state.get("peso") if considera_raffreddamento else None),
+        # Passa None se non consideri raffreddamento
+        input_rt=(input_rt if considera_raffreddamento else None),
+        input_ta=(input_ta if considera_raffreddamento else None),
+        input_tm=(37.2 if considera_raffreddamento else None),
+        input_w=(input_w if considera_raffreddamento else None),
         fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
         widgets_parametri_aggiuntivi={},
         usa_orario_custom=st.session_state.get("usa_orario_custom"),
