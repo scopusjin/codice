@@ -513,17 +513,4 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,  # MSIL: niente avvisi su peso mancante
     )
 
-    # --- Descrizioni dettagliate ---
-    with st.expander("Descrizioni dettagliate", expanded=False):
-        try:
-            from app.textgen import paragrafi_descrizioni_base
-            if not no_macchie or not no_rigidita:
-                st.markdown(
-                    paragrafi_descrizioni_base(
-                        selettore_macchie=selettore_macchie,
-                        selettore_rigidita=selettore_rigidita
-                    ),
-                    unsafe_allow_html=True
-                )
-        except Exception:
-            pass
+
