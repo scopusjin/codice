@@ -713,20 +713,18 @@ def aggiorna_grafico(
         frase_qd_html = frase_qd(Qd_val_check, Ta_val)
         if frase_qd_html:
             st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
-        # --- Testi base ipostasi/rigidità (sempre nello stesso expander) ---
-        try:
+        # --- Testi base ipostasi/rigidità se il raffreddamento NON è calcolabile ---
+        if not raffreddamento_calcolabile:
             no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
             no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
             if not no_macchie or not no_rigidita:
-                from app.textgen import paragrafi_descrizioni_base
                 st.markdown(
                     _wrap_final(
                         paragrafi_descrizioni_base(
-                            selettore_macchie=selettore_macchie,
-                            selettore_rigidita=selettore_rigidita
+                            testo_macchie=testi_macchie.get(selettore_macchie),
+                            testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
                         )
                     ),
                     unsafe_allow_html=True
                 )
-        except Exception:
-            pass
+
