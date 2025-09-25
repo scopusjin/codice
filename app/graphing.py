@@ -60,6 +60,10 @@ def aggiorna_grafico(
     skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
     **kwargs,
 ):
+    # Back-compat: accetta skip_warnings anche via **kwargs
+    if "skip_warnings" in kwargs and not skip_warnings:
+        skip_warnings = bool(kwargs.pop("skip_warnings"))
+
     avvisi: List[str] = []
     dettagli: List[str] = []
     frase_finale_htlm: str = ""
