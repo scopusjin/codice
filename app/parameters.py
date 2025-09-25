@@ -42,7 +42,7 @@ testi_macchie = {
     "Non ancora comparse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "non fossero ancora comparse. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
-        "che sono trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
+        "che fossero trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
     ),
     "In via di confluenza": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
