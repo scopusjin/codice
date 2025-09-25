@@ -24,7 +24,7 @@ def compute_plot_data(
     mt_ore: Optional[float],
     INF_HOURS: float,
     qd_threshold: float,
-    extra_params: Optional[List[Dict[str, Any]]] = None,  # <- può contenere "label","start","end","adattato"
+    extra_params: Optional[List[Dict[str, Any]]] = None,  # può contenere "label","start","end","adattato"
 ) -> Dict[str, Any]:
     """
     Prepara i dati per il grafico. Nessun side-effect. Nessuna dipendenza da Streamlit.
@@ -35,7 +35,7 @@ def compute_plot_data(
     starts: List[float] = []
     ends: List[float] = []
 
-    # Etichette + range: IPOSTASI
+    # IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
         if macchie_range[1] < INF_HOURS:
             label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
@@ -43,11 +43,9 @@ def compute_plot_data(
         else:
             label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
             end_val = INF_HOURS
-        labels.append(label_macchie)
-        starts.append(macchie_range[0])
-        ends.append(end_val)
+        labels.append(label_macchie); starts.append(macchie_range[0]); ends.append(end_val)
 
-    # Etichette + range: RIGIDITÀ
+    # RIGIDITÀ
     if rigidita_range is not None and not np.isnan(rigidita_range[0]):
         if rigidita_range[1] < INF_HOURS:
             label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
@@ -55,24 +53,11 @@ def compute_plot_data(
         else:
             label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
             end_val = INF_HOURS
-        labels.append(label_rigidita)
-        starts.append(rigidita_range[0])
-        ends.append(end_val)
+        labels.append(label_rigidita); starts.append(rigidita_range[0]); ends.append(end_val)
 
-    # Costruisci extra locali e aggiungi Potente se attivo
-    _extra: List[Dict[str, Any]] = list(extra_params) if extra_params else []
-    potente_attivo = (Qd_val_check is not None) and (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-    if potente_attivo and (mt_ore is not None) and (not np.isnan(mt_ore)):
-        _extra.append({
-            "label": "Potente et al.",
-            "start": float(mt_ore),
-            "end": np.nan,         # infinito a destra
-            "adattato": False
-        })
-
-    # Parametri extra (altri range orari da mostrare come barre)
-    if _extra:
-        for e in _extra:
+    # EXTRA PARAMS
+    if extra_params:
+        for e in extra_params:
             try:
                 lab = str(e.get("label", "Parametro"))
                 if e.get("adattato", False):
@@ -84,50 +69,47 @@ def compute_plot_data(
             if np.isnan(s):
                 continue
             if np.isnan(ed) or ed >= INF_HOURS:
-                lbl = f"{lab}\n(≥ {_fmt(s)} h)"
-                end_val = INF_HOURS
+                lbl = f"{lab}\n(≥ {_fmt(s)} h)"; end_val = INF_HOURS
             else:
-                end_val = float(ed)
-                lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
-            labels.append(lbl)
-            starts.append(float(s))
-            ends.append(end_val)
+                end_val = float(ed); lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
+            labels.append(lbl); starts.append(float(s)); ends.append(end_val)
 
-    # Etichette + range: RAFFREDDAMENTO (Henssge) — mostrato solo se Potente NON attivo
+    # POTENTE come "Raffreddamento" (solo se disegnabile)
+    potente_attivo = (Qd_val_check is not None) and (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
+    potente_drawable = potente_attivo and (mt_ore is not None) and (not np.isnan(mt_ore))
+    if potente_drawable:
+        labels.append(f"Raffreddamento\n(≥ {_fmt(float(mt_ore))} h)")
+        starts.append(float(mt_ore))
+        ends.append(INF_HOURS)  # barra a destra infinita
+
+    # HENSSGE: mostrato solo se Potente NON disegnabile
     raffreddamento_idx: Optional[int] = None
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
 
-    mostra_raffreddamento = bool(raffreddamento_calcolabile) and (not potente_attivo)
-
-    # Flag iniziali
     raff_only_lower = False
     raff_over_48 = False
     raff_only_lower_start: Optional[float] = None
 
-    if mostra_raffreddamento:
+    mostra_henssge = bool(raffreddamento_calcolabile) and (not potente_drawable)
+    if mostra_henssge:
         t_min_raff_visualizzato = t_min_raff_henssge
         t_max_raff_visualizzato = t_max_raff_henssge
 
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-        raff_over_48 = False
+        raff_over_48 = False  # placeholder per eventuali logiche future
 
         if raff_only_lower:
-            maggiore_di_valore = (
-                float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore))
-                else float(t_min_raff_henssge)
-            )
+            maggiore_di_valore = float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore)) else float(t_min_raff_henssge)
             label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
             raff_only_lower_start = maggiore_di_valore
         else:
             label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
 
-        labels.append(label_h)
-        starts.append(t_min_raff_henssge)
-        ends.append(t_max_raff_henssge)
+        labels.append(label_h); starts.append(t_min_raff_henssge); ends.append(t_max_raff_henssge)
         raffreddamento_idx = len(labels) - 1
 
-    # Calcolo cap e coda
+    # Cap e coda
     LINE_W = 6
     DASH_LS = (0, (2, 1))
     TAIL_FACTOR = 1.20
@@ -136,47 +118,32 @@ def compute_plot_data(
     finite_ends_all = [e for e in ends if not np.isnan(e) and e < INF_HOURS]
     cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
 
-    # Inizi dei segmenti infiniti blu
-    infinite_starts_blue = [
-        s for s, e in zip(starts, ends)
-        if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
-    ]
+    infinite_starts_blue = [s for s, e in zip(starts, ends) if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)]
 
-    # Inizi verdi speciali per raffreddamento (proseguono a ∞ in verde)
     special_inf_starts_green: List[float] = []
-    if mostra_raffreddamento and (raffreddamento_idx is not None):
+    if mostra_henssge and (raffreddamento_idx is not None):
         if raff_only_lower and (raff_only_lower_start is not None):
             special_inf_starts_green.append(float(raff_only_lower_start))
         if raff_over_48:
             special_inf_starts_green.append(48.0)
 
-    if infinite_starts_blue or special_inf_starts_green:
-        tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green)
-    else:
-        tail_base = cap_base
+    tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green) if (infinite_starts_blue or special_inf_starts_green) else cap_base
     tail_end = tail_base * TAIL_FACTOR
 
     # Mediane verdi per ipostasi/rigidità
     medians: Dict[str, Optional[Tuple[float, float]]] = {
-        "Macchie ipostatiche": None,
-        "Rigidità cadaverica": None,
+        "Macchie ipostatiche": macchie_medi_range if macchie_medi_range is not None else None,
+        "Rigidità cadaverica": rigidita_medi_range if rigidita_medi_range is not None else None,
     }
-    if macchie_medi_range is not None:
-        medians["Macchie ipostatiche"] = macchie_medi_range
-    if rigidita_medi_range is not None:
-        medians["Rigidità cadaverica"] = rigidita_medi_range
 
-    # Mappatura y in ordine (coincidente con labels)
     y_map = {lbl.split("\n", 1)[0]: idx for idx, lbl in enumerate(labels)}
-
-    # Dimensione figura dinamica
     num_params_grafico = len(labels)
     figsize = (10, max(2, 1.5 + 0.5 * num_params_grafico))
 
     style_flags = dict(
-        raff_only_lower=raff_only_lower if mostra_raffreddamento else False,
-        raff_only_lower_start=raff_only_lower_start if mostra_raffreddamento else None,
-        raff_over_48=raff_over_48 if mostra_raffreddamento else False,
+        raff_only_lower=raff_only_lower if mostra_henssge else False,
+        raff_only_lower_start=raff_only_lower_start if mostra_henssge else None,
+        raff_over_48=raff_over_48 if mostra_henssge else False,
         line_w=LINE_W,
         dash_ls=DASH_LS,
     )
@@ -195,9 +162,8 @@ def compute_plot_data(
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
-        extra_params=_extra,  # include Potente se attivo
+        extra_params=extra_params,
     )
-
 
 
     
