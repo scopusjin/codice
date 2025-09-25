@@ -127,7 +127,7 @@ if "__new_fc" in st.session_state:
     if st.session_state.get("__keep_fcpanel"):
         st.session_state["toggle_fattore_inline_mobile"] = True
         st.session_state["toggle_fattore"] = True
-    st.rerun()
+    # niente rerun qui: i widget devono leggere subito il nuovo valore
 
 # --------------------------- Helpers --------------------------
 def _fc_box_info(text: str):
