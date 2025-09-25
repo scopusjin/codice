@@ -284,9 +284,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     # Peso robusto per FC: fallback a 70 se mancante o non valido
+    if st.session_state.get("peso") in (None, 0) or st.session_state.get("peso", 0) <= 0:
+        st.session_state["peso"] = 70.0
+
     peso_eff = st.session_state.get("peso")
     try:
-        peso_eff = float(peso_eff) if peso_eff is not None else float(peso_default)
+        peso_eff = float(peso_eff)
         if peso_eff <= 0:
             peso_eff = float(peso_default)
     except Exception:
