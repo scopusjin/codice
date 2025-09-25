@@ -89,7 +89,7 @@ def build_final_sentence(
             "prima dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero prima delle ore {hh} del {dd}."
         )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
@@ -103,7 +103,7 @@ def build_final_sentence(
             "prima dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero successivamente alle ore {hh2} del {dd2}."
         )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # Caso: A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -129,7 +129,7 @@ def build_final_sentence(
                 "prima dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero circa tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}."
             )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     return None
 
