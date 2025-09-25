@@ -224,50 +224,39 @@ with c_rg:
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # ------------------------------------------------------------
-# 1) Campi di input: RT / TA / Peso OPZIONALI (text_input, niente ±)
-# ------------------------------------------------------------
-# ------------------------------------------------------------
-# 1) Campi di input: RT / TA / Peso OPZIONALI (number_input vuoti con ±)
+# 1) Campi di input: RT / TA / Peso OPZIONALI (text_input → None di default)
 # ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     _label("T. rettale (°C)")
-    input_rt = st.number_input(
-        "",
-        value=st.session_state.get("rt_val"),   # None all’avvio → campo vuoto
-        step=0.1, format="%.1f",
-        key="rt_val",
-        label_visibility="collapsed",
-        placeholder=""                          # opzionale
+    st.text_input(
+        "", value="" if st.session_state.get("rt_val") is None else str(st.session_state.get("rt_val")),
+        key="rt_val_str", label_visibility="collapsed", placeholder=""
     )
 
 with c_ta:
-    _label("T. ambientale media (°C)", " incertezza ±1 °C")
-    input_ta = st.number_input(
-        "",
-        value=st.session_state.get("ta_base_val"),
-        step=0.1, format="%.1f",
-        key="ta_base_val",
-        label_visibility="collapsed",
-        placeholder=""
+    _label("T. ambientale media (°C)", "incertezza ±1 °C")
+    st.text_input(
+        "", value="" if st.session_state.get("ta_base_val") is None else str(st.session_state.get("ta_base_val")),
+        key="ta_base_val_str", label_visibility="collapsed", placeholder=""
     )
 
 with c_w:
     _label("Peso (kg)", "incertezza ±3 kg")
-    input_w = st.number_input(
-        "",
-        value=st.session_state.get("peso"),
-        step=1.0, format="%.1f",
-        key="peso",
-        label_visibility="collapsed",
-        placeholder=""
+    st.text_input(
+        "", value="" if st.session_state.get("peso") is None else str(st.session_state.get("peso")),
+        key="peso_str", label_visibility="collapsed", placeholder=""
     )
 
 with c_fc:
     _label("Fattore di correzione (FC)", "incertezza ±0.10")
     fc_placeholder = st.empty()
 
+# Parse dei text_input in float o None
+st.session_state["rt_val"] = _to_float_or_none(st.session_state.get("rt_val_str"))
+st.session_state["ta_base_val"] = _to_float_or_none(st.session_state.get("ta_base_val_str"))
+st.session_state["peso"] = _to_float_or_none(st.session_state.get("peso_str"))
 
 # ------------------------------------------------------------
 # 2) Toggle “Suggerisci FC”
@@ -294,10 +283,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     # Peso robusto per FC: fallback a 70 se mancante o non valido
-    if st.session_state.get("peso") in (None, 0) or st.session_state.get("peso", 0) <= 0:
+    if st.session_state.get("peso") in (None, 0) or (st.session_state.get("peso") or 0) <= 0:
         st.session_state["peso"] = 70.0
 
-    peso_eff = st.session_state.get("peso")
+    peso_eff = st.session_state.get("peso") or peso_default
     try:
         peso_eff = float(peso_eff)
         if peso_eff <= 0:
@@ -399,7 +388,6 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso=peso_eff, tabella2_df=tabella2
     )
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
@@ -473,8 +461,6 @@ if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_s
     st.session_state["run_stima_mobile"] = False
 
 # ------------------------------------------------------------
-# # ------------------------------------------------------------
-# ------------------------------------------------------------
 # Output
 # ------------------------------------------------------------
 if st.session_state.get("run_stima_mobile"):
@@ -483,7 +469,7 @@ if st.session_state.get("run_stima_mobile"):
     input_w  = st.session_state.get("peso")
 
     # Controllo campi base vuoti
-    no_rt = (input_rt is None) or float(input_rt) <= 0
+    no_rt = (input_rt is None) or (float(input_rt) <= 0)
     no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
@@ -512,5 +498,3 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,  # MSIL: niente avvisi su peso mancante
     )
-
-
