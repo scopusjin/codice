@@ -464,13 +464,22 @@ if st.session_state.get("run_stima_mobile") and st.session_state.get("last_run_s
 
 # ------------------------------------------------------------
 # # ------------------------------------------------------------
+# ------------------------------------------------------------
 # Output
 # ------------------------------------------------------------
 if st.session_state.get("run_stima_mobile"):
-    # Attiva Henssge solo se tutti presenti e peso > 0
     input_rt = st.session_state.get("rt_val")
     input_ta = st.session_state.get("ta_base_val")
     input_w  = st.session_state.get("peso")
+
+    # Controllo campi base vuoti
+    no_rt = (input_rt is None) or float(input_rt) <= 0
+    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
+    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
+
+    if no_rt and no_macchie and no_rigidita:
+        _warn_box("Messun dato inserito per la stima")
+        st.stop()
 
     considera_raffreddamento = (
         input_rt is not None and
@@ -493,3 +502,4 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,  # MSIL: niente avvisi su peso mancante
     )
+
