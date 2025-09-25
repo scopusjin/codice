@@ -567,9 +567,12 @@ def aggiorna_grafico(
 
     # --- avvisi ---
     if nota_globale_range_adattato:
-        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range sono stati traslati per renderli confrontabili.")
+        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con "*" sono stati traslati per renderli confrontabili.")
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
+
+    if not raffreddamento_calcolabile:
+        avvisi.append("Non risultano disponibili dati attendibili per le valutazioni del raffreddamento cadaverico.")
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
