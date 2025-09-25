@@ -233,14 +233,14 @@ def build_simple_sentence_no_dt(
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2 = _hm_from_hours(comune_fine)
-        return (f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b>: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"non oltre {_fmt_hm_full(h2, m2)} "
                 "prima dei rilievi dei dati tanatologici.</p>")
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1 = _hm_from_hours(comune_inizio)
-        return (f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b>: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"oltre {_fmt_hm_full(h1, m1)} "
                 "prima dei rilievi dei dati tanatologici.</p>")
 
@@ -249,7 +249,7 @@ def build_simple_sentence_no_dt(
         h1, m1 = _hm_from_hours(comune_inizio)
         h2, m2 = _hm_from_hours(comune_fine)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-        return (f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b>: "
+        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"{intervallo_txt} "
                 "prima dei rilievi dei dati tanatologici.</p>")
     return None
@@ -276,7 +276,7 @@ def build_final_sentence_simple(
             f"consente di stimare che la morte sia avvenuta più di {_fmt_hm_full(h1, m1)} "
             "prima dei rilievi dei dati tanatologici."
         )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
@@ -286,7 +286,7 @@ def build_final_sentence_simple(
             f"consente di stimare che la morte sia avvenuta non oltre {_fmt_hm_full(h2, m2)} "
             "prima dei rilievi dei dati tanatologici."
         )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -298,7 +298,7 @@ def build_final_sentence_simple(
             f"consente di stimare che la morte sia avvenuta, all'incirca, {intervallo_txt} "
             "prima dei rilievi dei dati tanatologici."
         )
-        return f"<p><b>STIMA DELL'EPOCA DEL DECESSO</b><br>{testo}</p>"
+        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
 
     return None
 
