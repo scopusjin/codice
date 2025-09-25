@@ -24,8 +24,6 @@ section.main, div.block-container{padding-top:0!important;margin-top:0!important
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
 div[data-testid="stVerticalBlock"]{margin:0!important}
 div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
-
-/* orizzontali responsive */
 div[data-testid="stHorizontalBlock"]{display:flex;flex-wrap:wrap;gap:.22rem!important;margin:0!important}
 div[data-testid="column"]{padding:0!important;margin:0!important;flex:1 1 220px!important;min-width:220px!important}
 
@@ -43,7 +41,7 @@ div[data-testid="stSelectbox"] > label,
 div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label,
 div[data-testid="stDateInput"] > label,
-div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.1!important;font-size:.84rem}
+div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.05!important;font-size:.84rem}
 div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
@@ -58,11 +56,6 @@ div[data-testid="stDataEditor"] thead,
 div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
-
-/* pannello FC compatto */
-.fcpanel div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
-.fcpanel div[data-testid="stRadio"]{margin:0!important}
-.fcpanel div[data-testid="stRadio"] > div{padding:0!important}
 
 /* hint e label strette */
 .tight-label{margin:0!important;padding:0!important;line-height:1.05}
@@ -170,8 +163,8 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ------------------ Row: input + toggle a destra del FC -------
-c_rt, c_ta, c_w, c_fc, c_toggle = st.columns([1,1,1,1,0.9], gap="small")
+# ------------------ 1) Campi di input (ultimo FC) -------------
+c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     _label("T. rettale (°C)")
@@ -194,28 +187,26 @@ with c_w:
         step=1.0, format="%.1f", key="peso", label_visibility="collapsed"
     )
 
-# placeholders fissano la posizione, riempiti dopo il pannello
 with c_fc:
     _label("Fattore di correzione (FC)", "±0.10 predef.")
-    fc_placeholder = st.empty()
-    btn_placeholder = st.empty()
-with c_toggle:
-    toggle_placeholder = st.empty()
-
-# disegna il toggle nella sua posizione e leggi stato
-with toggle_placeholder.container():
-    st.toggle(
-        "Suggerisci FC",
-        value=st.session_state.get("toggle_fattore_inline_mobile", False),
-        key="toggle_fattore_inline_mobile"
+    st.number_input(
+        "", value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
     )
+
+# ------------------ 2) Toggle “Suggerisci FC” -----------------
+st.toggle(
+    "Suggerisci FC",
+    value=st.session_state.get("toggle_fattore_inline_mobile", False),
+    key="toggle_fattore_inline_mobile"
+)
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” sotto la riga (auto-applica) ------
+# -------- Pannello “Suggerisci FC” sotto gli input ------------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
-    st.markdown('<div class="fcpanel">', unsafe_allow_html=True)
+    st.markdown("<div class='fcpanel'>", unsafe_allow_html=True)
 
     # Stato corpo compatto
     stato_label = st.radio(
@@ -245,7 +236,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             tabella2_df=tabella2
         )
         st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
         return
 
     # Non immerso: vestiti/coperte
@@ -335,22 +326,16 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2_df=tabella2
     )
     st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# pannello sotto la riga se attivo
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
         key_prefix="fcpanel_mobile"
     )
 
-# riempi i placeholder: FC input e bottone sotto, toggle resta a destra
-with c_fc:
-    fc_placeholder.number_input(
-        "", value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
-    )
-    btn_placeholder.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
+# ------------------ 3) Pulsante finale ------------------------
+clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ----------------- Firma input e range fissi mobile -----------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
@@ -384,8 +369,7 @@ curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
 
-# click del bottone
-if st.session_state.get("btn_stima_mobile", False):
+if clicked:
     st.session_state["run_stima_mobile"] = True
     st.session_state["last_run_sig_mobile"] = curr_sig
 
