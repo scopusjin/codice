@@ -123,7 +123,7 @@ def sget(key, default):
 
 # Defaults iniziali una sola volta
 _defaults = {
-    "rt_val": 35.0,
+    "rt_val": None,
     "tm_val": 37.2,
     "ta_base_val": 20.0,
     "peso": 70.0,
