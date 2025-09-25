@@ -414,9 +414,7 @@ def aggiorna_grafico(
     mt_ore = None
     mt_giorni = None
 
-    # Ta da usare per Potente
-    Ta_for_pot = (float(st.session_state.get("Ta_max_beta", Ta_val))
-                  if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)) if _is_num(Ta_val) else np.nan
+
 
     if (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
         and all(_is_num(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
