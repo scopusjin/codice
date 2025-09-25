@@ -226,38 +226,48 @@ with c_rg:
 # ------------------------------------------------------------
 # 1) Campi di input: RT / TA / Peso OPZIONALI (text_input, niente ±)
 # ------------------------------------------------------------
+# ------------------------------------------------------------
+# 1) Campi di input: RT / TA / Peso OPZIONALI (number_input vuoti con ±)
+# ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     _label("T. rettale (°C)")
-    _rt_txt = st.text_input(
-        "", value=("" if st.session_state.get("rt_val") is None else str(st.session_state.get("rt_val"))),
-        key="rt_txt", label_visibility="collapsed"
+    input_rt = st.number_input(
+        "",
+        value=st.session_state.get("rt_val"),   # None all’avvio → campo vuoto
+        step=0.1, format="%.1f",
+        key="rt_val",
+        label_visibility="collapsed",
+        placeholder=""                          # opzionale
     )
-    input_rt = _to_float_or_none(_rt_txt)
-    st.session_state["rt_val"] = input_rt
 
 with c_ta:
     _label("T. ambientale media (°C)", " incertezza ±1 °C")
-    _ta_txt = st.text_input(
-        "", value=("" if st.session_state.get("ta_base_val") is None else str(st.session_state.get("ta_base_val"))),
-        key="ta_txt", label_visibility="collapsed"
+    input_ta = st.number_input(
+        "",
+        value=st.session_state.get("ta_base_val"),
+        step=0.1, format="%.1f",
+        key="ta_base_val",
+        label_visibility="collapsed",
+        placeholder=""
     )
-    input_ta = _to_float_or_none(_ta_txt)
-    st.session_state["ta_base_val"] = input_ta
 
 with c_w:
     _label("Peso (kg)", "incertezza ±3 kg")
-    _w_txt = st.text_input(
-        "", value=("" if st.session_state.get("peso") is None else str(st.session_state.get("peso"))),
-        key="peso_txt", label_visibility="collapsed"
+    input_w = st.number_input(
+        "",
+        value=st.session_state.get("peso"),
+        step=1.0, format="%.1f",
+        key="peso",
+        label_visibility="collapsed",
+        placeholder=""
     )
-    input_w = _to_float_or_none(_w_txt)
-    st.session_state["peso"] = input_w
 
 with c_fc:
     _label("Fattore di correzione (FC)", "incertezza ±0.10")
-    fc_placeholder = st.empty()   # il widget FC verrà creato DOPO il pannello
+    fc_placeholder = st.empty()
+
 
 # ------------------------------------------------------------
 # 2) Toggle “Suggerisci FC”
