@@ -13,16 +13,6 @@ from app.factor_calc import (
 # --------------------------- Config ---------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
 
-
-hide_streamlit_style = """
-<style>
-[data-testid="stToolbar"] {visibility: hidden !important;}
-footer {visibility: hidden !important;}
-[data-testid="stSidebar"] {display: none !important;}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 # ----------------------------- CSS ----------------------------
 st.markdown("""
 <style>
@@ -77,13 +67,18 @@ div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
 
-/* box FC */
+/* box info FC */
 .fcbox{border:1px solid #1976d2;border-radius:6px;padding:5px;font-weight:600;margin:2px 0}
 html[data-theme="light"] .fcbox{background:#e8f0fe;color:#0d47a1}
 html[data-theme="dark"] .fcbox{background:#0d2a47;color:#d6e9ff}
 .fcsub{padding:1px 0 0 0;font-size:.84em}
 html[data-theme="light"] .fcsub{color:#3f6fb5}
 html[data-theme="dark"] .fcsub{color:#a7c7ff}
+
+/* pannello FC compatto */
+.fcpanel div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
+.fcpanel div[data-testid="stRadio"]{margin:0!important}
+.fcpanel .fcbox{margin:2px 0!important}
 
 /* pulsanti */
 div.stButton{margin:0!important}
@@ -126,13 +121,14 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
+# ---------------- Apply pending FC before widgets --------------
+if "__new_fc" in st.session_state:
+    st.session_state["fattore_correzione"] = st.session_state.pop("__new_fc")
+    st.rerun()
+
 # --------------------------- Helpers --------------------------
-def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
-    main = f'<div class="fcbox">Fattore di correzione suggerito: {f_finale:.2f}</div>'
-    side = ""
-    if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
-        side = f'<div class="fcsub">Valore per 70 kg: {f_base:.2f} • Adattato per {peso_corrente:.1f} kg</div>'
-    st.markdown(main + side, unsafe_allow_html=True)
+def _fc_box_info(text: str):
+    st.markdown(f'<div class="fcbox">{text}</div>', unsafe_allow_html=True)
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
@@ -233,7 +229,7 @@ with c_w:
     )
 
 with c_fc:
-    fattore_correzione = st.number_input(
+    st.number_input(
         "Fattore di correzione (FC)",
         value=st.session_state.get("fattore_correzione", 1.0),
         step=0.1, format="%.2f",
@@ -248,24 +244,18 @@ with c_toggle:
     )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# -------- Pannello “Suggerisci FC” inline ---------------------
+# -------- Pannello “Suggerisci FC” inline (auto-applica) ------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
-
-    def _apply_fc(val: float, riass: str | None) -> None:
-        st.session_state["fattore_correzione"] = round(float(val), 2)
-        st.session_state["fattori_condizioni_parentetica"] = None
-        st.session_state["fattori_condizioni_testo"] = None
-        st.session_state["fc_riassunto_contatori"] = riass
-        st.session_state["toggle_fattore"] = False
-        st.session_state["toggle_fattore_inline_mobile"] = False
 
     def _safe_int(x):
         try:
             return int(x)
         except Exception:
             return 0
+
+    st.markdown('<div class="fcpanel">', unsafe_allow_html=True)
 
     # UI -> backend
     stato_label = st.radio(
@@ -275,6 +265,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     )
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
+    try:
+        tabella2 = load_tabelle_correzione()
+    except Exception:
+        tabella2 = None
+
     if stato_corpo == "Immerso":
         acqua_label = st.radio(
             "", ["In acqua stagnante", "In acqua corrente"],
@@ -283,26 +278,17 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
-        try:
-            tabella2 = load_tabelle_correzione()
-        except Exception:
-            tabella2 = None
-
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
             superficie_display=None, correnti_aria=False,
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
-        st.button(
-            "Usa questo fattore",
-            on_click=_apply_fc,
-            args=(result.fattore_finale, result.riassunto),
-            use_container_width=True, key=k("btn_usa_fc_imm")
-        )
-        return
+        # auto-applica FC in modo sicuro e aggiorna subito l'interfaccia
+        st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
+        st.rerun()
 
+    # Non immerso: vestiti/coperte
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
     with col_corr:
         corr_placeholder = st.empty()
@@ -324,8 +310,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
             })
-        rows = [{"Voce": nome, "Numero?": val} for nome, val in defaults.items()]
-        df = pd.DataFrame(rows)
+        df = pd.DataFrame([{"Voce": nome, "Numero?": val} for nome, val in defaults.items()])
         edited = st.data_editor(
             df, hide_index=True, use_container_width=True,
             column_config={
@@ -389,14 +374,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso=float(st.session_state.get("peso", peso_default)),
         tabella2_df=tabella2
     )
-    _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
-    st.button(
-        "Usa questo fattore",
-        on_click=_apply_fc,
-        args=(result.fattore_finale, result.riassunto),
-        use_container_width=True, key=k("btn_usa_fc")
-    )
+    # auto-applica FC e forza refresh immediato
+    st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
+    st.rerun()
 
 # mostra pannello inline solo se richiesto
 if st.session_state.get("toggle_fattore", False):
@@ -470,4 +451,3 @@ if st.session_state.get("run_stima_mobile"):
         input_ora_rilievo=st.session_state["input_ora_rilievo"],
         alterazioni_putrefattive=False,
     )
-    
