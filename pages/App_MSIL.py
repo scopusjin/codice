@@ -48,10 +48,10 @@ div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!imp
 div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
-/* radio/toggle */
+/* radio/toggle compatti */
 div[data-testid="stRadio"]{margin:0!important}
 div[data-testid="stRadio"] > div{padding:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.14rem!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.12rem!important}
 
 /* data editor */
 div[data-testid="stDataEditor"] thead,
@@ -63,6 +63,9 @@ div[data-testid="stDataEditor"] .column-header{display:none!important}
 .fcpanel div[data-testid="stVerticalBlock"] > div{margin:2px 0!important}
 .fcpanel div[data-testid="stRadio"]{margin:0!important}
 .fcpanel div[data-testid="stRadio"] > div{padding:0!important}
+
+/* hint etichette piccole */
+.hint{font-size:.75rem;opacity:.75;margin-left:.25rem}
 
 /* pulsanti */
 div.stButton{margin:0!important}
@@ -103,6 +106,12 @@ def _safe_int(x):
         return int(x)
     except Exception:
         return 0
+
+def _label(text, hint=None):
+    if hint:
+        st.markdown(f"{text} <span class='hint'>{hint}</span>", unsafe_allow_html=True)
+    else:
+        st.markdown(text, unsafe_allow_html=True)
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
@@ -159,21 +168,61 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ---------------- Toggle + pannello "Suggerisci FC" ----------------
-st.toggle("Suggerisci FC",
-          value=st.session_state.get("toggle_fattore_inline_mobile", False),
-          key="toggle_fattore_inline_mobile")
+# ------------------ Riga input + toggle affiancato ------------
+c_rt, c_ta, c_w, c_fc, c_toggle = st.columns([1,1,1,1,0.9], gap="small")
+
+with c_rt:
+    _label("T. rettale (°C)", None)
+    input_rt = st.number_input(
+        "",
+        value=st.session_state.get("rt_val", 35.0),
+        step=0.1, format="%.1f",
+        key="rt_val", label_visibility="collapsed"
+    )
+
+with c_ta:
+    _label("T. ambientale media (°C)", "±1 °C predef.")
+    input_ta = st.number_input(
+        "",
+        value=st.session_state.get("ta_base_val", 20.0),
+        step=0.1, format="%.1f",
+        key="ta_base_val", label_visibility="collapsed"
+    )
+
+with c_w:
+    _label("Peso (kg)", "±3 kg predef.")
+    input_w = st.number_input(
+        "",
+        value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f",
+        key="peso", label_visibility="collapsed"
+    )
+
+# FC: usiamo un placeholder per creare il widget DOPO il pannello
+with c_fc:
+    _label("Fattore di correzione (FC)", "±0.10 predef.")
+    fc_placeholder = st.empty()
+
+with c_toggle:
+    st.toggle(
+        "Suggerisci FC",
+        value=st.session_state.get("toggle_fattore_inline_mobile", False),
+        key="toggle_fattore_inline_mobile"
+    )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
+# -------- Pannello “Suggerisci FC” sotto la riga (auto-applica) ------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
     st.markdown('<div class="fcpanel">', unsafe_allow_html=True)
 
-    # Stato corpo molto compatto
-    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
-                           index=0, horizontal=True, key=k("radio_stato_corpo"),
-                           label_visibility="collapsed")
+    # Stato corpo compatto
+    stato_label = st.radio(
+        "", ["Corpo asciutto", "Bagnato", "Immerso"],
+        index=0, horizontal=True, key=k("radio_stato_corpo"),
+        label_visibility="collapsed"
+    )
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
     try:
@@ -182,9 +231,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
-                               index=0, horizontal=True, key=k("radio_acqua"),
-                               label_visibility="collapsed")
+        acqua_label = st.radio(
+            "", ["In acqua stagnante", "In acqua corrente"],
+            index=0, horizontal=True, key=k("radio_acqua"),
+            label_visibility="collapsed"
+        )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
         result = compute_factor(
@@ -202,9 +253,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
-                                   value=st.session_state.get(k("toggle_vestito"), False),
-                                   key=k("toggle_vestito"))
+        toggle_vestito = st.toggle(
+            "Vestiti/coperte su addome/bacino?",
+            value=st.session_state.get(k("toggle_vestito"), False),
+            key=k("toggle_vestito")
+        )
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -284,41 +337,23 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
     st.markdown('</div>', unsafe_allow_html=True)
 
-if st.session_state.get("toggle_fattore", False):
+# Pannello sotto la riga se attivo
+if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
         key_prefix="fcpanel_mobile"
     )
 
-# -------- Parametri principali in un'unica riga responsive ----
-c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
-
-with c_rt:
-    input_rt = st.number_input("T. rettale (°C)",
-                               value=st.session_state.get("rt_val", 35.0),
-                               step=0.1, format="%.1f",
-                               key="rt_val", label_visibility="visible")
-
-with c_ta:
-    input_ta = st.number_input("T. ambientale media (°C)",
-                               value=st.session_state.get("ta_base_val", 20.0),
-                               step=0.1, format="%.1f",
-                               key="ta_base_val", label_visibility="visible")
-
-with c_w:
-    input_w = st.number_input("Peso (kg)",
-                              value=st.session_state.get("peso", 70.0),
-                              step=1.0, format="%.1f",
-                              key="peso", label_visibility="visible")
-
+# Ora creo il widget FC nel placeholder, con l'ultimo valore aggiornato
 with c_fc:
-    st.number_input("Fattore di correzione (FC)",
-                    value=st.session_state.get("fattore_correzione", 1.0),
-                    step=0.1, format="%.2f",
-                    key="fattore_correzione", label_visibility="visible")
-
-# --------------------------- CTA sotto al campo FC ------------
-clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
+    fc_widget = fc_placeholder.number_input(
+        "",
+        value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f",
+        key="fattore_correzione", label_visibility="collapsed"
+    )
+    # pulsante sotto al campo FC
+    st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ----------------- Firma input e range fissi mobile -----------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
@@ -352,7 +387,8 @@ curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
     st.session_state["last_run_sig_mobile"] = curr_sig
 
-if clicked:
+# click del bottone
+if st.session_state.get("btn_stima_mobile", False):
     st.session_state["run_stima_mobile"] = True
     st.session_state["last_run_sig_mobile"] = curr_sig
 
