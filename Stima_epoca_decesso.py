@@ -78,12 +78,11 @@ def _build_fc_values_from_ui():
 
 
 def _prudente_runs_validi(Tr_val, T0_val, W_val, ta_vals, fc_vals):
-    """Filtra combinazioni prudenziali usando la stessa calcolabilità di Henssge."""
     valid = []
     for Ta_val in ta_vals:
         if not all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val]):
             continue
-        if Tr_val <= Ta_val:  # stessa guardia fisica del caso non prudente
+        if Tr_val <= Ta_val:
             continue
         for CF_val in fc_vals:
             if not _is_num(CF_val):
@@ -95,12 +94,17 @@ def _prudente_runs_validi(Tr_val, T0_val, W_val, ta_vals, fc_vals):
                 )
             except Exception:
                 continue
+
             ok_flag = bool(out.get("raffreddamento_calcolabile", True))
+            if not ok_flag:
+                continue
+
+            # ACCETTA anche intervalli con infinito (es. 48–∞)
             ore_min = out.get("ore_min"); ore_max = out.get("ore_max")
-            if ok_flag and _is_num(ore_min) and _is_num(ore_max) \
-               and not math.isinf(float(ore_min)) and not math.isinf(float(ore_max)):
+            if _is_num(ore_min) or _is_num(ore_max):
                 valid.append(out)
     return valid
+
 # ---------------------------
 # Palette / UI helpers
 # ---------------------------
