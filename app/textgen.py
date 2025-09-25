@@ -84,12 +84,12 @@ def build_final_sentence(
         da = isp_dt - datetime.timedelta(hours=start)
         hh, dd = _fmt_dt(da)
         testo = (
-            "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
-            f"<b>oltre</b> {_fmt_hm_full(h1, m1)} "
+            "<b>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
+            f"oltre {_fmt_hm_full(h1, m1)} "
             "prima dei rilievi effettuati durante l’ispezione legale, "
-            f"ovvero prima delle ore {hh} del {dd}."
+            f"ovvero prima delle ore {hh} del {dd}<b>."
         )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b><br>{testo}</p>"
+        return f"<p>{testo}</p>"
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
