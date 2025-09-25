@@ -106,7 +106,8 @@ def _label(text, hint=None):
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
-now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
+now_ch = datetime.datetime.now(tz=_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
+
 if st.session_state.get("input_data_rilievo") is None:
     st.session_state["input_data_rilievo"] = (now_ch.date() if _TZ_CH else datetime.date.today())
 if not st.session_state.get("input_ora_rilievo"):
