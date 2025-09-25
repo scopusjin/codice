@@ -65,7 +65,7 @@ def compute_plot_data(
             try:
                 lab = str(e.get("label", "Parametro"))
                 if e.get("adattato", False):
-                    lab += "*"  # <- ASTERISCO SE ORARIO ADATTATO
+                    lab += "*"
                 s = float(e.get("start", np.nan))
                 ed = e.get("end", np.nan)
             except Exception:
@@ -87,19 +87,30 @@ def compute_plot_data(
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
 
-    if raffreddamento_calcolabile:
+    # Potente attivo se Qd sotto soglia
+    potente_attivo = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
+    # Mostra Henssge solo se calcolabile e Potente NON attivo
+    mostra_raffreddamento = bool(raffreddamento_calcolabile) and (not potente_attivo)
+
+    # Flag iniziali
+    raff_only_lower = False
+    raff_over_48 = False
+    raff_only_lower_start: Optional[float] = None
+
+    if mostra_raffreddamento:
         t_min_raff_visualizzato = t_min_raff_henssge
         t_max_raff_visualizzato = t_max_raff_henssge
 
-        # Flag condizioni speciali
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-        raff_over_48 = False
+        raff_over_48 = False  # mantieni se in futuro servirà il caso >48
 
-        #         # Etichetta Henssge
         if raff_only_lower:
-            # usa mt_ore così com'è (es. 29.5), altrimenti il minimo Henssge
-            maggiore_di_valore = float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore)) else float(t_min_raff_henssge)
+            maggiore_di_valore = (
+                float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore))
+                else float(t_min_raff_henssge)
+            )
             label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
+            raff_only_lower_start = maggiore_di_valore
         else:
             label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
 
@@ -107,10 +118,6 @@ def compute_plot_data(
         starts.append(t_min_raff_henssge)
         ends.append(t_max_raff_henssge)
         raffreddamento_idx = len(labels) - 1
-    else:
-        raff_only_lower = False
-        raff_over_48 = False
-
 
     # Calcolo cap e coda
     LINE_W = 6
@@ -129,14 +136,9 @@ def compute_plot_data(
 
     # Inizi verdi speciali per raffreddamento (proseguono a ∞ in verde)
     special_inf_starts_green: List[float] = []
-    raff_only_lower_start: Optional[float] = None
-    if raffreddamento_calcolabile and raffreddamento_idx is not None:
-        if raff_only_lower:
-            raff_only_lower_start = (
-                float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore))
-                else float(t_min_raff_visualizzato)
-            )
-            special_inf_starts_green.append(raff_only_lower_start)
+    if mostra_raffreddamento and (raffreddamento_idx is not None):
+        if raff_only_lower and (raff_only_lower_start is not None):
+            special_inf_starts_green.append(float(raff_only_lower_start))
         if raff_over_48:
             special_inf_starts_green.append(48.0)
 
@@ -164,9 +166,9 @@ def compute_plot_data(
     figsize = (10, max(2, 1.5 + 0.5 * num_params_grafico))
 
     style_flags = dict(
-        raff_only_lower=raff_only_lower,
-        raff_only_lower_start=raff_only_lower_start,
-        raff_over_48=raff_over_48,
+        raff_only_lower=raff_only_lower if mostra_raffreddamento else False,
+        raff_only_lower_start=raff_only_lower_start if mostra_raffreddamento else None,
+        raff_over_48=raff_over_48 if mostra_raffreddamento else False,
         line_w=LINE_W,
         dash_ls=DASH_LS,
     )
@@ -185,8 +187,9 @@ def compute_plot_data(
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
-        extra_params=extra_params,  # mantenuto per eventuali usi in render (non obbligatorio)
+        extra_params=extra_params,
     )
+
 
 
     
