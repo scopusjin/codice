@@ -123,8 +123,14 @@ def aggiorna_grafico(
         Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
         raffreddamento_calcolabile = False
 
-    # soglia Qd
-    qd_threshold = 0.2 if (_is_num(Ta_val) and Ta_val <= 23) else 0.5
+    #
+    # Ta di riferimento e soglia Qd (prudente → usa Ta_max)
+    if _is_num(Ta_val):
+        Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val)) \
+                     if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)
+    else:
+        Ta_for_pot = np.nan
+    qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
 
     # =========================
     # Henssge standard / Cautelativa
