@@ -121,15 +121,13 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-# --- Applica FC calcolato e mantieni aperto il pannello, prima dei widget ---
-if "__new_fc" in st.session_state:
-    st.session_state["fattore_correzione"] = st.session_state.pop("__new_fc")
-    if st.session_state.get("__keep_fcpanel"):
-        st.session_state["toggle_fattore_inline_mobile"] = True
-        st.session_state["toggle_fattore"] = True
-    # niente rerun qui: i widget devono leggere subito il nuovo valore
-
 # --------------------------- Helpers --------------------------
+def _safe_int(x):
+    try:
+        return int(x)
+    except Exception:
+        return 0
+
 def _fc_box_info(text: str):
     st.markdown(f'<div class="fcbox">{text}</div>', unsafe_allow_html=True)
 
@@ -142,19 +140,11 @@ if st.session_state["usa_orario_custom"]:
         st.session_state["input_ora_rilievo"] = datetime.datetime.now().strftime("%H:%M")
     c1, c2 = st.columns(2, gap="small")
     with c1:
-        st.date_input(
-            "Data ispezione legale",
-            value=st.session_state["input_data_rilievo"],
-            label_visibility="collapsed",
-            key="input_data_rilievo"
-        )
+        st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
+                      label_visibility="collapsed", key="input_data_rilievo")
     with c2:
-        st.text_input(
-            "Ora ispezione legale (HH:MM)",
-            value=st.session_state["input_ora_rilievo"],
-            label_visibility="collapsed",
-            key="input_ora_rilievo"
-        )
+        st.text_input("Ora ispezione legale (HH:MM)", value=st.session_state["input_ora_rilievo"],
+                      label_visibility="collapsed", key="input_ora_rilievo")
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
@@ -177,68 +167,27 @@ _RIGIDITA_MOBILE = {
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
-    try:
-        ip_default = ip_keys.index("Ipostasi?")
-    except ValueError:
-        ip_default = 0
     scelta_ipostasi_lbl = st.selectbox(
         "Macchie ipostatiche",
         ip_keys,
-        index=ip_default,
+        index=(ip_keys.index("Ipostasi?") if "Ipostasi?" in ip_keys else 0),
         key="selettore_macchie_mobile",
         label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
-    try:
-        rg_default = rg_keys.index("Rigor mortis?")
-    except ValueError:
-        rg_default = 0
     scelta_rigidita_lbl = st.selectbox(
         "Rigidità cadaverica",
         rg_keys,
-        index=rg_default,
+        index=(rg_keys.index("Rigor mortis?") if "Rigor mortis?" in rg_keys else 0),
         key="selettore_rigidita_mobile",
         label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# -------- Parametri principali in un'unica riga responsive ----
-c_rt, c_ta, c_w, c_fc, c_toggle = st.columns([1,1,1,1,0.9], gap="small")
-
-with c_rt:
-    input_rt = st.number_input(
-        "T. rettale (°C)",
-        value=st.session_state.get("rt_val", 35.0),
-        step=0.1, format="%.1f",
-        key="rt_val", label_visibility="visible"
-    )
-
-with c_ta:
-    input_ta = st.number_input(
-        "T. ambientale media (°C)",
-        value=st.session_state.get("ta_base_val", 20.0),
-        step=0.1, format="%.1f",
-        key="ta_base_val", label_visibility="visible"
-    )
-
-with c_w:
-    input_w = st.number_input(
-        "Peso (kg)",
-        value=st.session_state.get("peso", 70.0),
-        step=1.0, format="%.1f",
-        key="peso", label_visibility="visible"
-    )
-
-with c_fc:
-    st.number_input(
-        "Fattore di correzione (FC)",
-        value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f",
-        key="fattore_correzione", label_visibility="visible"
-    )
-
+# ======= TOGGLE + PANNELLO "SUGGERISCI FC" PRIMA DEI WIDGET PRINCIPALI =======
+c_toggle = st.columns(1)[0]
 with c_toggle:
     st.toggle(
         "Suggerisci FC",
@@ -247,29 +196,15 @@ with c_toggle:
     )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
-# se l'utente chiude il pannello, non riaprire automaticamente
-if not st.session_state["toggle_fattore_inline_mobile"]:
-    st.session_state.pop("__keep_fcpanel", None)
-
-# -------- Pannello “Suggerisci FC” inline (auto-applica) ------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
-    def k(name: str) -> str:
-        return f"{key_prefix}_{name}"
-
-    def _safe_int(x):
-        try:
-            return int(x)
-        except Exception:
-            return 0
+    def k(name: str) -> str: return f"{key_prefix}_{name}"
 
     st.markdown('<div class="fcpanel">', unsafe_allow_html=True)
 
-    # UI -> backend
-    stato_label = st.radio(
-        "", ["Corpo asciutto", "Bagnato", "Immerso"],
-        index=0, horizontal=True, key=k("radio_stato_corpo"),
-        label_visibility="collapsed"
-    )
+    # Stato corpo
+    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
+                           index=0, horizontal=True, key=k("radio_stato_corpo"),
+                           label_visibility="collapsed")
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
     try:
@@ -278,11 +213,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio(
-            "", ["In acqua stagnante", "In acqua corrente"],
-            index=0, horizontal=True, key=k("radio_acqua"),
-            label_visibility="collapsed"
-        )
+        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
+                               index=0, horizontal=True, key=k("radio_acqua"),
+                               label_visibility="collapsed")
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
         result = compute_factor(
@@ -291,21 +224,21 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        # auto-applica FC e riapre pannello dopo il rerun
-        st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
-        st.session_state["__keep_fcpanel"] = True
-        st.rerun()
+        new_fc = round(float(result.fattore_finale), 2)
+        if abs(new_fc - float(st.session_state.get("fattore_correzione", 1.0))) > 1e-9:
+            st.session_state["fattore_correzione"] = new_fc
+        _fc_box_info(f"FC aggiornato automaticamente a {st.session_state['fattore_correzione']:.2f}")
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
 
     # Non immerso: vestiti/coperte
     col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle(
-            "Vestiti/coperte su addome/bacino?",
-            value=st.session_state.get(k("toggle_vestito"), False),
-            key=k("toggle_vestito")
-        )
+        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
+                                   value=st.session_state.get(k("toggle_vestito"), False),
+                                   key=k("toggle_vestito"))
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -318,7 +251,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
             })
-        df = pd.DataFrame([{"Voce": nome, "Numero?": val} for nome, val in defaults.items()])
+        df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
         edited = st.data_editor(
             df, hide_index=True, use_container_width=True,
             column_config={
@@ -383,16 +316,52 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2_df=tabella2
     )
 
-    # auto-applica FC e riapre pannello dopo il rerun
-    st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
-    st.session_state["__keep_fcpanel"] = True
-    st.rerun()
+    new_fc = round(float(result.fattore_finale), 2)
+    if abs(new_fc - float(st.session_state.get("fattore_correzione", 1.0))) > 1e-9:
+        st.session_state["fattore_correzione"] = new_fc
+    _fc_box_info(f"FC aggiornato automaticamente a {st.session_state['fattore_correzione']:.2f}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# mostra pannello inline solo se richiesto
+# mostra pannello prima dei widget principali
 if st.session_state.get("toggle_fattore", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
         key_prefix="fcpanel_mobile"
+    )
+
+# -------- Parametri principali in un'unica riga responsive ----
+c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
+
+with c_rt:
+    input_rt = st.number_input(
+        "T. rettale (°C)",
+        value=st.session_state.get("rt_val", 35.0),
+        step=0.1, format="%.1f",
+        key="rt_val", label_visibility="visible"
+    )
+
+with c_ta:
+    input_ta = st.number_input(
+        "T. ambientale media (°C)",
+        value=st.session_state.get("ta_base_val", 20.0),
+        step=0.1, format="%.1f",
+        key="ta_base_val", label_visibility="visible"
+    )
+
+with c_w:
+    input_w = st.number_input(
+        "Peso (kg)",
+        value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f",
+        key="peso", label_visibility="visible"
+    )
+
+with c_fc:
+    st.number_input(
+        "Fattore di correzione (FC)",
+        value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f",
+        key="fattore_correzione", label_visibility="visible"
     )
 
 # ----------------- Firma input e range fissi mobile -----------
