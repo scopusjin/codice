@@ -62,6 +62,7 @@ def aggiorna_grafico(
 ):
     avvisi: List[str] = []
     dettagli: List[str] = []
+    frase_finale_htlm: str = ""
 
     # --- anti-duplicati per i paragrafi ---
     _dettagli_seen: set[str] = set()
