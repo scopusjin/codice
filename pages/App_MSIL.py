@@ -106,11 +106,11 @@ def _label(text, hint=None):
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
-if st.session_state["usa_orario_custom"]:
-    if st.session_state.get("input_data_rilievo") is None:
-        st.session_state["input_data_rilievo"] = datetime.date.today()
-    if not st.session_state.get("input_ora_rilievo"):
-        st.session_state["input_ora_rilievo"] = datetime.datetime.now().strftime("%H:%M")
+now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
+if st.session_state.get("input_data_rilievo") is None:
+    st.session_state["input_data_rilievo"] = (now_ch.date() if _TZ_CH else datetime.date.today())
+if not st.session_state.get("input_ora_rilievo"):
+    st.session_state["input_ora_rilievo"] = now_ch.strftime("%H:%M")
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
