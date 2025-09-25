@@ -51,7 +51,7 @@ div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 /* radio/toggle compatti */
 div[data-testid="stRadio"]{margin:0!important}
 div[data-testid="stRadio"] > div{padding:0!important}
-div[data-testid="stRadio"] div[role="radiogroup"]{gap:.12rem!important}
+div[data-testid="stRadio"] div[role="radiogroup"]{gap:.10rem!important}
 
 /* data editor */
 div[data-testid="stDataEditor"] thead,
@@ -64,8 +64,10 @@ div[data-testid="stDataEditor"] .column-header{display:none!important}
 .fcpanel div[data-testid="stRadio"]{margin:0!important}
 .fcpanel div[data-testid="stRadio"] > div{padding:0!important}
 
-/* hint etichette piccole */
-.hint{font-size:.75rem;opacity:.75;margin-left:.25rem}
+/* hint e label strette */
+.tight-label{margin:0!important;padding:0!important;line-height:1.05}
+.tight-label p{margin:0!important}
+.hint{font-size:.72rem;opacity:.75;margin-left:.25rem}
 
 /* pulsanti */
 div.stButton{margin:0!important}
@@ -109,9 +111,9 @@ def _safe_int(x):
 
 def _label(text, hint=None):
     if hint:
-        st.markdown(f"{text} <span class='hint'>{hint}</span>", unsafe_allow_html=True)
+        st.markdown(f"<div class='tight-label'>{text} <span class='hint'>{hint}</span></div>", unsafe_allow_html=True)
     else:
-        st.markdown(text, unsafe_allow_html=True)
+        st.markdown(f"<div class='tight-label'>{text}</div>", unsafe_allow_html=True)
 
 # ---------------------- Data/Ora ispezione --------------------
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
@@ -168,42 +170,40 @@ with c_rg:
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
-# ------------------ Riga input + toggle affiancato ------------
+# ------------------ Row: input + toggle a destra del FC -------
 c_rt, c_ta, c_w, c_fc, c_toggle = st.columns([1,1,1,1,0.9], gap="small")
 
 with c_rt:
-    _label("T. rettale (°C)", None)
+    _label("T. rettale (°C)")
     input_rt = st.number_input(
-        "",
-        value=st.session_state.get("rt_val", 35.0),
-        step=0.1, format="%.1f",
-        key="rt_val", label_visibility="collapsed"
+        "", value=st.session_state.get("rt_val", 35.0),
+        step=0.1, format="%.1f", key="rt_val", label_visibility="collapsed"
     )
 
 with c_ta:
     _label("T. ambientale media (°C)", "±1 °C predef.")
     input_ta = st.number_input(
-        "",
-        value=st.session_state.get("ta_base_val", 20.0),
-        step=0.1, format="%.1f",
-        key="ta_base_val", label_visibility="collapsed"
+        "", value=st.session_state.get("ta_base_val", 20.0),
+        step=0.1, format="%.1f", key="ta_base_val", label_visibility="collapsed"
     )
 
 with c_w:
     _label("Peso (kg)", "±3 kg predef.")
     input_w = st.number_input(
-        "",
-        value=st.session_state.get("peso", 70.0),
-        step=1.0, format="%.1f",
-        key="peso", label_visibility="collapsed"
+        "", value=st.session_state.get("peso", 70.0),
+        step=1.0, format="%.1f", key="peso", label_visibility="collapsed"
     )
 
-# FC: usiamo un placeholder per creare il widget DOPO il pannello
+# placeholders fissano la posizione, riempiti dopo il pannello
 with c_fc:
     _label("Fattore di correzione (FC)", "±0.10 predef.")
     fc_placeholder = st.empty()
-
+    btn_placeholder = st.empty()
 with c_toggle:
+    toggle_placeholder = st.empty()
+
+# disegna il toggle nella sua posizione e leggi stato
+with toggle_placeholder.container():
     st.toggle(
         "Suggerisci FC",
         value=st.session_state.get("toggle_fattore_inline_mobile", False),
@@ -337,23 +337,20 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["fattore_correzione"] = round(float(result.fattore_finale), 2)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Pannello sotto la riga se attivo
+# pannello sotto la riga se attivo
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     pannello_suggerisci_fc_mobile(
         peso_default=st.session_state.get("peso", 70.0),
         key_prefix="fcpanel_mobile"
     )
 
-# Ora creo il widget FC nel placeholder, con l'ultimo valore aggiornato
+# riempi i placeholder: FC input e bottone sotto, toggle resta a destra
 with c_fc:
-    fc_widget = fc_placeholder.number_input(
-        "",
-        value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f",
-        key="fattore_correzione", label_visibility="collapsed"
+    fc_placeholder.number_input(
+        "", value=st.session_state.get("fattore_correzione", 1.0),
+        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
     )
-    # pulsante sotto al campo FC
-    st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
+    btn_placeholder.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ----------------- Firma input e range fissi mobile -----------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
