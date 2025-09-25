@@ -121,9 +121,12 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-# ---------------- Apply pending FC before widgets --------------
+# --- Applica FC calcolato e mantieni aperto il pannello, prima dei widget ---
 if "__new_fc" in st.session_state:
     st.session_state["fattore_correzione"] = st.session_state.pop("__new_fc")
+    if st.session_state.get("__keep_fcpanel"):
+        st.session_state["toggle_fattore_inline_mobile"] = True
+        st.session_state["toggle_fattore"] = True
     st.rerun()
 
 # --------------------------- Helpers --------------------------
@@ -244,6 +247,10 @@ with c_toggle:
     )
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
+# se l'utente chiude il pannello, non riaprire automaticamente
+if not st.session_state["toggle_fattore_inline_mobile"]:
+    st.session_state.pop("__keep_fcpanel", None)
+
 # -------- Pannello “Suggerisci FC” inline (auto-applica) ------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str:
@@ -284,8 +291,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             peso=float(st.session_state.get("peso", peso_default)),
             tabella2_df=tabella2
         )
-        # auto-applica FC in modo sicuro e aggiorna subito l'interfaccia
+        # auto-applica FC e riapre pannello dopo il rerun
         st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
+        st.session_state["__keep_fcpanel"] = True
         st.rerun()
 
     # Non immerso: vestiti/coperte
@@ -375,8 +383,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2_df=tabella2
     )
 
-    # auto-applica FC e forza refresh immediato
+    # auto-applica FC e riapre pannello dopo il rerun
     st.session_state["__new_fc"] = round(float(result.fattore_finale), 2)
+    st.session_state["__keep_fcpanel"] = True
     st.rerun()
 
 # mostra pannello inline solo se richiesto
