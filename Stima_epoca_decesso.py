@@ -159,7 +159,6 @@ def sget(key, default):
 # Defaults iniziali una sola volta
 _defaults = {
     "rt_val": None,
-    "tm_val": 37.2,
     "ta_base_val": 20.0,
     "peso": 70.0,
     "fattore_correzione": 1.0,
@@ -321,7 +320,7 @@ with st.container(border=True):
         with c2:
             st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
             st.number_input("T. ante-mortem stimata (°C):",
-                            step=0.1, format="%.1f",
+                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                             key="tm_val", label_visibility="collapsed")
         with c3:
             st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
