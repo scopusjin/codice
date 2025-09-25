@@ -806,8 +806,26 @@ if st.session_state["show_results"]:
     input_ta = st.session_state.get("ta_base_val")
     input_tm = st.session_state.get("tm_val")
     input_w  = st.session_state.get("peso")
+
+    no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
+    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
+    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
+
+    if no_rt and no_macchie and no_rigidita:
+        st.warning("Nessun dato inserito per la stima")
+        st.stop()
+
+    # Presenza minima per considerare il raffreddamento
+    base_ok = (
+        not no_rt and
+        input_ta is not None and
+        input_tm is not None and
+        input_w  is not None and input_w > 0
+    )
+
+    # Calcola il filtro prudente SOLO se base_ok e modalita' prudente attiva
     prudente_runs_empty = False
-    if st.session_state.get("stima_cautelativa_beta", False):
+    if base_ok and st.session_state.get("stima_cautelativa_beta", False):
         ta_vals = _build_ta_values_from_ui()
         fc_vals = _build_fc_values_from_ui()
         runs = _prudente_runs_validi(
@@ -819,20 +837,9 @@ if st.session_state["show_results"]:
         if prudente_runs_empty:
             _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
 
-    no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
-    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
-    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
-
-    if no_rt and no_macchie and no_rigidita:
-        st.warning("Nessun dato inserito per la stima")
-        st.stop()
-
-    considera_raffreddamento = (
-        not no_rt and
-        input_ta is not None and
-        input_tm is not None and
-        input_w  is not None and input_w > 0 and
-        (not st.session_state.get("stima_cautelativa_beta", False) or not st.session_state.get("prudente_runs_empty", False))
+    considera_raffreddamento = base_ok and (
+        not st.session_state.get("stima_cautelativa_beta", False) or
+        not prudente_runs_empty
     )
 
     aggiorna_grafico(
@@ -850,4 +857,3 @@ if st.session_state["show_results"]:
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
         skip_warnings=True,
     )
-
