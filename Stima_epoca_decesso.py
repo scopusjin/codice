@@ -49,7 +49,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime
 import pandas as pd
+import math
 
+def _is_num(x):
+    try:
+        return x is not None and float(x) == float(x)
+    except Exception:
+        return False
+
+def _build_ta_values_from_ui():
+    if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
+        return [st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")]
+    return [st.session_state.get("ta_base_val")]
+
+def _build_fc_values_from_ui():
+    if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
+        return [st.session_state.get("FC_min_beta"), st.session_state.get("FC_max_beta")]
+    return [st.session_state.get("fattore_correzione", 1.0)]
+
+def _prudente_runs_validi(Tr_val, T0_val, W_val, ta_vals, fc_vals):
+    """Filtra combinazioni prudenziali usando la stessa calcolabilità di Henssge."""
+    valid = []
+    for Ta_val in ta_vals:
+        if not all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val]):
+            continue
+        if Tr_val <= Ta_val:  # stessa guardia fisica del caso non prudente
+            continue
+        for CF_val in fc_vals:
+            if not _is_num(CF_val):
+                continue
+            try:
+                out = calcola_raffreddamento(
+                    Tr_val=Tr_val, Ta_val=Ta_val, T0_val=T0_val,
+                    W_val=W_val, CF_val=CF_val
+                )
+            except Exception:
+                continue
+            ok_flag = bool(out.get("raffreddamento_calcolabile", True))
+            ore_min = out.get("ore_min"); ore_max = out.get("ore_max")
+            if ok_flag and _is_num(ore_min) and _is_num(ore_max) \
+               and not math.isinf(float(ore_min)) and not math.isinf(float(ore_max)):
+                valid.append(out)
+    return valid
 # ---------------------------
 # Palette / UI helpers
 # ---------------------------
@@ -765,6 +806,18 @@ if st.session_state["show_results"]:
     input_ta = st.session_state.get("ta_base_val")
     input_tm = st.session_state.get("tm_val")
     input_w  = st.session_state.get("peso")
+    prudente_runs_empty = False
+    if st.session_state.get("stima_cautelativa_beta", False):
+        ta_vals = _build_ta_values_from_ui()
+        fc_vals = _build_fc_values_from_ui()
+        runs = _prudente_runs_validi(
+            Tr_val=input_rt, T0_val=input_tm, W_val=input_w,
+            ta_vals=ta_vals, fc_vals=fc_vals
+        )
+        prudente_runs_empty = (len(runs) == 0)
+        st.session_state["prudente_runs_empty"] = prudente_runs_empty
+        if prudente_runs_empty:
+            _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
 
     no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
     no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
@@ -778,7 +831,8 @@ if st.session_state["show_results"]:
         not no_rt and
         input_ta is not None and
         input_tm is not None and
-        input_w  is not None and input_w > 0
+        input_w  is not None and input_w > 0 and
+        (not st.session_state.get("stima_cautelativa_beta", False) or not st.session_state.get("prudente_runs_empty", False))
     )
 
     aggiorna_grafico(
