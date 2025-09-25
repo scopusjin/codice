@@ -58,14 +58,24 @@ def _is_num(x):
         return False
 
 def _build_ta_values_from_ui():
+    vals = []
     if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
-        return [st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")]
-    return [st.session_state.get("ta_base_val")]
+        vals.extend([st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")])
+    else:
+        vals.append(st.session_state.get("ta_base_val"))
+    # filtra None/NaN e deduplica
+    vals = [float(v) for v in vals if _is_num(v)]
+    return sorted(set(vals))
 
 def _build_fc_values_from_ui():
+    vals = []
     if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
-        return [st.session_state.get("FC_min_beta"), st.session_state.get("FC_max_beta")]
-    return [st.session_state.get("fattore_correzione", 1.0)]
+        vals.extend([st.session_state.get("FC_min_beta"), st.session_state.get("FC_max_beta")])
+    else:
+        vals.append(st.session_state.get("fattore_correzione", 1.0))
+    vals = [float(v) for v in vals if _is_num(v)]
+    return sorted(set(vals))
+
 
 def _prudente_runs_validi(Tr_val, T0_val, W_val, ta_vals, fc_vals):
     """Filtra combinazioni prudenziali usando la stessa calcolabilità di Henssge."""
@@ -823,11 +833,14 @@ if st.session_state["show_results"]:
         input_w  is not None and input_w > 0
     )
 
-    # Calcola il filtro prudente SOLO se base_ok e modalita' prudente attiva
+    # Filtro prudente SOLO se base_ok
     prudente_runs_empty = False
     if base_ok and st.session_state.get("stima_cautelativa_beta", False):
         ta_vals = _build_ta_values_from_ui()
         fc_vals = _build_fc_values_from_ui()
+        # fallback singolo se range vuoto
+        if not ta_vals and _is_num(input_ta): ta_vals = [float(input_ta)]
+        if not fc_vals: fc_vals = [float(st.session_state.get("fattore_correzione", 1.0))]
         runs = _prudente_runs_validi(
             Tr_val=input_rt, T0_val=input_tm, W_val=input_w,
             ta_vals=ta_vals, fc_vals=fc_vals
