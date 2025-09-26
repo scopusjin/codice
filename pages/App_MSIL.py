@@ -493,6 +493,7 @@ with c_fc:
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # Popover unico "Raccomandazioni" + ancoraggio sticky in basso a destra
+# Popover unico "Raccomandazioni"
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
 
@@ -645,41 +646,6 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 
-st.markdown(
-    """
-    <div id="rec-stick-anchor"></div>
-    <style>
-      /* Sticky container in fondo, sempre visibile in basso a dx */
-      #rec-stick-anchor{
-        position: sticky;
-        bottom: 8px;
-        z-index: 50;
-        display: block;
-        width: 100%;
-        pointer-events: none; /* evita di coprire altri elementi */
-      }
-      /* Allinea a destra il popover spostato */
-      #rec-stick-anchor > div[data-testid="stPopover"]{
-        display: inline-block;
-        float: right;
-        margin-right: 10px;
-        pointer-events: auto; /* riattiva click sul trigger */
-      }
-      /* Trigger stile link */
-      #rec-stick-anchor button{
-        background: none !important;
-        border: none !important;
-        color: #1976d2 !important;
-        font-size: 0.95rem !important;
-        text-decoration: underline;
-        cursor: pointer;
-        padding: 4px 6px;
-      }
-    # Popover unico "Raccomandazioni"
-with st.popover("Raccomandazioni", use_container_width=False):
-    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-
-# Anchor sticky in fondo pagina (UNICA)
 st.markdown(
     """
     <div id="rec-stick-anchor"></div>
