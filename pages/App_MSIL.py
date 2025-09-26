@@ -3,6 +3,7 @@
 import datetime
 import pandas as pd
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
@@ -468,39 +469,26 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
-    with st.container():
-        # marcatore + JS: applica la classe SOLO al container corrente
-        st.markdown(
-            """
-            <div id="fcwrap-mobile-anchor"></div>
-            <script>
-            (function(){
-              const mark = document.getElementById('fcwrap-mobile-anchor');
-              if(!mark) return;
-              const cont = mark.closest('div[data-testid="stVerticalBlock"]');
-              if(!cont) return;
-              cont.classList.add('fcwrap-bg');
-            })();
-            </script>
-            """,
-            unsafe_allow_html=True
-        )
-
+    with stylable_container(
+        key="fcwrap_mobile",
+        css_styles="""
+        {
+          background: #f0f6ff;
+          border-radius: 4px;
+          padding: 8px;
+          margin: 4px 0;
+        }
+        @media (prefers-color-scheme: dark){
+          [data-stylable-key="fcwrap_mobile"] {
+            background: #0f2036;
+          }
+        }
+        """
+    ):
         pannello_suggerisci_fc_mobile(
             peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
             key_prefix="fcpanel_mobile"
         )
-else:
-    # cleanup se il toggle è OFF
-    st.markdown(
-        """
-        <script>
-        document.querySelectorAll('.fcwrap-bg')
-          .forEach(n => n.classList.remove('fcwrap-bg'));
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
 
 
 # ------------------------------------------------------------
