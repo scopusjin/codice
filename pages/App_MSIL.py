@@ -84,6 +84,48 @@ footer{visibility:hidden;}
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------
+# Raccomandazioni helper + stile popover
+# ------------------------------------------------------------
+def _raccomandazioni_html() -> str:
+    return """
+    <div style="font-size:0.9rem; line-height:1.45; color:#444;">
+      <b>Il metodo di Henssge non può essere applicato nelle seguenti circostanze:</b><br><br>
+      • Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.<br>
+      • Presenza di una fonte di calore nelle immediate vicinanze del corpo.<br>
+      • Presenza di riscaldamento a pavimento sotto il corpo.<br>
+      • Ipotermia accertata o sospetta (temperatura corporea iniziale inferiore a 35 °C).<br>
+      • Impossibilità di determinare la temperatura ambientale media.<br>
+      • Impossibilità di stimare il fattore correttivo di Henssge.<br>
+      • Aumento significativo della temperatura ambientale (da valori bassi a elevati).<br><br>
+      <b>Nota sul fattore di correzione:</b><br>
+      Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere.
+      Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Henssge e alle tabelle realizzate da Wolf Schweitzer, MD (Istituto di medicina legale, Università di Zurigo),
+      ma è da considerarsi del tutto indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.
+    </div>
+    """
+
+st.markdown(
+    """
+    <style>
+    /* link popover blu tipo link */
+    div[data-testid="stPopover"] button {
+        background:none!important;
+        border:none!important;
+        color:#1976d2!important;
+        font-size:0.9rem!important;
+        padding:0!important;
+        margin:6px 0!important;
+        text-decoration:underline;
+        cursor:pointer;
+    }
+    /* niente limite di altezza al contenuto del popover */
+    div[data-testid="stPopoverContent"] { max-height:none!important; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# ------------------------------------------------------------
 # Stato iniziale
 # ------------------------------------------------------------
 _defaults = {
@@ -224,39 +266,63 @@ with c_rg:
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # ------------------------------------------------------------
-# 1) Campi di input: RT / TA / Peso OPZIONALI (text_input → None di default)
+# 1) Campi di input: RT / TA / Peso come number_input con None iniziale (fallback)
 # ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
+def _number_or_text(label, key_num, key_text, hint=None):
+    """Tenta number_input(value=None). Se fallisce, usa text_input + parse."""
+    _label(label, hint)
+    try:
+        # tenta number_input con None (per avere +/- senza default)
+        val = st.number_input(
+            "", value=st.session_state.get(key_num, None),
+            step=0.1, format="%.1f",
+            key=key_num, label_visibility="collapsed"
+        )
+        # Streamlit potrebbe coerce a 0.0: gestisci None manualmente
+        if st.session_state.get(key_num) == "" or st.session_state.get(key_num) is None:
+            return None
+        return float(val) if val != "" else None
+    except Exception:
+        # fallback a text_input
+        raw = st.text_input(
+            "", value="" if st.session_state.get(key_text) in (None, "") else str(st.session_state.get(key_text)),
+            key=key_text, label_visibility="collapsed", placeholder=""
+        )
+        return _to_float_or_none(raw)
+
 with c_rt:
-    _label("T. rettale (°C)")
-    st.text_input(
-        "", value="" if st.session_state.get("rt_val") is None else str(st.session_state.get("rt_val")),
-        key="rt_val_str", label_visibility="collapsed", placeholder=""
-    )
+    rt_val_parsed = _number_or_text("T. rettale (°C)", "rt_val", "rt_val_str")
 
 with c_ta:
-    _label("T. ambientale media (°C)", "incertezza ±1 °C")
-    st.text_input(
-        "", value="" if st.session_state.get("ta_base_val") is None else str(st.session_state.get("ta_base_val")),
-        key="ta_base_val_str", label_visibility="collapsed", placeholder=""
-    )
+    ta_val_parsed = _number_or_text("T. ambientale media (°C)", "ta_base_val", "ta_base_val_str", "incertezza ±1 °C")
 
 with c_w:
+    # peso con step 1.0
     _label("Peso (kg)", "incertezza ±3 kg")
-    st.text_input(
-        "", value="" if st.session_state.get("peso") is None else str(st.session_state.get("peso")),
-        key="peso_str", label_visibility="collapsed", placeholder=""
-    )
+    try:
+        val_w = st.number_input(
+            "", value=st.session_state.get("peso", None),
+            step=1.0, format="%.1f",
+            key="peso", label_visibility="collapsed"
+        )
+        peso_parsed = None if st.session_state.get("peso") in (None, "") else float(val_w)
+    except Exception:
+        raw_w = st.text_input(
+            "", value="" if st.session_state.get("peso_str") in (None, "") else str(st.session_state.get("peso_str")),
+            key="peso_str", label_visibility="collapsed", placeholder=""
+        )
+        peso_parsed = _to_float_or_none(raw_w)
 
 with c_fc:
     _label("Fattore di correzione (FC)", "incertezza ±0.10")
     fc_placeholder = st.empty()
 
-# Parse dei text_input in float o None
-st.session_state["rt_val"] = _to_float_or_none(st.session_state.get("rt_val_str"))
-st.session_state["ta_base_val"] = _to_float_or_none(st.session_state.get("ta_base_val_str"))
-st.session_state["peso"] = _to_float_or_none(st.session_state.get("peso_str"))
+# Persisti valori parsati
+st.session_state["rt_val"] = rt_val_parsed
+st.session_state["ta_base_val"] = ta_val_parsed
+st.session_state["peso"] = peso_parsed
 
 # ------------------------------------------------------------
 # 2) Toggle “Suggerisci FC”
@@ -413,6 +479,10 @@ with c_fc:
 # ------------------------------------------------------------
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
+# Link “Raccomandazioni” cliccabile (popover)
+with st.popover("Raccomandazioni", use_container_width=False):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
 # ------------------------------------------------------------
@@ -498,3 +568,7 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,  # MSIL: niente avvisi su peso mancante
     )
+
+    # Expander con raccomandazioni nelle descrizioni estese
+    with st.expander("Descrizioni dettagliate"):
+        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
