@@ -4,3 +4,4 @@ numpy
 scipy
 components
 openpyxl>=3.1
+streamlit-extras
