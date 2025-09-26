@@ -675,46 +675,16 @@ st.markdown(
         cursor: pointer;
         padding: 4px 6px;
       }
-      /* Popover senza limite altezza */
-      div[data-testid="stPopoverContent"]{ max-height:none !important; }
-      /* Evita sovrapposizioni: lascia spazio in fondo al contenuto */
-      section.main > div.block-container{ padding-bottom: 56px !important; }
-    </style>
-    <script>
-      (function(){
-        function findMyPopover(){
-          const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
-          return pops.find(p => {
-            const b = p.querySelector('button');
-            return b && (b.innerText||"").trim()==="Raccomandazioni";
-          });
-        }
-        function relocate(){
-          const anchor = document.getElementById('rec-stick-anchor');
-          const pop = findMyPopover();
-          if(!anchor || !pop) return;
-          if(pop.parentElement === anchor) return;
-          anchor.appendChild(pop);
-        }
-        relocate();
-        setTimeout(relocate, 300);
-        setTimeout(relocate, 900);
-        new MutationObserver(relocate).observe(document.body, {subtree:true, childList:true});
-      })();
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-# Popover unico "Raccomandazioni"
+    # Popover unico "Raccomandazioni"
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
 
-# Anchor sticky per il link blu
+# Anchor sticky in fondo pagina (UNICA)
 st.markdown(
     """
     <div id="rec-stick-anchor"></div>
     <style>
-      /* Sticky container in basso a dx */
+      /* Sticky in basso a destra */
       #rec-stick-anchor{
         position: sticky;
         bottom: 8px;
@@ -723,8 +693,14 @@ st.markdown(
         width: 100%;
         text-align: right;
         padding-right: 12px;
+        pointer-events: none; /* non coprire il contenuto */
       }
-      /* Link blu stile testo */
+      /* Sposta dentro l'anchor e mantieni click attivo */
+      #rec-stick-anchor > div[data-testid="stPopover"]{
+        display: inline-block;
+        pointer-events: auto;
+      }
+      /* Link blu semplice */
       #rec-stick-anchor button{
         background: none !important;
         border: none !important;
@@ -735,12 +711,11 @@ st.markdown(
         padding: 2px 4px;
       }
       @media (prefers-color-scheme: dark){
-        #rec-stick-anchor button{ color: #64b5f6 !important; }
+        #rec-stick-anchor button{ color:#64b5f6 !important; }
       }
-      /* Popover senza limite altezza */
+      /* Popover senza limite altezza e spazio fondo pagina */
       div[data-testid="stPopoverContent"]{ max-height:none !important; }
-      /* Extra spazio in fondo per non sovrapporre il contenuto */
-      section.main > div.block-container{ padding-bottom: 56px !important; }
+      section.main > div.block-container{ padding-bottom:56px !important; }
     </style>
     <script>
       (function(){
@@ -755,8 +730,7 @@ st.markdown(
           const anchor = document.getElementById('rec-stick-anchor');
           const pop = findMyPopover();
           if(!anchor || !pop) return;
-          if(pop.parentElement === anchor) return;
-          anchor.appendChild(pop);
+          if(pop.parentElement !== anchor) anchor.appendChild(pop);
         }
         relocate();
         setTimeout(relocate, 300);
@@ -767,4 +741,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
