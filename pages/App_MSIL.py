@@ -526,63 +526,81 @@ if st.session_state.get("run_stima_mobile"):
     )
 
 # ------------------------------------------------------------
-# Anchor sticky: rende il trigger un link blu in basso a destra
-# ------------------------------------------------------------
+# --- Trigger popover come LINK blu + sticky in basso dx (unico) ---
 st.markdown(
     """
     <div id="rec-stick-anchor"></div>
     <style>
-      /* Sticky in basso a destra */
+      /* Sticky in basso a destra, senza coprire i contenuti */
       #rec-stick-anchor{
         position: sticky;
         bottom: 8px;
         z-index: 50;
-        display: block;
         width: 100%;
         text-align: right;
         padding-right: 12px;
-        pointer-events: none; /* non coprire il contenuto */
+        pointer-events: none;
       }
-      /* Sposta dentro l'anchor e mantieni click attivo */
+      /* Sposta il popover qui e riabilita il click solo su di lui */
       #rec-stick-anchor > div[data-testid="stPopover"]{
         display: inline-block;
         pointer-events: auto;
       }
-      /* Link blu semplice (niente bordo/ombra) */
-      #rec-stick-anchor button{
-        background: none !important;
+
+      /* *** Forza il trigger a sembrare un link blu *** */
+      /* rimuove stile del wrapper del bottone */
+      #rec-stick-anchor div[data-testid="stPopover"] > div{
+        background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        color: #1976d2 !important;
-        font-size: 0.95rem !important;
-        text-decoration: underline;
-        cursor: pointer;
-        padding: 2px 4px;
+        padding: 0 !important;
+        margin: 0 !important;
       }
-      /* Nascondi caret/icone del bottone popover */
-      #rec-stick-anchor button svg{ display:none !important; }
+      /* reset completo del bottone BaseWeb */
+      #rec-stick-anchor div[data-testid="stPopover"] button{
+        all: unset;                           /* azzera TUTTO */
+        display: inline;                      /* inline come un link */
+        color: #1976d2 !important;            /* blu */
+        font-size: .95rem !important;
+        text-decoration: underline !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+      }
+      /* niente caret/icona */
+      #rec-stick-anchor div[data-testid="stPopover"] button svg{
+        display: none !important;
+      }
+      /* stato focus accessibile ma sobrio */
+      #rec-stick-anchor div[data-testid="stPopover"] button:focus{
+        outline: 2px solid #90caf9 !important;
+        outline-offset: 2px !important;
+      }
 
       @media (prefers-color-scheme: dark){
-        #rec-stick-anchor button{ color:#64b5f6 !important; }
+        #rec-stick-anchor div[data-testid="stPopover"] button{ color:#64b5f6 !important; }
       }
-      /* Popover senza limite altezza + spazio fondo pagina */
+
+      /* Popover senza limite di altezza + spazio di respiro in fondo */
       div[data-testid="stPopoverContent"]{ max-height:none !important; }
       section.main > div.block-container{ padding-bottom:56px !important; }
     </style>
+
     <script>
       (function(){
         function findMyPopover(){
           const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
           return pops.find(p => {
             const b = p.querySelector('button');
-            return b && (b.innerText||"").trim()==="Raccomandazioni";
+            return b && (b.innerText || "").trim() === "Raccomandazioni";
           });
         }
         function relocate(){
           const anchor = document.getElementById('rec-stick-anchor');
           const pop = findMyPopover();
-          if(!anchor || !pop) return;
-          if(pop.parentElement !== anchor) anchor.appendChild(pop);
+          if (!anchor || !pop) return;
+          if (pop.parentElement !== anchor) anchor.appendChild(pop);
         }
         relocate();
         setTimeout(relocate, 300);
@@ -593,3 +611,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
