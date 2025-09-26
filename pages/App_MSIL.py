@@ -604,10 +604,11 @@ from streamlit_extras.stylable_container import stylable_container
 with stylable_container(
     key="reco_popover",
     css_styles="""
-        [data-stylable-key="reco_popover"] div[data-testid="stPopover"] button {
+        [data-stylable-key="reco_popover"] button{
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
+            outline: none !important;
             color: #1976d2 !important;   /* blu */
             font-size: 0.9rem !important;
             text-decoration: underline;
@@ -615,8 +616,14 @@ with stylable_container(
             padding: 0 !important;
             margin: 6px 0 !important;
         }
+        [data-stylable-key="reco_popover"] button:hover,
+        [data-stylable-key="reco_popover"] button:focus{
+            background: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
         [data-stylable-key="reco_popover"] div[data-testid="stPopoverContent"]{
-            max-height:none!important;
+            max-height: none !important;
         }
     """,
 ):
