@@ -628,7 +628,7 @@ if hasattr(st, "popover"):
     </style>
     """, unsafe_allow_html=True)
 
-# --- Descrizioni aggiuntive (stessa logica di Raccomandazioni) ---
+
 if hasattr(st, "popover"):
     with st.popover("Descrizioni aggiuntive", key="desc_pop"):
         st.markdown(_descrizioni_html(), unsafe_allow_html=True)
@@ -636,7 +636,6 @@ else:
     with st.expander("Descrizioni aggiuntive", expanded=False):
         st.markdown(_descrizioni_html(), unsafe_allow_html=True)
 
-# --- Raccomandazioni (immutato) ---
 if hasattr(st, "popover"):
     with st.popover("Raccomandazioni", key="reco_pop"):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
