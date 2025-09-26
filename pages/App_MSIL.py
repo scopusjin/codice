@@ -158,7 +158,7 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
-# Garantisce TM fisso anche se sessione già avviata
+# Garantisce TM fisso
 st.session_state["tm_val"] = 37.2
 
 # ------------------------------------------------------------
@@ -187,6 +187,24 @@ def _to_float_or_none(s):
 
 def _sig_val(x):
     return "∅" if x is None else x
+
+# number_input che non collide con Session State logico
+def _number_or_text(label, state_key, widget_key, text_key, hint=None, step=0.1, fmt="%.1f"):
+    _label(label, hint)
+    try:
+        val = st.number_input(
+            "", value=st.session_state.get(state_key, None),
+            step=step, format=fmt, key=widget_key, label_visibility="collapsed"
+        )
+        if val is None:
+            return None
+        return float(val)
+    except Exception:
+        raw = st.text_input(
+            "", value="" if st.session_state.get(text_key) in (None, "") else str(st.session_state.get(text_key)),
+            key=text_key, label_visibility="collapsed", placeholder=""
+        )
+        return _to_float_or_none(raw)
 
 # ------------------------------------------------------------
 # Data/Ora ispezione (Europe/Zurich)
@@ -266,60 +284,42 @@ with c_rg:
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # ------------------------------------------------------------
-# 1) Campi di input: RT / TA / Peso come number_input con None iniziale (fallback)
+# 1) Campi di input: RT / TA / Peso con chiavi widget dedicate
 # ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
-def _number_or_text(label, key_num, key_text, hint=None):
-    """Tenta number_input(value=None). Se fallisce, usa text_input + parse."""
-    _label(label, hint)
-    try:
-        # tenta number_input con None (per avere +/- senza default)
-        val = st.number_input(
-            "", value=st.session_state.get(key_num, None),
-            step=0.1, format="%.1f",
-            key=key_num, label_visibility="collapsed"
-        )
-        # Streamlit potrebbe coerce a 0.0: gestisci None manualmente
-        if st.session_state.get(key_num) == "" or st.session_state.get(key_num) is None:
-            return None
-        return float(val) if val != "" else None
-    except Exception:
-        # fallback a text_input
-        raw = st.text_input(
-            "", value="" if st.session_state.get(key_text) in (None, "") else str(st.session_state.get(key_text)),
-            key=key_text, label_visibility="collapsed", placeholder=""
-        )
-        return _to_float_or_none(raw)
-
 with c_rt:
-    rt_val_parsed = _number_or_text("T. rettale (°C)", "rt_val", "rt_val_str")
+    rt_val_parsed = _number_or_text(
+        "T. rettale (°C)",
+        state_key="rt_val",
+        widget_key="rt_val_widget",
+        text_key="rt_val_str",
+        step=0.1, fmt="%.1f"
+    )
 
 with c_ta:
-    ta_val_parsed = _number_or_text("T. ambientale media (°C)", "ta_base_val", "ta_base_val_str", "incertezza ±1 °C")
+    ta_val_parsed = _number_or_text(
+        "T. ambientale media (°C)",
+        state_key="ta_base_val",
+        widget_key="ta_base_val_widget",
+        text_key="ta_base_val_str",
+        hint="incertezza ±1 °C", step=0.1, fmt="%.1f"
+    )
 
 with c_w:
-    # peso con step 1.0
-    _label("Peso (kg)", "incertezza ±3 kg")
-    try:
-        val_w = st.number_input(
-            "", value=st.session_state.get("peso", None),
-            step=1.0, format="%.1f",
-            key="peso", label_visibility="collapsed"
-        )
-        peso_parsed = None if st.session_state.get("peso") in (None, "") else float(val_w)
-    except Exception:
-        raw_w = st.text_input(
-            "", value="" if st.session_state.get("peso_str") in (None, "") else str(st.session_state.get("peso_str")),
-            key="peso_str", label_visibility="collapsed", placeholder=""
-        )
-        peso_parsed = _to_float_or_none(raw_w)
+    peso_parsed = _number_or_text(
+        "Peso (kg)",
+        state_key="peso",
+        widget_key="peso_widget",
+        text_key="peso_str",
+        hint="incertezza ±3 kg", step=1.0, fmt="%.1f"
+    )
 
 with c_fc:
     _label("Fattore di correzione (FC)", "incertezza ±0.10")
     fc_placeholder = st.empty()
 
-# Persisti valori parsati
+# Persisti valori parsati su chiavi logiche
 st.session_state["rt_val"] = rt_val_parsed
 st.session_state["ta_base_val"] = ta_val_parsed
 st.session_state["peso"] = peso_parsed
@@ -348,7 +348,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     except Exception:
         tabella2 = None
 
-    # Peso robusto per FC: fallback a 70 se mancante o non valido
+    # Peso robusto per FC
     if st.session_state.get("peso") in (None, 0) or (st.session_state.get("peso") or 0) <= 0:
         st.session_state["peso"] = 70.0
 
@@ -467,11 +467,11 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
 if "__next_fc" in st.session_state:
     st.session_state["fattore_correzione"] = st.session_state.pop("__next_fc")
 
-# Crea ORA il widget FC nel placeholder
+# Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
     fc_placeholder.number_input(
-        "", value=st.session_state.get("fattore_correzione", 1.0),
-        step=0.1, format="%.2f", key="fattore_correzione", label_visibility="collapsed"
+        "", step=0.1, format="%.2f",
+        key="fattore_correzione", label_visibility="collapsed"
     )
 
 # ------------------------------------------------------------
@@ -497,10 +497,10 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         _sig_val(st.session_state.get("ta_base_val")),
         _sig_val(st.session_state.get("peso")),
         _sig_val(st.session_state.get("fattore_correzione")),
-        37.2,  # TM fisso
+        37.2,
     )
 
-# Range TA e FC: solo se TA presente
+# Range TA e FC
 ta_center = st.session_state.get("ta_base_val")
 fc_center = float(st.session_state.get("fattore_correzione", 1.0))
 
@@ -538,7 +538,6 @@ if st.session_state.get("run_stima_mobile"):
     input_ta = st.session_state.get("ta_base_val")
     input_w  = st.session_state.get("peso")
 
-    # Controllo campi base vuoti
     no_rt = (input_rt is None) or (float(input_rt) <= 0)
     no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
@@ -566,9 +565,8 @@ if st.session_state.get("run_stima_mobile"):
         input_data_rilievo=st.session_state.get("input_data_rilievo"),
         input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=False,
-        skip_warnings=True,  # MSIL: niente avvisi su peso mancante
+        skip_warnings=True,
     )
 
-    # Expander con raccomandazioni nelle descrizioni estese
     with st.expander("Descrizioni dettagliate"):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
