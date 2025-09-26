@@ -428,18 +428,24 @@ def aggiorna_grafico(
     mt_ore = None
     mt_giorni = None
 
-    # Gate Potente: confronta Tr con la Ta MEDIA (input), non con Ta_max
-    if (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
-        and all(_is_num(v) for v in [Tr_val, Ta_val, Ta_for_pot, CF_val, W_val])
-        and (Tr_val - Ta_val) >= (0.1 - 1e-9)):
+    # Calcola sempre mt_ore quando la TA MEDIA soddisfa ΔT ≥ 0.1
+    if all(_is_num(v) for v in [Tr_val, Ta_val, Ta_for_pot, CF_val, W_val]) \
+       and (Tr_val - Ta_val) >= (0.1 - 1e-9):
         B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
-        ln_term = np.log(0.16) if _is_num(Ta_for_pot) and Ta_for_pot <= 23 else np.log(0.45)
+        ln_term = np.log(0.16) if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else np.log(0.45)
         mt_ore_raw = ln_term / B
         mt_ore = _round_half_hour(float(mt_ore_raw))
         mt_giorni = round(mt_ore / 24.0, 1)
 
-    usa_potente = (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
-                   and (mt_ore is not None) and (not np.isnan(mt_ore)))
+    # Attiva Potente se c'è mt_ore e:
+    # - Qd è disponibile e <= soglia, OPPURE
+    # - Qd non è disponibile (fallback permissivo sui casi di bordo)
+    qd_ok = (_is_num(Qd_val_check) and Qd_val_check <= qd_threshold) or (not _is_num(Qd_val_check))
+    usa_potente = (mt_ore is not None) and (not np.isnan(mt_ore)) and qd_ok
+
+    # Usa Henssge nel grafico solo se Potente NON è presente
+    raff_for_plot = raffreddamento_calcolabile and not usa_potente
+
 
     # ======== NEW: usa Henssge nel grafico solo se Potente NON è presente ========
     raff_for_plot = raffreddamento_calcolabile and not usa_potente
