@@ -601,5 +601,3 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 
-    with st.expander("Descrizioni dettagliate"):
-        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
