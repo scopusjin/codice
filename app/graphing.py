@@ -486,11 +486,11 @@ def aggiorna_grafico(
             "label": "Raffreddamento (Potente et al.)",
             "start": float(mt_ore),
             "end": np.inf,          # infinito → verrà tagliato a 'tail' più avanti
-            "order": -1,            # opzionale: per tenerlo in alto
+            "order": -1,            # per tenerlo in alto
             "adattato": False,
             "is_potente": True,     # <<-- flag letto da compute_plot_data per NON aggiungere Henssge
         })
-            
+
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
