@@ -615,6 +615,9 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
+st.session_state["selettore_macchie"] = selettore_macchie
+st.session_state["selettore_rigidita"] = selettore_rigidita
+
 # stile link blu unico (vale per entrambi i popover)
 if hasattr(st, "popover"):
     st.markdown("""
