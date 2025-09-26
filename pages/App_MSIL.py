@@ -191,7 +191,7 @@ for k, v in _defaults.items():
 
 # Garantisce TM fisso
 st.session_state["tm_val"] = 37.2
-
+st.session_state["__desc_dettagliate_html"] = ""
 # ------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------
