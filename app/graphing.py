@@ -2,6 +2,7 @@
 from __future__ import annotations
 import datetime
 from typing import Dict, List, Any
+from decimal import Decimal, ROUND_HALF_UP
 
 import numpy as np
 import streamlit as st
@@ -132,18 +133,19 @@ def aggiorna_grafico(
         Ta_for_pot = np.nan
 
     qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
-      # --- Gate fisico: richiede Tr ≥ Ta_media + 0.1 ---
-    ta_gate = float(Ta_val) if _is_num(Ta_val) else np.nan
-
-    if _is_num(Tr_val) and _is_num(ta_gate):
-        # se Tr - Ta_media < 0.1 → escludi raffreddamento e Potente
-        if (float(Tr_val) - float(ta_gate)) < (0.1 - 1e-9):
+    # --- Gate fisico: abilita Henssge solo se Tr ≥ Ta (alla 1ª cifra) + 0.10 ---
+    if _is_num(Tr_val) and _is_num(Ta_val):
+        tr_dec = Decimal(str(Tr_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        ta_dec = Decimal(str(Ta_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        diff_dec = tr_dec - ta_dec  # differenza arrotondata a 0.1 °C
+        if diff_dec < Decimal("0.1"):
             raffreddamento_calcolabile = False
             t_min_raff_henssge = np.nan
             t_max_raff_henssge = np.nan
             t_med_raff_henssge_rounded_raw = np.nan
             t_med_raff_henssge_rounded = np.nan
             Qd_val_check = np.nan
+
 
     
     # --- Gate fisico: richiede Tr ≥ Ta_gate + 0.1 (in prudente Ta_gate = Ta_max) ---
