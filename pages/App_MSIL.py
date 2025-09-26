@@ -521,29 +521,35 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 # --- Raccomandazioni: popover come link blu, stilato in modo isolato ---
+from streamlit_extras.stylable_container import stylable_container
+
 with stylable_container(
     key="rec_link",
     css_styles="""
     {
       margin-top: 6px;
     }
-    /* stile applicato SOLO a questo popover */
-    [data-stylable-key="rec_link"] div[data-testid="stPopover"] button{
-        background:none!important;
-        border:none!important;
-        color:#1976d2!important;
-        font-size:.95rem!important;
-        padding:0!important;
-        margin:0!important;
-        text-decoration:underline!important;
-        cursor:pointer!important;
+    [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button{
+        background:none !important;
+        border:none !important;
+        color:#1976d2 !important;
+        font-size:.95rem !important;
+        padding:0 !important;
+        margin:0 !important;
+        text-decoration:underline !important;
+        cursor:pointer !important;
     }
-    [data-stylable-key="rec_link"] div[data-testid="stPopover"] button svg{display:none!important;}
+    [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button svg{
+        display:none !important;
+    }
     @media (prefers-color-scheme: dark){
-        [data-stylable-key="rec_link"] div[data-testid="stPopover"] button{ color:#64b5f6!important; }
+      [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button{
+        color:#64b5f6 !important;
+      }
     }
     """
 ):
     with st.popover("Raccomandazioni", use_container_width=False):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
 
