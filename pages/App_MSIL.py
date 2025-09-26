@@ -86,21 +86,22 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
-def _raccomandazioni_html() -> str:
+def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>Il metodo di Henssge non può essere applicato nelle seguenti circostanze:</b><br><br>
-      • Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.<br>
-      • Presenza di una fonte di calore nelle immediate vicinanze del corpo.<br>
-      • Presenza di riscaldamento a pavimento sotto il corpo.<br>
-      • Ipotermia accertata o sospetta (temperatura corporea iniziale inferiore a 35 °C).<br>
-      • Impossibilità di determinare la temperatura ambientale media.<br>
-      • Impossibilità di stimare il fattore correttivo di Henssge.<br>
-      • Aumento significativo della temperatura ambientale (da valori bassi a elevati).<br><br>
-      <b>Nota sul fattore di correzione:</b><br>
-      Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere.
-      Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Henssge e alle tabelle realizzate da Wolf Schweitzer, MD (Istituto di medicina legale, Università di Zurigo),
-      ma è da considerarsi del tutto indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.
+      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE::</b><br><br>
+      • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
+      • Fonte di calore nelle vicinanze del corpo.<br>
+      • Riscaldamento a pavimento sotto il corpo.<br>
+      • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
+      • Temperatura ambientale media non determinabile.<br>
+      • Fattore di correzione di Henssge non stimabile<br>
+      • Temperatura ambientale aumentata molto dopo il decesso.<br><br>
+      <b>DA RICORDARE:</b><br><br>
+      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br>
+      • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era piû freddo nella notte? Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
+      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
+      • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br><br> 
     </div>
     """
 
