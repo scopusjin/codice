@@ -524,91 +524,76 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
+# --- Popover unico ---
+with st.popover("Raccomandazioni", use_container_width=False):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
 
-# ------------------------------------------------------------
-# --- Trigger popover come LINK blu + sticky in basso dx (unico) ---
-st.markdown(
-    """
-    <div id="rec-stick-anchor"></div>
-    <style>
-      /* Sticky in basso a destra, senza coprire i contenuti */
-      #rec-stick-anchor{
-        position: sticky;
-        bottom: 8px;
-        z-index: 50;
-        width: 100%;
-        text-align: right;
-        padding-right: 12px;
-        pointer-events: none;
-      }
-      /* Sposta il popover qui e riabilita il click solo su di lui */
-      #rec-stick-anchor > div[data-testid="stPopover"]{
-        display: inline-block;
-        pointer-events: auto;
-      }
+# --- Trigger link blu sticky (unico) ---
+st.markdown("""
+<div id="rec-stick"></div>
+<style>
+  /* Contenitore sticky in basso a destra */
+  #rec-stick{
+    position: sticky;
+    bottom: 8px;
+    z-index: 50;
+    width: 100%;
+    text-align: right;
+    padding-right: 12px;
+    pointer-events: none;    /* non coprire altri elementi */
+  }
+  /* Sposta il popover qui e riabilita i click solo su di lui */
+  #rec-stick > div[data-testid="stPopover"]{
+    display: inline-block;
+    pointer-events: auto;
+  }
 
-      /* *** Forza il trigger a sembrare un link blu *** */
-      /* rimuove stile del wrapper del bottone */
-      #rec-stick-anchor div[data-testid="stPopover"] > div{
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      /* reset completo del bottone BaseWeb */
-      #rec-stick-anchor div[data-testid="stPopover"] button{
-        all: unset;                           /* azzera TUTTO */
-        display: inline;                      /* inline come un link */
-        color: #1976d2 !important;            /* blu */
-        font-size: .95rem !important;
-        text-decoration: underline !important;
-        cursor: pointer !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        line-height: 1.2 !important;
-      }
-      /* niente caret/icona */
-      #rec-stick-anchor div[data-testid="stPopover"] button svg{
-        display: none !important;
-      }
-      /* stato focus accessibile ma sobrio */
-      #rec-stick-anchor div[data-testid="stPopover"] button:focus{
-        outline: 2px solid #90caf9 !important;
-        outline-offset: 2px !important;
-      }
+  /* Rimuovi qualsiasi box/bordo del trigger */
+  #rec-stick div[data-testid="stPopover"] > div{
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  /* Trasforma il bottone in link blu semplice */
+  #rec-stick div[data-testid="stPopover"] button{
+    all: unset;
+    display: inline;
+    color: #1976d2 !important;
+    font-size: .95rem !important;
+    text-decoration: underline !important;
+    cursor: pointer !important;
+    line-height: 1.2 !important;
+  }
+  /* Niente caret/icona */
+  #rec-stick div[data-testid="stPopover"] button svg{
+    display: none !important;
+  }
 
-      @media (prefers-color-scheme: dark){
-        #rec-stick-anchor div[data-testid="stPopover"] button{ color:#64b5f6 !important; }
-      }
+  /* Popover libero in altezza + spazio a fondo pagina */
+  div[data-testid="stPopoverContent"]{ max-height: none !important; }
+  section.main > div.block-container{ padding-bottom: 56px !important; }
 
-      /* Popover senza limite di altezza + spazio di respiro in fondo */
-      div[data-testid="stPopoverContent"]{ max-height:none !important; }
-      section.main > div.block-container{ padding-bottom:56px !important; }
-    </style>
-
-    <script>
-      (function(){
-        function findMyPopover(){
-          const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
-          return pops.find(p => {
-            const b = p.querySelector('button');
-            return b && (b.innerText || "").trim() === "Raccomandazioni";
-          });
-        }
-        function relocate(){
-          const anchor = document.getElementById('rec-stick-anchor');
-          const pop = findMyPopover();
-          if (!anchor || !pop) return;
-          if (pop.parentElement !== anchor) anchor.appendChild(pop);
-        }
-        relocate();
-        setTimeout(relocate, 300);
-        setTimeout(relocate, 900);
-        new MutationObserver(relocate).observe(document.body, {subtree:true, childList:true});
-      })();
-    </script>
-    """,
-    unsafe_allow_html=True
-)
-
+  @media (prefers-color-scheme: dark){
+    #rec-stick div[data-testid="stPopover"] button{ color: #64b5f6 !important; }
+  }
+</style>
+<script>
+  (function(){
+    function findPop(){
+      const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
+      return pops.find(p => (p.querySelector('button')?.innerText || '').trim() === 'Raccomandazioni');
+    }
+    function mount(){
+      const a = document.getElementById('rec-stick');
+      const p = findPop();
+      if (a && p && p.parentElement !== a) a.appendChild(p);
+    }
+    mount();
+    setTimeout(mount, 300);
+    setTimeout(mount, 900);
+    new MutationObserver(mount).observe(document.body, {subtree:true, childList:true});
+  })();
+</script>
+""", unsafe_allow_html=True)
