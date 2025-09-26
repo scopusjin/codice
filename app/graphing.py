@@ -779,5 +779,5 @@ def aggiorna_grafico(
 
     # render popover invece dell’expander
     if st.session_state["__desc_dettagliate_html"]:
-        with st.popover("Descrizioni aggiuntive"):
+        with st.popover("Descrizioni dettagliate"):
             st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
