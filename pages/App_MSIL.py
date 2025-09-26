@@ -456,10 +456,24 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
+    st.markdown(
+        """
+        <div style="
+            background:#f0f6ff;       /* cambia colore se vuoi */
+            padding:8px;              /* spazio interno minimo */
+            margin:4px 0;             /* zero impatto sul layout verticale */
+            border-radius:4px;        /* opzionale */
+        ">
+        """,
+        unsafe_allow_html=True,
+    )
+
     pannello_suggerisci_fc_mobile(
         peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
         key_prefix="fcpanel_mobile"
     )
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
