@@ -84,6 +84,7 @@ div.stButton>button:hover{filter:brightness(1.06)}
   .fcwrap-bg{ background:#0f2036!important; }
 }
 
+
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
 [data-testid="viewerBadge"],a[data-testid="viewerBadge"],
@@ -95,9 +96,9 @@ footer{visibility:hidden;}
 """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------
-# Raccomandazioni helper (contenuto popover)
+# Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
-def _raccomandazioni_html() -> str:
+def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
       <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE:</b><br><br>
@@ -112,9 +113,30 @@ def _raccomandazioni_html() -> str:
       • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
       • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
       • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br>
-      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br>
+      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
     </div>
     """
+
+st.markdown(
+    """
+    <style>
+    /* link popover blu tipo link */
+    div[data-testid="stPopover"] button {
+        background:none!important;
+        border:none!important;
+        color:#1976d2!important;
+        font-size:0.9rem!important;
+        padding:0!important;
+        margin:6px 0!important;
+        text-decoration:underline;
+        cursor:pointer;
+    }
+    /* niente limite di altezza al contenuto del popover */
+    div[data-testid="stPopoverContent"] { max-height:none!important; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ------------------------------------------------------------
 # Stato iniziale
@@ -122,16 +144,23 @@ def _raccomandazioni_html() -> str:
 _defaults = {
     "run_stima_mobile": False,
     "show_avvisi": True,
+
+    # Termici/peso SENZA default: opzionali
     "rt_val": None,
     "ta_base_val": None,
     "peso": None,
-    "tm_val": 37.2,  # TM fisso e non editabile
+
+    # TM fisso e non editabile
+    "tm_val": 37.2,
+
     "fattore_correzione": 1.0,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
     "toggle_fattore_inline_mobile": False,
     "fc_riassunto_contatori": None,
+
+    # Flag stima su range
     "stima_cautelativa_beta": True,
     "range_unico_beta": True,
     "ta_range_toggle_beta": True,
@@ -141,7 +170,9 @@ _defaults = {
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
-st.session_state["tm_val"] = 37.2  # garantisce TM fisso
+
+# Garantisce TM fisso
+st.session_state["tm_val"] = 37.2
 
 # ------------------------------------------------------------
 # Helpers
@@ -170,6 +201,7 @@ def _to_float_or_none(s):
 def _sig_val(x):
     return "∅" if x is None else x
 
+# number_input che non collide con Session State logico
 def _number_or_text(label, state_key, widget_key, text_key, hint=None, step=0.1, fmt="%.1f"):
     _label(label, hint)
     try:
@@ -203,6 +235,7 @@ except Exception:
 now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
+
 if st.session_state["usa_orario_custom"]:
     if st.session_state.get("input_data_rilievo") is None:
         st.session_state["input_data_rilievo"] = now_ch.date()
@@ -211,11 +244,19 @@ if st.session_state["usa_orario_custom"]:
 
     c1, c2 = st.columns(2, gap="small")
     with c1:
-        st.date_input("Data ispezione legale", value=st.session_state["input_data_rilievo"],
-                      label_visibility="collapsed", key="input_data_rilievo")
+        st.date_input(
+            "Data ispezione legale",
+            value=st.session_state["input_data_rilievo"],
+            label_visibility="collapsed",
+            key="input_data_rilievo",
+        )
     with c2:
-        st.text_input("Ora ispezione legale (HH:MM)", value=st.session_state["input_ora_rilievo"],
-                      label_visibility="collapsed", key="input_ora_rilievo")
+        st.text_input(
+            "Ora ispezione legale (HH:MM)",
+            value=st.session_state["input_ora_rilievo"],
+            label_visibility="collapsed",
+            key="input_ora_rilievo",
+        )
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
@@ -240,32 +281,58 @@ _RIGIDITA_MOBILE = {
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
-    scelta_ipostasi_lbl = st.selectbox("Macchie ipostatiche", ip_keys,
+    scelta_ipostasi_lbl = st.selectbox(
+        "Macchie ipostatiche", ip_keys,
         index=(ip_keys.index("IPOSTASI?") if "IPOSTASI?" in ip_keys else 0),
-        key="selettore_macchie_mobile", label_visibility="collapsed")
+        key="selettore_macchie_mobile", label_visibility="collapsed",
+    )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
-
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
-    scelta_rigidita_lbl = st.selectbox("Rigidità cadaverica", rg_keys,
+    scelta_rigidita_lbl = st.selectbox(
+        "Rigidità cadaverica", rg_keys,
         index=(rg_keys.index("RIGOR MORTIS?") if "RIGOR MORTIS?" in rg_keys else 0),
-        key="selettore_rigidita_mobile", label_visibility="collapsed")
+        key="selettore_rigidita_mobile", label_visibility="collapsed",
+    )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
 
 # ------------------------------------------------------------
-# 1) Input RT / TA / Peso / FC
+# 1) Campi di input: RT / TA / Peso con chiavi widget dedicate
 # ------------------------------------------------------------
 c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
+
 with c_rt:
-    rt_val_parsed = _number_or_text("T. rettale (°C)", "rt_val", "rt_val_widget", "rt_val_str", step=0.1, fmt="%.1f")
+    rt_val_parsed = _number_or_text(
+        "T. rettale (°C)",
+        state_key="rt_val",
+        widget_key="rt_val_widget",
+        text_key="rt_val_str",
+        step=0.1, fmt="%.1f"
+    )
+
 with c_ta:
-    ta_val_parsed = _number_or_text("T. ambientale media (°C)", "ta_base_val", "ta_base_val_widget", "ta_base_val_str", step=0.1, fmt="%.1f")
+    ta_val_parsed = _number_or_text(
+        "T. ambientale media (°C)",
+        state_key="ta_base_val",
+        widget_key="ta_base_val_widget",
+        text_key="ta_base_val_str",
+        step=0.1, fmt="%.1f"
+    )
+
 with c_w:
-    peso_parsed = _number_or_text("Peso (kg)", "peso", "peso_widget", "peso_str", step=1.0, fmt="%.1f")
+    peso_parsed = _number_or_text(
+        "Peso (kg)",
+        state_key="peso",
+        widget_key="peso_widget",
+        text_key="peso_str",
+        step=1.0, fmt="%.1f"
+    )
+
 with c_fc:
     _label("Fattore di correzione (FC)")
     fc_placeholder = st.empty()
 
+# Persisti valori parsati su chiavi logiche
 st.session_state["rt_val"] = rt_val_parsed
 st.session_state["ta_base_val"] = ta_val_parsed
 st.session_state["peso"] = peso_parsed
@@ -294,6 +361,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     except Exception:
         tabella2 = None
 
+    # Peso robusto per FC
     if st.session_state.get("peso") in (None, 0) or (st.session_state.get("peso") or 0) <= 0:
         st.session_state["peso"] = 70.0
 
@@ -352,7 +420,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
         n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
 
-    counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
+    counts = DressCounts(
+        sottili=n_sottili, spessi=n_spessi,
+        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+    )
 
     superficie_display_selected = None
     if stato_corpo == "Asciutto":
@@ -408,8 +479,11 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
           margin: 4px 0;
         }
         @media (prefers-color-scheme: dark){
-          [data-stylable-key="fcwrap_mobile"] { background: #0f2036; }
+          [data-stylable-key="fcwrap_mobile"] {
+            background: #0f2036;
+          }
         }
+        /* compattazione SOLO dentro il pannello */
         [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
         [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
         """
@@ -419,15 +493,19 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
             key_prefix="fcpanel_mobile"
         )
 
+
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
 # ------------------------------------------------------------
 if "__next_fc" in st.session_state:
     st.session_state["fattore_correzione"] = st.session_state.pop("__next_fc")
 
+# Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
-    fc_placeholder.number_input("", step=0.1, format="%.2f",
-                                key="fattore_correzione", label_visibility="collapsed")
+    fc_placeholder.number_input(
+        "", step=0.1, format="%.2f",
+        key="fattore_correzione", label_visibility="collapsed"
+    )
 
 # ------------------------------------------------------------
 # 3) Pulsante finale
@@ -520,35 +598,7 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
-# --- Raccomandazioni: link blu cliccabile senza riquadro ---
-# Stile globale del trigger del popover
-st.markdown("""
-<style>
-/* Link del popover: blu, senza bordo, inline */
-div[data-testid="stPopover"] > button,
-div[data-testid="stPopover"] button {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 6px 0 0 0 !important;
-  color: #1976d2 !important;
-  text-decoration: underline !important;
-  cursor: pointer !important;
-  display: inline !important;
-}
-/* Nasconde l’icona predefinita del bottone popover */
-div[data-testid="stPopover"] svg { display: none !important; }
-/* Nessun limite di altezza al contenuto del popover */
-div[data-testid="stPopoverContent"] { max-height: none !important; }
-@media (prefers-color-scheme: dark){
-  div[data-testid="stPopover"] > button,
-  div[data-testid="stPopover"] button { color:#64b5f6 !important; }
-}
-</style>
-""", unsafe_allow_html=True)
 
+# Link “Raccomandazioni” cliccabile (popover)
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-
-
