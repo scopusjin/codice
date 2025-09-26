@@ -255,7 +255,7 @@ _IPOSTASI_MOBILE = {
     "Ipostasi assenti": "Non ancora comparse",
     "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
     "Ipostasi non migrabili": "Fisse",
-    "Ipostasi?": "Non valutate",
+    "IPOSTASI?": "Non valutate",
 }
 _RIGIDITA_MOBILE = {
     "Rigor assente": "Non ancora apprezzabile",
@@ -263,7 +263,7 @@ _RIGIDITA_MOBILE = {
     "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
     "Rigor in risoluzione": "In via di risoluzione",
     "Rigor risolto": "Risolta",
-    "Rigor mortis?": "Non valutata",
+    "RIGOR MORTIS?": "Non valutata",
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
@@ -316,7 +316,7 @@ with c_w:
     )
 
 with c_fc:
-    _label("Fattore di correzione (FC)", "incertezza ±0.10")
+    _label("Fattore di correzione (FC)")
     fc_placeholder = st.empty()
 
 # Persisti valori parsati su chiavi logiche
