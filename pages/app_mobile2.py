@@ -18,13 +18,25 @@ div[class*="viewerBadge_container"]{display:none!important;}
 /* Pulsante "Manage app" - varianti */
 [aria-label="Manage app"]{display:none!important;}
 [title="Manage app"]{display:none!important;}
-button:has(span:contains("Manage app")){display:none!important;}
-div:has(> button[title="Manage app"]){display:none!important;}
 
 /* Status widget / deploy */
 div[data-testid="stStatusWidget"]{display:none!important;}
 div[data-testid="stDeployButton"]{display:none!important;}
+
+/* Maschera per il footer (Built with Streamlit + Fullscreen) */
+.hidefooter {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;             /* altezza tipica del footer Streamlit */
+  background: white;        /* colore di sfondo della pagina */
+  pointer-events: none;     /* non blocca click/tap */
+  z-index: 9999;
+}
 </style>
+
+<div class="hidefooter"></div>
 """, unsafe_allow_html=True)
 
 st.title("Test campi numerici")
