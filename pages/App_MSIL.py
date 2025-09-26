@@ -270,7 +270,7 @@ with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
     scelta_ipostasi_lbl = st.selectbox(
         "Macchie ipostatiche", ip_keys,
-        index=(ip_keys.index("Ipostasi?") if "Ipostasi?" in ip_keys else 0),
+        index=(ip_keys.index("IPOSTASI?") if "IPOSTASI?" in ip_keys else 0),
         key="selettore_macchie_mobile", label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
@@ -278,7 +278,7 @@ with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
         "Rigidità cadaverica", rg_keys,
-        index=(rg_keys.index("Rigor mortis?") if "Rigor mortis?" in rg_keys else 0),
+        index=(rg_keys.index("RIGOR MORTIS?") if "RIGOR MORTIS?" in rg_keys else 0),
         key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
@@ -303,7 +303,7 @@ with c_ta:
         state_key="ta_base_val",
         widget_key="ta_base_val_widget",
         text_key="ta_base_val_str",
-        hint="incertezza ±1 °C", step=0.1, fmt="%.1f"
+        step=0.1, fmt="%.1f"
     )
 
 with c_w:
@@ -312,7 +312,7 @@ with c_w:
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
-        hint="incertezza ±3 kg", step=1.0, fmt="%.1f"
+        step=1.0, fmt="%.1f"
     )
 
 with c_fc:
