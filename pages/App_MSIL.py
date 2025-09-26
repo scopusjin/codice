@@ -89,7 +89,7 @@ footer{visibility:hidden;}
 def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE::</b><br><br>
+      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE:</b><br><br>
       • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
       • Fonte di calore nelle vicinanze del corpo.<br>
       • Riscaldamento a pavimento sotto il corpo.<br>
