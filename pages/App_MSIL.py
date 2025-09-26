@@ -73,31 +73,16 @@ div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
 
-/* Wrapper grafico per "Suggerisci FC" (mobile) */
-.fcwrap-scope{display:none}
-div[data-testid="stVerticalBlock"]:has(.fcwrap-scope){
-  background:#f0f6ff!important;   /* colore sfondo */
-  border-radius:4px!important;
-  padding:8px!important;           /* spazio interno minimo */
-}
-@media (prefers-color-scheme: dark){
-  div[data-testid="stVerticalBlock"]:has(.fcwrap-scope){
-    background:#0f2036!important;
-  }
-}
-
-/* Sfondo SOLO al container che contiene il marcatore */
-#fcwrap-mobile-scope{display:block;height:0;overflow:hidden}
-section.main div[data-testid="stVerticalBlock"]:has(> #fcwrap-mobile-scope){
+/* Pannello Suggerisci FC: classe applicata via JS */
+.fcwrap-bg{
   background:#f0f6ff!important;
   border-radius:4px!important;
   padding:8px!important;
 }
 @media (prefers-color-scheme: dark){
-  section.main div[data-testid="stVerticalBlock"]:has(> #fcwrap-mobile-scope){
-    background:#0f2036!important;
-  }
+  .fcwrap-bg{ background:#0f2036!important; }
 }
+
 
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
@@ -484,13 +469,39 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     with st.container():
-        # marcatore: deve essere il PRIMO child del container
-        st.markdown('<div id="fcwrap-mobile-scope"></div>', unsafe_allow_html=True)
+        # marcatore + JS: applica la classe SOLO al container corrente
+        st.markdown(
+            """
+            <div id="fcwrap-mobile-anchor"></div>
+            <script>
+            (function(){
+              const mark = document.getElementById('fcwrap-mobile-anchor');
+              if(!mark) return;
+              const cont = mark.closest('div[data-testid="stVerticalBlock"]');
+              if(!cont) return;
+              cont.classList.add('fcwrap-bg');
+            })();
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
 
         pannello_suggerisci_fc_mobile(
             peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
             key_prefix="fcpanel_mobile"
         )
+else:
+    # cleanup se il toggle è OFF
+    st.markdown(
+        """
+        <script>
+        document.querySelectorAll('.fcwrap-bg')
+          .forEach(n => n.classList.remove('fcwrap-bg'));
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
