@@ -619,21 +619,37 @@ if st.session_state.get("run_stima_mobile"):
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
 
-# stile link blu unico (vale per entrambi i popover)
+# stile link differenziato per i due popover
 if hasattr(st, "popover"):
     st.markdown("""
     <style>
+    /* Stile comune: reset di base */
     div[data-testid="stPopover"] button{
-      background:none!important;border:none!important;color:#1976d2!important;
-      font-size:0.9rem!important;padding:0!important;margin:6px 0!important;
-      text-decoration:underline;cursor:pointer;
+      background:none!important;
+      border:none!important;
+      font-size:0.9rem!important;
+      padding:0!important;
+      margin:6px 0!important;
+      cursor:pointer;
     }
+
+    /* Raccomandazioni → blu sottolineato */
+    div[data-testid="stPopover"] button:has(span:contains("Raccomandazioni")){
+      color:#1976d2!important;
+      text-decoration:underline;
+    }
+
+    /* Descrizioni aggiuntive → nero */
+    div[data-testid="stPopover"] button:has(span:contains("Descrizioni aggiuntive")){
+      color:#000000!important;
+      text-decoration:underline;
+    }
+
+    /* contenuto popover senza limite di altezza */
     div[data-testid="stPopoverContent"]{max-height:none!important;}
     </style>
     """, unsafe_allow_html=True)
 
-
-# popover visibile solo se esiste l'HTML salvato e dopo un run valido
 
 
 with st.popover("RACCOMANDAZIONI"):
