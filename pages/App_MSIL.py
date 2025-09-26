@@ -520,76 +520,30 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
-# --- Popover unico ---
-with st.popover("Raccomandazioni", use_container_width=False):
-    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-
-# --- Trigger link blu sticky (unico) ---
-st.markdown("""
-<div id="rec-stick"></div>
-<style>
-  /* Contenitore sticky in basso a destra */
-  #rec-stick{
-    position: sticky;
-    bottom: 8px;
-    z-index: 50;
-    width: 100%;
-    text-align: right;
-    padding-right: 12px;
-    pointer-events: none;    /* non coprire altri elementi */
-  }
-  /* Sposta il popover qui e riabilita i click solo su di lui */
-  #rec-stick > div[data-testid="stPopover"]{
-    display: inline-block;
-    pointer-events: auto;
-  }
-
-  /* Rimuovi qualsiasi box/bordo del trigger */
-  #rec-stick div[data-testid="stPopover"] > div{
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-  /* Trasforma il bottone in link blu semplice */
-  #rec-stick div[data-testid="stPopover"] button{
-    all: unset;
-    display: inline;
-    color: #1976d2 !important;
-    font-size: .95rem !important;
-    text-decoration: underline !important;
-    cursor: pointer !important;
-    line-height: 1.2 !important;
-  }
-  /* Niente caret/icona */
-  #rec-stick div[data-testid="stPopover"] button svg{
-    display: none !important;
-  }
-
-  /* Popover libero in altezza + spazio a fondo pagina */
-  div[data-testid="stPopoverContent"]{ max-height: none !important; }
-  section.main > div.block-container{ padding-bottom: 56px !important; }
-
-  @media (prefers-color-scheme: dark){
-    #rec-stick div[data-testid="stPopover"] button{ color: #64b5f6 !important; }
-  }
-</style>
-<script>
-  (function(){
-    function findPop(){
-      const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
-      return pops.find(p => (p.querySelector('button')?.innerText || '').trim() === 'Raccomandazioni');
+# --- Raccomandazioni: popover come link blu, stilato in modo isolato ---
+with stylable_container(
+    key="rec_link",
+    css_styles="""
+    {
+      margin-top: 6px;
     }
-    function mount(){
-      const a = document.getElementById('rec-stick');
-      const p = findPop();
-      if (a && p && p.parentElement !== a) a.appendChild(p);
+    /* stile applicato SOLO a questo popover */
+    [data-stylable-key="rec_link"] div[data-testid="stPopover"] button{
+        background:none!important;
+        border:none!important;
+        color:#1976d2!important;
+        font-size:.95rem!important;
+        padding:0!important;
+        margin:0!important;
+        text-decoration:underline!important;
+        cursor:pointer!important;
     }
-    mount();
-    setTimeout(mount, 300);
-    setTimeout(mount, 900);
-    new MutationObserver(mount).observe(document.body, {subtree:true, childList:true});
-  })();
-</script>
-""", unsafe_allow_html=True)
+    [data-stylable-key="rec_link"] div[data-testid="stPopover"] button svg{display:none!important;}
+    @media (prefers-color-scheme: dark){
+        [data-stylable-key="rec_link"] div[data-testid="stPopover"] button{ color:#64b5f6!important; }
+    }
+    """
+):
+    with st.popover("Raccomandazioni", use_container_width=False):
+        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
