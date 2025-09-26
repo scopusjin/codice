@@ -507,17 +507,31 @@ with c_fc:
 # ------------------------------------------------------------
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
-# Link “Raccomandazioni” cliccabile (popover)
+# Popover unico "Raccomandazioni" + ancoraggio sticky in basso a destra
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
+# Anchor sticky in fondo pagina
 st.markdown(
     """
+    <div id="rec-stick-anchor"></div>
     <style>
-      #rec-fab {
-        position: fixed;
-        right: 14px;
-        bottom: 14px;
-        z-index: 9999;
+      /* Contenitore sticky che resta l’ULTIMO elemento e si ancora in basso a dx */
+      #rec-stick-anchor{
+        position: sticky;
+        bottom: 8px;              /* distanza dal bordo inferiore del viewport */
+        z-index: 50;
+        display: block;
+        width: 100%;
+      }
+      /* Allinea a destra il trigger del popover una volta spostato dentro l'anchor */
+      #rec-stick-anchor > div[data-testid="stPopover"]{
+        display: inline-block;
+        float: right;
+        margin-right: 10px;
+      }
+      /* Stile del trigger */
+      #rec-stick-anchor button.rec-trigger{
         background: none !important;
         border: none !important;
         color: #1976d2 !important;
@@ -526,38 +540,41 @@ st.markdown(
         cursor: pointer;
         padding: 4px 6px;
       }
+      /* Popover senza limite di altezza */
+      div[data-testid="stPopoverContent"]{ max-height:none !important; }
     </style>
-    <button id="rec-fab">Raccomandazioni</button>
     <script>
-      (function () {
-        function findRecPopoverButton() {
-          const nodes = Array.from(document.querySelectorAll('div[data-testid="stPopover"] button'));
-          return nodes.find(b => (b.innerText || "").trim() === "Raccomandazioni");
-        }
-        function hookup() {
-          const fab = document.getElementById("rec-fab");
-          const popBtn = findRecPopoverButton();
-          if (!fab) return;
-          // Click sul floating => apre il popover
-          fab.addEventListener("click", function () {
-            const btn = findRecPopoverButton();
-            if (btn) btn.click();
+      (function(){
+        function findMyPopover(){
+          const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
+          // scegli quello che contiene un button con testo "Raccomandazioni"
+          return pops.find(p => {
+            const b = p.querySelector('button');
+            return b && (b.innerText||"").trim()==="Raccomandazioni";
           });
-          // Nascondi il bottone originale del popover "Raccomandazioni"
-          if (popBtn) {
-            popBtn.style.position = "absolute";
-            popBtn.style.left = "-9999px";
-          }
         }
-        // primo tentativo + retry
-        hookup();
-        setTimeout(hookup, 500);
-        setTimeout(hookup, 1200);
+        function relocate(){
+          const anchor = document.getElementById('rec-stick-anchor');
+          const pop = findMyPopover();
+          if(!anchor || !pop) return;
+          // già spostato?
+          if(pop.parentElement === anchor) return;
+          // sposta il popover dentro l'anchor sticky
+          anchor.appendChild(pop);
+          const btn = pop.querySelector('button');
+          if(btn) btn.classList.add('rec-trigger');
+        }
+        relocate();
+        // re-ancora dopo i rerun
+        setTimeout(relocate, 300);
+        setTimeout(relocate, 900);
+        new MutationObserver(relocate).observe(document.body, {subtree:true, childList:true});
       })();
     </script>
     """,
     unsafe_allow_html=True
 )
+
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
 # ------------------------------------------------------------
