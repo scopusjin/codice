@@ -515,7 +515,54 @@ clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container
 # Link “Raccomandazioni” cliccabile (popover)
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-
+st.markdown(
+    """
+    <style>
+      #rec-fab {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        z-index: 9999;
+        background: none !important;
+        border: none !important;
+        color: #1976d2 !important;
+        font-size: 0.95rem !important;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 4px 6px;
+      }
+    </style>
+    <button id="rec-fab">Raccomandazioni</button>
+    <script>
+      (function () {
+        function findRecPopoverButton() {
+          const nodes = Array.from(document.querySelectorAll('div[data-testid="stPopover"] button'));
+          return nodes.find(b => (b.innerText || "").trim() === "Raccomandazioni");
+        }
+        function hookup() {
+          const fab = document.getElementById("rec-fab");
+          const popBtn = findRecPopoverButton();
+          if (!fab) return;
+          // Click sul floating => apre il popover
+          fab.addEventListener("click", function () {
+            const btn = findRecPopoverButton();
+            if (btn) btn.click();
+          });
+          // Nascondi il bottone originale del popover "Raccomandazioni"
+          if (popBtn) {
+            popBtn.style.position = "absolute";
+            popBtn.style.left = "-9999px";
+          }
+        }
+        // primo tentativo + retry
+        hookup();
+        setTimeout(hookup, 500);
+        setTimeout(hookup, 1200);
+      })();
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
 # ------------------------------------------------------------
