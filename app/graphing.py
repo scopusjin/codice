@@ -146,11 +146,6 @@ def aggiorna_grafico(
             t_med_raff_henssge_rounded = np.nan
             Qd_val_check = np.nan
 
-
-    
-
-
-
     # =========================
     # Henssge standard / Cautelativa
     # =========================
@@ -433,11 +428,9 @@ def aggiorna_grafico(
     mt_ore = None
     mt_giorni = None
 
-
     if (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
         and all(_is_num(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
         and (Tr_val - Ta_for_pot) >= (0.1 - 1e-9)):
-    
         B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
         ln_term = np.log(0.16) if _is_num(Ta_for_pot) and Ta_for_pot <= 23 else np.log(0.45)
         mt_ore_raw = ln_term / B
@@ -445,6 +438,10 @@ def aggiorna_grafico(
         mt_giorni = round(mt_ore / 24.0, 1)
 
     usa_potente = (_is_num(Qd_val_check) and Qd_val_check < qd_threshold and (mt_ore is not None) and (not np.isnan(mt_ore)))
+
+    # ======== NEW: usa Henssge nel grafico solo se Potente NON è presente ========
+    raff_for_plot = raffreddamento_calcolabile and not usa_potente
+    # ============================================================================
 
     # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
@@ -515,7 +512,7 @@ def aggiorna_grafico(
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
-    if raffreddamento_calcolabile: num_params_grafico += 1
+    if raff_for_plot: num_params_grafico += 1           # <-- usa raff_for_plot
     num_params_grafico += len(extra_params_for_plot)
 
     if num_params_grafico > 0:
@@ -525,11 +522,11 @@ def aggiorna_grafico(
                 macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
+                t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
+                t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
+                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
+                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
                 mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
                 qd_threshold=qd_threshold,
@@ -541,11 +538,11 @@ def aggiorna_grafico(
                 macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raffreddamento_calcolabile,
-                t_min_raff_henssge=t_min_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raffreddamento_calcolabile else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raffreddamento_calcolabile else np.nan,
-                Qd_val_check=Qd_val_check if raffreddamento_calcolabile else np.nan,
+                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
+                t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
+                t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
+                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
+                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
                 mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
                 qd_threshold=qd_threshold,
@@ -601,7 +598,7 @@ def aggiorna_grafico(
 
     # --- avvisi ---
     if nota_globale_range_adattato:
-        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con "*" sono stati traslati per renderli confrontabili.")
+        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
@@ -760,4 +757,3 @@ def aggiorna_grafico(
                     testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
                 ):
                     st.markdown(_wrap_final(blk), unsafe_allow_html=True)
-
