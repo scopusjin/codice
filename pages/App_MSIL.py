@@ -100,16 +100,19 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 def _descrizioni_html():
     parts = []
-    # base
-    parts.extend(paragrafi_descrizioni_base(
-        selettore_macchie=st.session_state.get("selettore_macchie"),
-        selettore_rigidita=st.session_state.get("selettore_rigidita")
-    ))
-    # parametri aggiuntivi se presenti
-    parts.extend(paragrafi_parametri_aggiuntivi(
-        parametri=widgets_parametri_aggiuntivi  # o il tuo dict corrente
-    ))
-    return "\n".join(parts)
+    try:
+        parts.extend(paragrafi_descrizioni_base(
+            selettore_macchie=st.session_state.get("selettore_macchie"),
+            selettore_rigidita=st.session_state.get("selettore_rigidita"),
+        ))
+    except Exception: pass
+    try:
+        parts.extend(paragrafi_parametri_aggiuntivi(
+            parametri=st.session_state.get("widgets_parametri_aggiuntivi", {})
+        ))
+    except Exception: pass
+    return "\n".join(parts) or "<p style='opacity:.7'>Nessuna descrizione disponibile.</p>"
+
 
 
 def _raccomandazioni_html() -> str:  
@@ -612,20 +615,31 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
-with st.popover("Descrizioni aggiuntive", use_container_width=False, key="desc_pop"):
-    st.markdown(_descrizioni_html(), unsafe_allow_html=True)
+# stile link blu unico (vale per entrambi i popover)
+if hasattr(st, "popover"):
+    st.markdown("""
+    <style>
+    div[data-testid="stPopover"] button{
+      background:none!important;border:none!important;color:#1976d2!important;
+      font-size:0.9rem!important;padding:0!important;margin:6px 0!important;
+      text-decoration:underline;cursor:pointer;
+    }
+    div[data-testid="stPopoverContent"]{max-height:none!important;}
+    </style>
+    """, unsafe_allow_html=True)
 
-# stile link blu e senza limite di altezza (già usato per Raccomandazioni)
-st.markdown("""
-<style>
-div[data-testid="stPopover"] button{
-  background:none!important;border:none!important;color:#1976d2!important;
-  font-size:0.9rem!important;padding:0!important;margin:6px 0!important;
-  text-decoration:underline;cursor:pointer;
-}
-div[data-testid="stPopoverContent"]{max-height:none!important;}
-</style>
-""", unsafe_allow_html=True)
-# Link “Raccomandazioni” cliccabile (popover)
-with st.popover("Raccomandazioni", use_container_width=False):
-    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+# --- Descrizioni aggiuntive (stessa logica di Raccomandazioni) ---
+if hasattr(st, "popover"):
+    with st.popover("Descrizioni aggiuntive", key="desc_pop"):
+        st.markdown(_descrizioni_html(), unsafe_allow_html=True)
+else:
+    with st.expander("Descrizioni aggiuntive", expanded=False):
+        st.markdown(_descrizioni_html(), unsafe_allow_html=True)
+
+# --- Raccomandazioni (immutato) ---
+if hasattr(st, "popover"):
+    with st.popover("Raccomandazioni", key="reco_pop"):
+        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+else:
+    with st.expander("Raccomandazioni", expanded=False):
+        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
