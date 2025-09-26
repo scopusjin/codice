@@ -119,19 +119,18 @@ def _descrizioni_html():
 def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE:</b><br><br>
+      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:</b><br><br>
       • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
       • Fonte di calore nelle vicinanze del corpo.<br>
       • Riscaldamento a pavimento sotto il corpo.<br>
       • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
-      • Temperatura ambientale media non determinabile.<br>
-      • Fattore di correzione di Henssge non stimabile<br>
-      • Temperatura ambientale aumentata molto dopo il decesso.<br><br>
+      • Temperatura ambientale media non determinabile o temperatura aumentata molto dopo il decesso.<br>
+      • Fattore di correzione di Henssge non stimabile<br><br>
       <b>DA RICORDARE:</b><br><br>
-      • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
-      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
-      • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br>
-      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
+      • Non usare direttamente la temperatura ambientale misurata, ma ragiona su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stima la temperatura media in cui potrebbe essersi trovato il corpo. Tieni conto di eventuali dati meteorologici.<br>
+      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambia posizione al cadavere e valuta se si modificano le ipostasi dopo 20 minuti.<br>
+      • Per il fattore di correzione, considera solo gli indumenti e le coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è indicativo. Prova varie combinazioni e un range di fattori.<br>
+      • L'applicazione considera di default, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
     </div>
     """
 
