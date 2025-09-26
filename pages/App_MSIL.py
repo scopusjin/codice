@@ -98,10 +98,10 @@ def _raccomandazioni_html() -> str:
       • Fattore di correzione di Henssge non stimabile<br>
       • Temperatura ambientale aumentata molto dopo il decesso.<br><br>
       <b>DA RICORDARE:</b><br><br>
-      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br>
-      • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era piû freddo nella notte? Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
-      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
-      • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br><br> 
+      • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
+      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
+      • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br>
+      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
     </div>
     """
 
