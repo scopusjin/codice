@@ -84,7 +84,6 @@ div.stButton>button:hover{filter:brightness(1.06)}
   .fcwrap-bg{ background:#0f2036!important; }
 }
 
-
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
 [data-testid="viewerBadge"],a[data-testid="viewerBadge"],
@@ -120,23 +119,19 @@ def _raccomandazioni_html() -> str:
 st.markdown(
     """
     <style>
-    /* link popover blu tipo link */
-    div[data-testid="stPopover"] button {
-        background:none!important;
-        border:none!important;
-        color:#1976d2!important;
-        font-size:0.9rem!important;
-        padding:0!important;
-        margin:6px 0!important;
-        text-decoration:underline;
-        cursor:pointer;
+    /* Nascondi i trigger standard degli st.popover */
+    div[data-testid="stPopover"] button{
+        position:absolute!important;
+        left:-9999px!important;
+        width:1px!important;height:1px!important;overflow:hidden!important;
     }
-    /* niente limite di altezza al contenuto del popover */
-    div[data-testid="stPopoverContent"] { max-height:none!important; }
+    /* Niente limite di altezza al contenuto del popover */
+    div[data-testid="stPopoverContent"]{ max-height:none!important; }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # ------------------------------------------------------------
 # Stato iniziale
