@@ -723,46 +723,58 @@ def aggiorna_grafico(
     if discordanti:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
 
-    # expander dettagli
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    with st.expander("Descrizioni dettagliate"):
-        for blocco in dettagli:
-            st.markdown(_wrap_final(blocco), unsafe_allow_html=True)
+   # --- buffer per popover + expander dettagli ---
+st.session_state["__desc_dettagliate_html"] = ""  # reset
+chunks = []
 
-        if discordanti:
-            st.markdown(
-                _wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"),
-                unsafe_allow_html=True
-            )
-        elif overlap and frase_finale_html:
-            st.markdown(
-                _wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"),
-                unsafe_allow_html=True
-            )
+# blocchi principali
+for blocco in dettagli:
+    chunks.append(_wrap_final(blocco))
 
-        if overlap and len(nomi_usati) > 0:
-            nomi_finali = []
-            for nome in nomi_usati:
-                if ("raffreddamento cadaverico" in nome.lower()
-                    and "potente" not in nome.lower()
-                    and mt_ore is not None and not np.isnan(mt_ore)
-                    and abs(comune_inizio - mt_ore) < 0.25):
-                    continue
-                nomi_finali.append(nome)
-            small_html = frase_riepilogo_parametri_usati(nomi_finali)
-            if small_html:
-                st.markdown(_wrap_final(small_html), unsafe_allow_html=True)
+# discordanze o frase finale
+if discordanti:
+    chunks.append(_wrap_final(
+        "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"
+    ))
+elif overlap and frase_finale_html:
+    chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
-        frase_qd_html = frase_qd(Qd_val_check, Ta_val)
-        if frase_qd_html:
-            st.markdown(_wrap_final(frase_qd_html), unsafe_allow_html=True)
-        # --- Testi base ipostasi/rigidità se il raffreddamento NON è calcolabile ---
-        if not raffreddamento_calcolabile:
-            no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
-            no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
-            if not no_macchie or not no_rigidita:
-                for blk in paragrafi_descrizioni_base(
-                    testo_macchie=testi_macchie.get(selettore_macchie),
-                    testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
-                ):
-                    st.markdown(_wrap_final(blk), unsafe_allow_html=True)
+# riepilogo parametri usati
+if overlap and len(nomi_usati) > 0:
+    nomi_finali = []
+    for nome in nomi_usati:
+        if ("raffreddamento cadaverico" in nome.lower()
+            and "potente" not in nome.lower()
+            and mt_ore is not None and not np.isnan(mt_ore)
+            and abs(comune_inizio - mt_ore) < 0.25):
+            continue
+        nomi_finali.append(nome)
+    small_html = frase_riepilogo_parametri_usati(nomi_finali)
+    if small_html:
+        chunks.append(_wrap_final(small_html))
+
+# frase Qd
+frase_qd_html = frase_qd(Qd_val_check, Ta_val)
+if frase_qd_html:
+    chunks.append(_wrap_final(frase_qd_html))
+
+# testi base se raffreddamento non calcolabile
+if not raffreddamento_calcolabile:
+    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
+    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
+    if not no_macchie or not no_rigidita:
+        for blk in paragrafi_descrizioni_base(
+            testo_macchie=testi_macchie.get(selettore_macchie),
+            testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
+        ):
+            chunks.append(_wrap_final(blk))
+
+# salva per popover
+st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
+
+# render expander identico
+st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+with st.expander("Descrizioni dettagliate"):
+    for html in chunks:
+        st.markdown(html, unsafe_allow_html=True)
+
