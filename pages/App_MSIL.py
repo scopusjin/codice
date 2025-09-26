@@ -634,10 +634,8 @@ if hasattr(st, "popover"):
 
 
 # popover visibile solo se esiste l'HTML salvato e dopo un run valido
-if st.session_state.get("run_stima_mobile") and st.session_state.get("__desc_dettagliate_html"):
-    with st.popover("Descrizioni aggiuntive"):
-        st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
 
-with st.popover("Raccomandazioni"):
+
+with st.popover("RACCOMANDAZIONI"):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
 
