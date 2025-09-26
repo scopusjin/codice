@@ -131,6 +131,26 @@ def aggiorna_grafico(
     else:
         Ta_for_pot = np.nan
     qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
+    
+    # --- Gate fisico: richiede Tr ≥ Ta_gate + 0.1 (in prudente Ta_gate = Ta_max) ---
+    ta_gate = float(Ta_val) if _is_num(Ta_val) else np.nan
+    if st.session_state.get("stima_cautelativa_beta", False):
+        # in prudente usiamo il caso peggiore (Ta_max)
+        try:
+            ta_gate = float(st.session_state.get("Ta_max_beta", ta_gate))
+        except Exception:
+            pass
+
+    if _is_num(Tr_val) and _is_num(ta_gate):
+        # se Tr - Ta < 0.1 → disattiva raffreddamento e Potente (uscirà l’avviso esistente)
+        if (float(Tr_val) - float(ta_gate)) < (0.1 - 1e-9):
+            raffreddamento_calcolabile = False
+            t_min_raff_henssge = np.nan
+            t_max_raff_henssge = np.nan
+            t_med_raff_henssge_rounded_raw = np.nan
+            t_med_raff_henssge_rounded = np.nan
+            Qd_val_check = np.nan
+
 
     # =========================
     # Henssge standard / Cautelativa
