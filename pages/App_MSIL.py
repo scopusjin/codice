@@ -705,4 +705,66 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+# Popover unico "Raccomandazioni"
+with st.popover("Raccomandazioni", use_container_width=False):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
+# Anchor sticky per il link blu
+st.markdown(
+    """
+    <div id="rec-stick-anchor"></div>
+    <style>
+      /* Sticky container in basso a dx */
+      #rec-stick-anchor{
+        position: sticky;
+        bottom: 8px;
+        z-index: 50;
+        display: block;
+        width: 100%;
+        text-align: right;
+        padding-right: 12px;
+      }
+      /* Link blu stile testo */
+      #rec-stick-anchor button{
+        background: none !important;
+        border: none !important;
+        color: #1976d2 !important;
+        font-size: 0.95rem !important;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 2px 4px;
+      }
+      @media (prefers-color-scheme: dark){
+        #rec-stick-anchor button{ color: #64b5f6 !important; }
+      }
+      /* Popover senza limite altezza */
+      div[data-testid="stPopoverContent"]{ max-height:none !important; }
+      /* Extra spazio in fondo per non sovrapporre il contenuto */
+      section.main > div.block-container{ padding-bottom: 56px !important; }
+    </style>
+    <script>
+      (function(){
+        function findMyPopover(){
+          const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
+          return pops.find(p => {
+            const b = p.querySelector('button');
+            return b && (b.innerText||"").trim()==="Raccomandazioni";
+          });
+        }
+        function relocate(){
+          const anchor = document.getElementById('rec-stick-anchor');
+          const pop = findMyPopover();
+          if(!anchor || !pop) return;
+          if(pop.parentElement === anchor) return;
+          anchor.appendChild(pop);
+        }
+        relocate();
+        setTimeout(relocate, 300);
+        setTimeout(relocate, 900);
+        new MutationObserver(relocate).observe(document.body, {subtree:true, childList:true});
+      })();
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
