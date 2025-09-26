@@ -520,36 +520,35 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
-# --- Raccomandazioni: popover come link blu, stilato in modo isolato ---
-from streamlit_extras.stylable_container import stylable_container
+# --- Raccomandazioni: link blu cliccabile senza riquadro ---
+# Stile globale del trigger del popover
+st.markdown("""
+<style>
+/* Link del popover: blu, senza bordo, inline */
+div[data-testid="stPopover"] > button,
+div[data-testid="stPopover"] button {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 6px 0 0 0 !important;
+  color: #1976d2 !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  display: inline !important;
+}
+/* Nasconde l’icona predefinita del bottone popover */
+div[data-testid="stPopover"] svg { display: none !important; }
+/* Nessun limite di altezza al contenuto del popover */
+div[data-testid="stPopoverContent"] { max-height: none !important; }
+@media (prefers-color-scheme: dark){
+  div[data-testid="stPopover"] > button,
+  div[data-testid="stPopover"] button { color:#64b5f6 !important; }
+}
+</style>
+""", unsafe_allow_html=True)
 
-with stylable_container(
-    key="rec_link",
-    css_styles="""
-    {
-      margin-top: 6px;
-    }
-    [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button{
-        background:none !important;
-        border:none !important;
-        color:#1976d2 !important;
-        font-size:.95rem !important;
-        padding:0 !important;
-        margin:0 !important;
-        text-decoration:underline !important;
-        cursor:pointer !important;
-    }
-    [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button svg{
-        display:none !important;
-    }
-    @media (prefers-color-scheme: dark){
-      [data-stylable-key="rec_link"] div[data-testid="stPopover"] > div > button{
-        color:#64b5f6 !important;
-      }
-    }
-    """
-):
-    with st.popover("Raccomandazioni", use_container_width=False):
-        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+with st.popover("Raccomandazioni", use_container_width=False):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
 
 
