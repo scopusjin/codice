@@ -98,6 +98,9 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
+st.session_state["selettore_macchie"] = selettore_macchie
+st.session_state["selettore_rigidita"] = selettore_rigidita
+
 def _descrizioni_html():
     parts = []
     try:
@@ -632,18 +635,8 @@ if hasattr(st, "popover"):
     """, unsafe_allow_html=True)
 
 
-# --- Descrizioni aggiuntive ---
-try:
-    with st.popover("Descrizioni aggiuntive", key="desc_pop"):
-        st.markdown(_descrizioni_html(), unsafe_allow_html=True)
-except TypeError:
-    with st.expander("Descrizioni aggiuntive", expanded=False):
-        st.markdown(_descrizioni_html(), unsafe_allow_html=True)
+with st.popover("Descrizioni aggiuntive"):
+    st.markdown(_descrizioni_html(), unsafe_allow_html=True)
 
-# --- Raccomandazioni ---
-try:
-    with st.popover("Raccomandazioni", key="reco_pop"):
-        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-except TypeError:
-    with st.expander("Raccomandazioni", expanded=False):
-        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+with st.popover("Raccomandazioni"):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
