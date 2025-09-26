@@ -632,16 +632,18 @@ if hasattr(st, "popover"):
     """, unsafe_allow_html=True)
 
 
-if hasattr(st, "popover"):
+# --- Descrizioni aggiuntive ---
+try:
     with st.popover("Descrizioni aggiuntive", key="desc_pop"):
         st.markdown(_descrizioni_html(), unsafe_allow_html=True)
-else:
+except TypeError:
     with st.expander("Descrizioni aggiuntive", expanded=False):
         st.markdown(_descrizioni_html(), unsafe_allow_html=True)
 
-if hasattr(st, "popover"):
+# --- Raccomandazioni ---
+try:
     with st.popover("Raccomandazioni", key="reco_pop"):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-else:
+except TypeError:
     with st.expander("Raccomandazioni", expanded=False):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
