@@ -774,6 +774,10 @@ def aggiorna_grafico(
 
     # render expander identico
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    with st.expander("Descrizioni dettagliate"):
-        for html in chunks:
-            st.markdown(html, unsafe_allow_html=True)
+    # salva per popover
+    st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
+
+    # render popover invece dell’expander
+    if st.session_state["__desc_dettagliate_html"]:
+        with st.popover("Descrizioni aggiuntive"):
+            st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
