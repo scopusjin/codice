@@ -437,7 +437,7 @@ def aggiorna_grafico(
 
     if (_is_num(Qd_val_check) and Qd_val_check < qd_threshold
         and all(_is_num(v) for v in [Tr_val, Ta_for_pot, CF_val, W_val])
-        and Tr_val >= Ta_for_pot - 1e-6):
+        and (Tr_val - Ta_for_pot) >= (0.1 - 1e-9)):
     
         B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
         ln_term = np.log(0.16) if _is_num(Ta_for_pot) and Ta_for_pot <= 23 else np.log(0.45)
