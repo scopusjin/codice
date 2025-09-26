@@ -3,6 +3,7 @@
 import datetime
 import pandas as pd
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
@@ -73,6 +74,17 @@ div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
 
+/* Pannello Suggerisci FC: classe applicata via JS */
+.fcwrap-bg{
+  background:#f0f6ff!important;
+  border-radius:4px!important;
+  padding:8px!important;
+}
+@media (prefers-color-scheme: dark){
+  .fcwrap-bg{ background:#0f2036!important; }
+}
+
+
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
 [data-testid="viewerBadge"],a[data-testid="viewerBadge"],
@@ -86,21 +98,22 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
-def _raccomandazioni_html() -> str:
+def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>Il metodo di Henssge non può essere applicato nelle seguenti circostanze:</b><br><br>
-      • Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.<br>
-      • Presenza di una fonte di calore nelle immediate vicinanze del corpo.<br>
-      • Presenza di riscaldamento a pavimento sotto il corpo.<br>
-      • Ipotermia accertata o sospetta (temperatura corporea iniziale inferiore a 35 °C).<br>
-      • Impossibilità di determinare la temperatura ambientale media.<br>
-      • Impossibilità di stimare il fattore correttivo di Henssge.<br>
-      • Aumento significativo della temperatura ambientale (da valori bassi a elevati).<br><br>
-      <b>Nota sul fattore di correzione:</b><br>
-      Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere.
-      Il sistema che suggerisce il fattore di correzione è ispirato agli studi di Henssge e alle tabelle realizzate da Wolf Schweitzer, MD (Istituto di medicina legale, Università di Zurigo),
-      ma è da considerarsi del tutto indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.
+      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON è APPLICABILE SE:</b><br><br>
+      • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
+      • Fonte di calore nelle vicinanze del corpo.<br>
+      • Riscaldamento a pavimento sotto il corpo.<br>
+      • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
+      • Temperatura ambientale media non determinabile.<br>
+      • Fattore di correzione di Henssge non stimabile<br>
+      • Temperatura ambientale aumentata molto dopo il decesso.<br><br>
+      <b>DA RICORDARE:</b><br><br>
+      • Non usare direttamente la temperatura ambientale misurata, ma ragionare su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stimare la temperatura media in cui potrebbe essersi trovato il corpo. Valutare eventuali dati meteorologici.<br>
+      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambiare posizione al cadavere e valutare se si modificano le ipostasi in 20 minuti.<br>
+      • Per il fattore di correzione, tenere conto solo degli indumenti e delle coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è da considerarsi indicativo. Si consiglia di utilizzare varie combinazioni e un range di fattori.<br>
+      • L'applicazione considera, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
     </div>
     """
 
@@ -456,24 +469,30 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
-    st.markdown(
+    with stylable_container(
+        key="fcwrap_mobile",
+        css_styles="""
+        {
+          background: #f0f6ff;
+          border-radius: 4px;
+          padding: 8px;
+          margin: 4px 0;
+        }
+        @media (prefers-color-scheme: dark){
+          [data-stylable-key="fcwrap_mobile"] {
+            background: #0f2036;
+          }
+        }
+        /* compattazione SOLO dentro il pannello */
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
         """
-        <div style="
-            background:#f0f6ff;       /* cambia colore se vuoi */
-            padding:8px;              /* spazio interno minimo */
-            margin:4px 0;             /* zero impatto sul layout verticale */
-            border-radius:4px;        /* opzionale */
-        ">
-        """,
-        unsafe_allow_html=True,
-    )
+    ):
+        pannello_suggerisci_fc_mobile(
+            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
+            key_prefix="fcpanel_mobile"
+        )
 
-    pannello_suggerisci_fc_mobile(
-        peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
-        key_prefix="fcpanel_mobile"
-    )
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
