@@ -605,14 +605,15 @@ with stylable_container(
     key="reco_popover",
     css_styles="""
         [data-stylable-key="reco_popover"] div[data-testid="stPopover"] button {
-            background:none!important;
-            border:none!important;
-            color:#1976d2!important;         /* blu */
-            font-size:0.9rem!important;
-            text-decoration:underline;
-            cursor:pointer;
-            padding:0!important;
-            margin:6px 0!important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: #1976d2 !important;   /* blu */
+            font-size: 0.9rem !important;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0 !important;
+            margin: 6px 0 !important;
         }
         [data-stylable-key="reco_popover"] div[data-testid="stPopoverContent"]{
             max-height:none!important;
@@ -621,4 +622,3 @@ with stylable_container(
 ):
     with st.popover("Raccomandazioni"):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-        
