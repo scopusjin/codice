@@ -86,6 +86,19 @@ div[data-testid="stVerticalBlock"]:has(.fcwrap-scope){
   }
 }
 
+/* Sfondo SOLO al container che contiene il marcatore */
+#fcwrap-mobile-scope{display:block;height:0;overflow:hidden}
+section.main div[data-testid="stVerticalBlock"]:has(> #fcwrap-mobile-scope){
+  background:#f0f6ff!important;
+  border-radius:4px!important;
+  padding:8px!important;
+}
+@media (prefers-color-scheme: dark){
+  section.main div[data-testid="stVerticalBlock"]:has(> #fcwrap-mobile-scope){
+    background:#0f2036!important;
+  }
+}
+
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
 [data-testid="viewerBadge"],a[data-testid="viewerBadge"],
@@ -471,15 +484,13 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     with st.container():
-        # marcatore invisibile per applicare lo stile al container corrente
-        st.markdown('<div class="fcwrap-scope"></div>', unsafe_allow_html=True)
+        # marcatore: deve essere il PRIMO child del container
+        st.markdown('<div id="fcwrap-mobile-scope"></div>', unsafe_allow_html=True)
 
         pannello_suggerisci_fc_mobile(
             peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
             key_prefix="fcpanel_mobile"
         )
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
