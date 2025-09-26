@@ -480,7 +480,17 @@ def aggiorna_grafico(
                 "order": idx,
                 "adattato": bool(p.get("adattato", False)),
             })
-
+    # --- Potente come "extra" per il grafico (nasconde la barra Henssge) ---
+    if usa_potente and _is_num(mt_ore):
+        extra_params_for_plot.insert(0, {
+            "label": "Raffreddamento (Potente et al.)",
+            "start": float(mt_ore),
+            "end": np.inf,          # infinito → verrà tagliato a 'tail' più avanti
+            "order": -1,            # opzionale: per tenerlo in alto
+            "adattato": False,
+            "is_potente": True,     # <<-- flag letto da compute_plot_data per NON aggiungere Henssge
+        })
+            
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
