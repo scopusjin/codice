@@ -483,6 +483,9 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
             background: #0f2036;
           }
         }
+        /* compattazione SOLO dentro il pannello */
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
         """
     ):
         pannello_suggerisci_fc_mobile(
