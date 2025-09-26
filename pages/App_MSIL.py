@@ -116,21 +116,6 @@ def _raccomandazioni_html() -> str:
     </div>
     """
 
-st.markdown(
-    """
-    <style>
-    /* Nascondi i trigger standard degli st.popover */
-    div[data-testid="stPopover"] button{
-        position:absolute!important;
-        left:-9999px!important;
-        width:1px!important;height:1px!important;overflow:hidden!important;
-    }
-    /* Niente limite di altezza al contenuto del popover */
-    div[data-testid="stPopoverContent"]{ max-height:none!important; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 
 # ------------------------------------------------------------
@@ -660,4 +645,64 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 
+st.markdown(
+    """
+    <div id="rec-stick-anchor"></div>
+    <style>
+      /* Sticky container in fondo, sempre visibile in basso a dx */
+      #rec-stick-anchor{
+        position: sticky;
+        bottom: 8px;
+        z-index: 50;
+        display: block;
+        width: 100%;
+        pointer-events: none; /* evita di coprire altri elementi */
+      }
+      /* Allinea a destra il popover spostato */
+      #rec-stick-anchor > div[data-testid="stPopover"]{
+        display: inline-block;
+        float: right;
+        margin-right: 10px;
+        pointer-events: auto; /* riattiva click sul trigger */
+      }
+      /* Trigger stile link */
+      #rec-stick-anchor button{
+        background: none !important;
+        border: none !important;
+        color: #1976d2 !important;
+        font-size: 0.95rem !important;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 4px 6px;
+      }
+      /* Popover senza limite altezza */
+      div[data-testid="stPopoverContent"]{ max-height:none !important; }
+      /* Evita sovrapposizioni: lascia spazio in fondo al contenuto */
+      section.main > div.block-container{ padding-bottom: 56px !important; }
+    </style>
+    <script>
+      (function(){
+        function findMyPopover(){
+          const pops = Array.from(document.querySelectorAll('div[data-testid="stPopover"]'));
+          return pops.find(p => {
+            const b = p.querySelector('button');
+            return b && (b.innerText||"").trim()==="Raccomandazioni";
+          });
+        }
+        function relocate(){
+          const anchor = document.getElementById('rec-stick-anchor');
+          const pop = findMyPopover();
+          if(!anchor || !pop) return;
+          if(pop.parentElement === anchor) return;
+          anchor.appendChild(pop);
+        }
+        relocate();
+        setTimeout(relocate, 300);
+        setTimeout(relocate, 900);
+        new MutationObserver(relocate).observe(document.body, {subtree:true, childList:true});
+      })();
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
