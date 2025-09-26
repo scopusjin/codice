@@ -135,26 +135,7 @@ def _raccomandazioni_html() -> str:
     </div>
     """
 
-st.markdown(
-    """
-    <style>
-    /* link popover blu tipo link */
-    div[data-testid="stPopover"] button {
-        background:none!important;
-        border:none!important;
-        color:#1976d2!important;
-        font-size:0.9rem!important;
-        padding:0!important;
-        margin:6px 0!important;
-        text-decoration:underline;
-        cursor:pointer;
-    }
-    /* niente limite di altezza al contenuto del popover */
-    div[data-testid="stPopoverContent"] { max-height:none!important; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+
 
 # ------------------------------------------------------------
 # Stato iniziale
