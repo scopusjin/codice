@@ -98,8 +98,6 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
-st.session_state["selettore_macchie"] = selettore_macchie
-st.session_state["selettore_rigidita"] = selettore_rigidita
 
 def _descrizioni_html():
     parts = []
