@@ -73,6 +73,19 @@ div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
 div.stButton>button:hover{filter:brightness(1.06)}
 
+/* Wrapper grafico per "Suggerisci FC" (mobile) */
+.fcwrap-scope{display:none}
+div[data-testid="stVerticalBlock"]:has(.fcwrap-scope){
+  background:#f0f6ff!important;   /* colore sfondo */
+  border-radius:4px!important;
+  padding:8px!important;           /* spazio interno minimo */
+}
+@media (prefers-color-scheme: dark){
+  div[data-testid="stVerticalBlock"]:has(.fcwrap-scope){
+    background:#0f2036!important;
+  }
+}
+
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
 [data-testid="viewerBadge"],a[data-testid="viewerBadge"],
@@ -457,22 +470,14 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
-    st.markdown(
-        """
-        <div style="
-            background:#f0f6ff;       /* cambia colore se vuoi */
-            padding:8px;              /* spazio interno minimo */
-            margin:4px 0;             /* zero impatto sul layout verticale */
-            border-radius:4px;        /* opzionale */
-        ">
-        """,
-        unsafe_allow_html=True,
-    )
+    with st.container():
+        # marcatore invisibile per applicare lo stile al container corrente
+        st.markdown('<div class="fcwrap-scope"></div>', unsafe_allow_html=True)
 
-    pannello_suggerisci_fc_mobile(
-        peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
-        key_prefix="fcpanel_mobile"
-    )
+        pannello_suggerisci_fc_mobile(
+            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
+            key_prefix="fcpanel_mobile"
+        )
 
     st.markdown("</div>", unsafe_allow_html=True)
 
