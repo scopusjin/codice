@@ -98,6 +98,20 @@ footer{visibility:hidden;}
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
+def _descrizioni_html():
+    parts = []
+    # base
+    parts.extend(paragrafi_descrizioni_base(
+        selettore_macchie=st.session_state.get("selettore_macchie"),
+        selettore_rigidita=st.session_state.get("selettore_rigidita")
+    ))
+    # parametri aggiuntivi se presenti
+    parts.extend(paragrafi_parametri_aggiuntivi(
+        parametri=widgets_parametri_aggiuntivi  # o il tuo dict corrente
+    ))
+    return "\n".join(parts)
+
+
 def _raccomandazioni_html() -> str:  
     return """
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
@@ -598,7 +612,20 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
+with st.popover("Descrizioni aggiuntive", use_container_width=False, key="desc_pop"):
+    st.markdown(_descrizioni_html(), unsafe_allow_html=True)
 
+# stile link blu e senza limite di altezza (già usato per Raccomandazioni)
+st.markdown("""
+<style>
+div[data-testid="stPopover"] button{
+  background:none!important;border:none!important;color:#1976d2!important;
+  font-size:0.9rem!important;padding:0!important;margin:6px 0!important;
+  text-decoration:underline;cursor:pointer;
+}
+div[data-testid="stPopoverContent"]{max-height:none!important;}
+</style>
+""", unsafe_allow_html=True)
 # Link “Raccomandazioni” cliccabile (popover)
 with st.popover("Raccomandazioni", use_container_width=False):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
