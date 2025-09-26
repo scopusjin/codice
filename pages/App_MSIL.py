@@ -434,11 +434,7 @@ with c_fc:
 # ------------------------------------------------------------
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
 
-# ------------------------------------------------------------
-# Popover unico "Raccomandazioni"
-# ------------------------------------------------------------
-with st.popover("Raccomandazioni", use_container_width=False):
-    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
 
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
