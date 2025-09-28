@@ -605,6 +605,7 @@ def aggiorna_grafico(
                     st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
                     st.markdown(_wrap_final(frase_semplice_no_dt), unsafe_allow_html=True)
 
+
     # --- avvisi ---
     if nota_globale_range_adattato:
         avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
@@ -682,14 +683,33 @@ def aggiorna_grafico(
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
 
-    # toggle avvisi
+    # --- AVVISI: popover senza riquadro ---
     if avvisi:
-        mostra = st.toggle(f"⚠️ Mostra avvisi ({len(avvisi)})", key="mostra_avvisi")
-        if mostra:
+        if not st.session_state.get("_pop_css_applied"):
+            st.markdown(
+                """
+                <style>
+                div[data-testid="stPopover"] button{
+                    background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
+                    color:inherit!important;font-size:0.9rem!important;text-decoration:underline;cursor:pointer;
+                    padding:0!important;margin:6px 0!important;
+                }
+                div[data-testid="stPopover"] button:hover,
+                div[data-testid="stPopover"] button:focus{
+                    background:transparent!important;box-shadow:none!important;outline:none!important;
+                }
+                div[data-testid="stPopoverContent"]{max-height:none!important;}
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.session_state["_pop_css_applied"] = True
+
+        with st.popover(f"🟠 Avvisi ({len(avvisi)})"):
             for m in avvisi:
                 _warn_box(m)
 
-    # ---     # --- discordanze ---
+    # --- discordanze ---
     def _finite(x):
         return isinstance(x, (int, float)) and np.isfinite(x)
 
@@ -723,7 +743,7 @@ def aggiorna_grafico(
     if discordanti:
         st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
 
-    # --- buffer per popover + expander dettagli ---
+    # --- buffer per popover descrizioni ---
     st.session_state["__desc_dettagliate_html"] = ""  # reset
     chunks = []
 
@@ -772,12 +792,31 @@ def aggiorna_grafico(
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
 
-    # render expander identico
+    # margine verticale prima dei link
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-    # salva per popover
-    st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
 
-    # render popover invece dell’expander
+    # --- DESCRIZIONI DETTAGLIATE: popover senza riquadro ---
     if st.session_state["__desc_dettagliate_html"]:
-        with st.popover("Descrizioni dettagliate"):
+        if not st.session_state.get("_pop_css_applied"):
+            st.markdown(
+                """
+                <style>
+                div[data-testid="stPopover"] button{
+                    background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
+                    color:inherit!important;font-size:0.9rem!important;text-decoration:underline;cursor:pointer;
+                    padding:0!important;margin:6px 0!important;
+                }
+                div[data-testid="stPopover"] button:hover,
+                div[data-testid="stPopover"] button:focus{
+                    background:transparent!important;box-shadow:none!important;outline:none!important;
+                }
+                div[data-testid="stPopoverContent"]{max-height:none!important;}
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.session_state["_pop_css_applied"] = True
+
+        with st.popover("🟣 Descrizioni dettagliate"):
             st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
+            
