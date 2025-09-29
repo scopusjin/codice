@@ -97,11 +97,12 @@ def build_final_sentence(
         h2, m2 = _hm_from_hours(comune_fine)
         da = isp_dt - datetime.timedelta(hours=comune_fine)
         hh2, dd2 = _fmt_dt(da)
+        hh_isp, dd_isp = _fmt_dt(isp_dt)
         testo = (
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
             f"consente di stimare che la morte sia avvenuta {_bold_esito('non oltre ' + _fmt_hm_full(h2, m2))} "
             "prima dei rilievi effettuati durante l’ispezione legale, "
-            f"ovvero successivamente alle ore {hh2} del {dd2}."
+            f"ovvero successivamente alle ore {hh2} del {dd2} (ma prima delle ore {hh_isp} del {dd_isp})."
         )
         return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
 
