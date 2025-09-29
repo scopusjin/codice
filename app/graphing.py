@@ -304,10 +304,10 @@ def aggiorna_grafico(
             )
             if par_h_caut:
                 _add_det(par_h_caut)
-                henssge_detail_added = True
+
         else:
             # Henssge escluso
-            st.session_state["parentetica_extra"] = ""
+            pass
     else:
         if raffreddamento_calcolabile:
             round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
