@@ -1,15 +1,15 @@
 [theme]
 base = "light"
 
-primaryColor = "#22D3EE"
+primaryColor = "#0284C7"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F3F4F6"
 textColor = "#1F2937"
 
 [theme.custom]
-buttonHover = "#06B6D4"
-outputBg = "#D1FAE5"
-outputBorder = "#10B981"
+buttonHover = "#0369A1"
+outputBg = "#E6F1EF"
+outputBorder = "#7FA8A0"
 
 [theme.custom.warn]
 bg = "#fff3cd"
