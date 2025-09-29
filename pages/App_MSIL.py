@@ -276,7 +276,7 @@ _IPOSTASI_MOBILE = {
     "Ipostasi assenti": "Non ancora comparse",
     "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
     "Ipostasi non migrabili": "Fisse",
-    "IPOSTASI?": "Non valutate",
+    "🩸 IPOSTASI?": "Non valutate",
 }
 _RIGIDITA_MOBILE = {
     "Rigor assente": "Non ancora apprezzabile",
@@ -291,7 +291,7 @@ with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
     scelta_ipostasi_lbl = st.selectbox(
         "Macchie ipostatiche", ip_keys,
-        index=(ip_keys.index("IPOSTASI?") if "IPOSTASI?" in ip_keys else 0),
+        index=(ip_keys.index("🩸 IPOSTASI?") if "🩸 IPOSTASI?" in ip_keys else 0),
         key="selettore_macchie_mobile", label_visibility="collapsed",
     )
     selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
