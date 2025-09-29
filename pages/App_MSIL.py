@@ -273,18 +273,20 @@ else:
 # Ipostasi e rigidità
 # ------------------------------------------------------------
 _IPOSTASI_MOBILE = {
+    "🩸 IPOSTASI?": "Non valutate",
     "Ipostasi assenti": "Non ancora comparse",
     "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
     "Ipostasi non migrabili": "Fisse",
-    "🩸 IPOSTASI?": "Non valutate",
+    
 }
 _RIGIDITA_MOBILE = {
+    "💪🏻 RIGOR MORTIS?": "Non valutata",
     "Rigor assente": "Non ancora apprezzabile",
     "Rigor presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
     "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
     "Rigor in risoluzione": "In via di risoluzione",
     "Rigor risolto": "Risolta",
-    "💪🏻 RIGOR MORTIS?": "Non valutata",
+    
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
