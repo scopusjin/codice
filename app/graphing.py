@@ -775,16 +775,10 @@ def aggiorna_grafico(
         st.markdown(
             """
             <style>
-            .toolbar-row{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;}
-            .toolbar-row div[data-testid="stPopover"]{display:inline-block!important;margin:0;padding:0;}
-            .toolbar-row div[data-testid="stPopover"] button{
+            div[data-testid="stPopover"] button{
                 background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
                 color:inherit!important;font-size:0.95rem!important;text-decoration:underline;cursor:pointer;
                 padding:0!important;margin:0!important;
-            }
-            .toolbar-row div[data-testid="stPopover"] button:hover,
-            .toolbar-row div[data-testid="stPopover"] button:focus{
-                background:transparent!important;box-shadow:none!important;outline:none!important;
             }
             div[data-testid="stPopoverContent"]{max-height:none!important;}
             </style>
@@ -794,20 +788,20 @@ def aggiorna_grafico(
         st.session_state["_pop_css_row_applied"] = True
 
     row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
-
     if row_has_any:
-        st.markdown('<div class="toolbar-row">', unsafe_allow_html=True)
+        c1, c2 = st.columns(2, gap="small")
 
-        if avvisi:
-            with st.popover("⚠️ Avvisi"):
-                for m in avvisi:
-                    _warn_box(m)
+        with c1:
+            if avvisi:
+                with st.popover("⚠️ Avvisi"):
+                    for m in avvisi:
+                        _warn_box(m)
 
-        if st.session_state.get("__desc_dettagliate_html"):
-            with st.popover("📋 Descrizioni dettagliate"):
-                st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
+        with c2:
+            if st.session_state.get("__desc_dettagliate_html"):
+                with st.popover("📋 Descrizioni dettagliate"):
+                    st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
 
 
             
