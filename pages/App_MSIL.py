@@ -46,8 +46,6 @@ div[data-testid="stToggle"] > label,
 div[data-testid="stRadio"] > label,
 div[data-testid="stDateInput"] > label,
 div[data-testid="stTextInput"] > label{margin:0 0 2px 0!important;line-height:1.05!important;font-size:.84rem}
-div[data-testid="stNumberInput"] input{height:30px!important;padding:3px 6px!important}
-div[data-baseweb="select"] > div{min-height:30px!important}
 div[data-testid="stSelectbox"] svg{margin-top:-3px!important}
 
 /* Radio compatti */
