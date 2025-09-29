@@ -763,55 +763,56 @@ def aggiorna_grafico(
     # margine verticale prima dei link
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
-# --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
-if not st.session_state.get("_pop_css_row_applied"):
-    st.markdown(
-        """
-        <style>
-        /* Stile del trigger del popover (link-like) */
-        div[data-testid="stPopover"] button{
-            background:transparent!important;
-            border:none!important;
-            box-shadow:none!important;
-            outline:none!important;
-            color:inherit!important;
-            font-size:0.95rem!important;
-            text-decoration:underline;
-            cursor:pointer;
-            padding:0!important;
-            margin:0!important;
-        }
-        /* Niente limite di altezza e sfondo bianco SOLO dentro il popover */
-        div[data-testid="stPopoverContent"]{max-height:none!important;}
-        div[data-testid="stPopoverContent"] .final-text{
-            background:#FFFFFF!important;
-            color:inherit!important;
-            border:1px solid rgba(0,0,0,0.08)!important;
-            border-radius:8px!important;
-            padding:10px 12px!important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    st.session_state["_pop_css_row_applied"] = True
+    # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
+    if not st.session_state.get("_pop_css_row_applied"):
+        st.markdown(
+            """
+            <style>
+            /* Trigger del popover in stile link */
+            div[data-testid="stPopover"] button{
+                background:transparent!important;
+                border:none!important;
+                box-shadow:none!important;
+                outline:none!important;
+                color:inherit!important;
+                font-size:0.95rem!important;
+                text-decoration:underline;
+                cursor:pointer;
+                padding:0!important;
+                margin:0!important;
+            }
+            /* Niente limite di altezza e sfondo bianco dentro il popover */
+            div[data-testid="stPopoverContent"]{max-height:none!important;}
+            div[data-testid="stPopoverContent"] .final-text{
+                background:#FFFFFF!important;
+                color:inherit!important;
+                border:1px solid rgba(0,0,0,0.08)!important;
+                border-radius:8px!important;
+                padding:10px 12px!important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        st.session_state["_pop_css_row_applied"] = True
 
-row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
-if row_has_any:
-    c1, c2 = st.columns(2, gap="small")
+    row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
+    if row_has_any:
+        c1, c2 = st.columns(2, gap="small")
 
-    # Prima: descrizioni
-    with c1:
-        if st.session_state.get("__desc_dettagliate_html"):
-            with st.popover("📋 Descrizioni dettagliate"):
-                st.markdown(
-                    st.session_state["__desc_dettagliate_html"],
-                    unsafe_allow_html=True
-                )
+        # Prima: descrizioni
+        with c1:
+            if st.session_state.get("__desc_dettagliate_html"):
+                with st.popover("📋 Descrizioni dettagliate"):
+                    st.markdown(
+                        st.session_state["__desc_dettagliate_html"],
+                        unsafe_allow_html=True
+                    )
 
-    # Poi: avvisi
-    with c2:
-        if avvisi:
-            with st.popover("⚠️ Avvisi"):
-                for m in avvisi:
-                    warn_box(m)  # <-- usa il box avvisi centralizzato
+        # Poi: avvisi
+        with c2:
+            if avvisi:
+                with st.popover("⚠️ Avvisi"):
+                    for m in avvisi:
+                        _warn_box(m)  # usa l'helper locale
+
