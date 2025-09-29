@@ -134,7 +134,26 @@ def _raccomandazioni_html() -> str:
     </div>
     """
 
-
+st.markdown(
+    """
+    <style>
+    /* link popover blu tipo link */
+    div[data-testid="stPopover"] button {
+        background:none!important;
+        border:none!important;
+        color:#1976d2!important;
+        font-size:0.9rem!important;
+        padding:0!important;
+        margin:6px 0!important;
+        text-decoration:underline;
+        cursor:pointer;
+    }
+    /* niente limite di altezza al contenuto del popover */
+    div[data-testid="stPopoverContent"] { max-height:none!important; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ------------------------------------------------------------
 # Stato iniziale
@@ -599,33 +618,6 @@ if st.session_state.get("run_stima_mobile"):
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
 
-from streamlit_extras.stylable_container import stylable_container
 
-with stylable_container(
-    key="reco_popover",
-    css_styles="""
-        [data-stylable-key="reco_popover"] button{
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-            color: #1976d2 !important;   /* blu */
-            font-size: 0.9rem !important;
-            text-decoration: underline;
-            cursor: pointer;
-            padding: 0 !important;
-            margin: 6px 0 !important;
-        }
-        [data-stylable-key="reco_popover"] button:hover,
-        [data-stylable-key="reco_popover"] button:focus{
-            background: transparent !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-        [data-stylable-key="reco_popover"] div[data-testid="stPopoverContent"]{
-            max-height: none !important;
-        }
-    """,
-):
     with st.popover("Raccomandazioni"):
         st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
