@@ -392,7 +392,7 @@ def aggiorna_grafico(
                 differenza_ore=diff_h, adattato=(diff_h != 0)
             ))
             diffs = {p["differenza_ore"] for p in parametri_aggiuntivi_da_considerare if p.get("adattato")}
-            nota_globale_range_adattato = len(diffs) == 1 and len(diffs) > 0
+            nota_globale_range_adattato = len(diffs) == 1
         else:
             if dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
                 descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
