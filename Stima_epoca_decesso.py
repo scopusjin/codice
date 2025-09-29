@@ -121,16 +121,6 @@ def _warn_palette():
     else:
         return dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
 
-def _warn_box(msg: str):
-    pal = _warn_palette()
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:6px;'
-        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
-        f'⚠️ {msg}'
-        f'</div>',
-        unsafe_allow_html=True
-    )
 
 # =========================
 # Stato e costanti globali
