@@ -8,6 +8,8 @@ from numbers import Real
 import numpy as np
 import streamlit as st
 
+from app.theme import warn_box  # usa il box avvisi del tema
+
 from app.factor_calc import build_cf_description
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
 from app.parameters import (
@@ -28,38 +30,16 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 
 
 # --------- helpers ----------
-def _is_num(x): 
+def _is_num(x):
     return x is not None and not (isinstance(x, float) and np.isnan(x))
-
-def _warn_box(msg: str):
-    pal = dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
-    base = st.get_option("theme.base") or "light"
-    if base.lower() == "dark":
-        pal = dict(bg="#3b2a00", text="#ffe08a", border="#8a6d1a")
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:6px;'
-        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
-        f'⚠️ {msg}</div>', unsafe_allow_html=True
-    )
 
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
 
-def _final_palette():
-    base = (st.get_option("theme.base") or "light").lower()
-    if base == "dark":
-        return dict(bg="#143a06", text="#e6ffe1", border="#2e7d32")
-    return dict(bg="#e9f7ef", text="#1b5e20", border="#66bb6a")
-
 def show_final_sentence(text: str):
-    pal = _final_palette()
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:8px;'
-        f'padding:10px 12px;margin:8px 0;font-weight:600;">{text}</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown(f'<div class="final-text">{text}</div>', unsafe_allow_html=True)
+
+
 # --------- pubblico ----------
 def aggiorna_grafico(
     *,
@@ -72,7 +52,7 @@ def aggiorna_grafico(
     input_data_rilievo: datetime.date | None,
     input_ora_rilievo: str | None,
     alterazioni_putrefattive: bool,
-    skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
+    skip_warnings: bool = False,
     **kwargs,
 ):
     # Back-compat: accetta skip_warnings anche via **kwargs
@@ -92,17 +72,16 @@ def aggiorna_grafico(
                 dettagli.append(key)
                 _dettagli_seen.add(key)
 
-
     # --- data/ora ispezione ---
     if usa_orario_custom:
         if not input_data_rilievo or not input_ora_rilievo:
-            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
+            warn_box("Inserisci data e ora dell'ispezione legale.")
             return
         try:
             ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, "%H:%M")
             minuti_isp = ora_isp_obj.minute
         except ValueError:
-            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: formato ora ispezione legale non valido. Usa HH:MM.</p>", unsafe_allow_html=True)
+            warn_box("Errore: formato ora ispezione legale non valido. Usa HH:MM.")
             return
         data_ora_ispezione = arrotonda_quarto_dora(datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time()))
     else:
@@ -112,13 +91,13 @@ def aggiorna_grafico(
     # --- validazioni base (configurabili) ---
     if not skip_warnings:
         if input_w is None or input_w <= 0:
-            st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
+            warn_box("Peso non valido. Inserire un valore > 0 kg.")
             return
         if fattore_correzione is None or fattore_correzione <= 0:
-            st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
+            warn_box("Fattore di correzione non valido. Inserire un valore > 0.")
             return
         if any(v is None for v in [input_rt, input_ta, input_tm]):
-            st.error("⚠️ Temperature mancanti.")
+            warn_box("Temperature mancanti.")
             return
 
     # --- normalizza locali; modalità silenziosa disattiva Henssge se mancano input ---
@@ -138,7 +117,6 @@ def aggiorna_grafico(
         Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
         raffreddamento_calcolabile = False
 
-    #
     # Ta di riferimento e soglia Qd (prudente → usa Ta_max)
     if _is_num(Ta_val):
         Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val)) \
@@ -147,19 +125,18 @@ def aggiorna_grafico(
         Ta_for_pot = np.nan
 
     qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
+
     # --- Gate fisico: abilita Henssge solo se Tr ≥ Ta (alla 1ª cifra) + 0.10 ---
     gate_fail = False
     if _is_num(Tr_val) and _is_num(Ta_val):
         tr_dec = Decimal(str(Tr_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
         ta_dec = Decimal(str(Ta_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
-        diff_dec = tr_dec - ta_dec  # differenza arrotondata a 0.1 °C
+        diff_dec = tr_dec - ta_dec
         if diff_dec < Decimal("0.1"):
             raffreddamento_calcolabile = False
             gate_fail = True
-            t_min_raff_henssge = np.nan
-            t_max_raff_henssge = np.nan
-            t_med_raff_henssge_rounded_raw = np.nan
-            t_med_raff_henssge_rounded = np.nan
+            t_min_raff_henssge = t_max_raff_henssge = np.nan
+            t_med_raff_henssge_rounded_raw = t_med_raff_henssge_rounded = np.nan
             Qd_val_check = np.nan
 
     # =========================
@@ -171,8 +148,7 @@ def aggiorna_grafico(
             Ta_range = None
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
-                if a > b:
-                    a, b = b, a
+                if a > b: a, b = b, a
                 Ta_range = (a, b)
 
             # --- FC range (manuale → suggeritore → default) ---
@@ -180,8 +156,7 @@ def aggiorna_grafico(
             if st.session_state.get("fc_manual_range_beta", False):
                 if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
                     a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
-                    if a > b:
-                        a, b = b, a
+                    if a > b: a, b = b, a
                     CF_range = (max(a, 0.01), max(b, 0.01))
             else:
                 vals = st.session_state.get("fc_suggested_vals", [])
@@ -189,10 +164,7 @@ def aggiorna_grafico(
                     a, b = sorted([float(vals[0]), float(vals[1])])
                     CF_range = (max(a, 0.01), max(b, 0.01))
                 elif len(vals) == 1:
-                    v = float(vals[0])
-                    CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
-                else:
-                    CF_range = None  # il core userà ±0.10 su CF_value
+                    v = float(vals[0]); CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
 
             res = compute_raffreddamento_cautelativo(
                 dt_ispezione=data_ora_ispezione,
@@ -222,53 +194,38 @@ def aggiorna_grafico(
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-
-
-            # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
+            # Range Ta/CF sempre disponibili
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-                ta_lo = float(st.session_state["Ta_min_beta"])
-                ta_hi = float(st.session_state["Ta_max_beta"])
+                ta_lo = float(st.session_state["Ta_min_beta"]); ta_hi = float(st.session_state["Ta_max_beta"])
             else:
-                ta_lo = float(Ta_val) - 1.0
-                ta_hi = float(Ta_val) + 1.0
+                ta_lo = float(Ta_val) - 1.0; ta_hi = float(Ta_val) + 1.0
             ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
             if st.session_state.get("fc_manual_range_beta", False) and \
                "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-                cf_lo = float(st.session_state["FC_min_beta"])
-                cf_hi = float(st.session_state["FC_max_beta"])
+                cf_lo = float(st.session_state["FC_min_beta"]); cf_hi = float(st.session_state["FC_max_beta"])
             else:
                 vals = st.session_state.get("fc_suggested_vals", [])
                 if len(vals) == 2:
-                    a, b = sorted([float(vals[0]), float(vals[1])])
-                    cf_lo, cf_hi = a, b
+                    a, b = sorted([float(vals[0]), float(vals[1])]); cf_lo, cf_hi = a, b
                 elif len(vals) == 1:
-                    v = float(vals[0])
-                    cf_lo, cf_hi = v - 0.10, v + 0.10
+                    v = float(vals[0]); cf_lo, cf_hi = v - 0.10, v + 0.10
                 else:
-                    v = float(CF_val)
-                    cf_lo, cf_hi = v - 0.10, v + 0.10
+                    v = float(CF_val); cf_lo, cf_hi = v - 0.10, v + 0.10
             cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
             cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
-
             p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
 
-            # header / bullets / conclusione dal modulo cautelativa o fallback
             header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
             bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
             conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
             if not (header_blk and bullets_blk and conclusione_blk):
                 def _fmt_ore_min(h: float) -> str:
-                    if not np.isfinite(h):
-                        return ""
-                    ore = int(h)
-                    minuti = int(round((h - ore) * 60))
-                    if minuti == 60:
-                        ore += 1
-                        minuti = 0
-                    if minuti == 0:
-                        return f"{ore} {'ora' if ore == 1 else 'ore'}"
+                    if not np.isfinite(h): return ""
+                    ore = int(h); minuti = int(round((h - ore) * 60))
+                    if minuti == 60: ore += 1; minuti = 0
+                    if minuti == 0: return f"{ore} {'ora' if ore == 1 else 'ore'}"
                     return f"{ore} {'ora' if ore == 1 else 'ore'} {minuti} minuti"
 
                 t_lo = round_quarter_hour(t_min_raff_henssge)
@@ -319,9 +276,7 @@ def aggiorna_grafico(
             )
             if par_h_caut:
                 _add_det(par_h_caut)
-
         else:
-            # Henssge escluso
             pass
     else:
         if raffreddamento_calcolabile:
@@ -338,9 +293,6 @@ def aggiorna_grafico(
             raffreddamento_calcolabile = (
                 not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
             )
-            
-        else:
-            pass
 
     # --- differenza piccola Tr-Ta ---
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
@@ -452,9 +404,7 @@ def aggiorna_grafico(
         mt_ore = _round_half_hour(float(mt_ore_raw))
         mt_giorni = round(mt_ore / 24.0, 1)
 
-    # Attiva Potente se c'è mt_ore e:
-    # - Qd è disponibile e <= soglia, OPPURE
-    # - Qd non è disponibile (fallback permissivo sui casi di bordo)
+    # Attiva Potente se c'è mt_ore e Qd ok o non disponibile
     qd_ok = (_is_num(Qd_val_check) and Qd_val_check <= qd_threshold) or (not _is_num(Qd_val_check))
     usa_potente = (mt_ore is not None) and (not np.isnan(mt_ore)) and qd_ok
 
@@ -462,44 +412,6 @@ def aggiorna_grafico(
     raff_for_plot = raffreddamento_calcolabile and not usa_potente
 
     # extra da parametri aggiuntivi
-    for p in parametri_aggiuntivi_da_considerare:
-        lo, hi = p["range_traslato"]
-        if _is_num(lo):
-            inizio.append(lo)
-            fine.append(hi if (_is_num(hi) and hi < INF_HOURS) else np.nan)
-            nomi_usati.append(p["nome"])
-
-    # Henssge/Potente nell’intersezione
-    if raffreddamento_calcolabile:
-        if usa_potente:
-            if mt_ore is not None and not np.isnan(mt_ore):
-                inizio.append(mt_ore)
-                fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
-        else:
-            inizio.append(t_min_raff_henssge)
-            fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
-            nomi_usati.append(
-                "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
-                if np.isnan(t_max_raff_henssge) else
-                "raffreddamento cadaverico"
-            )
-
-    # intersezione finale
-    starts_clean = [s for s in inizio if _is_num(s)]
-    if not starts_clean:
-        comune_inizio, comune_fine, overlap = np.nan, np.nan, False
-    else:
-        comune_inizio = max(starts_clean)
-        superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
-        comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
-        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
-            comune_fine = np.nan
-        if usa_potente and not superiori_finiti:
-            comune_fine = np.nan
-        overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
-
-    # --- extra per grafico ---
     extra_params_for_plot = []
     for idx, p in enumerate(parametri_aggiuntivi_da_considerare):
         lo, hi = p["range_traslato"]
@@ -515,22 +427,22 @@ def aggiorna_grafico(
                 "adattato": bool(p.get("adattato", False)),
             })
 
-    # --- Potente come "extra" per il grafico (nasconde la barra Henssge) ---
+    # Potente come "extra" per il grafico (nasconde la barra Henssge)
     if usa_potente and _is_num(mt_ore):
         extra_params_for_plot.insert(0, {
             "label": "Raffreddamento",
             "start": float(mt_ore),
-            "end": np.inf,          
-            "order": -1,            
+            "end": np.inf,
+            "order": -1,
             "adattato": False,
-            "is_potente": True,     
+            "is_potente": True,
         })
 
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
-    if raff_for_plot: num_params_grafico += 1           
+    if raff_for_plot: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
 
     if num_params_grafico > 0:
@@ -540,7 +452,7 @@ def aggiorna_grafico(
                 macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
+                raffreddamento_calcolabile=raff_for_plot,
                 t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
                 t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
                 t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
@@ -556,7 +468,7 @@ def aggiorna_grafico(
                 macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
                 rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
                 rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
+                raffreddamento_calcolabile=raff_for_plot,
                 t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
                 t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
                 t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
@@ -576,50 +488,64 @@ def aggiorna_grafico(
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
+        import matplotlib.figure as _mplfig
         try:
             fig_or_none = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
         except TypeError:
             fig_or_none = render_ranges_plot(plot_data)
 
-        import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
             fig = fig_or_none
-            if overlap and (np.isnan(comune_fine) or comune_fine > 0):
-                ax = fig.axes[0]
+            # intersezione finale
+            starts_clean = [s for s in inizio if _is_num(s)]
+            if not starts_clean:
+                comune_inizio, comune_fine, overlap = np.nan, np.nan, False
+            else:
+                comune_inizio = max(starts_clean)
+                superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
+                comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
+                if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
+                    comune_fine = np.nan
+                if usa_potente and not superiori_finiti:
+                    comune_fine = np.nan
+                overlap = np.isnan(comune_fine) or (comune_inizio <= comune_fine)
+
+            ax = fig.axes[0] if fig.axes else None
+            if ax and overlap and (np.isnan(comune_fine) or comune_fine > 0):
                 if comune_inizio < tail:
                     ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
                 if not np.isnan(comune_fine) and comune_fine > 0:
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
+
             st.pyplot(fig)
 
-        
-        # frase breve subito dopo il grafico
-        st.session_state["frase_breve"] = None
-        if overlap:
-            if usa_orario_custom:
-                frase_semplice = build_simple_sentence(
-                    comune_inizio=comune_inizio,
-                    comune_fine=comune_fine,
-                    isp_dt=data_ora_ispezione,
-                    inf_hours=INF_HOURS,
-                )
-                if frase_semplice:
-                    st.session_state["frase_breve"] = frase_semplice
-                    show_final_sentence(frase_semplice)
-            else:
-                frase_semplice_no_dt = build_simple_sentence_no_dt(
-                    comune_inizio=comune_inizio,
-                    comune_fine=comune_fine,
-                    inf_hours=INF_HOURS,
-                )
-                if frase_semplice_no_dt:
-                    st.session_state["frase_breve"] = frase_semplice_no_dt
-                    show_final_sentence(frase_semplice_no_dt)
-    # --- avvisi ---
+            # frase breve dopo il grafico
+            st.session_state["frase_breve"] = None
+            if overlap:
+                if usa_orario_custom:
+                    frase_semplice = build_simple_sentence(
+                        comune_inizio=comune_inizio,
+                        comune_fine=comune_fine,
+                        isp_dt=data_ora_ispezione,
+                        inf_hours=INF_HOURS,
+                    )
+                    if frase_semplice:
+                        st.session_state["frase_breve"] = frase_semplice
+                        show_final_sentence(frase_semplice)
+                else:
+                    frase_semplice_no_dt = build_simple_sentence_no_dt(
+                        comune_inizio=comune_inizio,
+                        comune_fine=comune_fine,
+                        inf_hours=INF_HOURS,
+                    )
+                    if frase_semplice_no_dt:
+                        st.session_state["frase_breve"] = frase_semplice_no_dt
+                        show_final_sentence(frase_semplice_no_dt)
+
+    # --- avvisi generali ---
     if nota_globale_range_adattato:
-        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
-    
-    
+        avvisi.append('Alcuni parametri sono stati rilevati in orari diversi; i range indicati con "*" sono stati traslati per renderli confrontabili.')
+
     missing_or_invalid = (
         not _is_num(Tr_val) or not _is_num(Ta_val) or not _is_num(T0_val) or
         not _is_num(W_val) or not _is_num(CF_val) or
@@ -633,8 +559,6 @@ def aggiorna_grafico(
             if gate_fail:
                 msg += " (es. ΔT < 0.1 °C)."
             avvisi.append(msg)
-
-
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
@@ -685,7 +609,6 @@ def aggiorna_grafico(
         _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
 
         # --- frase finale complessiva ---
-        frase_finale_html: str = ""
         if usa_orario_custom:
             _tmp = build_final_sentence(
                 comune_inizio, comune_fine, data_ora_ispezione,
@@ -702,7 +625,6 @@ def aggiorna_grafico(
 
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
-
 
     # --- discordanze ---
     def _finite(x):
@@ -736,7 +658,7 @@ def aggiorna_grafico(
         discordanti = False
 
     if discordanti:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
+        warn_box("Le stime basate sui singoli dati tanatologici sono tra loro discordanti.")
 
     # --- buffer per popover descrizioni ---
     st.session_state["__desc_dettagliate_html"] = ""  # reset
@@ -748,14 +670,12 @@ def aggiorna_grafico(
 
     # discordanze o frase finale
     if discordanti:
-        chunks.append(_wrap_final(
-            "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"
-        ))
-    elif overlap and frase_finale_html:
+        chunks.append(_wrap_final("<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"))
+    elif 'comune_inizio' in locals() and 'overlap' in locals() and overlap and frase_finale_html:
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
     # riepilogo parametri usati
-    if overlap and len(nomi_usati) > 0:
+    if 'overlap' in locals() and overlap and len(nomi_usati) > 0:
         nomi_finali = []
         for nome in nomi_usati:
             if ("raffreddamento cadaverico" in nome.lower()
@@ -791,22 +711,6 @@ def aggiorna_grafico(
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
     # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
-    if not st.session_state.get("_pop_css_row_applied"):
-        st.markdown(
-            """
-            <style>
-            div[data-testid="stPopover"] button{
-                background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
-                color:inherit!important;font-size:0.95rem!important;text-decoration:underline;cursor:pointer;
-                padding:0!important;margin:0!important;
-            }
-            div[data-testid="stPopoverContent"]{max-height:none!important;}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-        st.session_state["_pop_css_row_applied"] = True
-
     row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
     if row_has_any:
         c1, c2 = st.columns(2, gap="small")
@@ -825,9 +729,4 @@ def aggiorna_grafico(
             if avvisi:
                 with st.popover("⚠️ Avvisi"):
                     for m in avvisi:
-                        _warn_box(m)
-
-
-
-
-            
+                        warn_box(m)
