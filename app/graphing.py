@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from decimal import Decimal, ROUND_HALF_UP
 from numbers import Real
 from app.theme import warn_box
-
+from app.theme import frase_breve_box
 import numpy as np
 import streamlit as st
 
