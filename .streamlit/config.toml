@@ -1,6 +1,7 @@
+# .streamlit/config.toml
+
 [theme]
 base = "light"
-
 primaryColor = "#0284C7"
 backgroundColor = "#FFFFFF"
 secondaryBackgroundColor = "#F3F4F6"
@@ -15,3 +16,21 @@ outputBorder = "#7FA8A0"
 bg = "#fff3cd"
 text = "#664d03"
 border = "#ffda6a"
+
+# --- Alternativa: TEMA SCURO (sostituisci al blocco sopra) ---
+# [theme]
+# base = "dark"
+# primaryColor = "#0284C7"
+# backgroundColor = "#111827"
+# secondaryBackgroundColor = "#374151"
+# textColor = "#F9FAFB"
+#
+# [theme.custom]
+# buttonHover = "#0369A1"
+# outputBg = "#153A33"
+# outputBorder = "#72C2B3"
+#
+# [theme.custom.warn]
+# bg = "#fff3cd"
+# text = "#664d03"
+# border = "#ffda6a"
