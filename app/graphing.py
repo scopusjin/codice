@@ -607,7 +607,7 @@ def aggiorna_grafico(
         else:
             msg = "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati incoerenti o fuori range"
             if gate_fail:
-                msg += " (es. ΔT < 0.1 °C)."
+                msg += " (es. temperatura rettale inferiore a quella ambientale)."
             avvisi.append(msg)
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
