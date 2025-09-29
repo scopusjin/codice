@@ -790,7 +790,7 @@ def aggiorna_grafico(
     # margine verticale prima dei link
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
-    # --- ROW: Avvisi + Descrizioni dettagliate affiancati ---
+    # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
     if not st.session_state.get("_pop_css_row_applied"):
         st.markdown(
             """
@@ -811,16 +811,22 @@ def aggiorna_grafico(
     if row_has_any:
         c1, c2 = st.columns(2, gap="small")
 
+        # Prima: descrizioni
         with c1:
+            if st.session_state.get("__desc_dettagliate_html"):
+                with st.popover("📋 Descrizioni dettagliate"):
+                    st.markdown(
+                        st.session_state["__desc_dettagliate_html"],
+                        unsafe_allow_html=True
+                    )
+
+        # Poi: avvisi
+        with c2:
             if avvisi:
                 with st.popover("⚠️ Avvisi"):
                     for m in avvisi:
                         _warn_box(m)
 
-        with c2:
-            if st.session_state.get("__desc_dettagliate_html"):
-                with st.popover("📋 Descrizioni dettagliate"):
-                    st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
 
 
 
