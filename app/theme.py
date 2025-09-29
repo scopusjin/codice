@@ -1,3 +1,39 @@
+# app/theme.py
+# -*- coding: utf-8 -*-
+import streamlit as st
+
+# ------------------------------------------------------------
+# Utility per ottenere valori dal config di Streamlit
+# ------------------------------------------------------------
+def _getopt(key, default=None):
+    try:
+        v = st.get_option(key)
+    except Exception:
+        return default
+    return default if v is None else v
+
+# ------------------------------------------------------------
+# Palette temi
+# ------------------------------------------------------------
+def theme_colors():
+    base = (_getopt("theme.base", "light") or "light").lower()
+    custom = _getopt(f"theme.custom.{base}", {}) or {}
+    return {
+        "Sfondo": _getopt("theme.backgroundColor", "#FFFFFF"),
+        "Input": _getopt("theme.secondaryBackgroundColor", "#F3F4F6"),
+        "Testo": _getopt("theme.textColor", "#1F2937"),
+        "Btn": _getopt("theme.primaryColor", "#22D3EE"),
+        "BtnHover": custom.get("buttonHover", "#06B6D4"),
+        "OutBg": custom.get("outputBg", "#DDEBFF"),
+        "OutBorder": custom.get("outputBorder", "#5B9BFF"),
+        "WarnBg": custom.get("warnBg", "#fff3cd"),
+        "WarnText": custom.get("warnText", "#664d03"),
+        "WarnBorder": custom.get("warnBorder", "#ffda6a"),
+    }
+
+# ------------------------------------------------------------
+# Applica CSS del tema
+# ------------------------------------------------------------
 def apply_theme():
     C = theme_colors()
     st.markdown(f"""
@@ -74,3 +110,18 @@ def apply_theme():
       }}
     </style>
     """, unsafe_allow_html=True)
+
+# ------------------------------------------------------------
+# Helper per pannello FC
+# ------------------------------------------------------------
+def fc_panel_start():
+    st.markdown('<div class="fc-panel">', unsafe_allow_html=True)
+
+def fc_panel_end():
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ------------------------------------------------------------
+# Box avvisi
+# ------------------------------------------------------------
+def warn_box(msg: str):
+    st.markdown(f'<div class="warn-box">⚠️ {msg}</div>', unsafe_allow_html=True)
