@@ -136,51 +136,60 @@ def apply_theme():
 # Helper per pannello FC
 # ------------------------------------------------------------
 def fc_panel_start(key: str = "fcwrap_mobile"):
+    C = theme_colors()
+    bg_light = "#f0f6ff"
+    bg_dark  = "#0f2036"
+    border_light = "#34D39920"
+    border_dark  = "#34D39940"
+
     return stylable_container(
         key=key,
-        css_styles="""
-        {
-          background:#f0f6ff;
-          border:1px solid #34D39920;
+        css_styles=f"""
+        {{
+          background:{bg_light};
+          border:1px solid {border_light};
           border-radius:8px;
           padding:8px;
           margin:4px 0;
-        }
+          color:{C['OutText']};
+        }}
 
-        [data-stylable-key="fcwrap_mobile"] input[type="text"],
-        [data-stylable-key="fcwrap_mobile"] input[type="number"],
-        [data-stylable-key="fcwrap_mobile"] textarea,
-        [data-stylable-key="fcwrap_mobile"] [data-baseweb="select"] > div {
-          background:#f0f6ff !important;
+        [data-stylable-key="{key}"] input[type="text"],
+        [data-stylable-key="{key}"] input[type="number"],
+        [data-stylable-key="{key}"] textarea,
+        [data-stylable-key="{key}"] [data-baseweb="select"] > div {{
+          background:{bg_light} !important;
           border:1px solid rgba(0,0,0,0.12) !important;
-        }
+          color:{C['OutText']} !important;
+        }}
 
-        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"],
-        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] .cell,
-        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] input,
-        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] textarea{
-          background:#f0f6ff !important;
-        }
+        [data-stylable-key="{key}"] [data-testid="stDataEditor"],
+        [data-stylable-key="{key}"] [data-testid="stDataEditor"] .cell,
+        [data-stylable-key="{key}"] [data-testid="stDataEditor"] input,
+        [data-stylable-key="{key}"] [data-testid="stDataEditor"] textarea{{
+          background:{bg_light} !important;
+          color:{C['OutText']} !important;
+        }}
 
-        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
-        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
+        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"]{{margin:0!important}}
+        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"]>div{{margin:2px 0!important}}
 
-        @media (prefers-color-scheme: dark){
-          [data-stylable-key="fcwrap_mobile"]{
-            background:#0f2036;
-            border-color:#34D39940;
-          }
-          [data-stylable-key="fcwrap_mobile"] input[type="text"],
-          [data-stylable-key="fcwrap_mobile"] input[type="number"],
-          [data-stylable-key="fcwrap_mobile"] textarea,
-          [data-stylable-key="fcwrap_mobile"] [data-baseweb="select"] > div,
-          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"],
-          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] .cell,
-          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] input,
-          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] textarea{
-            background:#0f2036 !important;
-          }
-        }
+        @media (prefers-color-scheme: dark){{
+          [data-stylable-key="{key}"]{{
+            background:{bg_dark};
+            border-color:{border_dark};
+          }}
+          [data-stylable-key="{key}"] input[type="text"],
+          [data-stylable-key="{key}"] input[type="number"],
+          [data-stylable-key="{key}"] textarea,
+          [data-stylable-key="{key}"] [data-baseweb="select"] > div,
+          [data-stylable-key="{key}"] [data-testid="stDataEditor"],
+          [data-stylable-key="{key}"] [data-testid="stDataEditor"] .cell,
+          [data-stylable-key="{key}"] [data-testid="stDataEditor"] input,
+          [data-stylable-key="{key}"] [data-testid="stDataEditor"] textarea{{
+            background:{bg_dark} !important;
+          }}
+        }}
         """
     )
 
