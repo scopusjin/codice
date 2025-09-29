@@ -2,14 +2,22 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 
+def _getopt(key: str, default=None):
+    try:
+        val = st.get_option(key)
+    except Exception:
+        return default
+    return default if val is None else val
+
 def theme_colors():
-    base = (st.get_option("theme.base") or "light").lower()
-    custom = st.get_option(f"theme.custom.{base}") or {}
+    base = (_getopt("theme.base", "light") or "light").lower()
+    custom = _getopt(f"theme.custom.{base}", {}) or {}
+
     return {
-        "Sfondo": st.get_option("theme.backgroundColor"),
-        "Input": st.get_option("theme.secondaryBackgroundColor"),
-        "Testo": st.get_option("theme.textColor"),
-        "Btn": st.get_option("theme.primaryColor"),
+        "Sfondo": _getopt("theme.backgroundColor", "#FFFFFF"),
+        "Input": _getopt("theme.secondaryBackgroundColor", "#F3F4F6"),
+        "Testo": _getopt("theme.textColor", "#1F2937"),
+        "Btn": _getopt("theme.primaryColor", "#22D3EE"),
         "BtnHover": custom.get("buttonHover", "#06B6D4"),
         "OutBg": custom.get("outputBg", "#D1FAE5"),
         "OutBorder": custom.get("outputBorder", "#10B981"),
