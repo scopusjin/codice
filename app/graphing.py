@@ -446,12 +446,6 @@ def aggiorna_grafico(
     # Usa Henssge nel grafico solo se Potente NON è presente
     raff_for_plot = raffreddamento_calcolabile and not usa_potente
 
-
-    # ======== NEW: usa Henssge nel grafico solo se Potente NON è presente ========
-    raff_for_plot = raffreddamento_calcolabile and not usa_potente
-    # ============================================================================
-
-
     # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
         lo, hi = p["range_traslato"]
