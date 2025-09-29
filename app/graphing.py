@@ -685,26 +685,6 @@ def aggiorna_grafico(
 
     # --- AVVISI: popover senza riquadro ---
     if avvisi:
-        if not st.session_state.get("_pop_css_applied"):
-            st.markdown(
-                """
-                <style>
-                div[data-testid="stPopover"] button{
-                    background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
-                    color:inherit!important;font-size:0.9rem!important;text-decoration:underline;cursor:pointer;
-                    padding:0!important;margin:6px 0!important;
-                }
-                div[data-testid="stPopover"] button:hover,
-                div[data-testid="stPopover"] button:focus{
-                    background:transparent!important;box-shadow:none!important;outline:none!important;
-                }
-                div[data-testid="stPopoverContent"]{max-height:none!important;}
-                </style>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.session_state["_pop_css_applied"] = True
-
         with st.popover(f"🟠 Avvisi ({len(avvisi)})"):
             for m in avvisi:
                 _warn_box(m)
