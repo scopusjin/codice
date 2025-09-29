@@ -618,6 +618,5 @@ if st.session_state.get("run_stima_mobile"):
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
 
-
-    with st.popover("Raccomandazioni"):
-        st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+with st.popover("Raccomandazioni"):
+    st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
