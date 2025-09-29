@@ -8,6 +8,8 @@ from numbers import Real
 import numpy as np
 import streamlit as st
 
+from app.theme import warn_box  # <-- usa il warn_box centralizzato
+
 from app.factor_calc import build_cf_description
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
 from app.parameters import (
@@ -28,38 +30,17 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 
 
 # --------- helpers ----------
-def _is_num(x): 
+def _is_num(x):
     return x is not None and not (isinstance(x, float) and np.isnan(x))
-
-def _warn_box(msg: str):
-    pal = dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
-    base = st.get_option("theme.base") or "light"
-    if base.lower() == "dark":
-        pal = dict(bg="#3b2a00", text="#ffe08a", border="#8a6d1a")
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:6px;'
-        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
-        f'⚠️ {msg}</div>', unsafe_allow_html=True
-    )
 
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
 
-def _final_palette():
-    base = (st.get_option("theme.base") or "light").lower()
-    if base == "dark":
-        return dict(bg="#143a06", text="#e6ffe1", border="#2e7d32")
-    return dict(bg="#e9f7ef", text="#1b5e20", border="#66bb6a")
-
 def show_final_sentence(text: str):
-    pal = _final_palette()
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:8px;'
-        f'padding:10px 12px;margin:8px 0;font-weight:600;">{text}</div>',
-        unsafe_allow_html=True
-    )
+    # Usa lo stile centralizzato .final-text definito nel tema
+    st.markdown(f'<div class="final-text">{text}</div>', unsafe_allow_html=True)
+
+
 # --------- pubblico ----------
 def aggiorna_grafico(
     *,
@@ -91,7 +72,6 @@ def aggiorna_grafico(
             if key and key not in _dettagli_seen:
                 dettagli.append(key)
                 _dettagli_seen.add(key)
-
 
     # --- data/ora ispezione ---
     if usa_orario_custom:
@@ -222,8 +202,6 @@ def aggiorna_grafico(
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-
-
             # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 ta_lo = float(st.session_state["Ta_min_beta"])
@@ -338,7 +316,6 @@ def aggiorna_grafico(
             raffreddamento_calcolabile = (
                 not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
             )
-            
         else:
             pass
 
@@ -520,17 +497,17 @@ def aggiorna_grafico(
         extra_params_for_plot.insert(0, {
             "label": "Raffreddamento",
             "start": float(mt_ore),
-            "end": np.inf,          
-            "order": -1,            
+            "end": np.inf,
+            "order": -1,
             "adattato": False,
-            "is_potente": True,     
+            "is_potente": True,
         })
 
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
-    if raff_for_plot: num_params_grafico += 1           
+    if raff_for_plot: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
 
     if num_params_grafico > 0:
@@ -592,7 +569,6 @@ def aggiorna_grafico(
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
             st.pyplot(fig)
 
-        
         # frase breve subito dopo il grafico
         st.session_state["frase_breve"] = None
         if overlap:
@@ -615,11 +591,11 @@ def aggiorna_grafico(
                 if frase_semplice_no_dt:
                     st.session_state["frase_breve"] = frase_semplice_no_dt
                     show_final_sentence(frase_semplice_no_dt)
+
     # --- avvisi ---
     if nota_globale_range_adattato:
         avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
-    
-    
+
     missing_or_invalid = (
         not _is_num(Tr_val) or not _is_num(Ta_val) or not _is_num(T0_val) or
         not _is_num(W_val) or not _is_num(CF_val) or
@@ -633,8 +609,6 @@ def aggiorna_grafico(
             if gate_fail:
                 msg += " (es. ΔT < 0.1 °C)."
             avvisi.append(msg)
-
-
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
@@ -702,7 +676,6 @@ def aggiorna_grafico(
 
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
-
 
     # --- discordanze ---
     def _finite(x):
@@ -825,9 +798,4 @@ def aggiorna_grafico(
             if avvisi:
                 with st.popover("⚠️ Avvisi"):
                     for m in avvisi:
-                        _warn_box(m)
-
-
-
-
-            
+                        warn_box(m)  # <-- usa il box avvisi centralizzato
