@@ -683,11 +683,6 @@ def aggiorna_grafico(
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
 
-    # --- AVVISI: popover senza riquadro ---
-    if avvisi:
-        with st.popover(f"🟠 Avvisi ({len(avvisi)})"):
-            for m in avvisi:
-                _warn_box(m)
 
     # --- discordanze ---
     def _finite(x):
