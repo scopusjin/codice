@@ -284,7 +284,7 @@ _RIGIDITA_MOBILE = {
     "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
     "Rigor in risoluzione": "In via di risoluzione",
     "Rigor risolto": "Risolta",
-    "💪 RIGOR MORTIS?": "Non valutata",
+    "💪🏻 RIGOR MORTIS?": "Non valutata",
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
@@ -299,7 +299,7 @@ with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
         "Rigidità cadaverica", rg_keys,
-        index=(rg_keys.index("💪 RIGOR MORTIS?") if "💪 RIGOR MORTIS?" in rg_keys else 0),
+        index=(rg_keys.index("💪🏻 RIGOR MORTIS?") if "💪🏻 RIGOR MORTIS?" in rg_keys else 0),
         key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
     selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
