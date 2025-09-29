@@ -1,7 +1,7 @@
 # app/theme.py
 # -*- coding: utf-8 -*-
 import streamlit as st
-from streamlit_extras.stylable_container import stylable_container  # <- aggiungi
+from streamlit_extras.stylable_container import stylable_container
 
 # ------------------------------------------------------------
 # Utility per ottenere valori dal config di Streamlit
@@ -37,7 +37,7 @@ def theme_colors():
         "BtnText":    custom.get("buttonText",    "#FFFFFF"),
         "FocusRing":  custom.get("focusRing",     "rgba(34,211,238,0.45)"),
 
-        # Output verdi soft (Opzione 3)
+        # Output verdi soft (Opzione 3) per contenitori dedicati
         "OutBg":      custom.get("outputBg",      default_out_bg),
         "OutBorder":  custom.get("outputBorder",  default_out_border),
         "OutText":    custom.get("outputText",    default_out_text),
@@ -54,7 +54,7 @@ def theme_colors():
 def apply_theme():
     C = theme_colors()
 
-    # 1) Tema generale
+    # 1) Tema generale e componenti base
     st.markdown(f"""
     <style>
       :root {{
@@ -94,13 +94,22 @@ def apply_theme():
         box-shadow: 0 0 0 3px {C["FocusRing"]} !important;
       }}
 
-      /* Box output (final-text, fc-box) */
-      .final-text, .fc-box {{
-        background: {C["OutBg"]} !important;
-        border: 1px solid {C["OutBorder"]} !important;
+      /* Final-text: sempre bianco ovunque */
+      .final-text {{
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
         border-radius: 10px !important;
         padding: 10px 12px !important;
-        color: {C["OutText"]} !important;
+        color: #1f1f1f !important;
+      }}
+
+      /* Contenitore generico eventualmente usato altrove */
+      .fc-box {{
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 10px !important;
+        padding: 10px 12px !important;
+        color: #1f1f1f !important;
       }}
 
       /* Avvisi */
@@ -113,7 +122,7 @@ def apply_theme():
         font-size: 0.92rem !important;
       }}
 
-      /* Pannello FC */
+      /* Pannello FC: usa i verdi del tema */
       .fc-panel {{
         background: {C["OutBg"]} !important;
         border: 1px solid {C["OutBorder"]} !important;
@@ -133,16 +142,24 @@ def apply_theme():
     </style>
     """, unsafe_allow_html=True)
 
-    # 2) Override: final-text bianco SOLO nel popover
-    st.markdown("""
-    <style>
-      div[data-testid="stPopoverContent"] .final-text{
-        background:#ffffff !important;
-        border:1px solid #e5e7eb !important;
-        color:#1f1f1f !important;
-      }
-    </style>
-    """, unsafe_allow_html=True)
+# ------------------------------------------------------------
+# Box frase breve con sfondo verde soft (come FC)
+# ------------------------------------------------------------
+def frase_breve_box(key: str = "frase_breve"):
+    C = theme_colors()
+    return stylable_container(
+        key=key,
+        css_styles=f"""
+        {{
+          background:{C['OutBg']};
+          border:1px solid {C['OutBorder']};
+          border-radius:8px;
+          padding:8px 10px;
+          margin:4px 0;
+          color:{C['OutText']};
+        }}
+        """
+    )
 
 # ------------------------------------------------------------
 # Helper per pannello FC
@@ -204,8 +221,6 @@ def fc_panel_start(key: str = "fcwrap_mobile"):
         }}
         """
     )
-
-
 
 # ------------------------------------------------------------
 # Box avvisi
