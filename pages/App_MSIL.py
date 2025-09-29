@@ -128,7 +128,7 @@ st.markdown(
     div[data-testid="stPopover"] button {
         background:none!important;
         border:none!important;
-        color: var(--primary-color, #22D3EE) !important;
+        color: #1976d2 !important;
         font-size:0.9rem!important;
         padding:0!important;
         margin:6px 0!important;
