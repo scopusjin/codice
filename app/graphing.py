@@ -775,28 +775,51 @@ def aggiorna_grafico(
     # margine verticale prima dei link
     st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
 
-    # --- DESCRIZIONI DETTAGLIATE: popover senza riquadro ---
-    if st.session_state["__desc_dettagliate_html"]:
-        if not st.session_state.get("_pop_css_applied"):
-            st.markdown(
-                """
-                <style>
-                div[data-testid="stPopover"] button{
-                    background:transparent!important;border:none!important;box-shadow:none!important;outline:none!important;
-                    color:inherit!important;font-size:0.9rem!important;text-decoration:underline;cursor:pointer;
-                    padding:0!important;margin:6px 0!important;
-                }
-                div[data-testid="stPopover"] button:hover,
-                div[data-testid="stPopover"] button:focus{
-                    background:transparent!important;box-shadow:none!important;outline:none!important;
-                }
-                div[data-testid="stPopoverContent"]{max-height:none!important;}
-                </style>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.session_state["_pop_css_applied"] = True
+   # --- ROW: Avvisi + Descrizioni dettagliate affiancati ---
+if not st.session_state.get("_pop_css_row_applied"):
+    st.markdown(
+        """
+        <style>
+        /* Riga orizzontale compatta */
+        .toolbar-row{
+            display:flex; align-items:center; gap:12px; flex-wrap:nowrap;
+        }
+        /* Metti i popover su una riga */
+        .toolbar-row div[data-testid="stPopover"]{
+            display:inline-block !important; margin:0; padding:0;
+        }
+        /* Bottone popover: link-like, senza riquadro */
+        .toolbar-row div[data-testid="stPopover"] button{
+            background:transparent!important; border:none!important; box-shadow:none!important; outline:none!important;
+            color:inherit!important; font-size:0.95rem!important; text-decoration:underline; cursor:pointer;
+            padding:0!important; margin:0!important;
+        }
+        .toolbar-row div[data-testid="stPopover"] button:hover,
+        .toolbar-row div[data-testid="stPopover"] button:focus{
+            background:transparent!important; box-shadow:none!important; outline:none!important;
+        }
+        /* Contenuto popover libero */
+        div[data-testid="stPopoverContent"]{ max-height:none!important; }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    st.session_state["_pop_css_row_applied"] = True
 
-        with st.popover("🟣 Descrizioni dettagliate"):
+row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
+
+if row_has_any:
+    st.markdown('<div class="toolbar-row">', unsafe_allow_html=True)
+
+    if avvisi:
+        with st.popover("⚠️ Avvisi"):
+            for m in avvisi:
+                _warn_box(m)
+
+    if st.session_state.get("__desc_dettagliate_html"):
+        with st.popover("📋 Descrizioni dettagliate"):
             st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
             
