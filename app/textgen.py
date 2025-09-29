@@ -185,8 +185,8 @@ def build_simple_sentence(
         h2, m2 = _hm_from_hours(comune_fine)
         hh2, dd2 = _ora_data(comune_fine)
         return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{_bold_esito('non oltre ' + _fmt_hm_full(h2, m2))} "
-                "prima dei rilievi effettuati durante l’ispezione legale, "
+                f"{_bold_esito('non oltre ' + _fmt_hm_full(h2, m2))} prima"
+                " dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero successivamente alle ore {hh2} del {dd2}.</p>")
 
     # oltre X
@@ -194,8 +194,8 @@ def build_simple_sentence(
         h1, m1 = _hm_from_hours(comune_inizio)
         hh1, dd1 = _ora_data(comune_inizio)
         return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{_bold_esito('oltre ' + _fmt_hm_full(h1, m1))} "
-                "prima dei rilievi effettuati durante l’ispezione legale, "
+                f"{_bold_esito('oltre ' + _fmt_hm_full(h1, m1))} prima"
+                " dei rilievi effettuati durante l’ispezione legale, "
                 f"ovvero prima delle ore {hh1} del {dd1}.</p>")
 
     # A–B
@@ -208,8 +208,8 @@ def build_simple_sentence(
 
         if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
             return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                    f"{_bold_esito(intervallo_txt)} "
-                    "prima dei rilievi effettuati durante l’ispezione legale, "
+                    f"{_bold_esito(intervallo_txt)} prima"
+                    " dei rilievi effettuati durante l’ispezione legale, "
                     f"ovvero circa tra le ore {hh_da} e le ore {hh_aa} del {dd_da}.</p>")
         else:
             return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
