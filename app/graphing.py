@@ -621,7 +621,7 @@ def aggiorna_grafico(
                 msg += " (es. ΔT < 0.1 °C)."
             avvisi.append(msg)
 
-    if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
+
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
