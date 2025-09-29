@@ -580,6 +580,7 @@ def aggiorna_grafico(
             st.pyplot(fig)
 
         # frase sotto al grafico
+        st.session_state["frase_breve"] = None  # reset
         if overlap:
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
@@ -589,8 +590,7 @@ def aggiorna_grafico(
                     inf_hours=INF_HOURS,
                 )
                 if frase_semplice:
-                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-                    st.markdown(_wrap_final(frase_semplice), unsafe_allow_html=True)
+                    st.session_state["frase_breve"] = frase_semplice
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
@@ -598,8 +598,7 @@ def aggiorna_grafico(
                     inf_hours=INF_HOURS,
                 )
                 if frase_semplice_no_dt:
-                    st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-                    st.markdown(_wrap_final(frase_semplice_no_dt), unsafe_allow_html=True)
+                    st.session_state["frase_breve"] = frase_semplice_no_dt
 
 
     # --- avvisi ---
