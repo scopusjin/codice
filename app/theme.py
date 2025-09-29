@@ -128,14 +128,18 @@ def apply_theme():
         color: {C["OutText"]} !important;
         border: 1px solid rgba(0,0,0,0.12) !important;
       }}
-
-      /* --- SOLO NEL POPOVER: final-text con sfondo bianco --- */
-      div[data-testid="stPopoverContent"] .final-text {{
-        background: #ffffff !important;
-        border: 1px solid #e5e7eb !important;
-        color: #1f1f1f !important;
-      }}
     </style>
+
+    # 2) OVERRIDE *SEPARATO* e quindi ultimo: popover bianco
+    st.markdown("""
+    <style>
+      div[data-testid="stPopoverContent"] .final-text{
+        background:#ffffff !important;
+        border:1px solid #e5e7eb !important;
+        color:#1f1f1f !important;
+      }
+    </style>
+    """, unsafe_allow_html=True)
     """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------
