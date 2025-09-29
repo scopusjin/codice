@@ -323,9 +323,9 @@ def aggiorna_grafico(
             raffreddamento_calcolabile = (
                 not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
             )
-            st.session_state["parentetica_extra"] = ""
+            
         else:
-            st.session_state["parentetica_extra"] = ""
+            pass
 
     # --- differenza piccola Tr-Ta ---
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
