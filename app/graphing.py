@@ -606,8 +606,7 @@ def aggiorna_grafico(
     if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
         avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
 
-    if not raffreddamento_calcolabile:
-        avvisi.append("Non risultano disponibili dati attendibili per le valutazioni del raffreddamento cadaverico.")
+    
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
@@ -619,7 +618,7 @@ def aggiorna_grafico(
         if abs(Tr_val - T0_val) <= 1.0:
             avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, è verosimile che il raffreddamento corporeo non fosse ancora iniziato e/o si trovasse nella fase di plateau. In tale fase, la precisione del metodo è ridotta.")
         if not raffreddamento_calcolabile:
-            avvisi.append("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
+            avvisi.append("Non è stato possibile applicare il metodo di Henssge (dati mancanti, incoerenti o fuori range).")
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
         if not st.session_state.get("stima_cautelativa_beta", False):
             cf_descr = build_cf_description(
