@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 import streamlit as st
 from app.theme import apply_theme, warn_box
+from app.theme import fc_panel_start, fc_panel_end
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
@@ -475,12 +476,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
-    st.markdown('<div class="fc-box">', unsafe_allow_html=True)
+    fc_panel_start()
     pannello_suggerisci_fc_mobile(
         peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
         key_prefix="fcpanel_mobile"
     )
-    st.markdown('</div>', unsafe_allow_html=True)
+    fc_panel_end()
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
