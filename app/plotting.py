@@ -302,14 +302,18 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
                     ax.hlines(raff_idx, max(0, pm - off), min(tail_end, pm + off),
                               color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
 
-    # Assi, griglia, etichette
+    #     # Assi, griglia, etichette
     ax.set_xlim(0, tail_end)
     ax.margins(x=0)
     ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels(labels, fontsize=22)
+    ax.set_yticklabels(labels, fontsize=18)        # etichette Y più grandi
     ax.invert_yaxis()
-    ax.set_xlabel("Ore dal decesso")
+    ax.set_xlabel("Ore dal decesso", fontsize=16)  # titolo asse X leggibile
+    ax.tick_params(axis="x", labelsize=14)         # numeri asse X leggibili
     ax.grid(True, axis='x', linestyle=':', alpha=0.6)
+
+    plt.tight_layout()
+    return fig
 
     plt.tight_layout()
     return fig
