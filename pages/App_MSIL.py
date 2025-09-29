@@ -284,7 +284,7 @@ _RIGIDITA_MOBILE = {
     "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
     "Rigor in risoluzione": "In via di risoluzione",
     "Rigor risolto": "Risolta",
-    "RIGOR MORTIS?": "Non valutata",
+    "💪 RIGOR MORTIS?": "Non valutata",
 }
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
