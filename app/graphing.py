@@ -649,8 +649,8 @@ def aggiorna_grafico(
         _add_det(par_p)
 
         for blocco in paragrafi_descrizioni_base(
-            testo_macchie=testi_macchie[selettore_macchie],
-            testo_rigidita=rigidita_descrizioni[selettore_rigidita],
+            testo_macchie=testi_macchie.get(selettore_macchie),
+            testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
         ):
             _add_det(blocco)
         for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
