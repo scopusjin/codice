@@ -633,6 +633,12 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 
+# --- Box frase finale con sfondo ---
+_finale = st.session_state.get("frase_finale")
+if _finale:
+    if "Epoca del decesso stimata" not in _finale:
+        _finale = f"Epoca del decesso stimata: {_finale}"
+    show_final_sentence(_finale)
 
 
 st.session_state["selettore_macchie"] = selettore_macchie
