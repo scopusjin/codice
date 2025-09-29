@@ -803,7 +803,7 @@ def aggiorna_grafico(
         # Prima: descrizioni
         with c1:
             if st.session_state.get("__desc_dettagliate_html"):
-                with st.popover("📋 Descrizioni dettagliate"):
+                with st.popover("📖 Descrizioni dettagliate"):
                     st.markdown(
                         st.session_state["__desc_dettagliate_html"],
                         unsafe_allow_html=True
