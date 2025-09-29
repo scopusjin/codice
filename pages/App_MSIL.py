@@ -194,21 +194,6 @@ st.session_state["__desc_dettagliate_html"] = ""
 # ------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------
-def _final_palette():
-    base = (st.get_option("theme.base") or "light").lower()
-    if base == "dark":
-        return dict(bg="#143a06", text="#e6ffe1", border="#2e7d32")
-    return dict(bg="#e9f7ef", text="#1b5e20", border="#66bb6a")
-
-def show_final_sentence(text: str):
-    pal = _final_palette()
-    st.markdown(
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:8px;'
-        f'padding:10px 12px;margin:8px 0;font-weight:600;">{text}</div>',
-        unsafe_allow_html=True
-    )
-
 
 
 def _safe_int(x):
