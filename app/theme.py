@@ -1,6 +1,7 @@
 # app/theme.py
 # -*- coding: utf-8 -*-
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container  # <- aggiungi
 
 # ------------------------------------------------------------
 # Utility per ottenere valori dal config di Streamlit
@@ -134,9 +135,9 @@ def apply_theme():
 # ------------------------------------------------------------
 # Helper per pannello FC
 # ------------------------------------------------------------
-def fc_panel_start():
+def fc_panel_start(key: str = "fcwrap_mobile"):
     return stylable_container(
-        key="fcwrap_mobile",
+        key=key,
         css_styles="""
         {
           background:#f0f6ff;
@@ -154,9 +155,7 @@ def fc_panel_start():
           border:1px solid rgba(0,0,0,0.12) !important;
         }
 
-        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"]{
-          background:#f0f6ff !important;
-        }
+        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"],
         [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] .cell,
         [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] input,
         [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] textarea{
@@ -184,6 +183,7 @@ def fc_panel_start():
         }
         """
     )
+
 
 def fc_panel_end():
     st.markdown('</div>', unsafe_allow_html=True)
