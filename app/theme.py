@@ -185,8 +185,6 @@ def fc_panel_start(key: str = "fcwrap_mobile"):
     )
 
 
-def fc_panel_end():
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Box avvisi
