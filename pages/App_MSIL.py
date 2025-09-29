@@ -283,7 +283,7 @@ _RIGIDITA_MOBILE = {
     "💪🏻 RIGOR MORTIS?": "Non valutata",
     "Rigor assente": "Non ancora apprezzabile",
     "Rigor presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
-    "Rigor ubiquitario e massimo": "Presente, intensa e generalizzata",
+    "Rigor ubiquitario e di intensità massima": "Presente, intensa e generalizzata",
     "Rigor in risoluzione": "In via di risoluzione",
     "Rigor risolto": "Risolta",
     
