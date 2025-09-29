@@ -53,6 +53,8 @@ def theme_colors():
 # ------------------------------------------------------------
 def apply_theme():
     C = theme_colors()
+
+    # 1) Tema generale
     st.markdown(f"""
     <style>
       :root {{
@@ -129,8 +131,9 @@ def apply_theme():
         border: 1px solid rgba(0,0,0,0.12) !important;
       }}
     </style>
+    """, unsafe_allow_html=True)
 
-    # 2) OVERRIDE *SEPARATO* e quindi ultimo: popover bianco
+    # 2) Override: final-text bianco SOLO nel popover
     st.markdown("""
     <style>
       div[data-testid="stPopoverContent"] .final-text{
@@ -139,7 +142,6 @@ def apply_theme():
         color:#1f1f1f !important;
       }
     </style>
-    """, unsafe_allow_html=True)
     """, unsafe_allow_html=True)
 
 # ------------------------------------------------------------
