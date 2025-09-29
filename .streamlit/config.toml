@@ -1,0 +1,17 @@
+[theme]
+base = "light"
+
+primaryColor = "#22D3EE"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F4F6"
+textColor = "#1F2937"
+
+[theme.custom]
+buttonHover = "#06B6D4"
+outputBg = "#D1FAE5"
+outputBorder = "#10B981"
+
+[theme.custom.warn]
+bg = "#fff3cd"
+text = "#664d03"
+border = "#ffda6a"
