@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 import streamlit as st
 from app.theme import apply_theme, warn_box
-from app.theme import fc_panel_start, fc_panel_end
+from app.theme import fc_panel_start
 
 
 from app.graphing import aggiorna_grafico
