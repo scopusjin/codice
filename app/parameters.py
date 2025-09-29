@@ -51,7 +51,7 @@ testi_macchie = {
     ),
     "Completamente migrabili": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "si trovassero in una fase di migrabilità totale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
+        "si trovassero in una fase di migrabilità totale. Secondo i limiti massimi segnalati in letteratura scientifica, questo indica "
         "che fossero trascorse meno di 6 ore dal decesso. "
         "Generalmente le ipostasi compaiono dopo 20 minuti dal decesso."
     ),
@@ -70,8 +70,8 @@ testi_macchie = {
     ),
     "Fisse": (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
-        "in una fase di fissità assoluta. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
-        "che fossero trascorse più di 10 ore dal decesso (fino a 30 ore le macchie possono non "
+        "in una fase di fissità assoluta. Secondo i limiti minimi segnalati in letteratura scientifica, questo indica "
+        "che fossero trascorse più di 4 ore dal decesso (fino a 30 ore le macchie possono non "
         "modificare la loro posizione alla movimentazione del corpo, ma la loro intensità può affievolirsi)."
     ),
     "Non valutabili/Non attendibili": (
