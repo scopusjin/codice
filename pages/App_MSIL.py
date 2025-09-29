@@ -3,14 +3,14 @@
 import datetime
 import pandas as pd
 import streamlit as st
-from app.theme import apply_theme
-
+from app.theme import apply_theme, warn_box
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
 from app.factor_calc import (
     DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte
 )
+from app.textgen import paragrafi_descrizioni_base, paragrafi_parametri_aggiuntivi
 
 # ------------------------------------------------------------
 # Config pagina
@@ -130,7 +130,7 @@ st.markdown(
     div[data-testid="stPopover"] button {
         background:none!important;
         border:none!important;
-        color:#1976d2!important;
+        color: var(--primary-color, #22D3EE) !important;
         font-size:0.9rem!important;
         padding:0!important;
         margin:6px 0!important;
@@ -422,7 +422,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
             },
         )
-        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
+        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
@@ -477,30 +477,12 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
 if st.session_state.get("toggle_fattore_inline_mobile", False):
-    with stylable_container(
-        key="fcwrap_mobile",
-        css_styles="""
-        {
-          background: #f0f6ff;
-          border-radius: 4px;
-          padding: 8px;
-          margin: 4px 0;
-        }
-        @media (prefers-color-scheme: dark){
-          [data-stylable-key="fcwrap_mobile"] {
-            background: #0f2036;
-          }
-        }
-        /* compattazione SOLO dentro il pannello */
-        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
-        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
-        """
-    ):
-        pannello_suggerisci_fc_mobile(
-            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
-            key_prefix="fcpanel_mobile"
-        )
-
+    st.markdown('<div class="fc-box">', unsafe_allow_html=True)
+    pannello_suggerisci_fc_mobile(
+        peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
+        key_prefix="fcpanel_mobile"
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
@@ -519,8 +501,6 @@ with c_fc:
 # 3) Pulsante finale
 # ------------------------------------------------------------
 clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
-
-
 
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
@@ -582,7 +562,7 @@ if st.session_state.get("run_stima_mobile"):
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     if no_rt and no_macchie and no_rigidita:
-        st.warning("Nessun dato inserito per la stima")
+        warn_box("Nessun dato inserito per la stima")
         st.stop()
 
     considera_raffreddamento = (
@@ -606,8 +586,6 @@ if st.session_state.get("run_stima_mobile"):
         alterazioni_putrefattive=False,
         skip_warnings=True,
     )
-
-
 
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
