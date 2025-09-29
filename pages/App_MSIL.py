@@ -633,11 +633,6 @@ if st.session_state.get("run_stima_mobile"):
         skip_warnings=True,
     )
 
-# --- Box frase breve con sfondo ---
-_breve = st.session_state.get("frase_breve")
-if _breve:
-    show_final_sentence(_breve)
-
 
 
 st.session_state["selettore_macchie"] = selettore_macchie
