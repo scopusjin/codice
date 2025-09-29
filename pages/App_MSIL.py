@@ -476,7 +476,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     )
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
 
-iif st.session_state.get("toggle_fattore_inline_mobile", False):
+if st.session_state.get("toggle_fattore_inline_mobile", False):
     fc_panel_start()
     pannello_suggerisci_fc_mobile(
         peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
