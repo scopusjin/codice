@@ -316,6 +316,7 @@ with c_rt:
         "T. rettale (°C)",
         state_key="rt_val",
         widget_key="rt_val_widget",
+        min_value=5.0, max_value=42.0,
         text_key="rt_val_str",
         step=0.1, fmt="%.1f"
     )
@@ -325,6 +326,7 @@ with c_ta:
         "T. ambientale media (°C)",
         state_key="ta_base_val",
         widget_key="ta_base_val_widget",
+        min_value=-5.0, max_value=45.0, 
         text_key="ta_base_val_str",
         step=0.1, fmt="%.1f"
     )
@@ -335,6 +337,7 @@ with c_w:
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
+        min_value=3.0, max_value=160.0
         step=1.0, fmt="%.1f"
     )
 
