@@ -135,12 +135,14 @@ def aggiorna_grafico(
 
     qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
     # --- Gate fisico: abilita Henssge solo se Tr ≥ Ta (alla 1ª cifra) + 0.10 ---
+    gate_fail = False
     if _is_num(Tr_val) and _is_num(Ta_val):
         tr_dec = Decimal(str(Tr_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
         ta_dec = Decimal(str(Ta_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
         diff_dec = tr_dec - ta_dec  # differenza arrotondata a 0.1 °C
         if diff_dec < Decimal("0.1"):
             raffreddamento_calcolabile = False
+            gate_fail = True
             t_min_raff_henssge = np.nan
             t_max_raff_henssge = np.nan
             t_med_raff_henssge_rounded_raw = np.nan
@@ -357,7 +359,7 @@ def aggiorna_grafico(
             try:
                 ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, "%H:%M").time()
             except ValueError:
-                avvisi.append(f"⚠️ {nome_parametro}: ora '{ora_rilievo_param_str}' non valida (usa HH:MM) → escluso.")
+                avvisi.append(f"⚠️ {nome_parametro}: escluso perchè ora '{ora_rilievo_param_str}' non valida (usa HH:MM).")
                 continue
 
         if data_rilievo_param is None:
@@ -505,17 +507,17 @@ def aggiorna_grafico(
         extra_params_for_plot.insert(0, {
             "label": "Raffreddamento",
             "start": float(mt_ore),
-            "end": np.inf,          # infinito → verrà troncato a 'tail' più avanti
-            "order": -1,            # lo porta in alto
+            "end": np.inf,          
+            "order": -1,            
             "adattato": False,
-            "is_potente": True,     # flag usato da compute_plot_data per NON aggiungere Henssge
+            "is_potente": True,     
         })
 
     # --- grafico ---
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
-    if raff_for_plot: num_params_grafico += 1           # <-- usa raff_for_plot
+    if raff_for_plot: num_params_grafico += 1           
     num_params_grafico += len(extra_params_for_plot)
 
     if num_params_grafico > 0:
@@ -603,9 +605,7 @@ def aggiorna_grafico(
     # --- avvisi ---
     if nota_globale_range_adattato:
         avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
-    if usa_orario_custom and minuti_isp not in [0, 15, 30, 45]:
-        avvisi.append("NB: l’orario dei rilievi è stato arrotondato al quarto d’ora più vicino.")
-
+    
     
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
@@ -679,7 +679,7 @@ def aggiorna_grafico(
 
     # --- discordanze ---
     def _finite(x):
-        return isinstance(x, (int, float)) and np.isfinite(x)
+        return isinstance(x, Real) and np.isfinite(x)
 
     labeled_pairs = [(s, e, l) for s, e, l in zip(inizio, fine, nomi_usati)
                      if _finite(s) and (_finite(e) or np.isnan(e))]
