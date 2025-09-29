@@ -135,7 +135,55 @@ def apply_theme():
 # Helper per pannello FC
 # ------------------------------------------------------------
 def fc_panel_start():
-    st.markdown('<div class="fc-panel">', unsafe_allow_html=True)
+    return stylable_container(
+        key="fcwrap_mobile",
+        css_styles="""
+        {
+          background:#f0f6ff;
+          border:1px solid #34D39920;
+          border-radius:8px;
+          padding:8px;
+          margin:4px 0;
+        }
+
+        [data-stylable-key="fcwrap_mobile"] input[type="text"],
+        [data-stylable-key="fcwrap_mobile"] input[type="number"],
+        [data-stylable-key="fcwrap_mobile"] textarea,
+        [data-stylable-key="fcwrap_mobile"] [data-baseweb="select"] > div {
+          background:#f0f6ff !important;
+          border:1px solid rgba(0,0,0,0.12) !important;
+        }
+
+        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"]{
+          background:#f0f6ff !important;
+        }
+        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] .cell,
+        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] input,
+        [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] textarea{
+          background:#f0f6ff !important;
+        }
+
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]{margin:0!important}
+        [data-stylable-key="fcwrap_mobile"] div[data-testid="stVerticalBlock"]>div{margin:2px 0!important}
+
+        @media (prefers-color-scheme: dark){
+          [data-stylable-key="fcwrap_mobile"]{
+            background:#0f2036;
+            border-color:#34D39940;
+          }
+          [data-stylable-key="fcwrap_mobile"] input[type="text"],
+          [data-stylable-key="fcwrap_mobile"] input[type="number"],
+          [data-stylable-key="fcwrap_mobile"] textarea,
+          [data-stylable-key="fcwrap_mobile"] [data-baseweb="select"] > div,
+          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"],
+          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] .cell,
+          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] input,
+          [data-stylable-key="fcwrap_mobile"] [data-testid="stDataEditor"] textarea{
+            background:#0f2036 !important;
+          }
+        }
+        """
+    )
 
 def fc_panel_end():
     st.markdown('</div>', unsafe_allow_html=True)
