@@ -780,7 +780,7 @@ def aggiorna_grafico(
                 outline:none!important;
                 color:inherit!important;
                 font-size:0.95rem!important;
-                text-decoration:underline;
+                text-decoration:none!important;
                 cursor:pointer;
                 padding:0!important;
                 margin:0!important;
