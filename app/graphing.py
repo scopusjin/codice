@@ -9,7 +9,6 @@ from app.theme import warn_box
 import numpy as np
 import streamlit as st
 
-from app.theme import warn_box  # <-- usa il warn_box centralizzato
 
 from app.factor_calc import build_cf_description
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
