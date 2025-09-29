@@ -78,7 +78,7 @@ def aggiorna_grafico(
             if key and key not in _dettagli_seen:
                 dettagli.append(key)
                 _dettagli_seen.add(key)
-    henssge_detail_added = False
+
 
     # --- data/ora ispezione ---
     if usa_orario_custom:
@@ -207,8 +207,7 @@ def aggiorna_grafico(
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-            # testi cautelativa
-            st.session_state["parentetica_extra"] = res.parentetica
+
 
             # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
