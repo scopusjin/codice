@@ -585,7 +585,7 @@ def aggiorna_grafico(
                 )
                 if frase_semplice:
                     st.session_state["frase_breve"] = frase_semplice
-                    show_final_sentence(frase_semplice)
+                    render_frase_breve(frase_semplice, key="fb_with_dt")
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
@@ -594,7 +594,7 @@ def aggiorna_grafico(
                 )
                 if frase_semplice_no_dt:
                     st.session_state["frase_breve"] = frase_semplice_no_dt
-                    show_final_sentence(frase_semplice_no_dt)
+                    render_frase_breve(frase_semplice_no_dt, key="fb_no_dt")
 
     # --- avvisi ---
     if nota_globale_range_adattato:
