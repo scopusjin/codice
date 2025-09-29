@@ -233,15 +233,13 @@ def build_simple_sentence_no_dt(
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2 = _hm_from_hours(comune_fine)
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"non oltre {_fmt_hm_full(h2, m2)} "
+        return (f"<p><b>non oltre {_fmt_hm_full(h2, m2)}</b> "
                 "prima dei rilievi dei dati tanatologici.</p>")
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1 = _hm_from_hours(comune_inizio)
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"oltre {_fmt_hm_full(h1, m1)} "
+        return (f"<p><b>oltre {_fmt_hm_full(h1, m1)}</b> "
                 "prima dei rilievi dei dati tanatologici.</p>")
 
     # A–B
@@ -249,8 +247,7 @@ def build_simple_sentence_no_dt(
         h1, m1 = _hm_from_hours(comune_inizio)
         h2, m2 = _hm_from_hours(comune_fine)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{intervallo_txt} "
+        return (f"<p>{intervallo_txt}</b> "
                 "prima dei rilievi dei dati tanatologici.</p>")
     return None
 
