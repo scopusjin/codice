@@ -3,7 +3,8 @@
 import datetime
 import pandas as pd
 import streamlit as st
-from streamlit_extras.stylable_container import stylable_container
+from app.theme import apply_theme
+
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
@@ -15,7 +16,7 @@ from app.factor_calc import (
 # Config pagina
 # ------------------------------------------------------------
 st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
-
+apply_theme()
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
 # ------------------------------------------------------------
@@ -64,7 +65,7 @@ div[data-testid="stDataEditor"] [role="columnheader"],
 div[data-testid="stDataEditor"] .column-header{display:none!important}
 [data-testid="stElementToolbar"]{display:none!important}
 
-/* Etichette custom compatte */
+/* Etichette compatte */
 .tight-label{margin:0!important;padding:0!important;line-height:1.05}
 .tight-label p{margin:0!important}
 .hint{font-size:.72rem;opacity:.75;margin-left:.25rem}
@@ -72,18 +73,6 @@ div[data-testid="stDataEditor"] .column-header{display:none!important}
 /* Pulsanti */
 div.stButton{margin:0!important}
 div.stButton>button{min-height:34px;height:34px;margin:0!important}
-div.stButton>button:hover{filter:brightness(1.06)}
-
-/* Pannello Suggerisci FC: classe applicata via JS */
-.fcwrap-bg{
-  background:#f0f6ff!important;
-  border-radius:4px!important;
-  padding:8px!important;
-}
-@media (prefers-color-scheme: dark){
-  .fcwrap-bg{ background:#0f2036!important; }
-}
-
 
 /* Nascondi footer/badge Streamlit */
 #stDecoration,[data-testid="stDecoration"],
