@@ -20,7 +20,7 @@ opzioni_macchie = {
     "Completamente migrabili": (0, 6),
     "Parzialmente migrabili": (4, 24),
     "Migrabili perlomeno parzialmente": (0, 24),
-    "Fisse": (10, INF_HOURS),
+    "Fisse": (4, INF_HOURS),
     "Non valutabili/Non attendibili": None,
 }
 
