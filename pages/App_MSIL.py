@@ -422,7 +422,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
             },
         )
-        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}}
+        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
