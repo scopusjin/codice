@@ -636,7 +636,7 @@ if st.session_state.get("run_stima_mobile"):
 # --- Box frase breve con sfondo ---
 _breve = st.session_state.get("frase_breve")
 if _breve:
-    if "Epoca del decesso stimata" not in _breve:
+    if "EPOCA DEL DECESSO STIMATA" not in _breve:
         _breve = f"Epoca del decesso stimata: {_breve}"
     show_final_sentence(_breve)
 
