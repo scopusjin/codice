@@ -46,7 +46,20 @@ def _warn_box(msg: str):
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
 
+def _final_palette():
+    base = (st.get_option("theme.base") or "light").lower()
+    if base == "dark":
+        return dict(bg="#143a06", text="#e6ffe1", border="#2e7d32")
+    return dict(bg="#e9f7ef", text="#1b5e20", border="#66bb6a")
 
+def show_final_sentence(text: str):
+    pal = _final_palette()
+    st.markdown(
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:8px;'
+        f'padding:10px 12px;margin:8px 0;font-weight:600;">{text}</div>',
+        unsafe_allow_html=True
+    )
 # --------- pubblico ----------
 def aggiorna_grafico(
     *,
@@ -579,8 +592,9 @@ def aggiorna_grafico(
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
             st.pyplot(fig)
 
-        # frase sotto al grafico
-        st.session_state["frase_breve"] = None  # reset
+        
+        # frase breve subito dopo il grafico
+        st.session_state["frase_breve"] = None
         if overlap:
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
@@ -591,6 +605,7 @@ def aggiorna_grafico(
                 )
                 if frase_semplice:
                     st.session_state["frase_breve"] = frase_semplice
+                    show_final_sentence(frase_semplice)
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
@@ -599,8 +614,7 @@ def aggiorna_grafico(
                 )
                 if frase_semplice_no_dt:
                     st.session_state["frase_breve"] = frase_semplice_no_dt
-
-
+                    show_final_sentence(frase_semplice_no_dt)
     # --- avvisi ---
     if nota_globale_range_adattato:
         avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
