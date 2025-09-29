@@ -111,7 +111,7 @@ def apply_theme():
         font-size: 0.92rem !important;
       }}
 
-      /* Pannello FC coerente con output */
+      /* Pannello FC */
       .fc-panel {{
         background: {C["OutBg"]} !important;
         border: 1px solid {C["OutBorder"]} !important;
@@ -129,26 +129,14 @@ def apply_theme():
         border: 1px solid rgba(0,0,0,0.12) !important;
       }}
 
-      /* Box output (final-text, fc-box) */
-      .final-text, .fc-box {{
-        background: {C["OutBg"]} !important;
-        border: 1px solid {C["OutBorder"]} !important;
-        border-radius: 10px !important;
-        padding: 10px 12px !important;
-        color: {C["OutText"]} !important;
-      }}
-
-      /* --- OVERRIDE SOLO NEL POPOVER: sfondo bianco per Descrizioni dettagliate --- */
+      /* --- SOLO NEL POPOVER: final-text con sfondo bianco --- */
       div[data-testid="stPopoverContent"] .final-text {{
         background: #ffffff !important;
-        border: 1px solid #e5e7eb !important; /* grigio chiaro */
-        color: #1f1f1f !important;            /* testo scuro */
+        border: 1px solid #e5e7eb !important;
+        color: #1f1f1f !important;
       }}
-
-    """, unsafe_allow_html=True)
     </style>
     """, unsafe_allow_html=True)
-
 
 # ------------------------------------------------------------
 # Helper per pannello FC
