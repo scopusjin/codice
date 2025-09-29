@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 from typing import Dict, List, Any
 from decimal import Decimal, ROUND_HALF_UP
+from numbers import Real
 
 import numpy as np
 import streamlit as st
