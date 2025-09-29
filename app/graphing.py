@@ -40,6 +40,10 @@ def show_final_sentence(text: str):
     # Usa lo stile centralizzato .final-text definito nel tema
     st.markdown(f'<div class="final-text">{text}</div>', unsafe_allow_html=True)
 
+def render_frase_breve(html: str, key: str = "fb_top"):
+    # NON usare class="final-text" qui
+    with frase_breve_box(key):
+        st.markdown(html, unsafe_allow_html=True)
 
 # --------- pubblico ----------
 def aggiorna_grafico(
