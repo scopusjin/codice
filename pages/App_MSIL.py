@@ -500,13 +500,19 @@ if "__next_fc" in st.session_state:
     v = float(st.session_state.pop("__next_fc"))
     st.session_state["fattore_correzione"] = floor_to_step(v)
 
-# Callback per normalizzare l'input FC su step 0,05
+# Callback per normalizzare l'input FC su step 0,05 e chiudere il pannello "Suggerisci FC"
 def _normalize_fc_callback():
-    v = st.session_state.get("fattore_correzione", 1.0)
     try:
-        st.session_state["fattore_correzione"] = floor_to_step(float(v))
+        v = float(st.session_state.get("fattore_correzione", 1.0))
+        st.session_state["fattore_correzione"] = floor_to_step(v)  # arrotonda per difetto a 0,05
     except Exception:
-        pass
+        return
+    # chiudi eventuali pannelli "Suggerisci FC" aperti
+    st.session_state["toggle_fattore_inline_mobile"] = False  # toggle del pannello mobile
+    st.session_state["toggle_fattore"] = False                # flag usato per mostrare il pannello
+    st.session_state["toggle_fattore_inline"] = False         # compatibilità con altre viste
+    st.session_state["toggle_fattore_inline_std"] = False     # compatibilità con vista standard
+
 
 # Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
