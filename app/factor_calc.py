@@ -49,7 +49,7 @@ SURF_FOGLIU = "FOGLIE_UMIDE"
 SURF_FOGLIS = "FOGLIE_SECCHE"
 
 SURF_DISPLAY_TO_KEY = {
-    "Pavimento di casa, piano in legno.": SURF_INDIFF,
+    "Pavimento di casa/piano in legno.": SURF_INDIFF,
     "Asfalto/terreno/prato asciutti": SURF_INDIFF,
     "Materasso/tappeto spesso": SURF_ISOL,
     "Divano/sacco a pelo tecnico/polistirolo": SURF_MOLTOI,
@@ -62,7 +62,7 @@ SURF_DISPLAY_TO_KEY = {
 }
 
 SURF_DISPLAY_ORDER = [
-    "Pavimento di casa, piano in legno.",
+    "Pavimento di casa/piano in legno.",
     "Asfalto/terreno/prato asciutti",
     "Materasso/tappeto spesso",
     "Divano/sacco a pelo tecnico/polistirolo",
