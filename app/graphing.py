@@ -41,9 +41,17 @@ def show_final_sentence(text: str):
     st.markdown(f'<div class="final-text">{text}</div>', unsafe_allow_html=True)
 
 def render_frase_breve(html: str, key: str = "fb_top"):
-    # NON usare class="final-text" qui
+    st.markdown(
+        """
+        <style>
+        /* compattazione locale per la frase breve */
+        .fb-compact { margin-bottom: -0.5rem !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     with frase_breve_box(key):
-        st.markdown(html, unsafe_allow_html=True)
+        st.markdown(f'<div class="fb-compact">{html}</div>', unsafe_allow_html=True)
 
 # --------- pubblico ----------
 def aggiorna_grafico(
