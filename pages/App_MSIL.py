@@ -588,7 +588,7 @@ if st.session_state.get("run_stima_mobile"):
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     if no_rt and no_macchie and no_rigidita:
-        warn_box("Nessun dato inserito per la stima")
+        warn_box("Mancanza di dati per la stima")
         st.stop()
 
     considera_raffreddamento = (
