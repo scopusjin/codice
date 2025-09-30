@@ -349,12 +349,8 @@ with c_w:
     )
 
 with c_fc:
+    _label("Fattore di correzione (FC)")
     fc_placeholder = st.empty()
-    fc_placeholder.number_input(
-        "", step=0.1, format="%.2f",
-        min_value=0.40, max_value=3.00,
-        key="fattore_correzione", label_visibility="collapsed"
-    )
 
 # Persisti valori parsati su chiavi logiche
 st.session_state["rt_val"] = rt_val_parsed
@@ -509,6 +505,7 @@ if "__next_fc" in st.session_state:
 with c_fc:
     fc_placeholder.number_input(
         "", step=0.1, format="%.2f",
+        min_value=0.30, max_value=3.00,
         key="fattore_correzione", label_visibility="collapsed"
     )
 
