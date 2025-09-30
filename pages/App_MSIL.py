@@ -499,7 +499,8 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
 # ------------------------------------------------------------
 if "__next_fc" in st.session_state:
-    st.session_state["fattore_correzione"] = st.session_state.pop("__next_fc")
+    v = float(st.session_state.pop("__next_fc"))
+    st.session_state["fattore_correzione"] = floor_to_step(v)
 
 # Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
@@ -508,6 +509,11 @@ with c_fc:
         min_value=0.30, max_value=3.00,
         key="fattore_correzione", label_visibility="collapsed"
     )
+
+# forza multipli di 0,05 anche per input manuale (es. 1.14 -> 1.10)
+st.session_state["fattore_correzione"] = floor_to_step(
+    float(st.session_state.get("fattore_correzione", 1.0))
+)
 
 # ------------------------------------------------------------
 # 3) Pulsante finale
