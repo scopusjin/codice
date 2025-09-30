@@ -521,6 +521,9 @@ def aggiorna_grafico(
     if rigidita_range_valido: num_params_grafico += 1
     if raff_for_plot: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
+    
+    if num_params_grafico == 0 and "Mancanza di dati per la stima" not in avvisi:
+        avvisi.append("Mancanza di dati per la stima")
 
     if num_params_grafico > 0:
         try:
