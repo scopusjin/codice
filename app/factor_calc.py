@@ -6,6 +6,12 @@ from typing import Optional, Dict, Any, Literal, Tuple
 import numpy as np
 import pandas as pd
 
+def floor_to_step(x: float, step: float = 0.05) -> float:
+    """Arrotonda sempre per difetto al multiplo più vicino di step (default 0.05)."""
+    d = Decimal(str(x))
+    s = Decimal(str(step))
+    return float((d / s).to_integral_value(rounding=ROUND_FLOOR) * s)
+
 # --------------------------------
 # Datamodel di input/riassunto
 # --------------------------------
