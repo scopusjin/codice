@@ -312,12 +312,21 @@ def compute_factor(
     peso: float,
     tabella2_df: Optional[pd.DataFrame] = None
 ) -> ComputeResult:
+    # helper locale per il floor a step 0,05
+    from decimal import Decimal, ROUND_FLOOR
+    def _floor_to_step(x: float, step: float = 0.05) -> float:
+        d = Decimal(str(x)); s = Decimal(str(step))
+        return float((d / s).to_integral_value(rounding=ROUND_FLOOR) * s)
+
     # Caso IMMERSO
     if stato == "Immerso":
         base = 0.50 if (acqua == "stagnante") else 0.35
         fatt_base = clamp(base)
-        fatt_finale = adatta_per_peso(fatt_base, peso, tabella2_df)
-        peso_adattato = (abs(fatt_finale - fatt_base) > 1e-12)
+        # adatta_per_peso mantiene il suo round(..., 2)
+        fatt_finale_raw = adatta_per_peso(fatt_base, peso, tabella2_df)
+        # floor finale a 0,05 (unico arrotondamento aggiuntivo)
+        fatt_finale = _floor_to_step(fatt_finale_raw)
+        peso_adattato = (abs(fatt_finale_raw - fatt_base) > 1e-12)
         return ComputeResult(
             fattore_base=fatt_base,
             fattore_finale=fatt_finale,
@@ -344,8 +353,11 @@ def compute_factor(
         f_corr = 1.0
     f_corr = clamp(float(f_corr))
 
-    fatt_finale = adatta_per_peso(f_corr, peso, tabella2_df)
-    peso_adattato = (abs(fatt_finale - f_corr) > 1e-12)
+    # adatta_per_peso mantiene il suo round(..., 2)
+    fatt_finale_raw = adatta_per_peso(f_corr, peso, tabella2_df)
+    # floor finale a 0,05 (unico arrotondamento aggiuntivo)
+    fatt_finale = _floor_to_step(fatt_finale_raw)
+    peso_adattato = (abs(fatt_finale_raw - f_corr) > 1e-12)
 
     riass = {
         "stato": stato,
