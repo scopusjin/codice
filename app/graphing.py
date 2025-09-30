@@ -818,4 +818,3 @@ def aggiorna_grafico(
                 with st.popover("⚠️ Avvisi"):
                     for m in avvisi:
                         warn_box(m)  # usa l'helper locale
-
