@@ -502,16 +502,13 @@ if "__next_fc" in st.session_state:
 
 # Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
-    fc_placeholder.number_input(
-        "", step=0.05, format="%.2f",
+    fc_placeholder.number_input("", step=0.05, format="%.2f",
         min_value=0.30, max_value=3.00,
-        key="fattore_correzione", label_visibility="collapsed"
-    )
+        key="fattore_correzione", label_visibility="collapsed")
 
-# forza multipli di 0,05 anche per input manuale (es. 1.14 -> 1.10)
-st.session_state["fattore_correzione"] = floor_to_step(
-    float(st.session_state.get("fattore_correzione", 1.0))
-)
+val_fc = st.session_state.get("fattore_correzione", 1.0)
+if isinstance(val_fc, (int, float)):
+    st.session_state["fattore_correzione"] = floor_to_step(float(val_fc))
 
 # ------------------------------------------------------------
 # 3) Pulsante finale
