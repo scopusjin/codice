@@ -304,7 +304,7 @@ def paragrafo_raffreddamento_dettaglio(
     )
 
     testo_base = (
-        "Applicando l'equazione di Henssge, è possibile stimare che il decesso sia avvenuto, all'incirca, "
+        "Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, "
         f"{intervallo_txt} "
         "prima dei rilievi effettuati al momento dell’ispezione legale."
     )
