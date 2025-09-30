@@ -209,13 +209,14 @@ def _to_float_or_none(s):
 def _sig_val(x):
     return "∅" if x is None else x
 
-# number_input che non collide con Session State logico
-def _number_or_text(label, state_key, widget_key, text_key, hint=None, step=0.1, fmt="%.1f"):
+def _number_or_text(label, state_key, widget_key, text_key, hint=None, step=0.1, fmt="%.1f",
+                    min_value=None, max_value=None):
     _label(label, hint)
     try:
         val = st.number_input(
             "", value=st.session_state.get(state_key, None),
-            step=step, format=fmt, key=widget_key, label_visibility="collapsed"
+            step=step, format=fmt, key=widget_key, label_visibility="collapsed",
+            min_value=min_value, max_value=max_value
         )
         if val is None:
             return None
@@ -225,7 +226,13 @@ def _number_or_text(label, state_key, widget_key, text_key, hint=None, step=0.1,
             "", value="" if st.session_state.get(text_key) in (None, "") else str(st.session_state.get(text_key)),
             key=text_key, label_visibility="collapsed", placeholder=""
         )
-        return _to_float_or_none(raw)
+        v = _to_float_or_none(raw)
+        if v is None:
+            return None
+        if min_value is not None and v < min_value: v = float(min_value)
+        if max_value is not None and v > max_value: v = float(max_value)
+        return v
+
 
 # ------------------------------------------------------------
 # Data/Ora ispezione (Europe/Zurich)
@@ -316,9 +323,9 @@ with c_rt:
         "T. rettale (°C)",
         state_key="rt_val",
         widget_key="rt_val_widget",
-        min_value=5.0, max_value=42.0,
         text_key="rt_val_str",
-        step=0.1, fmt="%.1f"
+        step=0.1, fmt="%.1f",
+        min_value=5.0, max_value=42.0
     )
 
 with c_ta:
@@ -326,9 +333,9 @@ with c_ta:
         "T. ambientale media (°C)",
         state_key="ta_base_val",
         widget_key="ta_base_val_widget",
-        min_value=-5.0, max_value=45.0, 
         text_key="ta_base_val_str",
-        step=0.1, fmt="%.1f"
+        step=0.1, fmt="%.1f",
+        min_value=-5.0, max_value=40.0
     )
 
 with c_w:
@@ -337,13 +344,16 @@ with c_w:
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
+        step=1.0, fmt="%.1f",
         min_value=3.0, max_value=160.0
-        step=1.0, fmt="%.1f"
     )
 
 with c_fc:
-    _label("Fattore di correzione (FC)")
-    fc_placeholder = st.empty()
+    fc_placeholder.number_input(
+        "", step=0.1, format="%.2f",
+        min_value=0.40, max_value=3.00,
+        key="fattore_correzione", label_visibility="collapsed"
+    )
 
 # Persisti valori parsati su chiavi logiche
 st.session_state["rt_val"] = rt_val_parsed
