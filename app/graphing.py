@@ -522,7 +522,7 @@ def aggiorna_grafico(
     if raff_for_plot: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
     
-    if num_params_grafico == 0 
+    if num_params_grafico == 0:
         warn_box("Mancanza di dati per la stima")
 
     if num_params_grafico > 0:
