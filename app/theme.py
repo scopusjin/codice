@@ -95,13 +95,13 @@ def apply_theme():
       }}
 
       /* Final-text: sempre bianco ovunque */
-      .final-text {
+      .final-text {{
         background: transparent !important;
         border: none !important;
         border-radius: 0 !important;
         padding: 0 !important;
         color: #1f1f1f !important;
-      }
+      }}
 
       /* Contenitore generico eventualmente usato altrove */
       .fc-box {{
