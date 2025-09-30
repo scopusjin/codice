@@ -504,7 +504,7 @@ if "__next_fc" in st.session_state:
 # Crea ORA il widget FC senza passare "value" per evitare conflitti
 with c_fc:
     fc_placeholder.number_input(
-        "", step=0.1, format="%.2f",
+        "", step=0.05, format="%.2f",
         min_value=0.30, max_value=3.00,
         key="fattore_correzione", label_visibility="collapsed"
     )
