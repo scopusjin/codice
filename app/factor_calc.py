@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, Literal, Tuple
 import numpy as np
 import pandas as pd
+from decimal import Decimal, ROUND_FLOOR, InvalidOperation
 
 def floor_to_step(x: float, step: float = 0.05) -> float:
     """Arrotonda sempre per difetto al multiplo più vicino di step (default 0.05)."""
