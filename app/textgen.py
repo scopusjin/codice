@@ -287,7 +287,8 @@ def paragrafo_raffreddamento_dettaglio(
     ta_val: Optional[float]
 ) -> Optional[str]:
     """
-    Paragrafo Henssge con note su Qd e >30h. Ritorna HTML <ul><li>...</li></ul>.
+    Paragrafo Henssge con note su Qd e >30h.
+    Ritorna HTML <ul><li>...</li></ul>.
     """
     if _safe_is_nan(t_min_visual) or _safe_is_nan(t_max_visual):
         return None
@@ -308,33 +309,45 @@ def paragrafo_raffreddamento_dettaglio(
         "prima dei rilievi effettuati al momento dell’ispezione legale."
     )
 
-    extra = []
+    extra = ""
 
-    if (qd_val is not None and not np.isnan(qd_val) and qd_val < 0.2 and
-        t_med_round is not None and not np.isnan(t_med_round)):
-        extra.append(
-            "<li>"
-            "I valori ottenuti, tuttavia, sono in parte o totalmente fuori dai range ottimali delle equazioni applicabili. "
-            f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_round:.1f} ore), ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-            "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai in equilibrio termico con l'ambiente. "
-            "Per tale motivo, per la stima dell'epoca del decesso è consigliabile far riferimento principalmente ad altri dati tanatologici."
-            "</li>"
-        )
+    if (
+        qd_val is not None and not np.isnan(qd_val)
+        and t_med_round is not None and not np.isnan(t_med_round)
+    ):
+        if qd_val <= 0.2:
+            frase_intro = "<b>I valori ottenuti, tuttavia, sono totalmente fuori dai range ottimali delle equazioni applicabili.</b> "
+        elif qd_val < 0.3:
+            frase_intro = "<b>I valori ottenuti, tuttavia, sono in parte fuori dai range ottimali delle equazioni applicabili.</b> "
+        else:
+            frase_intro = ""
 
-    if (qd_val is not None and not np.isnan(qd_val) and qd_val > 0.2 and
-        t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30):
-        extra.append(
-            "<li>"
-            f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_round:.1f} h) è superiore alle 30 ore. "
+        if frase_intro:
+            extra = (
+                " " + frase_intro +
+                f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% "
+                f"del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_round:.1f} ore), "
+                "ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
+                "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai "
+                "in equilibrio termico con l'ambiente. Per tale motivo, per la stima dell'epoca del decesso "
+                "è consigliabile far riferimento principalmente ad altri dati tanatologici."
+            )
+
+    if (
+        qd_val is not None and not np.isnan(qd_val)
+        and t_med_round is not None and not np.isnan(t_med_round)
+        and t_med_round > 30
+    ):
+        extra += (
+            " La stima media ottenuta dal raffreddamento cadaverico "
+            f"({t_med_round:.1f} h) è superiore alle 30 ore. "
             "L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-            "</li>"
         )
 
-    par = f"<ul><li>{testo_base}"
-    if extra:
-        par += "<ul>" + "".join(extra) + "</ul>"
-    par += "</li></ul>"
+    # Unico <li> senza livelli aggiuntivi
+    par = f"<ul><li>{testo_base}{extra}</li></ul>"
     return par
+
 
 def paragrafo_potente(
     *,
