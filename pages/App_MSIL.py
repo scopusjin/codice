@@ -349,6 +349,7 @@ with c_w:
     )
 
 with c_fc:
+    fc_placeholder = st.empty()
     fc_placeholder.number_input(
         "", step=0.1, format="%.2f",
         min_value=0.40, max_value=3.00,
