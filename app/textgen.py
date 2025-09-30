@@ -316,9 +316,9 @@ def paragrafo_raffreddamento_dettaglio(
         and t_med_round is not None and not np.isnan(t_med_round)
     ):
         if qd_val <= 0.2:
-            frase_intro = "<b>I valori ottenuti, tuttavia, sono totalmente fuori dai range ottimali delle equazioni applicabili.</b> "
+            frase_intro = "<b>I valori ottenuti, tuttavia, sono al di fuori dai range ottimali per applicare l'equazione.</b> "
         elif qd_val < 0.3:
-            frase_intro = "<b>I valori ottenuti, tuttavia, sono in parte fuori dai range ottimali delle equazioni applicabili.</b> "
+            frase_intro = "<b>I valori ottenuti, tuttavia, sono in parte fuori dai range ottimali per applicare l'equazione.</b> "
         else:
             frase_intro = ""
 
