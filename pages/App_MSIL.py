@@ -108,11 +108,11 @@ def _raccomandazioni_html() -> str:
     <div style="font-size:0.9rem; line-height:1.45; color:#444;">
       <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:</b><br><br>
       • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
-      • Fonte di calore nelle vicinanze del corpo.<br>
+      • Fonti di calore nelle vicinanze del corpo.<br>
       • Riscaldamento a pavimento sotto il corpo.<br>
       • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
       • Temperatura ambientale media non determinabile o temperatura aumentata molto dopo il decesso.<br>
-      • Fattore di correzione di Henssge non stimabile<br><br>
+      • Fattore di correzione non stimabile<br><br>
       <b>DA RICORDARE:</b><br><br>
       • Non usare direttamente la temperatura ambientale misurata, ma ragiona su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stima la temperatura media in cui potrebbe essersi trovato il corpo. Tieni conto di eventuali dati meteorologici.<br>
       • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambia posizione al cadavere e valuta se si modificano le ipostasi dopo 20 minuti.<br>
