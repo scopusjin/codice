@@ -470,10 +470,10 @@ def frase_riepilogo_parametri_usati(labels: List[str]) -> Optional[str]:
         return None
     if n == 1:
         p = labels[0]
-        return f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
+        return f"<p style='color:blu;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
     join = ', '.join(x[0].lower() + x[1:] for x in labels[:-1])
     join += f" e {labels[-1][0].lower() + labels[-1][1:]}"
-    return f"<p style='color:orange;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
+    return f"<p style='color:blu;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
 
 def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     """
@@ -486,8 +486,8 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     condizione_temp = "T. amb ≤ 23 °C" if ta_val <= 23 else "T. amb > 23 °C"
 
     if qd_val < soglia:
-        return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
+        return (f"<p style='color:blu;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
                 f"Tale parametro è inferiore ai limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
     else:
-        return (f"<p style='color:orange;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
+        return (f"<p style='color:blu;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
                 f"Tale parametro rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
