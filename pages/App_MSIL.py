@@ -9,9 +9,7 @@ from app.theme import fc_panel_start
 
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
-from app.factor_calc import (
-    DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step
-)
+from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
 from app.textgen import paragrafi_descrizioni_base, paragrafi_parametri_aggiuntivi
 
 # ------------------------------------------------------------
