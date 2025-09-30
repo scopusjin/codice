@@ -132,7 +132,7 @@ st.markdown(
         font-size:0.9rem!important;
         padding:0!important;
         margin:6px 0!important;
-        text-decoration:underline;
+        text-decoration:none!important;
         cursor:pointer;
     }
     /* niente limite di altezza al contenuto del popover */
