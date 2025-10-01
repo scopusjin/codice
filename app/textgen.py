@@ -69,10 +69,6 @@ def build_final_sentence(
     ta_val: Optional[float] = None,
     inf_hours: float = np.inf
 ) -> Optional[str]:
-    """
-    Frase conclusiva principale in HTML.
-    Logica: limite superiore infinito, 0–X, A–B.
-    """
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
 
@@ -90,7 +86,7 @@ def build_final_sentence(
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero {_bold('prima delle ore ' + hh_d + ' del ' + dd_d)}."
         )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return f"<p>{testo}</p>"
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
@@ -104,7 +100,7 @@ def build_final_sentence(
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}."
         )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return f"<p>{testo}</p>"
 
     # Caso: A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -127,7 +123,7 @@ def build_final_sentence(
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero circa {finestra}."
         )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return f"<p>{testo}</p>"
 
     return None
 
