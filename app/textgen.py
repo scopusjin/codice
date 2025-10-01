@@ -471,7 +471,6 @@ def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optio
 
 def frase_riepilogo_parametri_usati(labels: List[str]) -> Optional[str]:
     """
-    Testo arancione piccolo: “La stima complessiva si basa su…”.
     Fornisci già i label filtrati (niente duplicati Henssge vs Potente).
     """
     n = len(labels)
@@ -496,7 +495,7 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
 
     if qd_val < soglia:
         return (f"<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
-                f"Tale parametro è inferiore ai limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
+                f"Tale parametro non rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
     else:
         return (f"<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
                 f"Tale parametro rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
