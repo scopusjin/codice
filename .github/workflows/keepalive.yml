@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Ping app
         run: |
-          curl -sS -L --max-time 20 "https://mor-tem.streamlit.app/" -o /dev/null
+          curl -sS -L --max-time 20 "https://ispezionelegale.streamlit.app/" -o /dev/null
 
   empty-commit:
     runs-on: ubuntu-latest
