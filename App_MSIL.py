@@ -249,31 +249,26 @@ now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
 
-if st.session_state["usa_orario_custom"]:
-    if st.session_state.get("input_data_rilievo") is None:
-        st.session_state["input_data_rilievo"] = now_ch.date()
-    if not st.session_state.get("input_ora_rilievo"):
-        st.session_state["input_ora_rilievo"] = now_ch.strftime("%H:%M")
+st.session_state.setdefault("input_data_rilievo", now_ch.date())
+st.session_state.setdefault("input_ora_rilievo", now_ch.strftime("%H:%M"))
 
+if st.session_state["usa_orario_custom"]:
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input(
             "Data ispezione legale",
-            value=st.session_state["input_data_rilievo"],
-            label_visibility="collapsed",
             key="input_data_rilievo",
+            label_visibility="collapsed"
         )
     with c2:
         st.text_input(
             "Ora ispezione legale (HH:MM)",
-            value=st.session_state["input_ora_rilievo"],
-            label_visibility="collapsed",
             key="input_ora_rilievo",
+            label_visibility="collapsed"
         )
 else:
     st.session_state["input_data_rilievo"] = None
     st.session_state["input_ora_rilievo"] = None
-
 # ------------------------------------------------------------
 # Ipostasi e rigidità
 # ------------------------------------------------------------
