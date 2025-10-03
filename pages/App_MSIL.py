@@ -420,14 +420,35 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
                 "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
             })
-        df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
+                df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
+
+        # --- editor indumenti/coperte SENZA intestazione ---
+        st.markdown('<div id="fc-de">', unsafe_allow_html=True)
+
+        st.markdown("""
+        <style>
+        #fc-de [data-testid="stDataEditorGrid"] thead,
+        #fc-de [data-testid="stDataEditorGrid"] [role="columnheader"],
+        #fc-de [data-testid="stDataEditor"] .column-header,
+        #fc-de [data-testid="stDataEditor"] [data-testid="stHeader"]{
+            display:none !important; height:0 !important; line-height:0 !important;
+            padding:0 !important; margin:0 !important; visibility:hidden !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
         edited = st.data_editor(
-            df, hide_index=True, use_container_width=True,
+            df,
+            hide_index=True,
+            use_container_width=True,
             column_config={
-                "Voce": st.column_config.TextColumn(disabled=True, width="medium"),
-                "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
+                "Voce": st.column_config.TextColumn(label="", disabled=True, width="medium"),
+                "Numero?": st.column_config.NumberColumn(label="", min_value=0, max_value=8, step=1, width="small"),
             },
         )
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
         vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
