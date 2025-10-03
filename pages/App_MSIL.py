@@ -363,11 +363,17 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
-    def k(name: str) -> str: return f"{key_prefix}_{name}"
+    def k(name: str) -> str:
+        return f"{key_prefix}_{name}"
 
-    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
-                           index=0, horizontal=True, key=k("radio_stato_corpo"),
-                           label_visibility="collapsed")
+    stato_label = st.radio(
+        "",
+        ["Corpo asciutto", "Bagnato", "Immerso"],
+        index=0,
+        horizontal=True,
+        key=k("radio_stato_corpo"),
+        label_visibility="collapsed",
+    )
     stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
 
     try:
@@ -388,15 +394,24 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso_eff = float(peso_default)
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
-                               index=0, horizontal=True, key=k("radio_acqua"),
-                               label_visibility="collapsed")
+        acqua_label = st.radio(
+            "",
+            ["In acqua stagnante", "In acqua corrente"],
+            index=0,
+            horizontal=True,
+            key=k("radio_acqua"),
+            label_visibility="collapsed",
+        )
         acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
 
         result = compute_factor(
-            stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
-            superficie_display=None, correnti_aria=False,
-            peso=peso_eff, tabella2_df=tabella2
+            stato="Immerso",
+            acqua=acqua_mode,
+            counts=DressCounts(),
+            superficie_display=None,
+            correnti_aria=False,
+            peso=peso_eff,
+            tabella2_df=tabella2,
         )
         st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
         return
@@ -405,37 +420,46 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
-                                   value=st.session_state.get(k("toggle_vestito"), False),
-                                   key=k("toggle_vestito"))
+        toggle_vestito = st.toggle(
+            "Vestiti/coperte su addome/bacino?",
+            value=st.session_state.get(k("toggle_vestito"), False),
+            key=k("toggle_vestito"),
+        )
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
         defaults = {
             "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
-            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
+            "Strati pesanti (indumenti o teli spessi)": st.session_state.get(k("strati_spessi"), 0),
         }
         if stato_corpo == "Asciutto":
             defaults.update({
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
-                "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
+                "Coperte pesanti": st.session_state.get(k("coperte_pesanti"), 0),
             })
-                df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
+
+        df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
 
         # --- editor indumenti/coperte SENZA intestazione ---
         st.markdown('<div id="fc-de">', unsafe_allow_html=True)
-
-        st.markdown("""
-        <style>
-        #fc-de [data-testid="stDataEditorGrid"] thead,
-        #fc-de [data-testid="stDataEditorGrid"] [role="columnheader"],
-        #fc-de [data-testid="stDataEditor"] .column-header,
-        #fc-de [data-testid="stDataEditor"] [data-testid="stHeader"]{
-            display:none !important; height:0 !important; line-height:0 !important;
-            padding:0 !important; margin:0 !important; visibility:hidden !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+        st.markdown(
+            """
+<style>
+#fc-de [data-testid="stDataEditorGrid"] thead,
+#fc-de [data-testid="stDataEditorGrid"] [role="columnheader"],
+#fc-de [data-testid="stDataEditor"] .column-header,
+#fc-de [data-testid="stDataEditor"] [data-testid="stHeader"] {
+    display: none !important;
+    height: 0 !important;
+    line-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    visibility: hidden !important;
+}
+</style>
+""",
+            unsafe_allow_html=True,
+        )
 
         edited = st.data_editor(
             df,
@@ -447,23 +471,27 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             },
         )
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
         vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
-        n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
-        n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
+        n_sottili = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
+        n_spessi = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
+        n_cop_medie = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti", 0) if stato_corpo == "Asciutto" else 0
 
     counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
+        sottili=n_sottili,
+        spessi=n_spessi,
+        coperte_medie=n_cop_medie,
+        coperte_pesanti=n_cop_pesanti,
     )
 
     superficie_display_selected = None
     if stato_corpo == "Asciutto":
-        nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
+        nudo_eff = (
+            (not toggle_vestito)
+            or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0)
+        )
         options_display = SURF_DISPLAY_ORDER.copy()
         if not nudo_eff:
             options_display = [o for o in options_display if o != "Piano metallico spesso (all’aperto)"]
@@ -471,9 +499,11 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         if prev_display not in options_display:
             prev_display = options_display[0]
         superficie_display_selected = st.selectbox(
-            "Superficie di appoggio", options_display,
+            "Superficie di appoggio",
+            options_display,
             index=options_display.index(prev_display),
-            key=k("superficie_display_sel"), label_visibility="visible"
+            key=k("superficie_display_sel"),
+            label_visibility="visible",
         )
 
     correnti_presenti = False
@@ -487,7 +517,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             correnti_presenti = st.toggle(
                 "Correnti d'aria presenti?",
                 value=st.session_state.get(k("toggle_correnti_fc"), False),
-                key=k("toggle_correnti_fc"), disabled=False
+                key=k("toggle_correnti_fc"),
+                disabled=False,
             )
 
     try:
@@ -496,19 +527,18 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         tabella2 = None
 
     result = compute_factor(
-        stato=stato_corpo, acqua=None, counts=counts,
+        stato=stato_corpo,
+        acqua=None,
+        counts=counts,
         superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
         correnti_aria=correnti_presenti,
-        peso=peso_eff, tabella2_df=tabella2
+        peso=peso_eff,
+        tabella2_df=tabella2,
     )
     st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
+    
 
-if st.session_state.get("toggle_fattore_inline_mobile", False):
-    with fc_panel_start():
-        pannello_suggerisci_fc_mobile(
-            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
-            key_prefix="fcpanel_mobile"
-        )
+
 
 # ------------------------------------------------------------
 # Applica eventuale FC calcolato PRIMA di creare il widget FC
