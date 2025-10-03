@@ -249,10 +249,18 @@ now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
 st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
 
-st.session_state.setdefault("input_data_rilievo", now_ch.date())
-st.session_state.setdefault("input_ora_rilievo", now_ch.strftime("%H:%M"))
+if not st.session_state["usa_orario_custom"]:
+    # rimuovi le chiavi per avere default freschi al prossimo ON
+    st.session_state.pop("input_data_rilievo", None)
+    st.session_state.pop("input_ora_rilievo", None)
 
 if st.session_state["usa_orario_custom"]:
+    # inizializza se mancanti o falsy
+    if not st.session_state.get("input_data_rilievo"):
+        st.session_state["input_data_rilievo"] = now_ch.date()
+    if not st.session_state.get("input_ora_rilievo"):
+        st.session_state["input_ora_rilievo"] = now_ch.strftime("%H:%M")
+
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input(
@@ -266,9 +274,7 @@ if st.session_state["usa_orario_custom"]:
             key="input_ora_rilievo",
             label_visibility="collapsed"
         )
-else:
-    st.session_state["input_data_rilievo"] = None
-    st.session_state["input_ora_rilievo"] = None
+
 # ------------------------------------------------------------
 # Ipostasi e rigidità
 # ------------------------------------------------------------
