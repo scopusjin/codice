@@ -1,28 +1,35 @@
 name: Keep Streamlit Awake
 
 on:
-  workflow_dispatch:          # avvio manuale dal tab Actions
   schedule:
-    - cron: '0 */3 * * *'     # ogni 3 ore (UTC)
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+env:
+  DEPLOY_BRANCH: MSIL   # <-- ramo usato da Streamlit
+
 jobs:
-  ping:
+  keepalive:
     runs-on: ubuntu-latest
     steps:
       - name: Ping app
         run: |
-          curl -sS -L --max-time 20 "https://ispezionelegale.streamlit.app/" -o /dev/null
+          ts=$(date +%s)
+          curl -fsSL --max-time 20 \
+            -H "User-Agent: keepalive-bot" \
+            "https://ispezionelegale.streamlit.app/?_=${ts}" -o /dev/null || true
 
-  empty-commit:
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v4
-      - name: Empty commit
+        with:
+          ref: ${{ env.DEPLOY_BRANCH }}
+
+      - name: Empty commit on deploy branch
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit --allow-empty -m "keepalive"
-          git push
+          git config user.email "action@github.com"
+          git config user.name "github-actions[bot]"
+          git commit --allow-empty -m "keepalive $(date -u +'%F %T')"
+          git push origin "$DEPLOY_BRANCH"
+          
