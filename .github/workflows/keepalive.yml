@@ -1,28 +1,46 @@
 name: Keep Streamlit Awake
 
 on:
-  workflow_dispatch:          # avvio manuale dal tab Actions
   schedule:
-    - cron: '0 */3 * * *'     # ogni 3 ore (UTC)
+    - cron: "*/15 * * * *"   # ogni 15 minuti UTC
+  workflow_dispatch:
 
 permissions:
   contents: write
 
-jobs:
-  ping:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ping app
-        run: |
-          curl -sS -L --max-time 20 "https://mor-tem.streamlit.app/" -o /dev/null
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
 
-  empty-commit:
+jobs:
+  keepalive:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: APP1
+            url: "https://mor-tem.streamlit.app/"
+            branch: "main"     # ramo di deploy app1
+          - name: APP2
+            url: "https://ispezionelegale.streamlit.app/"
+            branch: "MSIL"     # ramo di deploy app2
     steps:
-      - uses: actions/checkout@v4
-      - name: Empty commit
+      - name: Ping ${{ matrix.name }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit --allow-empty -m "keepalive"
-          git push
+          for i in 1 2 3; do
+            ts=$(date +%s)
+            curl -fsSL -H "User-Agent: keepalive-bot" --max-time 20 \
+              "${{ matrix.url }}?_=$ts" -o /dev/null && break || sleep 8
+          done
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Empty commit on ${{ matrix.branch }}
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "github-actions[bot]"
+          git pull origin "${{ matrix.branch }}" --rebase || true
+          git commit --allow-empty -m "keepalive ${{ matrix.name }} $(date -u +'%F %T')"
+          git push origin "${{ matrix.branch }}"
