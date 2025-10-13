@@ -155,7 +155,7 @@ def frase_breve_box(key: str = "frase_breve"):
           border:1px solid {C['OutBorder']};
           border-radius:8px;
           padding:8px 10px;
-          margin:4px 0;
+          margin:4px 0 14px;
           color:{C['OutText']};
         }}
         """
