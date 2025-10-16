@@ -167,28 +167,28 @@ def aggiorna_grafico(
                     a, b = b, a
                 Ta_range = (a, b)
 
-        # --- FC range: priorità al manuale se presente, poi suggerito, poi ±0.10 ---
-        CF_range = None
-        min_k = st.session_state.get("FC_min_beta", None)
-        max_k = st.session_state.get("FC_max_beta", None)
+            # --- FC range: priorità al manuale se presente, poi suggerito, poi ±0.10 ---
+            CF_range = None
+            min_k = st.session_state.get("FC_min_beta", None)
+            max_k = st.session_state.get("FC_max_beta", None)
 
-        if min_k is not None and max_k is not None:
-            a, b = float(min_k), float(max_k)
-            if a > b:
-                a, b = b, a
-            CF_range = (max(a, 0.01), max(b, 0.01))
-        else:
-            vals = st.session_state.get("fc_suggested_vals", [])
-            if len(vals) == 2:
-                a, b = sorted([float(vals[0]), float(vals[1])])
+            if min_k is not None and max_k is not None:
+                a, b = float(min_k), float(max_k)
+                if a > b:
+                    a, b = b, a
                 CF_range = (max(a, 0.01), max(b, 0.01))
-            elif len(vals) == 1:
-                v = float(vals[0])
-                CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
             else:
-                CF_range = None  # il core userà ±0.10 su CF_value
+                vals = st.session_state.get("fc_suggested_vals", [])
+                if len(vals) == 2:
+                    a, b = sorted([float(vals[0]), float(vals[1])])
+                    CF_range = (max(a, 0.01), max(b, 0.01))
+                elif len(vals) == 1:
+                    v = float(vals[0])
+                    CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
+                else:
+                    CF_range = None  # il core userà ±0.10 su CF_value
 
-
+            # --- calcolo cautelativo ---
             res = compute_raffreddamento_cautelativo(
                 dt_ispezione=data_ora_ispezione,
                 Ta_value=float(Ta_val),
@@ -205,19 +205,22 @@ def aggiorna_grafico(
                 },
             )
 
-            # mappa output cautelativa
+            # --- mappa output cautelativa ---
             t_min_raff_henssge = float(res.ore_min)
             t_max_raff_henssge = (
                 np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
                 else float(res.ore_max)
             )
-            _tmed_raw = t_min_raff_henssge if np.isnan(t_max_raff_henssge) else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
+            _tmed_raw = (
+                t_min_raff_henssge if np.isnan(t_max_raff_henssge)
+                else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
+            )
             t_med_raff_henssge_rounded_raw = float(_tmed_raw)
             t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-            # Range Ta/CF sempre disponibili (default: Ta ±1 °C, CF ±0.10)
+            # --- Range Ta/CF per riepilogo ---
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 ta_lo = float(st.session_state["Ta_min_beta"])
                 ta_hi = float(st.session_state["Ta_max_beta"])
@@ -226,27 +229,30 @@ def aggiorna_grafico(
                 ta_hi = float(Ta_val) + 1.0
             ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
-            if st.session_state.get("fc_manual_range_beta", False) and \
-               "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
+            if st.session_state.get("FC_min_beta") is not None and st.session_state.get("FC_max_beta") is not None:
                 cf_lo = float(st.session_state["FC_min_beta"])
                 cf_hi = float(st.session_state["FC_max_beta"])
             else:
                 vals = st.session_state.get("fc_suggested_vals", [])
                 if len(vals) == 2:
-                    a, b = sorted([float(vals[0]), float(vals[1])])
-                    cf_lo, cf_hi = a, b
+                    cf_lo, cf_hi = sorted([float(vals[0]), float(vals[1])])
                 elif len(vals) == 1:
                     v = float(vals[0])
                     cf_lo, cf_hi = v - 0.10, v + 0.10
                 else:
                     v = float(CF_val)
                     cf_lo, cf_hi = v - 0.10, v + 0.10
-            cf_lo = max(cf_lo, 0.01); cf_hi = max(cf_hi, 0.01)
+            cf_lo = max(cf_lo, 0.01)
+            cf_hi = max(cf_hi, 0.01)
             cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
 
-            p_txt = f"{max(W_val-3,1):.0f}–{(W_val+3):.0f} kg" if st.session_state.get("peso_stimato_beta", False) else f"{W_val:.0f} kg"
+            p_txt = (
+                f"{max(W_val - 3, 1):.0f}–{(W_val + 3):.0f} kg"
+                if st.session_state.get("peso_stimato_beta", False)
+                else f"{W_val:.0f} kg"
+            )
 
-            # header / bullets / conclusione dal modulo cautelativa o fallback
+            # --- header / bullets / conclusione ---
             header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
             bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
             conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
@@ -333,6 +339,7 @@ def aggiorna_grafico(
             )
         else:
             pass
+
 
     # --- differenza piccola Tr-Ta ---
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
