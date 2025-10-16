@@ -167,24 +167,27 @@ def aggiorna_grafico(
                     a, b = b, a
                 Ta_range = (a, b)
 
-            # --- FC range (manuale → suggeritore → default) ---
-            CF_range = None
-            if st.session_state.get("fc_manual_range_beta", False):
-                if "FC_min_beta" in st.session_state and "FC_max_beta" in st.session_state:
-                    a, b = float(st.session_state["FC_min_beta"]), float(st.session_state["FC_max_beta"])
-                    if a > b:
-                        a, b = b, a
-                    CF_range = (max(a, 0.01), max(b, 0.01))
+        # --- FC range: priorità al manuale se presente, poi suggerito, poi ±0.10 ---
+        CF_range = None
+        min_k = st.session_state.get("FC_min_beta", None)
+        max_k = st.session_state.get("FC_max_beta", None)
+
+        if min_k is not None and max_k is not None:
+            a, b = float(min_k), float(max_k)
+            if a > b:
+                a, b = b, a
+            CF_range = (max(a, 0.01), max(b, 0.01))
+        else:
+            vals = st.session_state.get("fc_suggested_vals", [])
+            if len(vals) == 2:
+                a, b = sorted([float(vals[0]), float(vals[1])])
+                CF_range = (max(a, 0.01), max(b, 0.01))
+            elif len(vals) == 1:
+                v = float(vals[0])
+                CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
             else:
-                vals = st.session_state.get("fc_suggested_vals", [])
-                if len(vals) == 2:
-                    a, b = sorted([float(vals[0]), float(vals[1])])
-                    CF_range = (max(a, 0.01), max(b, 0.01))
-                elif len(vals) == 1:
-                    v = float(vals[0])
-                    CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
-                else:
-                    CF_range = None  # il core userà ±0.10 su CF_value
+                CF_range = None  # il core userà ±0.10 su CF_value
+
 
             res = compute_raffreddamento_cautelativo(
                 dt_ispezione=data_ora_ispezione,
