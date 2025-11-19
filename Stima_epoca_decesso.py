@@ -155,7 +155,7 @@ _defaults = {
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
-    "stima_cautelativa_beta": True,
+    "stima_cautelativa_beta": False,
     "range_unico_beta": False,
     "peso_stimato_beta": False,
     "toggle_fattore_inline": False,
