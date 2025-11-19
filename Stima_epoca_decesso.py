@@ -273,36 +273,29 @@ stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 with st.container(border=True):
-    st.markdown(
-        "<div style='font-size:0.9rem; font-weight:600;'>Raffreddamento cadaverico (metodo di Henssge)</div>",
-        unsafe_allow_html=True
-    )
 
-    # Bottone compatto: metodo non applicabile
+    with st.container(border=True):
+
     henssge_non_app = st.checkbox(
         "Metodo di Henssge non applicabile",
-        key="henssge_non_applicabile"
+        key="henssge_non_applicabile",
+        help=(
+            "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
+            "• Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.\n"
+            "• Presenza di una fonte di calore nelle immediate vicinanze del corpo.\n"
+            "• Presenza di riscaldamento a pavimento sotto il corpo.\n"
+            "• Ipotermia accertata o sospetta (temperatura corporea iniziale < 35 °C).\n"
+            "• Impossibilità di determinare la temperatura ambientale media.\n"
+            "• Impossibilità di stimare il fattore correttivo di Henssge.\n"
+            "• Aumento significativo della temperatura ambientale (da valori bassi a elevati)."
+        ),
     )
-
-    if henssge_non_app:
-        st.markdown(
-            """
-            <div style='background:#fff3cd; border:1px solid #ffda6a;
-                        padding:10px; border-radius:6px; font-size:0.85rem;'>
-            <b>Il metodo di Henssge non può essere applicato nelle seguenti circostanze:</b><br><br>
-            • Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.<br>
-            • Presenza di una fonte di calore nelle immediate vicinanze del corpo.<br>
-            • Presenza di riscaldamento a pavimento sotto il corpo.<br>
-            • Ipotermia accertata o sospetta (temperatura corporea iniziale &lt; 35 °C).<br>
-            • Impossibilità di determinare la temperatura ambientale media.<br>
-            • Impossibilità di stimare il fattore correttivo di Henssge.<br>
-            • Aumento significativo della temperatura ambientale (da valori bassi a elevati).
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+   if henssge_non_app:
+        # Metodo di Henssge escluso: non mostrare la maschera di input del raffreddamento
+        pass
 
     else:
+
         # -------------------------
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
