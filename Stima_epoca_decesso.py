@@ -272,7 +272,7 @@ stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
-    with st.container(border=True):
+with st.container(border=True):
 
     henssge_non_app = st.checkbox(
         "Metodo di Henssge non applicabile",
