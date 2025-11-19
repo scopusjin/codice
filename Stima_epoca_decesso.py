@@ -288,7 +288,7 @@ with st.container(border=True):
             "• Aumento significativo della temperatura ambientale (da valori bassi a elevati)."
         ),
     )
-   if henssge_non_app:
+    if henssge_non_app:
         # Metodo di Henssge escluso: non mostrare la maschera di input del raffreddamento
         pass
 
