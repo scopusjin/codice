@@ -781,6 +781,14 @@ def aggiorna_grafico(
             ):
                 chunks.append(_wrap_final(blk))
 
+        # >>> aggiunta: testi di eccitabilità anche senza dati di temperatura <<<
+        if parametri_aggiuntivi_da_considerare:
+            for blocco in paragrafi_parametri_aggiuntivi(
+                parametri=parametri_aggiuntivi_da_considerare
+            ):
+                chunks.append(_wrap_final(blocco))
+
+
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
 
