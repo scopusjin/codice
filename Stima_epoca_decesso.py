@@ -273,23 +273,18 @@ stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 with st.container(border=True):
-    # Scelta se applicare o meno Henssge
     st.markdown(
         "<div style='font-size:0.9rem; font-weight:600;'>Raffreddamento cadaverico (metodo di Henssge)</div>",
         unsafe_allow_html=True
     )
 
-    modalita_raff = st.radio(
-        "Modalità raffreddamento",
-        options=["Valutabile", "Non valutabile"],
-        index=0,
-        key="raffreddamento_modalita",
-        horizontal=True,
-        label_visibility="collapsed",
+    # Bottone compatto: metodo non applicabile
+    henssge_non_app = st.checkbox(
+        "Metodo di Henssge non applicabile",
+        key="henssge_non_applicabile"
     )
 
-    # Se NON valutabile: mostra solo helper esplicativo
-    if modalita_raff == "Non valutabile":
+    if henssge_non_app:
         st.markdown(
             """
             <div style='background:#fff3cd; border:1px solid #ffda6a;
@@ -462,6 +457,7 @@ with st.container(border=True):
             with col3:
                 st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
                 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+
 
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
