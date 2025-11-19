@@ -273,161 +273,196 @@ stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 with st.container(border=True):
+    # Scelta se applicare o meno Henssge
+    st.markdown(
+        "<div style='font-size:0.9rem; font-weight:600;'>Raffreddamento cadaverico (metodo di Henssge)</div>",
+        unsafe_allow_html=True
+    )
 
-    if stima_cautelativa_beta:
-        # -------------------------
-        # 🔶 MASCHERA CAUTELATIVA
-        # -------------------------
-        rg1, rg2 = st.columns([3, 1], gap="small")
-        with rg1:
-            st.markdown(
-                "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
-                "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-                "Se non diversamente specificato, si considererà "
-                "un range di incertezza di ±1.0 °C per la T. ambientale media "
-                "e di ±0.10 per il fattore di correzione."
-                "</div>",
-                unsafe_allow_html=True
-            )
+    modalita_raff = st.radio(
+        "Modalità raffreddamento",
+        options=["Valutabile", "Non valutabile"],
+        index=0,
+        key="raffreddamento_modalita",
+        horizontal=True,
+        label_visibility="collapsed",
+    )
 
-        with rg2:
-            range_unico = st.toggle("Specifica range", key="range_unico_beta")
-
-        # Etichette dinamiche
-        label_ta = "T. ambientale media (°C):"
-        label_fc = "Fattore di correzione (FC):"
-        if st.session_state.get("range_unico_beta", False):
-            label_ta = "Range di T. ambientale media (°C):"
-            label_fc = "Range del fattore di correzione (FC):"
-
-        # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
-        c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
-        with c1:
-            st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):",
-                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                            key="rt_val", label_visibility="collapsed")
-        with c2:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):",
-                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed")
-        with c3:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
-            pc1, pc2 = st.columns([1, 0.8], gap="small")
-            with pc1:
-                st.number_input("Peso (kg):",
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed")
-            with pc2:
-                st.toggle("±3 kg", key="peso_stimato_beta")
-
-        # Riga 2: T. ambientale media + range unico
-        st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
-        ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
-        with ta_c1:
-            ta_base_val = st.number_input(
-                "TA base",
-                value=sget("ta_base_val", 20.0),
-                step=0.1, format="%.1f",
-                key="ta_base_val",
-                label_visibility="collapsed"
-            )
-        with ta_c2:
-            if st.session_state.get("range_unico_beta", False):
-                ta_other_val = st.number_input(
-                    "TA altro estremo",
-                    value=sget("ta_other_val", ta_base_val + 1.0),
-                    step=0.1, format="%.1f",
-                    key="ta_other_val",
-                    label_visibility="collapsed"
-                )
-                lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
-                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-            else:
-                st.empty()
-        with ta_c3:
-            st.empty()
-
-        # Riga 3: Fattore di correzione
-        st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
-        fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
-
-        with fc_c1:
-            if st.session_state.get("range_unico_beta", False):
-                fc_min_val = st.number_input(
-                    "FC min",
-                    value=sget("fc_min_val", round(sget("fattore_correzione", 1.0) - 0.10, 2)),
-                    step=0.1, format="%.2f",
-                    key="fc_min_val",
-                    label_visibility="collapsed"
-                )
-            else:
-                st.number_input(
-                    "FC",
-                    value=sget("fattore_correzione", 1.0),
-                    step=0.1, format="%.2f",
-                    key="fattore_correzione",
-                    label_visibility="collapsed"
-                )
-                if not st.session_state.get("fc_suggested_vals"):
-                    st.session_state.pop("FC_min_beta", None)
-                    st.session_state.pop("FC_max_beta", None)
-
-        with fc_c2:
-            if st.session_state.get("range_unico_beta", False):
-                fc_other_val = st.number_input(
-                    "FC max",
-                    value=sget("fc_other_val", round(sget("fattore_correzione", 1.0) + 0.10, 2)),
-                    step=0.1, format="%.2f",
-                    key="fc_other_val",
-                    label_visibility="collapsed"
-                )
-                lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
-                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-            else:
-                st.empty()
-
-        with fc_c3:
-            st.toggle("Suggerisci FC", key="toggle_fattore_inline")
-        st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+    # Se NON valutabile: mostra solo helper esplicativo
+    if modalita_raff == "Non valutabile":
+        st.markdown(
+            """
+            <div style='background:#fff3cd; border:1px solid #ffda6a;
+                        padding:10px; border-radius:6px; font-size:0.85rem;'>
+            <b>Il metodo di Henssge non può essere applicato nelle seguenti circostanze:</b><br><br>
+            • Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.<br>
+            • Presenza di una fonte di calore nelle immediate vicinanze del corpo.<br>
+            • Presenza di riscaldamento a pavimento sotto il corpo.<br>
+            • Ipotermia accertata o sospetta (temperatura corporea iniziale &lt; 35 °C).<br>
+            • Impossibilità di determinare la temperatura ambientale media.<br>
+            • Impossibilità di stimare il fattore correttivo di Henssge.<br>
+            • Aumento significativo della temperatura ambientale (da valori bassi a elevati).
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     else:
         # -------------------------
-        # 🔷 MASCHERA STANDARD
+        # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
-        col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-        with col1:
-            st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. rettale (°C):",
-                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                            key="rt_val", label_visibility="collapsed")
-        with col2:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ante-mortem stimata (°C):",
-                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed")
-        with col3:
-            st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
-            st.number_input("Peso (kg):",
-                            value=sget("peso", 70.0), step=1.0, format="%.1f",
-                            key="peso", label_visibility="collapsed")
+        if stima_cautelativa_beta:
+            rg1, rg2 = st.columns([3, 1], gap="small")
+            with rg1:
+                st.markdown(
+                    "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
+                    "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
+                    "Se non diversamente specificato, si considererà "
+                    "un range di incertezza di ±1.0 °C per la T. ambientale media "
+                    "e di ±0.10 per il fattore di correzione."
+                    "</div>",
+                    unsafe_allow_html=True
+                )
 
-        col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-        with col1:
-            st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-            st.number_input("T. ambientale (°C):",
-                            value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                            key="ta_base_val", label_visibility="collapsed")
+            with rg2:
+                range_unico = st.toggle("Specifica range", key="range_unico_beta")
 
-        with col2:
-            st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-            st.number_input("Fattore di correzione:",
-                            value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                            key="fattore_correzione", label_visibility="collapsed")
-        with col3:
-            st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
-            st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+            # Etichette dinamiche
+            label_ta = "T. ambientale media (°C):"
+            label_fc = "Fattore di correzione (FC):"
+            if st.session_state.get("range_unico_beta", False):
+                label_ta = "Range di T. ambientale media (°C):"
+                label_fc = "Range del fattore di correzione (FC):"
+
+            # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
+            c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
+            with c1:
+                st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
+                st.number_input("T. rettale (°C):",
+                                value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                                key="rt_val", label_visibility="collapsed")
+            with c2:
+                st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+                st.number_input("T. ante-mortem stimata (°C):",
+                                value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                                key="tm_val", label_visibility="collapsed")
+            with c3:
+                st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
+                pc1, pc2 = st.columns([1, 0.8], gap="small")
+                with pc1:
+                    st.number_input("Peso (kg):",
+                                    value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                    key="peso", label_visibility="collapsed")
+                with pc2:
+                    st.toggle("±3 kg", key="peso_stimato_beta")
+
+            # Riga 2: T. ambientale media + range unico
+            st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
+            ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
+            with ta_c1:
+                ta_base_val = st.number_input(
+                    "TA base",
+                    value=sget("ta_base_val", 20.0),
+                    step=0.1, format="%.1f",
+                    key="ta_base_val",
+                    label_visibility="collapsed"
+                )
+            with ta_c2:
+                if st.session_state.get("range_unico_beta", False):
+                    ta_other_val = st.number_input(
+                        "TA altro estremo",
+                        value=sget("ta_other_val", ta_base_val + 1.0),
+                        step=0.1, format="%.1f",
+                        key="ta_other_val",
+                        label_visibility="collapsed"
+                    )
+                    lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
+                    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                else:
+                    st.empty()
+            with ta_c3:
+                st.empty()
+
+            # Riga 3: Fattore di correzione
+            st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
+            fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
+
+            with fc_c1:
+                if st.session_state.get("range_unico_beta", False):
+                    fc_min_val = st.number_input(
+                        "FC min",
+                        value=sget("fc_min_val", round(sget("fattore_correzione", 1.0) - 0.10, 2)),
+                        step=0.1, format="%.2f",
+                        key="fc_min_val",
+                        label_visibility="collapsed"
+                    )
+                else:
+                    st.number_input(
+                        "FC",
+                        value=sget("fattore_correzione", 1.0),
+                        step=0.1, format="%.2f",
+                        key="fattore_correzione",
+                        label_visibility="collapsed"
+                    )
+                    if not st.session_state.get("fc_suggested_vals"):
+                        st.session_state.pop("FC_min_beta", None)
+                        st.session_state.pop("FC_max_beta", None)
+
+            with fc_c2:
+                if st.session_state.get("range_unico_beta", False):
+                    fc_other_val = st.number_input(
+                        "FC max",
+                        value=sget("fc_other_val", round(sget("fattore_correzione", 1.0) + 0.10, 2)),
+                        step=0.1, format="%.2f",
+                        key="fc_other_val",
+                        label_visibility="collapsed"
+                    )
+                    lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
+                    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                else:
+                    st.empty()
+
+            with fc_c3:
+                st.toggle("Suggerisci FC", key="toggle_fattore_inline")
+            st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+
+        else:
+            # -------------------------
+            # 🔷 MASCHERA STANDARD
+            # -------------------------
+            col1, col2, col3 = st.columns([1, 1, 1], gap="small")
+            with col1:
+                st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
+                st.number_input("T. rettale (°C):",
+                                value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                                key="rt_val", label_visibility="collapsed")
+            with col2:
+                st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
+                st.number_input("T. ante-mortem stimata (°C):",
+                                value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                                key="tm_val", label_visibility="collapsed")
+            with col3:
+                st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
+                st.number_input("Peso (kg):",
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed")
+
+            col1, col2, col3 = st.columns([1, 1, 1], gap="small")
+            with col1:
+                st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
+                st.number_input("T. ambientale (°C):",
+                                value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                                key="ta_base_val", label_visibility="collapsed")
+
+            with col2:
+                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
+                st.number_input("Fattore di correzione:",
+                                value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                                key="fattore_correzione", label_visibility="collapsed")
+            with col3:
+                st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
+                st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
     import streamlit as st
