@@ -212,7 +212,7 @@ def aggiorna_grafico(
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-            # --- Range Ta/FC per riepilogo ---
+            # --- Range Ta/CF per riepilogo ---
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 ta_lo = float(st.session_state["Ta_min_beta"])
                 ta_hi = float(st.session_state["Ta_max_beta"])
