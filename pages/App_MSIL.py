@@ -17,6 +17,17 @@ from app.msil_tanatology import (
     msil_livor_legacy_value,
     msil_rigor_legacy_value,
 )
+from app.factor_ui_states import (
+    BODY_LABEL_IT,
+    WATER_LABEL_IT,
+    MSIL_CLOTHING_LABEL_IT,
+    LAYER_THIN,
+    LAYER_THICK,
+    BLANKET_MEDIUM,
+    BLANKET_HEAVY,
+    body_legacy_value,
+    water_legacy_value,
+)
 
 # ------------------------------------------------------------
 # Config pagina
@@ -363,10 +374,10 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
-    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
+    stato_label = st.radio("", list(BODY_LABEL_IT.values()),
                            index=0, horizontal=True, key=k("radio_stato_corpo"),
                            label_visibility="collapsed")
-    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
+    stato_corpo = body_legacy_value(stato_label)
 
     try:
         tabella2 = load_tabelle_correzione()
@@ -386,10 +397,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso_eff = float(peso_default)
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
+        acqua_label = st.radio("", list(WATER_LABEL_IT.values()),
                                index=0, horizontal=True, key=k("radio_acqua"),
                                label_visibility="collapsed")
-        acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
+        acqua_mode = water_legacy_value(acqua_label)
 
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
@@ -409,14 +420,19 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
+        label_sottili = MSIL_CLOTHING_LABEL_IT[LAYER_THIN]
+        label_spessi = MSIL_CLOTHING_LABEL_IT[LAYER_THICK]
+        label_coperte_medie = MSIL_CLOTHING_LABEL_IT[BLANKET_MEDIUM]
+        label_coperte_pesanti = MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY]
+
         defaults = {
-            "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
-            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
+            label_sottili: st.session_state.get(k("strati_sottili"), 0),
+            label_spessi: st.session_state.get(k("strati_spessi"), 0),
         }
         if stato_corpo == "Asciutto":
             defaults.update({
-                "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
-                "Coperte pesanti/Mantelline termiche": st.session_state.get(k("coperte_pesanti"), 0),
+                label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
+                label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
             })
         df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
         edited = st.data_editor(
@@ -427,10 +443,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             },
         )
         vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
-        n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
-        n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti/Mantelline termiche", 0) if stato_corpo == "Asciutto" else 0
+        n_sottili = vals.get(label_sottili, 0)
+        n_spessi = vals.get(label_spessi, 0)
+        n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get(label_coperte_pesanti, 0) if stato_corpo == "Asciutto" else 0
 
     counts = DressCounts(
         sottili=n_sottili, spessi=n_spessi,
