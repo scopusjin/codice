@@ -64,8 +64,6 @@ LAYER_THICK = "layer_thick"
 BLANKET_MEDIUM = "blanket_medium"
 BLANKET_HEAVY = "blanket_heavy"
 
-# La pagina completa e quella MSIL usano oggi una formulazione diversa per
-# l'ultima voce. Entrambe restano intenzionalmente preservate.
 FULL_CLOTHING_LABEL_IT: Dict[str, str] = {
     LAYER_THIN: "Strati leggeri (indumenti o teli sottili)",
     LAYER_THICK: "Strati pesanti (indumenti o teli spessi)",
@@ -77,7 +75,7 @@ MSIL_CLOTHING_LABEL_IT: Dict[str, str] = {
     LAYER_THIN: "Strati leggeri (indumenti o teli sottili)",
     LAYER_THICK: "Strati pesanti (indumenti o teli spessi)",
     BLANKET_MEDIUM: "Coperte di medio spessore",
-    BLANKET_HEAVY: "Coperte pesanti",
+    BLANKET_HEAVY: "Coperte pesanti/Mantelline termiche",
 }
 
 
