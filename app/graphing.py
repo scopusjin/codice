@@ -17,6 +17,7 @@ from app.parameters import (
     opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
     dati_parametri_aggiuntivi, nomi_brevi,
 )
+from app.graphing_tanatology import resolve_base_tanatology_ranges
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -211,7 +212,7 @@ def aggiorna_grafico(
             Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
             raffreddamento_calcolabile = True
 
-            # --- Range Ta/CF per riepilogo ---
+            # --- Range Ta/FC per riepilogo ---
             if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
                 ta_lo = float(st.session_state["Ta_min_beta"])
                 ta_hi = float(st.session_state["Ta_max_beta"])
@@ -336,13 +337,14 @@ def aggiorna_grafico(
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
 
     # --- macchie/rigidità ---
-    macchie_range = opzioni_macchie.get(selettore_macchie)
+    base_tanatology = resolve_base_tanatology_ranges(selettore_macchie, selettore_rigidita)
+    macchie_range = base_tanatology.livor_range
     macchie_range_valido = isinstance(macchie_range, tuple)
-    macchie_medi_range = macchie_medi.get(selettore_macchie) if macchie_range_valido else None
+    macchie_medi_range = base_tanatology.livor_typical_range if macchie_range_valido else None
 
-    rigidita_range = opzioni_rigidita.get(selettore_rigidita)
+    rigidita_range = base_tanatology.rigor_range
     rigidita_range_valido = isinstance(rigidita_range, tuple)
-    rigidita_medi_range = rigidita_medi.get(selettore_rigidita) if rigidita_range_valido else None
+    rigidita_medi_range = base_tanatology.rigor_typical_range if rigidita_range_valido else None
 
     # --- parametri aggiuntivi ---
     parametri_aggiuntivi_da_considerare: List[Dict[str, Any]] = []
