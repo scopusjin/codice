@@ -81,7 +81,7 @@ def build_final_sentence(
         decesso_dt = isp_dt - datetime.timedelta(hours=start)
         hh_d, dd_d = _fmt_dt(decesso_dt)
         testo = (
-            "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta "
+            "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
             f"{_bold('oltre ' + _fmt_hm_full(h1, m1) + ' prima')} "
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero {_bold('prima delle ore ' + hh_d + ' del ' + dd_d)}."
@@ -95,8 +95,8 @@ def build_final_sentence(
         hh_lo, dd_lo = _fmt_dt(lim_inf_dt)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
         testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
-            f"consente di stimare che la morte sia avvenuta {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+            f"consente di stimare che la morte sia avvenuta all'incirca {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}."
         )
@@ -118,7 +118,7 @@ def build_final_sentence(
             finestra = _bold(f"tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}")
 
         testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali massimi e minimi, "
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
             f"consente di stimare che la morte sia avvenuta, all'incirca, {_bold(intervallo_txt + ' prima')} "
             "dei rilievi effettuati durante l’ispezione legale, "
             f"ovvero circa {finestra}."
@@ -155,7 +155,7 @@ def build_simple_sentence(
         return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
                 f"{_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
                 "dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}.</p>")
+                f"ovvero all'incirca {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}.</p>")
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
@@ -241,7 +241,7 @@ def build_final_sentence_simple(
         h1, m1 = _hm_from_hours(comune_inizio)
         testo = (
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            f"consente di stimare che la morte sia avvenuta {_bold('più di ' + _fmt_hm_full(h1, m1) + ' prima')} "
+            f"consente di stimare che la morte sia all'incirca avvenuta {_bold('più di ' + _fmt_hm_full(h1, m1) + ' prima')} "
             "dei rilievi dei dati tanatologici."
         )
         return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
@@ -251,7 +251,7 @@ def build_final_sentence_simple(
         h2, m2 = _hm_from_hours(comune_fine)
         testo = (
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            f"consente di stimare che la morte sia avvenuta {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
+            f"consente di stimare che la morte sia all'incirca avvenuta {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
             "dei rilievi dei dati tanatologici."
         )
         return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
@@ -321,11 +321,8 @@ def paragrafo_raffreddamento_dettaglio(
         if frase_intro:
             extra = (
                 " " + frase_intro +
-                f"Il range temporale indicato è stato calcolato, grossolanamente, come pari al ±20% "
-                f"del valore medio ottenuto dalla stima del raffreddamento cadaverico ({t_med_round:.1f} ore), "
-                "ma tale range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-                "In mancanza di ulteriori dati o interpretazioni, si può presumere che il cadavere fosse ormai "
-                "in equilibrio termico con l'ambiente. Per tale motivo, per la stima dell'epoca del decesso "
+                f"Il range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
+                "Per tale motivo, per la stima dell'epoca del decesso "
                 "è consigliabile far riferimento principalmente ad altri dati tanatologici."
             )
 
