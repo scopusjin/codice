@@ -43,6 +43,14 @@ from app.surface_ui_states import (
     SURFACE_LABEL_IT,
     surface_legacy_value,
 )
+from app.special_tanatology_states import (
+    PARAM_ELECTRICAL_SUPRACILIARY,
+    PARAM_ELECTRICAL_PERIORAL,
+    SPECIAL_PARAM_LABEL_IT,
+    OPTION_NOT_ASSESSED,
+    special_option_legacy_labels,
+    special_option_id,
+)
 
 from app.data_sources import load_tabelle_correzione
 from app.plotting import compute_plot_data, render_ranges_plot
@@ -672,7 +680,8 @@ if mostra_parametri_aggiuntivi:
                 unsafe_allow_html=True
             )
 
-        for nome_parametro, dati_parametro in dati_parametri_aggiuntivi.items():
+        for parametro_id, nome_parametro in SPECIAL_PARAM_LABEL_IT.items():
+            dati_parametro = dati_parametri_aggiuntivi[nome_parametro]
             col1, col2 = st.columns([1, 2], gap="small")
 
             with col1:
@@ -683,14 +692,14 @@ if mostra_parametri_aggiuntivi:
                         unsafe_allow_html=True
                     )
                 with subcol2:
-                    if nome_parametro in ["Eccitabilità elettrica sopraciliare", "Eccitabilità elettrica peribuccale"]:
+                    if parametro_id in {PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL}:
                         with st.popover(" "):
-                            if nome_parametro == "Eccitabilità elettrica sopraciliare":
+                            if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
                                 st.image(
                                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
                                     width=400
                                 )
-                            elif nome_parametro == "Eccitabilità elettrica peribuccale":
+                            elif parametro_id == PARAM_ELECTRICAL_PERIORAL:
                                 st.image(
                                     "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
                                     width=300
@@ -699,16 +708,18 @@ if mostra_parametri_aggiuntivi:
             with col2:
                 selettore = st.selectbox(
                     label=nome_parametro,
-                    options=dati_parametro["opzioni"],
+                    options=list(special_option_legacy_labels(parametro_id)),
                     key=f"{nome_parametro}_selector",
                     label_visibility="collapsed"
                 )
+                selettore_id = special_option_id(parametro_id, selettore)
+                st.session_state[f"special_{parametro_id}_id"] = selettore_id
 
             data_picker = None
             ora_input = None
             usa_orario_personalizzato = False
 
-            if selettore != "Non valutata" and usa_orario_custom_globale:
+            if selettore_id != OPTION_NOT_ASSESSED and usa_orario_custom_globale:
                 chiave_checkbox = f"{nome_parametro}_diversa"
                 colx1, colx2 = st.columns([0.75, 0.25], gap="small")
                 with colx1:
