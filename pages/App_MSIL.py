@@ -416,7 +416,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         if stato_corpo == "Asciutto":
             defaults.update({
                 "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
-                "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
+                "Coperte pesanti/Mantelline termiche": st.session_state.get(k("coperte_pesanti"), 0),
             })
         df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
         edited = st.data_editor(
@@ -430,7 +430,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
         n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
         n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get("Coperte pesanti/Mantelline termiche", 0) if stato_corpo == "Asciutto" else 0
 
     counts = DressCounts(
         sottili=n_sottili, spessi=n_spessi,
