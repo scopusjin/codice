@@ -11,6 +11,12 @@ from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
 from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
 from app.textgen import paragrafi_descrizioni_base, paragrafi_parametri_aggiuntivi
+from app.msil_tanatology import (
+    MSIL_LIVOR_STATE_BY_LABEL,
+    MSIL_RIGOR_STATE_BY_LABEL,
+    msil_livor_legacy_value,
+    msil_rigor_legacy_value,
+)
 
 # ------------------------------------------------------------
 # Config pagina
@@ -278,22 +284,9 @@ if st.session_state["usa_orario_custom"]:
 # ------------------------------------------------------------
 # Ipostasi e rigidità
 # ------------------------------------------------------------
-_IPOSTASI_MOBILE = {
-    "🩸 IPOSTASI?": "Non valutate",
-    "Ipostasi assenti": "Non ancora comparse",
-    "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
-    "Ipostasi non migrabili": "Fisse",
-    
-}
-_RIGIDITA_MOBILE = {
-    "💪🏻 RIGOR MORTIS?": "Non valutata",
-    "Rigor assente": "Non ancora apprezzabile",
-    "Rigor presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
-    "Rigor ubiquitario e di intensità massima": "Presente, intensa e generalizzata",
-    "Rigor in risoluzione": "In via di risoluzione",
-    "Rigor risolto": "Risolta",
-    
-}
+_IPOSTASI_MOBILE = MSIL_LIVOR_STATE_BY_LABEL
+_RIGIDITA_MOBILE = MSIL_RIGOR_STATE_BY_LABEL
+
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
@@ -302,7 +295,7 @@ with c_ip:
         index=(ip_keys.index("🩸 IPOSTASI?") if "🩸 IPOSTASI?" in ip_keys else 0),
         key="selettore_macchie_mobile", label_visibility="collapsed",
     )
-    selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
+    selettore_macchie = msil_livor_legacy_value(scelta_ipostasi_lbl)
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
@@ -310,7 +303,7 @@ with c_rg:
         index=(rg_keys.index("💪🏻 RIGOR MORTIS?") if "💪🏻 RIGOR MORTIS?" in rg_keys else 0),
         key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
-    selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
+    selettore_rigidita = msil_rigor_legacy_value(scelta_rigidita_lbl)
 
 # ------------------------------------------------------------
 # 1) Campi di input: RT / TA / Peso con chiavi widget dedicate
