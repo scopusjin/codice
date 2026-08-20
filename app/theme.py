@@ -157,10 +157,26 @@ def frase_breve_box(key: str = "frase_breve"):
           padding:14px 18px;
           margin:4px 0;
           color:{C['OutText']};
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          text-align:center;
+        }}
+
+        [data-stylable-key="{key}"] .fb-compact {{
+          margin:0 !important;
+          padding:0 !important;
+          line-height:1.4 !important;
+        }}
+
+        [data-stylable-key="{key}"] .fb-compact p {{
+          margin:0 !important;
+          padding:0 !important;
+        }}
+
+        [data-stylable-key="{key}"] div[data-testid="stMarkdownContainer"] {{
+          margin:0 !important;
+          padding:0 !important;
+        }}
+
+        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
+          gap:0 !important;
         }}
         """
     )
