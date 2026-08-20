@@ -28,6 +28,17 @@ from app.full_tanatology import (
     full_livor_legacy_value,
     full_rigor_legacy_value,
 )
+from app.factor_ui_states import (
+    BODY_LABEL_IT,
+    WATER_LABEL_IT,
+    FULL_CLOTHING_LABEL_IT,
+    LAYER_THIN,
+    LAYER_THICK,
+    BLANKET_MEDIUM,
+    BLANKET_HEAVY,
+    body_legacy_value,
+    water_legacy_value,
+)
 
 from app.data_sources import load_tabelle_correzione
 from app.plotting import compute_plot_data, render_ranges_plot
@@ -498,13 +509,13 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         </style>
     """, unsafe_allow_html=True)
     # --- Stato corpo ---
-    stato_label = st.radio("dummy", ["Corpo asciutto", "Bagnato", "Immerso"], index=0, horizontal=True, key=k("radio_stato_corpo"))
-    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else ("Bagnato" if stato_label == "Bagnato" else "Immerso")
+    stato_label = st.radio("dummy", list(BODY_LABEL_IT.values()), index=0, horizontal=True, key=k("radio_stato_corpo"))
+    stato_corpo = body_legacy_value(stato_label)
 
     # ============== Immerso ==============
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("dummy", ["In acqua stagnante", "In acqua corrente"], index=0, horizontal=True, key=k("radio_acqua"))
-        acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
+        acqua_label = st.radio("dummy", list(WATER_LABEL_IT.values()), index=0, horizontal=True, key=k("radio_acqua"))
+        acqua_mode = water_legacy_value(acqua_label)
 
         try:
             tabella2 = load_tabelle_correzione()
@@ -537,14 +548,19 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
+        label_sottili = FULL_CLOTHING_LABEL_IT[LAYER_THIN]
+        label_spessi = FULL_CLOTHING_LABEL_IT[LAYER_THICK]
+        label_coperte_medie = FULL_CLOTHING_LABEL_IT[BLANKET_MEDIUM]
+        label_coperte_pesanti = FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY]
+
         defaults = {
-            "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
-            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
+            label_sottili: st.session_state.get(k("strati_sottili"), 0),
+            label_spessi: st.session_state.get(k("strati_spessi"), 0),
         }
         if stato_corpo == "Asciutto":
             defaults.update({
-                "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
-                "Coperte pesanti/Mantelline termiche":           st.session_state.get(k("coperte_pesanti"), 0),
+                label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
+                label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
             })
 
         rows = [{"--": nome, "Numero?": val} for nome, val in defaults.items()]
@@ -569,10 +585,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
         vals = {r["--"]: int(r["Numero?"] or 0) for _, r in edited.iterrows()}
 
-        n_sottili = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
-        n_spessi = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti/Mantelline termiche", 0) if stato_corpo == "Asciutto" else 0
+        n_sottili = vals.get(label_sottili, 0)
+        n_spessi = vals.get(label_spessi, 0)
+        n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
+        n_cop_pesanti = vals.get(label_coperte_pesanti, 0) if stato_corpo == "Asciutto" else 0
 
     counts = DressCounts(sottili=n_sottili, spessi=n_spessi, coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti)
 
