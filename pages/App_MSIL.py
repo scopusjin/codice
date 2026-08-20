@@ -28,6 +28,11 @@ from app.factor_ui_states import (
     body_legacy_value,
     water_legacy_value,
 )
+from app.surface_ui_states import (
+    SURFACE_LABEL_IT,
+    SURFACE_THICK_METAL_OUTDOOR,
+    surface_legacy_value,
+)
 
 # ------------------------------------------------------------
 # Config pagina
@@ -457,17 +462,19 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito)
                     or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = SURF_DISPLAY_ORDER.copy()
+        options_display = list(SURFACE_LABEL_IT.values())
         if not nudo_eff:
-            options_display = [o for o in options_display if o != "Piano metallico spesso (all’aperto)"]
+            excluded_surface = SURFACE_LABEL_IT[SURFACE_THICK_METAL_OUTDOOR]
+            options_display = [o for o in options_display if o != excluded_surface]
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
-        superficie_display_selected = st.selectbox(
+        superficie_display_label = st.selectbox(
             "Superficie di appoggio", options_display,
             index=options_display.index(prev_display),
             key=k("superficie_display_sel"), label_visibility="visible"
         )
+        superficie_display_selected = surface_legacy_value(superficie_display_label)
 
     correnti_presenti = False
     with corr_placeholder.container():
