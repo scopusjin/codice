@@ -157,6 +157,10 @@ def frase_breve_box(key: str = "frase_breve"):
           padding:14px 18px;
           margin:4px 0;
           color:{C['OutText']};
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
         }}
         """
     )
