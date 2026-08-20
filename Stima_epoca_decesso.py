@@ -601,7 +601,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         nudo_eff = ((not toggle_vestito) or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
         options_display = list(SURFACE_LABEL_IT.values())
         if not nudo_eff:
-            options_display = [o for o in options_display if o != "Superficie metallica spessa (all’aperto)"]
+            options_display = [o for o in options_display if o != "Piano metallico spesso (all’aperto)"]
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
