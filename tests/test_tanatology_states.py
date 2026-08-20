@@ -23,9 +23,9 @@ class TanatologyStateMappingTests(unittest.TestCase):
             self.assertEqual(rigor_legacy_label(state_id), label)
             self.assertEqual(rigor_state_id(label), state_id)
 
-    def test_ids_are_unique(self):
-        self.assertEqual(len(LIVOR_LABEL_IT), len(set(LIVOR_LABEL_IT)))
-        self.assertEqual(len(RIGOR_LABEL_IT), len(set(RIGOR_LABEL_IT)))
+    def test_labels_are_unique(self):
+        self.assertEqual(len(LIVOR_LABEL_IT), len(set(LIVOR_LABEL_IT.values())))
+        self.assertEqual(len(RIGOR_LABEL_IT), len(set(RIGOR_LABEL_IT.values())))
 
 
 if __name__ == "__main__":
