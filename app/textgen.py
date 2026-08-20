@@ -312,18 +312,17 @@ def paragrafo_raffreddamento_dettaglio(
         and t_med_round is not None and not np.isnan(t_med_round)
     ):
         if qd_val <= 0.2:
-            frase_intro = "<b>I valori ottenuti, tuttavia, sono al di fuori dai range ottimali per applicare l'equazione.</b> "
+            frase_intro = "<b>I valori ottenuti sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
         elif qd_val < 0.3:
-            frase_intro = "<b>I valori ottenuti, tuttavia, sono in parte fuori dai range ottimali per applicare l'equazione.</b> "
+            frase_intro = "<b>Alcuni dei valori rilevati sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
         else:
             frase_intro = ""
 
         if frase_intro:
             extra = (
                 " " + frase_intro +
-                f"Il range è privo di una solida base statistica ed è da ritenersi del tutto indicativo. "
-                "Per tale motivo, per la stima dell'epoca del decesso "
-                "è consigliabile far riferimento principalmente ad altri dati tanatologici."
+                "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
+                "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili."
             )
 
     if (
