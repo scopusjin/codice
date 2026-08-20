@@ -26,6 +26,7 @@ from app.special_tanatology_states import (
     PUPILLARY_POSITIVE,
     PUPILLARY_NEGATIVE,
     SPECIAL_PARAM_LABEL_IT,
+    special_option_ids,
     special_option_legacy_labels,
     special_range,
 )
@@ -89,13 +90,7 @@ class SpecialTanatologyStateTests(unittest.TestCase):
 
     def test_expected_range_set_covers_every_option(self):
         for param_id, expected_options in EXPECTED_RANGES.items():
-            self.assertEqual(
-                set(expected_options),
-                set(__import__(
-                    "app.special_tanatology_states",
-                    fromlist=["special_option_ids"],
-                ).special_option_ids(param_id)),
-            )
+            self.assertEqual(set(expected_options), set(special_option_ids(param_id)))
 
 
 if __name__ == "__main__":
