@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import unittest
+
 from app.factor_ui_states import (
     BLANKET_HEAVY,
     BODY_IMMERSED,
@@ -16,27 +18,30 @@ from app.factor_ui_states import (
 )
 
 
-def test_body_labels_and_legacy_values_are_unchanged():
-    assert BODY_LABEL_IT == {
-        BODY_DRY: "Corpo asciutto",
-        BODY_WET: "Bagnato",
-        BODY_IMMERSED: "Immerso",
-    }
-    assert body_legacy_value("Corpo asciutto") == "Asciutto"
-    assert body_legacy_value("Bagnato") == "Bagnato"
-    assert body_legacy_value("Immerso") == "Immerso"
+class FactorUIStateTests(unittest.TestCase):
+    def test_body_labels_and_legacy_values_are_unchanged(self):
+        self.assertEqual(BODY_LABEL_IT, {
+            BODY_DRY: "Corpo asciutto",
+            BODY_WET: "Bagnato",
+            BODY_IMMERSED: "Immerso",
+        })
+        self.assertEqual(body_legacy_value("Corpo asciutto"), "Asciutto")
+        self.assertEqual(body_legacy_value("Bagnato"), "Bagnato")
+        self.assertEqual(body_legacy_value("Immerso"), "Immerso")
+
+    def test_water_labels_and_legacy_values_are_unchanged(self):
+        self.assertEqual(WATER_LABEL_IT, {
+            WATER_STILL: "In acqua stagnante",
+            WATER_FLOWING: "In acqua corrente",
+        })
+        self.assertEqual(water_legacy_value("In acqua stagnante"), "stagnante")
+        self.assertEqual(water_legacy_value("In acqua corrente"), "corrente")
+
+    def test_heavy_blanket_label_is_shared_between_uis(self):
+        expected = "Coperte pesanti/Mantelline termiche"
+        self.assertEqual(FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY], expected)
+        self.assertEqual(MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY], expected)
 
 
-def test_water_labels_and_legacy_values_are_unchanged():
-    assert WATER_LABEL_IT == {
-        WATER_STILL: "In acqua stagnante",
-        WATER_FLOWING: "In acqua corrente",
-    }
-    assert water_legacy_value("In acqua stagnante") == "stagnante"
-    assert water_legacy_value("In acqua corrente") == "corrente"
-
-
-def test_heavy_blanket_label_is_shared_between_uis():
-    expected = "Coperte pesanti/Mantelline termiche"
-    assert FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == expected
-    assert MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == expected
+if __name__ == "__main__":
+    unittest.main()
