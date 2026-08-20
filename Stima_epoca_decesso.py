@@ -22,6 +22,12 @@ from app.parameters import (
     opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
     dati_parametri_aggiuntivi, nomi_brevi,
 )
+from app.full_tanatology import (
+    FULL_LIVOR_STATE_BY_LABEL,
+    FULL_RIGOR_STATE_BY_LABEL,
+    full_livor_legacy_value,
+    full_rigor_legacy_value,
+)
 
 from app.data_sources import load_tabelle_correzione
 from app.plotting import compute_plot_data, render_ranges_plot
@@ -246,24 +252,41 @@ input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 # 📌 2. Ipostasi e rigidità — RIQUADRO
 with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
+
+    livor_labels = list(FULL_LIVOR_STATE_BY_LABEL.keys())
+    rigor_labels = list(FULL_RIGOR_STATE_BY_LABEL.keys())
+
     with col1:
         st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
-        selettore_macchie = st.selectbox(
+        prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
+        if prev_livor not in livor_labels:
+            prev_livor = livor_labels[0]
+        scelta_macchie_lbl = st.selectbox(
             "Macchie ipostatiche:",
-            options=list(opzioni_macchie.keys()),
-            index=list(opzioni_macchie.keys()).index(sget("selettore_macchie", list(opzioni_macchie.keys())[0])) if "selettore_macchie" in st.session_state else 0,
-            key="selettore_macchie",
+            options=livor_labels,
+            index=livor_labels.index(prev_livor),
+            key="selettore_macchie_ui",
             label_visibility="collapsed"
         )
+        st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
+        selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
+        st.session_state["selettore_macchie"] = selettore_macchie
+
     with col2:
         st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
-        selettore_rigidita = st.selectbox(
+        prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
+        if prev_rigor not in rigor_labels:
+            prev_rigor = rigor_labels[0]
+        scelta_rigidita_lbl = st.selectbox(
             "Rigidità cadaverica:",
-            options=list(opzioni_rigidita.keys()),
-            index=list(opzioni_rigidita.keys()).index(sget("selettore_rigidita", list(opzioni_rigidita.keys())[0])) if "selettore_rigidita" in st.session_state else 0,
-            key="selettore_rigidita",
+            options=rigor_labels,
+            index=rigor_labels.index(prev_rigor),
+            key="selettore_rigidita_ui",
             label_visibility="collapsed"
         )
+        st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
+        selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
+        st.session_state["selettore_rigidita"] = selettore_rigidita
 
 # Toggle principale
 st.toggle("Stima prudente", key="stima_cautelativa_beta")
