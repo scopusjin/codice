@@ -36,6 +36,7 @@ def test_water_labels_and_legacy_values_are_unchanged():
     assert water_legacy_value("In acqua corrente") == "corrente"
 
 
-def test_heavy_blanket_label_difference_between_uis_is_preserved():
-    assert FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == "Coperte pesanti/Mantelline termiche"
-    assert MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == "Coperte pesanti"
+def test_heavy_blanket_label_is_shared_between_uis():
+    expected = "Coperte pesanti/Mantelline termiche"
+    assert FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == expected
+    assert MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY] == expected
