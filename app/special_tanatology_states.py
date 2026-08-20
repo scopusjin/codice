@@ -1,0 +1,188 @@
+# -*- coding: utf-8 -*-
+"""Identificatori stabili per i parametri tanatologici aggiuntivi.
+
+Il modulo separa gli ID interni dalle etichette italiane attualmente usate da
+``app.parameters``. I range scientifici non sono ridefiniti: vengono letti dai
+dizionari legacy, così questa fase di refactoring non può modificarne i valori.
+"""
+
+from __future__ import annotations
+
+from typing import Dict, Optional, Tuple
+
+from app.parameters import dati_parametri_aggiuntivi
+
+RangeValue = Optional[Tuple[float, float]]
+
+
+# -----------------------------------------------------------------------------
+# Parametri
+# -----------------------------------------------------------------------------
+PARAM_ELECTRICAL_SUPRACILIARY = "electrical_supraciliary"
+PARAM_ELECTRICAL_PERIORAL = "electrical_perioral"
+PARAM_MECHANICAL_MUSCLE = "mechanical_muscle"
+PARAM_CHEMICAL_PUPILLARY = "chemical_pupillary"
+
+SPECIAL_PARAM_LABEL_IT: Dict[str, str] = {
+    PARAM_ELECTRICAL_SUPRACILIARY: "Eccitabilità elettrica sopraciliare",
+    PARAM_ELECTRICAL_PERIORAL: "Eccitabilità elettrica peribuccale",
+    PARAM_MECHANICAL_MUSCLE: "Eccitabilità muscolare meccanica",
+    PARAM_CHEMICAL_PUPILLARY: "Eccitabilità chimica pupillare",
+}
+
+SPECIAL_PARAM_ID_BY_LEGACY_LABEL = {
+    label: param_id for param_id, label in SPECIAL_PARAM_LABEL_IT.items()
+}
+
+
+# -----------------------------------------------------------------------------
+# Opzioni comuni
+# -----------------------------------------------------------------------------
+OPTION_NOT_ASSESSED = "not_assessed"
+OPTION_UNRELIABLE = "unreliable"
+OPTION_NO_REACTION = "no_reaction"
+
+
+# Eccitabilità elettrica sopraciliare
+SUPRA_PHASE_I = "phase_i"
+SUPRA_PHASE_II = "phase_ii"
+SUPRA_PHASE_III = "phase_iii"
+SUPRA_PHASE_IV = "phase_iv"
+SUPRA_PHASE_V = "phase_v"
+SUPRA_PHASE_VI = "phase_vi"
+
+# Eccitabilità elettrica peribuccale
+PERIORAL_MARKED = "marked_extensive"
+PERIORAL_MODERATE = "moderate"
+PERIORAL_SLIGHT = "slight"
+
+# Eccitabilità muscolare meccanica
+MECH_WHOLE_MUSCLE = "whole_muscle_reversible_contraction"
+MECH_REVERSIBLE_SWELLING = "reversible_swelling"
+MECH_SMALL_PERSISTENT_SWELLING = "small_persistent_swelling"
+
+# Eccitabilità chimica pupillare
+PUPILLARY_POSITIVE = "positive"
+PUPILLARY_NEGATIVE = "negative"
+
+
+SPECIAL_OPTION_LABEL_IT: Dict[str, Dict[str, str]] = {
+    PARAM_ELECTRICAL_SUPRACILIARY: {
+        OPTION_NOT_ASSESSED: "Non valutata",
+        SUPRA_PHASE_I: "Fase I",
+        SUPRA_PHASE_II: "Fase II",
+        SUPRA_PHASE_III: "Fase III",
+        SUPRA_PHASE_IV: "Fase IV",
+        SUPRA_PHASE_V: "Fase V",
+        SUPRA_PHASE_VI: "Fase VI",
+        OPTION_NO_REACTION: "Nessuna reazione",
+        OPTION_UNRELIABLE: "Non valutabile/non attendibile",
+    },
+    PARAM_ELECTRICAL_PERIORAL: {
+        OPTION_NOT_ASSESSED: "Non valutata",
+        PERIORAL_MARKED: "Marcata ed estesa (+++)",
+        PERIORAL_MODERATE: "Discreta (++)",
+        PERIORAL_SLIGHT: "Accennata (+)",
+        OPTION_NO_REACTION: "Nessuna reazione",
+        OPTION_UNRELIABLE: "Non valutabile/non attendibile",
+    },
+    PARAM_MECHANICAL_MUSCLE: {
+        OPTION_NOT_ASSESSED: "Non valutata",
+        MECH_WHOLE_MUSCLE: "Contrazione reversibile dell’intero muscolo",
+        MECH_REVERSIBLE_SWELLING: "Formazione di una tumefazione reversibile",
+        MECH_SMALL_PERSISTENT_SWELLING: "Formazione di una piccola tumefazione persistente",
+        OPTION_NO_REACTION: "Nessuna reazione",
+        OPTION_UNRELIABLE: "Non valutabile/non attendibile",
+    },
+    PARAM_CHEMICAL_PUPILLARY: {
+        OPTION_NOT_ASSESSED: "Non valutata",
+        OPTION_UNRELIABLE: "Non valutabile/non attendibile",
+        PUPILLARY_POSITIVE: "Positiva",
+        PUPILLARY_NEGATIVE: "Negativa",
+    },
+}
+
+SPECIAL_OPTION_ID_BY_LEGACY_LABEL: Dict[str, Dict[str, str]] = {
+    param_id: {label: option_id for option_id, label in labels.items()}
+    for param_id, labels in SPECIAL_OPTION_LABEL_IT.items()
+}
+
+
+# -----------------------------------------------------------------------------
+# Adattatori legacy
+# -----------------------------------------------------------------------------
+def special_param_legacy_label(param_id: str) -> str:
+    return SPECIAL_PARAM_LABEL_IT[param_id]
+
+
+def special_param_id(legacy_label: str) -> str:
+    return SPECIAL_PARAM_ID_BY_LEGACY_LABEL[legacy_label]
+
+
+def special_option_legacy_label(param_id: str, option_id: str) -> str:
+    return SPECIAL_OPTION_LABEL_IT[param_id][option_id]
+
+
+def special_option_id(param_id: str, legacy_label: str) -> str:
+    return SPECIAL_OPTION_ID_BY_LEGACY_LABEL[param_id][legacy_label]
+
+
+def special_option_ids(param_id: str):
+    """Opzioni nell'identico ordine della UI legacy."""
+    return tuple(SPECIAL_OPTION_LABEL_IT[param_id].keys())
+
+
+def special_option_legacy_labels(param_id: str):
+    """Etichette nell'identico ordine della UI legacy."""
+    return tuple(SPECIAL_OPTION_LABEL_IT[param_id].values())
+
+
+def special_range(param_id: str, option_id: str) -> RangeValue:
+    """Range letto direttamente da app.parameters, senza duplicare valori."""
+    param_label = special_param_legacy_label(param_id)
+    option_label = special_option_legacy_label(param_id, option_id)
+    return dati_parametri_aggiuntivi[param_label]["range"][option_label]
+
+
+def special_description(param_id: str, option_id: str):
+    """Descrizione italiana legacy, se definita, letta da app.parameters."""
+    param_label = special_param_legacy_label(param_id)
+    option_label = special_option_legacy_label(param_id, option_id)
+    return dati_parametri_aggiuntivi[param_label]["descrizioni"].get(option_label)
+
+
+__all__ = [
+    "PARAM_ELECTRICAL_SUPRACILIARY",
+    "PARAM_ELECTRICAL_PERIORAL",
+    "PARAM_MECHANICAL_MUSCLE",
+    "PARAM_CHEMICAL_PUPILLARY",
+    "SPECIAL_PARAM_LABEL_IT",
+    "SPECIAL_PARAM_ID_BY_LEGACY_LABEL",
+    "OPTION_NOT_ASSESSED",
+    "OPTION_UNRELIABLE",
+    "OPTION_NO_REACTION",
+    "SUPRA_PHASE_I",
+    "SUPRA_PHASE_II",
+    "SUPRA_PHASE_III",
+    "SUPRA_PHASE_IV",
+    "SUPRA_PHASE_V",
+    "SUPRA_PHASE_VI",
+    "PERIORAL_MARKED",
+    "PERIORAL_MODERATE",
+    "PERIORAL_SLIGHT",
+    "MECH_WHOLE_MUSCLE",
+    "MECH_REVERSIBLE_SWELLING",
+    "MECH_SMALL_PERSISTENT_SWELLING",
+    "PUPILLARY_POSITIVE",
+    "PUPILLARY_NEGATIVE",
+    "SPECIAL_OPTION_LABEL_IT",
+    "SPECIAL_OPTION_ID_BY_LEGACY_LABEL",
+    "special_param_legacy_label",
+    "special_param_id",
+    "special_option_legacy_label",
+    "special_option_id",
+    "special_option_ids",
+    "special_option_legacy_labels",
+    "special_range",
+    "special_description",
+]
