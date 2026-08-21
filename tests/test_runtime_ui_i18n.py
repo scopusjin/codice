@@ -32,6 +32,19 @@ class RuntimeUiTextCompatibilityTests(unittest.TestCase):
         self.assertEqual(i18n.ui_text("graph.descriptions_popover"), "📖 Descrizioni dettagliate")
         self.assertEqual(i18n.ui_text("graph.warnings_popover"), "⚠️ Avvisi")
 
+    def test_graph_parameter_summary_labels_keep_current_text(self):
+        self.assertEqual(i18n.ui_text("graph.parameter_livor"), "Macchie ipostatiche")
+        self.assertEqual(i18n.ui_text("graph.parameter_rigor"), "Rigidità cadaverica")
+        self.assertEqual(i18n.ui_text("graph.parameter_cooling"), "raffreddamento cadaverico")
+        self.assertEqual(
+            i18n.ui_text("graph.parameter_cooling_prudent_open"),
+            "raffreddamento cadaverico (cautelativo: limite superiore aperto)",
+        )
+        self.assertEqual(
+            i18n.ui_text("graph.parameter_cooling_potente"),
+            "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)",
+        )
+
     def test_remaining_graph_runtime_messages_keep_current_text(self):
         self.assertEqual(
             i18n.ui_text("graph.missing_special_description", state="Positiva"),
