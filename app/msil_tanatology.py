@@ -12,37 +12,20 @@ from __future__ import annotations
 
 from typing import Dict
 
-from app.tanatology_states import (
-    LIVOR_NOT_ASSESSED,
-    LIVOR_ABSENT,
-    LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
-    LIVOR_FIXED,
-    RIGOR_NOT_ASSESSED,
-    RIGOR_ABSENT,
-    RIGOR_DEVELOPING,
-    RIGOR_FULL,
-    RIGOR_RESOLVING,
-    RIGOR_RESOLVED,
-    livor_legacy_label,
-    rigor_legacy_label,
+from app.locales.it_msil import (
+    MSIL_LIVOR_LABEL_IT_BY_ID,
+    MSIL_RIGOR_LABEL_IT_BY_ID,
 )
+from app.tanatology_states import livor_legacy_label, rigor_legacy_label
 
 
 # Etichetta mostrata nella UI MSIL -> identificatore interno stabile.
 MSIL_LIVOR_STATE_BY_LABEL: Dict[str, str] = {
-    "🩸 IPOSTASI?": LIVOR_NOT_ASSESSED,
-    "Ipostasi assenti": LIVOR_ABSENT,
-    "Ipostasi almeno in parte migrabili": LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
-    "Ipostasi non migrabili": LIVOR_FIXED,
+    label: state_id for state_id, label in MSIL_LIVOR_LABEL_IT_BY_ID.items()
 }
 
 MSIL_RIGOR_STATE_BY_LABEL: Dict[str, str] = {
-    "💪🏻 RIGOR MORTIS?": RIGOR_NOT_ASSESSED,
-    "Rigor assente": RIGOR_ABSENT,
-    "Rigor presente e in aumento": RIGOR_DEVELOPING,
-    "Rigor ubiquitario e di intensità massima": RIGOR_FULL,
-    "Rigor in risoluzione": RIGOR_RESOLVING,
-    "Rigor risolto": RIGOR_RESOLVED,
+    label: state_id for state_id, label in MSIL_RIGOR_LABEL_IT_BY_ID.items()
 }
 
 
