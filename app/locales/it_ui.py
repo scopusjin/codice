@@ -129,6 +129,27 @@ UI_TEXT = {
         "      • L'applicazione considera di default, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> \n"
         "    </div>"
     ),
+
+    # ------------------------------------------------------------------
+    # Rendering grafico / messaggi condivisi
+    # ------------------------------------------------------------------
+    "graph.missing_inspection_datetime_html": "<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>",
+    "graph.invalid_inspection_time_html": "<p style='color:red;font-weight:bold;'>⚠️ Errore: formato ora ispezione legale non valido. Usa HH:MM.</p>",
+    "graph.invalid_weight": "⚠️ Peso non valido. Inserire un valore > 0 kg.",
+    "graph.invalid_factor": "⚠️ Fattore di correzione non valido. Inserire un valore > 0.",
+    "graph.missing_temperatures": "⚠️ Temperature mancanti.",
+    "graph.invalid_special_time": "⚠️ {parameter}: escluso perchè ora '{time}' non valida (usa HH:MM).",
+    "graph.discordant_html": "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",
+    "graph.discordant_detail_html": "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
+    "graph.descriptions_popover": "📖 Descrizioni dettagliate",
+    "graph.warnings_popover": "⚠️ Avvisi",
+
+    # ------------------------------------------------------------------
+    # Sorgenti dati / messaggi tecnici
+    # ------------------------------------------------------------------
+    "data.weight_table_missing": "Tabella correttiva del peso non trovata: continuo senza.",
+    "data.openpyxl_missing": "Per leggere il file .xlsx serve 'openpyxl'. Installa con: pip install openpyxl",
+    "data.weight_table_read_error": "Impossibile leggere l'Excel della tabella peso: {error}",
 }
 
 
