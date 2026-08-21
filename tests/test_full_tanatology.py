@@ -5,10 +5,26 @@ import unittest
 from app.full_tanatology import (
     FULL_LIVOR_STATE_BY_LABEL,
     FULL_RIGOR_STATE_BY_LABEL,
+    FULL_SPECIAL_PARAM_BY_LABEL,
     full_livor_legacy_value,
     full_rigor_legacy_value,
+    full_special_parameter_labels,
+    full_special_parameter_id,
+    full_special_parameter_legacy_value,
+    full_special_option_labels,
+    full_special_option_id,
+    full_special_option_legacy_value,
 )
-from app.parameters import opzioni_macchie, opzioni_rigidita
+from app.parameters import (
+    opzioni_macchie,
+    opzioni_rigidita,
+    dati_parametri_aggiuntivi,
+)
+from app.special_tanatology_states import (
+    SPECIAL_PARAM_LABEL_IT,
+    special_option_ids,
+    special_option_legacy_labels,
+)
 
 
 class FullTanatologyMappingTests(unittest.TestCase):
@@ -27,6 +43,37 @@ class FullTanatologyMappingTests(unittest.TestCase):
         )
         for ui_label in opzioni_rigidita:
             self.assertEqual(full_rigor_legacy_value(ui_label), ui_label)
+
+    def test_full_special_parameter_ui_matches_current_order_and_legacy_values(self):
+        current_labels = tuple(SPECIAL_PARAM_LABEL_IT.values())
+        self.assertEqual(tuple(FULL_SPECIAL_PARAM_BY_LABEL.keys()), current_labels)
+        self.assertEqual(full_special_parameter_labels(), current_labels)
+
+        for param_id, legacy_label in SPECIAL_PARAM_LABEL_IT.items():
+            self.assertEqual(full_special_parameter_id(legacy_label), param_id)
+            self.assertEqual(
+                full_special_parameter_legacy_value(param_id),
+                legacy_label,
+            )
+            self.assertIn(legacy_label, dati_parametri_aggiuntivi)
+
+    def test_full_special_options_match_current_order_ids_and_legacy_values(self):
+        for param_id in SPECIAL_PARAM_LABEL_IT:
+            current_labels = tuple(special_option_legacy_labels(param_id))
+            self.assertEqual(full_special_option_labels(param_id), current_labels)
+
+            for option_id, legacy_label in zip(
+                special_option_ids(param_id),
+                current_labels,
+            ):
+                self.assertEqual(
+                    full_special_option_id(param_id, legacy_label),
+                    option_id,
+                )
+                self.assertEqual(
+                    full_special_option_legacy_value(param_id, legacy_label),
+                    legacy_label,
+                )
 
 
 if __name__ == "__main__":
