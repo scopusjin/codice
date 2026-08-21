@@ -10,12 +10,38 @@ from app.parameters import (
     dati_parametri_aggiuntivi,
 )
 from app.graphing_tanatology import (
+    FAMILY_LIVOR,
+    FAMILY_RIGOR,
+    FAMILY_COOLING,
+    legacy_family_key,
+    special_family_id,
     resolve_base_tanatology_ranges,
     resolve_special_tanatology_value,
 )
+from app.special_tanatology_states import PARAM_ELECTRICAL_SUPRACILIARY
 
 
 class GraphingTanatologyCompatibilityTests(unittest.TestCase):
+    def test_stable_graph_family_ids_keep_legacy_grouping_fallback(self):
+        self.assertEqual(FAMILY_LIVOR, "livor")
+        self.assertEqual(FAMILY_RIGOR, "rigor")
+        self.assertEqual(FAMILY_COOLING, "cooling")
+        self.assertEqual(
+            legacy_family_key("Raffreddamento cadaverico (intervallo minimo)"),
+            "raffreddamento cadaverico",
+        )
+        self.assertEqual(
+            special_family_id(
+                PARAM_ELECTRICAL_SUPRACILIARY,
+                "Eccitabilità elettrica sopraciliare",
+            ),
+            f"special:{PARAM_ELECTRICAL_SUPRACILIARY}",
+        )
+        self.assertEqual(
+            special_family_id(None, "Parametro legacy (nota)"),
+            "legacy:parametro legacy",
+        )
+
     def test_all_livor_ranges_match_legacy_dictionaries(self):
         rigor_default = next(iter(opzioni_rigidita))
         for label, expected_range in opzioni_macchie.items():
