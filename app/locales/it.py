@@ -437,6 +437,51 @@ def simple_sentence_dt_range(
     )
 
 
+def final_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -> str:
+    return (
+        "<p>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
+        f"<b>oltre {duration} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+    )
+
+
+def final_sentence_dt_not_over(
+    duration: str,
+    lower_time: str,
+    lower_date: str,
+    inspection_time: str,
+    inspection_date: str,
+) -> str:
+    return (
+        "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+        f"consente di stimare che la morte sia avvenuta all'incirca <b>non oltre {duration} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero <b>successivamente alle ore {lower_time} del {lower_date} "
+        f"(ma prima delle ore {inspection_time} del {inspection_date})</b>.</p>"
+    )
+
+
+def final_sentence_dt_range(
+    interval: str,
+    start_time: str,
+    start_date: str,
+    end_time: str,
+    end_date: str,
+    same_date: bool,
+) -> str:
+    if same_date:
+        window = f"tra le ore {start_time} e le ore {end_time} del {start_date}"
+    else:
+        window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
+    return (
+        "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+        f"consente di stimare che la morte sia avvenuta, all'incirca, <b>{interval} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero circa <b>{window}</b>.</p>"
+    )
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -463,4 +508,7 @@ __all__ = [
     "simple_sentence_dt_not_over",
     "simple_sentence_dt_over",
     "simple_sentence_dt_range",
+    "final_sentence_dt_over",
+    "final_sentence_dt_not_over",
+    "final_sentence_dt_range",
 ]
