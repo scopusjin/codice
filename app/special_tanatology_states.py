@@ -145,12 +145,10 @@ def special_range(param_id: str, option_id: str) -> RangeValue:
 
 
 def special_description(param_id: str, option_id: str):
-    """Descrizione italiana legacy, se definita, letta da app.parameters."""
-    from app.parameters import dati_parametri_aggiuntivi
+    """Descrizione italiana corrente esposta tramite il confine dei testi."""
+    from app.tanatology_texts_it import special_description_it
 
-    param_label = special_param_legacy_label(param_id)
-    option_label = special_option_legacy_label(param_id, option_id)
-    return dati_parametri_aggiuntivi[param_label]["descrizioni"].get(option_label)
+    return special_description_it(param_id, option_id)
 
 
 __all__ = [
