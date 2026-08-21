@@ -7,6 +7,7 @@ import numpy as np
 from app.textgen import (
     _fmt_hm_full,
     _fmt_range_hm,
+    build_final_sentence,
     build_simple_sentence,
     build_simple_sentence_no_dt,
     build_final_sentence_simple,
@@ -30,6 +31,40 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
         self.assertEqual(
             _fmt_range_hm(1, 30, 3, 0),
             "tra 1 ora 30 minuti e 3 ore",
+        )
+
+    def test_final_sentence_with_datetime_keeps_current_html(self):
+        isp_dt = datetime.datetime(2026, 8, 21, 14, 0)
+        self.assertEqual(
+            build_final_sentence(2, np.inf, isp_dt),
+            "<p>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
+            "<b>oltre 2 ore prima</b> dei rilievi effettuati durante l’ispezione legale, "
+            "ovvero <b>prima delle ore 12:00 del 21.08.2026</b>.</p>",
+        )
+        self.assertEqual(
+            build_final_sentence(0, 4, isp_dt),
+            "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>non oltre 4 ore prima</b> "
+            "dei rilievi effettuati durante l’ispezione legale, "
+            "ovvero <b>successivamente alle ore 10:00 del 21.08.2026 "
+            "(ma prima delle ore 14:00 del 21.08.2026)</b>.</p>",
+        )
+        self.assertEqual(
+            build_final_sentence(1, 4, isp_dt),
+            "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
+            "dei rilievi effettuati durante l’ispezione legale, "
+            "ovvero circa <b>tra le ore 10:00 e le ore 13:00 del 21.08.2026</b>.</p>",
+        )
+
+    def test_final_sentence_with_datetime_preserves_cross_midnight_window(self):
+        isp_dt = datetime.datetime(2026, 8, 21, 2, 0)
+        self.assertEqual(
+            build_final_sentence(1, 4, isp_dt),
+            "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
+            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
+            "dei rilievi effettuati durante l’ispezione legale, "
+            "ovvero circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
         )
 
     def test_simple_sentence_with_datetime_keeps_current_html(self):
