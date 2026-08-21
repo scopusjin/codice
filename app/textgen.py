@@ -251,7 +251,12 @@ def paragrafo_raffreddamento_dettaglio(
 
     # Se il limite inferiore è 0 → “non oltre X”
     intervallo_txt = (
-        f"non oltre {_fmt_hm_full(h2, m2)}"
+        i18n.prudent_result_text(
+            minimum_text="",
+            maximum_text=_fmt_hm_full(h2, m2),
+            beyond=False,
+            not_over=True,
+        )
         if (h1 == 0 and m1 == 0)
         else _fmt_range_hm(h1, m1, h2, m2)
     )
