@@ -35,20 +35,22 @@ from app.full_tanatology import (
     full_special_option_legacy_value,
 )
 from app.factor_ui_states import (
-    BODY_LABEL_IT,
-    WATER_LABEL_IT,
-    FULL_CLOTHING_LABEL_IT,
     LAYER_THIN,
     LAYER_THICK,
     BLANKET_MEDIUM,
     BLANKET_HEAVY,
-    body_legacy_value,
-    water_legacy_value,
 )
-from app.surface_ui_states import (
-    SURFACE_LABEL_IT,
-    surface_legacy_value,
+from app.full_factor_ui import (
+    full_body_labels,
+    full_body_legacy_value,
+    full_water_labels,
+    full_water_legacy_value,
+    full_clothing_label,
+    full_surface_labels,
+    full_surface_label,
+    full_surface_legacy_value,
 )
+from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     PARAM_ELECTRICAL_PERIORAL,
@@ -524,13 +526,13 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         </style>
     """, unsafe_allow_html=True)
     # --- Stato corpo ---
-    stato_label = st.radio("dummy", list(BODY_LABEL_IT.values()), index=0, horizontal=True, key=k("radio_stato_corpo"))
-    stato_corpo = body_legacy_value(stato_label)
+    stato_label = st.radio("dummy", list(full_body_labels()), index=0, horizontal=True, key=k("radio_stato_corpo"))
+    stato_corpo = full_body_legacy_value(stato_label)
 
     # ============== Immerso ==============
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("dummy", list(WATER_LABEL_IT.values()), index=0, horizontal=True, key=k("radio_acqua"))
-        acqua_mode = water_legacy_value(acqua_label)
+        acqua_label = st.radio("dummy", list(full_water_labels()), index=0, horizontal=True, key=k("radio_acqua"))
+        acqua_mode = full_water_legacy_value(acqua_label)
 
         try:
             tabella2 = load_tabelle_correzione()
@@ -563,10 +565,10 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
-        label_sottili = FULL_CLOTHING_LABEL_IT[LAYER_THIN]
-        label_spessi = FULL_CLOTHING_LABEL_IT[LAYER_THICK]
-        label_coperte_medie = FULL_CLOTHING_LABEL_IT[BLANKET_MEDIUM]
-        label_coperte_pesanti = FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY]
+        label_sottili = full_clothing_label(LAYER_THIN)
+        label_spessi = full_clothing_label(LAYER_THICK)
+        label_coperte_medie = full_clothing_label(BLANKET_MEDIUM)
+        label_coperte_pesanti = full_clothing_label(BLANKET_HEAVY)
 
         defaults = {
             label_sottili: st.session_state.get(k("strati_sottili"), 0),
@@ -610,15 +612,16 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     superficie_display_selected = "/"
     if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito) or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = list(SURFACE_LABEL_IT.values())
+        options_display = list(full_surface_labels())
         if not nudo_eff:
-            options_display = [o for o in options_display if o != "Piano metallico spesso (all’aperto)"]
+            excluded_surface = full_surface_label(SURFACE_THICK_METAL_OUTDOOR)
+            options_display = [o for o in options_display if o != excluded_surface]
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
         superficie_display_label = st.selectbox("Superficie di appoggio", options_display,
                                                  index=options_display.index(prev_display), key=k("superficie_display_sel"))
-        superficie_display_selected = surface_legacy_value(superficie_display_label)
+        superficie_display_selected = full_surface_legacy_value(superficie_display_label)
 
     correnti_presenti = False
     with corr_placeholder.container():
