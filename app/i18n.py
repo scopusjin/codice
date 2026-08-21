@@ -3,16 +3,23 @@
 
 In questa fase è registrata esclusivamente la lingua italiana. Il modulo non
 contiene testi e non dipende da Streamlit: seleziona una locale e offre helper
-neutri rispetto alla lingua per testi ed etichette tanatologiche già separati
-dai dati scientifici.
+neutri rispetto alla lingua per testi ed etichette già separati dai dati e
+dalla logica scientifica.
 """
 
 from __future__ import annotations
 
 from types import ModuleType
-from typing import Dict, Optional, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 from app.locales import it
+from app.factor_ui_states import (
+    BODY_LABEL_IT,
+    WATER_LABEL_IT,
+    FULL_CLOTHING_LABEL_IT,
+    MSIL_CLOTHING_LABEL_IT,
+)
+from app.surface_ui_states import SURFACE_LABEL_IT
 
 
 DEFAULT_LANGUAGE = "it"
@@ -56,26 +63,30 @@ def language_label(language: Optional[str] = None) -> str:
     return _LANGUAGE_LABELS[normalize_language(language)]
 
 
-def _localized_mapping(locale: ModuleType, generic_name: str, legacy_it_name: str):
+def _localized_mapping(
+    locale: ModuleType,
+    generic_name: str,
+    italian_fallback: Mapping,
+):
     """Recupera una mappa localizzata con fallback transitorio all'italiano."""
     mapping = getattr(locale, generic_name, None)
     if mapping is not None:
         return mapping
     if locale is it:
-        return getattr(locale, legacy_it_name)
+        return italian_fallback
     raise AttributeError(f"La locale {locale.__name__!r} non espone {generic_name!r}")
 
 
 def livor_label(state_id: str, language: Optional[str] = None) -> str:
     """Etichetta localizzata dello stato delle ipostasi."""
     locale = get_locale(language)
-    return _localized_mapping(locale, "LIVOR_LABEL_BY_ID", "LIVOR_LABEL_IT")[state_id]
+    return _localized_mapping(locale, "LIVOR_LABEL_BY_ID", it.LIVOR_LABEL_IT)[state_id]
 
 
 def rigor_label(state_id: str, language: Optional[str] = None) -> str:
     """Etichetta localizzata dello stato della rigidità cadaverica."""
     locale = get_locale(language)
-    return _localized_mapping(locale, "RIGOR_LABEL_BY_ID", "RIGOR_LABEL_IT")[state_id]
+    return _localized_mapping(locale, "RIGOR_LABEL_BY_ID", it.RIGOR_LABEL_IT)[state_id]
 
 
 def special_parameter_label(param_id: str, language: Optional[str] = None) -> str:
@@ -84,7 +95,7 @@ def special_parameter_label(param_id: str, language: Optional[str] = None) -> st
     return _localized_mapping(
         locale,
         "SPECIAL_PARAM_LABEL_BY_ID",
-        "SPECIAL_PARAM_LABEL_IT",
+        it.SPECIAL_PARAM_LABEL_IT,
     )[param_id]
 
 
@@ -98,8 +109,46 @@ def special_option_label(
     return _localized_mapping(
         locale,
         "SPECIAL_OPTION_LABEL_BY_ID",
-        "SPECIAL_OPTION_LABEL_IT",
+        it.SPECIAL_OPTION_LABEL_IT,
     )[param_id][option_id]
+
+
+def body_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata dello stato del corpo nel pannello FC."""
+    locale = get_locale(language)
+    return _localized_mapping(locale, "BODY_LABEL_BY_ID", BODY_LABEL_IT)[state_id]
+
+
+def water_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata del tipo di acqua nel pannello FC."""
+    locale = get_locale(language)
+    return _localized_mapping(locale, "WATER_LABEL_BY_ID", WATER_LABEL_IT)[state_id]
+
+
+def full_clothing_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata di indumenti/coperture nella UI completa."""
+    locale = get_locale(language)
+    return _localized_mapping(
+        locale,
+        "FULL_CLOTHING_LABEL_BY_ID",
+        FULL_CLOTHING_LABEL_IT,
+    )[state_id]
+
+
+def msil_clothing_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata di indumenti/coperture nella UI MSIL."""
+    locale = get_locale(language)
+    return _localized_mapping(
+        locale,
+        "MSIL_CLOTHING_LABEL_BY_ID",
+        MSIL_CLOTHING_LABEL_IT,
+    )[state_id]
+
+
+def surface_label(surface_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata della superficie di appoggio."""
+    locale = get_locale(language)
+    return _localized_mapping(locale, "SURFACE_LABEL_BY_ID", SURFACE_LABEL_IT)[surface_id]
 
 
 def livor_description(state_id: str, language: Optional[str] = None):
@@ -132,6 +181,11 @@ __all__ = [
     "rigor_label",
     "special_parameter_label",
     "special_option_label",
+    "body_label",
+    "water_label",
+    "full_clothing_label",
+    "msil_clothing_label",
+    "surface_label",
     "livor_description",
     "rigor_description",
     "special_description",
