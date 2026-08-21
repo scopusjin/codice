@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import numpy as np
 
 from app.textgen import (
     _fmt_hm_full,
@@ -33,6 +34,18 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             build_simple_sentence_no_dt(1, 4),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>tra 1 e 4 ore prima</b> "
+            "dei rilievi dei dati tanatologici.</p>",
+        )
+        self.assertEqual(
+            build_simple_sentence_no_dt(0, 4),
+            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+            "<b>non oltre 4 ore prima</b> "
+            "dei rilievi dei dati tanatologici.</p>",
+        )
+        self.assertEqual(
+            build_simple_sentence_no_dt(2, np.inf),
+            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+            "<b>oltre 2 ore prima</b> "
             "dei rilievi dei dati tanatologici.</p>",
         )
 
