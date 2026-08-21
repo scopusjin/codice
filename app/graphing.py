@@ -17,7 +17,14 @@ from app.parameters import (
     opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
     dati_parametri_aggiuntivi, nomi_brevi,
 )
-from app.graphing_tanatology import resolve_base_tanatology_ranges, resolve_special_tanatology_value
+from app.graphing_tanatology import (
+    FAMILY_LIVOR,
+    FAMILY_RIGOR,
+    FAMILY_COOLING,
+    special_family_id,
+    resolve_base_tanatology_ranges,
+    resolve_special_tanatology_value,
+)
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -337,6 +344,11 @@ def aggiorna_grafico(
         parametro_risolto = resolve_special_tanatology_value(nome_parametro, stato_selezionato)
         if parametro_risolto.is_not_assessed:
             continue
+        parametro_label = (
+            i18n.special_parameter_label(parametro_risolto.parameter_id)
+            if parametro_risolto.parameter_id is not None
+            else nome_parametro
+        )
         data_rilievo_param = widgets["data_rilievo"]
         ora_rilievo_param_str = widgets["ora_rilievo"]
 
@@ -349,7 +361,7 @@ def aggiorna_grafico(
             except ValueError:
                 avvisi.append(i18n.ui_text(
                     "graph.invalid_special_time",
-                    parameter=nome_parametro,
+                    parameter=parametro_label,
                     time=ora_rilievo_param_str,
                 ))
                 continue
@@ -374,7 +386,9 @@ def aggiorna_grafico(
             lo, hi = round_quarter_hour(range_trasl[0]), round_quarter_hour(range_trasl[1])
             lo = max(0, lo)
             parametri_aggiuntivi_da_considerare.append(dict(
-                nome=nome_parametro, stato=stato_selezionato,
+                nome=nome_parametro, label=parametro_label,
+                parameter_id=parametro_risolto.parameter_id,
+                stato=stato_selezionato,
                 range_traslato=(lo, hi), descrizione=descrizione,
                 differenza_ore=diff_h, adattato=(diff_h != 0)
             ))
@@ -386,12 +400,14 @@ def aggiorna_grafico(
                 if parametro_risolto.description is not None
                 else i18n.ui_text(
                     "graph.special_without_range",
-                    parameter=nome_parametro,
+                    parameter=parametro_label,
                     state=stato_selezionato,
                 )
             )
             parametri_aggiuntivi_da_considerare.append(dict(
-                nome=nome_parametro, stato=stato_selezionato,
+                nome=nome_parametro, label=parametro_label,
+                parameter_id=parametro_risolto.parameter_id,
+                stato=stato_selezionato,
                 range_traslato=(np.nan, np.nan), descrizione=descrizione
             ))
 
@@ -399,19 +415,29 @@ def aggiorna_grafico(
     t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
     t_max_raff_visualizzato = t_max_raff_henssge if raffreddamento_calcolabile else np.nan
 
-    def _append_range_safe(rng, label):
+    def _append_range_safe(rng, label, family_id):
         if isinstance(rng, tuple) and len(rng) == 2:
             lo, hi = rng
             if _is_num(lo):
                 inizio.append(lo)
                 fine.append(hi if _is_num(hi) and hi < INF_HOURS else np.nan)
                 nomi_usati.append(label)
+                famiglie_usate.append(family_id)
 
     # --- intersezione ---
     inizio, fine = [], []
     nomi_usati = []
-    _append_range_safe(macchie_range, "Macchie ipostatiche")
-    _append_range_safe(rigidita_range, "Rigidità cadaverica")
+    famiglie_usate = []
+    _append_range_safe(
+        macchie_range,
+        i18n.ui_text("graph.parameter_livor"),
+        FAMILY_LIVOR,
+    )
+    _append_range_safe(
+        rigidita_range,
+        i18n.ui_text("graph.parameter_rigor"),
+        FAMILY_RIGOR,
+    )
 
     def _round_half_hour(x: float) -> float:
         return float(np.round(x * 2.0) / 2.0)
@@ -444,7 +470,8 @@ def aggiorna_grafico(
         if _is_num(lo):
             inizio.append(lo)
             fine.append(hi if (_is_num(hi) and hi < INF_HOURS) else np.nan)
-            nomi_usati.append(p["nome"])
+            nomi_usati.append(p["label"])
+            famiglie_usate.append(special_family_id(p.get("parameter_id"), p["nome"]))
 
     # Henssge/Potente nell’intersezione
     if raffreddamento_calcolabile:
@@ -452,15 +479,17 @@ def aggiorna_grafico(
             if mt_ore is not None and not np.isnan(mt_ore):
                 inizio.append(mt_ore)
                 fine.append(np.nan)
-                nomi_usati.append("raffreddamento cadaverico (intervallo minimo secondo Potente et al.)")
+                nomi_usati.append(i18n.ui_text("graph.parameter_cooling_potente"))
+                famiglie_usate.append(FAMILY_COOLING)
         else:
             inizio.append(t_min_raff_henssge)
             fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
             nomi_usati.append(
-                "raffreddamento cadaverico (cautelativo: limite superiore aperto)"
+                i18n.ui_text("graph.parameter_cooling_prudent_open")
                 if np.isnan(t_max_raff_henssge) else
-                "raffreddamento cadaverico"
+                i18n.ui_text("graph.parameter_cooling")
             )
+            famiglie_usate.append(FAMILY_COOLING)
 
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
@@ -481,7 +510,11 @@ def aggiorna_grafico(
     for idx, p in enumerate(parametri_aggiuntivi_da_considerare):
         lo, hi = p["range_traslato"]
         if _is_num(lo):
-            label = nomi_brevi.get(p["nome"], p["nome"])
+            label = (
+                i18n.special_graph_label(p["parameter_id"])
+                if p.get("parameter_id") is not None
+                else nomi_brevi.get(p["nome"], p["nome"])
+            )
             if p.get("adattato"):
                 label += "*"
             extra_params_for_plot.append({
@@ -699,24 +732,23 @@ def aggiorna_grafico(
     def _finite(x):
         return isinstance(x, Real) and np.isfinite(x)
 
-    labeled_pairs = [(s, e, l) for s, e, l in zip(inizio, fine, nomi_usati)
-                     if _finite(s) and (_finite(e) or np.isnan(e))]
-
-    def _family(label: str) -> str:
-        return label.lower().split("(")[0].strip()
+    labeled_pairs = [
+        (s, e, family_id, label)
+        for s, e, family_id, label in zip(inizio, fine, famiglie_usate, nomi_usati)
+        if _finite(s) and (_finite(e) or np.isnan(e))
+    ]
 
     fam_best = {}
-    for s, e, l in labeled_pairs:
-        f = _family(l)
-        cur = fam_best.get(f)
+    for s, e, family_id, label in labeled_pairs:
+        cur = fam_best.get(family_id)
         if cur is None:
-            fam_best[f] = (s, e, l)
+            fam_best[family_id] = (s, e, label)
         else:
             s0, e0, _ = cur
             if np.isnan(e0) and _finite(e):
-                fam_best[f] = (s, e, l)
+                fam_best[family_id] = (s, e, label)
             elif _finite(e0) and _finite(e) and (e - s) < (e0 - s0):
-                fam_best[f] = (s, e, l)
+                fam_best[family_id] = (s, e, label)
 
     compact = list(fam_best.values())
     if len(compact) >= 2:
@@ -746,9 +778,9 @@ def aggiorna_grafico(
     # riepilogo parametri usati
     if overlap and len(nomi_usati) > 0:
         nomi_finali = []
-        for nome in nomi_usati:
-            if ("raffreddamento cadaverico" in nome.lower()
-                and "potente" not in nome.lower()
+        for nome, family_id in zip(nomi_usati, famiglie_usate):
+            if (family_id == FAMILY_COOLING
+                and not usa_potente
                 and mt_ore is not None and not np.isnan(mt_ore)
                 and abs(comune_inizio - mt_ore) < 0.25):
                 continue
