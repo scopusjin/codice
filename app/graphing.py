@@ -18,6 +18,7 @@ from app.parameters import (
     dati_parametri_aggiuntivi, nomi_brevi,
 )
 from app.graphing_tanatology import resolve_base_tanatology_ranges, resolve_special_tanatology_value
+from app.tanatology_texts_it import livor_description_it, rigor_description_it
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -662,8 +663,8 @@ def aggiorna_grafico(
         _add_det(par_p)
 
         for blocco in paragrafi_descrizioni_base(
-            testo_macchie=testi_macchie.get(selettore_macchie),
-            testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
+            testo_macchie=livor_description_it(base_tanatology.livor_id),
+            testo_rigidita=rigor_description_it(base_tanatology.rigor_id),
         ):
             _add_det(blocco)
         for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
@@ -764,8 +765,8 @@ def aggiorna_grafico(
         no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
         if not no_macchie or not no_rigidita:
             for blk in paragrafi_descrizioni_base(
-                testo_macchie=testi_macchie.get(selettore_macchie),
-                testo_rigidita=rigidita_descrizioni.get(selettore_rigidita),
+                testo_macchie=livor_description_it(base_tanatology.livor_id),
+                testo_rigidita=rigor_description_it(base_tanatology.rigor_id),
             ):
                 chunks.append(_wrap_final(blk))
 
