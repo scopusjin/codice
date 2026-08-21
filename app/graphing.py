@@ -250,26 +250,16 @@ def aggiorna_grafico(
             conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
 
             if not (header_blk and bullets_blk and conclusione_blk):
-                def _fmt_ore_min(h: float) -> str:
-                    if not np.isfinite(h):
-                        return ""
-                    ore = int(h)
-                    minuti = int(round((h - ore) * 60))
-                    if minuti == 60:
-                        ore += 1
-                        minuti = 0
-                    if minuti == 0:
-                        return f"{ore} {'ora' if ore == 1 else 'ore'}"
-                    return f"{ore} {'ora' if ore == 1 else 'ore'} {minuti} minuti"
-
                 t_lo = round_quarter_hour(t_min_raff_henssge)
                 if np.isnan(t_max_raff_henssge):
-                    risultato_txt = i18n.prudent_graphing_result_at_least(_fmt_ore_min(t_lo))
+                    risultato_txt = i18n.prudent_graphing_result_at_least(
+                        i18n.prudent_graphing_hours_text(t_lo)
+                    )
                 else:
                     t_hi = round_quarter_hour(t_max_raff_henssge)
                     risultato_txt = i18n.prudent_graphing_result_range(
-                        _fmt_ore_min(t_lo),
-                        _fmt_ore_min(t_hi),
+                        i18n.prudent_graphing_hours_text(t_lo),
+                        i18n.prudent_graphing_hours_text(t_hi),
                     )
 
                 header_blk = i18n.prudent_header()
