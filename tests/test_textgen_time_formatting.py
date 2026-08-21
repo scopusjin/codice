@@ -29,6 +29,10 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "tra 2 ore e 3 ore 30 minuti",
         )
         self.assertEqual(
+            _fmt_range_hm(1, 0, 6, 30),
+            "tra 1 ora e 6 ore 30 minuti",
+        )
+        self.assertEqual(
             _fmt_range_hm(1, 30, 3, 0),
             "tra 1 ora 30 minuti e 3 ore",
         )
