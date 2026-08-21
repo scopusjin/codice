@@ -70,13 +70,7 @@ def build_final_sentence(
         h1, m1 = _hm_from_hours(start)
         decesso_dt = isp_dt - datetime.timedelta(hours=start)
         hh_d, dd_d = _fmt_dt(decesso_dt)
-        testo = (
-            "La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
-            f"{_bold('oltre ' + _fmt_hm_full(h1, m1) + ' prima')} "
-            "dei rilievi effettuati durante l’ispezione legale, "
-            f"ovvero {_bold('prima delle ore ' + hh_d + ' del ' + dd_d)}."
-        )
-        return f"<p>{testo}</p>"
+        return i18n.final_sentence_dt_over(_fmt_hm_full(h1, m1), hh_d, dd_d)
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
@@ -84,13 +78,13 @@ def build_final_sentence(
         lim_inf_dt = isp_dt - datetime.timedelta(hours=comune_fine)
         hh_lo, dd_lo = _fmt_dt(lim_inf_dt)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
-        testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
-            f"consente di stimare che la morte sia avvenuta all'incirca {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
-            "dei rilievi effettuati durante l’ispezione legale, "
-            f"ovvero {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}."
+        return i18n.final_sentence_dt_not_over(
+            _fmt_hm_full(h2, m2),
+            hh_lo,
+            dd_lo,
+            hh_isp,
+            dd_isp,
         )
-        return f"<p>{testo}</p>"
 
     # Caso: A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -101,19 +95,14 @@ def build_final_sentence(
         hh_da, dd_da = _fmt_dt(dt_da)
         hh_aa, dd_aa = _fmt_dt(dt_aa)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-
-        if dt_da.date() == dt_aa.date():
-            finestra = _bold(f"tra le ore {hh_da} e le ore {hh_aa} del {dd_da}")
-        else:
-            finestra = _bold(f"tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}")
-
-        testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
-            f"consente di stimare che la morte sia avvenuta, all'incirca, {_bold(intervallo_txt + ' prima')} "
-            "dei rilievi effettuati durante l’ispezione legale, "
-            f"ovvero circa {finestra}."
+        return i18n.final_sentence_dt_range(
+            intervallo_txt,
+            hh_da,
+            dd_da,
+            hh_aa,
+            dd_aa,
+            dt_da.date() == dt_aa.date(),
         )
-        return f"<p>{testo}</p>"
 
     return None
 
@@ -142,19 +131,19 @@ def build_simple_sentence(
         h2, m2 = _hm_from_hours(comune_fine)
         hh_lo, dd_lo = _ora_data(comune_fine)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
-                "dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero all'incirca {_bold('successivamente alle ore ' + hh_lo + ' del ' + dd_lo + ' (ma prima delle ore ' + hh_isp + ' del ' + dd_isp + ')')}.</p>")
+        return i18n.simple_sentence_dt_not_over(
+            _fmt_hm_full(h2, m2),
+            hh_lo,
+            dd_lo,
+            hh_isp,
+            dd_isp,
+        )
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1 = _hm_from_hours(comune_inizio)
         hh_d, dd_d = _ora_data(comune_inizio)
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{_bold('oltre ' + _fmt_hm_full(h1, m1) + ' prima')} "
-                "dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero {_bold('prima delle ore ' + hh_d + ' del ' + dd_d)}.</p>")
+        return i18n.simple_sentence_dt_over(_fmt_hm_full(h1, m1), hh_d, dd_d)
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
@@ -163,16 +152,15 @@ def build_simple_sentence(
         hh_da, dd_da = _ora_data(comune_fine)
         hh_aa, dd_aa = _ora_data(comune_inizio)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-
-        if (isp_dt - datetime.timedelta(hours=comune_fine)).date() == (isp_dt - datetime.timedelta(hours=comune_inizio)).date():
-            finestra = _bold(f"tra le ore {hh_da} e le ore {hh_aa} del {dd_da}")
-        else:
-            finestra = _bold(f"tra le ore {hh_da} del {dd_da} e le ore {hh_aa} del {dd_aa}")
-
-        return (f"<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-                f"{_bold(intervallo_txt + ' prima')} "
-                "dei rilievi effettuati durante l’ispezione legale, "
-                f"ovvero circa {finestra}.</p>")
+        return i18n.simple_sentence_dt_range(
+            intervallo_txt,
+            hh_da,
+            dd_da,
+            hh_aa,
+            dd_aa,
+            (isp_dt - datetime.timedelta(hours=comune_fine)).date()
+            == (isp_dt - datetime.timedelta(hours=comune_inizio)).date(),
+        )
     return None
 
 def build_simple_sentence_no_dt(
