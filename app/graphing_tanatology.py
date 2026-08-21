@@ -35,6 +35,23 @@ from app.special_tanatology_states import (
 RangeValue = Optional[Tuple[float, float]]
 
 
+FAMILY_LIVOR = "livor"
+FAMILY_RIGOR = "rigor"
+FAMILY_COOLING = "cooling"
+
+
+def legacy_family_key(label: str) -> str:
+    """Replica la normalizzazione storica usata per raggruppare i range."""
+    return str(label).lower().split("(")[0].strip()
+
+
+def special_family_id(parameter_id: Optional[str], legacy_label: str) -> str:
+    """ID di famiglia stabile, con fallback compatibile per etichette legacy."""
+    if parameter_id is not None:
+        return f"special:{parameter_id}"
+    return f"legacy:{legacy_family_key(legacy_label)}"
+
+
 @dataclass(frozen=True)
 class BaseTanatologyRanges:
     livor_id: Optional[str]
@@ -127,6 +144,11 @@ def resolve_special_tanatology_value(
 
 
 __all__ = [
+    "FAMILY_LIVOR",
+    "FAMILY_RIGOR",
+    "FAMILY_COOLING",
+    "legacy_family_key",
+    "special_family_id",
     "BaseTanatologyRanges",
     "SpecialTanatologyValue",
     "resolve_base_tanatology_ranges",
