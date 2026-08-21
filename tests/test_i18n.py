@@ -69,6 +69,20 @@ class I18nItalianOnlyTests(unittest.TestCase):
             SURFACE_LABEL_IT[SURFACE_HOME_FLOOR_WOOD],
         )
 
+    def test_language_neutral_time_formatting_matches_italian_locale(self):
+        self.assertEqual(i18n.format_hours_minutes(1, 30), "1 ora 30 minuti")
+        self.assertEqual(i18n.format_hours_minutes(2, 0), "2 ore")
+        self.assertEqual(i18n.format_hours_minutes(0, 1), "1 minuto")
+        self.assertEqual(i18n.format_hours_range(2, 0, 3, 0), "tra 2 e 3 ore")
+        self.assertEqual(
+            i18n.format_hours_range(2, 0, 3, 30),
+            "tra 2 ore e 3 ore 30 minuti",
+        )
+        self.assertEqual(
+            i18n.format_hours_range(1, 30, 3, 0),
+            "tra 1 ora 30 minuti e 3 ore",
+        )
+
     def test_language_neutral_helpers_match_italian_locale(self):
         self.assertEqual(
             i18n.livor_description(LIVOR_ABSENT),
