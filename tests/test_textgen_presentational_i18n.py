@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import unittest
 
-from app.textgen import paragrafo_putrefattive, frase_riepilogo_parametri_usati
+from app.textgen import (
+    paragrafo_potente,
+    paragrafo_putrefattive,
+    paragrafo_raffreddamento_input,
+    frase_riepilogo_parametri_usati,
+)
 
 
 class TextgenPresentationalI18nTests(unittest.TestCase):
@@ -31,6 +37,78 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
         self.assertEqual(
             frase_riepilogo_parametri_usati(["Ipostasi", "Rigor", "Raffreddamento"]),
             "<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: ipostasi, rigor e raffreddamento.</p>",
+        )
+
+    def test_potente_paragraph_keeps_current_html_and_applicability(self):
+        self.assertIsNone(
+            paragrafo_potente(
+                mt_ore=26.5,
+                mt_giorni=1.1,
+                qd_val=0.2,
+                ta_val=20.0,
+                qd_threshold=0.2,
+            )
+        )
+        self.assertEqual(
+            paragrafo_potente(
+                mt_ore=26.5,
+                mt_giorni=1.1,
+                qd_val=0.1,
+                ta_val=20.0,
+                qd_threshold=0.2,
+            ),
+            "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
+            "Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>26 ore 30 minuti</b> (≈ 1.1 giorni) dal decesso.</li></ul>",
+        )
+
+    def test_cooling_input_paragraph_without_datetime_keeps_current_html(self):
+        self.assertEqual(
+            paragrafo_raffreddamento_input(
+                isp_dt=None,
+                ta_val=20.0,
+                tr_val=32.5,
+                w_val=70.0,
+                t0_val=37.2,
+                cf_descr="1.0 (nessuna correzione)",
+            ),
+            "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+            "<ul>"
+            "<li>Temperature misurate nel corso dell’ispezione legale:"
+            "<ul>"
+            "<li>Temperatura ambientale: 20.0 °C.</li>"
+            "<li>Temperatura rettale: 32.5 °C.</li>"
+            "</ul>"
+            "</li>"
+            "<li>Peso del cadavere misurato: 70.0 kg.</li>"
+            "<li>Temperatura corporea ipotizzata al momento della morte: 37.2 °C.</li>"
+            "<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): 1.0 (nessuna correzione).</li>"
+            "</ul>"
+            "</li></ul>",
+        )
+
+    def test_cooling_input_paragraph_with_datetime_and_missing_value_keeps_current_html(self):
+        self.assertEqual(
+            paragrafo_raffreddamento_input(
+                isp_dt=datetime.datetime(2026, 8, 21, 14, 30),
+                ta_val=20.0,
+                tr_val=None,
+                w_val=70.0,
+                t0_val=37.2,
+                cf_descr="1.0 (nessuna correzione)",
+            ),
+            "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+            "<ul>"
+            "<li>Temperature misurate nel corso dell’ispezione legale verso le ore 14:30 del 21.08.2026:"
+            "<ul>"
+            "<li>Temperatura ambientale: 20.0 °C.</li>"
+            "<li>Temperatura rettale: — °C.</li>"
+            "</ul>"
+            "</li>"
+            "<li>Peso del cadavere misurato: 70.0 kg.</li>"
+            "<li>Temperatura corporea ipotizzata al momento della morte: 37.2 °C.</li>"
+            "<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): 1.0 (nessuna correzione).</li>"
+            "</ul>"
+            "</li></ul>",
         )
 
 
