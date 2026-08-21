@@ -33,8 +33,14 @@ MSIL_RIGOR_LABEL_IT_BY_ID = {
     RIGOR_RESOLVED: "Rigor risolto",
 }
 
+# Alias neutrali rispetto alla lingua usati dal livello i18n.
+MSIL_LIVOR_LABEL_BY_ID = MSIL_LIVOR_LABEL_IT_BY_ID
+MSIL_RIGOR_LABEL_BY_ID = MSIL_RIGOR_LABEL_IT_BY_ID
+
 
 __all__ = [
     "MSIL_LIVOR_LABEL_IT_BY_ID",
     "MSIL_RIGOR_LABEL_IT_BY_ID",
+    "MSIL_LIVOR_LABEL_BY_ID",
+    "MSIL_RIGOR_LABEL_BY_ID",
 ]
