@@ -61,10 +61,124 @@ def qd_summary(
     )
 
 
+def prudent_range_text(a: float, b: float, unit: str) -> str:
+    """Formatta un range prudenziale mantenendo la resa storica."""
+    if abs(a - b) < 1e-9:
+        return f"{a:g} {unit}"
+    return f"{a:g}–{b:g} {unit}"
+
+
+def prudent_hours_text(hours: float) -> str:
+    """Formatta ore decimali come nel riepilogo prudenziale storico."""
+    import math
+
+    if hours is None or not math.isfinite(hours):
+        return "—"
+    h = int(hours)
+    m = int(round((hours - h) * 60))
+    parts = []
+    if h > 0:
+        parts.append(f"{h} {'ora' if h == 1 else 'ore'}")
+    if m > 0:
+        parts.append(f"{m} {'minuto' if m == 1 else 'minuti'}")
+    if not parts:
+        return "0 ore"
+    return " e ".join(parts)
+
+
+def prudent_parenthetical(*, ta_text: str, cf_text: str, weight_text: str, estimated_weight: bool) -> str:
+    suffix = ", peso stimato" if estimated_weight else ""
+    return f"(raffreddamento stimato su Ta {ta_text}, CF {cf_text}, peso {weight_text}{suffix})"
+
+
+def prudent_result_text(*, minimum_text: str, maximum_text: str | None, beyond: bool, not_over: bool) -> str:
+    if beyond:
+        return f"oltre {minimum_text}"
+    if not_over:
+        return f"non oltre {maximum_text}"
+    return f"tra circa {minimum_text} e {maximum_text}"
+
+
+def prudent_header() -> str:
+    return (
+        "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+        "sono stati stimati i parametri di seguito indicati."
+    )
+
+
+def prudent_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> str:
+    return (
+        "<ul>"
+        f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_text}</b>.</li>"
+        f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_text}</b>.</li>"
+        f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
+        "</ul>"
+    )
+
+
+def prudent_simple_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> str:
+    return (
+        "<ul>"
+        f"<li>Range di temperature ambientali medie: <b>{ta_text}</b></li>"
+        f"<li>Range per il fattore di correzione: <b>{cf_text}</b></li>"
+        f"<li>Peso corporeo: <b>{weight_text}</b></li>"
+        "</ul>"
+    )
+
+
+def prudent_conclusion(result_text: str) -> str:
+    return (
+        "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
+        f"sia avvenuto {result_text} prima dei rilievi effettuati al momento "
+        "dell’ispezione legale."
+    )
+
+
+def prudent_summary_html(*, ta_text: str, cf_text: str, weight_text: str, result_text: str) -> str:
+    return "<br>".join([
+        prudent_header(),
+        prudent_bullets(ta_text=ta_text, cf_text=cf_text, weight_text=weight_text),
+        prudent_conclusion(result_text),
+    ])
+
+
+def prudent_graphing_result_at_least(duration: str) -> str:
+    return f"almeno {duration}"
+
+
+def prudent_graphing_result_range(start: str, end: str) -> str:
+    return f"tra {start} e {end}"
+
+
+def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, weight_text: str) -> str:
+    return (
+        "<ul>"
+        f"<li>{header}"
+        "<ul style='list-style-type: circle; margin-left: 20px;'>"
+        f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_text}</b>.</li>"
+        f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_text}</b>.</li>"
+        f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
+        "</ul></li>"
+        "</ul>"
+    )
+
+
 __all__ = [
     "henssge_detail_paragraph",
     "henssge_qd_outside_warning",
     "henssge_qd_partial_warning",
     "henssge_over_thirty_warning",
     "qd_summary",
+    "prudent_range_text",
+    "prudent_hours_text",
+    "prudent_parenthetical",
+    "prudent_result_text",
+    "prudent_header",
+    "prudent_bullets",
+    "prudent_simple_bullets",
+    "prudent_conclusion",
+    "prudent_summary_html",
+    "prudent_graphing_result_at_least",
+    "prudent_graphing_result_range",
+    "prudent_graphing_detail_list",
 ]
