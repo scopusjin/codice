@@ -182,6 +182,21 @@ def simple_sentence_no_dt_range(interval: str, language: Optional[str] = None) -
     return get_locale(language).simple_sentence_no_dt_range(interval)
 
 
+def final_sentence_simple_over(duration: str, language: Optional[str] = None) -> str:
+    """Frase conclusiva localizzata per un limite minimo senza data/ora."""
+    return get_locale(language).final_sentence_simple_over(duration)
+
+
+def final_sentence_simple_not_over(duration: str, language: Optional[str] = None) -> str:
+    """Frase conclusiva localizzata per un limite massimo senza data/ora."""
+    return get_locale(language).final_sentence_simple_not_over(duration)
+
+
+def final_sentence_simple_range(interval: str, language: Optional[str] = None) -> str:
+    """Frase conclusiva localizzata per un intervallo senza data/ora."""
+    return get_locale(language).final_sentence_simple_range(interval)
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -222,6 +237,9 @@ __all__ = [
     "simple_sentence_no_dt_not_over",
     "simple_sentence_no_dt_over",
     "simple_sentence_no_dt_range",
+    "final_sentence_simple_over",
+    "final_sentence_simple_not_over",
+    "final_sentence_simple_range",
     "livor_description",
     "rigor_description",
     "special_description",

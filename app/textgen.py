@@ -223,34 +223,19 @@ def build_final_sentence_simple(
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1 = _hm_from_hours(comune_inizio)
-        testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            f"consente di stimare che la morte sia all'incirca avvenuta {_bold('più di ' + _fmt_hm_full(h1, m1) + ' prima')} "
-            "dei rilievi dei dati tanatologici."
-        )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return i18n.final_sentence_simple_over(_fmt_hm_full(h1, m1))
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2 = _hm_from_hours(comune_fine)
-        testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            f"consente di stimare che la morte sia all'incirca avvenuta {_bold('non oltre ' + _fmt_hm_full(h2, m2) + ' prima')} "
-            "dei rilievi dei dati tanatologici."
-        )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return i18n.final_sentence_simple_not_over(_fmt_hm_full(h2, m2))
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
         h1, m1 = _hm_from_hours(comune_inizio)
         h2, m2 = _hm_from_hours(comune_fine)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-        testo = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            f"consente di stimare che la morte sia avvenuta, all'incirca, {_bold(intervallo_txt + ' prima')} "
-            "dei rilievi dei dati tanatologici."
-        )
-        return f"<p><b>EPOCA DEL DECESSO STIMATA</b>: {testo}</p>"
+        return i18n.final_sentence_simple_range(intervallo_txt)
 
     return None
 

@@ -365,6 +365,33 @@ def simple_sentence_no_dt_range(interval: str) -> str:
     )
 
 
+def final_sentence_simple_over(duration: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+        f"consente di stimare che la morte sia all'incirca avvenuta <b>più di {duration} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
+def final_sentence_simple_not_over(duration: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+        f"consente di stimare che la morte sia all'incirca avvenuta <b>non oltre {duration} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
+def final_sentence_simple_range(interval: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+        f"consente di stimare che la morte sia avvenuta, all'incirca, <b>{interval} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -385,4 +412,7 @@ __all__ = [
     "simple_sentence_no_dt_not_over",
     "simple_sentence_no_dt_over",
     "simple_sentence_no_dt_range",
+    "final_sentence_simple_over",
+    "final_sentence_simple_not_over",
+    "final_sentence_simple_range",
 ]

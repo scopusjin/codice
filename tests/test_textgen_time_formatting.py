@@ -7,6 +7,7 @@ from app.textgen import (
     _fmt_hm_full,
     _fmt_range_hm,
     build_simple_sentence_no_dt,
+    build_final_sentence_simple,
 )
 
 
@@ -46,6 +47,29 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             build_simple_sentence_no_dt(2, np.inf),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>oltre 2 ore prima</b> "
+            "dei rilievi dei dati tanatologici.</p>",
+        )
+
+    def test_final_sentence_simple_keeps_current_html(self):
+        self.assertEqual(
+            build_final_sentence_simple(2, np.inf),
+            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+            "consente di stimare che la morte sia all'incirca avvenuta <b>più di 2 ore prima</b> "
+            "dei rilievi dei dati tanatologici.</p>",
+        )
+        self.assertEqual(
+            build_final_sentence_simple(0, 4),
+            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+            "consente di stimare che la morte sia all'incirca avvenuta <b>non oltre 4 ore prima</b> "
+            "dei rilievi dei dati tanatologici.</p>",
+        )
+        self.assertEqual(
+            build_final_sentence_simple(1, 4),
+            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
+            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
             "dei rilievi dei dati tanatologici.</p>",
         )
 
