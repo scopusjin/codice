@@ -482,6 +482,26 @@ def final_sentence_dt_range(
     )
 
 
+def putrefactive_paragraph() -> str:
+    return (
+        "<ul><li>Per quanto riguarda i processi trasformativi post-mortali (compresi quelli putrefattivi), "
+        "la loro insorgenza è influenzata da numerosi fattori, esogeni (ad esempio temperatura ambientale, "
+        "esposizione ai fenomeni meteorologici…) ed endogeni (temperatura corporea, infezioni prima del decesso, "
+        "presenza di ferite…). Poiché tali processi possono manifestarsi in un intervallo temporale estremamente "
+        "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
+        "ulteriori precisazioni sull’epoca della morte.</li></ul>"
+    )
+
+
+def parameter_summary(labels: list[str]) -> str:
+    if len(labels) == 1:
+        p = labels[0]
+        return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
+    join = ', '.join(x[0].lower() + x[1:] for x in labels[:-1])
+    join += f" e {labels[-1][0].lower() + labels[-1][1:]}"
+    return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -511,4 +531,6 @@ __all__ = [
     "final_sentence_dt_over",
     "final_sentence_dt_not_over",
     "final_sentence_dt_range",
+    "putrefactive_paragraph",
+    "parameter_summary",
 ]
