@@ -103,9 +103,10 @@ def resolve_special_tanatology_value(
         description = special_description(parameter_id, option_id)
         is_not_assessed = option_id == OPTION_NOT_ASSESSED
     else:
-        # Fallback identico alla struttura legacy per eventuali input storici
-        # non ancora rappresentati dagli ID stabili.
-        legacy_data = dati_parametri_aggiuntivi.get(parameter_legacy_label, {})
+        # Fallback per opzioni storiche non ancora rappresentate dagli ID.
+        # L'indicizzazione diretta mantiene il vecchio KeyError se il nome del
+        # parametro stesso è sconosciuto.
+        legacy_data = dati_parametri_aggiuntivi[parameter_legacy_label]
         range_dict = legacy_data.get("range", {})
         exact_key = next(
             (key for key in range_dict if key.strip() == description_key),
