@@ -91,6 +91,10 @@ def prudent_parenthetical(*, ta_text: str, cf_text: str, weight_text: str, estim
     return f"(raffreddamento stimato su Ta {ta_text}, CF {cf_text}, peso {weight_text}{suffix})"
 
 
+def prudent_estimated_weight(weight_text: str) -> str:
+    return f"{weight_text} (stimato)"
+
+
 def prudent_result_text(*, minimum_text: str, maximum_text: str | None, beyond: bool, not_over: bool) -> str:
     if beyond:
         return f"oltre {minimum_text}"
@@ -172,6 +176,7 @@ __all__ = [
     "prudent_range_text",
     "prudent_hours_text",
     "prudent_parenthetical",
+    "prudent_estimated_weight",
     "prudent_result_text",
     "prudent_header",
     "prudent_bullets",
