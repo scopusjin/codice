@@ -10,7 +10,8 @@ Nessun range, criterio medico-legale o calcolo è definito o modificato qui.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from collections.abc import Mapping
+from typing import Callable, Optional
 
 from app import i18n
 from app.tanatology_states import (
@@ -27,21 +28,42 @@ from app.special_tanatology_states import (
 )
 
 
-# Mappe italiane statiche mantenute come compatibilità legacy.
-# Le funzioni sottostanti ricostruiscono invece le etichette in base alla lingua
-# richiesta, così la UI non resta vincolata ai valori calcolati all'importazione.
-FULL_LIVOR_STATE_BY_LABEL: Dict[str, str] = {
-    i18n.livor_label(state_id): state_id for state_id in LIVOR_LABEL_IT
-}
+class _DynamicLabelMap(Mapping[str, str]):
+    """Vista label -> ID ricostruita al momento dell'accesso."""
 
-FULL_RIGOR_STATE_BY_LABEL: Dict[str, str] = {
-    i18n.rigor_label(state_id): state_id for state_id in RIGOR_LABEL_IT
-}
+    def __init__(self, ids, label_getter: Callable[[str], str]):
+        self._ids = tuple(ids)
+        self._label_getter = label_getter
 
-FULL_SPECIAL_PARAM_BY_LABEL: Dict[str, str] = {
-    i18n.special_parameter_label(param_id): param_id
-    for param_id in SPECIAL_PARAM_LABEL_IT
-}
+    def __getitem__(self, ui_label: str) -> str:
+        for state_id in self._ids:
+            if self._label_getter(state_id) == ui_label:
+                return state_id
+        raise KeyError(ui_label)
+
+    def __iter__(self):
+        return iter(tuple(self._label_getter(state_id) for state_id in self._ids))
+
+    def __len__(self) -> int:
+        return len(self._ids)
+
+
+# Viste dinamiche mantenute con gli stessi nomi per compatibilità con le pagine
+# esistenti. Non congelano più le etichette al momento dell'importazione.
+FULL_LIVOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
+    LIVOR_LABEL_IT,
+    i18n.livor_label,
+)
+
+FULL_RIGOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
+    RIGOR_LABEL_IT,
+    i18n.rigor_label,
+)
+
+FULL_SPECIAL_PARAM_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
+    SPECIAL_PARAM_LABEL_IT,
+    i18n.special_parameter_label,
+)
 
 
 def full_livor_labels(language: Optional[str] = None):
