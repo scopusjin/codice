@@ -238,14 +238,17 @@ def clear_fc_suggestions_global() -> None:
     st.session_state["fc_suggested_vals"] = []
 
 # Titolo
-st.markdown("<h5 style='margin-top:0; margin-bottom:10px;'>STIMA EPOCA DECESSO</h5>", unsafe_allow_html=True)
+st.markdown(
+    f"<h5 style='margin-top:0; margin-bottom:10px;'>{i18n.ui_text('full.title')}</h5>",
+    unsafe_allow_html=True,
+)
 
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
 with st.container(border=True):
     usa_orario_custom = st.toggle(
-        "Aggiungi data/ora rilievi tanatologici",
+        i18n.ui_text("full.add_datetime"),
         key="usa_orario_custom",
     )
 
@@ -258,14 +261,14 @@ with st.container(border=True):
         col1, col2 = st.columns(2, gap="small")
         with col1:
             st.date_input(
-                "Data ispezione legale:",
+                i18n.ui_text("full.inspection_date"),
                 value=st.session_state["input_data_rilievo"],
                 label_visibility="collapsed",
                 key="input_data_rilievo",
             )
         with col2:
             st.text_input(
-                "Ora ispezione legale (HH:MM):",
+                i18n.ui_text("full.inspection_time"),
                 value=st.session_state["input_ora_rilievo"],
                 label_visibility="collapsed",
                 key="input_ora_rilievo",
@@ -286,12 +289,13 @@ with st.container(border=True):
     rigor_labels = list(FULL_RIGOR_STATE_BY_LABEL.keys())
 
     with col1:
-        st.markdown("<div style='font-size: 0.88rem;'>Ipostasi:</div>", unsafe_allow_html=True)
+        livor_heading = i18n.ui_text("full.livor_heading")
+        st.markdown(f"<div style='font-size: 0.88rem;'>{livor_heading}</div>", unsafe_allow_html=True)
         prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
         if prev_livor not in livor_labels:
             prev_livor = livor_labels[0]
         scelta_macchie_lbl = st.selectbox(
-            "Macchie ipostatiche:",
+            i18n.ui_text("full.livor_select_label"),
             options=livor_labels,
             index=livor_labels.index(prev_livor),
             key="selettore_macchie_ui",
@@ -302,12 +306,13 @@ with st.container(border=True):
         st.session_state["selettore_macchie"] = selettore_macchie
 
     with col2:
-        st.markdown("<div style='font-size: 0.88rem;'>Rigidità cadaverica:</div>", unsafe_allow_html=True)
+        rigor_heading = i18n.ui_text("full.rigor_heading")
+        st.markdown(f"<div style='font-size: 0.88rem;'>{rigor_heading}</div>", unsafe_allow_html=True)
         prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
         if prev_rigor not in rigor_labels:
             prev_rigor = rigor_labels[0]
         scelta_rigidita_lbl = st.selectbox(
-            "Rigidità cadaverica:",
+            i18n.ui_text("full.rigor_select_label"),
             options=rigor_labels,
             index=rigor_labels.index(prev_rigor),
             key="selettore_rigidita_ui",
@@ -381,7 +386,7 @@ with st.container(border=True):
                                     value=sget("peso", 70.0), step=1.0, format="%.1f",
                                     key="peso", label_visibility="collapsed")
                 with pc2:
-                    st.toggle("±3 kg", key="peso_stimato_beta")
+                    st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
             # Riga 2: T. ambientale media + range unico
             st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
@@ -665,7 +670,7 @@ if st.session_state.get("toggle_fattore", False):
         )
 
 # Parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox("Aggiungi dati tanatologici speciali")
+mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"))
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
@@ -674,11 +679,7 @@ if mostra_parametri_aggiuntivi:
 
         if not usa_orario_custom_globale:
             st.markdown(
-                "<div style='font-size:0.9rem; color:#666; padding:6px 8px; "
-                "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-                "Per specificare orari dei rilievi, attiva in alto "
-                "<b>“Aggiungi data/ora rilievi”</b>."
-                "</div>",
+                i18n.ui_text("full.special_datetime_hint"),
                 unsafe_allow_html=True
             )
 
@@ -730,7 +731,7 @@ if mostra_parametri_aggiuntivi:
                 with colx1:
                     st.markdown(
                         "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                        "Valutato ad un'ora diversa?"
+                        f"{i18n.ui_text('full.assessed_different_time')}"
                         "</div>",
                         unsafe_allow_html=True
                     )
@@ -740,12 +741,14 @@ if mostra_parametri_aggiuntivi:
             if usa_orario_custom_globale and usa_orario_personalizzato:
                 coly1, coly2 = st.columns(2)
                 with coly1:
-                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
-                    data_picker = st.date_input("Data rilievo:", value=input_data_rilievo,
+                    measurement_date = i18n.ui_text("full.measurement_date")
+                    st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_date}</div>", unsafe_allow_html=True)
+                    data_picker = st.date_input(measurement_date, value=input_data_rilievo,
                                                 key=f"{nome_parametro_legacy}_data", label_visibility="collapsed")
                 with coly2:
-                    st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
-                    ora_input = st.text_input("Ora rilievo (HH:MM):", value=input_ora_rilievo,
+                    measurement_time = i18n.ui_text("full.measurement_time")
+                    st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_time}</div>", unsafe_allow_html=True)
+                    ora_input = st.text_input(i18n.ui_text("full.measurement_time_input"), value=input_ora_rilievo,
                                               key=f"{nome_parametro_legacy}_ora", label_visibility="collapsed")
 
             widgets_parametri_aggiuntivi[nome_parametro_legacy] = {
@@ -754,7 +757,7 @@ if mostra_parametri_aggiuntivi:
                 "ora_rilievo": ora_input
             }
 
-        chk_putrefattive = st.checkbox("Alterazioni putrefattive?", value=st.session_state.get("alterazioni_putrefattive", False))
+        chk_putrefattive = st.checkbox(i18n.ui_text("full.putrefactive_changes"), value=st.session_state.get("alterazioni_putrefattive", False))
         st.session_state["alterazioni_putrefattive"] = chk_putrefattive
 else:
     st.session_state["alterazioni_putrefattive"] = False
@@ -878,7 +881,7 @@ if not st.session_state.get("range_unico_beta", False):
 # --- Bottone: esegue il calcolo SOLO su click ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    if st.button("STIMA EPOCA DECESSO", key="btn_stima"):
+    if st.button(i18n.ui_text("full.estimate_button"), key="btn_stima"):
         st.session_state["last_run_sig"] = curr_sig
         st.session_state["show_results"] = True
 
@@ -901,7 +904,7 @@ if st.session_state["show_results"]:
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     if no_rt and no_macchie and no_rigidita:
-        st.warning("Nessun dato inserito per la stima")
+        st.warning(i18n.ui_text("full.no_data_warning"))
         st.stop()
 
     base_ok = (
@@ -918,7 +921,7 @@ if st.session_state["show_results"]:
             ta_vals = [float(input_ta)]
         prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
         if not prudente_ok:
-            _warn_box("Non è stato possibile applicare il metodo di Henssge (temperature incoerenti o fuori range).")
+            _warn_box(i18n.ui_text("full.henssge_incoherent_warning"))
 
     considera_raffreddamento = base_ok and (
         not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
