@@ -153,6 +153,11 @@ UI_TEXT = {
     "graph.discordant_detail_html": "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
     "graph.descriptions_popover": "📖 Descrizioni dettagliate",
     "graph.warnings_popover": "⚠️ Avvisi",
+    "graph.parameter_livor": "Macchie ipostatiche",
+    "graph.parameter_rigor": "Rigidità cadaverica",
+    "graph.parameter_cooling": "raffreddamento cadaverico",
+    "graph.parameter_cooling_prudent_open": "raffreddamento cadaverico (cautelativo: limite superiore aperto)",
+    "graph.parameter_cooling_potente": "raffreddamento cadaverico (intervallo minimo secondo Potente et al.)",
 
     # ------------------------------------------------------------------
     # Grafico — etichette
