@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from decimal import Decimal, ROUND_FLOOR, InvalidOperation
 
+from app import i18n
+
 def floor_to_step(x: float, step: float = 0.05) -> float:
     """Arrotonda sempre per difetto al multiplo più vicino di step (default 0.05)."""
     d = Decimal(str(x))
@@ -560,42 +562,10 @@ def build_cf_description(
       - Correnti d'aria solo se presenti.
       - Aggiungi frase peso se riassunto['peso_adattato'] è True.
     """
-    cf_txt = f"{float(cf_value):.2f}"
-
-    if manual_override:
-        return cf_txt
-
-    if not riassunto:
-        return f"{cf_txt} (in base ai fattori scelti: {fallback_text})." if fallback_text else f"{cf_txt} (da adattare sulla base dei fattori scelti)."
-
-    stato_txt = _format_stato(riassunto.get("stato"))
-
-    sottili = int(riassunto.get("sottili", 0))
-    spessi  = int(riassunto.get("spessi", 0))
-    indumenti_txt = _format_indumenti(sottili, spessi, riassunto.get("stato"))
-
-    cop_med = int(riassunto.get("cop_medie", 0))
-    cop_pes = int(riassunto.get("cop_pesanti", 0))
-    is_nudo = (sottili == 0 and spessi == 0)
-    coperte_txt = _format_coperte(cop_med, cop_pes, is_nudo)
-
-    superf_cat = _classifica_superficie_from_key(riassunto.get("superficie_key"))
-    superf_txt = f"adagiato su superficie termicamente {superf_cat}" if superf_cat else None
-
-    corr_val = riassunto.get("correnti")
-    corr_txt = None
-    if isinstance(corr_val, str):
-        corr_txt = _format_corrente(corr_val)
-
-    parts = [p for p in (stato_txt, indumenti_txt, coperte_txt, superf_txt, corr_txt) if p]
-
-    nota_peso = "Il fattore di correzione è stato adattato per il peso corporeo." if riassunto.get("peso_adattato") else None
-
-    if parts or nota_peso:
-        inner = ", ".join(parts)
-        if nota_peso:
-            inner = (inner + ". " + nota_peso) if inner else nota_peso
-        return f"{cf_txt} ({inner})"
-
-    return f"{cf_txt} (in base ai fattori scelti: {fallback_text})." if fallback_text else f"{cf_txt} (da adattare sulla base dei fattori scelti)."
+    return i18n.factor_correction_description(
+        cf_value=cf_value,
+        summary=riassunto,
+        fallback_text=fallback_text,
+        manual_override=manual_override,
+    )
     
