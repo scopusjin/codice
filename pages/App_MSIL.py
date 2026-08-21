@@ -18,21 +18,22 @@ from app.msil_tanatology import (
     msil_rigor_legacy_value,
 )
 from app.factor_ui_states import (
-    BODY_LABEL_IT,
-    WATER_LABEL_IT,
-    MSIL_CLOTHING_LABEL_IT,
     LAYER_THIN,
     LAYER_THICK,
     BLANKET_MEDIUM,
     BLANKET_HEAVY,
-    body_legacy_value,
-    water_legacy_value,
 )
-from app.surface_ui_states import (
-    SURFACE_LABEL_IT,
-    SURFACE_THICK_METAL_OUTDOOR,
-    surface_legacy_value,
+from app.msil_factor_ui import (
+    msil_body_labels,
+    msil_body_legacy_value,
+    msil_water_labels,
+    msil_water_legacy_value,
+    msil_clothing_label,
+    msil_surface_labels,
+    msil_surface_label,
+    msil_surface_legacy_value,
 )
+from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
 
 # ------------------------------------------------------------
 # Config pagina
@@ -379,10 +380,10 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
     def k(name: str) -> str: return f"{key_prefix}_{name}"
 
-    stato_label = st.radio("", list(BODY_LABEL_IT.values()),
+    stato_label = st.radio("", list(msil_body_labels()),
                            index=0, horizontal=True, key=k("radio_stato_corpo"),
                            label_visibility="collapsed")
-    stato_corpo = body_legacy_value(stato_label)
+    stato_corpo = msil_body_legacy_value(stato_label)
 
     try:
         tabella2 = load_tabelle_correzione()
@@ -402,10 +403,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         peso_eff = float(peso_default)
 
     if stato_corpo == "Immerso":
-        acqua_label = st.radio("", list(WATER_LABEL_IT.values()),
+        acqua_label = st.radio("", list(msil_water_labels()),
                                index=0, horizontal=True, key=k("radio_acqua"),
                                label_visibility="collapsed")
-        acqua_mode = water_legacy_value(acqua_label)
+        acqua_mode = msil_water_legacy_value(acqua_label)
 
         result = compute_factor(
             stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
@@ -425,10 +426,10 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
-        label_sottili = MSIL_CLOTHING_LABEL_IT[LAYER_THIN]
-        label_spessi = MSIL_CLOTHING_LABEL_IT[LAYER_THICK]
-        label_coperte_medie = MSIL_CLOTHING_LABEL_IT[BLANKET_MEDIUM]
-        label_coperte_pesanti = MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY]
+        label_sottili = msil_clothing_label(LAYER_THIN)
+        label_spessi = msil_clothing_label(LAYER_THICK)
+        label_coperte_medie = msil_clothing_label(BLANKET_MEDIUM)
+        label_coperte_pesanti = msil_clothing_label(BLANKET_HEAVY)
 
         defaults = {
             label_sottili: st.session_state.get(k("strati_sottili"), 0),
@@ -462,9 +463,9 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito)
                     or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = list(SURFACE_LABEL_IT.values())
+        options_display = list(msil_surface_labels())
         if not nudo_eff:
-            excluded_surface = SURFACE_LABEL_IT[SURFACE_THICK_METAL_OUTDOOR]
+            excluded_surface = msil_surface_label(SURFACE_THICK_METAL_OUTDOOR)
             options_display = [o for o in options_display if o != excluded_surface]
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
@@ -474,7 +475,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
             index=options_display.index(prev_display),
             key=k("superficie_display_sel"), label_visibility="visible"
         )
-        superficie_display_selected = surface_legacy_value(superficie_display_label)
+        superficie_display_selected = msil_surface_legacy_value(superficie_display_label)
 
     correnti_presenti = False
     with corr_placeholder.container():
