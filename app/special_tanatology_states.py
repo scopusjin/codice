@@ -2,15 +2,13 @@
 """Identificatori stabili per i parametri tanatologici aggiuntivi.
 
 Il modulo separa gli ID interni dalle etichette italiane attualmente usate da
-``app.parameters``. I range scientifici non sono ridefiniti: vengono letti dai
-dizionari legacy, così questa fase di refactoring non può modificarne i valori.
+``app.parameters``. I range scientifici e le descrizioni legacy restano
+accessibili tramite adattatori compatibili, senza dipendenze top-level dai dati.
 """
 
 from __future__ import annotations
 
 from typing import Dict, Optional, Tuple
-
-from app.parameters import dati_parametri_aggiuntivi
 
 RangeValue = Optional[Tuple[float, float]]
 
@@ -139,6 +137,8 @@ def special_option_legacy_labels(param_id: str):
 
 def special_range(param_id: str, option_id: str) -> RangeValue:
     """Range letto direttamente da app.parameters, senza duplicare valori."""
+    from app.parameters import dati_parametri_aggiuntivi
+
     param_label = special_param_legacy_label(param_id)
     option_label = special_option_legacy_label(param_id, option_id)
     return dati_parametri_aggiuntivi[param_label]["range"][option_label]
@@ -146,6 +146,8 @@ def special_range(param_id: str, option_id: str) -> RangeValue:
 
 def special_description(param_id: str, option_id: str):
     """Descrizione italiana legacy, se definita, letta da app.parameters."""
+    from app.parameters import dati_parametri_aggiuntivi
+
     param_label = special_param_legacy_label(param_id)
     option_label = special_option_legacy_label(param_id, option_id)
     return dati_parametri_aggiuntivi[param_label]["descrizioni"].get(option_label)
