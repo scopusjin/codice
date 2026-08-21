@@ -25,8 +25,14 @@ from app.parameters import (
 from app.full_tanatology import (
     FULL_LIVOR_STATE_BY_LABEL,
     FULL_RIGOR_STATE_BY_LABEL,
+    FULL_SPECIAL_PARAM_BY_LABEL,
     full_livor_legacy_value,
     full_rigor_legacy_value,
+    full_special_parameter_label,
+    full_special_parameter_legacy_value,
+    full_special_option_labels,
+    full_special_option_id,
+    full_special_option_legacy_value,
 )
 from app.factor_ui_states import (
     BODY_LABEL_IT,
@@ -46,10 +52,7 @@ from app.surface_ui_states import (
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     PARAM_ELECTRICAL_PERIORAL,
-    SPECIAL_PARAM_LABEL_IT,
     OPTION_NOT_ASSESSED,
-    special_option_legacy_labels,
-    special_option_id,
 )
 
 from app.data_sources import load_tabelle_correzione
@@ -680,8 +683,10 @@ if mostra_parametri_aggiuntivi:
                 unsafe_allow_html=True
             )
 
-        for parametro_id, nome_parametro in SPECIAL_PARAM_LABEL_IT.items():
-            dati_parametro = dati_parametri_aggiuntivi[nome_parametro]
+        for parametro_id in FULL_SPECIAL_PARAM_BY_LABEL.values():
+            nome_parametro = full_special_parameter_label(parametro_id)
+            nome_parametro_legacy = full_special_parameter_legacy_value(parametro_id)
+            dati_parametro = dati_parametri_aggiuntivi[nome_parametro_legacy]
             col1, col2 = st.columns([1, 2], gap="small")
 
             with col1:
@@ -708,11 +713,12 @@ if mostra_parametri_aggiuntivi:
             with col2:
                 selettore = st.selectbox(
                     label=nome_parametro,
-                    options=list(special_option_legacy_labels(parametro_id)),
-                    key=f"{nome_parametro}_selector",
+                    options=list(full_special_option_labels(parametro_id)),
+                    key=f"{nome_parametro_legacy}_selector",
                     label_visibility="collapsed"
                 )
-                selettore_id = special_option_id(parametro_id, selettore)
+                selettore_id = full_special_option_id(parametro_id, selettore)
+                selettore_legacy = full_special_option_legacy_value(parametro_id, selettore)
                 st.session_state[f"special_{parametro_id}_id"] = selettore_id
 
             data_picker = None
@@ -720,7 +726,7 @@ if mostra_parametri_aggiuntivi:
             usa_orario_personalizzato = False
 
             if selettore_id != OPTION_NOT_ASSESSED and usa_orario_custom_globale:
-                chiave_checkbox = f"{nome_parametro}_diversa"
+                chiave_checkbox = f"{nome_parametro_legacy}_diversa"
                 colx1, colx2 = st.columns([0.75, 0.25], gap="small")
                 with colx1:
                     st.markdown(
@@ -737,14 +743,14 @@ if mostra_parametri_aggiuntivi:
                 with coly1:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Data rilievo:</div>", unsafe_allow_html=True)
                     data_picker = st.date_input("Data rilievo:", value=input_data_rilievo,
-                                                key=f"{nome_parametro}_data", label_visibility="collapsed")
+                                                key=f"{nome_parametro_legacy}_data", label_visibility="collapsed")
                 with coly2:
                     st.markdown("<div style='font-size: 0.88rem; padding-top: 0.4rem;'>Ora rilievo:</div>", unsafe_allow_html=True)
                     ora_input = st.text_input("Ora rilievo (HH:MM):", value=input_ora_rilievo,
-                                              key=f"{nome_parametro}_ora", label_visibility="collapsed")
+                                              key=f"{nome_parametro_legacy}_ora", label_visibility="collapsed")
 
-            widgets_parametri_aggiuntivi[nome_parametro] = {
-                "selettore": selettore,
+            widgets_parametri_aggiuntivi[nome_parametro_legacy] = {
+                "selettore": selettore_legacy,
                 "data_rilievo": data_picker,
                 "ora_rilievo": ora_input
             }
