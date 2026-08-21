@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import ModuleType
 from typing import Dict, Mapping, Optional, Tuple
 
-from app.locales import it
+from app.locales import it, it_henssge
 from app.factor_ui_states import (
     BODY_LABEL_IT,
     WATER_LABEL_IT,
@@ -30,6 +30,10 @@ _LANGUAGE_LABELS: Dict[str, str] = {
 
 _LOCALES: Dict[str, ModuleType] = {
     "it": it,
+}
+
+_HENSSGE_LOCALES: Dict[str, ModuleType] = {
+    "it": it_henssge,
 }
 
 SUPPORTED_LANGUAGES: Tuple[str, ...] = tuple(_LOCALES.keys())
@@ -56,6 +60,11 @@ def normalize_language(language: Optional[str] = None) -> str:
 def get_locale(language: Optional[str] = None) -> ModuleType:
     """Restituisce il modulo locale associato alla lingua richiesta."""
     return _LOCALES[normalize_language(language)]
+
+
+def _get_henssge_locale(language: Optional[str] = None) -> ModuleType:
+    """Restituisce il modulo locale dedicato ai testi Henssge/Qd."""
+    return _HENSSGE_LOCALES[normalize_language(language)]
 
 
 def language_label(language: Optional[str] = None) -> str:
@@ -335,6 +344,50 @@ def cooling_input_paragraph(
     )
 
 
+def henssge_detail_paragraph(
+    interval: str,
+    extra: str = "",
+    language: Optional[str] = None,
+) -> str:
+    """Paragrafo localizzato con la stima dettagliata secondo Henssge."""
+    return _get_henssge_locale(language).henssge_detail_paragraph(interval, extra)
+
+
+def henssge_qd_outside_warning(language: Optional[str] = None) -> str:
+    """Avviso localizzato per Qd nella fascia più critica."""
+    return _get_henssge_locale(language).henssge_qd_outside_warning()
+
+
+def henssge_qd_partial_warning(language: Optional[str] = None) -> str:
+    """Avviso localizzato per Qd nella fascia intermedia."""
+    return _get_henssge_locale(language).henssge_qd_partial_warning()
+
+
+def henssge_over_thirty_warning(
+    mean_hours: str,
+    language: Optional[str] = None,
+) -> str:
+    """Avviso localizzato per una stima media superiore a 30 ore."""
+    return _get_henssge_locale(language).henssge_over_thirty_warning(mean_hours)
+
+
+def qd_summary(
+    *,
+    qd_text: str,
+    ambient_at_most_23: bool,
+    threshold_text: str,
+    within_limits: bool,
+    language: Optional[str] = None,
+) -> str:
+    """Riepilogo localizzato del valore Qd e del relativo confronto."""
+    return _get_henssge_locale(language).qd_summary(
+        qd_text=qd_text,
+        ambient_at_most_23=ambient_at_most_23,
+        threshold_text=threshold_text,
+        within_limits=within_limits,
+    )
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -388,6 +441,11 @@ __all__ = [
     "parameter_summary",
     "potente_paragraph",
     "cooling_input_paragraph",
+    "henssge_detail_paragraph",
+    "henssge_qd_outside_warning",
+    "henssge_qd_partial_warning",
+    "henssge_over_thirty_warning",
+    "qd_summary",
     "livor_description",
     "rigor_description",
     "special_description",
