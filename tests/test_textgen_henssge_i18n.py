@@ -29,6 +29,19 @@ class TextgenHenssgeI18nTests(unittest.TestCase):
             "non oltre 4 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
+    def test_mixed_range_uses_singular_hour(self):
+        self.assertEqual(
+            paragrafo_raffreddamento_dettaglio(
+                t_min_visual=1.0,
+                t_max_visual=6.5,
+                t_med_round=None,
+                qd_val=None,
+                ta_val=20.0,
+            ),
+            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, "
+            "tra 1 ora e 6 ore 30 minuti prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
