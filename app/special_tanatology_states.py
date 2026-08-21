@@ -145,10 +145,10 @@ def special_range(param_id: str, option_id: str) -> RangeValue:
 
 
 def special_description(param_id: str, option_id: str):
-    """Descrizione italiana corrente esposta tramite il confine dei testi."""
-    from app.tanatology_texts_it import special_description_it
+    """Descrizione corrente esposta tramite il livello i18n."""
+    from app.i18n import special_description as localized_special_description
 
-    return special_description_it(param_id, option_id)
+    return localized_special_description(param_id, option_id)
 
 
 __all__ = [
