@@ -17,7 +17,7 @@ from app.parameters import (
     opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
     dati_parametri_aggiuntivi, nomi_brevi,
 )
-from app.graphing_tanatology import resolve_base_tanatology_ranges
+from app.graphing_tanatology import resolve_base_tanatology_ranges, resolve_special_tanatology_value
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -352,7 +352,8 @@ def aggiorna_grafico(
 
     for nome_parametro, widgets in widgets_parametri_aggiuntivi.items():
         stato_selezionato = widgets["selettore"]
-        if stato_selezionato == "Non valutata":
+        parametro_risolto = resolve_special_tanatology_value(nome_parametro, stato_selezionato)
+        if parametro_risolto.is_not_assessed:
             continue
         data_rilievo_param = widgets["data_rilievo"]
         ora_rilievo_param_str = widgets["ora_rilievo"]
@@ -370,20 +371,13 @@ def aggiorna_grafico(
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        chiave_descrizione = (stato_selezionato.split(':')[0].strip()
-                              if nome_parametro == "Eccitabilità elettrica peribuccale"
-                              else stato_selezionato.strip())
-
-        chiave_esatta = None
-        for k in dati_parametri_aggiuntivi[nome_parametro]["range"].keys():
-            if k.strip() == chiave_descrizione:
-                chiave_esatta = k
-                break
-
-        range_valori = dati_parametri_aggiuntivi[nome_parametro]["range"].get(chiave_esatta)
+        chiave_descrizione = parametro_risolto.legacy_description_key
+        range_valori = parametro_risolto.range_value
         if range_valori:
-            descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
-                chiave_descrizione, f"Descrizione non trovata per '{stato_selezionato}'."
+            descrizione = (
+                parametro_risolto.description
+                if parametro_risolto.description is not None
+                else f"Descrizione non trovata per '{stato_selezionato}'."
             )
             data_ora_param = arrotonda_quarto_dora(datetime.datetime.combine(data_rilievo_param, ora_rilievo_time))
             diff_h = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
@@ -401,14 +395,15 @@ def aggiorna_grafico(
             diffs = {p["differenza_ore"] for p in parametri_aggiuntivi_da_considerare if p.get("adattato")}
             nota_globale_range_adattato = len(diffs) == 1
         else:
-            if dati_parametri_aggiuntivi[nome_parametro]["range"].get(stato_selezionato) is None:
-                descrizione = dati_parametri_aggiuntivi[nome_parametro]["descrizioni"].get(
-                    chiave_descrizione, f"{nome_parametro} ({stato_selezionato}) senza range definito."
-                )
-                parametri_aggiuntivi_da_considerare.append(dict(
-                    nome=nome_parametro, stato=stato_selezionato,
-                    range_traslato=(np.nan, np.nan), descrizione=descrizione
-                ))
+            descrizione = (
+                parametro_risolto.description
+                if parametro_risolto.description is not None
+                else f"{nome_parametro} ({stato_selezionato}) senza range definito."
+            )
+            parametri_aggiuntivi_da_considerare.append(dict(
+                nome=nome_parametro, stato=stato_selezionato,
+                range_traslato=(np.nan, np.nan), descrizione=descrizione
+            ))
 
     # --- range Henssge per grafico ---
     t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
