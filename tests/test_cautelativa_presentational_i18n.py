@@ -1,0 +1,49 @@
+# -*- coding: utf-8 -*-
+
+import unittest
+
+from app import i18n
+from app.cautelativa import build_parentetica_cautelativa, build_summary_html
+
+
+class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
+    def test_prudent_formatters_keep_current_text(self):
+        self.assertEqual(i18n.prudent_range_text(19.0, 21.0, "°C"), "19–21 °C")
+        self.assertEqual(i18n.prudent_range_text(0.9, 1.1, ""), "0.9–1.1 ")
+        self.assertEqual(i18n.prudent_hours_text(1.5), "1 ora e 30 minuti")
+        self.assertEqual(i18n.prudent_hours_text(0.0), "0 ore")
+
+    def test_parenthetical_keeps_current_output(self):
+        self.assertEqual(
+            build_parentetica_cautelativa(19.0, 21.0, 0.9, 1.1, 67.0, 73.0, True),
+            "(raffreddamento stimato su Ta 19–21 °C, CF 0.9–1.1 , peso 67–73 kg, peso stimato)",
+        )
+
+    def test_summary_keeps_current_output(self):
+        expected = (
+            "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+            "sono stati stimati i parametri di seguito indicati."
+            "<br><ul>"
+            "<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>19–21 °C</b>.</li>"
+            "<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>0.9–1.1 </b>.</li>"
+            "<li>Peso corporeo: <b>70 kg</b>.</li>"
+            "</ul>"
+            "<br>Applicando l'equazione di Henssge, è possibile stimare che il decesso "
+            "sia avvenuto tra circa 5 ore e 10 ore prima dei rilievi effettuati al momento "
+            "dell’ispezione legale."
+        )
+        self.assertEqual(
+            build_summary_html(
+                19.0, 21.0, 0.9, 1.1, 70.0, 70.0,
+                5.0, 10.0, None, None, None, None,
+                peso_stimato=False, agg_max_raw=10.0,
+            ),
+            expected,
+        )
+
+    def test_estimated_weight_marker_keeps_current_output(self):
+        self.assertEqual(i18n.prudent_estimated_weight("67–73 kg"), "67–73 kg (stimato)")
+
+
+if __name__ == "__main__":
+    unittest.main()
