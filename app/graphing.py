@@ -18,7 +18,6 @@ from app.parameters import (
     dati_parametri_aggiuntivi, nomi_brevi,
 )
 from app.graphing_tanatology import resolve_base_tanatology_ranges, resolve_special_tanatology_value
-from app.tanatology_texts_it import livor_description_it, rigor_description_it
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -265,39 +264,31 @@ def aggiorna_grafico(
 
                 t_lo = round_quarter_hour(t_min_raff_henssge)
                 if np.isnan(t_max_raff_henssge):
-                    risultato_txt = f"almeno {_fmt_ore_min(t_lo)}"
+                    risultato_txt = i18n.prudent_graphing_result_at_least(_fmt_ore_min(t_lo))
                 else:
                     t_hi = round_quarter_hour(t_max_raff_henssge)
-                    risultato_txt = f"tra {_fmt_ore_min(t_lo)} e {_fmt_ore_min(t_hi)}"
+                    risultato_txt = i18n.prudent_graphing_result_range(
+                        _fmt_ore_min(t_lo),
+                        _fmt_ore_min(t_hi),
+                    )
 
-                header_blk = (
-                    "Per quanto attiene la valutazione del raffreddamento cadaverico, "
-                    "sono stati stimati i parametri di seguito indicati."
+                header_blk = i18n.prudent_header()
+                bullets_blk = i18n.prudent_simple_bullets(
+                    ta_text=ta_txt,
+                    cf_text=cf_txt,
+                    weight_text=p_txt,
                 )
-                bullets_blk = (
-                    "<ul>"
-                    f"<li>Range di temperature ambientali medie: <b>{ta_txt}</b></li>"
-                    f"<li>Range per il fattore di correzione: <b>{cf_txt}</b></li>"
-                    f"<li>Peso corporeo: <b>{p_txt}</b></li>"
-                    "</ul>"
-                )
-                conclusione_blk = (
-                    "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-                    f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
-                    "dell’ispezione legale."
-                )
+                conclusione_blk = i18n.prudent_conclusion(risultato_txt)
 
-            elenco_html = "<ul>"
             if header_blk:
-                elenco_html += f"<li>{header_blk}"
-                elenco_html += "<ul style='list-style-type: circle; margin-left: 20px;'>"
-                elenco_html += (
-                    f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
-                    f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
-                    f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
+                elenco_html = i18n.prudent_graphing_detail_list(
+                    header=header_blk,
+                    ta_text=ta_txt,
+                    cf_text=cf_txt,
+                    weight_text=p_txt,
                 )
-                elenco_html += "</ul></li>"
-            elenco_html += "</ul>"
+            else:
+                elenco_html = "<ul></ul>"
             _add_det(elenco_html)
 
             t_min_vis = t_min_raff_henssge
@@ -514,7 +505,7 @@ def aggiorna_grafico(
     # --- Potente come "extra" per il grafico (nasconde la barra Henssge) ---
     if usa_potente and _is_num(mt_ore):
         extra_params_for_plot.insert(0, {
-            "label": "Raffreddamento",
+            "label": i18n.ui_text("plot.cooling"),
             "start": float(mt_ore),
             "end": np.inf,
             "order": -1,
@@ -671,8 +662,8 @@ def aggiorna_grafico(
         _add_det(par_p)
 
         for blocco in paragrafi_descrizioni_base(
-            testo_macchie=livor_description_it(base_tanatology.livor_id),
-            testo_rigidita=rigor_description_it(base_tanatology.rigor_id),
+            testo_macchie=i18n.livor_description(base_tanatology.livor_id),
+            testo_rigidita=i18n.rigor_description(base_tanatology.rigor_id),
         ):
             _add_det(blocco)
         for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
@@ -787,8 +778,8 @@ def aggiorna_grafico(
         no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
         if not no_macchie or not no_rigidita:
             for blk in paragrafi_descrizioni_base(
-                testo_macchie=livor_description_it(base_tanatology.livor_id),
-                testo_rigidita=rigor_description_it(base_tanatology.rigor_id),
+                testo_macchie=i18n.livor_description(base_tanatology.livor_id),
+                testo_rigidita=i18n.rigor_description(base_tanatology.rigor_id),
             ):
                 chunks.append(_wrap_final(blk))
 
