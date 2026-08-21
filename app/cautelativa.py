@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
+from app import i18n
 from app.henssge import calcola_raffreddamento
 from app.utils_time import arrotonda_quarto_dora   # <-- SOLO questa
 from app.parameters import INF_HOURS
@@ -234,17 +235,19 @@ def build_parentetica_cautelativa(
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
     p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
-    suffix = ", peso stimato" if peso_stimato else ""
-    return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
+    return i18n.prudent_parenthetical(
+        ta_text=ta_txt,
+        cf_text=cf_txt,
+        weight_text=p_txt,
+        estimated_weight=peso_stimato,
+    )
 
 
 # ------------------------
 # Frasi di riepilogo
 # ------------------------
 def _fmt_range(a: float, b: float, unit: str) -> str:
-    if abs(a - b) < 1e-9:
-        return f"{a:g} {unit}"
-    return f"{a:g}–{b:g} {unit}"
+    return i18n.prudent_range_text(a, b, unit)
 
 
 def _fmt_dt(dt: Optional[datetime]) -> str:
@@ -254,22 +257,7 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
 
 
 def _fmt_ore(ore: float) -> str:
-    """
-    Converte ore decimali in stringa leggibile: es. 1.5 -> '1 ora e 30 minuti'.
-    Gestisce singolare/plurale.
-    """
-    if ore is None or not math.isfinite(ore):
-        return "—"
-    h = int(ore)
-    m = int(round((ore - h) * 60))
-    parts = []
-    if h > 0:
-        parts.append(f"{h} {'ora' if h == 1 else 'ore'}")
-    if m > 0:
-        parts.append(f"{m} {'minuto' if m == 1 else 'minuti'}")
-    if not parts:  # caso 0
-        return "0 ore"
-    return " e ".join(parts)
+    return i18n.prudent_hours_text(ore)
 
 
 def _lbl_ore(x: float) -> str:
@@ -292,33 +280,32 @@ def build_summary_html(
 
     # Peso
     if peso_stimato:
-        p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg") + " (stimato)"
+        p_txt = i18n.prudent_estimated_weight(
+            _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+        )
     else:
         p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
 
-    # Frase risultato (usando _fmt_ore per ore decimali)
+    # Frase risultato (criteri invariati)
     if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"oltre {_fmt_ore(ore_min)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=None,
+            beyond=True, not_over=False,
+        )
     elif ore_min <= 1e-9:
-        risultato_txt = f"non oltre {_fmt_ore(ore_max)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=_fmt_ore(ore_max),
+            beyond=False, not_over=True,
+        )
     else:
-        risultato_txt = f"tra circa {_fmt_ore(ore_min)} e {_fmt_ore(ore_max)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=_fmt_ore(ore_max),
+            beyond=False, not_over=False,
+        )
 
-    header = (
-        "Per quanto attiene la valutazione del raffreddamento cadaverico, "
-        "sono stati stimati i parametri di seguito indicati."
+    return i18n.prudent_summary_html(
+        ta_text=ta_txt,
+        cf_text=cf_txt,
+        weight_text=p_txt,
+        result_text=risultato_txt,
     )
-    bullets = (
-        "<ul>"
-        f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
-        f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
-        f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
-        "</ul>"
-    )
-    conclusione = (
-        "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-        f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
-        "dell’ispezione legale."
-    )
-
-    return "<br>".join([header, bullets, conclusione])
