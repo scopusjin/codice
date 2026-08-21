@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple, Iterable, Dict, Any
 import numpy as np
 
 from app.utils_time import split_hours_minutes
+from app.textgen_tanatology import special_description_is_reportable
 
 # ------------------------------------------------------------
 # Utilità testuali
@@ -427,9 +428,8 @@ def paragrafi_parametri_aggiuntivi(
     """
     out: List[str] = []
     for p in parametri:
-        stato = p.get("stato", "")
         desc = p.get("descrizione")
-        if desc and stato not in ("Non valutata", "Non valutabile/non attendibile"):
+        if desc and special_description_is_reportable(p):
             out.append(f"<ul><li>{desc}</li></ul>")
     return out
 
