@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Dict
 
+from app import i18n
 from app.tanatology_states import (
     LIVOR_LABEL_IT,
     RIGOR_LABEL_IT,
@@ -24,11 +25,11 @@ from app.tanatology_states import (
 # L'ordine segue quello già definito in tanatology_states.py e riproduce
 # l'ordine attuale dei menu della pagina completa.
 FULL_LIVOR_STATE_BY_LABEL: Dict[str, str] = {
-    label: state_id for state_id, label in LIVOR_LABEL_IT.items()
+    i18n.livor_label(state_id): state_id for state_id in LIVOR_LABEL_IT
 }
 
 FULL_RIGOR_STATE_BY_LABEL: Dict[str, str] = {
-    label: state_id for state_id, label in RIGOR_LABEL_IT.items()
+    i18n.rigor_label(state_id): state_id for state_id in RIGOR_LABEL_IT
 }
 
 
