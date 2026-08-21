@@ -341,6 +341,30 @@ def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
     return f"tra {format_hours_minutes(h1, m1)} e {format_hours_minutes(h2, m2)}"
 
 
+def simple_sentence_no_dt_not_over(duration: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>non oltre {duration} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
+def simple_sentence_no_dt_over(duration: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>oltre {duration} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
+def simple_sentence_no_dt_range(interval: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>{interval} prima</b> "
+        "dei rilievi dei dati tanatologici.</p>"
+    )
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -358,4 +382,7 @@ __all__ = [
     "special_graph_label_it",
     "format_hours_minutes",
     "format_hours_range",
+    "simple_sentence_no_dt_not_over",
+    "simple_sentence_no_dt_over",
+    "simple_sentence_no_dt_range",
 ]
