@@ -3,8 +3,8 @@
 
 In questa fase è registrata esclusivamente la lingua italiana. Il modulo non
 contiene testi e non dipende da Streamlit: seleziona una locale e offre helper
-neutri rispetto alla lingua per i testi tanatologici già separati dai dati
-scientifici.
+neutri rispetto alla lingua per testi ed etichette tanatologiche già separati
+dai dati scientifici.
 """
 
 from __future__ import annotations
@@ -56,6 +56,52 @@ def language_label(language: Optional[str] = None) -> str:
     return _LANGUAGE_LABELS[normalize_language(language)]
 
 
+def _localized_mapping(locale: ModuleType, generic_name: str, legacy_it_name: str):
+    """Recupera una mappa localizzata con fallback transitorio all'italiano."""
+    mapping = getattr(locale, generic_name, None)
+    if mapping is not None:
+        return mapping
+    if locale is it:
+        return getattr(locale, legacy_it_name)
+    raise AttributeError(f"La locale {locale.__name__!r} non espone {generic_name!r}")
+
+
+def livor_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata dello stato delle ipostasi."""
+    locale = get_locale(language)
+    return _localized_mapping(locale, "LIVOR_LABEL_BY_ID", "LIVOR_LABEL_IT")[state_id]
+
+
+def rigor_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata dello stato della rigidità cadaverica."""
+    locale = get_locale(language)
+    return _localized_mapping(locale, "RIGOR_LABEL_BY_ID", "RIGOR_LABEL_IT")[state_id]
+
+
+def special_parameter_label(param_id: str, language: Optional[str] = None) -> str:
+    """Etichetta localizzata di un parametro tanatologico speciale."""
+    locale = get_locale(language)
+    return _localized_mapping(
+        locale,
+        "SPECIAL_PARAM_LABEL_BY_ID",
+        "SPECIAL_PARAM_LABEL_IT",
+    )[param_id]
+
+
+def special_option_label(
+    param_id: str,
+    option_id: str,
+    language: Optional[str] = None,
+) -> str:
+    """Etichetta localizzata di un'opzione tanatologica speciale."""
+    locale = get_locale(language)
+    return _localized_mapping(
+        locale,
+        "SPECIAL_OPTION_LABEL_BY_ID",
+        "SPECIAL_OPTION_LABEL_IT",
+    )[param_id][option_id]
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -82,6 +128,10 @@ __all__ = [
     "normalize_language",
     "get_locale",
     "language_label",
+    "livor_label",
+    "rigor_label",
+    "special_parameter_label",
+    "special_option_label",
     "livor_description",
     "rigor_description",
     "special_description",
