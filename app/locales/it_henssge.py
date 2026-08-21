@@ -12,7 +12,7 @@ def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
     return (
         "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, "
         f"{interval} "
-        "prima dei rilievi effettuati al momento dell’ispezione legale."
+        "prima dei rilievi effettuati nel corso dell’ispezione legale."
         f"{extra}</li></ul>"
     )
 
@@ -133,7 +133,7 @@ def prudent_simple_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> s
 def prudent_conclusion(result_text: str) -> str:
     return (
         "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-        f"sia avvenuto {result_text} prima dei rilievi effettuati al momento "
+        f"sia avvenuto {result_text} prima dei rilievi effettuati nel corso "
         "dell’ispezione legale."
     )
 
