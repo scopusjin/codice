@@ -167,6 +167,21 @@ def format_hours_range(
     return get_locale(language).format_hours_range(h1, m1, h2, m2)
 
 
+def simple_sentence_no_dt_not_over(duration: str, language: Optional[str] = None) -> str:
+    """Frase breve localizzata per un limite massimo senza data/ora."""
+    return get_locale(language).simple_sentence_no_dt_not_over(duration)
+
+
+def simple_sentence_no_dt_over(duration: str, language: Optional[str] = None) -> str:
+    """Frase breve localizzata per un limite minimo senza data/ora."""
+    return get_locale(language).simple_sentence_no_dt_over(duration)
+
+
+def simple_sentence_no_dt_range(interval: str, language: Optional[str] = None) -> str:
+    """Frase breve localizzata per un intervallo senza data/ora."""
+    return get_locale(language).simple_sentence_no_dt_range(interval)
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -204,6 +219,9 @@ __all__ = [
     "surface_label",
     "format_hours_minutes",
     "format_hours_range",
+    "simple_sentence_no_dt_not_over",
+    "simple_sentence_no_dt_over",
+    "simple_sentence_no_dt_range",
     "livor_description",
     "rigor_description",
     "special_description",
