@@ -392,6 +392,51 @@ def final_sentence_simple_range(interval: str) -> str:
     )
 
 
+def simple_sentence_dt_not_over(
+    duration: str,
+    lower_time: str,
+    lower_date: str,
+    inspection_time: str,
+    inspection_date: str,
+) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>non oltre {duration} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero all'incirca <b>successivamente alle ore {lower_time} del {lower_date} "
+        f"(ma prima delle ore {inspection_time} del {inspection_date})</b>.</p>"
+    )
+
+
+def simple_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -> str:
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>oltre {duration} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+    )
+
+
+def simple_sentence_dt_range(
+    interval: str,
+    start_time: str,
+    start_date: str,
+    end_time: str,
+    end_date: str,
+    same_date: bool,
+) -> str:
+    if same_date:
+        window = f"tra le ore {start_time} e le ore {end_time} del {start_date}"
+    else:
+        window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
+    return (
+        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        f"<b>{interval} prima</b> "
+        "dei rilievi effettuati durante l’ispezione legale, "
+        f"ovvero circa <b>{window}</b>.</p>"
+    )
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -415,4 +460,7 @@ __all__ = [
     "final_sentence_simple_over",
     "final_sentence_simple_not_over",
     "final_sentence_simple_range",
+    "simple_sentence_dt_not_over",
+    "simple_sentence_dt_over",
+    "simple_sentence_dt_range",
 ]
