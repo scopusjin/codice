@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import ModuleType
 from typing import Dict, Mapping, Optional, Tuple
 
-from app.locales import it, it_factor, it_henssge
+from app.locales import it, it_factor, it_henssge, it_ui
 from app.factor_ui_states import (
     BODY_LABEL_IT,
     WATER_LABEL_IT,
@@ -38,6 +38,10 @@ _HENSSGE_LOCALES: Dict[str, ModuleType] = {
 
 _FACTOR_LOCALES: Dict[str, ModuleType] = {
     "it": it_factor,
+}
+
+_UI_LOCALES: Dict[str, ModuleType] = {
+    "it": it_ui,
 }
 
 SUPPORTED_LANGUAGES: Tuple[str, ...] = tuple(_LOCALES.keys())
@@ -76,9 +80,23 @@ def _get_factor_locale(language: Optional[str] = None) -> ModuleType:
     return _FACTOR_LOCALES[normalize_language(language)]
 
 
+def _get_ui_locale(language: Optional[str] = None) -> ModuleType:
+    """Restituisce il modulo locale dedicato ai testi delle interfacce."""
+    return _UI_LOCALES[normalize_language(language)]
+
+
 def language_label(language: Optional[str] = None) -> str:
     """Etichetta leggibile della lingua richiesta."""
     return _LANGUAGE_LABELS[normalize_language(language)]
+
+
+def ui_text(
+    key: str,
+    language: Optional[str] = None,
+    **values,
+) -> str:
+    """Restituisce un testo localizzato dell'interfaccia."""
+    return _get_ui_locale(language).ui_text(key, **values)
 
 
 def _localized_mapping(
@@ -440,6 +458,7 @@ __all__ = [
     "normalize_language",
     "get_locale",
     "language_label",
+    "ui_text",
     "livor_label",
     "rigor_label",
     "special_parameter_label",
