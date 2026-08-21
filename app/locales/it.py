@@ -502,6 +502,48 @@ def parameter_summary(labels: list[str]) -> str:
     return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
 
 
+def potente_paragraph(duration: str, days: str) -> str:
+    return (
+        "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
+        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{duration}</b> (≈ {days} giorni) dal decesso.</li></ul>"
+    )
+
+
+def cooling_input_paragraph(
+    *,
+    inspection_time,
+    inspection_date,
+    ta_text: str,
+    tr_text: str,
+    weight_text: str,
+    t0_text: str,
+    correction_description: str,
+) -> str:
+    if inspection_time is None or inspection_date is None:
+        temperature_title = "Temperature misurate nel corso dell’ispezione legale:"
+    else:
+        temperature_title = (
+            "Temperature misurate nel corso dell’ispezione legale verso le ore "
+            f"{inspection_time} del {inspection_date}:"
+        )
+
+    return (
+        "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+        "<ul>"
+        f"<li>{temperature_title}"
+        "<ul>"
+        f"<li>Temperatura ambientale: {ta_text} °C.</li>"
+        f"<li>Temperatura rettale: {tr_text} °C.</li>"
+        "</ul>"
+        "</li>"
+        f"<li>Peso del cadavere misurato: {weight_text} kg.</li>"
+        f"<li>Temperatura corporea ipotizzata al momento della morte: {t0_text} °C.</li>"
+        f"<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): {correction_description}.</li>"
+        "</ul>"
+        "</li></ul>"
+    )
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -533,4 +575,6 @@ __all__ = [
     "final_sentence_dt_range",
     "putrefactive_paragraph",
     "parameter_summary",
+    "potente_paragraph",
+    "cooling_input_paragraph",
 ]
