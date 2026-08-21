@@ -10,21 +10,31 @@ Nessun range, testo medico-legale o criterio di calcolo è definito qui.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from collections.abc import Mapping
+from typing import Callable, Optional
 
 from app import i18n
 from app.locales import it_msil
 from app.tanatology_states import livor_legacy_label, rigor_legacy_label
 
 
-# Mappe italiane statiche mantenute come compatibilità legacy.
-MSIL_LIVOR_STATE_BY_LABEL: Dict[str, str] = {
-    label: state_id for state_id, label in it_msil.MSIL_LIVOR_LABEL_IT_BY_ID.items()
-}
+class _DynamicLabelMap(Mapping[str, str]):
+    """Vista label -> ID ricostruita al momento dell'accesso."""
 
-MSIL_RIGOR_STATE_BY_LABEL: Dict[str, str] = {
-    label: state_id for state_id, label in it_msil.MSIL_RIGOR_LABEL_IT_BY_ID.items()
-}
+    def __init__(self, labels_by_id_getter: Callable[[], Mapping[str, str]]):
+        self._labels_by_id_getter = labels_by_id_getter
+
+    def __getitem__(self, ui_label: str) -> str:
+        for state_id, label in self._labels_by_id_getter().items():
+            if label == ui_label:
+                return state_id
+        raise KeyError(ui_label)
+
+    def __iter__(self):
+        return iter(tuple(self._labels_by_id_getter().values()))
+
+    def __len__(self) -> int:
+        return len(self._labels_by_id_getter())
 
 
 def _msil_livor_labels_by_id(language: Optional[str] = None):
@@ -53,6 +63,16 @@ def _msil_rigor_labels_by_id(language: Optional[str] = None):
             f"La locale {locale.__name__!r} non espone 'MSIL_RIGOR_LABEL_BY_ID'"
         )
     return mapping
+
+
+# Viste dinamiche mantenute con gli stessi nomi per compatibilità con App_MSIL.
+# Non congelano più le etichette al momento dell'importazione.
+MSIL_LIVOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
+    _msil_livor_labels_by_id
+)
+MSIL_RIGOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
+    _msil_rigor_labels_by_id
+)
 
 
 def msil_livor_labels(language: Optional[str] = None):
