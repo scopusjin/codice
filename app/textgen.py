@@ -395,14 +395,7 @@ def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
     """
     if not segnalate:
         return None
-    return (
-        "<ul><li>Per quanto riguarda i processi trasformativi post-mortali (compresi quelli putrefattivi), "
-        "la loro insorgenza è influenzata da numerosi fattori, esogeni (ad esempio temperatura ambientale, "
-        "esposizione ai fenomeni meteorologici…) ed endogeni (temperatura corporea, infezioni prima del decesso, "
-        "presenza di ferite…). Poiché tali processi possono manifestarsi in un intervallo temporale estremamente "
-        "variabile, da poche ore a diverse settimane dopo il decesso, la loro valutazione non permette di formulare "
-        "ulteriori precisazioni sull’epoca della morte.</li></ul>"
-    )
+    return i18n.putrefactive_paragraph()
 
 def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optional[float]) -> List[str]:
     """
@@ -426,15 +419,9 @@ def frase_riepilogo_parametri_usati(labels: List[str]) -> Optional[str]:
     Testo arancione piccolo: “La stima complessiva si basa su…”.
     Fornisci già i label filtrati (niente duplicati Henssge vs Potente).
     """
-    n = len(labels)
-    if n == 0:
+    if len(labels) == 0:
         return None
-    if n == 1:
-        p = labels[0]
-        return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
-    join = ', '.join(x[0].lower() + x[1:] for x in labels[:-1])
-    join += f" e {labels[-1][0].lower() + labels[-1][1:]}"
-    return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
+    return i18n.parameter_summary(labels)
 
 def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
     """
