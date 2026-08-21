@@ -94,14 +94,11 @@ def full_special_option_labels(param_id: str):
 
 def full_special_option_id(param_id: str, ui_label: str) -> str:
     """Restituisce l'ID stabile dell'opzione mostrata nella UI."""
-    labels_by_id = {
-        option_id: i18n.special_option_label(param_id, option_id)
+    option_by_label = {
+        i18n.special_option_label(param_id, option_id): option_id
         for option_id in special_option_ids(param_id)
     }
-    return next(
-        option_id for option_id, label in labels_by_id.items()
-        if label == ui_label
-    )
+    return option_by_label[ui_label]
 
 
 def full_special_option_legacy_value(param_id: str, ui_label: str) -> str:
