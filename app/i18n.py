@@ -151,6 +151,22 @@ def surface_label(surface_id: str, language: Optional[str] = None) -> str:
     return _localized_mapping(locale, "SURFACE_LABEL_BY_ID", SURFACE_LABEL_IT)[surface_id]
 
 
+def format_hours_minutes(h: int, m: int, language: Optional[str] = None) -> str:
+    """Formattazione localizzata di ore e minuti."""
+    return get_locale(language).format_hours_minutes(h, m)
+
+
+def format_hours_range(
+    h1: int,
+    m1: int,
+    h2: int,
+    m2: int,
+    language: Optional[str] = None,
+) -> str:
+    """Formattazione localizzata di un intervallo espresso in ore e minuti."""
+    return get_locale(language).format_hours_range(h1, m1, h2, m2)
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -186,6 +202,8 @@ __all__ = [
     "full_clothing_label",
     "msil_clothing_label",
     "surface_label",
+    "format_hours_minutes",
+    "format_hours_range",
     "livor_description",
     "rigor_description",
     "special_description",

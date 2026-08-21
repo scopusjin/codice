@@ -320,6 +320,27 @@ def special_graph_label_it(param_id: str):
     return SPECIAL_GRAPH_LABEL_IT_BY_ID[param_id]
 
 
+def format_hours_minutes(h: int, m: int) -> str:
+    """Formattazione italiana legacy di ore e minuti."""
+    if h > 0 and m > 0:
+        return f"{h} {'ora' if h == 1 else 'ore'} {m} {'minuto' if m == 1 else 'minuti'}"
+    if h > 0:
+        return f"{h} {'ora' if h == 1 else 'ore'}"
+    if m > 0:
+        return f"{m} {'minuto' if m == 1 else 'minuti'}"
+    return "0 minuti"
+
+
+def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
+    """Formattazione italiana legacy degli intervalli temporali."""
+    if h1 > 0 and h2 > 0 and m1 == 0:
+        unit = "ora" if h2 == 1 else "ore"
+        if m2 == 0:
+            return f"tra {h1} e {h2} {unit}"
+        return f"tra {h1} {unit} e {h2} {unit} {m2} minuti"
+    return f"tra {format_hours_minutes(h1, m1)} e {format_hours_minutes(h2, m2)}"
+
+
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
@@ -335,4 +356,6 @@ __all__ = [
     "rigor_description_from_legacy_it",
     "special_description_it",
     "special_graph_label_it",
+    "format_hours_minutes",
+    "format_hours_range",
 ]
