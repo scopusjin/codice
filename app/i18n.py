@@ -303,6 +303,38 @@ def parameter_summary(labels: list[str], language: Optional[str] = None) -> str:
     return get_locale(language).parameter_summary(labels)
 
 
+def potente_paragraph(
+    duration: str,
+    days: str,
+    language: Optional[str] = None,
+) -> str:
+    """Paragrafo localizzato relativo alla stima secondo Potente et al."""
+    return get_locale(language).potente_paragraph(duration, days)
+
+
+def cooling_input_paragraph(
+    *,
+    inspection_time: Optional[str],
+    inspection_date: Optional[str],
+    ta_text: str,
+    tr_text: str,
+    weight_text: str,
+    t0_text: str,
+    correction_description: str,
+    language: Optional[str] = None,
+) -> str:
+    """Riepilogo localizzato degli input utilizzati per il raffreddamento."""
+    return get_locale(language).cooling_input_paragraph(
+        inspection_time=inspection_time,
+        inspection_date=inspection_date,
+        ta_text=ta_text,
+        tr_text=tr_text,
+        weight_text=weight_text,
+        t0_text=t0_text,
+        correction_description=correction_description,
+    )
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -354,6 +386,8 @@ __all__ = [
     "final_sentence_dt_range",
     "putrefactive_paragraph",
     "parameter_summary",
+    "potente_paragraph",
+    "cooling_input_paragraph",
     "livor_description",
     "rigor_description",
     "special_description",
