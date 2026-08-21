@@ -83,6 +83,20 @@ class I18nItalianOnlyTests(unittest.TestCase):
             "tra 1 ora 30 minuti e 3 ore",
         )
 
+    def test_simple_no_datetime_sentence_renderers_match_italian_locale(self):
+        self.assertEqual(
+            i18n.simple_sentence_no_dt_not_over("4 ore"),
+            it.simple_sentence_no_dt_not_over("4 ore"),
+        )
+        self.assertEqual(
+            i18n.simple_sentence_no_dt_over("2 ore"),
+            it.simple_sentence_no_dt_over("2 ore"),
+        )
+        self.assertEqual(
+            i18n.simple_sentence_no_dt_range("tra 1 e 4 ore"),
+            it.simple_sentence_no_dt_range("tra 1 e 4 ore"),
+        )
+
     def test_language_neutral_helpers_match_italian_locale(self):
         self.assertEqual(
             i18n.livor_description(LIVOR_ABSENT),
