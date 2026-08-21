@@ -145,6 +145,15 @@ UI_TEXT = {
     "graph.warnings_popover": "⚠️ Avvisi",
 
     # ------------------------------------------------------------------
+    # Grafico — etichette
+    # ------------------------------------------------------------------
+    "plot.livor": "Ipostasi",
+    "plot.rigor": "Rigor",
+    "plot.cooling": "Raffreddamento",
+    "plot.generic_parameter": "Parametro",
+    "plot.hours_since_death": "Ore dal decesso",
+
+    # ------------------------------------------------------------------
     # Sorgenti dati / messaggi tecnici
     # ------------------------------------------------------------------
     "data.weight_table_missing": "Tabella correttiva del peso non trovata: continuo senza.",
