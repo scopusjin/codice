@@ -146,6 +146,22 @@ def prudent_summary_html(*, ta_text: str, cf_text: str, weight_text: str, result
     ])
 
 
+def prudent_graphing_hours_text(hours: float) -> str:
+    """Formatta ore decimali come il fallback storico di graphing.py."""
+    import math
+
+    if not math.isfinite(hours):
+        return ""
+    h = int(hours)
+    m = int(round((hours - h) * 60))
+    if m == 60:
+        h += 1
+        m = 0
+    if m == 0:
+        return f"{h} {'ora' if h == 1 else 'ore'}"
+    return f"{h} {'ora' if h == 1 else 'ore'} {m} minuti"
+
+
 def prudent_graphing_result_at_least(duration: str) -> str:
     return f"almeno {duration}"
 
@@ -183,6 +199,7 @@ __all__ = [
     "prudent_simple_bullets",
     "prudent_conclusion",
     "prudent_summary_html",
+    "prudent_graphing_hours_text",
     "prudent_graphing_result_at_least",
     "prudent_graphing_result_range",
     "prudent_graphing_detail_list",
