@@ -293,6 +293,16 @@ def final_sentence_dt_range(
     )
 
 
+def putrefactive_paragraph(language: Optional[str] = None) -> str:
+    """Paragrafo localizzato sui processi trasformativi post-mortali."""
+    return get_locale(language).putrefactive_paragraph()
+
+
+def parameter_summary(labels: list[str], language: Optional[str] = None) -> str:
+    """Riepilogo localizzato dei parametri utilizzati nella stima."""
+    return get_locale(language).parameter_summary(labels)
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -342,6 +352,8 @@ __all__ = [
     "final_sentence_dt_over",
     "final_sentence_dt_not_over",
     "final_sentence_dt_range",
+    "putrefactive_paragraph",
+    "parameter_summary",
     "livor_description",
     "rigor_description",
     "special_description",
