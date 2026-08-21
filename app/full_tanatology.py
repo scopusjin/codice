@@ -19,6 +19,12 @@ from app.tanatology_states import (
     livor_legacy_label,
     rigor_legacy_label,
 )
+from app.special_tanatology_states import (
+    SPECIAL_PARAM_LABEL_IT,
+    special_param_legacy_label,
+    special_option_ids,
+    special_option_legacy_label,
+)
 
 
 # Etichetta mostrata nella UI completa -> identificatore interno stabile.
@@ -30,6 +36,11 @@ FULL_LIVOR_STATE_BY_LABEL: Dict[str, str] = {
 
 FULL_RIGOR_STATE_BY_LABEL: Dict[str, str] = {
     i18n.rigor_label(state_id): state_id for state_id in RIGOR_LABEL_IT
+}
+
+FULL_SPECIAL_PARAM_BY_LABEL: Dict[str, str] = {
+    i18n.special_parameter_label(param_id): param_id
+    for param_id in SPECIAL_PARAM_LABEL_IT
 }
 
 
@@ -53,11 +64,65 @@ def full_rigor_legacy_value(ui_label: str) -> str:
     return rigor_legacy_label(full_rigor_state_id(ui_label))
 
 
+def full_special_parameter_labels():
+    """Etichette localizzate dei parametri speciali nell'ordine corrente."""
+    return tuple(FULL_SPECIAL_PARAM_BY_LABEL.keys())
+
+
+def full_special_parameter_id(ui_label: str) -> str:
+    """Restituisce l'ID stabile associato al parametro speciale mostrato."""
+    return FULL_SPECIAL_PARAM_BY_LABEL[ui_label]
+
+
+def full_special_parameter_label(param_id: str) -> str:
+    """Restituisce l'etichetta localizzata del parametro speciale."""
+    return i18n.special_parameter_label(param_id)
+
+
+def full_special_parameter_legacy_value(param_id: str) -> str:
+    """Restituisce il nome legacy del parametro atteso dai dati esistenti."""
+    return special_param_legacy_label(param_id)
+
+
+def full_special_option_labels(param_id: str):
+    """Etichette localizzate delle opzioni nell'identico ordine corrente."""
+    return tuple(
+        i18n.special_option_label(param_id, option_id)
+        for option_id in special_option_ids(param_id)
+    )
+
+
+def full_special_option_id(param_id: str, ui_label: str) -> str:
+    """Restituisce l'ID stabile dell'opzione mostrata nella UI."""
+    labels_by_id = {
+        option_id: i18n.special_option_label(param_id, option_id)
+        for option_id in special_option_ids(param_id)
+    }
+    return next(
+        option_id for option_id, label in labels_by_id.items()
+        if label == ui_label
+    )
+
+
+def full_special_option_legacy_value(param_id: str, ui_label: str) -> str:
+    """Restituisce l'opzione legacy attualmente attesa dal motore."""
+    option_id = full_special_option_id(param_id, ui_label)
+    return special_option_legacy_label(param_id, option_id)
+
+
 __all__ = [
     "FULL_LIVOR_STATE_BY_LABEL",
     "FULL_RIGOR_STATE_BY_LABEL",
+    "FULL_SPECIAL_PARAM_BY_LABEL",
     "full_livor_state_id",
     "full_rigor_state_id",
     "full_livor_legacy_value",
     "full_rigor_legacy_value",
+    "full_special_parameter_labels",
+    "full_special_parameter_id",
+    "full_special_parameter_label",
+    "full_special_parameter_legacy_value",
+    "full_special_option_labels",
+    "full_special_option_id",
+    "full_special_option_legacy_value",
 ]
