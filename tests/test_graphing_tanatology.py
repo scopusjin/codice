@@ -73,6 +73,13 @@ class GraphingTanatologyCompatibilityTests(unittest.TestCase):
             dati_parametri_aggiuntivi[parameter_label]["descrizioni"]["Discreta (++)"],
         )
 
+    def test_unknown_special_parameter_preserves_legacy_key_error(self):
+        with self.assertRaises(KeyError):
+            resolve_special_tanatology_value(
+                "__unknown_parameter__",
+                "Non valutata",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
