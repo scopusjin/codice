@@ -687,6 +687,22 @@ def aggiorna_grafico(
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
 
+    # Fallback: genera il riepilogo anche quando la stima non usa il raffreddamento.
+    if overlap and not frase_finale_html:
+        if usa_orario_custom:
+            _tmp = build_final_sentence(
+                comune_inizio, comune_fine, data_ora_ispezione,
+                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+            )
+        else:
+            _tmp = build_final_sentence_simple(
+                comune_inizio=comune_inizio,
+                comune_fine=comune_fine,
+                inf_hours=INF_HOURS,
+            )
+        if isinstance(_tmp, str):
+            frase_finale_html = _tmp
+
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
 
