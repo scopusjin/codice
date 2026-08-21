@@ -103,6 +103,17 @@ def apply_theme():
         color: #1f1f1f !important;
       }}
 
+      /* Nel popover, il riepilogo conclusivo resta come ultimo blocco. */
+      div[data-testid="stPopoverContent"]
+      div[data-testid="stMarkdownContainer"]:has(> .final-text > ul > li > p > b) {{
+        display: flex !important;
+        flex-direction: column !important;
+      }}
+      div[data-testid="stPopoverContent"]
+      div[data-testid="stMarkdownContainer"] > .final-text:has(> ul > li > p > b) {{
+        order: 999 !important;
+      }}
+
       /* Contenitore generico eventualmente usato altrove */
       .fc-box {{
         background: #ffffff !important;
