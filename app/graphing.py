@@ -9,7 +9,7 @@ from app.theme import frase_breve_box
 import numpy as np
 import streamlit as st
 
-
+from app import i18n
 from app.factor_calc import build_cf_description
 from app.henssge import calcola_raffreddamento, ranges_in_disaccordo_completa
 from app.parameters import (
@@ -81,13 +81,13 @@ def aggiorna_grafico(
     # --- data/ora ispezione ---
     if usa_orario_custom:
         if not input_data_rilievo or not input_ora_rilievo:
-            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Inserisci data e ora dell'ispezione legale.</p>", unsafe_allow_html=True)
+            st.markdown(i18n.ui_text("graph.missing_inspection_datetime_html"), unsafe_allow_html=True)
             return
         try:
             ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, "%H:%M")
             minuti_isp = ora_isp_obj.minute
         except ValueError:
-            st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Errore: formato ora ispezione legale non valido. Usa HH:MM.</p>", unsafe_allow_html=True)
+            st.markdown(i18n.ui_text("graph.invalid_inspection_time_html"), unsafe_allow_html=True)
             return
         data_ora_ispezione = arrotonda_quarto_dora(datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time()))
     else:
@@ -97,13 +97,13 @@ def aggiorna_grafico(
     # --- validazioni base (configurabili) ---
     if not skip_warnings:
         if input_w is None or input_w <= 0:
-            st.error("⚠️ Peso non valido. Inserire un valore > 0 kg.")
+            st.error(i18n.ui_text("graph.invalid_weight"))
             return
         if fattore_correzione is None or fattore_correzione <= 0:
-            st.error("⚠️ Fattore di correzione non valido. Inserire un valore > 0.")
+            st.error(i18n.ui_text("graph.invalid_factor"))
             return
         if any(v is None for v in [input_rt, input_ta, input_tm]):
-            st.error("⚠️ Temperature mancanti.")
+            st.error(i18n.ui_text("graph.missing_temperatures"))
             return
 
     # --- normalizza locali; modalità silenziosa disattiva Henssge se mancano input ---
@@ -366,7 +366,11 @@ def aggiorna_grafico(
             try:
                 ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, "%H:%M").time()
             except ValueError:
-                avvisi.append(f"⚠️ {nome_parametro}: escluso perchè ora '{ora_rilievo_param_str}' non valida (usa HH:MM).")
+                avvisi.append(i18n.ui_text(
+                    "graph.invalid_special_time",
+                    parameter=nome_parametro,
+                    time=ora_rilievo_param_str,
+                ))
                 continue
 
         if data_rilievo_param is None:
@@ -738,7 +742,7 @@ def aggiorna_grafico(
         discordanti = False
 
     if discordanti:
-        st.markdown("<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>", unsafe_allow_html=True)
+        st.markdown(i18n.ui_text("graph.discordant_html"), unsafe_allow_html=True)
 
     # --- buffer per popover descrizioni ---
     st.session_state["__desc_dettagliate_html"] = ""  # reset
@@ -750,9 +754,7 @@ def aggiorna_grafico(
 
     # discordanze o frase finale
     if discordanti:
-        chunks.append(_wrap_final(
-            "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>"
-        ))
+        chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
     elif overlap and frase_finale_html:
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
@@ -840,7 +842,7 @@ def aggiorna_grafico(
         # Prima: descrizioni
         with c1:
             if st.session_state.get("__desc_dettagliate_html"):
-                with st.popover("📖 Descrizioni dettagliate"):
+                with st.popover(i18n.ui_text("graph.descriptions_popover")):
                     st.markdown(
                         st.session_state["__desc_dettagliate_html"],
                         unsafe_allow_html=True
@@ -849,6 +851,6 @@ def aggiorna_grafico(
         # Poi: avvisi
         with c2:
             if avvisi:
-                with st.popover("⚠️ Avvisi"):
+                with st.popover(i18n.ui_text("graph.warnings_popover")):
                     for m in avvisi:
                         warn_box(m)  # usa l'helper locale
