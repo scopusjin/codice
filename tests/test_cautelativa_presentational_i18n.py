@@ -29,7 +29,7 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
             "<li>Peso corporeo: <b>70 kg</b>.</li>"
             "</ul>"
             "<br>Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-            "sia avvenuto tra circa 5 ore e 10 ore prima dei rilievi effettuati al momento "
+            "sia avvenuto tra circa 5 ore e 10 ore prima dei rilievi effettuati nel corso "
             "dell’ispezione legale."
         )
         self.assertEqual(
@@ -78,7 +78,7 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
         self.assertEqual(
             i18n.prudent_conclusion("tra 5 ore e 10 ore"),
             "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-            "sia avvenuto tra 5 ore e 10 ore prima dei rilievi effettuati al momento "
+            "sia avvenuto tra 5 ore e 10 ore prima dei rilievi effettuati nel corso "
             "dell’ispezione legale.",
         )
         self.assertEqual(
