@@ -382,7 +382,7 @@ def aggiorna_grafico(
             descrizione = (
                 parametro_risolto.description
                 if parametro_risolto.description is not None
-                else f"Descrizione non trovata per '{stato_selezionato}'."
+                else i18n.ui_text("graph.missing_special_description", state=stato_selezionato)
             )
             data_ora_param = arrotonda_quarto_dora(datetime.datetime.combine(data_rilievo_param, ora_rilievo_time))
             diff_h = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
@@ -403,7 +403,11 @@ def aggiorna_grafico(
             descrizione = (
                 parametro_risolto.description
                 if parametro_risolto.description is not None
-                else f"{nome_parametro} ({stato_selezionato}) senza range definito."
+                else i18n.ui_text(
+                    "graph.special_without_range",
+                    parameter=nome_parametro,
+                    state=stato_selezionato,
+                )
             )
             parametri_aggiuntivi_da_considerare.append(dict(
                 nome=nome_parametro, stato=stato_selezionato,
@@ -526,7 +530,7 @@ def aggiorna_grafico(
     num_params_grafico += len(extra_params_for_plot)
     
     if num_params_grafico == 0:
-        warn_box("Mancanza di dati utili per la stima")
+        warn_box(i18n.ui_text("graph.no_useful_data"))
 
     if num_params_grafico > 0:
         try:
@@ -612,7 +616,7 @@ def aggiorna_grafico(
 
     # --- avvisi ---
     if nota_globale_range_adattato:
-        avvisi.append("Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.")
+        avvisi.append(i18n.ui_text("graph.shifted_ranges_note"))
 
     missing_or_invalid = (
         not _is_num(Tr_val) or not _is_num(Ta_val) or not _is_num(T0_val) or
@@ -621,21 +625,21 @@ def aggiorna_grafico(
     )
     if not raffreddamento_calcolabile:
         if missing_or_invalid:
-            avvisi.append("Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati mancanti o non validi.")
+            avvisi.append(i18n.ui_text("graph.henssge_missing_invalid"))
         else:
-            msg = "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati incoerenti o fuori range"
+            msg = i18n.ui_text("graph.henssge_incoherent")
             
             avvisi.append(msg)
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
-            avvisi.append("Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.")
+            avvisi.append(i18n.ui_text("graph.high_ambient_factor_warning"))
         if Ta_val < 18:
-            avvisi.append("Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.")
+            avvisi.append(i18n.ui_text("graph.low_ambient_factor_warning"))
         if temp_difference_small:
-            avvisi.append("Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.")
+            avvisi.append(i18n.ui_text("graph.thermal_equilibrium_warning"))
         if abs(Tr_val - T0_val) <= 1.0:
-            avvisi.append("Considerato che la T rettale è molto simile alla T ante-mortem stimata, è verosimile che il raffreddamento corporeo non fosse ancora iniziato e/o si trovasse nella fase di plateau. In tale fase, la precisione del metodo è ridotta.")
+            avvisi.append(i18n.ui_text("graph.plateau_warning"))
 
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
         if not st.session_state.get("stima_cautelativa_beta", False):
