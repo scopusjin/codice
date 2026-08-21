@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from app import i18n
 from app.factor_calc import (
     DressCounts, compute_factor, build_cf_description,
     SURF_DISPLAY_ORDER, fattore_vestiti_coperte,
@@ -136,14 +137,14 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
         f'<div style="background:{pal["bg"]};color:{pal["text"]};'
         f'border:1px solid {pal["border"]};border-radius:8px;'
         f'padding:10px;font-weight:600;">'
-        f'Fattore di correzione suggerito: {f_finale:.2f}'
+        f'{i18n.ui_text("full.fc_suggested", value=f_finale)}'
         f'</div>'
     )
     side = ""
     if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
         side = (
             f'<div style="color:{pal["note"]};padding:10px 2px 0 2px;font-size:0.92em;">'
-            f'Adattato per {peso_corrente:.1f} kg (valore per 70 kg: {f_base:.2f})'
+            f'{i18n.ui_text("full.fc_adjusted_for_weight", weight=peso_corrente, base=f_base)}'
             f'</div>'
         )
     st.markdown(main + side, unsafe_allow_html=True)
@@ -317,7 +318,7 @@ with st.container(border=True):
         st.session_state["selettore_rigidita"] = selettore_rigidita
 
 # Toggle principale
-st.toggle("Stima prudente", key="stima_cautelativa_beta")
+st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
 # ================================
@@ -326,18 +327,9 @@ stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 with st.container(border=True):
 
     henssge_non_app = st.checkbox(
-        "Metodo di Henssge non applicabile",
+        i18n.ui_text("full.henssge_not_applicable"),
         key="henssge_non_applicabile",
-        help=(
-            "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
-            "• Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.\n"
-            "• Presenza di una fonte di calore nelle immediate vicinanze del corpo.\n"
-            "• Presenza di riscaldamento a pavimento sotto il corpo.\n"
-            "• Ipotermia accertata o sospetta (temperatura corporea iniziale < 35 °C).\n"
-            "• Impossibilità di determinare la temperatura ambientale media.\n"
-            "• Impossibilità di stimare il fattore correttivo di Henssge.\n"
-            "• Aumento significativo della temperatura ambientale (da valori bassi a elevati)."
-        ),
+        help=i18n.ui_text("full.henssge_not_applicable_help"),
     )
     if henssge_non_app:
         # Metodo di Henssge escluso: non mostrare la maschera di input del raffreddamento
@@ -352,42 +344,40 @@ with st.container(border=True):
             rg1, rg2 = st.columns([3, 1], gap="small")
             with rg1:
                 st.markdown(
-                    "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
-                    "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-                    "Se non diversamente specificato, si considererà "
-                    "un range di incertezza di ±1.0 °C per la T. ambientale media "
-                    "e di ±0.10 per il fattore di correzione."
-                    "</div>",
+                    i18n.ui_text("full.prudent_default_note"),
                     unsafe_allow_html=True
                 )
 
             with rg2:
-                range_unico = st.toggle("Specifica range", key="range_unico_beta")
+                range_unico = st.toggle(i18n.ui_text("full.specify_range"), key="range_unico_beta")
 
             # Etichette dinamiche
-            label_ta = "T. ambientale media (°C):"
-            label_fc = "Fattore di correzione (FC):"
+            label_ta = i18n.ui_text("full.ta_mean_label")
+            label_fc = i18n.ui_text("full.fc_label")
             if st.session_state.get("range_unico_beta", False):
-                label_ta = "Range di T. ambientale media (°C):"
-                label_fc = "Range del fattore di correzione (FC):"
+                label_ta = i18n.ui_text("full.ta_range_label")
+                label_fc = i18n.ui_text("full.fc_range_label")
 
             # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
             c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
             with c1:
-                st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-                st.number_input("T. rettale (°C):",
+                rectal_label = i18n.ui_text("full.rectal_temp_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
+                st.number_input(rectal_label,
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
                                 key="rt_val", label_visibility="collapsed")
             with c2:
-                st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-                st.number_input("T. ante-mortem stimata (°C):",
+                antemortem_label = i18n.ui_text("full.antemortem_temp_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
+                st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed")
             with c3:
-                st.markdown("<div style='font-size: 0.88rem;'>Peso (kg):</div>", unsafe_allow_html=True)
+                weight_label = i18n.ui_text("full.weight_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label}</div>", unsafe_allow_html=True)
                 pc1, pc2 = st.columns([1, 0.8], gap="small")
                 with pc1:
-                    st.number_input("Peso (kg):",
+                    st.number_input(weight_label,
                                     value=sget("peso", 70.0), step=1.0, format="%.1f",
                                     key="peso", label_visibility="collapsed")
                 with pc2:
@@ -398,7 +388,7 @@ with st.container(border=True):
             ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
             with ta_c1:
                 ta_base_val = st.number_input(
-                    "TA base",
+                    i18n.ui_text("full.ta_base_input"),
                     value=sget("ta_base_val", 20.0),
                     step=0.1, format="%.1f",
                     key="ta_base_val",
@@ -407,7 +397,7 @@ with st.container(border=True):
             with ta_c2:
                 if st.session_state.get("range_unico_beta", False):
                     ta_other_val = st.number_input(
-                        "TA altro estremo",
+                        i18n.ui_text("full.ta_other_input"),
                         value=sget("ta_other_val", ta_base_val + 1.0),
                         step=0.1, format="%.1f",
                         key="ta_other_val",
@@ -427,7 +417,7 @@ with st.container(border=True):
             with fc_c1:
                 if st.session_state.get("range_unico_beta", False):
                     fc_min_val = st.number_input(
-                        "FC min",
+                        i18n.ui_text("full.fc_min_input"),
                         value=sget("fc_min_val", round(sget("fattore_correzione", 1.0) - 0.10, 2)),
                         step=0.1, format="%.2f",
                         key="fc_min_val",
@@ -435,7 +425,7 @@ with st.container(border=True):
                     )
                 else:
                     st.number_input(
-                        "FC",
+                        i18n.ui_text("full.fc_input"),
                         value=sget("fattore_correzione", 1.0),
                         step=0.1, format="%.2f",
                         key="fattore_correzione",
@@ -448,7 +438,7 @@ with st.container(border=True):
             with fc_c2:
                 if st.session_state.get("range_unico_beta", False):
                     fc_other_val = st.number_input(
-                        "FC max",
+                        i18n.ui_text("full.fc_max_input"),
                         value=sget("fc_other_val", round(sget("fattore_correzione", 1.0) + 0.10, 2)),
                         step=0.1, format="%.2f",
                         key="fc_other_val",
@@ -460,7 +450,7 @@ with st.container(border=True):
                     st.empty()
 
             with fc_c3:
-                st.toggle("Suggerisci FC", key="toggle_fattore_inline")
+                st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
             st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
         else:
@@ -469,35 +459,40 @@ with st.container(border=True):
             # -------------------------
             col1, col2, col3 = st.columns([1, 1, 1], gap="small")
             with col1:
-                st.markdown("<div style='font-size: 0.88rem;'>T. rettale (°C):</div>", unsafe_allow_html=True)
-                st.number_input("T. rettale (°C):",
+                rectal_label = i18n.ui_text("full.rectal_temp_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
+                st.number_input(rectal_label,
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
                                 key="rt_val", label_visibility="collapsed")
             with col2:
-                st.markdown("<div style='font-size: 0.88rem;'>T. ante-mortem (°C):</div>", unsafe_allow_html=True)
-                st.number_input("T. ante-mortem stimata (°C):",
+                antemortem_label = i18n.ui_text("full.antemortem_temp_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
+                st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed")
             with col3:
-                st.markdown("<div style='font-size: 0.88rem;'>Peso  (kg):</div>", unsafe_allow_html=True)
-                st.number_input("Peso (kg):",
+                weight_label_standard = i18n.ui_text("full.weight_label_standard")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label_standard}</div>", unsafe_allow_html=True)
+                st.number_input(i18n.ui_text("full.weight_label"),
                                 value=sget("peso", 70.0), step=1.0, format="%.1f",
                                 key="peso", label_visibility="collapsed")
 
             col1, col2, col3 = st.columns([1, 1, 1], gap="small")
             with col1:
-                st.markdown("<div style='font-size: 0.88rem;'>T. ambientale media (°C):</div>", unsafe_allow_html=True)
-                st.number_input("T. ambientale (°C):",
+                ta_label = i18n.ui_text("full.ta_mean_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{ta_label}</div>", unsafe_allow_html=True)
+                st.number_input(i18n.ui_text("full.ta_input_label"),
                                 value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
                                 key="ta_base_val", label_visibility="collapsed")
 
             with col2:
-                st.markdown("<div style='font-size: 0.88rem;'>Fattore di correzione (FC):</div>", unsafe_allow_html=True)
-                st.number_input("Fattore di correzione:",
+                fc_label = i18n.ui_text("full.fc_label")
+                st.markdown(f"<div style='font-size: 0.88rem;'>{fc_label}</div>", unsafe_allow_html=True)
+                st.number_input(i18n.ui_text("full.fc_input_label"),
                                 value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
                                 key="fattore_correzione", label_visibility="collapsed")
             with col3:
-                st.toggle("Suggerisci FC", key="toggle_fattore_inline_std")
+                st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
                 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
 
 
@@ -548,11 +543,11 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
         if not st.session_state.get("range_unico_beta", False):
-            st.button("✅ Usa questo fattore", on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+            st.button(i18n.ui_text("full.use_this_factor"), on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
                       use_container_width=True, key=k("btn_usa_fc_imm"))
 
         if st.session_state.get("stima_cautelativa_beta", False):
-            st.button("➕ Aggiungi a range FC", use_container_width=True, on_click=add_fc_suggestion_global,
+            st.button(i18n.ui_text("full.add_to_fc_range"), use_container_width=True, on_click=add_fc_suggestion_global,
                       args=(result.fattore_finale,), key=k("btn_add_fc_imm"))
         return
 
@@ -561,7 +556,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle("Vestito/coperto?", key=k("toggle_vestito"), value=False)
+        toggle_vestito = st.toggle(i18n.ui_text("full.clothed_covered"), key=k("toggle_vestito"), value=False)
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -570,6 +565,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         label_coperte_medie = full_clothing_label(BLANKET_MEDIUM)
         label_coperte_pesanti = full_clothing_label(BLANKET_HEAVY)
 
+        count_col = i18n.ui_text("full.count_column")
         defaults = {
             label_sottili: st.session_state.get(k("strati_sottili"), 0),
             label_spessi: st.session_state.get(k("strati_spessi"), 0),
@@ -580,7 +576,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
             })
 
-        rows = [{"--": nome, "Numero?": val} for nome, val in defaults.items()]
+        rows = [{"--": nome, count_col: val} for nome, val in defaults.items()]
         df = pd.DataFrame(rows)
         st.markdown("""
         <style>
@@ -596,11 +592,11 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             use_container_width=True,
             column_config={
                 "--": st.column_config.TextColumn(disabled=True, width="medium"),
-                "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
+                count_col: st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
             },
         )
 
-        vals = {r["--"]: int(r["Numero?"] or 0) for _, r in edited.iterrows()}
+        vals = {r["--"]: int(r[count_col] or 0) for _, r in edited.iterrows()}
 
         n_sottili = vals.get(label_sottili, 0)
         n_spessi = vals.get(label_spessi, 0)
@@ -619,7 +615,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in options_display:
             prev_display = options_display[0]
-        superficie_display_label = st.selectbox("Superficie di appoggio", options_display,
+        superficie_display_label = st.selectbox(i18n.ui_text("full.support_surface"), options_display,
                                                  index=options_display.index(prev_display), key=k("superficie_display_sel"))
         superficie_display_selected = full_surface_legacy_value(superficie_display_label)
 
@@ -632,7 +628,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             if f_vc >= 1.2:
                 mostra_correnti = False
         if mostra_correnti:
-            correnti_presenti = st.toggle("Correnti d'aria presenti?", key=k("toggle_correnti_fc"), disabled=False)
+            correnti_presenti = st.toggle(i18n.ui_text("full.air_currents"), key=k("toggle_correnti_fc"), disabled=False)
 
     try:
         tabella2 = load_tabelle_correzione()
@@ -649,11 +645,11 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     _fc_box(result.fattore_finale, result.fattore_base, float(st.session_state.get("peso", peso_default)))
 
     if not st.session_state.get("range_unico_beta", False):
-        st.button("✅ Usa questo fattore", on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+        st.button(i18n.ui_text("full.use_this_factor"), on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
                   use_container_width=True, key=k("btn_usa_fc"))
 
     if st.session_state.get("stima_cautelativa_beta", False):
-        st.button("➕ Aggiungi a range FC", use_container_width=True, on_click=add_fc_suggestion_global,
+        st.button(i18n.ui_text("full.add_to_fc_range"), use_container_width=True, on_click=add_fc_suggestion_global,
                   args=(result.fattore_finale,), key=k("btn_add_fc"))
 
 # --- Toggle pannello suggeritore in fondo al riquadro ---
