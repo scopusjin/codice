@@ -256,12 +256,6 @@ def paragrafo_raffreddamento_dettaglio(
         else _fmt_range_hm(h1, m1, h2, m2)
     )
 
-    testo_base = (
-        "Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, "
-        f"{intervallo_txt} "
-        "prima dei rilievi effettuati al momento dell’ispezione legale."
-    )
-
     extra = ""
 
     if (
@@ -269,33 +263,18 @@ def paragrafo_raffreddamento_dettaglio(
         and t_med_round is not None and not np.isnan(t_med_round)
     ):
         if qd_val <= 0.2:
-            frase_intro = "<b>I valori ottenuti sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
+            extra = i18n.henssge_qd_outside_warning()
         elif qd_val < 0.3:
-            frase_intro = "<b>Alcuni dei valori rilevati sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
-        else:
-            frase_intro = ""
-
-        if frase_intro:
-            extra = (
-                " " + frase_intro +
-                "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
-                "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili."
-            )
+            extra = i18n.henssge_qd_partial_warning()
 
     if (
         qd_val is not None and not np.isnan(qd_val)
         and t_med_round is not None and not np.isnan(t_med_round)
         and t_med_round > 30
     ):
-        extra += (
-            " La stima media ottenuta dal raffreddamento cadaverico "
-            f"({t_med_round:.1f} h) è superiore alle 30 ore. "
-            "L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-        )
+        extra += " " + i18n.henssge_over_thirty_warning(f"{t_med_round:.1f}")
 
-    # Unico <li> senza livelli aggiuntivi
-    par = f"<ul><li>{testo_base}{extra}</li></ul>"
-    return par
+    return i18n.henssge_detail_paragraph(intervallo_txt, extra)
 
 
 def paragrafo_potente(
@@ -395,10 +374,7 @@ def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optio
     """
     out: List[str] = []
     if t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30:
-        out.append(
-            f"La stima media ottenuta dal raffreddamento cadaverico ({t_med_round:.1f} h) "
-            "è superiore alle 30 ore. L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-        )
+        out.append(i18n.henssge_over_thirty_warning(f"{t_med_round:.1f}"))
     return out
 
 # ------------------------------------------------------------
@@ -422,11 +398,18 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
         return None
 
     soglia = 0.2 if ta_val <= 23 else 0.5
-    condizione_temp = "T. amb ≤ 23 °C" if ta_val <= 23 else "T. amb > 23 °C"
 
     if qd_val < soglia:
-        return (f"<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
-                f"Tale parametro è inferiore ai limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
+        return i18n.qd_summary(
+            qd_text=f"{qd_val:.3f}",
+            ambient_at_most_23=ta_val <= 23,
+            threshold_text=str(soglia),
+            within_limits=False,
+        )
     else:
-        return (f"<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = {qd_val:.3f}. "
-                f"Tale parametro rientra nei limiti ottimali per applicare l'equazione (per {condizione_temp}, Qd deve essere superiore a {soglia}).</p>")
+        return i18n.qd_summary(
+            qd_text=f"{qd_val:.3f}",
+            ambient_at_most_23=ta_val <= 23,
+            threshold_text=str(soglia),
+            within_limits=True,
+        )
