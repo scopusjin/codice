@@ -4,6 +4,19 @@ import unittest
 
 from app import i18n
 from app.locales import it
+from app.factor_ui_states import (
+    BODY_DRY,
+    BODY_LABEL_IT,
+    WATER_STILL,
+    WATER_LABEL_IT,
+    LAYER_THIN,
+    FULL_CLOTHING_LABEL_IT,
+    MSIL_CLOTHING_LABEL_IT,
+)
+from app.surface_ui_states import (
+    SURFACE_HOME_FLOOR_WOOD,
+    SURFACE_LABEL_IT,
+)
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     SUPRA_PHASE_I,
@@ -41,6 +54,20 @@ class I18nItalianOnlyTests(unittest.TestCase):
             i18n.special_option_label(PARAM_ELECTRICAL_SUPRACILIARY, SUPRA_PHASE_I),
             it.SPECIAL_OPTION_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY][SUPRA_PHASE_I],
         )
+        self.assertEqual(i18n.body_label(BODY_DRY), BODY_LABEL_IT[BODY_DRY])
+        self.assertEqual(i18n.water_label(WATER_STILL), WATER_LABEL_IT[WATER_STILL])
+        self.assertEqual(
+            i18n.full_clothing_label(LAYER_THIN),
+            FULL_CLOTHING_LABEL_IT[LAYER_THIN],
+        )
+        self.assertEqual(
+            i18n.msil_clothing_label(LAYER_THIN),
+            MSIL_CLOTHING_LABEL_IT[LAYER_THIN],
+        )
+        self.assertEqual(
+            i18n.surface_label(SURFACE_HOME_FLOOR_WOOD),
+            SURFACE_LABEL_IT[SURFACE_HOME_FLOOR_WOOD],
+        )
 
     def test_language_neutral_helpers_match_italian_locale(self):
         self.assertEqual(
@@ -69,6 +96,16 @@ class I18nItalianOnlyTests(unittest.TestCase):
             i18n.special_parameter_label("unknown")
         with self.assertRaises(KeyError):
             i18n.special_option_label(PARAM_ELECTRICAL_SUPRACILIARY, "unknown")
+        with self.assertRaises(KeyError):
+            i18n.body_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.water_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.full_clothing_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.msil_clothing_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.surface_label("unknown")
 
     def test_unsupported_language_is_rejected(self):
         with self.assertRaises(ValueError):
