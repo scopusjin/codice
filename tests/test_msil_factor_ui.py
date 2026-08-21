@@ -20,6 +20,7 @@ from app.msil_factor_ui import (
     msil_water_legacy_value,
     msil_clothing_label,
     msil_surface_labels,
+    msil_surface_label,
     msil_surface_legacy_value,
 )
 
@@ -53,7 +54,8 @@ class MSILFactorUiCompatibilityTests(unittest.TestCase):
             MSIL_SURFACE_STATE_BY_LABEL,
             {label: surface_id for surface_id, label in SURFACE_LABEL_IT.items()},
         )
-        for _, label in SURFACE_LABEL_IT.items():
+        for surface_id, label in SURFACE_LABEL_IT.items():
+            self.assertEqual(msil_surface_label(surface_id), label)
             self.assertEqual(msil_surface_legacy_value(label), label)
 
     def test_unknown_labels_keep_key_error_behavior(self):
@@ -61,6 +63,8 @@ class MSILFactorUiCompatibilityTests(unittest.TestCase):
             msil_body_legacy_value("unknown")
         with self.assertRaises(KeyError):
             msil_water_legacy_value("unknown")
+        with self.assertRaises(KeyError):
+            msil_surface_label("unknown")
         with self.assertRaises(KeyError):
             msil_surface_legacy_value("unknown")
         with self.assertRaises(KeyError):
