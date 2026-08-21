@@ -75,6 +75,13 @@ def full_surface_labels():
     return tuple(FULL_SURFACE_STATE_BY_LABEL.keys())
 
 
+def full_surface_label(surface_id: str) -> str:
+    """Restituisce l'etichetta localizzata di una specifica superficie."""
+    if surface_id not in SURFACE_LABEL_IT:
+        raise KeyError(surface_id)
+    return i18n.surface_label(surface_id)
+
+
 def full_surface_state_id(ui_label: str) -> str:
     """Restituisce l'ID stabile della superficie mostrata nella UI."""
     return FULL_SURFACE_STATE_BY_LABEL[ui_label]
@@ -97,6 +104,7 @@ __all__ = [
     "full_water_legacy_value",
     "full_clothing_label",
     "full_surface_labels",
+    "full_surface_label",
     "full_surface_state_id",
     "full_surface_legacy_value",
 ]
