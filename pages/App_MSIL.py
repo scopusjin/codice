@@ -3,6 +3,7 @@
 import datetime
 import pandas as pd
 import streamlit as st
+from app import i18n
 from app.theme import apply_theme, warn_box
 from app.theme import fc_panel_start
 
@@ -38,7 +39,7 @@ from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
 # ------------------------------------------------------------
 # Config pagina
 # ------------------------------------------------------------
-st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
+st.set_page_config(page_title=i18n.ui_text("msil.page_title"), layout="centered")
 apply_theme()
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
@@ -122,27 +123,12 @@ def _descrizioni_html():
             parametri=st.session_state.get("widgets_parametri_aggiuntivi", {})
         ))
     except Exception: pass
-    return "\n".join(parts) or "<p style='opacity:.7'>Nessuna descrizione disponibile.</p>"
+    return "\n".join(parts) or i18n.ui_text("msil.no_description")
 
 
 
-def _raccomandazioni_html() -> str:  
-    return """
-    <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:</b><br><br>
-      • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
-      • Fonti di calore nelle vicinanze del corpo.<br>
-      • Riscaldamento a pavimento sotto il corpo.<br>
-      • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
-      • Temperatura ambientale media non determinabile o temperatura aumentata molto dopo il decesso.<br>
-      • Fattore di correzione non stimabile<br><br>
-      <b>DA RICORDARE:</b><br><br>
-      • Non usare direttamente la temperatura ambientale misurata, ma ragiona su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stima la temperatura media in cui potrebbe essersi trovato il corpo. Tieni conto di eventuali dati meteorologici.<br>
-      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambia posizione al cadavere e valuta se si modificano le ipostasi dopo 20 minuti.<br>
-      • Per il fattore di correzione, considera solo gli indumenti e le coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è indicativo. Prova varie combinazioni e un range di fattori.<br>
-      • L'applicazione considera di default, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
-    </div>
-    """
+def _raccomandazioni_html() -> str:
+    return i18n.ui_text("msil.recommendations_html")
 
 st.markdown(
     """
@@ -270,7 +256,7 @@ except Exception:
 
 now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
-st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
+st.toggle(i18n.ui_text("msil.add_datetime"), key="usa_orario_custom")
 
 if not st.session_state["usa_orario_custom"]:
     # rimuovi le chiavi per avere default freschi al prossimo ON
@@ -287,13 +273,13 @@ if st.session_state["usa_orario_custom"]:
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input(
-            "Data ispezione legale",
+            i18n.ui_text("msil.inspection_date"),
             key="input_data_rilievo",
             label_visibility="collapsed"
         )
     with c2:
         st.text_input(
-            "Ora ispezione legale (HH:MM)",
+            i18n.ui_text("msil.inspection_time"),
             key="input_ora_rilievo",
             label_visibility="collapsed"
         )
@@ -308,7 +294,7 @@ c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
     scelta_ipostasi_lbl = st.selectbox(
-        "Macchie ipostatiche", ip_keys,
+        i18n.ui_text("msil.livor_select_label"), ip_keys,
         index=(ip_keys.index("🩸 IPOSTASI?") if "🩸 IPOSTASI?" in ip_keys else 0),
         key="selettore_macchie_mobile", label_visibility="collapsed",
     )
@@ -316,7 +302,7 @@ with c_ip:
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
-        "Rigidità cadaverica", rg_keys,
+        i18n.ui_text("msil.rigor_select_label"), rg_keys,
         index=(rg_keys.index("💪🏻 RIGOR MORTIS?") if "💪🏻 RIGOR MORTIS?" in rg_keys else 0),
         key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
@@ -329,7 +315,7 @@ c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     rt_val_parsed = _number_or_text(
-        "T. rettale (°C)",
+        i18n.ui_text("msil.rectal_temp"),
         state_key="rt_val",
         widget_key="rt_val_widget",
         text_key="rt_val_str",
@@ -339,7 +325,7 @@ with c_rt:
 
 with c_ta:
     ta_val_parsed = _number_or_text(
-        "T. ambientale media (°C)",
+        i18n.ui_text("msil.ta_mean"),
         state_key="ta_base_val",
         widget_key="ta_base_val_widget",
         text_key="ta_base_val_str",
@@ -349,7 +335,7 @@ with c_ta:
 
 with c_w:
     peso_parsed = _number_or_text(
-        "Peso (kg)",
+        i18n.ui_text("msil.weight"),
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
@@ -358,7 +344,7 @@ with c_w:
     )
 
 with c_fc:
-    _label("Fattore di correzione (FC)")
+    _label(i18n.ui_text("msil.fc_label"))
     fc_placeholder = st.empty()
 
 # Persisti valori parsati su chiavi logiche
@@ -369,7 +355,7 @@ st.session_state["peso"] = peso_parsed
 # ------------------------------------------------------------
 # 2) Toggle “Suggerisci FC”
 # ------------------------------------------------------------
-st.toggle("Suggerisci FC",
+st.toggle(i18n.ui_text("msil.suggest_fc"),
           value=st.session_state.get("toggle_fattore_inline_mobile", False),
           key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
@@ -420,7 +406,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
     with col_corr:
         corr_placeholder = st.empty()
     with col_vest:
-        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
+        toggle_vestito = st.toggle(i18n.ui_text("msil.clothed_covered"),
                                    value=st.session_state.get(k("toggle_vestito"), False),
                                    key=k("toggle_vestito"))
 
@@ -431,6 +417,8 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         label_coperte_medie = msil_clothing_label(BLANKET_MEDIUM)
         label_coperte_pesanti = msil_clothing_label(BLANKET_HEAVY)
 
+        item_col = i18n.ui_text("msil.item_column")
+        count_col = i18n.ui_text("msil.count_column")
         defaults = {
             label_sottili: st.session_state.get(k("strati_sottili"), 0),
             label_spessi: st.session_state.get(k("strati_spessi"), 0),
@@ -440,15 +428,15 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
                 label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
             })
-        df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
+        df = pd.DataFrame([{item_col: nome, count_col: v} for nome, v in defaults.items()])
         edited = st.data_editor(
             df, hide_index=True, use_container_width=True,
             column_config={
-                "Voce": st.column_config.TextColumn(disabled=True, width="medium"),
-                "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
+                item_col: st.column_config.TextColumn(disabled=True, width="medium"),
+                count_col: st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
             },
         )
-        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
+        vals = {r[item_col]: _safe_int(r[count_col]) for _, r in edited.iterrows()}
         n_sottili = vals.get(label_sottili, 0)
         n_spessi = vals.get(label_spessi, 0)
         n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
@@ -471,7 +459,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
         if prev_display not in options_display:
             prev_display = options_display[0]
         superficie_display_label = st.selectbox(
-            "Superficie di appoggio", options_display,
+            i18n.ui_text("msil.support_surface"), options_display,
             index=options_display.index(prev_display),
             key=k("superficie_display_sel"), label_visibility="visible"
         )
@@ -486,7 +474,7 @@ def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = 
                 mostra_correnti = False
         if mostra_correnti:
             correnti_presenti = st.toggle(
-                "Correnti d'aria presenti?",
+                i18n.ui_text("msil.air_currents"),
                 value=st.session_state.get(k("toggle_correnti_fc"), False),
                 key=k("toggle_correnti_fc"), disabled=False
             )
@@ -544,7 +532,7 @@ with c_fc:
 # ------------------------------------------------------------
 # 3) Pulsante finale
 # ------------------------------------------------------------
-clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
+clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
@@ -631,5 +619,5 @@ if st.session_state.get("run_stima_mobile"):
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
 
-with st.popover("ℹ️ Raccomandazioni"):
+with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
