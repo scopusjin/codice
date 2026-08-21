@@ -68,6 +68,12 @@ def msil_surface_labels():
     return tuple(MSIL_SURFACE_STATE_BY_LABEL.keys())
 
 
+def msil_surface_label(surface_id: str) -> str:
+    if surface_id not in SURFACE_LABEL_IT:
+        raise KeyError(surface_id)
+    return i18n.surface_label(surface_id)
+
+
 def msil_surface_state_id(ui_label: str) -> str:
     return MSIL_SURFACE_STATE_BY_LABEL[ui_label]
 
@@ -88,6 +94,7 @@ __all__ = [
     "msil_water_legacy_value",
     "msil_clothing_label",
     "msil_surface_labels",
+    "msil_surface_label",
     "msil_surface_state_id",
     "msil_surface_legacy_value",
 ]
