@@ -6,8 +6,13 @@ from app.full_tanatology import (
     FULL_LIVOR_STATE_BY_LABEL,
     FULL_RIGOR_STATE_BY_LABEL,
     FULL_SPECIAL_PARAM_BY_LABEL,
+    full_livor_labels,
+    full_rigor_labels,
+    full_livor_state_id,
+    full_rigor_state_id,
     full_livor_legacy_value,
     full_rigor_legacy_value,
+    full_special_parameter_ids,
     full_special_parameter_labels,
     full_special_parameter_id,
     full_special_parameter_legacy_value,
@@ -30,25 +35,42 @@ from app.special_tanatology_states import (
 
 class FullTanatologyMappingTests(unittest.TestCase):
     def test_full_livor_ui_matches_current_parameter_options(self):
+        current_labels = tuple(opzioni_macchie.keys())
         self.assertEqual(
-            list(FULL_LIVOR_STATE_BY_LABEL.keys()),
-            list(opzioni_macchie.keys()),
+            tuple(FULL_LIVOR_STATE_BY_LABEL.keys()),
+            current_labels,
         )
+        self.assertEqual(full_livor_labels(), current_labels)
+        self.assertEqual(full_livor_labels("it"), current_labels)
         for ui_label in opzioni_macchie:
+            self.assertEqual(
+                full_livor_state_id(ui_label),
+                FULL_LIVOR_STATE_BY_LABEL[ui_label],
+            )
             self.assertEqual(full_livor_legacy_value(ui_label), ui_label)
 
     def test_full_rigor_ui_matches_current_parameter_options(self):
+        current_labels = tuple(opzioni_rigidita.keys())
         self.assertEqual(
-            list(FULL_RIGOR_STATE_BY_LABEL.keys()),
-            list(opzioni_rigidita.keys()),
+            tuple(FULL_RIGOR_STATE_BY_LABEL.keys()),
+            current_labels,
         )
+        self.assertEqual(full_rigor_labels(), current_labels)
+        self.assertEqual(full_rigor_labels("it"), current_labels)
         for ui_label in opzioni_rigidita:
+            self.assertEqual(
+                full_rigor_state_id(ui_label),
+                FULL_RIGOR_STATE_BY_LABEL[ui_label],
+            )
             self.assertEqual(full_rigor_legacy_value(ui_label), ui_label)
 
     def test_full_special_parameter_ui_matches_current_order_and_legacy_values(self):
+        current_ids = tuple(SPECIAL_PARAM_LABEL_IT.keys())
         current_labels = tuple(SPECIAL_PARAM_LABEL_IT.values())
         self.assertEqual(tuple(FULL_SPECIAL_PARAM_BY_LABEL.keys()), current_labels)
+        self.assertEqual(full_special_parameter_ids(), current_ids)
         self.assertEqual(full_special_parameter_labels(), current_labels)
+        self.assertEqual(full_special_parameter_labels("it"), current_labels)
 
         for param_id, legacy_label in SPECIAL_PARAM_LABEL_IT.items():
             self.assertEqual(full_special_parameter_id(legacy_label), param_id)
@@ -62,6 +84,7 @@ class FullTanatologyMappingTests(unittest.TestCase):
         for param_id in SPECIAL_PARAM_LABEL_IT:
             current_labels = tuple(special_option_legacy_labels(param_id))
             self.assertEqual(full_special_option_labels(param_id), current_labels)
+            self.assertEqual(full_special_option_labels(param_id, "it"), current_labels)
 
             for option_id, legacy_label in zip(
                 special_option_ids(param_id),
