@@ -21,6 +21,7 @@ from app.parameters import (
     dati_parametri_aggiuntivi,
 )
 from app.special_tanatology_states import (
+    PARAM_ELECTRICAL_SUPRACILIARY,
     SPECIAL_PARAM_LABEL_IT,
     special_option_ids,
     special_option_legacy_labels,
@@ -74,6 +75,12 @@ class FullTanatologyMappingTests(unittest.TestCase):
                     full_special_option_legacy_value(param_id, legacy_label),
                     legacy_label,
                 )
+
+    def test_unknown_special_labels_preserve_key_errors(self):
+        with self.assertRaises(KeyError):
+            full_special_parameter_id("unknown")
+        with self.assertRaises(KeyError):
+            full_special_option_id(PARAM_ELECTRICAL_SUPRACILIARY, "unknown")
 
 
 if __name__ == "__main__":
