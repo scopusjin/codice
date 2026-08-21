@@ -334,10 +334,11 @@ def format_hours_minutes(h: int, m: int) -> str:
 def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
     """Formattazione italiana legacy degli intervalli temporali."""
     if h1 > 0 and h2 > 0 and m1 == 0:
-        unit = "ora" if h2 == 1 else "ore"
+        unit2 = "ora" if h2 == 1 else "ore"
         if m2 == 0:
-            return f"tra {h1} e {h2} {unit}"
-        return f"tra {h1} {unit} e {h2} {unit} {m2} minuti"
+            return f"tra {h1} e {h2} {unit2}"
+        unit1 = "ora" if h1 == 1 else "ore"
+        return f"tra {h1} {unit1} e {h2} {unit2} {m2} minuti"
     return f"tra {format_hours_minutes(h1, m1)} e {format_hours_minutes(h2, m2)}"
 
 
