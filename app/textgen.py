@@ -319,10 +319,7 @@ def paragrafo_potente(
         return None
 
     h, m = _hm_from_hours(mt_ore)
-    return (
-        "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
-        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{_fmt_hm_full(h, m)}</b> (≈ {mt_giorni:.1f} giorni) dal decesso.</li></ul>"
-    )
+    return i18n.potente_paragraph(_fmt_hm_full(h, m), f"{mt_giorni:.1f}")
 
 def paragrafo_raffreddamento_input(
     *,
@@ -337,30 +334,24 @@ def paragrafo_raffreddamento_input(
     Paragrafo con riepilogo input Henssge. HTML <ul> nidificata.
     """
     if isp_dt is None:
-        titolo_temp = "Temperature misurate nel corso dell’ispezione legale:"
+        orario_isp = None
+        data_isp = None
     else:
         orario_isp, data_isp = _fmt_dt(isp_dt)
-        titolo_temp = f"Temperature misurate nel corso dell’ispezione legale verso le ore {orario_isp} del {data_isp}:"
 
     ta_txt = f"{ta_val:.1f}" if ta_val is not None else "—"
     tr_txt = f"{tr_val:.1f}" if tr_val is not None else "—"
     w_txt  = f"{w_val:.1f}"  if w_val  is not None else "—"
     t0_txt = f"{t0_val:.1f}" if t0_val is not None else "—"
 
-    return (
-        "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
-        "<ul>"
-        f"<li>{titolo_temp}"
-        "<ul>"
-        f"<li>Temperatura ambientale: {ta_txt} °C.</li>"
-        f"<li>Temperatura rettale: {tr_txt} °C.</li>"
-        "</ul>"
-        "</li>"
-        f"<li>Peso del cadavere misurato: {w_txt} kg.</li>"
-        f"<li>Temperatura corporea ipotizzata al momento della morte: {t0_txt} °C.</li>"
-        f"<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): {cf_descr}.</li>"
-        "</ul>"
-        "</li></ul>"
+    return i18n.cooling_input_paragraph(
+        inspection_time=orario_isp,
+        inspection_date=data_isp,
+        ta_text=ta_txt,
+        tr_text=tr_txt,
+        weight_text=w_txt,
+        t0_text=t0_txt,
+        correction_description=cf_descr,
     )
 
 def paragrafi_descrizioni_base(
