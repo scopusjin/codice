@@ -123,7 +123,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.2,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati al momento dell’ispezione legale. "
+            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
             "<b>I valori ottenuti sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
             "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
             "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili.</li></ul>",
@@ -138,7 +138,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.25,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati al momento dell’ispezione legale. "
+            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
             "<b>Alcuni dei valori rilevati sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
             "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
             "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili.</li></ul>",
@@ -153,7 +153,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati al momento dell’ispezione legale.</li></ul>",
+            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
     def test_henssge_detail_over_thirty_hours_keeps_current_warning(self):
@@ -165,7 +165,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 28 e 34 ore prima dei rilievi effettuati al momento dell’ispezione legale. "
+            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 28 e 34 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
             "La stima media ottenuta dal raffreddamento cadaverico (31.0 h) è superiore alle 30 ore. "
             "L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo.</li></ul>",
         )
