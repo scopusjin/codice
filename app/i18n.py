@@ -415,6 +415,91 @@ def qd_summary(
     )
 
 
+def prudent_range_text(a: float, b: float, unit: str, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_range_text(a, b, unit)
+
+
+def prudent_hours_text(hours: float, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_hours_text(hours)
+
+
+def prudent_parenthetical(
+    *, ta_text: str, cf_text: str, weight_text: str, estimated_weight: bool,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_parenthetical(
+        ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
+        estimated_weight=estimated_weight,
+    )
+
+
+def prudent_estimated_weight(weight_text: str, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_estimated_weight(weight_text)
+
+
+def prudent_result_text(
+    *, minimum_text: str, maximum_text: Optional[str], beyond: bool, not_over: bool,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_result_text(
+        minimum_text=minimum_text, maximum_text=maximum_text,
+        beyond=beyond, not_over=not_over,
+    )
+
+
+def prudent_header(language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_header()
+
+
+def prudent_bullets(
+    *, ta_text: str, cf_text: str, weight_text: str,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_bullets(
+        ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
+    )
+
+
+def prudent_simple_bullets(
+    *, ta_text: str, cf_text: str, weight_text: str,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_simple_bullets(
+        ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
+    )
+
+
+def prudent_conclusion(result_text: str, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_conclusion(result_text)
+
+
+def prudent_summary_html(
+    *, ta_text: str, cf_text: str, weight_text: str, result_text: str,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_summary_html(
+        ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
+        result_text=result_text,
+    )
+
+
+def prudent_graphing_result_at_least(duration: str, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_graphing_result_at_least(duration)
+
+
+def prudent_graphing_result_range(start: str, end: str, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_graphing_result_range(start, end)
+
+
+def prudent_graphing_detail_list(
+    *, header: str, ta_text: str, cf_text: str, weight_text: str,
+    language: Optional[str] = None,
+) -> str:
+    return _get_henssge_locale(language).prudent_graphing_detail_list(
+        header=header, ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
+    )
+
+
 def factor_correction_description(
     *,
     cf_value: float,
@@ -491,6 +576,19 @@ __all__ = [
     "henssge_qd_partial_warning",
     "henssge_over_thirty_warning",
     "qd_summary",
+    "prudent_range_text",
+    "prudent_hours_text",
+    "prudent_parenthetical",
+    "prudent_estimated_weight",
+    "prudent_result_text",
+    "prudent_header",
+    "prudent_bullets",
+    "prudent_simple_bullets",
+    "prudent_conclusion",
+    "prudent_summary_html",
+    "prudent_graphing_result_at_least",
+    "prudent_graphing_result_range",
+    "prudent_graphing_detail_list",
     "factor_correction_description",
     "livor_description",
     "rigor_description",
