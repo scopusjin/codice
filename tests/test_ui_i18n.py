@@ -6,6 +6,29 @@ from app import i18n
 
 
 class FullUiTextCompatibilityTests(unittest.TestCase):
+    def test_general_labels_match_current_ui(self):
+        expected = {
+            "full.title": "STIMA EPOCA DECESSO",
+            "full.add_datetime": "Aggiungi data/ora rilievi tanatologici",
+            "full.inspection_date": "Data ispezione legale:",
+            "full.inspection_time": "Ora ispezione legale (HH:MM):",
+            "full.livor_heading": "Ipostasi:",
+            "full.livor_select_label": "Macchie ipostatiche:",
+            "full.rigor_heading": "Rigidità cadaverica:",
+            "full.rigor_select_label": "Rigidità cadaverica:",
+            "full.add_special_data": "Aggiungi dati tanatologici speciali",
+            "full.assessed_different_time": "Valutato ad un'ora diversa?",
+            "full.measurement_date": "Data rilievo:",
+            "full.measurement_time": "Ora rilievo:",
+            "full.measurement_time_input": "Ora rilievo (HH:MM):",
+            "full.putrefactive_changes": "Alterazioni putrefattive?",
+            "full.estimate_button": "STIMA EPOCA DECESSO",
+            "full.no_data_warning": "Nessun dato inserito per la stima",
+        }
+        for key, value in expected.items():
+            with self.subTest(key=key):
+                self.assertEqual(i18n.ui_text(key), value)
+
     def test_henssge_labels_and_help_match_current_ui(self):
         self.assertEqual(i18n.ui_text("full.prudent_toggle"), "Stima prudente")
         self.assertEqual(
@@ -23,6 +46,11 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "• Impossibilità di stimare il fattore correttivo di Henssge.\n"
             "• Aumento significativo della temperatura ambientale (da valori bassi a elevati).",
         )
+        self.assertEqual(
+            i18n.ui_text("full.henssge_incoherent_warning"),
+            "Non è stato possibile applicare il metodo di Henssge "
+            "(temperature incoerenti o fuori range).",
+        )
 
     def test_prudent_note_matches_current_html(self):
         self.assertEqual(
@@ -32,6 +60,14 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "Se non diversamente specificato, si considererà "
             "un range di incertezza di ±1.0 °C per la T. ambientale media "
             "e di ±0.10 per il fattore di correzione."
+            "</div>",
+        )
+        self.assertEqual(
+            i18n.ui_text("full.special_datetime_hint"),
+            "<div style='font-size:0.9rem; color:#666; padding:6px 8px; "
+            "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
+            "Per specificare orari dei rilievi, attiva in alto "
+            "<b>“Aggiungi data/ora rilievi”</b>."
             "</div>",
         )
 
@@ -47,6 +83,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.antemortem_temp_estimated_label": "T. ante-mortem stimata (°C):",
             "full.weight_label": "Peso (kg):",
             "full.weight_label_standard": "Peso  (kg):",
+            "full.weight_uncertainty": "±3 kg",
             "full.ta_input_label": "T. ambientale (°C):",
             "full.ta_base_input": "TA base",
             "full.ta_other_input": "TA altro estremo",
@@ -76,6 +113,44 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "Adattato per 82.4 kg (valore per 70 kg: 1.10)",
         )
 
+
+class MSILUiTextCompatibilityTests(unittest.TestCase):
+    def test_msil_labels_match_current_ui(self):
+        expected = {
+            "msil.page_title": "STIMA EPOCA DECESSO - MSIL",
+            "msil.no_description": "<p style='opacity:.7'>Nessuna descrizione disponibile.</p>",
+            "msil.add_datetime": "Aggiungi data/ora rilievi tanatologici",
+            "msil.inspection_date": "Data ispezione legale",
+            "msil.inspection_time": "Ora ispezione legale (HH:MM)",
+            "msil.livor_select_label": "Macchie ipostatiche",
+            "msil.rigor_select_label": "Rigidità cadaverica",
+            "msil.rectal_temp": "T. rettale (°C)",
+            "msil.ta_mean": "T. ambientale media (°C)",
+            "msil.weight": "Peso (kg)",
+            "msil.fc_label": "Fattore di correzione (FC)",
+            "msil.suggest_fc": "Suggerisci FC",
+            "msil.clothed_covered": "Vestiti/coperte su addome/bacino?",
+            "msil.item_column": "Voce",
+            "msil.count_column": "Numero?",
+            "msil.support_surface": "Superficie di appoggio",
+            "msil.air_currents": "Correnti d'aria presenti?",
+            "msil.estimate_button": "STIMA EPOCA DECESSO",
+            "msil.recommendations_button": "ℹ️ Raccomandazioni",
+        }
+        for key, value in expected.items():
+            with self.subTest(key=key):
+                self.assertEqual(i18n.ui_text(key), value)
+
+    def test_msil_recommendations_keep_current_content(self):
+        text = i18n.ui_text("msil.recommendations_html")
+        self.assertIn("LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:", text)
+        self.assertIn("Migrabilità ≠ improntabilità", text)
+        self.assertIn("±1 °C", text)
+        self.assertIn("± 0.1", text)
+        self.assertIn("±3 kg", text)
+
+
+class UiTextErrorsTests(unittest.TestCase):
     def test_unknown_ui_key_raises_key_error(self):
         with self.assertRaises(KeyError):
             i18n.ui_text("full.unknown")
