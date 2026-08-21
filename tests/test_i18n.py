@@ -24,6 +24,24 @@ class I18nItalianOnlyTests(unittest.TestCase):
         self.assertIs(i18n.get_locale("it"), it)
         self.assertEqual(i18n.language_label("it"), "Italiano")
 
+    def test_language_neutral_labels_match_current_italian_labels(self):
+        self.assertEqual(
+            i18n.livor_label(LIVOR_ABSENT),
+            it.LIVOR_LABEL_IT[LIVOR_ABSENT],
+        )
+        self.assertEqual(
+            i18n.rigor_label(RIGOR_FULL),
+            it.RIGOR_LABEL_IT[RIGOR_FULL],
+        )
+        self.assertEqual(
+            i18n.special_parameter_label(PARAM_ELECTRICAL_SUPRACILIARY),
+            it.SPECIAL_PARAM_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY],
+        )
+        self.assertEqual(
+            i18n.special_option_label(PARAM_ELECTRICAL_SUPRACILIARY, SUPRA_PHASE_I),
+            it.SPECIAL_OPTION_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY][SUPRA_PHASE_I],
+        )
+
     def test_language_neutral_helpers_match_italian_locale(self):
         self.assertEqual(
             i18n.livor_description(LIVOR_ABSENT),
@@ -41,6 +59,16 @@ class I18nItalianOnlyTests(unittest.TestCase):
             i18n.special_graph_label(PARAM_ELECTRICAL_SUPRACILIARY),
             it.special_graph_label_it(PARAM_ELECTRICAL_SUPRACILIARY),
         )
+
+    def test_unknown_ids_preserve_mapping_key_errors(self):
+        with self.assertRaises(KeyError):
+            i18n.livor_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.rigor_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.special_parameter_label("unknown")
+        with self.assertRaises(KeyError):
+            i18n.special_option_label(PARAM_ELECTRICAL_SUPRACILIARY, "unknown")
 
     def test_unsupported_language_is_rejected(self):
         with self.assertRaises(ValueError):
