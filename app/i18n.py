@@ -483,6 +483,10 @@ def prudent_summary_html(
     )
 
 
+def prudent_graphing_hours_text(hours: float, language: Optional[str] = None) -> str:
+    return _get_henssge_locale(language).prudent_graphing_hours_text(hours)
+
+
 def prudent_graphing_result_at_least(duration: str, language: Optional[str] = None) -> str:
     return _get_henssge_locale(language).prudent_graphing_result_at_least(duration)
 
@@ -586,6 +590,7 @@ __all__ = [
     "prudent_simple_bullets",
     "prudent_conclusion",
     "prudent_summary_html",
+    "prudent_graphing_hours_text",
     "prudent_graphing_result_at_least",
     "prudent_graphing_result_range",
     "prudent_graphing_detail_list",
