@@ -6,6 +6,7 @@ import datetime
 from typing import List, Optional, Tuple, Iterable, Dict, Any
 import numpy as np
 
+from app import i18n
 from app.utils_time import split_hours_minutes
 from app.textgen_tanatology import special_description_is_reportable
 
@@ -32,13 +33,7 @@ def _hm_from_hours(ore_float: float) -> tuple[int, int]:
 
 def _fmt_hm_full(h: int, m: int) -> str:
     """'1 ora e 30 minuti' / '2 ore' / '45 minuti' / '1 minuto'."""
-    if h > 0 and m > 0:
-        return f"{h} {'ora' if h == 1 else 'ore'} {m} {'minuto' if m == 1 else 'minuti'}"
-    if h > 0:
-        return f"{h} {'ora' if h == 1 else 'ore'}"
-    if m > 0:
-        return f"{m} {'minuto' if m == 1 else 'minuti'}"
-    return "0 minuti"
+    return i18n.format_hours_minutes(h, m)
 
 def _fmt_range_hm(h1: int, m1: int, h2: int, m2: int) -> str:
     """
@@ -48,13 +43,7 @@ def _fmt_range_hm(h1: int, m1: int, h2: int, m2: int) -> str:
     Fallback:
     - 'tra 1 ora e 30 minuti e 3 ore'
     """
-    if h1 > 0 and h2 > 0 and m1 == 0:
-        unit = "ora" if h2 == 1 else "ore"
-        if m2 == 0:
-            return f"tra {h1} e {h2} {unit}"
-        else:
-            return f"tra {h1} {unit} e {h2} {unit} {m2} minuti"
-    return f"tra {_fmt_hm_full(h1, m1)} e {_fmt_hm_full(h2, m2)}"
+    return i18n.format_hours_range(h1, m1, h2, m2)
 
 # ------------------------------------------------------------
 # Frasi conclusive (HTML pronto)
