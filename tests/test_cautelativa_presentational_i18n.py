@@ -45,6 +45,11 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
         self.assertEqual(i18n.prudent_estimated_weight("67–73 kg"), "67–73 kg (stimato)")
 
     def test_graphing_fallback_renderers_keep_current_output(self):
+        self.assertEqual(i18n.prudent_graphing_hours_text(0.5), "0 ore 30 minuti")
+        self.assertEqual(i18n.prudent_graphing_hours_text(1.0), "1 ora")
+        self.assertEqual(i18n.prudent_graphing_hours_text(1.5), "1 ora 30 minuti")
+        self.assertEqual(i18n.prudent_graphing_hours_text(2.0), "2 ore")
+        self.assertEqual(i18n.prudent_graphing_hours_text(float("inf")), "")
         self.assertEqual(
             i18n.prudent_graphing_result_at_least("5 ore"),
             "almeno 5 ore",
