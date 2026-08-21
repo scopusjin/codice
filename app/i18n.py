@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import ModuleType
 from typing import Dict, Mapping, Optional, Tuple
 
-from app.locales import it, it_henssge
+from app.locales import it, it_factor, it_henssge
 from app.factor_ui_states import (
     BODY_LABEL_IT,
     WATER_LABEL_IT,
@@ -34,6 +34,10 @@ _LOCALES: Dict[str, ModuleType] = {
 
 _HENSSGE_LOCALES: Dict[str, ModuleType] = {
     "it": it_henssge,
+}
+
+_FACTOR_LOCALES: Dict[str, ModuleType] = {
+    "it": it_factor,
 }
 
 SUPPORTED_LANGUAGES: Tuple[str, ...] = tuple(_LOCALES.keys())
@@ -65,6 +69,11 @@ def get_locale(language: Optional[str] = None) -> ModuleType:
 def _get_henssge_locale(language: Optional[str] = None) -> ModuleType:
     """Restituisce il modulo locale dedicato ai testi Henssge/Qd."""
     return _HENSSGE_LOCALES[normalize_language(language)]
+
+
+def _get_factor_locale(language: Optional[str] = None) -> ModuleType:
+    """Restituisce il modulo locale dedicato alla descrizione del fattore di correzione."""
+    return _FACTOR_LOCALES[normalize_language(language)]
 
 
 def language_label(language: Optional[str] = None) -> str:
@@ -388,6 +397,23 @@ def qd_summary(
     )
 
 
+def factor_correction_description(
+    *,
+    cf_value: float,
+    summary: Optional[dict],
+    fallback_text: Optional[str] = None,
+    manual_override: bool = False,
+    language: Optional[str] = None,
+) -> str:
+    """Descrizione localizzata del fattore di correzione."""
+    return _get_factor_locale(language).factor_correction_description(
+        cf_value=cf_value,
+        summary=summary,
+        fallback_text=fallback_text,
+        manual_override=manual_override,
+    )
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -446,6 +472,7 @@ __all__ = [
     "henssge_qd_partial_warning",
     "henssge_over_thirty_warning",
     "qd_summary",
+    "factor_correction_description",
     "livor_description",
     "rigor_description",
     "special_description",
