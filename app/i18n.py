@@ -245,6 +245,54 @@ def simple_sentence_dt_range(
     )
 
 
+def final_sentence_dt_over(
+    duration: str,
+    cutoff_time: str,
+    cutoff_date: str,
+    language: Optional[str] = None,
+) -> str:
+    """Frase conclusiva localizzata per un limite minimo con data/ora."""
+    return get_locale(language).final_sentence_dt_over(duration, cutoff_time, cutoff_date)
+
+
+def final_sentence_dt_not_over(
+    duration: str,
+    lower_time: str,
+    lower_date: str,
+    inspection_time: str,
+    inspection_date: str,
+    language: Optional[str] = None,
+) -> str:
+    """Frase conclusiva localizzata per un limite massimo con data/ora."""
+    return get_locale(language).final_sentence_dt_not_over(
+        duration,
+        lower_time,
+        lower_date,
+        inspection_time,
+        inspection_date,
+    )
+
+
+def final_sentence_dt_range(
+    interval: str,
+    start_time: str,
+    start_date: str,
+    end_time: str,
+    end_date: str,
+    same_date: bool,
+    language: Optional[str] = None,
+) -> str:
+    """Frase conclusiva localizzata per un intervallo con data/ora."""
+    return get_locale(language).final_sentence_dt_range(
+        interval,
+        start_time,
+        start_date,
+        end_time,
+        end_date,
+        same_date,
+    )
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
     return get_locale(language).livor_description_it(state_id)
@@ -291,6 +339,9 @@ __all__ = [
     "simple_sentence_dt_not_over",
     "simple_sentence_dt_over",
     "simple_sentence_dt_range",
+    "final_sentence_dt_over",
+    "final_sentence_dt_not_over",
+    "final_sentence_dt_range",
     "livor_description",
     "rigor_description",
     "special_description",
