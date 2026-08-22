@@ -51,14 +51,24 @@ _PERIORAL_IMAGE = _load_embedded_image(
     )
 )
 
-# Ordine visivo della tavola sopraciliare 2 colonne x 4 righe:
-# VI-V / IV-III / II-I / Nessuna reazione-Non valutabile.
-_SUPRA_GRID_OPTIONS = (
-    "Fase VI", "Fase V",
-    "Fase IV", "Fase III",
-    "Fase II", "Fase I",
-    "Nessuna reazione", "Non valutabile/non attendibile",
+# Ordine della nuova griglia sopraciliare 3 x 3.
+_SUPRA_TILE_OPTIONS = (
+    "Fase VI", "Fase V", "Fase IV",
+    "Fase III", "Fase II", "Fase I",
+    "Nessuna reazione", "Non valutabile/non attendibile", "Non valutata",
 )
+
+# Posizione degli otto riquadri nella tavola originale 2 x 4.
+_SUPRA_SOURCE_POSITIONS = {
+    "Fase VI": (0, 0),
+    "Fase V": (0, 1),
+    "Fase IV": (1, 0),
+    "Fase III": (1, 1),
+    "Fase II": (2, 0),
+    "Fase I": (2, 1),
+    "Nessuna reazione": (3, 0),
+    "Non valutabile/non attendibile": (3, 1),
+}
 
 # Testo mostrato nel selectbox sopraciliare. I valori interni restano invariati
 # per non alterare range, descrizioni, calcoli e compatibilità con il codice esistente.
@@ -86,6 +96,47 @@ _PERIORAL_GRID_OPTIONS = (
 )
 
 
+def _build_supra_tiles(image):
+    """Ricava otto figure senza didascalia e crea la nona cella 'Non valutata'."""
+    width, height = image.size
+    cell_width = width / 2
+    cell_height = height / 4
+    tiles = {}
+
+    for option, (row, col) in _SUPRA_SOURCE_POSITIONS.items():
+        x0 = round(col * cell_width) + 3
+        x1 = round((col + 1) * cell_width) - 3
+        y0 = round(row * cell_height) + 3
+
+        # Nella tavola originale la didascalia occupa la fascia inferiore.
+        # La escludiamo mantenendo la parte grafica del riquadro.
+        y1 = round(row * cell_height + cell_height * 0.76)
+        tiles[option] = image.crop((x0, y0, x1, y1)).convert("RGB")
+
+    # Nona cella: simbolo neutro, senza testo, per "Non valutata".
+    sample = next(iter(tiles.values()))
+    neutral = Image.new("RGB", sample.size, (255, 255, 255))
+    draw = ImageDraw.Draw(neutral)
+    w, h = neutral.size
+    radius = min(w, h) * 0.27
+    cx, cy = w / 2, h / 2
+    box = (cx - radius, cy - radius, cx + radius, cy + radius)
+    stroke = max(2, round(min(w, h) * 0.018))
+    neutral_gray = (170, 170, 170)
+    draw.ellipse(box, outline=neutral_gray, width=stroke)
+    draw.line(
+        (cx - radius * 0.72, cy + radius * 0.72,
+         cx + radius * 0.72, cy - radius * 0.72),
+        fill=neutral_gray,
+        width=stroke,
+    )
+    tiles["Non valutata"] = neutral
+    return tiles
+
+
+_SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
+
+
 class _SuppressedElectricalPopover:
     """Contesto vuoto usato per eliminare i vecchi popover delle immagini."""
 
@@ -99,27 +150,34 @@ class _SuppressedElectricalPopover:
 
 
 def _install_responsive_image_css():
-    """Adatta le due tavole alla larghezza dello schermo senza alterarne le proporzioni."""
+    """Adatta le tavole alla larghezza disponibile senza alterarne le proporzioni."""
     st.markdown(
         """
         <style>
-        .st-key-eccitabilita_sopraciliare_image,
+        .st-key-eccitabilita_sopraciliare_grid,
         .st-key-eccitabilita_peribuccale_image {
             width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
 
+        [class*="st-key-eccitabilita_sopraciliare_tile_"] {
+            box-sizing: border-box;
+            border: 2px solid transparent;
+            border-radius: 7px;
+            padding: 2px;
+        }
+
         @media (max-width: 768px) {
-            .st-key-eccitabilita_sopraciliare_image,
+            .st-key-eccitabilita_sopraciliare_grid,
             .st-key-eccitabilita_peribuccale_image {
                 max-width: 100%;
             }
         }
 
         @media (min-width: 769px) {
-            .st-key-eccitabilita_sopraciliare_image {
-                max-width: 450px;
+            .st-key-eccitabilita_sopraciliare_grid {
+                max-width: 100%;
             }
 
             .st-key-eccitabilita_peribuccale_image {
@@ -132,52 +190,59 @@ def _install_responsive_image_css():
     )
 
 
-def _supra_option_from_click(click):
-    """Converte il clic nel riquadro sopraciliare della griglia 2 x 4."""
-    if not click:
-        return None
+def _render_supra_tile_grid(*, widget_key, options):
+    """Mostra nove componenti indipendenti in una griglia 3 x 3."""
+    clicked_option = None
 
-    try:
-        x = float(click["x"])
-        y = float(click["y"])
-        width = float(click["width"])
-        height = float(click["height"])
-    except (KeyError, TypeError, ValueError):
-        return None
+    with st.container(key="eccitabilita_sopraciliare_grid"):
+        for row in range(3):
+            columns = st.columns(3, gap="small")
+            for col in range(3):
+                index = row * 3 + col
+                option = _SUPRA_TILE_OPTIONS[index]
+                tile = _SUPRA_TILES[option]
+                component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
+                last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
 
-    if width <= 0 or height <= 0 or x < 0 or y < 0 or x > width or y > height:
-        return None
+                with columns[col]:
+                    with st.container(key=f"eccitabilita_sopraciliare_tile_{index}"):
+                        click = streamlit_image_coordinates(
+                            tile,
+                            use_column_width="always",
+                            cursor="pointer",
+                            key=component_key,
+                        )
 
-    col = min(1, int(x / (width / 2)))
-    row = min(3, int(y / (height / 4)))
-    return _SUPRA_GRID_OPTIONS[row * 2 + col]
+                if not click:
+                    continue
 
+                click_id = click.get("unix_time")
+                if click_id is None:
+                    click_id = (click.get("x"), click.get("y"))
 
-def _highlight_supra_selection(image, selected):
-    """Disegna un bordo persistente sulla cella sopraciliare selezionata."""
-    if selected not in _SUPRA_GRID_OPTIONS:
-        return image
+                if click_id == st.session_state.get(last_click_key):
+                    continue
 
-    index = _SUPRA_GRID_OPTIONS.index(selected)
-    row, col = divmod(index, 2)
+                st.session_state[last_click_key] = click_id
+                if option in options:
+                    clicked_option = option
 
-    highlighted = image.copy()
-    draw = ImageDraw.Draw(highlighted)
-    width, height = highlighted.size
+    if widget_key and clicked_option is not None:
+        st.session_state[widget_key] = clicked_option
 
-    x0 = round(col * width / 2)
-    x1 = round((col + 1) * width / 2) - 1
-    y0 = round(row * height / 4)
-    y1 = round((row + 1) * height / 4) - 1
-
-    # Bordo interno: non modifica dimensioni o coordinate della tavola.
-    inset = 3
-    draw.rectangle(
-        (x0 + inset, y0 + inset, x1 - inset, y1 - inset),
-        outline=(0, 166, 153),
-        width=5,
-    )
-    return highlighted
+    selected = st.session_state.get(widget_key) if widget_key else None
+    if selected in _SUPRA_TILE_OPTIONS:
+        selected_index = _SUPRA_TILE_OPTIONS.index(selected)
+        st.markdown(
+            f"""
+            <style>
+            .st-key-eccitabilita_sopraciliare_tile_{selected_index} {{
+                border-color: #00A699 !important;
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def _perioral_option_from_click(click):
@@ -211,18 +276,10 @@ def _render_clickable_selector(
     options,
     option_from_click,
     show_toast=True,
-    image_for_selection=None,
 ):
-    selected_before_click = st.session_state.get(widget_key) if widget_key else None
-    displayed_image = (
-        image_for_selection(image, selected_before_click)
-        if image_for_selection is not None
-        else image
-    )
-
     with st.container(key=container_key):
         click = streamlit_image_coordinates(
-            displayed_image,
+            image,
             use_column_width="always",
             cursor="pointer",
             key=component_key,
@@ -247,10 +304,6 @@ def _render_clickable_selector(
         st.session_state[widget_key] = selected
         if show_toast:
             st.toast(f"✓ {selected}")
-        if image_for_selection is not None and selected != selected_before_click:
-            # Secondo rerun immediato: rende persistente il bordo sulla nuova
-            # cella senza aggiungere messaggi o altri elementi alla UI.
-            st.rerun()
 
 
 def _is_main_special_row(spec):
@@ -291,13 +344,10 @@ def install_sopraciliare_click_selector():
         is_main_row = _is_main_special_row(spec)
 
         if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY and is_main_row:
-            # È sempre il primo dei due parametri: crea una nuova coppia 50/50
-            # per il rerun corrente.
             with st.container(key="electrical_pair_layout"):
                 electrical_pair["columns"] = original_columns(2, gap="small")
 
         if electrical_pair["columns"] is None:
-            # Fallback difensivo nel caso l'ordine dei parametri venga cambiato.
             with st.container(key="electrical_pair_layout"):
                 electrical_pair["columns"] = original_columns(2, gap="small")
 
@@ -305,13 +355,8 @@ def install_sopraciliare_click_selector():
         target_column = electrical_pair["columns"][target_index]
 
         if is_main_row:
-            # Il codice chiamante si aspetta due colonne, ma per questi due
-            # parametri titolo e contenuto devono stare uno sotto l'altro e
-            # sfruttare l'intero 50% disponibile.
             return target_column, target_column
 
-        # Eventuali righe accessorie (orario personalizzato) restano dentro
-        # la stessa metà assegnata al parametro.
         with target_column:
             return original_columns(spec, *args, **kwargs)
 
@@ -331,16 +376,9 @@ def install_sopraciliare_click_selector():
         widget_key = kwargs.get("key")
 
         if label == _SUPRA_LABEL:
-            _render_clickable_selector(
-                image=_SUPRA_IMAGE,
-                container_key="eccitabilita_sopraciliare_image",
-                component_key="eccitabilita_sopraciliare_click",
-                last_click_key="_eccitabilita_sopraciliare_last_click",
+            _render_supra_tile_grid(
                 widget_key=widget_key,
                 options=options,
-                option_from_click=_supra_option_from_click,
-                show_toast=False,
-                image_for_selection=_highlight_supra_selection,
             )
             kwargs["format_func"] = lambda value: _SUPRA_DISPLAY_LABELS.get(value, value)
 
