@@ -119,18 +119,18 @@ RIGOR_DESCRIPTION_IT_BY_ID = {
     RIGOR_FULL: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse presente e generalizzata. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 2 ore "
-        "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità inizia a risolversi dopo 57 ore dal decesso,  cioè dopo 2 giorni e mezzo)."
+        "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità inizia a risolversi dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo)."
     ),
     RIGOR_RESOLVING: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di risoluzione. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
         "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi "
-        "dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo, e scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni)."
+        "dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo, e scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni)."
     ),
     RIGOR_RESOLVED: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse ormai risolta. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
-        "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più  di 3 giorni)."
+        "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni)."
     ),
     RIGOR_UNRELIABLE: (
         "La rigidità cadaverica non è stata valutata o i rilievi non sono considerati attendibili "
@@ -145,37 +145,37 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         SUPRA_PHASE_I: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione accennata di una minima "
             "porzione della palpebra superiore (meno di 1/3). Tale reazione di eccitabilità muscolare elettrica residua suggerisce "
-            "che il decesso fosse avvenuto tra le 5 e le 22 ore prima delle valutazioni del dato tanatologico."
+            "che il decesso fosse avvenuto tra le 5 e le 22 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_II: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli di meno di "
-            "2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il decesso "
-            "fosse avvenuto tra le 5 e le 16 ore prima delle valutazioni del dato tanatologico."
+            "2/3 della palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso "
+            "fosse avvenuto tra le 5 e le 16 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_III: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione dei muscoli "
-            "dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce che il "
-            "decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima delle valutazioni del dato tanatologico."
+            "dell’intera palpebra superiore. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+            "decesso fosse avvenuto tra le 3 ore e 30 minuti e le 13 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_IV: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata "
-            "dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua  "
-            "suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima delle valutazioni del dato tanatologico."
+            "dei muscoli orbicolari (superiori e inferiori). Tale reazione di eccitabilità muscolare elettrica residua "
+            "suggerisce che il decesso fosse avvenuto tra le 3 e le 8 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_V: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata "
-            "dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua  suggerisce "
-            "che il decesso fosse avvenuto tra le 2 e le 7 ore prima delle valutazioni del dato tanatologico."
+            "dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua suggerisce "
+            "che il decesso fosse avvenuto tra le 2 e le 7 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_VI: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione "
             "generalizzata dei muscoli della fronte, dell’orbita, della guancia. Tale reazione di eccitabilità "
-            "muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima delle valutazioni "
+            "muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra 1 e 6 ore prima della valutazione "
             "del dato tanatologico."
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato "
-            "permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
+            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo "
@@ -185,23 +185,23 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
     PARAM_ELECTRICAL_PERIORAL: {
         OPTION_NOT_ASSESSED: None,
         PERIORAL_MARKED: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata ai muscoli "
-            "peribuccali e ai muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-            "decesso fosse avvenuto meno di 2 ore e mezzo prima delle valutazioni del dato tanatologico."
+            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata dei muscoli "
+            "peribuccali e dei muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+            "decesso fosse avvenuto meno di 2 ore e mezzo prima della valutazione del dato tanatologico."
         ),
         PERIORAL_MODERATE: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta ai muscoli "
+            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta dei muscoli "
             "peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto "
-            "tra 1 e 5 ore prima delle valutazioni del dato tanatologico."
+            "tra 1 e 5 ore prima della valutazione del dato tanatologico."
         ),
         PERIORAL_SLIGHT: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli "
             "peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 "
-            "e le 6 ore prima delle valutazioni del dato tanatologico."
+            "e le 6 ore prima della valutazione del dato tanatologico."
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato "
-            "permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono attendibili "
@@ -213,21 +213,21 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         MECH_WHOLE_MUSCLE: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione "
             "reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso "
-            "fosse avvenuto meno di 2 ore prima delle valutazioni del dato tanatologico."
+            "fosse avvenuto meno di 2 ore prima della valutazione del dato tanatologico."
         ),
         MECH_REVERSIBLE_SWELLING: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
             "di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce "
-            "che il decesso fosse avvenuto tra le 2 e le 5 ore prima delle valutazioni del dato tanatologico."
+            "che il decesso fosse avvenuto tra le 2 e le 5 ore prima della valutazione del dato tanatologico."
         ),
         MECH_SMALL_PERSISTENT_SWELLING: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
             "di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione "
-            "suggerisce che il decesso fosse avvenuto meno di 12 ore prima delle valutazioni del dato tanatologico."
+            "suggerisce che il decesso fosse avvenuto meno di 12 ore prima della valutazione del dato tanatologico."
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. "
-            "Tale risultato permette solamente di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse "
+            "Tale risultato consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse "
             "più di 1 ora e 30 minuti dal decesso."
         ),
         OPTION_UNRELIABLE: (
@@ -370,7 +370,7 @@ def final_sentence_simple_over(duration: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-        f"consente di stimare che la morte sia all'incirca avvenuta <b>più di {duration} prima</b> "
+        f"consente di stimare che la morte sia avvenuta all'incirca <b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
 
@@ -379,7 +379,7 @@ def final_sentence_simple_not_over(duration: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-        f"consente di stimare che la morte sia all'incirca avvenuta <b>non oltre {duration} prima</b> "
+        f"consente di stimare che la morte sia avvenuta all'incirca <b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
 
@@ -388,7 +388,7 @@ def final_sentence_simple_range(interval: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-        f"consente di stimare che la morte sia avvenuta, all'incirca, <b>{interval} prima</b> "
+        f"consente di stimare che la morte sia avvenuta all'incirca <b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
 
@@ -404,7 +404,7 @@ def simple_sentence_dt_not_over(
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         f"<b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero all'incirca <b>successivamente alle ore {lower_time} del {lower_date} "
+        f"vale a dire all'incirca <b>successivamente alle ore {lower_time} del {lower_date} "
         f"(ma prima delle ore {inspection_time} del {inspection_date})</b>.</p>"
     )
 
@@ -414,7 +414,7 @@ def simple_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+        f"vale a dire <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
     )
 
 
@@ -434,7 +434,7 @@ def simple_sentence_dt_range(
         "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
         f"<b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero circa <b>{window}</b>.</p>"
+        f"vale a dire circa <b>{window}</b>.</p>"
     )
 
 
@@ -443,7 +443,7 @@ def final_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) ->
         "<p>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+        f"vale a dire <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
     )
 
 
@@ -458,7 +458,7 @@ def final_sentence_dt_not_over(
         "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero <b>successivamente alle ore {lower_time} del {lower_date} "
+        f"vale a dire <b>successivamente alle ore {lower_time} del {lower_date} "
         f"(ma prima delle ore {inspection_time} del {inspection_date})</b>.</p>"
     )
 
@@ -477,9 +477,9 @@ def final_sentence_dt_range(
         window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
     return (
         "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
-        f"consente di stimare che la morte sia avvenuta, all'incirca, <b>{interval} prima</b> "
+        f"consente di stimare che la morte sia avvenuta all'incirca <b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"ovvero circa <b>{window}</b>.</p>"
+        f"vale a dire circa <b>{window}</b>.</p>"
     )
 
 
