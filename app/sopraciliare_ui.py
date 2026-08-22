@@ -175,7 +175,7 @@ class _SuppressedElectricalPopover:
 
 
 def _install_responsive_image_css():
-    """Adatta le tavole alla larghezza disponibile senza alterarne le proporzioni."""
+    """Adatta il blocco peribuccale alla larghezza disponibile."""
     st.markdown(
         """
         <style>
@@ -184,27 +184,6 @@ def _install_responsive_image_css():
             width: 100%;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        [class*="st-key-eccitabilita_sopraciliare_tile_"] {
-            box-sizing: border-box;
-            min-width: 0 !important;
-            width: 100% !important;
-        }
-
-        /*
-         * La griglia sopraciliare non usa più st.columns: i nove contenitori
-         * sono figli diretti del blocco verticale e vengono disposti qui in
-         * una vera griglia 3 x 3, anche sui viewport stretti.
-         */
-        .st-key-eccitabilita_sopraciliare_grid > div[data-testid="stVerticalBlock"],
-        .st-key-eccitabilita_sopraciliare_grid > div[data-testid="stVerticalBlockBorderWrapper"] > div[data-testid="stVerticalBlock"],
-        .st-key-eccitabilita_sopraciliare_grid > div > div[data-testid="stVerticalBlock"] {
-            display: grid !important;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-            gap: 0.25rem !important;
-            align-items: start !important;
-            width: 100% !important;
         }
 
         @media (max-width: 768px) {
@@ -273,7 +252,7 @@ def _sync_supra_selection_from_component_state(*, options, widget_key, selected)
 
 
 def _render_supra_tile_grid(*, widget_key, options):
-    """Mostra nove componenti indipendenti in una griglia 3 x 3."""
+    """Mostra nove componenti indipendenti in tre righe orizzontali da tre."""
     if not options:
         return None
 
@@ -296,28 +275,40 @@ def _render_supra_tile_grid(*, widget_key, options):
     fallback_new_click = None
 
     with st.container(key="eccitabilita_sopraciliare_grid"):
-        for index, option in enumerate(_SUPRA_TILE_OPTIONS):
-            tile = _SUPRA_TILES[option]
-            displayed_tile = _highlight_supra_tile(tile) if option == selected else tile
-            component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
-            last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
-
-            with st.container(key=f"eccitabilita_sopraciliare_tile_{index}"):
-                click = streamlit_image_coordinates(
-                    displayed_tile,
-                    use_column_width="always",
-                    cursor="pointer",
-                    key=component_key,
-                )
-
-            click_id = _click_identity(click)
-            if (
-                click_id is not None
-                and click_id != st.session_state.get(last_click_key)
-                and option in options
+        for row in range(3):
+            with st.container(
+                horizontal=True,
+                horizontal_alignment="distribute",
+                gap=2,
+                key=f"eccitabilita_sopraciliare_row_{row}",
             ):
-                st.session_state[last_click_key] = click_id
-                fallback_new_click = option
+                for col in range(3):
+                    index = row * 3 + col
+                    option = _SUPRA_TILE_OPTIONS[index]
+                    tile = _SUPRA_TILES[option]
+                    displayed_tile = _highlight_supra_tile(tile) if option == selected else tile
+                    component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
+                    last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
+
+                    with st.container(
+                        width=90,
+                        key=f"eccitabilita_sopraciliare_tile_{index}",
+                    ):
+                        click = streamlit_image_coordinates(
+                            displayed_tile,
+                            width=86,
+                            cursor="pointer",
+                            key=component_key,
+                        )
+
+                    click_id = _click_identity(click)
+                    if (
+                        click_id is not None
+                        and click_id != st.session_state.get(last_click_key)
+                        and option in options
+                    ):
+                        st.session_state[last_click_key] = click_id
+                        fallback_new_click = option
 
     if fallback_new_click is not None and fallback_new_click != selected:
         st.session_state[_SUPRA_SELECTION_KEY] = fallback_new_click
