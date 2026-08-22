@@ -169,6 +169,7 @@ def _render_clickable_selector(
     widget_key,
     options,
     option_from_click,
+    show_toast=True,
 ):
     with st.container(key=container_key):
         click = streamlit_image_coordinates(
@@ -195,7 +196,8 @@ def _render_clickable_selector(
     # Il riquadro volutamente vuoto della tavola peribuccale restituisce None.
     if widget_key and selected in options:
         st.session_state[widget_key] = selected
-        st.toast(f"✓ {selected}")
+        if show_toast:
+            st.toast(f"✓ {selected}")
 
 
 def install_sopraciliare_click_selector():
@@ -233,6 +235,7 @@ def install_sopraciliare_click_selector():
                 widget_key=widget_key,
                 options=options,
                 option_from_click=_supra_option_from_click,
+                show_toast=False,
             )
 
         elif label == _PERIORAL_LABEL:
