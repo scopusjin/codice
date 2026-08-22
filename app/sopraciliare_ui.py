@@ -278,7 +278,7 @@ def _render_supra_tile_grid(*, widget_key, options):
         for row in range(3):
             with st.container(
                 horizontal=True,
-                horizontal_alignment="distribute",
+                horizontal_alignment="left",
                 gap=2,
                 key=f"eccitabilita_sopraciliare_row_{row}",
             ):
@@ -291,12 +291,12 @@ def _render_supra_tile_grid(*, widget_key, options):
                     last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
 
                     with st.container(
-                        width=90,
+                        width="stretch",
                         key=f"eccitabilita_sopraciliare_tile_{index}",
                     ):
                         click = streamlit_image_coordinates(
                             displayed_tile,
-                            width=86,
+                            use_column_width="always",
                             cursor="pointer",
                             key=component_key,
                         )
