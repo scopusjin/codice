@@ -60,6 +60,20 @@ _SUPRA_GRID_OPTIONS = (
     "Nessuna reazione", "Non valutabile/non attendibile",
 )
 
+# Testo mostrato nel selectbox sopraciliare. I valori interni restano invariati
+# per non alterare range, descrizioni, calcoli e compatibilità con il codice esistente.
+_SUPRA_DISPLAY_LABELS = {
+    "Non valutata": "Non valutata",
+    "Fase VI": "Fronte + orbita + guancia | 1–6 h",
+    "Fase V": "Fronte + orbita | 2–7 h",
+    "Fase IV": "Orbicolari sup. + inf. | 3–8 h",
+    "Fase III": "Palpebra sup. intera | 3 ½–13 h",
+    "Fase II": "< 2/3 palpebra sup. | 5–16 h",
+    "Fase I": "< 1/3 palpebra sup. | 5–22 h",
+    "Nessuna reazione": "Nessuna reazione | > 5 h",
+    "Non valutabile/non attendibile": "Non valutabile / non attendibile",
+}
+
 # Ordine visivo della tavola peribuccale 3 colonne x 2 righe:
 # +++ / ++ / + / Nessuna reazione / Non valutabile / vuoto.
 _PERIORAL_GRID_OPTIONS = (
@@ -237,6 +251,7 @@ def install_sopraciliare_click_selector():
                 option_from_click=_supra_option_from_click,
                 show_toast=False,
             )
+            kwargs["format_func"] = lambda value: _SUPRA_DISPLAY_LABELS.get(value, value)
 
         elif label == _PERIORAL_LABEL:
             _render_clickable_selector(
