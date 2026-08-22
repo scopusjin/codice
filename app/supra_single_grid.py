@@ -10,8 +10,8 @@ import importlib
 
 import streamlit as st
 from PIL import Image
-from streamlit_image_coordinates import streamlit_image_coordinates
 
+from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
@@ -204,7 +204,6 @@ def _install_label_css():
             background: transparent !important;
         }
 
-        /* Stato selezionato: riempimento pieno, molto più evidente. */
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[kind="segmented_controlActive"],
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"],
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-checked="true"],
@@ -246,8 +245,6 @@ def _render_segmented_labels(ui, *, row, selected, widget_key, options, language
     segment_key = _segment_key(row)
     desired = selected if selected in row_options else None
 
-    # Il callback del controllo aggiorna prima la selezione globale; al rerun
-    # possiamo quindi riallineare in sicurezza i tre controlli alla stessa scelta.
     if st.session_state.get(segment_key) != desired:
         st.session_state[segment_key] = desired
 
@@ -265,7 +262,6 @@ def _render_segmented_labels(ui, *, row, selected, widget_key, options, language
 
 
 def _make_renderer(ui):
-    # Le immagini delle tre righe sono statiche: non vengono ricostruite al clic.
     row_images = tuple(_compose_row(ui, row) for row in range(3))
 
     def _render_supra_grid(*, widget_key, options):
@@ -293,9 +289,8 @@ def _make_renderer(ui):
 
         with st.container(key="eccitabilita_sopraciliare_grid"):
             for row, row_image in enumerate(row_images):
-                click = streamlit_image_coordinates(
+                click = responsive_image_coordinates(
                     row_image,
-                    use_column_width="always",
                     cursor="pointer",
                     key=_component_key(row),
                 )
@@ -315,8 +310,6 @@ def _make_renderer(ui):
                         selected=selected,
                     )
                     if selected != previous:
-                        # Il clic del componente è stato acquisito e marcato:
-                        # il rerun serve soltanto a riallineare tutte le etichette.
                         st.rerun()
 
                 _render_segmented_labels(
