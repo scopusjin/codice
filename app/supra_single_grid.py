@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """Renderer responsive per l'eccitabilità elettrica sopraciliare.
 
-Ogni riga è un solo componente cliccabile contenente tre immagini senza testo.
-Le etichette sono HTML separato e localizzabile; le immagini restano identiche
-al cambio di selezione, evitando di rigenerare la tavola al clic.
+Ogni riga usa un solo componente cliccabile contenente tre immagini senza testo.
+Le etichette sottostanti sono pulsanti nativi localizzabili: anche il clic sul
+testo seleziona l'opzione, mentre le immagini restano statiche al cambio di stato.
 """
 
-import html
 import importlib
 
 import streamlit as st
@@ -16,11 +15,25 @@ from streamlit_image_coordinates import streamlit_image_coordinates
 from app.i18n import normalize_language, special_option_label
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
+    SUPRA_PHASE_I,
+    SUPRA_PHASE_II,
+    SUPRA_PHASE_III,
+    SUPRA_PHASE_IV,
+    SUPRA_PHASE_V,
+    SUPRA_PHASE_VI,
     special_option_id,
 )
 
 
 _IMAGE_ONLY_FRACTION = 0.76
+_PHASE_IDS = {
+    SUPRA_PHASE_I,
+    SUPRA_PHASE_II,
+    SUPRA_PHASE_III,
+    SUPRA_PHASE_IV,
+    SUPRA_PHASE_V,
+    SUPRA_PHASE_VI,
+}
 
 
 def _image_only_tile(ui, option):
@@ -129,96 +142,104 @@ def _detail_for_option(option_id, language=None):
     return locale.SUPRA_GRID_DETAIL_BY_ID[option_id]
 
 
-def _label_row_html(ui, *, row, selected, language=None):
-    cards = []
-
-    for col in range(3):
-        option = ui._SUPRA_TILE_OPTIONS[row * 3 + col]
-        option_id = special_option_id(PARAM_ELECTRICAL_SUPRACILIARY, option)
-        title = special_option_label(
-            PARAM_ELECTRICAL_SUPRACILIARY,
-            option_id,
-            language=language,
-        )
-        detail, interval = _detail_for_option(option_id, language=language)
-
-        body_parts = []
-        if detail:
-            body_parts.append(
-                f'<div class="supra-grid-detail">{html.escape(detail)}</div>'
-            )
-        if interval:
-            body_parts.append(
-                f'<div class="supra-grid-interval">{html.escape(interval)}</div>'
-            )
-
-        selected_class = " supra-grid-label-selected" if option == selected else ""
-        cards.append(
-            f'<div class="supra-grid-label{selected_class}">'
-            f'<div class="supra-grid-title">{html.escape(title)}</div>'
-            f'{"".join(body_parts)}'
-            f'</div>'
-        )
-
-    return (
-        '<div class="supra-grid-label-row">'
-        + "".join(cards)
-        + '</div>'
+def _label_for_option(option, language=None):
+    """Testo compatto del pulsante; per le fasi omette volutamente 'Fase I–VI'."""
+    option_id = special_option_id(PARAM_ELECTRICAL_SUPRACILIARY, option)
+    title = special_option_label(
+        PARAM_ELECTRICAL_SUPRACILIARY,
+        option_id,
+        language=language,
     )
+    detail, interval = _detail_for_option(option_id, language=language)
+
+    if option_id in _PHASE_IDS:
+        parts = [detail, interval]
+    else:
+        parts = [title, detail, interval]
+
+    return " · ".join(part for part in parts if part)
+
+
+def _set_label_selection(ui, widget_key, option):
+    """Callback eseguita prima del rerun quando viene premuta una didascalia."""
+    st.session_state[ui._SUPRA_SELECTION_KEY] = option
+    if widget_key:
+        st.session_state[widget_key] = option
 
 
 def _install_label_css():
     st.markdown(
         """
         <style>
-        .supra-grid-label-row {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 2px;
-            width: 100%;
-            margin-top: -0.35rem;
-            margin-bottom: 0.22rem;
+        [class*="st-key-eccitabilita_sopraciliare_label_row_"] {
+            width: 100% !important;
+            margin-top: -0.42rem !important;
+            margin-bottom: 0.20rem !important;
         }
 
-        .supra-grid-label {
-            box-sizing: border-box;
-            min-width: 0;
-            padding: 3px 2px 4px;
-            border: 2px solid transparent;
-            border-radius: 6px;
-            text-align: center;
-            line-height: 1.08;
+        [class*="st-key-eccitabilita_sopraciliare_label_row_"] div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 2px !important;
+            width: 100% !important;
         }
 
-        .supra-grid-label-selected {
-            border-color: #00A699;
-            background: rgba(0, 166, 153, 0.10);
+        [class*="st-key-eccitabilita_sopraciliare_label_row_"] div[data-testid="stHorizontalBlock"] > div {
+            flex: 1 1 0 !important;
+            width: 0 !important;
+            min-width: 0 !important;
         }
 
-        .supra-grid-title {
-            font-weight: 700;
-            font-size: clamp(0.66rem, 2.6vw, 0.82rem);
-            overflow-wrap: anywhere;
+        [class*="st-key-eccitabilita_sopraciliare_label_button_"] {
+            width: 100% !important;
+            min-width: 0 !important;
         }
 
-        .supra-grid-detail,
-        .supra-grid-interval {
-            font-size: clamp(0.57rem, 2.15vw, 0.72rem);
-            overflow-wrap: anywhere;
+        [class*="st-key-eccitabilita_sopraciliare_label_button_"] button {
+            width: 100% !important;
+            min-width: 0 !important;
+            min-height: 2.65rem !important;
+            padding: 3px 3px !important;
+            border-radius: 6px !important;
         }
 
-        .supra-grid-detail {
-            margin-top: 2px;
-        }
-
-        .supra-grid-interval {
-            margin-top: 2px;
-            font-weight: 600;
+        [class*="st-key-eccitabilita_sopraciliare_label_button_"] button p {
+            margin: 0 !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            text-align: center !important;
+            line-height: 1.08 !important;
+            font-size: clamp(0.58rem, 2.2vw, 0.74rem) !important;
+            font-weight: 600 !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
+
+
+def _render_label_buttons(ui, *, row, selected, widget_key, options, language=None):
+    with st.container(
+        horizontal=True,
+        horizontal_alignment="left",
+        gap=2,
+        key=f"eccitabilita_sopraciliare_label_row_{row}",
+    ):
+        for col in range(3):
+            index = row * 3 + col
+            option = ui._SUPRA_TILE_OPTIONS[index]
+            if option not in options:
+                continue
+
+            st.button(
+                _label_for_option(option, language=language),
+                key=f"eccitabilita_sopraciliare_label_button_{index}",
+                type="primary" if option == selected else "secondary",
+                width="stretch",
+                on_click=_set_label_selection,
+                args=(ui, widget_key, option),
+            )
 
 
 def _make_renderer(ui):
@@ -247,8 +268,6 @@ def _make_renderer(ui):
             st.session_state[widget_key] = selected
 
         _install_label_css()
-        label_slots = []
-        fallback_candidates = []
 
         with st.container(key="eccitabilita_sopraciliare_grid"):
             for row, row_image in enumerate(row_images):
@@ -258,7 +277,6 @@ def _make_renderer(ui):
                     cursor="pointer",
                     key=_component_key(row),
                 )
-                label_slots.append(st.empty())
 
                 candidate = _click_candidate(
                     ui,
@@ -267,20 +285,20 @@ def _make_renderer(ui):
                     options=options,
                 )
                 if candidate is not None:
-                    fallback_candidates.append(candidate)
+                    selected = _apply_newest_click(
+                        ui,
+                        candidates=[candidate],
+                        widget_key=widget_key,
+                        selected=selected,
+                    )
 
-        selected = _apply_newest_click(
-            ui,
-            candidates=fallback_candidates,
-            widget_key=widget_key,
-            selected=selected,
-        )
-
-        for row, slot in enumerate(label_slots):
-            slot.markdown(
-                _label_row_html(ui, row=row, selected=selected),
-                unsafe_allow_html=True,
-            )
+                _render_label_buttons(
+                    ui,
+                    row=row,
+                    selected=selected,
+                    widget_key=widget_key,
+                    options=options,
+                )
 
         return selected if selected in options else options[0]
 
