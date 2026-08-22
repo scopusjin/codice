@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from streamlit_image_coordinates import streamlit_image_coordinates
 
 from app.special_tanatology_states import (
@@ -70,20 +70,6 @@ _SUPRA_SOURCE_POSITIONS = {
     "Non valutabile/non attendibile": (3, 1),
 }
 
-# Testo mostrato nel selectbox sopraciliare. I valori interni restano invariati
-# per non alterare range, descrizioni, calcoli e compatibilità con il codice esistente.
-_SUPRA_DISPLAY_LABELS = {
-    "Non valutata": "Non valutata",
-    "Fase VI": "Contrazione dei muscoli della fronte, delle palpebre e della guancia | 1–6 h",
-    "Fase V": "Contrazione dei muscoli della fronte e delle palpebre | 2–7 h",
-    "Fase IV": "Contrazione dei muscoli delle palpebre | 3–8 h",
-    "Fase III": "Contrazione dell’intera palpebra superiore | 3 ½–13 h",
-    "Fase II": "Contrazione di meno di 2/3 della palpebra superiore | 5–16 h",
-    "Fase I": "Contrazione di meno di 1/3 della palpebra superiore | 5–22 h",
-    "Nessuna reazione": "Nessuna reazione | > 5 h",
-    "Non valutabile/non attendibile": "Non valutabile / non attendibile",
-}
-
 # Ordine visivo della tavola peribuccale 3 colonne x 2 righe:
 # +++ / ++ / + / Nessuna reazione / Non valutabile / vuoto.
 _PERIORAL_GRID_OPTIONS = (
@@ -96,8 +82,26 @@ _PERIORAL_GRID_OPTIONS = (
 )
 
 
+def _scaled_default_text(text, target_width):
+    """Crea una piccola etichetta raster senza dipendere da font esterni."""
+    font = ImageFont.load_default()
+    probe = Image.new("L", (1, 1), 0)
+    probe_draw = ImageDraw.Draw(probe)
+    bbox = probe_draw.textbbox((0, 0), text, font=font)
+    text_width = max(1, bbox[2] - bbox[0])
+    text_height = max(1, bbox[3] - bbox[1])
+
+    label = Image.new("L", (text_width + 4, text_height + 4), 255)
+    label_draw = ImageDraw.Draw(label)
+    label_draw.text((2 - bbox[0], 2 - bbox[1]), text, fill=45, font=font)
+
+    scale = min(4.0, max(1.0, target_width / label.width))
+    new_size = (round(label.width * scale), round(label.height * scale))
+    return label.resize(new_size, Image.Resampling.LANCZOS)
+
+
 def _build_supra_tiles(image):
-    """Ricava otto figure senza didascalia e crea la nona cella 'Non valutata'."""
+    """Ricava gli otto riquadri completi di didascalia e crea 'Non valutata'."""
     width, height = image.size
     cell_width = width / 2
     cell_height = height / 4
@@ -107,19 +111,16 @@ def _build_supra_tiles(image):
         x0 = round(col * cell_width) + 3
         x1 = round((col + 1) * cell_width) - 3
         y0 = round(row * cell_height) + 3
-
-        # Nella tavola originale la didascalia occupa la fascia inferiore.
-        # La escludiamo mantenendo la parte grafica del riquadro.
-        y1 = round(row * cell_height + cell_height * 0.76)
+        y1 = round((row + 1) * cell_height) - 3
         tiles[option] = image.crop((x0, y0, x1, y1)).convert("RGB")
 
-    # Nona cella: simbolo neutro, senza testo, per "Non valutata".
+    # Nona cella grafica neutra, con didascalia integrata.
     sample = next(iter(tiles.values()))
     neutral = Image.new("RGB", sample.size, (255, 255, 255))
     draw = ImageDraw.Draw(neutral)
     w, h = neutral.size
-    radius = min(w, h) * 0.27
-    cx, cy = w / 2, h / 2
+    radius = min(w, h) * 0.20
+    cx, cy = w / 2, h * 0.40
     box = (cx - radius, cy - radius, cx + radius, cy + radius)
     stroke = max(2, round(min(w, h) * 0.018))
     neutral_gray = (170, 170, 170)
@@ -130,6 +131,12 @@ def _build_supra_tiles(image):
         fill=neutral_gray,
         width=stroke,
     )
+
+    label = _scaled_default_text("Non valutata", round(w * 0.72))
+    label_x = round((w - label.width) / 2)
+    label_y = round(h * 0.78 - label.height / 2)
+    neutral.paste(Image.merge("RGB", (label, label, label)), (label_x, label_y))
+
     tiles["Non valutata"] = neutral
     return tiles
 
@@ -191,7 +198,14 @@ def _install_responsive_image_css():
 
 
 def _render_supra_tile_grid(*, widget_key, options):
-    """Mostra nove componenti indipendenti in una griglia 3 x 3."""
+    """Mostra nove componenti indipendenti e restituisce l'opzione selezionata."""
+    if not options:
+        return None
+
+    # Mantiene lo stesso default che avrebbe avuto il selectbox originale.
+    if widget_key and st.session_state.get(widget_key) not in options:
+        st.session_state[widget_key] = options[0]
+
     clicked_option = None
 
     with st.container(key="eccitabilita_sopraciliare_grid"):
@@ -230,7 +244,7 @@ def _render_supra_tile_grid(*, widget_key, options):
     if widget_key and clicked_option is not None:
         st.session_state[widget_key] = clicked_option
 
-    selected = st.session_state.get(widget_key) if widget_key else None
+    selected = st.session_state.get(widget_key) if widget_key else clicked_option
     if selected in _SUPRA_TILE_OPTIONS:
         selected_index = _SUPRA_TILE_OPTIONS.index(selected)
         st.markdown(
@@ -243,6 +257,8 @@ def _render_supra_tile_grid(*, widget_key, options):
             """,
             unsafe_allow_html=True,
         )
+
+    return selected if selected in options else options[0]
 
 
 def _perioral_option_from_click(click):
@@ -376,13 +392,13 @@ def install_sopraciliare_click_selector():
         widget_key = kwargs.get("key")
 
         if label == _SUPRA_LABEL:
-            _render_supra_tile_grid(
+            # La griglia 3x3 è il controllo: nessun selectbox aggiuntivo.
+            return _render_supra_tile_grid(
                 widget_key=widget_key,
-                options=options,
+                options=list(options),
             )
-            kwargs["format_func"] = lambda value: _SUPRA_DISPLAY_LABELS.get(value, value)
 
-        elif label == _PERIORAL_LABEL:
+        if label == _PERIORAL_LABEL:
             _render_clickable_selector(
                 image=_PERIORAL_IMAGE,
                 container_key="eccitabilita_peribuccale_image",
