@@ -217,7 +217,7 @@ def _install_label_css():
         <style>
         [class*="st-key-eccitabilita_peribuccale_segment_"] {
             width: 100% !important;
-            margin-top: -0.42rem !important;
+            margin-top: -0.85rem !important;
             margin-bottom: 0.20rem !important;
         }
 
