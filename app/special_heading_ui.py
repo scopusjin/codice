@@ -23,7 +23,7 @@ _SPECIAL_PARAM_IDS = {
 
 
 def install_special_heading_style():
-    """Rende più evidenti i titoli senza modificare le stringhe localizzate."""
+    """Rende più evidenti e ravvicinati i titoli senza modificare le stringhe localizzate."""
     if getattr(st, "_special_heading_style_installed", False):
         return
 
@@ -42,8 +42,9 @@ def install_special_heading_style():
         ):
             body = (
                 "<div style='font-size:0.94rem; font-weight:800; "
-                "letter-spacing:0.025em; padding-top:0.35rem; "
-                "padding-bottom:0.12rem;'>"
+                "letter-spacing:0.025em; line-height:1.05; "
+                "padding-top:0.10rem; padding-bottom:0; "
+                "margin-top:0; margin-bottom:-0.65rem;'>"
                 f"{html.escape(nome_parametro.upper())}:"
                 "</div>"
             )
