@@ -10,7 +10,7 @@ from streamlit_image_coordinates import streamlit_image_coordinates
 
 
 _LABEL = "Eccitabilità elettrica sopraciliare"
-_IMAGE_PATH = "immagini/eccitabilita_sopraciliare_8_fasi.png"
+_IMAGE_PATH = "immagini/eccitabilità.PNG"
 _GRID_OPTIONS = (
     "Fase VI", "Fase V", "Fase IV", "Fase III",
     "Fase II", "Fase I", "Nessuna reazione", "Non valutabile/non attendibile",
@@ -57,7 +57,6 @@ def install_sopraciliare_click_selector():
             )
 
             if click:
-                # Il componente conserva l'ultimo clic ai rerun: ogni evento viene elaborato una sola volta.
                 click_id = click.get("unix_time")
                 if click_id is None:
                     click_id = (click.get("x"), click.get("y"))
