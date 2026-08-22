@@ -64,12 +64,12 @@ _SUPRA_GRID_OPTIONS = (
 # per non alterare range, descrizioni, calcoli e compatibilità con il codice esistente.
 _SUPRA_DISPLAY_LABELS = {
     "Non valutata": "Non valutata",
-    "Fase VI": "Fronte + orbita + guancia | 1–6 h",
-    "Fase V": "Fronte + orbita | 2–7 h",
-    "Fase IV": "Orbicolari sup. + inf. | 3–8 h",
-    "Fase III": "Palpebra sup. intera | 3 ½–13 h",
-    "Fase II": "< 2/3 palpebra sup. | 5–16 h",
-    "Fase I": "< 1/3 palpebra sup. | 5–22 h",
+    "Fase VI": "Contrazione dei muscoli della fronte, delle palpebre e della guancia | 1–6 h",
+    "Fase V": "Contrazione dei muscoli della fronte e delle palpebre | 2–7 h",
+    "Fase IV": "Contrazione dei muscoli delle palpebre | 3–8 h",
+    "Fase III": "Contrazione dell’intera palpebra superiore | 3 ½–13 h",
+    "Fase II": "Contrazione di meno di 2/3 della palpebra superiore | 5–16 h",
+    "Fase I": "Contrazione di meno di 1/3 della palpebra superiore | 5–22 h",
     "Nessuna reazione": "Nessuna reazione | > 5 h",
     "Non valutabile/non attendibile": "Non valutabile / non attendibile",
 }
@@ -119,7 +119,7 @@ def _install_responsive_image_css():
 
         @media (min-width: 769px) {
             .st-key-eccitabilita_sopraciliare_image {
-                max-width: 500px;
+                max-width: 450px;
             }
 
             .st-key-eccitabilita_peribuccale_image {
