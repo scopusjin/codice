@@ -23,6 +23,7 @@ from app.special_tanatology_states import (
 _SUPRA_LABEL = "Eccitabilità elettrica sopraciliare"
 _PERIORAL_LABEL = "Eccitabilità elettrica peribuccale"
 _DATA_DIR = Path(__file__).resolve().parent
+_SUPRA_SELECTION_KEY = "_eccitabilita_sopraciliare_selected"
 
 
 def _load_embedded_image(filenames):
@@ -173,12 +174,28 @@ def _install_responsive_image_css():
             border: 2px solid transparent;
             border-radius: 7px;
             padding: 2px;
+            transition: border-color 0.12s ease, background-color 0.12s ease;
         }
 
         @media (max-width: 768px) {
             .st-key-eccitabilita_sopraciliare_grid,
             .st-key-eccitabilita_peribuccale_image {
                 max-width: 100%;
+            }
+
+            /* Le tre celle di ogni riga restano affiancate anche su telefono. */
+            .st-key-eccitabilita_sopraciliare_grid [data-testid="stHorizontalBlock"] {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                gap: 0.25rem !important;
+                align-items: stretch !important;
+            }
+
+            .st-key-eccitabilita_sopraciliare_grid [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+                flex: 1 1 0 !important;
+                width: 0 !important;
+                min-width: 0 !important;
             }
         }
 
@@ -202,9 +219,16 @@ def _render_supra_tile_grid(*, widget_key, options):
     if not options:
         return None
 
-    # Mantiene lo stesso default che avrebbe avuto il selectbox originale.
-    if widget_key and st.session_state.get(widget_key) not in options:
-        st.session_state[widget_key] = options[0]
+    # Stato dedicato alla griglia: non dipende più dall'esistenza del selectbox.
+    selected = st.session_state.get(_SUPRA_SELECTION_KEY)
+    if selected not in options and widget_key:
+        selected = st.session_state.get(widget_key)
+    if selected not in options:
+        selected = options[0]
+
+    st.session_state[_SUPRA_SELECTION_KEY] = selected
+    if widget_key:
+        st.session_state[widget_key] = selected
 
     clicked_option = None
 
@@ -241,17 +265,22 @@ def _render_supra_tile_grid(*, widget_key, options):
                 if option in options:
                     clicked_option = option
 
-    if widget_key and clicked_option is not None:
-        st.session_state[widget_key] = clicked_option
+    if clicked_option is not None:
+        selected = clicked_option
+        st.session_state[_SUPRA_SELECTION_KEY] = selected
+        if widget_key:
+            st.session_state[widget_key] = selected
 
-    selected = st.session_state.get(widget_key) if widget_key else clicked_option
     if selected in _SUPRA_TILE_OPTIONS:
         selected_index = _SUPRA_TILE_OPTIONS.index(selected)
         st.markdown(
             f"""
             <style>
+            .st-key-eccitabilita_sopraciliare_grid
             .st-key-eccitabilita_sopraciliare_tile_{selected_index} {{
                 border-color: #00A699 !important;
+                background-color: rgba(0, 166, 153, 0.10) !important;
+                box-shadow: 0 0 0 1px #00A699 !important;
             }}
             </style>
             """,
