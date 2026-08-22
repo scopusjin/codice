@@ -30,9 +30,21 @@ def install_special_heading_style():
     original_markdown = st.markdown
 
     def markdown_with_special_heading(body, *args, **kwargs):
-        caller = inspect.currentframe().f_back
-        parametro_id = caller.f_locals.get("parametro_id") if caller else None
-        nome_parametro = caller.f_locals.get("nome_parametro") if caller else None
+        # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
+        # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
+        frame = inspect.currentframe().f_back
+        parametro_id = None
+        nome_parametro = None
+        for _ in range(5):
+            if frame is None:
+                break
+            if parametro_id is None:
+                parametro_id = frame.f_locals.get("parametro_id")
+            if nome_parametro is None:
+                nome_parametro = frame.f_locals.get("nome_parametro")
+            if parametro_id is not None and nome_parametro is not None:
+                break
+            frame = frame.f_back
 
         if (
             parametro_id in _SPECIAL_PARAM_IDS
