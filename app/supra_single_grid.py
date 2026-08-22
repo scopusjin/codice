@@ -2,8 +2,8 @@
 """Renderer responsive per l'eccitabilità elettrica sopraciliare.
 
 Ogni riga usa un solo componente cliccabile contenente tre immagini senza testo.
-Le etichette sottostanti sono pulsanti nativi localizzabili: anche il clic sul
-testo seleziona l'opzione, mentre le immagini restano statiche al cambio di stato.
+Sotto ogni riga un unico controllo segmentato contiene le tre etichette
+localizzabili, evitando l'impilamento dei singoli pulsanti su mobile.
 """
 
 import importlib
@@ -86,6 +86,10 @@ def _last_click_key(row):
     return f"_eccitabilita_sopraciliare_row_last_click_{row}"
 
 
+def _segment_key(row):
+    return f"eccitabilita_sopraciliare_segment_{row}"
+
+
 def _click_candidate(ui, *, row, click, options):
     """Restituisce un nuovo clic valido e lo marca come acquisito."""
     click_id = ui._click_identity(click)
@@ -143,7 +147,7 @@ def _detail_for_option(option_id, language=None):
 
 
 def _label_for_option(option, language=None):
-    """Testo compatto del pulsante; per le fasi omette volutamente 'Fase I–VI'."""
+    """Testo compatto; per le fasi omette volutamente 'Fase I–VI'."""
     option_id = special_option_id(PARAM_ELECTRICAL_SUPRACILIARY, option)
     title = special_option_label(
         PARAM_ELECTRICAL_SUPRACILIARY,
@@ -160,8 +164,11 @@ def _label_for_option(option, language=None):
     return " · ".join(part for part in parts if part)
 
 
-def _set_label_selection(ui, widget_key, option):
-    """Callback eseguita prima del rerun quando viene premuta una didascalia."""
+def _on_segment_change(ui, widget_key, segment_key):
+    """Sincronizza la selezione globale prima del rerun del controllo segmentato."""
+    option = st.session_state.get(segment_key)
+    if option is None:
+        return
     st.session_state[ui._SUPRA_SELECTION_KEY] = option
     if widget_key:
         st.session_state[widget_key] = option
@@ -171,46 +178,43 @@ def _install_label_css():
     st.markdown(
         """
         <style>
-        [class*="st-key-eccitabilita_sopraciliare_label_row_"] {
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] {
             width: 100% !important;
             margin-top: -0.42rem !important;
             margin-bottom: 0.20rem !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_label_row_"] div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] div[role="group"],
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] div[role="radiogroup"] {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            width: 100% !important;
             gap: 2px !important;
-            width: 100% !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_label_row_"] div[data-testid="stHorizontalBlock"] > div {
-            flex: 1 1 0 !important;
-            width: 0 !important;
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button {
             min-width: 0 !important;
-        }
-
-        [class*="st-key-eccitabilita_sopraciliare_label_button_"] {
             width: 100% !important;
-            min-width: 0 !important;
-        }
-
-        [class*="st-key-eccitabilita_sopraciliare_label_button_"] button {
-            width: 100% !important;
-            min-width: 0 !important;
-            min-height: 2.65rem !important;
+            min-height: 2.45rem !important;
             padding: 3px 3px !important;
-            border-radius: 6px !important;
+            white-space: normal !important;
+            border-color: rgba(128, 128, 128, 0.35) !important;
+            background: transparent !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_label_button_"] button p {
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"] {
+            border-color: #00A699 !important;
+            background: rgba(0, 166, 153, 0.10) !important;
+            box-shadow: inset 0 0 0 1px #00A699 !important;
+        }
+
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button p {
             margin: 0 !important;
             white-space: normal !important;
             overflow-wrap: anywhere !important;
             text-align: center !important;
             line-height: 1.08 !important;
-            font-size: clamp(0.58rem, 2.2vw, 0.74rem) !important;
+            font-size: clamp(0.57rem, 2.15vw, 0.72rem) !important;
             font-weight: 600 !important;
         }
         </style>
@@ -219,27 +223,31 @@ def _install_label_css():
     )
 
 
-def _render_label_buttons(ui, *, row, selected, widget_key, options, language=None):
-    with st.container(
-        horizontal=True,
-        horizontal_alignment="left",
-        gap=2,
-        key=f"eccitabilita_sopraciliare_label_row_{row}",
-    ):
-        for col in range(3):
-            index = row * 3 + col
-            option = ui._SUPRA_TILE_OPTIONS[index]
-            if option not in options:
-                continue
+def _render_segmented_labels(ui, *, row, selected, widget_key, options, language=None):
+    row_options = [
+        option
+        for option in ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
+        if option in options
+    ]
+    segment_key = _segment_key(row)
+    desired = selected if selected in row_options else None
 
-            st.button(
-                _label_for_option(option, language=language),
-                key=f"eccitabilita_sopraciliare_label_button_{index}",
-                type="primary" if option == selected else "secondary",
-                width="stretch",
-                on_click=_set_label_selection,
-                args=(ui, widget_key, option),
-            )
+    # Il callback del controllo aggiorna prima la selezione globale; al rerun
+    # possiamo quindi riallineare in sicurezza i tre controlli alla stessa scelta.
+    if st.session_state.get(segment_key) != desired:
+        st.session_state[segment_key] = desired
+
+    return st.segmented_control(
+        "Selezione",
+        options=row_options,
+        key=segment_key,
+        format_func=lambda option: _label_for_option(option, language=language),
+        selection_mode="single",
+        label_visibility="collapsed",
+        width="stretch",
+        on_change=_on_segment_change,
+        args=(ui, widget_key, segment_key),
+    )
 
 
 def _make_renderer(ui):
@@ -285,14 +293,19 @@ def _make_renderer(ui):
                     options=options,
                 )
                 if candidate is not None:
+                    previous = selected
                     selected = _apply_newest_click(
                         ui,
                         candidates=[candidate],
                         widget_key=widget_key,
                         selected=selected,
                     )
+                    if selected != previous:
+                        # Il clic del componente è stato acquisito e marcato:
+                        # il rerun serve soltanto a riallineare tutte le etichette.
+                        st.rerun()
 
-                _render_label_buttons(
+                _render_segmented_labels(
                     ui,
                     row=row,
                     selected=selected,
