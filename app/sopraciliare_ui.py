@@ -145,6 +145,23 @@ def _build_supra_tiles(image):
 _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
+def _highlight_supra_tile(image):
+    """Disegna il feedback persistente direttamente dentro la cella selezionata."""
+    highlighted = image.copy()
+    draw = ImageDraw.Draw(highlighted)
+    width, height = highlighted.size
+    stroke = max(3, round(min(width, height) * 0.025))
+    inset = stroke
+    radius = max(5, round(min(width, height) * 0.035))
+    draw.rounded_rectangle(
+        (inset, inset, width - inset - 1, height - inset - 1),
+        radius=radius,
+        outline=(0, 166, 153),
+        width=stroke,
+    )
+    return highlighted
+
+
 class _SuppressedElectricalPopover:
     """Contesto vuoto usato per eliminare i vecchi popover delle immagini."""
 
@@ -171,31 +188,23 @@ def _install_responsive_image_css():
 
         [class*="st-key-eccitabilita_sopraciliare_tile_"] {
             box-sizing: border-box;
-            border: 2px solid transparent;
-            border-radius: 7px;
-            padding: 2px;
-            transition: border-color 0.12s ease, background-color 0.12s ease;
             min-width: 0 !important;
+            width: 100% !important;
         }
 
         /*
-         * Streamlit tende a trasformare st.columns in colonne verticali sui
-         * viewport stretti. Per questa sola griglia imponiamo sempre tre celle
-         * per riga usando CSS Grid sul blocco orizzontale generato da st.columns.
+         * La griglia sopraciliare non usa più st.columns: i nove contenitori
+         * sono figli diretti del blocco verticale e vengono disposti qui in
+         * una vera griglia 3 x 3, anche sui viewport stretti.
          */
-        .st-key-eccitabilita_sopraciliare_grid div[data-testid="stHorizontalBlock"] {
+        .st-key-eccitabilita_sopraciliare_grid > div[data-testid="stVerticalBlock"],
+        .st-key-eccitabilita_sopraciliare_grid > div[data-testid="stVerticalBlockBorderWrapper"] > div[data-testid="stVerticalBlock"],
+        .st-key-eccitabilita_sopraciliare_grid > div > div[data-testid="stVerticalBlock"] {
             display: grid !important;
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
             gap: 0.25rem !important;
-            align-items: stretch !important;
+            align-items: start !important;
             width: 100% !important;
-        }
-
-        .st-key-eccitabilita_sopraciliare_grid div[data-testid="stHorizontalBlock"] > div {
-            width: 100% !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            flex: none !important;
         }
 
         @media (max-width: 768px) {
@@ -220,79 +229,101 @@ def _install_responsive_image_css():
     )
 
 
+def _click_identity(click):
+    if not isinstance(click, dict):
+        return None
+    click_id = click.get("unix_time")
+    if click_id is not None:
+        return click_id
+    if "x" in click and "y" in click:
+        return (click.get("x"), click.get("y"))
+    return None
+
+
+def _sync_supra_selection_from_component_state(*, options, widget_key, selected):
+    """Legge l'ultimo clic già presente nello stato prima di disegnare la griglia."""
+    newest = None
+
+    for index, option in enumerate(_SUPRA_TILE_OPTIONS):
+        if option not in options:
+            continue
+
+        component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
+        last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
+        click = st.session_state.get(component_key)
+        click_id = _click_identity(click)
+        if click_id is None or click_id == st.session_state.get(last_click_key):
+            continue
+
+        order_value = click.get("unix_time") if isinstance(click, dict) else None
+        if order_value is None:
+            order_value = index
+
+        if newest is None or order_value >= newest[0]:
+            newest = (order_value, option, last_click_key, click_id)
+
+    if newest is not None:
+        _, selected, last_click_key, click_id = newest
+        st.session_state[last_click_key] = click_id
+        st.session_state[_SUPRA_SELECTION_KEY] = selected
+        if widget_key:
+            st.session_state[widget_key] = selected
+
+    return selected
+
+
 def _render_supra_tile_grid(*, widget_key, options):
-    """Mostra nove componenti indipendenti e restituisce l'opzione selezionata."""
+    """Mostra nove componenti indipendenti in una griglia 3 x 3."""
     if not options:
         return None
 
-    # Stato dedicato alla griglia: non dipende più dall'esistenza del selectbox.
     selected = st.session_state.get(_SUPRA_SELECTION_KEY)
     if selected not in options and widget_key:
         selected = st.session_state.get(widget_key)
     if selected not in options:
         selected = options[0]
 
+    selected = _sync_supra_selection_from_component_state(
+        options=options,
+        widget_key=widget_key,
+        selected=selected,
+    )
+
     st.session_state[_SUPRA_SELECTION_KEY] = selected
     if widget_key:
         st.session_state[widget_key] = selected
 
-    clicked_option = None
+    fallback_new_click = None
 
     with st.container(key="eccitabilita_sopraciliare_grid"):
-        for row in range(3):
-            columns = st.columns(3, gap="small")
-            for col in range(3):
-                index = row * 3 + col
-                option = _SUPRA_TILE_OPTIONS[index]
-                tile = _SUPRA_TILES[option]
-                component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
-                last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
+        for index, option in enumerate(_SUPRA_TILE_OPTIONS):
+            tile = _SUPRA_TILES[option]
+            displayed_tile = _highlight_supra_tile(tile) if option == selected else tile
+            component_key = f"eccitabilita_sopraciliare_tile_click_{index}"
+            last_click_key = f"_eccitabilita_sopraciliare_tile_last_click_{index}"
 
-                with columns[col]:
-                    with st.container(key=f"eccitabilita_sopraciliare_tile_{index}"):
-                        click = streamlit_image_coordinates(
-                            tile,
-                            use_column_width="always",
-                            cursor="pointer",
-                            key=component_key,
-                        )
+            with st.container(key=f"eccitabilita_sopraciliare_tile_{index}"):
+                click = streamlit_image_coordinates(
+                    displayed_tile,
+                    use_column_width="always",
+                    cursor="pointer",
+                    key=component_key,
+                )
 
-                if not click:
-                    continue
-
-                click_id = click.get("unix_time")
-                if click_id is None:
-                    click_id = (click.get("x"), click.get("y"))
-
-                if click_id == st.session_state.get(last_click_key):
-                    continue
-
+            click_id = _click_identity(click)
+            if (
+                click_id is not None
+                and click_id != st.session_state.get(last_click_key)
+                and option in options
+            ):
                 st.session_state[last_click_key] = click_id
-                if option in options:
-                    clicked_option = option
+                fallback_new_click = option
 
-    if clicked_option is not None:
-        selected = clicked_option
-        st.session_state[_SUPRA_SELECTION_KEY] = selected
+    if fallback_new_click is not None and fallback_new_click != selected:
+        st.session_state[_SUPRA_SELECTION_KEY] = fallback_new_click
         if widget_key:
-            st.session_state[widget_key] = selected
-
-    if selected in _SUPRA_TILE_OPTIONS:
-        selected_index = _SUPRA_TILE_OPTIONS.index(selected)
-        st.markdown(
-            f"""
-            <style>
-            .st-key-eccitabilita_sopraciliare_tile_{selected_index} {{
-                border-color: #00A699 !important;
-                background-color: rgba(0, 166, 153, 0.10) !important;
-                box-shadow: inset 0 0 0 1px #00A699 !important;
-                outline: 2px solid #00A699 !important;
-                outline-offset: -2px !important;
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+            st.session_state[widget_key] = fallback_new_click
+        st.rerun()
 
     return selected if selected in options else options[0]
 
