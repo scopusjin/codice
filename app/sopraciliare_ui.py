@@ -10,32 +10,32 @@ from streamlit_image_coordinates import streamlit_image_coordinates
 
 
 _LABEL = "Eccitabilità elettrica sopraciliare"
-_IMAGE_PATH = "immagini/eccitabilità.PNG"
-_DISPLAY_WIDTH = 400
-_DISPLAY_HEIGHT = _DISPLAY_WIDTH * 690 / 921
-_PHASES = (
-    "Fase I", "Fase II", "Fase III",
-    "Fase IV", "Fase V", "Fase VI",
+_IMAGE_PATH = "immagini/eccitabilita_sopraciliare_8_fasi.png"
+_GRID_OPTIONS = (
+    "Fase VI", "Fase V", "Fase IV", "Fase III",
+    "Fase II", "Fase I", "Nessuna reazione", "Non valutabile/non attendibile",
 )
 
 
-def _phase_from_click(click):
-    """Converte le coordinate del clic nella fase del pannello 3 x 2."""
+def _option_from_click(click):
+    """Converte il clic nel riquadro corrispondente della griglia 4 x 2."""
     if not click:
         return None
 
     try:
         x = float(click["x"])
         y = float(click["y"])
+        width = float(click["width"])
+        height = float(click["height"])
     except (KeyError, TypeError, ValueError):
         return None
 
-    if x < 0 or y < 0 or x > _DISPLAY_WIDTH or y > _DISPLAY_HEIGHT:
+    if width <= 0 or height <= 0 or x < 0 or y < 0 or x > width or y > height:
         return None
 
-    col = min(2, int(x / (_DISPLAY_WIDTH / 3)))
-    row = min(1, int(y / (_DISPLAY_HEIGHT / 2)))
-    return _PHASES[row * 3 + col]
+    col = min(3, int(x / (width / 4)))
+    row = min(1, int(y / (height / 2)))
+    return _GRID_OPTIONS[row * 4 + col]
 
 
 def install_sopraciliare_click_selector():
@@ -51,7 +51,7 @@ def install_sopraciliare_click_selector():
 
             click = streamlit_image_coordinates(
                 _IMAGE_PATH,
-                width=_DISPLAY_WIDTH,
+                use_column_width="always",
                 cursor="pointer",
                 key="eccitabilita_sopraciliare_click",
             )
@@ -64,16 +64,15 @@ def install_sopraciliare_click_selector():
 
                 last_click = st.session_state.get("_eccitabilita_sopraciliare_last_click")
                 if click_id != last_click:
-                    phase = _phase_from_click(click)
+                    selected = _option_from_click(click)
                     st.session_state["_eccitabilita_sopraciliare_last_click"] = click_id
-                    if widget_key and phase in options:
-                        st.session_state[widget_key] = phase
-                        # Feedback immediato nello stesso rerun naturale generato dal clic.
-                        st.toast(f"✓ {phase} selezionata")
+                    if widget_key and selected in options:
+                        st.session_state[widget_key] = selected
+                        st.toast(f"✓ {selected}")
 
-            selected_phase = st.session_state.get(widget_key) if widget_key else None
-            if selected_phase in _PHASES:
-                st.caption(f"✓ {selected_phase} selezionata")
+            selected = st.session_state.get(widget_key) if widget_key else None
+            if selected in _GRID_OPTIONS:
+                st.caption(f"✓ Selezione: {selected}")
 
         return original_selectbox(label, options, *args, **kwargs)
 
