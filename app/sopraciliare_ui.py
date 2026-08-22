@@ -14,7 +14,7 @@ from app.special_tanatology_states import PARAM_ELECTRICAL_SUPRACILIARY
 
 
 _LABEL = "Eccitabilità elettrica sopraciliare"
-_IMAGE_PATH = "immagini/eccitabilità.PNG"
+_IMAGE_PATH = "immagini/eccitabilita_sopraciliare_8_fasi.png"
 _GRID_OPTIONS = (
     "Fase VI", "Fase V", "Fase IV", "Fase III",
     "Fase II", "Fase I", "Nessuna reazione", "Non valutabile/non attendibile",
