@@ -5,8 +5,12 @@ La logica è volutamente isolata: intercetta soltanto il selectbox della
 sopraciliare e lascia invariati tutti gli altri widget.
 """
 
+import inspect
+
 import streamlit as st
 from streamlit_image_coordinates import streamlit_image_coordinates
+
+from app.special_tanatology_states import PARAM_ELECTRICAL_SUPRACILIARY
 
 
 _LABEL = "Eccitabilità elettrica sopraciliare"
@@ -15,6 +19,18 @@ _GRID_OPTIONS = (
     "Fase VI", "Fase V", "Fase IV", "Fase III",
     "Fase II", "Fase I", "Nessuna reazione", "Non valutabile/non attendibile",
 )
+
+
+class _SuppressedSopraciliaryPopover:
+    """Contesto vuoto usato per eliminare il vecchio popover sopraciliare."""
+
+    def __enter__(self):
+        st._suppress_legacy_sopraciliary_image = True
+        return None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        st._suppress_legacy_sopraciliary_image = False
+        return False
 
 
 def _option_from_click(click):
@@ -44,6 +60,19 @@ def install_sopraciliare_click_selector():
         return
 
     original_selectbox = st.selectbox
+    original_popover = st.popover
+    original_image = st.image
+
+    def popover_without_legacy_sopraciliare(*args, **kwargs):
+        caller = inspect.currentframe().f_back
+        if caller and caller.f_locals.get("parametro_id") == PARAM_ELECTRICAL_SUPRACILIARY:
+            return _SuppressedSopraciliaryPopover()
+        return original_popover(*args, **kwargs)
+
+    def image_without_legacy_sopraciliare(image, *args, **kwargs):
+        if getattr(st, "_suppress_legacy_sopraciliary_image", False):
+            return None
+        return original_image(image, *args, **kwargs)
 
     def selectbox_with_sopraciliare(label, options, *args, **kwargs):
         if label == _LABEL:
@@ -75,5 +104,7 @@ def install_sopraciliare_click_selector():
 
         return original_selectbox(label, options, *args, **kwargs)
 
+    st.popover = popover_without_legacy_sopraciliare
+    st.image = image_without_legacy_sopraciliare
     st.selectbox = selectbox_with_sopraciliare
     st._sopraciliare_click_selector_installed = True
