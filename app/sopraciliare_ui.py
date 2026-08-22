@@ -214,8 +214,19 @@ def _render_clickable_selector(
             st.toast(f"✓ {selected}")
 
 
+def _is_main_special_row(spec):
+    """Riconosce la riga principale [1, 2] usata dai parametri aggiuntivi."""
+    if isinstance(spec, int):
+        return False
+    try:
+        values = tuple(float(value) for value in spec)
+    except (TypeError, ValueError):
+        return False
+    return values == (1.0, 2.0)
+
+
 def install_sopraciliare_click_selector():
-    """Aggiunge la selezione mediante clic senza alterare gli altri selectbox."""
+    """Aggiunge immagini cliccabili e layout dedicato ai due parametri elettrici."""
     if getattr(st, "_sopraciliare_click_selector_installed", False):
         return
 
@@ -224,6 +235,46 @@ def install_sopraciliare_click_selector():
     original_selectbox = st.selectbox
     original_popover = st.popover
     original_image = st.image
+    original_columns = st.columns
+
+    # La coppia viene ricreata a ogni esecuzione quando compare la riga
+    # principale sopraciliare; in questo modo non conserviamo DeltaGenerator
+    # appartenenti a un rerun precedente.
+    electrical_pair = {"columns": None}
+
+    def columns_with_electrical_pair(spec, *args, **kwargs):
+        caller = inspect.currentframe().f_back
+        parametro_id = caller.f_locals.get("parametro_id") if caller else None
+
+        if parametro_id not in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
+            return original_columns(spec, *args, **kwargs)
+
+        is_main_row = _is_main_special_row(spec)
+
+        if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY and is_main_row:
+            # È sempre il primo dei due parametri: crea una nuova coppia 50/50
+            # per il rerun corrente.
+            with st.container(key="electrical_pair_layout"):
+                electrical_pair["columns"] = original_columns(2, gap="small")
+
+        if electrical_pair["columns"] is None:
+            # Fallback difensivo nel caso l'ordine dei parametri venga cambiato.
+            with st.container(key="electrical_pair_layout"):
+                electrical_pair["columns"] = original_columns(2, gap="small")
+
+        target_index = 0 if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY else 1
+        target_column = electrical_pair["columns"][target_index]
+
+        if is_main_row:
+            # Il codice chiamante si aspetta due colonne, ma per questi due
+            # parametri titolo e contenuto devono stare uno sotto l'altro e
+            # sfruttare l'intero 50% disponibile.
+            return target_column, target_column
+
+        # Eventuali righe accessorie (orario personalizzato) restano dentro
+        # la stessa metà assegnata al parametro.
+        with target_column:
+            return original_columns(spec, *args, **kwargs)
 
     def popover_without_legacy_electrical_images(*args, **kwargs):
         caller = inspect.currentframe().f_back
@@ -266,6 +317,7 @@ def install_sopraciliare_click_selector():
 
         return original_selectbox(label, options, *args, **kwargs)
 
+    st.columns = columns_with_electrical_pair
     st.popover = popover_without_legacy_electrical_images
     st.image = image_without_legacy_electrical_images
     st.selectbox = selectbox_with_electrical_images
