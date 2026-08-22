@@ -10,7 +10,7 @@ from app.supra_single_grid import install_supra_single_grid
 
 # La tavola peribuccale originale lascia più bianco sotto i disegni rispetto
 # alla sopraciliare. Manteniamo però bocca e mento integralmente visibili.
-_perioral_single_grid._IMAGE_ONLY_FRACTION = 0.70
+_perioral_single_grid._IMAGE_ONLY_FRACTION = 0.82
 
 install_supra_single_grid(_sopraciliare_ui)
 _perioral_single_grid.install_perioral_single_grid(_sopraciliare_ui)
