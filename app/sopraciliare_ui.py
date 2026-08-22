@@ -117,10 +117,6 @@ def install_sopraciliare_click_selector():
                         st.session_state[widget_key] = selected
                         st.toast(f"✓ {selected}")
 
-            selected = st.session_state.get(widget_key) if widget_key else None
-            if selected in _GRID_OPTIONS:
-                st.caption(f"✓ Selezione: {selected}")
-
         return original_selectbox(label, options, *args, **kwargs)
 
     st.popover = popover_without_legacy_sopraciliare
