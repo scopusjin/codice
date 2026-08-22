@@ -147,7 +147,7 @@ def _detail_for_option(option_id, language=None):
 
 
 def _label_for_option(option, language=None):
-    """Testo compatto; per le fasi omette volutamente 'Fase I–VI'."""
+    """Testo compatto; l'intervallo orario occupa sempre una seconda riga."""
     option_id = special_option_id(PARAM_ELECTRICAL_SUPRACILIARY, option)
     title = special_option_label(
         PARAM_ELECTRICAL_SUPRACILIARY,
@@ -157,11 +157,13 @@ def _label_for_option(option, language=None):
     detail, interval = _detail_for_option(option_id, language=language)
 
     if option_id in _PHASE_IDS:
-        parts = [detail, interval]
+        first_line = detail or ""
     else:
-        parts = [title, detail, interval]
+        first_line = " · ".join(part for part in (title, detail) if part)
 
-    return " · ".join(part for part in parts if part)
+    if interval:
+        return f"{first_line}\n{interval}" if first_line else interval
+    return first_line
 
 
 def _on_segment_change(ui, widget_key, segment_key):
@@ -195,27 +197,39 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button {
             min-width: 0 !important;
             width: 100% !important;
-            min-height: 2.45rem !important;
+            min-height: 2.65rem !important;
             padding: 3px 3px !important;
             white-space: normal !important;
             border-color: rgba(128, 128, 128, 0.35) !important;
             background: transparent !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"] {
-            border-color: #00A699 !important;
-            background: rgba(0, 166, 153, 0.10) !important;
-            box-shadow: inset 0 0 0 1px #00A699 !important;
+        /* Stato selezionato: riempimento pieno, molto più evidente. */
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[kind="segmented_controlActive"],
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"],
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-checked="true"],
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[data-selected="true"] {
+            border-color: #008F84 !important;
+            background: #00A699 !important;
+            box-shadow: inset 0 0 0 1px #008F84 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button p {
             margin: 0 !important;
-            white-space: normal !important;
+            white-space: pre-line !important;
             overflow-wrap: anywhere !important;
             text-align: center !important;
-            line-height: 1.08 !important;
+            line-height: 1.10 !important;
             font-size: clamp(0.57rem, 2.15vw, 0.72rem) !important;
             font-weight: 600 !important;
+        }
+
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[kind="segmented_controlActive"] *,
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"] *,
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-checked="true"] *,
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button[data-selected="true"] * {
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
         }
         </style>
         """,
