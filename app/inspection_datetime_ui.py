@@ -2,7 +2,6 @@
 """UI compatta per la data/ora iniziale dell'ispezione."""
 
 import datetime
-import inspect
 
 import streamlit as st
 
@@ -28,16 +27,14 @@ def install_inspection_datetime_ui():
         return
 
     original_text_input = st.text_input
-    original_columns = st.columns
 
+    # La riga Data/Ora resta quella nativa del file principale. Il CSS agisce
+    # solo sull'HorizontalBlock che contiene il widget con key input_data_rilievo,
+    # quindi non modifica nessun'altra st.columns dell'app.
     st.markdown(
         """
         <style>
-        .st-key-inspection_datetime_row {
-            width: 100% !important;
-        }
-
-        .st-key-inspection_datetime_row div[data-testid="stHorizontalBlock"] {
+        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
@@ -45,15 +42,15 @@ def install_inspection_datetime_ui():
             width: 100% !important;
         }
 
-        .st-key-inspection_datetime_row div[data-testid="stHorizontalBlock"] > div {
+        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) > div {
             flex: 1 1 0 !important;
             width: 0 !important;
             min-width: 0 !important;
             max-width: none !important;
         }
 
-        .st-key-inspection_datetime_row div[data-baseweb="input"],
-        .st-key-inspection_datetime_row input {
+        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) div[data-baseweb="input"],
+        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) input {
             width: 100% !important;
             min-width: 0 !important;
         }
@@ -87,30 +84,5 @@ def install_inspection_datetime_ui():
         st.session_state["input_ora_rilievo"] = value
         return value
 
-    def columns_with_compact_inspection_datetime(spec, *args, **kwargs):
-        caller = inspect.currentframe().f_back
-
-        # È l'unica st.columns(2) eseguita dopo il toggle iniziale ma prima
-        # della creazione degli alias locali input_data_rilievo/input_ora_rilievo.
-        is_initial_datetime_row = (
-            spec == 2
-            and bool(caller and caller.f_locals.get("usa_orario_custom", False))
-            and caller is not None
-            and "input_data_rilievo" not in caller.f_locals
-        )
-        if not is_initial_datetime_row:
-            return original_columns(spec, *args, **kwargs)
-
-        with st.container(
-            horizontal=True,
-            horizontal_alignment="left",
-            gap="small",
-            key="inspection_datetime_row",
-        ):
-            date_box = st.container(width="stretch", key="inspection_datetime_date")
-            time_box = st.container(width="stretch", key="inspection_datetime_time")
-        return date_box, time_box
-
     st.text_input = text_input_with_time_picker
-    st.columns = columns_with_compact_inspection_datetime
     st._inspection_datetime_ui_installed = True
