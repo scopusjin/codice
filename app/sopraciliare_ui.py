@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 from streamlit_image_coordinates import streamlit_image_coordinates
 
 from app.special_tanatology_states import (
@@ -153,6 +153,33 @@ def _supra_option_from_click(click):
     return _SUPRA_GRID_OPTIONS[row * 2 + col]
 
 
+def _highlight_supra_selection(image, selected):
+    """Disegna un bordo persistente sulla cella sopraciliare selezionata."""
+    if selected not in _SUPRA_GRID_OPTIONS:
+        return image
+
+    index = _SUPRA_GRID_OPTIONS.index(selected)
+    row, col = divmod(index, 2)
+
+    highlighted = image.copy()
+    draw = ImageDraw.Draw(highlighted)
+    width, height = highlighted.size
+
+    x0 = round(col * width / 2)
+    x1 = round((col + 1) * width / 2) - 1
+    y0 = round(row * height / 4)
+    y1 = round((row + 1) * height / 4) - 1
+
+    # Bordo interno: non modifica dimensioni o coordinate della tavola.
+    inset = 3
+    draw.rectangle(
+        (x0 + inset, y0 + inset, x1 - inset, y1 - inset),
+        outline=(0, 166, 153),
+        width=5,
+    )
+    return highlighted
+
+
 def _perioral_option_from_click(click):
     """Converte il clic nel riquadro peribuccale della griglia 3 x 2."""
     if not click:
@@ -184,10 +211,18 @@ def _render_clickable_selector(
     options,
     option_from_click,
     show_toast=True,
+    image_for_selection=None,
 ):
+    selected_before_click = st.session_state.get(widget_key) if widget_key else None
+    displayed_image = (
+        image_for_selection(image, selected_before_click)
+        if image_for_selection is not None
+        else image
+    )
+
     with st.container(key=container_key):
         click = streamlit_image_coordinates(
-            image,
+            displayed_image,
             use_column_width="always",
             cursor="pointer",
             key=component_key,
@@ -212,6 +247,10 @@ def _render_clickable_selector(
         st.session_state[widget_key] = selected
         if show_toast:
             st.toast(f"✓ {selected}")
+        if image_for_selection is not None and selected != selected_before_click:
+            # Secondo rerun immediato: rende persistente il bordo sulla nuova
+            # cella senza aggiungere messaggi o altri elementi alla UI.
+            st.rerun()
 
 
 def _is_main_special_row(spec):
@@ -301,6 +340,7 @@ def install_sopraciliare_click_selector():
                 options=options,
                 option_from_click=_supra_option_from_click,
                 show_toast=False,
+                image_for_selection=_highlight_supra_selection,
             )
             kwargs["format_func"] = lambda value: _SUPRA_DISPLAY_LABELS.get(value, value)
 
