@@ -28,31 +28,110 @@ def install_inspection_datetime_ui():
 
     original_text_input = st.text_input
 
-    # Mantiene soltanto la riga iniziale Data/Ora affiancata. Il selettore
-    # :has() è limitato all'HorizontalBlock che contiene input_data_rilievo e
-    # non modifica le altre st.columns dell'app.
+    # st-mui usa Components v2 senza isolamento CSS: possiamo quindi uniformare
+    # il solo picker iniziale ai widget Streamlit e, contemporaneamente, impedire
+    # che le due colonne Data/Ora vadano a capo sugli schermi stretti.
     st.markdown(
         """
         <style>
-        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) {
+        /* Riga iniziale Data/Ora: contiene insieme il date_input nativo e il
+           TimePicker MUI. Questo selettore non intercetta gli altri st.columns. */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root) {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
-            gap: 0.4rem !important;
+            align-items: stretch !important;
+            gap: 0.40rem !important;
             width: 100% !important;
         }
 
-        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) > div {
-            flex: 1 1 0 !important;
-            width: 0 !important;
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        > div[data-testid="stColumn"] {
+            flex: 1 1 calc(50% - 0.20rem) !important;
+            width: calc(50% - 0.20rem) !important;
             min-width: 0 !important;
-            max-width: none !important;
+            max-width: calc(50% - 0.20rem) !important;
         }
 
-        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) div[data-baseweb="input"],
-        div[data-testid="stHorizontalBlock"]:has(.st-key-input_data_rilievo) input {
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [data-testid="stCustomComponentV2"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .MuiFormControl-root {
             width: 100% !important;
             min-width: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* st-mui aggiunge 0.5 di padding verticale al suo Box. Lo azzeriamo
+           soltanto nella riga iniziale per ottenere la stessa altezza della data. */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .MuiBox-root:has(> .MuiFormControl-root) {
+            width: 100% !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        /* Aspetto coerente con i widget Streamlit. */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [class*="MuiPickersInputBase-root"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [class*="MuiOutlinedInput-root"] {
+            box-sizing: border-box !important;
+            min-height: 2.5rem !important;
+            height: 2.5rem !important;
+            background: var(--st-secondary-background-color, #f0f2f6) !important;
+            border-radius: 0.5rem !important;
+        }
+
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [class*="MuiPickersOutlinedInput-notchedOutline"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .MuiOutlinedInput-notchedOutline {
+            border-color: rgba(49, 51, 63, 0.20) !important;
+            border-width: 1px !important;
+        }
+
+        /* Hover, focus ed eventuale stato di validazione restano sempre blu. */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [class*="MuiPickersInputBase-root"]:hover [class*="notchedOutline"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        [class*="MuiOutlinedInput-root"]:hover .MuiOutlinedInput-notchedOutline,
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .Mui-focused [class*="notchedOutline"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .Mui-focused .MuiOutlinedInput-notchedOutline,
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .Mui-error [class*="notchedOutline"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .Mui-error .MuiOutlinedInput-notchedOutline {
+            border-color: var(--st-primary-color, #168AC1) !important;
+            border-width: 1.5px !important;
+        }
+
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+        .MuiSvgIcon-root {
+            color: var(--st-primary-color, #168AC1) !important;
+        }
+
+        /* Il quadrante mantiene gli stessi toni blu del resto dell'interfaccia. */
+        .MuiClockPointer-root,
+        .MuiClock-pin,
+        .MuiClockNumber-root.Mui-selected {
+            background-color: var(--st-primary-color, #168AC1) !important;
+        }
+
+        .MuiClockPointer-thumb {
+            border-color: var(--st-primary-color, #168AC1) !important;
+        }
+
+        @media (max-width: 768px) {
+            div[data-testid="stHorizontalBlock"]:has([data-testid="stDateInput"]):has(.MuiFormControl-root)
+            > div[data-testid="stColumn"] {
+                flex: 1 1 calc(50% - 0.20rem) !important;
+                width: calc(50% - 0.20rem) !important;
+                min-width: 0 !important;
+                max-width: calc(50% - 0.20rem) !important;
+            }
         }
         </style>
         """,
