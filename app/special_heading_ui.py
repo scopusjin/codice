@@ -43,8 +43,8 @@ def install_special_heading_style():
             body = (
                 "<div style='font-size:0.94rem; font-weight:800; "
                 "letter-spacing:0.025em; line-height:1.05; "
-                "padding-top:0.10rem; padding-bottom:0; "
-                "margin-top:0; margin-bottom:-0.65rem;'>"
+                "padding-top:0; padding-bottom:0; "
+                "margin-top:0; margin-bottom:-1.25rem;'>"
                 f"{html.escape(nome_parametro.upper())}:"
                 "</div>"
             )
