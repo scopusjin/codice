@@ -21,7 +21,12 @@ _LABEL = "Eccitabilità elettrica sopraciliare"
 _DATA_DIR = Path(__file__).resolve().parent
 _IMAGE_B64 = "".join(
     (_DATA_DIR / filename).read_text(encoding="ascii").strip()
-    for filename in ("_sopraciliare_img_1.b64", "_sopraciliare_img_2.b64")
+    for filename in (
+        "_sopraciliare_img_1.b64",
+        "_sopraciliare_img_2.b64",
+        "_sopraciliare_img_3.b64",
+        "_sopraciliare_img_4.b64",
+    )
 )
 _IMAGE = Image.open(BytesIO(base64.b64decode(_IMAGE_B64))).convert("RGB")
 
