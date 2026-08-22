@@ -10,8 +10,8 @@ import importlib
 
 import streamlit as st
 from PIL import Image, ImageDraw
-from streamlit_image_coordinates import streamlit_image_coordinates
 
+from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
 from app.special_tanatology_states import (
     OPTION_NOT_ASSESSED,
@@ -325,9 +325,8 @@ def _make_renderer(ui):
 
         with st.container(key="eccitabilita_peribuccale_grid"):
             for row, row_image in enumerate(row_images):
-                click = streamlit_image_coordinates(
+                click = responsive_image_coordinates(
                     row_image,
-                    use_column_width="always",
                     cursor="pointer",
                     key=_component_key(row),
                 )
