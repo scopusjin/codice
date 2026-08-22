@@ -6,4 +6,3 @@ components
 openpyxl>=3.1
 streamlit-extras
 streamlit-image-coordinates
-st-mui==0.3.3
