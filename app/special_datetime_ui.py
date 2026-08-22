@@ -25,6 +25,11 @@ _SPECIAL_PARAM_IDS = {
     PARAM_CHEMICAL_PUPILLARY,
 }
 
+_ELECTRICAL_PARAM_IDS = {
+    PARAM_ELECTRICAL_SUPRACILIARY,
+    PARAM_ELECTRICAL_PERIORAL,
+}
+
 
 class _NoopContext:
     """Context manager che non crea alcun elemento Streamlit."""
@@ -128,6 +133,23 @@ def install_special_datetime_ui():
 
         return original_markdown(body, *args, **kwargs)
 
+    def _datetime_boxes(parametro_id):
+        with st.container(
+            horizontal=True,
+            horizontal_alignment="left",
+            gap="small",
+            key=f"special_datetime_row_{parametro_id}",
+        ):
+            date_box = st.container(
+                width="stretch",
+                key=f"special_datetime_date_{parametro_id}",
+            )
+            time_box = st.container(
+                width="stretch",
+                key=f"special_datetime_time_{parametro_id}",
+            )
+        return date_box, time_box
+
     def columns_with_compact_datetime(spec, *args, **kwargs):
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
@@ -149,21 +171,14 @@ def install_special_datetime_ui():
                 and bool(caller.f_locals.get("usa_orario_custom_globale", False))
                 and bool(caller.f_locals.get("usa_orario_personalizzato", False))
             ):
-                with st.container(
-                    horizontal=True,
-                    horizontal_alignment="left",
-                    gap="small",
-                    key=f"special_datetime_row_{parametro_id}",
-                ):
-                    date_box = st.container(
-                        width="stretch",
-                        key=f"special_datetime_date_{parametro_id}",
-                    )
-                    time_box = st.container(
-                        width="stretch",
-                        key=f"special_datetime_time_{parametro_id}",
-                    )
-                return date_box, time_box
+                if parametro_id in _ELECTRICAL_PARAM_IDS:
+                    # original_columns è il layout elettrico già installato: questa
+                    # chiamata crea l'ancora dentro la metà corretta della coppia.
+                    anchor, _ = original_columns([1000, 1], gap="small")
+                    with anchor:
+                        return _datetime_boxes(parametro_id)
+
+                return _datetime_boxes(parametro_id)
 
         return original_columns(spec, *args, **kwargs)
 
