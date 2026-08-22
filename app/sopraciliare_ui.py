@@ -84,6 +84,40 @@ class _SuppressedElectricalPopover:
         return False
 
 
+def _install_responsive_image_css():
+    """Adatta le due tavole alla larghezza dello schermo senza alterarne le proporzioni."""
+    st.markdown(
+        """
+        <style>
+        .st-key-eccitabilita_sopraciliare_image,
+        .st-key-eccitabilita_peribuccale_image {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .st-key-eccitabilita_sopraciliare_image,
+            .st-key-eccitabilita_peribuccale_image {
+                max-width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .st-key-eccitabilita_sopraciliare_image {
+                max-width: 500px;
+            }
+
+            .st-key-eccitabilita_peribuccale_image {
+                max-width: 820px;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _supra_option_from_click(click):
     """Converte il clic nel riquadro sopraciliare della griglia 2 x 4."""
     if not click:
@@ -129,18 +163,20 @@ def _perioral_option_from_click(click):
 def _render_clickable_selector(
     *,
     image,
+    container_key,
     component_key,
     last_click_key,
     widget_key,
     options,
     option_from_click,
 ):
-    click = streamlit_image_coordinates(
-        image,
-        use_column_width="always",
-        cursor="pointer",
-        key=component_key,
-    )
+    with st.container(key=container_key):
+        click = streamlit_image_coordinates(
+            image,
+            use_column_width="always",
+            cursor="pointer",
+            key=component_key,
+        )
 
     if not click:
         return
@@ -167,6 +203,8 @@ def install_sopraciliare_click_selector():
     if getattr(st, "_sopraciliare_click_selector_installed", False):
         return
 
+    _install_responsive_image_css()
+
     original_selectbox = st.selectbox
     original_popover = st.popover
     original_image = st.image
@@ -189,6 +227,7 @@ def install_sopraciliare_click_selector():
         if label == _SUPRA_LABEL:
             _render_clickable_selector(
                 image=_SUPRA_IMAGE,
+                container_key="eccitabilita_sopraciliare_image",
                 component_key="eccitabilita_sopraciliare_click",
                 last_click_key="_eccitabilita_sopraciliare_last_click",
                 widget_key=widget_key,
@@ -199,6 +238,7 @@ def install_sopraciliare_click_selector():
         elif label == _PERIORAL_LABEL:
             _render_clickable_selector(
                 image=_PERIORAL_IMAGE,
+                container_key="eccitabilita_peribuccale_image",
                 component_key="eccitabilita_peribuccale_click",
                 last_click_key="_eccitabilita_peribuccale_last_click",
                 widget_key=widget_key,
