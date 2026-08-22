@@ -163,14 +163,11 @@ def install_inspection_datetime_ui():
         desired = _parse_time(st.session_state.get("input_ora_rilievo"))
 
         if mui_time_picker is not None:
+            # Compatibile con l'API pubblicata di st-mui 0.3.3.
             selected = mui_time_picker(
                 label="",
                 value=desired,
                 ampm=False,
-                clearable=False,
-                open_to="hours",
-                views=("hours", "minutes"),
-                format="HH:mm",
                 key=_PICKER_KEY,
             )
         else:
