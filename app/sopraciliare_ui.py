@@ -175,27 +175,33 @@ def _install_responsive_image_css():
             border-radius: 7px;
             padding: 2px;
             transition: border-color 0.12s ease, background-color 0.12s ease;
+            min-width: 0 !important;
+        }
+
+        /*
+         * Streamlit tende a trasformare st.columns in colonne verticali sui
+         * viewport stretti. Per questa sola griglia imponiamo sempre tre celle
+         * per riga usando CSS Grid sul blocco orizzontale generato da st.columns.
+         */
+        .st-key-eccitabilita_sopraciliare_grid div[data-testid="stHorizontalBlock"] {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 0.25rem !important;
+            align-items: stretch !important;
+            width: 100% !important;
+        }
+
+        .st-key-eccitabilita_sopraciliare_grid div[data-testid="stHorizontalBlock"] > div {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            flex: none !important;
         }
 
         @media (max-width: 768px) {
             .st-key-eccitabilita_sopraciliare_grid,
             .st-key-eccitabilita_peribuccale_image {
                 max-width: 100%;
-            }
-
-            /* Le tre celle di ogni riga restano affiancate anche su telefono. */
-            .st-key-eccitabilita_sopraciliare_grid [data-testid="stHorizontalBlock"] {
-                display: flex !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                gap: 0.25rem !important;
-                align-items: stretch !important;
-            }
-
-            .st-key-eccitabilita_sopraciliare_grid [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
-                flex: 1 1 0 !important;
-                width: 0 !important;
-                min-width: 0 !important;
             }
         }
 
@@ -276,11 +282,12 @@ def _render_supra_tile_grid(*, widget_key, options):
         st.markdown(
             f"""
             <style>
-            .st-key-eccitabilita_sopraciliare_grid
             .st-key-eccitabilita_sopraciliare_tile_{selected_index} {{
                 border-color: #00A699 !important;
                 background-color: rgba(0, 166, 153, 0.10) !important;
-                box-shadow: 0 0 0 1px #00A699 !important;
+                box-shadow: inset 0 0 0 1px #00A699 !important;
+                outline: 2px solid #00A699 !important;
+                outline-offset: -2px !important;
             }}
             </style>
             """,
