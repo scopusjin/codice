@@ -806,6 +806,7 @@ def _inputs_signature():
     base = [
         bool(st.session_state.get("usa_orario_custom", False)),
         bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
+        bool(st.session_state.get("henssge_non_applicabile", False)),
         _freeze(st.session_state.get("input_data_rilievo")),
         _freeze(st.session_state.get("input_ora_rilievo")),
         _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
@@ -925,6 +926,7 @@ if st.session_state["show_results"]:
         st.stop()
 
     base_ok = (
+        not st.session_state.get("henssge_non_applicabile", False) and
         not no_rt and
         input_ta is not None and
         input_tm is not None and
