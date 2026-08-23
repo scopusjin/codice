@@ -686,7 +686,7 @@ if st.session_state.get("toggle_fattore", False):
         )
 
 # Parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"))
+mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
@@ -805,6 +805,7 @@ def _inputs_signature():
 
     base = [
         bool(st.session_state.get("usa_orario_custom", False)),
+        bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
         _freeze(st.session_state.get("input_data_rilievo")),
         _freeze(st.session_state.get("input_ora_rilievo")),
         _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
