@@ -6,6 +6,8 @@ Data e ora restano i widget originali, ma vengono mostrati direttamente
 su una sola riga compatta anche su schermi stretti.
 """
 
+import inspect
+
 import streamlit as st
 
 from app.special_tanatology_states import (
@@ -173,9 +175,16 @@ def install_special_datetime_ui():
         return date_box, time_box
 
     def columns_with_compact_datetime(spec, *args, **kwargs):
-        # Il nome locale parametro_id è mantenuto anche per compatibilità con
-        # il layout elettrico installato prima di questo wrapper.
-        parametro_id = context["parametro_id"]
+        # Il ciclo dei parametri conosce parametro_id già prima del selectbox.
+        # Recuperarlo anche dal chiamante permette al layout elettrico sottostante
+        # di creare subito la coppia sopraciliare/peribuccale nel punto corretto.
+        caller = inspect.currentframe().f_back
+        caller_parametro_id = caller.f_locals.get("parametro_id") if caller else None
+        if caller_parametro_id in _SPECIAL_PARAM_IDS:
+            parametro_id = caller_parametro_id
+        else:
+            parametro_id = context["parametro_id"]
+
         usa_orario_custom_globale = bool(
             st.session_state.get("usa_orario_custom", False)
         )
