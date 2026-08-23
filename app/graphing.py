@@ -610,7 +610,7 @@ def aggiorna_grafico(
         chunks.append(_wrap_final(frase_qd_html))
 
     # testi base se raffreddamento non calcolabile
-    if not raffreddamento_calcolabile:
+    if not raffreddamento_calcolabile and missing_or_invalid:
         no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
         no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
         if not no_macchie or not no_rigidita:
