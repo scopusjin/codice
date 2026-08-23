@@ -57,6 +57,7 @@ from app.special_tanatology_states import (
     PARAM_ELECTRICAL_PERIORAL,
     OPTION_NOT_ASSESSED,
 )
+from app.native_time_picker import native_time_picker
 
 from app.data_sources import load_tabelle_correzione
 from app.plotting import compute_plot_data, render_ranges_plot
@@ -258,21 +259,25 @@ with st.container(border=True):
         if not st.session_state.get("input_ora_rilievo"):
             st.session_state["input_ora_rilievo"] = "00:00"
 
-        col1, col2 = st.columns(2, gap="small")
-        with col1:
-            st.date_input(
-                i18n.ui_text("full.inspection_date"),
-                value=st.session_state["input_data_rilievo"],
-                label_visibility="collapsed",
-                key="input_data_rilievo",
-            )
-        with col2:
-            st.text_input(
-                i18n.ui_text("full.inspection_time"),
-                value=st.session_state["input_ora_rilievo"],
-                label_visibility="collapsed",
-                key="input_ora_rilievo",
-            )
+        with st.container(
+            horizontal=True,
+            horizontal_alignment="left",
+            gap="small",
+            key="inspection_datetime_row",
+        ):
+            with st.container(width="stretch", key="inspection_datetime_date"):
+                st.date_input(
+                    i18n.ui_text("full.inspection_date"),
+                    value=st.session_state["input_data_rilievo"],
+                    label_visibility="collapsed",
+                    key="input_data_rilievo",
+                )
+            with st.container(width="stretch", key="inspection_datetime_time"):
+                selected_time = native_time_picker(
+                    st.session_state["input_ora_rilievo"],
+                    key="input_ora_rilievo_native",
+                )
+                st.session_state["input_ora_rilievo"] = selected_time
     else:
         st.session_state["input_data_rilievo"] = None
         st.session_state["input_ora_rilievo"] = None
