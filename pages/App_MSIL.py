@@ -6,6 +6,7 @@ import streamlit as st
 from app import i18n
 from app.theme import apply_theme, warn_box
 from app.theme import fc_panel_start
+from app.full_factor_panel import pannello_suggerisci_fc_mobile
 
 
 from app.graphing import aggiorna_grafico
@@ -363,135 +364,6 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
-def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
-    def k(name: str) -> str: return f"{key_prefix}_{name}"
-
-    stato_label = st.radio("", list(msil_body_labels()),
-                           index=0, horizontal=True, key=k("radio_stato_corpo"),
-                           label_visibility="collapsed")
-    stato_corpo = msil_body_legacy_value(stato_label)
-
-    try:
-        tabella2 = load_tabelle_correzione()
-    except Exception:
-        tabella2 = None
-
-    # Peso robusto per FC
-    if st.session_state.get("peso") in (None, 0) or (st.session_state.get("peso") or 0) <= 0:
-        st.session_state["peso"] = 70.0
-
-    peso_eff = st.session_state.get("peso") or peso_default
-    try:
-        peso_eff = float(peso_eff)
-        if peso_eff <= 0:
-            peso_eff = float(peso_default)
-    except Exception:
-        peso_eff = float(peso_default)
-
-    if stato_corpo == "Immerso":
-        acqua_label = st.radio("", list(msil_water_labels()),
-                               index=0, horizontal=True, key=k("radio_acqua"),
-                               label_visibility="collapsed")
-        acqua_mode = msil_water_legacy_value(acqua_label)
-
-        result = compute_factor(
-            stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
-            superficie_display=None, correnti_aria=False,
-            peso=peso_eff, tabella2_df=tabella2
-        )
-        st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-        return
-
-    col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
-    with col_corr:
-        corr_placeholder = st.empty()
-    with col_vest:
-        toggle_vestito = st.toggle(i18n.ui_text("msil.clothed_covered"),
-                                   value=st.session_state.get(k("toggle_vestito"), False),
-                                   key=k("toggle_vestito"))
-
-    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
-    if toggle_vestito:
-        label_sottili = msil_clothing_label(LAYER_THIN)
-        label_spessi = msil_clothing_label(LAYER_THICK)
-        label_coperte_medie = msil_clothing_label(BLANKET_MEDIUM)
-        label_coperte_pesanti = msil_clothing_label(BLANKET_HEAVY)
-
-        item_col = i18n.ui_text("msil.item_column")
-        count_col = i18n.ui_text("msil.count_column")
-        defaults = {
-            label_sottili: st.session_state.get(k("strati_sottili"), 0),
-            label_spessi: st.session_state.get(k("strati_spessi"), 0),
-        }
-        if stato_corpo == "Asciutto":
-            defaults.update({
-                label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
-                label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
-            })
-        df = pd.DataFrame([{item_col: nome, count_col: v} for nome, v in defaults.items()])
-        edited = st.data_editor(
-            df, hide_index=True, use_container_width=True,
-            column_config={
-                item_col: st.column_config.TextColumn(disabled=True, width="medium"),
-                count_col: st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
-            },
-        )
-        vals = {r[item_col]: _safe_int(r[count_col]) for _, r in edited.iterrows()}
-        n_sottili = vals.get(label_sottili, 0)
-        n_spessi = vals.get(label_spessi, 0)
-        n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get(label_coperte_pesanti, 0) if stato_corpo == "Asciutto" else 0
-
-    counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
-    )
-
-    superficie_display_selected = None
-    if stato_corpo == "Asciutto":
-        nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = list(msil_surface_labels())
-        if not nudo_eff:
-            excluded_surface = msil_surface_label(SURFACE_THICK_METAL_OUTDOOR)
-            options_display = [o for o in options_display if o != excluded_surface]
-        prev_display = st.session_state.get(k("superficie_display_sel"))
-        if prev_display not in options_display:
-            prev_display = options_display[0]
-        superficie_display_label = st.selectbox(
-            i18n.ui_text("msil.support_surface"), options_display,
-            index=options_display.index(prev_display),
-            key=k("superficie_display_sel"), label_visibility="visible"
-        )
-        superficie_display_selected = msil_surface_legacy_value(superficie_display_label)
-
-    correnti_presenti = False
-    with corr_placeholder.container():
-        mostra_correnti = True
-        if stato_corpo == "Asciutto":
-            f_vc = fattore_vestiti_coperte(counts)
-            if f_vc >= 1.2:
-                mostra_correnti = False
-        if mostra_correnti:
-            correnti_presenti = st.toggle(
-                i18n.ui_text("msil.air_currents"),
-                value=st.session_state.get(k("toggle_correnti_fc"), False),
-                key=k("toggle_correnti_fc"), disabled=False
-            )
-
-    try:
-        tabella2 = load_tabelle_correzione()
-    except Exception:
-        tabella2 = None
-
-    result = compute_factor(
-        stato=stato_corpo, acqua=None, counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
-        correnti_aria=correnti_presenti,
-        peso=peso_eff, tabella2_df=tabella2
-    )
-    st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     with fc_panel_start():
         pannello_suggerisci_fc_mobile(
