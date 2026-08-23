@@ -668,6 +668,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     if not st.session_state.get("range_unico_beta", False):
         st.button(i18n.ui_text("full.use_this_factor"), on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
                   use_container_width=True, key=k("btn_usa_fc"))
+
     if st.session_state.get("stima_cautelativa_beta", False):
         st.button(i18n.ui_text("full.add_to_fc_range"), use_container_width=True, on_click=add_fc_suggestion_global,
                   args=(result.fattore_finale,), key=k("btn_add_fc"))
