@@ -157,6 +157,17 @@ def _warn_palette():
     else:
         return dict(bg="#fff3cd", text="#664d03", border="#ffda6a")
 
+def _warn_box(msg: str):
+    pal = _warn_palette()
+    st.markdown(
+        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
+        f'border:1px solid {pal["border"]};border-radius:6px;'
+        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
+        f'⚠️ {msg}'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+
 
 # =========================
 # Stato e costanti globali
@@ -657,7 +668,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     if not st.session_state.get("range_unico_beta", False):
         st.button(i18n.ui_text("full.use_this_factor"), on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
                   use_container_width=True, key=k("btn_usa_fc"))
-
     if st.session_state.get("stima_cautelativa_beta", False):
         st.button(i18n.ui_text("full.add_to_fc_range"), use_container_width=True, on_click=add_fc_suggestion_global,
                   args=(result.fattore_finale,), key=k("btn_add_fc"))
