@@ -175,7 +175,7 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare non ha prodotto contrazioni muscolari. Tale risultato "
-            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso"
+            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 5 ore dal decesso."
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua sopraciliare o il suo rilievo "
@@ -247,7 +247,7 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         ),
         PUPILLARY_NEGATIVE: (
             "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta "
-            "dei muscoli pupillari dell’occhio (con aumento del diametro della pupilla) all'instillazione intraoculare di atropina. "
+            "dei muscoli pupillari dell’occhio (senza aumento del diametro della pupilla) all'instillazione intraoculare di atropina. "
             "Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali."
         ),
     },
