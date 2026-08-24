@@ -59,6 +59,8 @@ def decimal_number_input(
     compact_mobile=False,
     compact_label="",
     unit="",
+    hide_group_heading=False,
+    inline_weight_toggle=False,
     on_change=None,
     key=None,
 ):
@@ -80,6 +82,8 @@ def decimal_number_input(
         compact_mobile=bool(compact_mobile),
         compact_label=str(compact_label or ""),
         unit=str(unit or ""),
+        hide_group_heading=bool(hide_group_heading),
+        inline_weight_toggle=bool(inline_weight_toggle),
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
