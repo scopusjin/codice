@@ -6,6 +6,7 @@ from streamlit.delta_generator import DeltaGenerator
 import app.perioral_single_grid as _perioral_single_grid
 import app.sopraciliare_ui as _sopraciliare_ui
 from app.decimal_number_input import decimal_number_input
+from app.full_mobile_layout import install_full_mobile_layout
 from app.special_datetime_ui import install_special_datetime_ui
 from app.special_heading_ui import install_special_heading_style
 from app.supra_single_grid import install_supra_single_grid
@@ -221,5 +222,6 @@ def _selectbox_with_perioral_grid(label, options, *args, **kwargs):
 
 
 st.selectbox = _selectbox_with_perioral_grid
+install_full_mobile_layout()
 install_special_heading_style()
 install_special_datetime_ui()
