@@ -138,6 +138,9 @@ def aggiorna_grafico(
         _add_det(blocco)
 
     # --- differenza piccola Tr-Ta ---
+    temperatures_equal = (
+        _is_num(Tr_val) and _is_num(Ta_val) and float(Tr_val) == float(Ta_val)
+    )
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
 
     # --- macchie/rigidità ---
@@ -455,6 +458,11 @@ def aggiorna_grafico(
     if not raffreddamento_calcolabile:
         if missing_or_invalid:
             avvisi.append(i18n.ui_text("graph.henssge_missing_invalid"))
+        elif temperatures_equal:
+            avvisi.append(i18n.ui_text(
+                "graph.henssge_equal_temperature_warning",
+                temperature=f"{float(Tr_val):.1f}",
+            ))
         else:
             msg = i18n.ui_text("graph.henssge_incoherent")
             
@@ -465,7 +473,7 @@ def aggiorna_grafico(
             avvisi.append(i18n.ui_text("graph.high_ambient_factor_warning"))
         if Ta_val < 18:
             avvisi.append(i18n.ui_text("graph.low_ambient_factor_warning"))
-        if temp_difference_small:
+        if temp_difference_small and not temperatures_equal:
             avvisi.append(i18n.ui_text("graph.thermal_equilibrium_warning"))
         if abs(Tr_val - T0_val) <= 1.0:
             avvisi.append(i18n.ui_text("graph.plateau_warning"))
@@ -480,6 +488,12 @@ def aggiorna_grafico(
             _add_det(paragrafo_raffreddamento_input(
                 isp_dt=data_ora_ispezione if usa_orario_custom else None,
                 ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+            ))
+
+        if temperatures_equal:
+            _add_det(i18n.ui_text(
+                "graph.henssge_equal_temperature_detail",
+                temperature=f"{float(Tr_val):.1f}",
             ))
 
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
