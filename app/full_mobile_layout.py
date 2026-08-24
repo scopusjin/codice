@@ -79,6 +79,43 @@ _FULL_MOBILE_CSS = r"""
     gap: 0 !important;
   }
 
+  /* Su mobile il comando Consiglia è integrato nel controllo FC. Il vecchio
+     toggle Streamlit resta montato per conservare lo stato del pannello, ma
+     non occupa più una colonna visibile. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="column"]:has([class*="st-key-toggle_fattore_inline"]) {
+    display: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-toggle_fattore_inline"] {
+    display: none !important;
+  }
+
+  /* Nella modalità prudente le righe separate hanno la stessa distanza delle
+     righe interne della pila, senza dipendere dal gap verticale di Streamlit. */
+  body:has([class*="st-key-range_unico_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
+  body:has([class*="st-key-range_unico_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]),
+  body:has([class*="st-key-range_unico_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
+    margin-top: -0.55rem !important;
+  }
+
+  /* In prudente senza range la seconda colonna della riga FC è solo un
+     placeholder; nasconderla evita spazio residuo dopo il controllo. */
+  body:has([class*="st-key-range_unico_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]):not(:has([class*="st-key-mortem_decimal_ta_base_val"]))
+  > [data-testid="column"]:nth-child(2) {
+    display: none !important;
+  }
+
   /* Nota prudenziale e switch "Specifica range" restano ordinati in verticale
      senza comprimersi in due colonne sul telefono. */
   body:has([class*="st-key-stima_cautelativa_beta"])
