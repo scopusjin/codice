@@ -141,6 +141,9 @@ def aggiorna_grafico(
     temperatures_equal = (
         _is_num(Tr_val) and _is_num(Ta_val) and float(Tr_val) == float(Ta_val)
     )
+    temperature_below_ambient = (
+        _is_num(Tr_val) and _is_num(Ta_val) and float(Tr_val) < float(Ta_val)
+    )
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
 
     # --- macchie/rigidità ---
@@ -463,6 +466,8 @@ def aggiorna_grafico(
                 "graph.henssge_equal_temperature_warning",
                 temperature=f"{float(Tr_val):.1f}",
             ))
+        elif temperature_below_ambient:
+            avvisi.append(i18n.ui_text("graph.henssge_below_ambient_warning"))
         else:
             msg = i18n.ui_text("graph.henssge_incoherent")
             
@@ -495,6 +500,8 @@ def aggiorna_grafico(
                 "graph.henssge_equal_temperature_detail",
                 temperature=f"{float(Tr_val):.1f}",
             ))
+        if temperature_below_ambient:
+            _add_det(i18n.ui_text("graph.henssge_below_ambient_detail"))
 
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
         t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
