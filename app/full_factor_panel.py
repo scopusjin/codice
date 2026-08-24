@@ -68,6 +68,24 @@ def _sync_fc_range_from_suggestions():
 
 def add_fc_suggestion_global(val: float) -> None:
     v = round(float(val), 2)
+    target = st.session_state.get("__full_fc_suggest_target")
+    if target in {"min", "max"}:
+        other_key = "fc_other_val" if target == "min" else "fc_min_val"
+        try:
+            other = round(float(st.session_state.get(other_key)), 2)
+        except (TypeError, ValueError):
+            other = v
+        lo, hi = sorted([v, other])
+        st.session_state["fc_min_val"] = lo
+        st.session_state["fc_other_val"] = hi
+        st.session_state["FC_min_beta"] = lo
+        st.session_state["FC_max_beta"] = hi
+        st.session_state["range_unico_beta"] = True
+        st.session_state["toggle_fattore_inline"] = False
+        st.session_state["toggle_fattore"] = False
+        st.session_state.pop("__full_fc_suggest_target", None)
+        return
+
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({*vals, v})
     if len(vals) >= 3:
