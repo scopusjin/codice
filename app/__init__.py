@@ -31,12 +31,15 @@ _msil_widget_state_keys = {
     "ta_base_val_widget": "ta_base_val",
     "peso_widget": "peso",
 }
-_full_standard_mobile_units = {
+_full_mobile_units = {
     "rt_val": "°C",
     "tm_val": "°C",
     "peso": "kg",
     "ta_base_val": "°C",
+    "ta_other_val": "°C",
     "fattore_correzione": "",
+    "fc_min_val": "",
+    "fc_other_val": "",
 }
 _number_input_original = st.number_input
 _dg_number_input_original = DeltaGenerator.number_input
@@ -52,10 +55,19 @@ def _same_decimal_value(a, b) -> bool:
 
 
 def _compact_mobile_label(label, key) -> str:
+    prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
+    range_mode = bool(st.session_state.get("range_unico_beta", False))
+
     if key == "fattore_correzione":
         return "FC"
+    if key == "fc_min_val":
+        return "FC min"
+    if key == "fc_other_val":
+        return "FC max"
     if key == "ta_base_val":
-        return "T. amb. media"
+        return "T. amb. 1" if prudent_mode and range_mode else "T. amb. media"
+    if key == "ta_other_val":
+        return "T. amb. 2"
 
     text = str(label or key).strip().rstrip(":")
     if key == "tm_val":
@@ -121,10 +133,20 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             if callable(user_on_change):
                 user_on_change(*callback_args, **callback_kwargs)
 
+        prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
         compact_mobile = (
-            key in _full_standard_mobile_units
-            and not st.session_state.get("stima_cautelativa_beta", False)
+            key in _full_mobile_units
             and bool(str(label).strip())
+        )
+        hide_group_heading = (
+            compact_mobile
+            and prudent_mode
+            and key in {"peso", "ta_base_val", "fattore_correzione", "fc_min_val"}
+        )
+        inline_weight_toggle = (
+            compact_mobile
+            and prudent_mode
+            and key == "peso"
         )
 
         result = decimal_number_input(
@@ -138,7 +160,9 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             aria_label=label or key,
             compact_mobile=compact_mobile,
             compact_label=_compact_mobile_label(label, key) if compact_mobile else "",
-            unit=_full_standard_mobile_units.get(key, "") if compact_mobile else "",
+            unit=_full_mobile_units.get(key, "") if compact_mobile else "",
+            hide_group_heading=hide_group_heading,
+            inline_weight_toggle=inline_weight_toggle,
             on_change=_component_on_change if callable(user_on_change) else None,
             key=component_key,
         )
