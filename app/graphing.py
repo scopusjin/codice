@@ -276,8 +276,10 @@ def aggiorna_grafico(
         mt_ore = _round_half_hour(float(mt_ore_raw))
         mt_giorni = round(mt_ore / 24.0, 1)
 
-    # Attiva Potente solo quando Qd è disponibile ed è inferiore alla soglia critica.
-    qd_ok = _is_num(Qd_val_check) and Qd_val_check < qd_threshold
+    # Attiva Potente se c'è mt_ore e:
+    # - Qd è disponibile e <= soglia, OPPURE
+    # - Qd non è disponibile (fallback permissivo sui casi di bordo)
+    qd_ok = (_is_num(Qd_val_check) and Qd_val_check <= qd_threshold) or (not _is_num(Qd_val_check))
     usa_potente = (mt_ore is not None) and (not np.isnan(mt_ore)) and qd_ok
 
     # Usa Henssge nel grafico solo se Potente NON è presente
@@ -476,15 +478,12 @@ def aggiorna_grafico(
             avvisi.append(i18n.ui_text("graph.high_ambient_factor_warning"))
         if Ta_val < 18:
             avvisi.append(i18n.ui_text("graph.low_ambient_factor_warning"))
-        if usa_potente:
-            avvisi.append(i18n.ui_text("graph.potente_minimum_warning"))
-        elif temp_difference_small and not temperatures_equal:
+        if temp_difference_small and not temperatures_equal:
             avvisi.append(i18n.ui_text("graph.thermal_equilibrium_warning"))
         if abs(Tr_val - T0_val) <= 1.0:
             avvisi.append(i18n.ui_text("graph.plateau_warning"))
 
-        if not usa_potente:
-            avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
+        avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
         if not st.session_state.get("stima_cautelativa_beta", False):
             cf_descr = build_cf_description(
                 cf_value=st.session_state.get("fattore_correzione", 1.0),
@@ -504,18 +503,17 @@ def aggiorna_grafico(
         if temperature_below_ambient:
             _add_det(i18n.ui_text("graph.henssge_below_ambient_detail"))
 
-        if not usa_potente:
-            t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
-            t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
-            par_h = paragrafo_raffreddamento_dettaglio(
-                t_min_visual=t_min_vis,
-                t_max_visual=t_max_vis,
-                t_med_round=t_med_raff_henssge_rounded,
-                qd_val=Qd_val_check,
-                ta_val=Ta_val,
-            )
-            if par_h:
-                _add_det(par_h)
+        t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
+        t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
+        par_h = paragrafo_raffreddamento_dettaglio(
+            t_min_visual=t_min_vis,
+            t_max_visual=t_max_vis,
+            t_med_round=t_med_raff_henssge_rounded,
+            qd_val=Qd_val_check,
+            ta_val=Ta_val,
+        )
+        if par_h:
+            _add_det(par_h)
 
         par_p = paragrafo_potente(
             mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
