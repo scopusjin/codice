@@ -505,8 +505,8 @@ def parameter_summary(labels: list[str]) -> str:
 
 def potente_paragraph(duration: str, days: str) -> str:
     return (
-        "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
-        f"Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>{duration}</b> (≈ {days} giorni) dal decesso.</li></ul>"
+        "<ul><li>Il metodo proposto da Potente et al., basato sul modello di raffreddamento di Henssge, consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
+        f"Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno <b>{duration}</b> (≈ {days} giorni) dal decesso.</li></ul>"
     )
 
 
