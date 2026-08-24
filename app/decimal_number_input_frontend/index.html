@@ -65,17 +65,20 @@
               justify-self: end !important;
               width: max-content !important;
               max-width: max-content !important;
+              min-width: max-content !important;
             }
 
             html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2)
             [data-testid="stVerticalBlock"] {
               gap: 0 !important;
               width: max-content !important;
+              min-width: max-content !important;
             }
 
             html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2)
             [data-testid="stToggle"] {
               width: max-content !important;
+              min-width: max-content !important;
               margin: 0 !important;
               padding: 0 !important;
             }
@@ -83,11 +86,24 @@
             html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2)
             label {
               width: max-content !important;
+              min-width: max-content !important;
               gap: clamp(0.18rem, 0.8vw, 0.30rem) !important;
               white-space: nowrap !important;
+              flex-wrap: nowrap !important;
               margin: 0 !important;
               padding: 0 !important;
               font-size: clamp(0.72rem, 3.2vw, 0.90rem) !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2)
+            label p,
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2)
+            label span {
+              width: max-content !important;
+              min-width: max-content !important;
+              white-space: nowrap !important;
+              overflow-wrap: normal !important;
+              word-break: normal !important;
             }
 
             /* Responsive solo per il pannello FC della schermata completa.
@@ -223,8 +239,28 @@
           if (candidate) candidate.classList.add("mortem-decimal-hide-mobile");
         }
 
+        let reinforceTimer = null;
+        function scheduleReinforce() {
+          if (reinforceTimer !== null) window.clearTimeout(reinforceTimer);
+          reinforceTimer = window.setTimeout(() => {
+            reinforceTimer = null;
+            reinforcePrudentHeading();
+          }, 50);
+        }
+
         [40, 120, 300, 700].forEach((delay) => {
           window.setTimeout(reinforcePrudentHeading, delay);
+        });
+
+        let observer = null;
+        if (doc.body && typeof MutationObserver !== "undefined") {
+          observer = new MutationObserver(scheduleReinforce);
+          observer.observe(doc.body, { childList: true, subtree: true });
+        }
+
+        window.addEventListener("beforeunload", () => {
+          if (observer) observer.disconnect();
+          if (reinforceTimer !== null) window.clearTimeout(reinforceTimer);
         });
       } catch (_) {
         // Il componente continua a funzionare anche se il parent non è accessibile.
