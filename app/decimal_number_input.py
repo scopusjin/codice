@@ -56,6 +56,7 @@ def decimal_number_input(
     disabled=False,
     sync_token=0,
     aria_label="Valore numerico",
+    on_change=None,
     key=None,
 ):
     """Restituisce float/None usando un controllo decimale non localizzato."""
@@ -77,6 +78,7 @@ def decimal_number_input(
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
         key=key,
+        on_change=on_change,
         default=current,
     )
 
