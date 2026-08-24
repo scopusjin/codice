@@ -5,6 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="./streamlit-component-lib.js"></script>
   <script defer src="./main.js"></script>
+  <script>
+    (() => {
+      try {
+        const doc = window.parent && window.parent !== window
+          ? window.parent.document
+          : null;
+        if (!doc || !doc.head) return;
+
+        const styleId = "mortem-decimal-responsive-overrides";
+        let style = doc.getElementById(styleId);
+        if (!style) {
+          style = doc.createElement("style");
+          style.id = styleId;
+          doc.head.appendChild(style);
+        }
+
+        style.textContent = `
+          @media (max-width: 768px) {
+            html body [data-testid="stVerticalBlock"].mortem-decimal-compact-stack {
+              gap: clamp(0.25rem, 1.2vw, 0.40rem) !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-compact-row {
+              gap: clamp(0.12rem, 0.8vw, 0.22rem) !important;
+              row-gap: clamp(0.12rem, 0.8vw, 0.22rem) !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline {
+              display: grid !important;
+              grid-template-columns: minmax(0, 1fr) clamp(5.6rem, 28vw, 7rem) !important;
+              align-items: center !important;
+              column-gap: clamp(0.15rem, 1vw, 0.30rem) !important;
+              row-gap: 0 !important;
+              width: 100% !important;
+              min-width: 0 !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"] {
+              width: auto !important;
+              max-width: none !important;
+              min-width: 0 !important;
+              margin-bottom: 0 !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:first-child {
+              grid-column: 1 !important;
+              grid-row: 1 !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2) {
+              grid-column: 2 !important;
+              grid-row: 1 !important;
+              justify-self: stretch !important;
+            }
+
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2) label,
+            html body [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2) p {
+              white-space: nowrap !important;
+              font-size: clamp(0.72rem, 3.2vw, 0.90rem) !important;
+            }
+          }
+        `;
+      } catch (_) {
+        // Il componente continua a funzionare anche se il parent non è accessibile.
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
