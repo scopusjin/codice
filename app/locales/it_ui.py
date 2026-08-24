@@ -159,10 +159,11 @@ UI_TEXT = {
         "Verificare i dati inseriti."
     ),
     "graph.henssge_below_ambient_detail": (
-        "<ul><li>La temperatura ambientale è superiore alla temperatura rettale; pertanto non è possibile effettuare una stima "
+        "<ul><li>La temperatura ambientale media è superiore alla temperatura rettale; pertanto non è possibile effettuare una stima "
         "dell’epoca del decesso basata sul raffreddamento cadaverico. Verificare che le misurazioni o i dati inseriti siano corretti; "
         "in alternativa, il corpo potrebbe aver raggiunto l’equilibrio termico con l’ambiente e le condizioni ambientali potrebbero "
-        "essersi successivamente modificate.</li></ul>"
+        "essersi successivamente modificate. Ricordarsi di utilizzare la temperatura ambientale media (che potrebbe essere inferiore "
+        "alla temperatura misurata durante l’ispezione legale).</li></ul>"
     ),
     "graph.high_ambient_factor_warning": "Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.",
     "graph.low_ambient_factor_warning": "Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.",
