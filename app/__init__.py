@@ -80,12 +80,6 @@ def _compact_mobile_label(label, key) -> str:
     return text
 
 
-def _restore_targeted_fc_suggestions():
-    saved_key = "__full_fc_suggest_saved_vals"
-    if saved_key in st.session_state:
-        st.session_state["fc_suggested_vals"] = st.session_state.pop(saved_key)
-
-
 def _number_input_with_decimal_point(label, *args, **kwargs):
     key = kwargs.get("key")
     if key in _decimal_keys:
@@ -132,7 +126,6 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 st.session_state[toggle_key] = False
                 st.session_state["toggle_fattore"] = False
                 st.session_state.pop("__full_fc_suggest_target", None)
-                _restore_targeted_fc_suggestions()
 
         user_on_change = kwargs.get("on_change")
         callback_args = kwargs.get("args") or ()
@@ -203,21 +196,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 st.session_state[suggest_toggle_key] = False
                 st.session_state["toggle_fattore"] = False
                 st.session_state.pop("__full_fc_suggest_target", None)
-                _restore_targeted_fc_suggestions()
                 return
-
-            if suggest_target in {"min", "max"}:
-                saved_key = "__full_fc_suggest_saved_vals"
-                if saved_key not in st.session_state:
-                    st.session_state[saved_key] = list(st.session_state.get("fc_suggested_vals", []))
-                other_key = "fc_other_val" if suggest_target == "min" else "fc_min_val"
-                try:
-                    other_value = round(float(st.session_state.get(other_key)), 2)
-                    st.session_state["fc_suggested_vals"] = [other_value]
-                except (TypeError, ValueError):
-                    st.session_state["fc_suggested_vals"] = []
-            else:
-                _restore_targeted_fc_suggestions()
 
             st.session_state[suggest_toggle_key] = True
             st.session_state["toggle_fattore"] = True
