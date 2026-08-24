@@ -80,6 +80,12 @@ def _compact_mobile_label(label, key) -> str:
     return text
 
 
+def _restore_targeted_fc_suggestions():
+    saved_key = "__full_fc_suggest_saved_vals"
+    if saved_key in st.session_state:
+        st.session_state["fc_suggested_vals"] = st.session_state.pop(saved_key)
+
+
 def _number_input_with_decimal_point(label, *args, **kwargs):
     key = kwargs.get("key")
     if key in _decimal_keys:
@@ -88,6 +94,8 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             # prudente al widget originale se in futuro la firma cambia.
             return _number_input_original(label, *args, **kwargs)
 
+        prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
+        range_mode = bool(st.session_state.get("range_unico_beta", False))
         state_key = _msil_widget_state_keys.get(key, key)
         logical_value = st.session_state.get(state_key, kwargs.get("value"))
         mirror_key = f"__decimal_component_mirror_{key}"
@@ -107,6 +115,24 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             st.session_state[sync_key] += 1
             st.session_state[mirror_key] = logical_value
             st.session_state[expected_sync_key] = logical_value
+
+            active_target = st.session_state.get("__full_fc_suggest_target")
+            target_key = {
+                "single": "fattore_correzione",
+                "min": "fc_min_val",
+                "max": "fc_other_val",
+            }.get(active_target)
+            range_from_single = (
+                active_target == "single"
+                and range_mode
+                and key in {"fc_min_val", "fc_other_val"}
+            )
+            if key == target_key or range_from_single:
+                toggle_key = "toggle_fattore_inline" if prudent_mode else "toggle_fattore_inline_std"
+                st.session_state[toggle_key] = False
+                st.session_state["toggle_fattore"] = False
+                st.session_state.pop("__full_fc_suggest_target", None)
+                _restore_targeted_fc_suggestions()
 
         user_on_change = kwargs.get("on_change")
         callback_args = kwargs.get("args") or ()
@@ -134,7 +160,6 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             if callable(user_on_change):
                 user_on_change(*callback_args, **callback_kwargs)
 
-        prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
         compact_mobile = (
             key in _full_mobile_units
             and bool(str(label).strip())
@@ -150,6 +175,54 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             and key == "peso"
         )
 
+        suggest_target = None
+        if compact_mobile:
+            if key == "fattore_correzione" and (not prudent_mode or not range_mode):
+                suggest_target = "single"
+            elif prudent_mode and range_mode and key == "fc_min_val":
+                suggest_target = "min"
+            elif prudent_mode and range_mode and key == "fc_other_val":
+                suggest_target = "max"
+
+        suggest_toggle_key = "toggle_fattore_inline" if prudent_mode else "toggle_fattore_inline_std"
+        suggest_active = bool(
+            suggest_target
+            and st.session_state.get(suggest_toggle_key, False)
+            and st.session_state.get("__full_fc_suggest_target") == suggest_target
+        )
+
+        def _component_suggest():
+            if suggest_target is None:
+                return
+
+            same_open_target = bool(
+                st.session_state.get(suggest_toggle_key, False)
+                and st.session_state.get("__full_fc_suggest_target") == suggest_target
+            )
+            if same_open_target:
+                st.session_state[suggest_toggle_key] = False
+                st.session_state["toggle_fattore"] = False
+                st.session_state.pop("__full_fc_suggest_target", None)
+                _restore_targeted_fc_suggestions()
+                return
+
+            if suggest_target in {"min", "max"}:
+                saved_key = "__full_fc_suggest_saved_vals"
+                if saved_key not in st.session_state:
+                    st.session_state[saved_key] = list(st.session_state.get("fc_suggested_vals", []))
+                other_key = "fc_other_val" if suggest_target == "min" else "fc_min_val"
+                try:
+                    other_value = round(float(st.session_state.get(other_key)), 2)
+                    st.session_state["fc_suggested_vals"] = [other_value]
+                except (TypeError, ValueError):
+                    st.session_state["fc_suggested_vals"] = []
+            else:
+                _restore_targeted_fc_suggestions()
+
+            st.session_state[suggest_toggle_key] = True
+            st.session_state["toggle_fattore"] = True
+            st.session_state["__full_fc_suggest_target"] = suggest_target
+
         result = decimal_number_input(
             value=logical_value,
             step=kwargs.get("step", 1.0),
@@ -164,6 +237,10 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             unit=_full_mobile_units.get(key, "") if compact_mobile else "",
             hide_group_heading=hide_group_heading,
             inline_weight_toggle=inline_weight_toggle,
+            suggest_enabled=bool(suggest_target),
+            suggest_label="Consiglia" if suggest_target else "",
+            suggest_active=suggest_active,
+            on_suggest=_component_suggest if suggest_target else None,
             on_change=_component_on_change if callable(user_on_change) else None,
             key=component_key,
         )
