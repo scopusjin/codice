@@ -102,50 +102,13 @@ def _decimal_text_input(
         st.session_state[mirror_key] = parsed
         st.session_state[text_key] = _format_decimal_value(parsed, format)
 
-    def _step(delta):
-        current = _parse_decimal_value(st.session_state.get(key, value))
-        if current is None:
-            return
-        updated = current + float(step) * delta
-        if min_value is not None:
-            updated = max(float(min_value), updated)
-        if max_value is not None:
-            updated = min(float(max_value), updated)
-        updated = _rounded_decimal(updated, format)
-        st.session_state[key] = updated
-        st.session_state[mirror_key] = updated
-        st.session_state[text_key] = _format_decimal_value(updated, format)
-
-    current = _parse_decimal_value(st.session_state.get(key, value))
-    buttons_disabled = disabled or current is None
-
-    with st.container(horizontal=True, horizontal_alignment="left", gap="small"):
-        with st.container(width="stretch"):
-            st.text_input(
-                label,
-                key=text_key,
-                label_visibility=label_visibility,
-                disabled=disabled,
-                on_change=_commit_text,
-            )
-        with st.container(width=44):
-            st.button(
-                "−",
-                key=f"__decimal_minus_{key}",
-                disabled=buttons_disabled,
-                on_click=_step,
-                args=(-1,),
-                use_container_width=True,
-            )
-        with st.container(width=44):
-            st.button(
-                "+",
-                key=f"__decimal_plus_{key}",
-                disabled=buttons_disabled,
-                on_click=_step,
-                args=(1,),
-                use_container_width=True,
-            )
+    st.text_input(
+        label,
+        key=text_key,
+        label_visibility=label_visibility,
+        disabled=disabled,
+        on_change=_commit_text,
+    )
 
     return st.session_state.get(key, parsed_logical)
 
