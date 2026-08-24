@@ -31,6 +31,13 @@ _msil_widget_state_keys = {
     "ta_base_val_widget": "ta_base_val",
     "peso_widget": "peso",
 }
+_full_standard_mobile_units = {
+    "rt_val": "°C",
+    "tm_val": "°C",
+    "peso": "kg",
+    "ta_base_val": "°C",
+    "fattore_correzione": "",
+}
 _number_input_original = st.number_input
 _dg_number_input_original = DeltaGenerator.number_input
 
@@ -42,6 +49,20 @@ def _same_decimal_value(a, b) -> bool:
         return abs(float(a) - float(b)) < 1e-12
     except (TypeError, ValueError):
         return a == b
+
+
+def _compact_mobile_label(label, key) -> str:
+    if key == "fattore_correzione":
+        return "FC"
+
+    text = str(label or key).strip().rstrip(":")
+    if key == "tm_val":
+        text = text.replace(" stimata", "")
+    for suffix in (" (°C)", " (kg)"):
+        if text.endswith(suffix):
+            text = text[:-len(suffix)]
+            break
+    return text
 
 
 def _number_input_with_decimal_point(label, *args, **kwargs):
@@ -98,6 +119,12 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             if callable(user_on_change):
                 user_on_change(*callback_args, **callback_kwargs)
 
+        compact_mobile = (
+            key in _full_standard_mobile_units
+            and not st.session_state.get("stima_cautelativa_beta", False)
+            and bool(str(label).strip())
+        )
+
         result = decimal_number_input(
             value=logical_value,
             step=kwargs.get("step", 1.0),
@@ -107,6 +134,9 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             disabled=kwargs.get("disabled", False),
             sync_token=st.session_state[sync_key],
             aria_label=label or key,
+            compact_mobile=compact_mobile,
+            compact_label=_compact_mobile_label(label, key) if compact_mobile else "",
+            unit=_full_standard_mobile_units.get(key, "") if compact_mobile else "",
             on_change=_component_on_change if callable(user_on_change) else None,
             key=component_key,
         )
