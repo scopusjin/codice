@@ -16,8 +16,13 @@ let lastSentValue = undefined;
 let compactMobileEnabled = false;
 let compactLabelText = "";
 let unitText = "";
+let hideGroupHeadingEnabled = false;
+let inlineWeightToggleEnabled = false;
 let hiddenParentLabel = null;
 let hiddenParentLabelDisplay = "";
+let hiddenGroupHeading = null;
+let hiddenGroupHeadingDisplay = "";
+let inlineWeightRowState = null;
 
 function sameValue(a, b) {
   if (a === null || b === null) return a === b;
@@ -135,6 +140,22 @@ function parentViewportWidth() {
   return Infinity;
 }
 
+function parentElementContainer() {
+  try {
+    const frame = window.frameElement;
+    if (!frame) return null;
+    return frame.closest('[data-testid="stElementContainer"]') || frame.parentElement;
+  } catch (_) {
+    return null;
+  }
+}
+
+function currentHorizontalRow() {
+  const currentElement = parentElementContainer();
+  const column = currentElement ? currentElement.closest('[data-testid="column"]') : null;
+  return column ? column.closest('[data-testid="stHorizontalBlock"]') : null;
+}
+
 function restoreParentLabel() {
   if (!hiddenParentLabel) return;
   hiddenParentLabel.style.display = hiddenParentLabelDisplay;
@@ -149,10 +170,7 @@ function setParentLabelHidden(hidden) {
   }
 
   try {
-    const frame = window.frameElement;
-    const currentElement = frame
-      ? (frame.closest('[data-testid="stElementContainer"]') || frame.parentElement)
-      : null;
+    const currentElement = parentElementContainer();
     const candidate = currentElement ? currentElement.previousElementSibling : null;
 
     if (!candidate) return;
@@ -169,12 +187,96 @@ function setParentLabelHidden(hidden) {
   }
 }
 
+function restoreGroupHeading() {
+  if (!hiddenGroupHeading) return;
+  hiddenGroupHeading.style.display = hiddenGroupHeadingDisplay;
+  hiddenGroupHeading = null;
+  hiddenGroupHeadingDisplay = "";
+}
+
+function setGroupHeadingHidden(hidden) {
+  if (!hidden) {
+    restoreGroupHeading();
+    return;
+  }
+
+  try {
+    const row = currentHorizontalRow();
+    const candidate = row ? row.previousElementSibling : null;
+    if (!candidate) return;
+
+    if (hiddenGroupHeading && hiddenGroupHeading !== candidate) {
+      restoreGroupHeading();
+    }
+    if (!hiddenGroupHeading) {
+      hiddenGroupHeading = candidate;
+      hiddenGroupHeadingDisplay = candidate.style.display || "";
+    }
+    candidate.style.display = "none";
+  } catch (_) {
+    restoreGroupHeading();
+  }
+}
+
+function restoreInlineWeightRow() {
+  if (!inlineWeightRowState) return;
+  const { row, rowStyle, columns } = inlineWeightRowState;
+  row.style.cssText = rowStyle;
+  columns.forEach(({ element, style }) => {
+    element.style.cssText = style;
+  });
+  inlineWeightRowState = null;
+}
+
+function setInlineWeightRow(enabled) {
+  if (!enabled) {
+    restoreInlineWeightRow();
+    return;
+  }
+
+  try {
+    const row = currentHorizontalRow();
+    if (!row) return;
+    const columns = Array.from(row.children).filter(
+      (element) => element.getAttribute && element.getAttribute("data-testid") === "column"
+    );
+    if (columns.length < 2) return;
+
+    if (inlineWeightRowState && inlineWeightRowState.row !== row) {
+      restoreInlineWeightRow();
+    }
+    if (!inlineWeightRowState) {
+      inlineWeightRowState = {
+        row,
+        rowStyle: row.style.cssText,
+        columns: columns.map((element) => ({
+          element,
+          style: element.style.cssText,
+        })),
+      };
+    }
+
+    row.style.display = "flex";
+    row.style.flexWrap = "nowrap";
+    row.style.alignItems = "center";
+    row.style.gap = "0.35rem";
+    columns[0].style.flex = "1 1 auto";
+    columns[0].style.minWidth = "0";
+    columns[1].style.flex = "0 0 auto";
+    columns[1].style.minWidth = "fit-content";
+  } catch (_) {
+    restoreInlineWeightRow();
+  }
+}
+
 function updateCompactLayout() {
   const compact = compactMobileEnabled && parentViewportWidth() <= 768;
   control.classList.toggle("compact-mobile", compact);
   mobileLabel.textContent = compactLabelText;
   mobileUnit.textContent = unitText;
   setParentLabelHidden(compact);
+  setGroupHeadingHidden(compact && hideGroupHeadingEnabled);
+  setInlineWeightRow(compact && inlineWeightToggleEnabled);
 }
 
 input.addEventListener("input", () => {
@@ -209,7 +311,11 @@ input.addEventListener("keydown", (event) => {
 minusButton.addEventListener("click", () => stepBy(-1));
 plusButton.addEventListener("click", () => stepBy(1));
 window.addEventListener("resize", updateCompactLayout);
-window.addEventListener("beforeunload", restoreParentLabel);
+window.addEventListener("beforeunload", () => {
+  restoreParentLabel();
+  restoreGroupHeading();
+  restoreInlineWeightRow();
+});
 
 function setTheme(args) {
   document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
@@ -229,6 +335,8 @@ function onRender(event) {
   compactMobileEnabled = Boolean(args.compact_mobile);
   compactLabelText = String(args.compact_label || "");
   unitText = String(args.unit || "");
+  hideGroupHeadingEnabled = Boolean(args.hide_group_heading);
+  inlineWeightToggleEnabled = Boolean(args.inline_weight_toggle);
   input.disabled = disabled;
   control.classList.toggle("is-disabled", disabled);
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
