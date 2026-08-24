@@ -265,11 +265,13 @@ def paragrafo_raffreddamento_dettaglio(
 
     if (
         qd_val is not None and not np.isnan(qd_val)
+        and ta_val is not None and not np.isnan(ta_val)
         and t_med_round is not None and not np.isnan(t_med_round)
     ):
-        if qd_val <= 0.2:
+        qd_threshold = 0.2 if ta_val <= 23 else 0.5
+        if qd_val <= qd_threshold:
             extra = i18n.henssge_qd_outside_warning()
-        elif qd_val < 0.3:
+        elif ta_val <= 23 and qd_val < 0.3:
             extra = i18n.henssge_qd_partial_warning()
 
     if (
@@ -366,7 +368,7 @@ def paragrafi_parametri_aggiuntivi(
 
 def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
     """
-    Paragrafo standard sui processi putrefattivi. HTML <ul><li>...</li></ul>.
+    Paragrafo standard sui processi trasformativi post-mortali. HTML <ul><li>...</li></ul>.
     """
     if not segnalate:
         return None
