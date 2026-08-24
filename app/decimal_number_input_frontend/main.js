@@ -21,8 +21,9 @@ let inlineWeightToggleEnabled = false;
 let hiddenParentLabel = null;
 let hiddenParentLabelDisplay = "";
 let hiddenGroupHeading = null;
-let hiddenGroupHeadingDisplay = "";
-let inlineWeightRowState = null;
+let compactRows = [];
+let compactStack = null;
+let inlineWeightRow = null;
 
 function sameValue(a, b) {
   if (a === null || b === null) return a === b;
@@ -140,6 +141,70 @@ function parentViewportWidth() {
   return Infinity;
 }
 
+function parentDocument() {
+  try {
+    if (window.parent && window.parent !== window) {
+      return window.parent.document;
+    }
+  } catch (_) {
+    return null;
+  }
+  return null;
+}
+
+function ensureParentMobileStyles() {
+  const doc = parentDocument();
+  if (!doc || !doc.head) return;
+  const styleId = "mortem-decimal-mobile-layout";
+  if (doc.getElementById(styleId)) return;
+
+  const style = doc.createElement("style");
+  style.id = styleId;
+  style.textContent = `
+    @media (max-width: 768px) {
+      .mortem-decimal-hide-mobile {
+        display: none !important;
+      }
+
+      [data-testid="stHorizontalBlock"].mortem-decimal-compact-row {
+        gap: 0.30rem !important;
+        row-gap: 0.30rem !important;
+      }
+
+      [data-testid="stVerticalBlock"].mortem-decimal-compact-stack {
+        gap: 0.55rem !important;
+      }
+
+      [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+      }
+
+      [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"] {
+        margin-bottom: 0 !important;
+      }
+
+      [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:first-child {
+        width: auto !important;
+        max-width: none !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+      }
+
+      [data-testid="stHorizontalBlock"].mortem-decimal-weight-inline > [data-testid="column"]:nth-child(2) {
+        width: auto !important;
+        max-width: max-content !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+      }
+    }
+  `;
+  doc.head.appendChild(style);
+}
+
 function parentElementContainer() {
   try {
     const frame = window.frameElement;
@@ -150,10 +215,42 @@ function parentElementContainer() {
   }
 }
 
-function currentHorizontalRow() {
-  const currentElement = parentElementContainer();
-  const column = currentElement ? currentElement.closest('[data-testid="column"]') : null;
-  return column ? column.closest('[data-testid="stHorizontalBlock"]') : null;
+function ancestorHorizontalRows() {
+  const rows = [];
+  const doc = parentDocument();
+  let node = parentElementContainer();
+  while (node && (!doc || node !== doc.body)) {
+    if (node.matches && node.matches('[data-testid="stHorizontalBlock"]')) {
+      rows.push(node);
+    }
+    node = node.parentElement;
+  }
+  return rows;
+}
+
+function previousTextElement(start) {
+  let node = start;
+  for (let depth = 0; node && depth < 6; depth += 1, node = node.parentElement) {
+    let sibling = node.previousElementSibling;
+    while (sibling) {
+      if (
+        sibling.matches &&
+        sibling.matches('[data-testid="stElementContainer"]') &&
+        String(sibling.textContent || "").trim()
+      ) {
+        return sibling;
+      }
+
+      if (sibling.querySelectorAll) {
+        const nested = Array.from(
+          sibling.querySelectorAll('[data-testid="stElementContainer"]')
+        ).reverse().find((element) => String(element.textContent || "").trim());
+        if (nested) return nested;
+      }
+      sibling = sibling.previousElementSibling;
+    }
+  }
+  return null;
 }
 
 function restoreParentLabel() {
@@ -189,9 +286,8 @@ function setParentLabelHidden(hidden) {
 
 function restoreGroupHeading() {
   if (!hiddenGroupHeading) return;
-  hiddenGroupHeading.style.display = hiddenGroupHeadingDisplay;
+  hiddenGroupHeading.classList.remove("mortem-decimal-hide-mobile");
   hiddenGroupHeading = null;
-  hiddenGroupHeadingDisplay = "";
 }
 
 function setGroupHeadingHidden(hidden) {
@@ -201,31 +297,65 @@ function setGroupHeadingHidden(hidden) {
   }
 
   try {
-    const row = currentHorizontalRow();
-    const candidate = row ? row.previousElementSibling : null;
+    const rows = ancestorHorizontalRows();
+    const start = rows.length ? rows[0] : parentElementContainer();
+    const candidate = previousTextElement(start);
     if (!candidate) return;
 
     if (hiddenGroupHeading && hiddenGroupHeading !== candidate) {
       restoreGroupHeading();
     }
-    if (!hiddenGroupHeading) {
-      hiddenGroupHeading = candidate;
-      hiddenGroupHeadingDisplay = candidate.style.display || "";
-    }
-    candidate.style.display = "none";
+    hiddenGroupHeading = candidate;
+    candidate.classList.add("mortem-decimal-hide-mobile");
   } catch (_) {
     restoreGroupHeading();
   }
 }
 
+function restoreCompactRows() {
+  compactRows.forEach((row) => row.classList.remove("mortem-decimal-compact-row"));
+  compactRows = [];
+  if (compactStack) {
+    compactStack.classList.remove("mortem-decimal-compact-stack");
+    compactStack = null;
+  }
+}
+
+function setCompactRows(enabled) {
+  if (!enabled) {
+    restoreCompactRows();
+    return;
+  }
+
+  try {
+    const rows = ancestorHorizontalRows();
+    const nextRows = rows.filter(Boolean);
+
+    compactRows.forEach((row) => {
+      if (!nextRows.includes(row)) row.classList.remove("mortem-decimal-compact-row");
+    });
+    nextRows.forEach((row) => row.classList.add("mortem-decimal-compact-row"));
+    compactRows = nextRows;
+
+    const outerRow = nextRows.length ? nextRows[nextRows.length - 1] : null;
+    const nextStack = outerRow && outerRow.parentElement
+      ? outerRow.parentElement.closest('[data-testid="stVerticalBlock"]')
+      : null;
+
+    if (compactStack && compactStack !== nextStack) {
+      compactStack.classList.remove("mortem-decimal-compact-stack");
+    }
+    compactStack = nextStack;
+    if (compactStack) compactStack.classList.add("mortem-decimal-compact-stack");
+  } catch (_) {
+    restoreCompactRows();
+  }
+}
+
 function restoreInlineWeightRow() {
-  if (!inlineWeightRowState) return;
-  const { row, rowStyle, columns } = inlineWeightRowState;
-  row.style.cssText = rowStyle;
-  columns.forEach(({ element, style }) => {
-    element.style.cssText = style;
-  });
-  inlineWeightRowState = null;
+  if (!inlineWeightRow) return;
+  inlineWeightRow.classList.remove("mortem-decimal-weight-inline");
+  inlineWeightRow = null;
 }
 
 function setInlineWeightRow(enabled) {
@@ -235,35 +365,15 @@ function setInlineWeightRow(enabled) {
   }
 
   try {
-    const row = currentHorizontalRow();
+    const rows = ancestorHorizontalRows();
+    const row = rows.length ? rows[0] : null;
     if (!row) return;
-    const columns = Array.from(row.children).filter(
-      (element) => element.getAttribute && element.getAttribute("data-testid") === "column"
-    );
-    if (columns.length < 2) return;
 
-    if (inlineWeightRowState && inlineWeightRowState.row !== row) {
+    if (inlineWeightRow && inlineWeightRow !== row) {
       restoreInlineWeightRow();
     }
-    if (!inlineWeightRowState) {
-      inlineWeightRowState = {
-        row,
-        rowStyle: row.style.cssText,
-        columns: columns.map((element) => ({
-          element,
-          style: element.style.cssText,
-        })),
-      };
-    }
-
-    row.style.display = "flex";
-    row.style.flexWrap = "nowrap";
-    row.style.alignItems = "center";
-    row.style.gap = "0.35rem";
-    columns[0].style.flex = "1 1 auto";
-    columns[0].style.minWidth = "0";
-    columns[1].style.flex = "0 0 auto";
-    columns[1].style.minWidth = "fit-content";
+    inlineWeightRow = row;
+    row.classList.add("mortem-decimal-weight-inline");
   } catch (_) {
     restoreInlineWeightRow();
   }
@@ -271,10 +381,12 @@ function setInlineWeightRow(enabled) {
 
 function updateCompactLayout() {
   const compact = compactMobileEnabled && parentViewportWidth() <= 768;
+  if (compact) ensureParentMobileStyles();
   control.classList.toggle("compact-mobile", compact);
   mobileLabel.textContent = compactLabelText;
   mobileUnit.textContent = unitText;
   setParentLabelHidden(compact);
+  setCompactRows(compact);
   setGroupHeadingHidden(compact && hideGroupHeadingEnabled);
   setInlineWeightRow(compact && inlineWeightToggleEnabled);
 }
@@ -314,6 +426,7 @@ window.addEventListener("resize", updateCompactLayout);
 window.addEventListener("beforeunload", () => {
   restoreParentLabel();
   restoreGroupHeading();
+  restoreCompactRows();
   restoreInlineWeightRow();
 });
 
