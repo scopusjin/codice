@@ -72,7 +72,7 @@ _FULL_MOBILE_CSS = r"""
   /* Riga Peso: il controllo prende tutto lo spazio residuo; ±3 kg occupa
      esattamente il proprio contenuto e non può spezzarsi. */
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(2) [class*="st-key-peso_stimato_beta"]) {
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"])) {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) max-content !important;
     align-items: center !important;
@@ -84,7 +84,7 @@ _FULL_MOBILE_CSS = r"""
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(2) [class*="st-key-peso_stimato_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"]))
   > [data-testid="column"] {
     width: auto !important;
     max-width: none !important;
@@ -94,7 +94,7 @@ _FULL_MOBILE_CSS = r"""
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has(> [data-testid="column"]:nth-child(2) [class*="st-key-peso_stimato_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"]))
   > [data-testid="column"]:nth-child(2),
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"],
