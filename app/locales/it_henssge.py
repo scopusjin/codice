@@ -10,7 +10,7 @@ from __future__ import annotations
 
 def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
     return (
-        "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, "
+        "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
         f"{interval} "
         "prima dei rilievi effettuati nel corso dell’ispezione legale."
         f"{extra}</li></ul>"
@@ -19,9 +19,9 @@ def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
 
 def henssge_qd_outside_warning() -> str:
     return (
-        " <b>I valori ottenuti sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
-        "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
-        "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili."
+        " <b>I valori ottenuti ricadono al di fuori dell'intervallo ottimale di applicazione dell'equazione;</b> "
+        "la stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
+        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
@@ -49,14 +49,16 @@ def qd_summary(
     within_limits: bool,
 ) -> str:
     condition = "T. amb ≤ 23 °C" if ambient_at_most_23 else "T. amb > 23 °C"
-    status = (
-        "rientra nei limiti ottimali"
-        if within_limits
-        else "è inferiore ai limiti ottimali"
-    )
+    if not within_limits:
+        return (
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri per l’applicazione dell’equazione di Henssge "
+            "risultano al di fuori dei limiti ottimali "
+            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > {threshold_text}; "
+            f"nel caso in esame è pari a {qd_text}).</p>"
+        )
     return (
         "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
-        f"ha Qd = {qd_text}. Tale parametro {status} per applicare l'equazione "
+        f"ha Qd = {qd_text}. Tale parametro rientra nei limiti ottimali per applicare l'equazione "
         f"(per {condition}, Qd deve essere superiore a {threshold_text}).</p>"
     )
 
