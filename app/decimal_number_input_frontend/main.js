@@ -4,6 +4,7 @@ const input = document.getElementById("number-input");
 const mobileUnit = document.getElementById("mobile-unit");
 const minusButton = document.getElementById("number-minus");
 const plusButton = document.getElementById("number-plus");
+const suggestButton = document.getElementById("suggest-action");
 
 let step = 1;
 let decimals = 0;
@@ -16,6 +17,9 @@ let lastSentValue = undefined;
 let compactMobileEnabled = false;
 let compactLabelText = "";
 let unitText = "";
+let suggestEnabled = false;
+let suggestLabelText = "";
+let suggestActive = false;
 
 function sameValue(a, b) {
   if (a === null || b === null) return a === b;
@@ -76,6 +80,7 @@ function canStep(direction) {
 function updateButtons() {
   minusButton.disabled = !canStep(-1);
   plusButton.disabled = !canStep(1);
+  suggestButton.disabled = disabled;
 }
 
 function setDisplayedValue(value) {
@@ -135,9 +140,25 @@ function parentViewportWidth() {
 
 function updateCompactLayout() {
   const compact = compactMobileEnabled && parentViewportWidth() <= 768;
+  const showSuggest = compact && suggestEnabled;
   control.classList.toggle("compact-mobile", compact);
+  control.classList.toggle("has-suggest", showSuggest);
   mobileLabel.textContent = compactLabelText;
   mobileUnit.textContent = unitText;
+  suggestButton.textContent = suggestLabelText;
+  suggestButton.classList.toggle("is-visible", showSuggest);
+  suggestButton.classList.toggle("is-active", showSuggest && suggestActive);
+  suggestButton.setAttribute("aria-pressed", suggestActive ? "true" : "false");
+}
+
+function sendSuggestAction() {
+  if (disabled || !suggestEnabled) return;
+  const parsed = parsedInput();
+  const value = parsed === null ? (lastSentValue ?? null) : clampValue(parsed);
+  Streamlit.setComponentValue({
+    value: value,
+    suggest_token: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  });
 }
 
 input.addEventListener("input", () => {
@@ -171,6 +192,7 @@ input.addEventListener("keydown", (event) => {
 
 minusButton.addEventListener("click", () => stepBy(-1));
 plusButton.addEventListener("click", () => stepBy(1));
+suggestButton.addEventListener("click", sendSuggestAction);
 window.addEventListener("resize", updateCompactLayout);
 window.addEventListener("beforeunload", () => {
   if (sendTimer !== null) window.clearTimeout(sendTimer);
@@ -194,9 +216,13 @@ function onRender(event) {
   compactMobileEnabled = Boolean(args.compact_mobile);
   compactLabelText = String(args.compact_label || "");
   unitText = String(args.unit || "");
+  suggestEnabled = Boolean(args.suggest_enabled);
+  suggestLabelText = String(args.suggest_label || "");
+  suggestActive = Boolean(args.suggest_active);
   input.disabled = disabled;
   control.classList.toggle("is-disabled", disabled);
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
+  suggestButton.title = suggestLabelText ? `${suggestLabelText} fattore di correzione` : "";
 
   const incomingToken = Number.isInteger(args.sync_token) ? args.sync_token : 0;
   const incomingValue = finiteNumber(args.value);
