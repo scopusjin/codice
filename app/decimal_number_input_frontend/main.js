@@ -1,5 +1,7 @@
 const control = document.getElementById("number-control");
+const mobileLabel = document.getElementById("mobile-label");
 const input = document.getElementById("number-input");
+const mobileUnit = document.getElementById("mobile-unit");
 const minusButton = document.getElementById("number-minus");
 const plusButton = document.getElementById("number-plus");
 
@@ -11,6 +13,11 @@ let disabled = false;
 let currentSyncToken = null;
 let sendTimer = null;
 let lastSentValue = undefined;
+let compactMobileEnabled = false;
+let compactLabelText = "";
+let unitText = "";
+let hiddenParentLabel = null;
+let hiddenParentLabelDisplay = "";
 
 function sameValue(a, b) {
   if (a === null || b === null) return a === b;
@@ -117,6 +124,59 @@ function stepBy(direction) {
   scheduleValue(next);
 }
 
+function parentViewportWidth() {
+  try {
+    if (window.parent && window.parent !== window) {
+      return Number(window.parent.innerWidth) || Infinity;
+    }
+  } catch (_) {
+    return Infinity;
+  }
+  return Infinity;
+}
+
+function restoreParentLabel() {
+  if (!hiddenParentLabel) return;
+  hiddenParentLabel.style.display = hiddenParentLabelDisplay;
+  hiddenParentLabel = null;
+  hiddenParentLabelDisplay = "";
+}
+
+function setParentLabelHidden(hidden) {
+  if (!hidden) {
+    restoreParentLabel();
+    return;
+  }
+
+  try {
+    const frame = window.frameElement;
+    const currentElement = frame
+      ? (frame.closest('[data-testid="stElementContainer"]') || frame.parentElement)
+      : null;
+    const candidate = currentElement ? currentElement.previousElementSibling : null;
+
+    if (!candidate) return;
+    if (hiddenParentLabel && hiddenParentLabel !== candidate) {
+      restoreParentLabel();
+    }
+    if (!hiddenParentLabel) {
+      hiddenParentLabel = candidate;
+      hiddenParentLabelDisplay = candidate.style.display || "";
+    }
+    candidate.style.display = "none";
+  } catch (_) {
+    restoreParentLabel();
+  }
+}
+
+function updateCompactLayout() {
+  const compact = compactMobileEnabled && parentViewportWidth() <= 768;
+  control.classList.toggle("compact-mobile", compact);
+  mobileLabel.textContent = compactLabelText;
+  mobileUnit.textContent = unitText;
+  setParentLabelHidden(compact);
+}
+
 input.addEventListener("input", () => {
   const raw = input.value;
   const start = input.selectionStart;
@@ -148,6 +208,8 @@ input.addEventListener("keydown", (event) => {
 
 minusButton.addEventListener("click", () => stepBy(-1));
 plusButton.addEventListener("click", () => stepBy(1));
+window.addEventListener("resize", updateCompactLayout);
+window.addEventListener("beforeunload", restoreParentLabel);
 
 function setTheme(args) {
   document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
@@ -164,6 +226,9 @@ function onRender(event) {
   minimum = finiteNumber(args.min_value);
   maximum = finiteNumber(args.max_value);
   disabled = Boolean(args.disabled);
+  compactMobileEnabled = Boolean(args.compact_mobile);
+  compactLabelText = String(args.compact_label || "");
+  unitText = String(args.unit || "");
   input.disabled = disabled;
   control.classList.toggle("is-disabled", disabled);
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
@@ -186,6 +251,7 @@ function onRender(event) {
     Streamlit.setComponentValue(incomingValue);
   }
 
+  updateCompactLayout();
   updateButtons();
   Streamlit.setFrameHeight(40);
 }
