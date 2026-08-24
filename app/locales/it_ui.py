@@ -145,6 +145,16 @@ UI_TEXT = {
     "graph.shifted_ranges_note": "Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.",
     "graph.henssge_missing_invalid": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati mancanti o non validi.",
     "graph.henssge_incoherent": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati incoerenti o fuori range",
+    "graph.henssge_equal_temperature_warning": (
+        "La temperatura rettale e la temperatura ambientale risultano uguali ({temperature} °C). "
+        "In assenza di un gradiente termico misurabile, il metodo di Henssge non è applicabile. "
+        "Il reperto è compatibile con una possibile condizione di equilibrio termico del cadavere con l'ambiente."
+    ),
+    "graph.henssge_equal_temperature_detail": (
+        "<ul><li>La temperatura rettale e la temperatura ambientale risultavano entrambe pari a <b>{temperature} °C</b>. "
+        "In assenza di un gradiente termico misurabile tra corpo e ambiente, il metodo di Henssge non è applicabile. "
+        "Il reperto è compatibile con una possibile condizione di equilibrio termico del cadavere con l'ambiente.</li></ul>"
+    ),
     "graph.high_ambient_factor_warning": "Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.",
     "graph.low_ambient_factor_warning": "Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.",
     "graph.thermal_equilibrium_warning": "Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.",
