@@ -4,14 +4,14 @@ import streamlit as st
 
 import app.perioral_single_grid as _perioral_single_grid
 import app.sopraciliare_ui as _sopraciliare_ui
+from app.decimal_number_input import decimal_number_input
 from app.special_datetime_ui import install_special_datetime_ui
 from app.special_heading_ui import install_special_heading_style
 from app.supra_single_grid import install_supra_single_grid
 
 
-# Campi decimali della schermata completa: usiamo un input testuale controllato
-# per evitare la localizzazione automatica del separatore decimale di
-# <input type="number"> su browser/dispositivi configurati in italiano.
+# Campi decimali della schermata completa: il componente dedicato mantiene
+# il punto decimale e i controlli −/+ nello stesso riquadro.
 _full_decimal_keys = {
     "rt_val",
     "tm_val",
@@ -25,104 +25,63 @@ _full_decimal_keys = {
 _number_input_original = st.number_input
 
 
-def _format_decimal_value(value, fmt: str) -> str:
-    if value is None:
-        return ""
+def _same_decimal_value(a, b) -> bool:
+    if a is None or b is None:
+        return a is None and b is None
     try:
-        return fmt % float(value)
-    except Exception:
-        return str(value).replace(",", ".")
-
-
-def _parse_decimal_value(raw):
-    if raw is None:
-        return None
-    text = str(raw).strip().replace(",", ".")
-    if text == "":
-        return None
-    try:
-        return float(text)
+        return abs(float(a) - float(b)) < 1e-12
     except (TypeError, ValueError):
-        return None
-
-
-def _rounded_decimal(value, fmt: str):
-    if value is None:
-        return None
-    try:
-        return float(_format_decimal_value(value, fmt))
-    except (TypeError, ValueError):
-        return float(value)
-
-
-def _decimal_text_input(
-    label,
-    *,
-    value=None,
-    step=1.0,
-    format="%g",
-    key=None,
-    min_value=None,
-    max_value=None,
-    label_visibility="visible",
-    disabled=False,
-    **kwargs,
-):
-    text_key = f"__decimal_text_{key}"
-    mirror_key = f"__decimal_mirror_{key}"
-
-    logical_value = st.session_state.get(key, value)
-    parsed_logical = _parse_decimal_value(logical_value)
-
-    # Se il valore logico è stato aggiornato da altro codice (es. suggerimento FC),
-    # riallinea la stringa mostrata prima di creare il widget.
-    previous_mirror = st.session_state.get(mirror_key, object())
-    if previous_mirror != parsed_logical or text_key not in st.session_state:
-        st.session_state[text_key] = _format_decimal_value(parsed_logical, format)
-        st.session_state[mirror_key] = parsed_logical
-
-    def _commit_text():
-        raw = st.session_state.get(text_key, "")
-        parsed = _parse_decimal_value(raw)
-        if parsed is None and str(raw).strip() != "":
-            # Input non valido: ripristina l'ultimo valore numerico valido.
-            st.session_state[text_key] = _format_decimal_value(
-                st.session_state.get(key, value), format
-            )
-            return
-
-        if parsed is not None:
-            if min_value is not None:
-                parsed = max(float(min_value), parsed)
-            if max_value is not None:
-                parsed = min(float(max_value), parsed)
-            parsed = _rounded_decimal(parsed, format)
-
-        st.session_state[key] = parsed
-        st.session_state[mirror_key] = parsed
-        st.session_state[text_key] = _format_decimal_value(parsed, format)
-
-    st.text_input(
-        label,
-        key=text_key,
-        label_visibility=label_visibility,
-        disabled=disabled,
-        on_change=_commit_text,
-    )
-
-    return st.session_state.get(key, parsed_logical)
+        return a == b
 
 
 def _number_input_with_decimal_point(label, *args, **kwargs):
     key = kwargs.get("key")
-    # La MSIL usa ancora il number_input nativo: il suo FC ha label vuota.
+    # La MSIL usa ancora il number_input nativo: i suoi campi hanno label vuota.
     # In questo passaggio modifichiamo soltanto il riquadro Henssge completo.
     if key in _full_decimal_keys and str(label).strip():
         if args:
             # I campi interessati nell'app usano argomenti nominati; fallback
             # prudente al widget originale se in futuro la firma cambia.
             return _number_input_original(label, *args, **kwargs)
-        return _decimal_text_input(label, **kwargs)
+
+        logical_value = st.session_state.get(key, kwargs.get("value"))
+        mirror_key = f"__decimal_component_mirror_{key}"
+        sync_key = f"__decimal_component_sync_{key}"
+
+        if mirror_key not in st.session_state:
+            st.session_state[mirror_key] = logical_value
+        st.session_state.setdefault(sync_key, 0)
+
+        external_change = not _same_decimal_value(
+            logical_value,
+            st.session_state.get(mirror_key),
+        )
+        if external_change:
+            st.session_state[sync_key] += 1
+            st.session_state[mirror_key] = logical_value
+
+        result = decimal_number_input(
+            value=logical_value,
+            step=kwargs.get("step", 1.0),
+            format=kwargs.get("format", "%g"),
+            min_value=kwargs.get("min_value"),
+            max_value=kwargs.get("max_value"),
+            disabled=kwargs.get("disabled", False),
+            sync_token=st.session_state[sync_key],
+            aria_label=label,
+            key=f"mortem_decimal_{key}",
+        )
+
+        # Durante una sincronizzazione esterna (es. “Suggerisci FC”) il valore
+        # restituito dal componente può essere quello del render precedente:
+        # in quel solo passaggio prevale il valore logico appena aggiornato.
+        if external_change:
+            return logical_value
+
+        st.session_state[key] = result
+        st.session_state[mirror_key] = result
+        return result
+
     return _number_input_original(label, *args, **kwargs)
 
 
