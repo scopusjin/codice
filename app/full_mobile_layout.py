@@ -97,45 +97,13 @@ _FULL_MOBILE_CSS = r"""
     display: none !important;
   }
 
-  /* Nella modalità prudente le righe separate hanno la stessa distanza delle
-     righe interne della pila, senza dipendere dal gap verticale di Streamlit. */
-  body:has([class*="st-key-range_unico_beta"])
+  /* Nella modalità con intervalli le righe separate hanno la stessa distanza
+     delle righe interne della pila, senza dipendere dal gap di Streamlit. */
+  body:has([class*="st-key-prudent_explicit_ranges"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
-  body:has([class*="st-key-range_unico_beta"])
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]),
-  body:has([class*="st-key-range_unico_beta"])
+  body:has([class*="st-key-prudent_explicit_ranges"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
     margin-top: -0.55rem !important;
-  }
-
-  /* In prudente senza range la seconda colonna della riga FC è solo un
-     placeholder; nasconderla evita spazio residuo dopo il controllo. */
-  body:has([class*="st-key-range_unico_beta"])
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]):not(:has([class*="st-key-mortem_decimal_ta_base_val"]))
-  > [data-testid="column"]:nth-child(2) {
-    display: none !important;
-  }
-
-  /* Nota prudenziale e switch "Specifica range" restano ordinati in verticale
-     senza comprimersi in due colonne sul telefono. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-range_unico_beta"]) {
-    display: flex !important;
-    flex-direction: column !important;
-    flex-wrap: nowrap !important;
-    gap: clamp(0.20rem, 1vw, 0.34rem) !important;
-    width: 100% !important;
-  }
-
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-range_unico_beta"])
-  > [data-testid="column"] {
-    flex: 0 0 auto !important;
-    width: 100% !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
   }
 
   /* Riga Peso: il controllo prende tutto lo spazio residuo; ±3 kg occupa

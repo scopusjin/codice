@@ -165,9 +165,9 @@ _defaults = {
     "toggle_fattore_inline_std": False,
     "fc_suggested_vals": [],
     # range widgets
-    "fc_min_val": 0.90,
-    "fc_other_val": 1.10,
-    "ta_other_val": 21.0,
+    "fc_min_val": 1.00,
+    "fc_other_val": 1.00,
+    "ta_other_val": 20.0,
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
@@ -272,6 +272,23 @@ with st.container(border=True):
 st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
 stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
+# La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
+# i due estremi coincidono con i valori correnti; nei rerun successivi si
+# conservano invece i valori già inseriti dall'utente.
+if stima_cautelativa_beta:
+    if not st.session_state.get("__prudent_explicit_ranges_initialized", False):
+        ta_seed = st.session_state.get("ta_base_val", 20.0)
+        fc_seed = st.session_state.get("fattore_correzione", 1.0)
+        if _is_num(ta_seed):
+            st.session_state["ta_other_val"] = float(ta_seed)
+        if _is_num(fc_seed):
+            st.session_state["fc_min_val"] = float(fc_seed)
+            st.session_state["fc_other_val"] = float(fc_seed)
+        st.session_state["__prudent_explicit_ranges_initialized"] = True
+    st.session_state["range_unico_beta"] = True
+else:
+    st.session_state["range_unico_beta"] = False
+
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
@@ -292,22 +309,14 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
         if stima_cautelativa_beta:
-            rg1, rg2 = st.columns([3, 1], gap="small")
-            with rg1:
+            with st.container(key="prudent_explicit_ranges"):
                 st.markdown(
                     i18n.ui_text("full.prudent_default_note"),
                     unsafe_allow_html=True
                 )
 
-            with rg2:
-                range_unico = st.toggle(i18n.ui_text("full.specify_range"), key="range_unico_beta")
-
-            # Etichette dinamiche
-            label_ta = i18n.ui_text("full.ta_mean_label")
-            label_fc = i18n.ui_text("full.fc_label")
-            if st.session_state.get("range_unico_beta", False):
-                label_ta = i18n.ui_text("full.ta_range_label")
-                label_fc = i18n.ui_text("full.fc_range_label")
+            label_ta = i18n.ui_text("full.ta_range_label")
+            label_fc = i18n.ui_text("full.fc_range_label")
 
             # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
             c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
@@ -334,7 +343,7 @@ with st.container(border=True):
                 with pc2:
                     st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-            # Riga 2: T. ambientale media + range unico
+            # Riga 2: intervallo T. ambientale media
             st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
             ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
             with ta_c1:
@@ -346,59 +355,41 @@ with st.container(border=True):
                     label_visibility="collapsed"
                 )
             with ta_c2:
-                if st.session_state.get("range_unico_beta", False):
-                    ta_other_val = st.number_input(
-                        i18n.ui_text("full.ta_other_input"),
-                        value=sget("ta_other_val", ta_base_val + 1.0),
-                        step=0.1, format="%.1f",
-                        key="ta_other_val",
-                        label_visibility="collapsed"
-                    )
-                    lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
-                    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                else:
-                    st.empty()
+                ta_other_val = st.number_input(
+                    i18n.ui_text("full.ta_other_input"),
+                    value=sget("ta_other_val", ta_base_val),
+                    step=0.1, format="%.1f",
+                    key="ta_other_val",
+                    label_visibility="collapsed"
+                )
+                lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
+                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
             with ta_c3:
                 st.empty()
 
-            # Riga 3: Fattore di correzione
+            # Riga 3: intervallo fattore di correzione
             st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
             fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
 
             with fc_c1:
-                if st.session_state.get("range_unico_beta", False):
-                    fc_min_val = st.number_input(
-                        i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", round(sget("fattore_correzione", 1.0) - 0.10, 2)),
-                        step=0.1, format="%.2f",
-                        key="fc_min_val",
-                        label_visibility="collapsed"
-                    )
-                else:
-                    st.number_input(
-                        i18n.ui_text("full.fc_input"),
-                        value=sget("fattore_correzione", 1.0),
-                        step=0.1, format="%.2f",
-                        key="fattore_correzione",
-                        label_visibility="collapsed"
-                    )
-                    if not st.session_state.get("fc_suggested_vals"):
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
+                fc_min_val = st.number_input(
+                    i18n.ui_text("full.fc_min_input"),
+                    value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                    step=0.1, format="%.2f",
+                    key="fc_min_val",
+                    label_visibility="collapsed"
+                )
 
             with fc_c2:
-                if st.session_state.get("range_unico_beta", False):
-                    fc_other_val = st.number_input(
-                        i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", round(sget("fattore_correzione", 1.0) + 0.10, 2)),
-                        step=0.1, format="%.2f",
-                        key="fc_other_val",
-                        label_visibility="collapsed"
-                    )
-                    lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
-                    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                else:
-                    st.empty()
+                fc_other_val = st.number_input(
+                    i18n.ui_text("full.fc_max_input"),
+                    value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                    step=0.1, format="%.2f",
+                    key="fc_other_val",
+                    label_visibility="collapsed"
+                )
+                lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
+                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
 
             with fc_c3:
                 st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
@@ -641,33 +632,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- Helper: applica range prudente di default quando "Specifica range" è OFF ---
-def _apply_default_prudent_ranges():
-    if not st.session_state.get("stima_cautelativa_beta", False):
-        return
-    if not st.session_state.get("range_unico_beta", False):
-        ta = st.session_state.get("ta_base_val")
-        if _is_num(ta):
-            st.session_state["Ta_min_beta"] = round(float(ta) - 1.0, 2)
-            st.session_state["Ta_max_beta"] = round(float(ta) + 1.0, 2)
-        else:
-            st.session_state.pop("Ta_min_beta", None)
-            st.session_state.pop("Ta_max_beta", None)
-
-        if not st.session_state.get("fc_suggested_vals"):
-            fc = st.session_state.get("fattore_correzione", 1.0)
-            st.session_state["FC_min_beta"] = round(float(fc) - 0.10, 2)
-            st.session_state["FC_max_beta"] = round(float(fc) + 0.10, 2)
-
-# --- Pulizia chiavi dei widget di range quando si torna OFF ---
-if not st.session_state.get("range_unico_beta", False):
-    for _tmpk in ("ta_other_val", "fc_min_val", "fc_other_val"):
-        if _tmpk in st.session_state:
-            try:
-                st.session_state.pop(_tmpk)
-            except Exception:
-                pass
-
 # --- Bottone: esegue il calcolo SOLO su click ---
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
@@ -681,9 +645,6 @@ if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr
 
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
 if st.session_state["show_results"]:
-    # Applica sempre i range prudenziali di default se necessari
-    _apply_default_prudent_ranges()
-
     input_rt = st.session_state.get("rt_val")
     input_ta = st.session_state.get("ta_base_val")
     input_tm = st.session_state.get("tm_val")

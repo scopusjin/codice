@@ -22,7 +22,7 @@ UI_TEXT = {
     "full.rigor_select_label": "Rigidità cadaverica:",
 
     # UI completa — raffreddamento / fattore di correzione
-    "full.prudent_toggle": "Stima prudente",
+    "full.prudent_toggle": "Stima con intervalli",
     "full.henssge_not_applicable": "Metodo di Henssge non applicabile",
     "full.henssge_not_applicable_help": (
         "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
@@ -37,9 +37,8 @@ UI_TEXT = {
     "full.prudent_default_note": (
         "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
         "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-        "Se non diversamente specificato, si considererà "
-        "un range di incertezza di ±1.0 °C per la T. ambientale media "
-        "e di ±0.10 per il fattore di correzione."
+        "Nella stima prudente specificare gli intervalli di temperatura ambientale "
+        "e fattore di correzione da considerare nel calcolo."
         "</div>"
     ),
     "full.specify_range": "Specifica range",
