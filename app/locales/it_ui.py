@@ -146,9 +146,8 @@ UI_TEXT = {
     "graph.henssge_missing_invalid": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati mancanti o non validi.",
     "graph.henssge_incoherent": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati incoerenti o fuori range",
     "graph.henssge_equal_temperature_warning": (
-        "La temperatura rettale e la temperatura ambientale risultano uguali ({temperature} °C). "
-        "In assenza di un gradiente termico misurabile, il metodo di Henssge non è applicabile. "
-        "Il reperto è compatibile con una possibile condizione di equilibrio termico del cadavere con l'ambiente."
+        "T. rettale e T. ambientale sono uguali: il metodo di Henssge non è applicabile "
+        "per assenza di gradiente termico."
     ),
     "graph.henssge_equal_temperature_detail": (
         "<ul><li>La temperatura rettale e la temperatura ambientale risultavano entrambe pari a <b>{temperature} °C</b>. "
