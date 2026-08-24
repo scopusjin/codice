@@ -54,6 +54,8 @@ def _same_decimal_value(a, b) -> bool:
 def _compact_mobile_label(label, key) -> str:
     if key == "fattore_correzione":
         return "FC"
+    if key == "ta_base_val":
+        return "T. amb. media"
 
     text = str(label or key).strip().rstrip(":")
     if key == "tm_val":
