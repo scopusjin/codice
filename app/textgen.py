@@ -301,7 +301,7 @@ def paragrafo_potente(
         ta_val is None or np.isnan(ta_val)
     ):
         return None
-    if not (qd_val < qd_threshold):
+    if not (qd_val <= qd_threshold):
         return None
 
     h, m = _hm_from_hours(mt_ore)
@@ -406,7 +406,7 @@ def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
 
     soglia = 0.2 if ta_val <= 23 else 0.5
 
-    if qd_val < soglia:
+    if qd_val <= soglia:
         return i18n.qd_summary(
             qd_text=f"{qd_val:.3f}",
             ambient_at_most_23=ta_val <= 23,
