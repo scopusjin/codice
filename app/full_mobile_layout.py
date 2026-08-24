@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Layout responsive della schermata completa di Mor-tem.
 
-Il CSS viene inserito al primo ``st.markdown`` della pagina, quindi dopo
-``st.set_page_config`` ma prima dei widget. In questo modo il layout mobile è
-già attivo al primo render e non dipende da manipolazioni DOM post-render del
-componente numerico.
+Il CSS viene allegato al blocco di stile iniziale ``.final-text`` della pagina,
+quindi dopo ``st.set_page_config`` ma prima dei widget, a ogni rerun. In questo
+modo il layout mobile è già attivo al primo render e non dipende da
+manipolazioni DOM post-render del componente numerico.
 """
 
 import streamlit as st
@@ -128,8 +128,6 @@ _FULL_MOBILE_CSS = r"""
     word-break: keep-all !important;
   }
 
-  /* Se il componente aggiunge le vecchie classi di compattezza, la geometria
-     resta comunque quella statica sopra: nessun salto di layout. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"].mortem-decimal-compact-row {
     gap: clamp(0.22rem, 1vw, 0.36rem) !important;
@@ -234,19 +232,18 @@ def _tag_full_field_heading(body):
 
 
 def install_full_mobile_layout():
-    """Installa CSS/heading tagging senza eseguire comandi Streamlit all'import."""
+    """Installa il layout senza eseguire comandi Streamlit all'import."""
     if getattr(st, "_full_mobile_layout_installed", False):
         return
 
     original_markdown = st.markdown
-    css_injected = False
 
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
-        nonlocal css_injected
-        if not css_injected:
-            original_markdown(_FULL_MOBILE_CSS, unsafe_allow_html=True)
-            css_injected = True
-        return original_markdown(_tag_full_field_heading(body), *args, **kwargs)
+        tagged_body = _tag_full_field_heading(body)
+        if isinstance(tagged_body, str) and ".final-text{" in tagged_body:
+            tagged_body = _FULL_MOBILE_CSS + tagged_body
+            kwargs["unsafe_allow_html"] = True
+        return original_markdown(tagged_body, *args, **kwargs)
 
     st.markdown = markdown_with_full_mobile_layout
     st._full_mobile_layout_installed = True
