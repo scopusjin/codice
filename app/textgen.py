@@ -274,13 +274,6 @@ def paragrafo_raffreddamento_dettaglio(
         elif ta_val <= 23 and qd_val < 0.3:
             extra = i18n.henssge_qd_partial_warning()
 
-    if (
-        qd_val is not None and not np.isnan(qd_val)
-        and t_med_round is not None and not np.isnan(t_med_round)
-        and t_med_round > 30
-    ):
-        extra += " " + i18n.henssge_over_thirty_warning(f"{t_med_round:.1f}")
-
     return i18n.henssge_detail_paragraph(intervallo_txt, extra)
 
 
@@ -375,14 +368,8 @@ def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
     return i18n.putrefactive_paragraph()
 
 def avvisi_raffreddamento_henssge(*, t_med_round: Optional[float], qd_val: Optional[float]) -> List[str]:
-    """
-    Avvisi testuali relativi al raffreddamento cadaverico.
-    - Avviso >30h sempre, indipendentemente dalla soglia di Qd.
-    """
-    out: List[str] = []
-    if t_med_round is not None and not np.isnan(t_med_round) and t_med_round > 30:
-        out.append(i18n.henssge_over_thirty_warning(f"{t_med_round:.1f}"))
-    return out
+    """Avvisi testuali relativi al raffreddamento cadaverico."""
+    return []
 
 # ------------------------------------------------------------
 # Riepilogo parametri usati
