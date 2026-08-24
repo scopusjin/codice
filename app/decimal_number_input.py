@@ -61,6 +61,10 @@ def decimal_number_input(
     unit="",
     hide_group_heading=False,
     inline_weight_toggle=False,
+    suggest_enabled=False,
+    suggest_label="",
+    suggest_active=False,
+    on_suggest=None,
     on_change=None,
     key=None,
 ):
@@ -84,6 +88,9 @@ def decimal_number_input(
         unit=str(unit or ""),
         hide_group_heading=bool(hide_group_heading),
         inline_weight_toggle=bool(inline_weight_toggle),
+        suggest_enabled=bool(suggest_enabled),
+        suggest_label=str(suggest_label or ""),
+        suggest_active=bool(suggest_active),
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
@@ -91,6 +98,15 @@ def decimal_number_input(
         on_change=on_change,
         default=current,
     )
+
+    if isinstance(result, dict):
+        suggest_token = result.get("suggest_token")
+        if suggest_token is not None and callable(on_suggest):
+            event_key = f"__decimal_suggest_event_{key or aria_label}"
+            if st.session_state.get(event_key) != suggest_token:
+                st.session_state[event_key] = suggest_token
+                on_suggest()
+        result = result.get("value", current)
 
     if result is None:
         return None
