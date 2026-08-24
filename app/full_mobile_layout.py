@@ -19,16 +19,27 @@ _FULL_MOBILE_CSS = r"""
     display: none !important;
   }
 
-  /* Le due righe Streamlit dei parametri diventano una pila di controlli a
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stElementContainer"]:has(.mortem-full-field-heading) {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Le righe Streamlit dei parametri diventano una pila di controlli a
      tutta larghezza già al primo render. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_rt_val"]),
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]) {
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
     display: flex !important;
     flex-direction: column !important;
     flex-wrap: nowrap !important;
-    gap: clamp(0.22rem, 1vw, 0.36rem) !important;
+    gap: clamp(0.10rem, 0.5vw, 0.18rem) !important;
     width: 100% !important;
     margin: 0 !important;
   }
@@ -38,6 +49,12 @@ _FULL_MOBILE_CSS = r"""
   > [data-testid="column"],
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"])
+  > [data-testid="column"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"])
+  > [data-testid="column"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"])
   > [data-testid="column"] {
     flex: 0 0 auto !important;
     width: 100% !important;
@@ -45,6 +62,21 @@ _FULL_MOBILE_CSS = r"""
     min-width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_rt_val"])
+  > [data-testid="column"] > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"])
+  > [data-testid="column"] > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"])
+  > [data-testid="column"] > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"])
+  > [data-testid="column"] > [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
   }
 
   /* Nota prudenziale e switch "Specifica range" restano ordinati in verticale
@@ -218,7 +250,8 @@ def _tag_full_field_heading(body):
         return body
     if "font-size: 0.88rem;" not in body or "padding-top" in body:
         return body
-    if not any(token in body for token in _FIELD_HEADING_TOKENS):
+    body_folded = body.casefold()
+    if not any(token.casefold() in body_folded for token in _FIELD_HEADING_TOKENS):
         return body
 
     source_single = "<div style='font-size: 0.88rem;'>"
