@@ -44,6 +44,67 @@ _full_mobile_units = {
 }
 _number_input_original = st.number_input
 _dg_number_input_original = DeltaGenerator.number_input
+_toggle_original = st.toggle
+
+
+def _sync_full_interval_mode_state():
+    """Conserva separatamente valori standard e intervalli al cambio modalità."""
+    interval_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
+
+    if interval_mode:
+        standard_ta = st.session_state.get("ta_base_val", 20.0)
+        standard_fc = st.session_state.get("fattore_correzione", 1.0)
+        st.session_state["__full_standard_ta_base_val"] = standard_ta
+        st.session_state["__full_standard_fattore_correzione"] = standard_fc
+
+        if "__full_interval_ta_base_val" in st.session_state:
+            st.session_state["ta_base_val"] = st.session_state["__full_interval_ta_base_val"]
+            st.session_state["ta_other_val"] = st.session_state["__full_interval_ta_other_val"]
+            st.session_state["fc_min_val"] = st.session_state["__full_interval_fc_min_val"]
+            st.session_state["fc_other_val"] = st.session_state["__full_interval_fc_other_val"]
+        else:
+            st.session_state["ta_base_val"] = standard_ta
+            st.session_state["ta_other_val"] = standard_ta
+            st.session_state["fc_min_val"] = standard_fc
+            st.session_state["fc_other_val"] = standard_fc
+
+        st.session_state["__prudent_explicit_ranges_initialized"] = True
+        return
+
+    # Il callback scatta prima del rerun: i widget della modalità con intervalli
+    # sono ancora in session_state e possono essere salvati prima che spariscano.
+    if st.session_state.get("__prudent_explicit_ranges_initialized", False):
+        st.session_state["__full_interval_ta_base_val"] = st.session_state.get("ta_base_val", 20.0)
+        st.session_state["__full_interval_ta_other_val"] = st.session_state.get("ta_other_val", 20.0)
+        st.session_state["__full_interval_fc_min_val"] = st.session_state.get("fc_min_val", 1.0)
+        st.session_state["__full_interval_fc_other_val"] = st.session_state.get("fc_other_val", 1.0)
+
+    if "__full_standard_ta_base_val" in st.session_state:
+        st.session_state["ta_base_val"] = st.session_state["__full_standard_ta_base_val"]
+    if "__full_standard_fattore_correzione" in st.session_state:
+        st.session_state["fattore_correzione"] = st.session_state["__full_standard_fattore_correzione"]
+
+
+def _toggle_with_full_interval_state(label, *args, **kwargs):
+    if kwargs.get("key") != "stima_cautelativa_beta":
+        return _toggle_original(label, *args, **kwargs)
+
+    user_on_change = kwargs.get("on_change")
+    callback_args = kwargs.get("args") or ()
+    callback_kwargs = kwargs.get("kwargs") or {}
+
+    def _on_change():
+        _sync_full_interval_mode_state()
+        if callable(user_on_change):
+            user_on_change(*callback_args, **callback_kwargs)
+
+    kwargs["on_change"] = _on_change
+    kwargs.pop("args", None)
+    kwargs.pop("kwargs", None)
+    return _toggle_original(label, *args, **kwargs)
+
+
+st.toggle = _toggle_with_full_interval_state
 
 
 def _same_decimal_value(a, b) -> bool:
