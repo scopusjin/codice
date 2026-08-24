@@ -368,7 +368,7 @@ def paragrafi_parametri_aggiuntivi(
 
 def paragrafo_putrefattive(segnalate: bool) -> Optional[str]:
     """
-    Paragrafo standard sui processi trasformativi post-mortali. HTML <ul><li>...</li></ul>.
+    Paragrafo standard sui processi putrefattivi. HTML <ul><li>...</li></ul>.
     """
     if not segnalate:
         return None
