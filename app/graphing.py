@@ -267,9 +267,10 @@ def aggiorna_grafico(
     mt_ore = None
     mt_giorni = None
 
-    # Calcola sempre mt_ore quando la TA MEDIA soddisfa ΔT ≥ 0.1
-    if all(_is_num(v) for v in [Tr_val, Ta_val, Ta_for_pot, CF_val, W_val]) \
-       and (Tr_val - Ta_val) >= (0.1 - 1e-9):
+    # Calcola mt_ore se ΔT ≥ 0.1 oppure in caso di equilibrio termico esatto.
+    if all(_is_num(v) for v in [Tr_val, Ta_val, Ta_for_pot, CF_val, W_val]) and (
+        (Tr_val - Ta_val) >= (0.1 - 1e-9) or temperatures_equal
+    ):
         B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
         ln_term = np.log(0.16) if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else np.log(0.45)
         mt_ore_raw = ln_term / B
@@ -295,22 +296,21 @@ def aggiorna_grafico(
             famiglie_usate.append(special_family_id(p.get("parameter_id"), p["nome"]))
 
     # Henssge/Potente nell’intersezione
-    if raffreddamento_calcolabile:
-        if usa_potente:
-            if mt_ore is not None and not np.isnan(mt_ore):
-                inizio.append(mt_ore)
-                fine.append(np.nan)
-                nomi_usati.append(i18n.ui_text("graph.parameter_cooling_potente"))
-                famiglie_usate.append(FAMILY_COOLING)
-        else:
-            inizio.append(t_min_raff_henssge)
-            fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
-            nomi_usati.append(
-                i18n.ui_text("graph.parameter_cooling_prudent_open")
-                if np.isnan(t_max_raff_henssge) else
-                i18n.ui_text("graph.parameter_cooling")
-            )
+    if usa_potente and (raffreddamento_calcolabile or temperatures_equal):
+        if mt_ore is not None and not np.isnan(mt_ore):
+            inizio.append(mt_ore)
+            fine.append(np.nan)
+            nomi_usati.append(i18n.ui_text("graph.parameter_cooling_potente"))
             famiglie_usate.append(FAMILY_COOLING)
+    elif raffreddamento_calcolabile:
+        inizio.append(t_min_raff_henssge)
+        fine.append(t_max_raff_henssge if _is_num(t_max_raff_henssge) else np.nan)
+        nomi_usati.append(
+            i18n.ui_text("graph.parameter_cooling_prudent_open")
+            if np.isnan(t_max_raff_henssge) else
+            i18n.ui_text("graph.parameter_cooling")
+        )
+        famiglie_usate.append(FAMILY_COOLING)
 
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
@@ -515,8 +515,9 @@ def aggiorna_grafico(
         if par_h:
             _add_det(par_h)
 
+        qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
         par_p = paragrafo_potente(
-            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=Qd_val_check, ta_val=Ta_val, qd_threshold=qd_threshold,
+            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
         )
         _add_det(par_p)
 
