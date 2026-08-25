@@ -1,6 +1,7 @@
 # pages/app_mobile.py
 # -*- coding: utf-8 -*-
 import datetime
+import textwrap
 import pandas as pd
 import streamlit as st
 from app import i18n
@@ -132,7 +133,7 @@ def _raccomandazioni_html() -> str:
     return i18n.ui_text("msil.recommendations_html")
 
 st.markdown(
-    """
+    textwrap.dedent("""
     <style>
     /* link popover blu tipo link */
     div[data-testid="stPopover"] button {
@@ -148,7 +149,7 @@ st.markdown(
     /* niente limite di altezza al contenuto del popover */
     div[data-testid="stPopoverContent"] { max-height:none!important; }
     </style>
-    """,
+    """),
     unsafe_allow_html=True
 )
 
