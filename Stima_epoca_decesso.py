@@ -377,8 +377,16 @@ with st.container(border=True):
                     key="ta_other_val",
                     label_visibility="collapsed"
                 )
-                lo_ta, hi_ta = sorted([float(st.session_state["ta_base_val"]), float(st.session_state["ta_other_val"])])
-                st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                ta_values = [
+                    st.session_state.get("ta_base_val"),
+                    st.session_state.get("ta_other_val"),
+                ]
+                if all(_is_num(v) for v in ta_values):
+                    lo_ta, hi_ta = sorted(float(v) for v in ta_values)
+                    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                else:
+                    st.session_state.pop("Ta_min_beta", None)
+                    st.session_state.pop("Ta_max_beta", None)
             with ta_c3:
                 st.empty()
 
@@ -403,8 +411,16 @@ with st.container(border=True):
                     key="fc_other_val",
                     label_visibility="collapsed"
                 )
-                lo_fc, hi_fc = sorted([float(st.session_state["fc_min_val"]), float(st.session_state["fc_other_val"])])
-                st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                fc_values = [
+                    st.session_state.get("fc_min_val"),
+                    st.session_state.get("fc_other_val"),
+                ]
+                if all(_is_num(v) for v in fc_values):
+                    lo_fc, hi_fc = sorted(float(v) for v in fc_values)
+                    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                else:
+                    st.session_state.pop("FC_min_beta", None)
+                    st.session_state.pop("FC_max_beta", None)
 
             with fc_c3:
                 st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
