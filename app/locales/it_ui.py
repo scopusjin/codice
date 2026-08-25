@@ -22,7 +22,7 @@ UI_TEXT = {
     "full.rigor_select_label": "Rigidità cadaverica:",
 
     # UI completa — raffreddamento / fattore di correzione
-    "full.prudent_toggle": "Stima con intervalli",
+    "full.prudent_toggle": "Condizioni variabili?",
     "full.henssge_not_applicable": "Metodo di Henssge non applicabile",
     "full.henssge_not_applicable_help": (
         "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
@@ -56,6 +56,11 @@ UI_TEXT = {
         "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
         "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
         "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+    ),
+    "full.ta_mean_help": (
+        "Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso "
+        "e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, "
+        "soprattutto se il cadavere si trova all’aperto."
     ),
     "full.fc_label": "Fattore di correzione (FC):",
     "full.fc_range_label": "Range del fattore di correzione (FC):",

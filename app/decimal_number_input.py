@@ -8,6 +8,8 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app.locales.it_ui import ui_text
+
 
 _FRONTEND_DIR = (Path(__file__).resolve().parent / "decimal_number_input_frontend").absolute()
 _component = components.declare_component(
@@ -73,6 +75,11 @@ def decimal_number_input(
     current = _finite_float(value)
     minimum = _finite_float(min_value)
     maximum = _finite_float(max_value)
+    help_text = (
+        ui_text("full.ta_mean_help")
+        if key in {"mortem_decimal_ta_base_val", "mortem_decimal_ta_other_val"}
+        else ""
+    )
 
     result = _component(
         value=current,
@@ -86,6 +93,7 @@ def decimal_number_input(
         compact_mobile=bool(compact_mobile),
         compact_label=str(compact_label or ""),
         unit=str(unit or ""),
+        help_text=help_text,
         hide_group_heading=bool(hide_group_heading),
         inline_weight_toggle=bool(inline_weight_toggle),
         suggest_enabled=bool(suggest_enabled),
