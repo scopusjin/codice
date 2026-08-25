@@ -7,6 +7,7 @@ modo il layout mobile è già attivo al primo render e non dipende da
 manipolazioni DOM post-render del componente numerico.
 """
 
+import html
 import re
 
 import streamlit as st
@@ -49,6 +50,22 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   gap: 0.35rem !important;
 }
 
+.mortem-help-copy {
+  max-width: min(82vw, 30rem);
+  font-size: 0.90rem;
+  line-height: 1.28;
+}
+
+.mortem-help-copy-intro {
+  margin: 0 0 0.38rem 0;
+}
+
+.mortem-help-copy-bullet {
+  margin: 0.12rem 0;
+  padding-left: 0.95rem;
+  text-indent: -0.78rem;
+}
+
 @media (max-width: 768px) {
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
@@ -72,14 +89,30 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
   }
 
+  /* Riserva subito l'altezza dei componenti numerici custom: l'iframe nasce
+     già a 40 px e il layout non deve riassestarsi quando il JS del controllo
+     termina l'inizializzazione. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_"] {
+    min-height: 40px !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_"] iframe {
+    display: block !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
   /* Le note aperte dai ? della temperatura restano aderenti al controllo
      senza introdurre il grande spazio verticale del caption predefinito. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_standard_help_note"],
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_range_help_note"] {
-    margin-top: -0.65rem !important;
-    margin-bottom: -0.10rem !important;
+    margin-top: -0.90rem !important;
+    margin-bottom: -0.18rem !important;
     padding: 0 !important;
   }
 
@@ -93,7 +126,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_range_help_note"] p {
     margin: 0 !important;
     padding: 0 !important;
-    line-height: 1.28 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.22 !important;
   }
 
   /* Le righe Streamlit dei parametri diventano una pila di controlli a
@@ -340,10 +374,17 @@ def _tag_full_field_heading(body):
 
 
 def _render_click_help(text: str, key: str) -> None:
-    paragraphs = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    blocks = []
+    for line in lines:
+        escaped = html.escape(line)
+        css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
+        blocks.append(f'<div class="{css_class}">{escaped}</div>')
+    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
+
     with st.container(width="content", key=key):
         with st.popover("?"):
-            st.markdown("\n\n".join(paragraphs))
+            st.markdown(content, unsafe_allow_html=True)
 
 
 def install_full_mobile_layout():
