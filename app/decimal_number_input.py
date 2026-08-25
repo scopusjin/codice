@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Input numerico decimale con punto e controlli integrati per Mor-tem."""
 
-import html
 import math
 import re
 from pathlib import Path
@@ -20,10 +19,11 @@ _component = components.declare_component(
 _FORMAT_RE = re.compile(r"^%\.(\d+)f$")
 _TA_BASE_COMPONENT_KEY = "mortem_decimal_ta_base_val"
 _TA_OTHER_COMPONENT_KEY = "mortem_decimal_ta_other_val"
-_TA_HELP_OPEN_KEY = "__decimal_ta_help_open"
+_TA_STANDARD_HELP_OPEN_KEY = "__decimal_ta_standard_help_open"
+_TA_RANGE_HELP_OPEN_KEY = "__decimal_ta_range_help_open"
 _TA_RANGE_MOBILE_NOTE = (
-    "Inserisci i due estremi plausibili della temperatura ambientale media "
-    "riferita al periodo tra il decesso e l’ispezione."
+    "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
+    "nel periodo tra il decesso e l’ispezione."
 )
 
 
@@ -54,35 +54,6 @@ def _finite_float(value):
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
-
-
-def _render_mobile_ta_note(text: str) -> None:
-    safe_text = html.escape(str(text or ""))
-    st.markdown(
-        """
-        <style>
-        [data-testid="stElementContainer"]:has(.mortem-ta-mobile-note) {
-          display: none !important;
-        }
-        @media (max-width: 768px) {
-          [data-testid="stElementContainer"]:has(.mortem-ta-mobile-note) {
-            display: block !important;
-            margin-top: -0.15rem !important;
-            margin-bottom: 0.08rem !important;
-          }
-          .mortem-ta-mobile-note {
-            display: block !important;
-            padding: 0.1rem 0.35rem 0.18rem 0.35rem;
-            font-size: 0.72rem;
-            line-height: 1.3;
-            color: #666;
-          }
-        }
-        </style>
-        """
-        f"<div class='mortem-ta-mobile-note'>{safe_text}</div>",
-        unsafe_allow_html=True,
-    )
 
 
 def decimal_number_input(
@@ -119,10 +90,16 @@ def decimal_number_input(
     )
     is_ta_base = key == _TA_BASE_COMPONENT_KEY
     is_ta_other = key == _TA_OTHER_COMPONENT_KEY
-    help_enabled = bool(is_ta_base and not interval_mode)
 
-    if interval_mode and is_ta_base:
-        st.session_state[_TA_HELP_OPEN_KEY] = False
+    help_state_key = None
+    help_text = ""
+    if is_ta_base and not interval_mode:
+        help_state_key = _TA_STANDARD_HELP_OPEN_KEY
+        help_text = ui_text("full.ta_mean_help")
+    elif is_ta_other and interval_mode:
+        help_state_key = _TA_RANGE_HELP_OPEN_KEY
+        help_text = _TA_RANGE_MOBILE_NOTE
+    help_enabled = help_state_key is not None
 
     result = _component(
         value=current,
@@ -163,8 +140,8 @@ def decimal_number_input(
             event_key = f"__decimal_help_event_{key or aria_label}"
             if st.session_state.get(event_key) != help_token:
                 st.session_state[event_key] = help_token
-                st.session_state[_TA_HELP_OPEN_KEY] = not bool(
-                    st.session_state.get(_TA_HELP_OPEN_KEY, False)
+                st.session_state[help_state_key] = not bool(
+                    st.session_state.get(help_state_key, False)
                 )
 
         result = result.get("value", current)
@@ -182,9 +159,7 @@ def decimal_number_input(
         if parsed_result is not None:
             parsed_result = round(parsed_result, decimals)
 
-    if help_enabled and st.session_state.get(_TA_HELP_OPEN_KEY, False):
-        _render_mobile_ta_note(ui_text("full.ta_mean_help"))
-    elif interval_mode and is_ta_other:
-        _render_mobile_ta_note(_TA_RANGE_MOBILE_NOTE)
+    if help_enabled and st.session_state.get(help_state_key, False):
+        st.caption(help_text)
 
     return parsed_result

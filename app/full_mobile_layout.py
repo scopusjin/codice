@@ -7,7 +7,14 @@ modo il layout mobile è già attivo al primo render e non dipende da
 manipolazioni DOM post-render del componente numerico.
 """
 
+import re
+
 import streamlit as st
+
+from app.locales.it_ui import ui_text
+
+
+_PRUDENT_HELP_TEXT = re.sub(r"<[^>]+>", "", ui_text("full.prudent_default_note")).strip()
 
 
 _FULL_MOBILE_CSS = r"""
@@ -21,6 +28,15 @@ _FULL_MOBILE_CSS = r"""
 
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stElementContainer"]:has(.mortem-full-field-heading) {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Su mobile la spiegazione generale delle condizioni variabili resta
+     disponibile tramite l'helper del toggle e non occupa spazio nel form. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-prudent_explicit_ranges"] {
     display: none !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -275,6 +291,7 @@ def install_full_mobile_layout():
         return
 
     original_markdown = st.markdown
+    original_toggle = st.toggle
 
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
@@ -283,5 +300,11 @@ def install_full_mobile_layout():
             kwargs["unsafe_allow_html"] = True
         return original_markdown(tagged_body, *args, **kwargs)
 
+    def toggle_with_full_mobile_help(label, *args, **kwargs):
+        if kwargs.get("key") == "stima_cautelativa_beta":
+            kwargs.setdefault("help", _PRUDENT_HELP_TEXT)
+        return original_toggle(label, *args, **kwargs)
+
     st.markdown = markdown_with_full_mobile_layout
+    st.toggle = toggle_with_full_mobile_help
     st._full_mobile_layout_installed = True
