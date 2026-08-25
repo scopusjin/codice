@@ -78,10 +78,11 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         }}
         @media (max-width: 768px) {{
             [class*="st-key-{key}"] {{
-                display: block !important;
-                width: max-content !important;
+                display: flex !important;
+                justify-content: flex-end !important;
+                width: 100% !important;
                 max-width: 100% !important;
-                margin: 0.55rem 0 0.10rem auto !important;
+                margin: 0.55rem 0 0.10rem 0 !important;
                 padding: 0 !important;
             }}
             [class*="st-key-{key}"] [data-testid="stButton"] button {{
@@ -106,6 +107,28 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 box-shadow: none !important;
                 outline: 0 !important;
             }}
+
+            /* Full mobile: lascia un minimo respiro sotto il titolo e compatta
+               solo il riquadro data/ora, senza cambiare il contenuto. */
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stElementContainer"]:has(.mortem-full-title) {{
+                margin: 0 0 0.10rem 0 !important;
+                padding: 0 !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"]) {{
+                padding: 0.42rem 0.75rem !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"])
+            [data-testid="stVerticalBlock"] {{
+                gap: 0.20rem !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-usa_orario_custom"] {{
+                margin: 0 !important;
+                padding: 0 !important;
+            }}
         }}
         </style>
         <span class="mortem-mobile-nav-style"></span>
@@ -113,7 +136,11 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         unsafe_allow_html=True,
     )
 
-    with st.container(width="content", key=key):
+    with st.container(
+        horizontal=True,
+        horizontal_alignment="right",
+        key=key,
+    ):
         if st.button(label, key=f"{key}_button"):
             if key == "mobile_nav_footer_to_msil":
                 _save_full_navigation_state()
