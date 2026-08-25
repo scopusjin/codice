@@ -108,11 +108,28 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 outline: 0 !important;
             }}
 
+            /* Full mobile: nasconde la toolbar Streamlit mantenendo il comando
+               laterale e recupera lo spazio superiore del titolo. */
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stToolbar"] {{
+                display: none !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            header[data-testid="stHeader"] {{
+                min-height: 2.35rem !important;
+                height: 2.35rem !important;
+                background: transparent !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            div.block-container {{
+                padding-top: 0.40rem !important;
+            }}
+
             /* Full mobile: lascia un minimo respiro sotto il titolo e compatta
                solo il riquadro data/ora, senza cambiare il contenuto. */
             body:has([class*="st-key-stima_cautelativa_beta"])
             [data-testid="stElementContainer"]:has(.mortem-full-title) {{
-                margin: 0 0 0.10rem 0 !important;
+                margin: 0 0 0.18rem 0 !important;
                 padding: 0 !important;
             }}
             body:has([class*="st-key-stima_cautelativa_beta"])
