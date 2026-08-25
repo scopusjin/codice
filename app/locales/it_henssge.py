@@ -27,9 +27,26 @@ def henssge_qd_outside_warning() -> str:
 
 def henssge_qd_partial_warning() -> str:
     return (
-        " <b>Alcuni dei valori rilevati sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
-        "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
-        "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili."
+        " <b>Il valore di Qd si colloca nella fascia intermedia di applicazione dell'equazione.</b> "
+        "La stima deve pertanto essere interpretata con cautela e valutata congiuntamente "
+        "agli altri dati tanatologici disponibili."
+    )
+
+
+def henssge_qd_range_mixed_warning() -> str:
+    return (
+        " <b>Le condizioni considerate comprendono combinazioni sia favorevoli sia non pienamente ottimali "
+        "per l'applicazione dell'equazione di Henssge.</b> La stima deve pertanto essere interpretata con cautela, "
+        "soprattutto per gli estremi derivanti dalle condizioni meno favorevoli, e valutata congiuntamente "
+        "agli altri dati tanatologici disponibili."
+    )
+
+
+def henssge_qd_range_intermediate_warning() -> str:
+    return (
+        " <b>Nessuna delle combinazioni considerate raggiunge la fascia pienamente ottimale, "
+        "pur ricadendo almeno alcune in una fascia intermedia.</b> La stima conserva pertanto un valore orientativo, "
+        "ma deve essere interpretata con cautela e integrata con gli altri dati tanatologici disponibili."
     )
 
 
@@ -47,19 +64,72 @@ def qd_summary(
     ambient_at_most_23: bool,
     threshold_text: str,
     within_limits: bool,
+    status: str | None = None,
 ) -> str:
     condition = "T. amb ≤ 23 °C" if ambient_at_most_23 else "T. amb > 23 °C"
-    if not within_limits:
+    resolved_status = status or ("optimal" if within_limits else "outside")
+
+    if resolved_status == "intermediate":
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri per l’applicazione dell’equazione di Henssge "
-            "risultano al di fuori dei limiti ottimali "
-            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > {threshold_text}; "
-            f"nel caso in esame è pari a {qd_text}).</p>"
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
+            f"ha Qd = {qd_text}. Tale parametro si colloca nella fascia intermedia "
+            "(0,20 < Qd < 0,30), non pienamente ottimale; la stima deve quindi essere interpretata "
+            "con maggiore cautela.</p>"
         )
+
+    if resolved_status == "outside":
+        boundary = "Qd ≤ 0,20" if ambient_at_most_23 else "Qd ≤ 0,50"
+        return (
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
+            f"ha Qd = {qd_text}. Tale parametro ricade al di fuori dell'intervallo ottimale per l'applicazione "
+            f"dell'equazione (con {condition}, {boundary} identifica la fascia sfavorevole).</p>"
+        )
+
+    optimal_boundary = "Qd ≥ 0,30" if ambient_at_most_23 else "Qd > 0,50"
     return (
         "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
-        f"ha Qd = {qd_text}. Tale parametro rientra nei limiti ottimali per applicare l'equazione "
-        f"(per {condition}, Qd deve essere superiore a {threshold_text}).</p>"
+        f"ha Qd = {qd_text}. Tale parametro rientra nella fascia ottimale per l'applicazione dell'equazione "
+        f"(per {condition}, {optimal_boundary}).</p>"
+    )
+
+
+def qd_range_summary(
+    *,
+    qd_min_text: str,
+    qd_max_text: str,
+    status: str,
+    single_value: bool,
+) -> str:
+    qd_intro = (
+        f"Qd è pari a {qd_min_text}"
+        if single_value
+        else f"Qd varia da {qd_min_text} a {qd_max_text}"
+    )
+
+    if status == "all_optimal":
+        conclusion = (
+            "tutte le combinazioni considerate rientrano nella fascia ottimale di applicazione "
+            "dell'equazione di Henssge."
+        )
+    elif status == "mixed":
+        conclusion = (
+            "alcune combinazioni rientrano nella fascia ottimale di applicazione dell'equazione, "
+            "mentre altre ricadono in una fascia meno favorevole."
+        )
+    elif status == "no_optimal_intermediate":
+        conclusion = (
+            "nessuna combinazione raggiunge la fascia pienamente ottimale, ma almeno alcune ricadono "
+            "nella fascia intermedia; il risultato deve pertanto essere interpretato con cautela."
+        )
+    else:
+        conclusion = (
+            "tutte le combinazioni considerate risultano al di fuori dell'intervallo ottimale di applicazione "
+            "dell'equazione di Henssge."
+        )
+
+    return (
+        "<p style='color:blue;font-size:small;'> Nelle condizioni considerate, "
+        f"{qd_intro}; {conclusion}</p>"
     )
 
 
@@ -189,8 +259,11 @@ __all__ = [
     "henssge_detail_paragraph",
     "henssge_qd_outside_warning",
     "henssge_qd_partial_warning",
+    "henssge_qd_range_mixed_warning",
+    "henssge_qd_range_intermediate_warning",
     "henssge_over_thirty_warning",
     "qd_summary",
+    "qd_range_summary",
     "prudent_range_text",
     "prudent_hours_text",
     "prudent_parenthetical",

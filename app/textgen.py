@@ -237,7 +237,8 @@ def paragrafo_raffreddamento_dettaglio(
     t_max_visual: Optional[float],
     t_med_round: Optional[float],
     qd_val: Optional[float],
-    ta_val: Optional[float]
+    ta_val: Optional[float],
+    qd_range_status: Optional[str] = None,
 ) -> Optional[str]:
     """
     Paragrafo Henssge con note su Qd e >30h.
@@ -263,7 +264,15 @@ def paragrafo_raffreddamento_dettaglio(
 
     extra = ""
 
-    if (
+    if qd_range_status == "mixed":
+        extra = i18n.henssge_qd_range_mixed_warning()
+    elif qd_range_status == "no_optimal_intermediate":
+        extra = i18n.henssge_qd_range_intermediate_warning()
+    elif qd_range_status == "all_outside":
+        extra = i18n.henssge_qd_outside_warning()
+    elif qd_range_status == "all_optimal":
+        extra = ""
+    elif (
         qd_val is not None and not np.isnan(qd_val)
         and ta_val is not None and not np.isnan(ta_val)
         and t_med_round is not None and not np.isnan(t_med_round)
@@ -384,26 +393,45 @@ def frase_riepilogo_parametri_usati(labels: List[str]) -> Optional[str]:
         return None
     return i18n.parameter_summary(labels)
 
-def frase_qd(qd_val: Optional[float], ta_val: Optional[float]) -> Optional[str]:
-    """
-    Frase con Qd e confronto con la soglia (0.2 o 0.5 a seconda della T ambiente).
-    """
+def frase_qd(
+    qd_val: Optional[float],
+    ta_val: Optional[float],
+    *,
+    qd_min: Optional[float] = None,
+    qd_max: Optional[float] = None,
+    qd_range_status: Optional[str] = None,
+) -> Optional[str]:
+    """Frase Qd per caso singolo o per l'insieme delle condizioni variabili."""
+    if (
+        qd_range_status is not None
+        and qd_min is not None and not np.isnan(qd_min)
+        and qd_max is not None and not np.isnan(qd_max)
+    ):
+        return i18n.qd_range_summary(
+            qd_min_text=f"{qd_min:.3f}",
+            qd_max_text=f"{qd_max:.3f}",
+            status=qd_range_status,
+            single_value=abs(float(qd_max) - float(qd_min)) < 1e-9,
+        )
+
     if qd_val is None or np.isnan(qd_val) or ta_val is None or np.isnan(ta_val):
         return None
 
     soglia = 0.2 if ta_val <= 23 else 0.5
-
-    if qd_val <= soglia:
-        return i18n.qd_summary(
-            qd_text=f"{qd_val:.3f}",
-            ambient_at_most_23=ta_val <= 23,
-            threshold_text=str(soglia),
-            within_limits=False,
-        )
+    if ta_val <= 23:
+        if qd_val <= 0.2:
+            status = "outside"
+        elif qd_val < 0.3:
+            status = "intermediate"
+        else:
+            status = "optimal"
     else:
-        return i18n.qd_summary(
-            qd_text=f"{qd_val:.3f}",
-            ambient_at_most_23=ta_val <= 23,
-            threshold_text=str(soglia),
-            within_limits=True,
-        )
+        status = "outside" if qd_val <= 0.5 else "optimal"
+
+    return i18n.qd_summary(
+        qd_text=f"{qd_val:.3f}",
+        ambient_at_most_23=ta_val <= 23,
+        threshold_text=str(soglia),
+        within_limits=status == "optimal",
+        status=status,
+    )

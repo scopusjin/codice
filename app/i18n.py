@@ -390,6 +390,16 @@ def henssge_qd_partial_warning(language: Optional[str] = None) -> str:
     return _get_henssge_locale(language).henssge_qd_partial_warning()
 
 
+def henssge_qd_range_mixed_warning(language: Optional[str] = None) -> str:
+    """Avviso localizzato quando il range comprende combinazioni Qd di classi diverse."""
+    return _get_henssge_locale(language).henssge_qd_range_mixed_warning()
+
+
+def henssge_qd_range_intermediate_warning(language: Optional[str] = None) -> str:
+    """Avviso localizzato quando nessuna combinazione è ottimale ma almeno una è intermedia."""
+    return _get_henssge_locale(language).henssge_qd_range_intermediate_warning()
+
+
 def henssge_over_thirty_warning(
     mean_hours: str,
     language: Optional[str] = None,
@@ -404,14 +414,33 @@ def qd_summary(
     ambient_at_most_23: bool,
     threshold_text: str,
     within_limits: bool,
+    status: Optional[str] = None,
     language: Optional[str] = None,
 ) -> str:
-    """Riepilogo localizzato del valore Qd e del relativo confronto."""
+    """Riepilogo localizzato del valore Qd e della relativa fascia."""
     return _get_henssge_locale(language).qd_summary(
         qd_text=qd_text,
         ambient_at_most_23=ambient_at_most_23,
         threshold_text=threshold_text,
         within_limits=within_limits,
+        status=status,
+    )
+
+
+def qd_range_summary(
+    *,
+    qd_min_text: str,
+    qd_max_text: str,
+    status: str,
+    single_value: bool,
+    language: Optional[str] = None,
+) -> str:
+    """Riepilogo localizzato dei Qd ottenuti nelle condizioni variabili."""
+    return _get_henssge_locale(language).qd_range_summary(
+        qd_min_text=qd_min_text,
+        qd_max_text=qd_max_text,
+        status=status,
+        single_value=single_value,
     )
 
 
@@ -578,8 +607,11 @@ __all__ = [
     "henssge_detail_paragraph",
     "henssge_qd_outside_warning",
     "henssge_qd_partial_warning",
+    "henssge_qd_range_mixed_warning",
+    "henssge_qd_range_intermediate_warning",
     "henssge_over_thirty_warning",
     "qd_summary",
+    "qd_range_summary",
     "prudent_range_text",
     "prudent_hours_text",
     "prudent_parenthetical",

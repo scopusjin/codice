@@ -131,6 +131,9 @@ def aggiorna_grafico(
     t_med_raff_henssge_rounded_raw = cooling.t_med_raff_henssge_rounded_raw
     t_med_raff_henssge_rounded = cooling.t_med_raff_henssge_rounded
     Qd_val_check = cooling.Qd_val_check
+    Qd_min = cooling.Qd_min
+    Qd_max = cooling.Qd_max
+    qd_range_status = cooling.qd_range_status
     raffreddamento_calcolabile = cooling.raffreddamento_calcolabile
     Ta_for_pot = cooling.Ta_for_pot
     qd_threshold = cooling.qd_threshold
@@ -512,6 +515,7 @@ def aggiorna_grafico(
             t_med_round=t_med_raff_henssge_rounded,
             qd_val=Qd_val_check,
             ta_val=Ta_val,
+            qd_range_status=qd_range_status,
         )
         if par_h:
             _add_det(par_h)
@@ -628,7 +632,13 @@ def aggiorna_grafico(
             chunks.append(_wrap_final(small_html))
 
     # frase Qd
-    frase_qd_html = frase_qd(Qd_val_check, Ta_val)
+    frase_qd_html = frase_qd(
+        Qd_val_check,
+        Ta_val,
+        qd_min=Qd_min,
+        qd_max=Qd_max,
+        qd_range_status=qd_range_status,
+    )
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
 

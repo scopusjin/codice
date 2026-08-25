@@ -294,6 +294,7 @@ def compute_cooling_state(
                 t_med_round=t_med_raff_henssge_rounded,
                 qd_val=Qd_val_check,
                 ta_val=Ta_val,
+                qd_range_status=qd_range_status,
             )
             if par_h_caut:
                 detail_blocks.append(par_h_caut)
