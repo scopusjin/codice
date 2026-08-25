@@ -67,6 +67,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (max-width: 768px) {
+  /* Riduce lo spazio superiore della Full senza nascondere la toolbar Streamlit. */
+  body:has(.mortem-full-title) div.block-container {
+    padding-top: 3rem !important;
+  }
+
   /* Titolo della schermata completa: resta leggibile ma senza occupare
      l'altezza della testata desktop. */
   body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-title {
@@ -74,12 +79,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
     font-size: 1.05rem !important;
     font-weight: 650 !important;
-    line-height: 1.15 !important;
+    line-height: 1.08 !important;
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stElementContainer"]:has(.mortem-full-title) {
-    margin: 0 0 -0.35rem 0 !important;
+    margin: 0 0 -0.60rem 0 !important;
     padding: 0 !important;
   }
 
@@ -198,7 +203,6 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"] {
     gap: 0 !important;
   }
-
   /* Su mobile il comando Consiglia è integrato nel controllo FC. Il vecchio
      toggle Streamlit resta montato per conservare lo stato del pannello, ma
      non occupa più una colonna visibile. */
@@ -481,6 +485,7 @@ def install_full_mobile_layout():
             "<style>\n"
             ".mortem-msil-title { display: none !important; }\n"
             f'[class*="st-key-{key}"] {{ display: none !important; }}\n'
+            "[data-testid=\"stElementContainer\"]:has(.mortem-nav-style-marker) { display: none !important; }\n"
             "@media (max-width: 768px) {\n"
             "  .mortem-msil-title {\n"
             "    display: block !important;\n"
@@ -488,25 +493,36 @@ def install_full_mobile_layout():
             "    padding: 0 !important;\n"
             "    font-size: 1.05rem !important;\n"
             "    font-weight: 650 !important;\n"
-            "    line-height: 1.15 !important;\n"
+            "    line-height: 1.05 !important;\n"
             "  }\n"
             "  [data-testid=\"stElementContainer\"]:has(.mortem-msil-title) {\n"
-            "    margin: 0 0 0.15rem 0 !important;\n"
+            "    margin: 0 0 -0.10rem 0 !important;\n"
             "    padding: 0 !important;\n"
             "  }\n"
-            f'  [data-testid="stElementContainer"]:has([class*="st-key-{key}"]) {{\n'
-            "    order: 9999 !important;\n"
-            "    margin-top: 0.45rem !important;\n"
-            "    margin-bottom: 0 !important;\n"
+            f'  body:has([class*="st-key-{key}"]) div.block-container {{\n'
+            "    padding-bottom: 3rem !important;\n"
+            "  }\n"
+            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] {{\n'
+            "    position: relative !important;\n"
+            "  }\n"
+            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] > div,\n'
+            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] > div > [data-testid="stVerticalBlock"] {{\n'
+            "    position: static !important;\n"
+            "  }\n"
+            f'  body:has([class*="st-key-{key}"]) [data-testid="stVerticalBlockBorderWrapper"]:has(> div > [class*="st-key-{key}"]) {{\n'
+            "    position: absolute !important;\n"
+            "    right: 0 !important;\n"
+            "    bottom: 0.20rem !important;\n"
+            "    width: max-content !important;\n"
+            "    max-width: 100% !important;\n"
+            "    margin: 0 !important;\n"
+            "    z-index: 2 !important;\n"
             "  }\n"
             f'  [class*="st-key-{key}"] {{\n'
             "    display: block !important;\n"
             "    width: max-content !important;\n"
             "    max-width: 100% !important;\n"
-            "    margin-left: auto !important;\n"
-            "    margin-top: 0 !important;\n"
-            "    margin-bottom: 0 !important;\n"
-            "    order: 9999 !important;\n"
+            "    margin: 0 !important;\n"
             "  }\n"
             f'  [class*="st-key-{key}"] [data-testid="stButton"] button {{\n'
             "    min-height: 1.75rem !important;\n"
@@ -529,7 +545,7 @@ def install_full_mobile_layout():
             "    box-shadow: none !important;\n"
             "  }\n"
             "}\n"
-            "</style>"
+            "</style><span class=\"mortem-nav-style-marker\"></span>"
         )
         original_markdown(nav_css, unsafe_allow_html=True)
         with st.container(width="content", key=key):
