@@ -386,7 +386,7 @@ def _render_click_help(text: str, key: str) -> None:
         escaped = html.escape(line)
         css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
         blocks.append(f'<div class="{css_class}">{escaped}</div>')
-    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
+    content = f'<div class="mortem-help-copy'>{"".join(blocks)}</div>'
 
     with st.container(width="content", key=key):
         with st.popover("?"):
@@ -402,12 +402,62 @@ def install_full_mobile_layout():
     original_toggle = st.toggle
     original_checkbox = st.checkbox
 
+    def _render_mobile_page_switch(label: str, target: str, key: str) -> None:
+        nav_css = (
+            "<style>\n"
+            f'[class*="st-key-{key}"] {{ display: none !important; }}\n'
+            "@media (max-width: 768px) {\n"
+            f'  [class*="st-key-{key}"] {{\n'
+            "    display: block !important;\n"
+            "    width: max-content !important;\n"
+            "    max-width: 100% !important;\n"
+            "    margin-left: auto !important;\n"
+            "    margin-top: -0.15rem !important;\n"
+            "    margin-bottom: 0.35rem !important;\n"
+            "  }\n"
+            f'  [class*="st-key-{key}"] button {{\n'
+            "    min-height: 1.95rem !important;\n"
+            "    padding: 0.20rem 0.65rem !important;\n"
+            "    font-size: 0.82rem !important;\n"
+            "    white-space: nowrap !important;\n"
+            "  }\n"
+            "}\n"
+            "</style>"
+        )
+        original_markdown(nav_css, unsafe_allow_html=True)
+        with st.container(width="content", key=key):
+            if st.button(label, key=f"{key}_button"):
+                st.switch_page(target)
+
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
+        is_full_title = (
+            isinstance(tagged_body, str)
+            and "<h5" in tagged_body
+            and ui_text("full.title") in tagged_body
+        )
+        is_msil_shell = (
+            isinstance(tagged_body, str)
+            and "Header e padding pagina" in tagged_body
+            and 'header[data-testid="stHeader"]' in tagged_body
+        )
         if isinstance(tagged_body, str) and ".final-text{" in tagged_body:
             tagged_body = _FULL_MOBILE_CSS + tagged_body
             kwargs["unsafe_allow_html"] = True
-        return original_markdown(tagged_body, *args, **kwargs)
+        result = original_markdown(tagged_body, *args, **kwargs)
+        if is_full_title:
+            _render_mobile_page_switch(
+                "Modalità sopralluogo",
+                "pages/App_MSIL.py",
+                "mobile_nav_to_msil",
+            )
+        elif is_msil_shell:
+            _render_mobile_page_switch(
+                "Versione completa",
+                "Stima_epoca_decesso.py",
+                "mobile_nav_to_full",
+            )
+        return result
 
     def toggle_with_full_mobile_help(label, *args, **kwargs):
         if kwargs.get("key") != "stima_cautelativa_beta":
