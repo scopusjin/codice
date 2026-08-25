@@ -100,37 +100,42 @@ def qd_range_summary(
     status: str,
     single_value: bool,
 ) -> str:
-    qd_intro = (
-        f"Qd è pari a {qd_min_text}"
+    qd_value = (
+        f"è pari a {qd_min_text}"
         if single_value
-        else f"Qd varia da {qd_min_text} a {qd_max_text}"
+        else f"varia da {qd_min_text} a {qd_max_text}"
     )
 
     if status == "all_optimal":
-        conclusion = (
-            "tutte le combinazioni considerate rientrano nella fascia ottimale di applicazione "
-            "dell'equazione di Henssge."
+        sentence = (
+            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge rientrano "
+            "nei limiti ottimali (il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            f"{qd_value}; la fascia ottimale corrisponde a Qd ≥ 0,3 con T. amb. ≤ 23 °C e a Qd > 0,5 "
+            "con T. amb. > 23 °C)."
         )
     elif status == "mixed":
-        conclusion = (
-            "alcune combinazioni rientrano nella fascia ottimale di applicazione dell'equazione, "
-            "mentre altre ricadono in una fascia meno favorevole."
+        sentence = (
+            "Nelle condizioni considerate, alcune combinazioni di parametri per l’applicazione dell’equazione di Henssge "
+            "rientrano nei limiti ottimali, mentre altre ricadono in una fascia meno favorevole (il parametro Qd, "
+            f"indicativo del grado di raffreddamento corporeo, {qd_value}; la fascia ottimale corrisponde a Qd ≥ 0,3 "
+            "con T. amb. ≤ 23 °C e a Qd > 0,5 con T. amb. > 23 °C)."
         )
     elif status == "no_optimal_intermediate":
-        conclusion = (
-            "nessuna combinazione raggiunge la fascia pienamente ottimale, ma almeno alcune ricadono "
-            "nella fascia intermedia; il risultato deve pertanto essere interpretato con cautela."
+        sentence = (
+            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge non raggiungono "
+            "la fascia pienamente ottimale, pur comprendendo combinazioni che ricadono nella fascia intermedia "
+            f"(il parametro Qd, indicativo del grado di raffreddamento corporeo, {qd_value}; con T. amb. ≤ 23 °C "
+            "la fascia intermedia corrisponde a 0,2 < Qd < 0,3 e quella ottimale a Qd ≥ 0,3)."
         )
     else:
-        conclusion = (
-            "tutte le combinazioni considerate risultano al di fuori dell'intervallo ottimale di applicazione "
-            "dell'equazione di Henssge."
+        sentence = (
+            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge risultano "
+            "al di fuori dei limiti ottimali (il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            f"{qd_value}; con T. amb. ≤ 23 °C valori di Qd ≤ 0,2 ricadono nella fascia sfavorevole, mentre con "
+            "T. amb. > 23 °C tale limite è Qd ≤ 0,5)."
         )
 
-    return (
-        "<p style='color:blue;font-size:small;'> Nelle condizioni considerate, "
-        f"{qd_intro}; {conclusion}</p>"
-    )
+    return f"<p style='color:blue;font-size:small;'> {sentence}</p>"
 
 
 def prudent_range_text(a: float, b: float, unit: str) -> str:
