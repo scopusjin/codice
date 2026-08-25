@@ -160,6 +160,8 @@ def decimal_number_input(
             parsed_result = round(parsed_result, decimals)
 
     if help_enabled and st.session_state.get(help_state_key, False):
-        st.caption(help_text)
+        note_key = "ta_range_help_note" if interval_mode else "ta_standard_help_note"
+        with st.container(key=note_key):
+            st.caption(help_text)
 
     return parsed_result

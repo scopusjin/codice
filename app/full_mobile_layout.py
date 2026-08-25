@@ -19,6 +19,36 @@ _PRUDENT_HELP_TEXT = re.sub(r"<[^>]+>", "", ui_text("full.prudent_default_note")
 
 _FULL_MOBILE_CSS = r"""
 <style>
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button {
+  width: 1.6rem !important;
+  min-width: 1.6rem !important;
+  height: 1.6rem !important;
+  min-height: 1.6rem !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  line-height: 1 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button p,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button p {
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+  line-height: 1 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_row_prudent"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_row_henssge"] {
+  align-items: center !important;
+  gap: 0.35rem !important;
+}
+
 @media (max-width: 768px) {
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
@@ -40,6 +70,30 @@ _FULL_MOBILE_CSS = r"""
     display: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* Le note aperte dai ? della temperatura restano aderenti al controllo
+     senza introdurre il grande spazio verticale del caption predefinito. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_standard_help_note"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_range_help_note"] {
+    margin-top: -0.65rem !important;
+    margin-bottom: -0.10rem !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_standard_help_note"] [data-testid="stCaptionContainer"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_range_help_note"] [data-testid="stCaptionContainer"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_standard_help_note"] p,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-ta_range_help_note"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.28 !important;
   }
 
   /* Le righe Streamlit dei parametri diventano una pila di controlli a
@@ -285,6 +339,13 @@ def _tag_full_field_heading(body):
     return body
 
 
+def _render_click_help(text: str, key: str) -> None:
+    paragraphs = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    with st.container(width="content", key=key):
+        with st.popover("?"):
+            st.markdown("\n\n".join(paragraphs))
+
+
 def install_full_mobile_layout():
     """Installa il layout senza eseguire comandi Streamlit all'import."""
     if getattr(st, "_full_mobile_layout_installed", False):
@@ -292,6 +353,7 @@ def install_full_mobile_layout():
 
     original_markdown = st.markdown
     original_toggle = st.toggle
+    original_checkbox = st.checkbox
 
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
@@ -301,10 +363,36 @@ def install_full_mobile_layout():
         return original_markdown(tagged_body, *args, **kwargs)
 
     def toggle_with_full_mobile_help(label, *args, **kwargs):
-        if kwargs.get("key") == "stima_cautelativa_beta":
-            kwargs.setdefault("help", _PRUDENT_HELP_TEXT)
-        return original_toggle(label, *args, **kwargs)
+        if kwargs.get("key") != "stima_cautelativa_beta":
+            return original_toggle(label, *args, **kwargs)
+
+        kwargs.pop("help", None)
+        with st.container(
+            horizontal=True,
+            horizontal_alignment="left",
+            gap="small",
+            key="mortem_help_row_prudent",
+        ):
+            result = original_toggle(label, *args, **kwargs)
+            _render_click_help(_PRUDENT_HELP_TEXT, "mortem_help_prudent")
+        return result
+
+    def checkbox_with_full_mobile_help(label, *args, **kwargs):
+        if kwargs.get("key") != "henssge_non_applicabile":
+            return original_checkbox(label, *args, **kwargs)
+
+        help_text = kwargs.pop("help", None) or ui_text("full.henssge_not_applicable_help")
+        with st.container(
+            horizontal=True,
+            horizontal_alignment="left",
+            gap="small",
+            key="mortem_help_row_henssge",
+        ):
+            result = original_checkbox(label, *args, **kwargs)
+            _render_click_help(help_text, "mortem_help_henssge")
+        return result
 
     st.markdown = markdown_with_full_mobile_layout
     st.toggle = toggle_with_full_mobile_help
+    st.checkbox = checkbox_with_full_mobile_help
     st._full_mobile_layout_installed = True

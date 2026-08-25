@@ -10,17 +10,17 @@
     #temperature-help {
       box-sizing: border-box;
       display: none;
-      flex: 0 0 32px;
-      width: 32px;
+      flex: 0 0 24px;
+      width: 24px;
       height: 100%;
       align-items: center;
       justify-content: center;
       border: 0;
-      border-left: 1px solid color-mix(in srgb, var(--text, #31333F) 12%, transparent);
       outline: none;
       background: transparent;
       color: inherit;
       padding: 0;
+      margin-right: 2px;
       font: 600 0.78rem -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -58,11 +58,11 @@
 <body>
   <div id="number-control" class="number-control">
     <span id="mobile-label" class="mobile-label"></span>
+    <button id="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
     <input id="number-input" type="text" inputmode="decimal" autocomplete="off" />
     <span id="mobile-unit" class="mobile-unit"></span>
     <button id="number-minus" class="step-button" type="button" aria-label="Diminuisci">−</button>
     <button id="number-plus" class="step-button" type="button" aria-label="Aumenta">+</button>
-    <button id="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
     <button id="suggest-action" class="suggest-button" type="button" aria-label="Suggerisci fattore di correzione"></button>
   </div>
 </body>
