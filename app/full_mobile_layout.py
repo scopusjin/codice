@@ -67,27 +67,6 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (max-width: 768px) {
-  /* Riduce lo spazio superiore della Full senza nascondere la toolbar Streamlit. */
-  body:has(.mortem-full-title) div.block-container {
-    padding-top: 3rem !important;
-  }
-
-  /* Titolo della schermata completa: resta leggibile ma senza occupare
-     l'altezza della testata desktop. */
-  body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-title {
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 1.05rem !important;
-    font-weight: 650 !important;
-    line-height: 1.08 !important;
-  }
-
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stElementContainer"]:has(.mortem-full-title) {
-    margin: 0 0 -0.60rem 0 !important;
-    padding: 0 !important;
-  }
-
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
   body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
@@ -203,6 +182,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"] {
     gap: 0 !important;
   }
+
   /* Su mobile il comando Consiglia è integrato nel controllo FC. Il vecchio
      toggle Streamlit resta montato per conservare lo stato del pannello, ma
      non occupa più una colonna visibile. */
@@ -422,179 +402,12 @@ def install_full_mobile_layout():
     original_toggle = st.toggle
     original_checkbox = st.checkbox
 
-    full_nav_state_keys = (
-        "stima_cautelativa_beta",
-        "range_unico_beta",
-        "peso_stimato_beta",
-        "ta_range_toggle_beta",
-        "fc_manual_range_beta",
-        "ta_other_val",
-        "fc_min_val",
-        "fc_other_val",
-        "__prudent_explicit_ranges_initialized",
-        "__full_standard_ta_base_val",
-        "__full_standard_fattore_correzione",
-        "__full_interval_ta_base_val",
-        "__full_interval_ta_other_val",
-        "__full_interval_fc_min_val",
-        "__full_interval_fc_other_val",
-        "toggle_fattore_inline",
-        "toggle_fattore_inline_std",
-        "toggle_fattore",
-        "__full_fc_suggest_target",
-    )
-    full_nav_snapshot_key = "__mobile_full_state_snapshot"
-
-    def _save_full_navigation_state() -> None:
-        snapshot = {
-            state_key: st.session_state[state_key]
-            for state_key in full_nav_state_keys
-            if state_key in st.session_state
-        }
-        if bool(st.session_state.get("stima_cautelativa_beta", False)):
-            ta_base = st.session_state.get("ta_base_val")
-            if ta_base is None:
-                ta_base = st.session_state.get("__full_interval_ta_base_val")
-            if ta_base is None:
-                ta_base = st.session_state.get("ta_other_val")
-            if ta_base is not None:
-                snapshot["ta_base_val"] = ta_base
-        st.session_state[full_nav_snapshot_key] = snapshot
-
-    def _restore_full_navigation_state() -> None:
-        snapshot = st.session_state.pop(full_nav_snapshot_key, None)
-        shared_ta = st.session_state.get("ta_base_val")
-
-        for state_key in full_nav_state_keys:
-            st.session_state.pop(state_key, None)
-
-        if not isinstance(snapshot, dict):
-            return
-
-        snapshot_interval_mode = bool(snapshot.get("stima_cautelativa_beta", False))
-        if snapshot_interval_mode:
-            st.session_state.pop("ta_base_val", None)
-
-        st.session_state.update(snapshot)
-
-        if not snapshot_interval_mode:
-            st.session_state["ta_base_val"] = shared_ta
-
-    def _render_mobile_page_switch(label: str, target: str, key: str) -> None:
-        nav_css = (
-            "<style>\n"
-            ".mortem-msil-title { display: none !important; }\n"
-            f'[class*="st-key-{key}"] {{ display: none !important; }}\n'
-            "[data-testid=\"stElementContainer\"]:has(.mortem-nav-style-marker) { display: none !important; }\n"
-            "@media (max-width: 768px) {\n"
-            "  .mortem-msil-title {\n"
-            "    display: block !important;\n"
-            "    margin: 0 !important;\n"
-            "    padding: 0 !important;\n"
-            "    font-size: 1.05rem !important;\n"
-            "    font-weight: 650 !important;\n"
-            "    line-height: 1.05 !important;\n"
-            "  }\n"
-            "  [data-testid=\"stElementContainer\"]:has(.mortem-msil-title) {\n"
-            "    margin: 0 0 -0.10rem 0 !important;\n"
-            "    padding: 0 !important;\n"
-            "  }\n"
-            f'  body:has([class*="st-key-{key}"]) div.block-container {{\n'
-            "    padding-bottom: 3rem !important;\n"
-            "  }\n"
-            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] {{\n'
-            "    position: relative !important;\n"
-            "  }\n"
-            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] > div,\n'
-            f'  body:has([class*="st-key-{key}"]) div.block-container > [data-testid="stVerticalBlockBorderWrapper"] > div > [data-testid="stVerticalBlock"] {{\n'
-            "    position: static !important;\n"
-            "  }\n"
-            f'  body:has([class*="st-key-{key}"]) [data-testid="stVerticalBlockBorderWrapper"]:has(> div > [class*="st-key-{key}"]) {{\n'
-            "    position: absolute !important;\n"
-            "    right: 0 !important;\n"
-            "    bottom: 0.20rem !important;\n"
-            "    width: max-content !important;\n"
-            "    max-width: 100% !important;\n"
-            "    margin: 0 !important;\n"
-            "    z-index: 2 !important;\n"
-            "  }\n"
-            f'  [class*="st-key-{key}"] {{\n'
-            "    display: block !important;\n"
-            "    width: max-content !important;\n"
-            "    max-width: 100% !important;\n"
-            "    margin: 0 !important;\n"
-            "  }\n"
-            f'  [class*="st-key-{key}"] [data-testid="stButton"] button {{\n'
-            "    min-height: 1.75rem !important;\n"
-            "    height: auto !important;\n"
-            "    padding: 0.08rem 0.50rem !important;\n"
-            "    background: transparent !important;\n"
-            "    color: var(--primary-color, #2196F3) !important;\n"
-            "    border: 1px solid var(--primary-color, #2196F3) !important;\n"
-            "    border-radius: 7px !important;\n"
-            "    box-shadow: none !important;\n"
-            "    font-size: 0.76rem !important;\n"
-            "    font-weight: 600 !important;\n"
-            "    white-space: nowrap !important;\n"
-            "  }\n"
-            f'  [class*="st-key-{key}"] [data-testid="stButton"] button:hover,\n'
-            f'  [class*="st-key-{key}"] [data-testid="stButton"] button:active {{\n'
-            "    background: transparent !important;\n"
-            "    color: var(--primary-color, #2196F3) !important;\n"
-            "    border-color: var(--primary-color, #2196F3) !important;\n"
-            "    box-shadow: none !important;\n"
-            "  }\n"
-            "}\n"
-            "</style><span class=\"mortem-nav-style-marker\"></span>"
-        )
-        original_markdown(nav_css, unsafe_allow_html=True)
-        with st.container(width="content", key=key):
-            if st.button(label, key=f"{key}_button"):
-                if key == "mobile_nav_to_msil":
-                    _save_full_navigation_state()
-                elif key == "mobile_nav_to_full":
-                    _restore_full_navigation_state()
-                st.switch_page(target)
-
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
-        is_full_title = (
-            isinstance(tagged_body, str)
-            and "<h5" in tagged_body
-            and ui_text("full.title") in tagged_body
-        )
-        is_msil_shell = (
-            isinstance(tagged_body, str)
-            and "Header e padding pagina" in tagged_body
-            and 'header[data-testid="stHeader"]' in tagged_body
-        )
-        if is_full_title and "mortem-full-title" not in tagged_body:
-            tagged_body = tagged_body.replace(
-                "<h5 ",
-                "<h5 class='mortem-full-title' ",
-                1,
-            )
         if isinstance(tagged_body, str) and ".final-text{" in tagged_body:
             tagged_body = _FULL_MOBILE_CSS + tagged_body
             kwargs["unsafe_allow_html"] = True
-        result = original_markdown(tagged_body, *args, **kwargs)
-        if is_full_title:
-            _render_mobile_page_switch(
-                "Modalità sopralluogo",
-                "pages/App_MSIL.py",
-                "mobile_nav_to_msil",
-            )
-        elif is_msil_shell:
-            _render_mobile_page_switch(
-                "Versione completa",
-                "Stima_epoca_decesso.py",
-                "mobile_nav_to_full",
-            )
-            original_markdown(
-                '<div class="mortem-msil-title">Stima epoca decesso durante ispezione legale</div>',
-                unsafe_allow_html=True,
-            )
-        return result
+        return original_markdown(tagged_body, *args, **kwargs)
 
     def toggle_with_full_mobile_help(label, *args, **kwargs):
         if kwargs.get("key") != "stima_cautelativa_beta":

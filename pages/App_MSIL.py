@@ -8,6 +8,7 @@ from app import i18n
 from app.theme import apply_theme, warn_box
 from app.theme import fc_panel_start
 from app.full_factor_panel import pannello_suggerisci_fc_mobile
+from app.mobile_navigation import render_mobile_page_switch
 
 
 from app.graphing import aggiorna_grafico
@@ -51,6 +52,19 @@ st.markdown("""
 /* Header e padding pagina */
 header[data-testid="stHeader"]{display:none!important;}
 section.main, div.block-container{padding-top:0!important;margin-top:0!important}
+
+/* Titolo reale della modalità sopralluogo */
+.mortem-msil-page-title{
+  margin:0 0 .12rem 0!important;
+  padding:0!important;
+  font-size:1.05rem!important;
+  font-weight:650!important;
+  line-height:1.05!important;
+}
+[data-testid="stElementContainer"]:has(.mortem-msil-page-title){
+  margin:0!important;
+  padding:0!important;
+}
 
 /* Layout base */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
@@ -107,6 +121,11 @@ a[href^="https://streamlit.io/cloud"], a[href^="https://share.streamlit.io"]{dis
 footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown(
+    '<div class="mortem-msil-page-title">Stima epoca decesso durante ispezione legale</div>',
+    unsafe_allow_html=True,
+)
 
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
@@ -494,3 +513,9 @@ st.session_state["selettore_rigidita"] = selettore_rigidita
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
+render_mobile_page_switch(
+    "Versione completa",
+    "Stima_epoca_decesso.py",
+    "mobile_nav_footer_to_full",
+)

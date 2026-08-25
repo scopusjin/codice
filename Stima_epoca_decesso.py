@@ -42,6 +42,7 @@ from app.special_tanatology_states import (
 )
 from app.native_time_picker import native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
+from app.mobile_navigation import render_mobile_page_switch
 
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -137,6 +138,20 @@ st.markdown("""
   font-size: 10pt !important;
   line-height: 14pt !important;
 }
+@media (max-width: 768px) {
+  div.block-container { padding-top: 3rem !important; }
+  .mortem-full-title {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.05rem !important;
+    font-weight: 650 !important;
+    line-height: 1.05 !important;
+  }
+  [data-testid="stElementContainer"]:has(.mortem-full-title) {
+    margin: 0 0 -0.35rem 0 !important;
+    padding: 0 !important;
+  }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -181,7 +196,7 @@ if "show_img_peribuccale" not in st.session_state:
 
 # Titolo
 st.markdown(
-    f"<h5 style='margin-top:0; margin-bottom:10px;'>{i18n.ui_text('full.title')}</h5>",
+    f"<h5 class='mortem-full-title' style='margin-top:0; margin-bottom:0;'>{i18n.ui_text('full.title')}</h5>",
     unsafe_allow_html=True,
 )
 
@@ -694,3 +709,9 @@ if st.session_state["show_results"]:
         alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
         skip_warnings=True,
     )
+
+render_mobile_page_switch(
+    "Modalità sopralluogo",
+    "pages/App_MSIL.py",
+    "mobile_nav_footer_to_msil",
+)
