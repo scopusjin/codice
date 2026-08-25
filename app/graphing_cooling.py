@@ -27,6 +27,37 @@ def _is_num(x):
     return x is not None and not (isinstance(x, float) and np.isnan(x))
 
 
+def _classify_qd_for_ta(ta, qd) -> str | None:
+    """Classifica Qd usando la soglia pertinente alla Ta della combinazione."""
+    if not _is_num(ta) or not _is_num(qd):
+        return None
+
+    ta = float(ta)
+    qd = float(qd)
+    if ta <= 23.0:
+        if qd <= 0.2:
+            return "outside"
+        if qd < 0.3:
+            return "intermediate"
+        return "optimal"
+
+    return "outside" if qd <= 0.5 else "optimal"
+
+
+def _aggregate_qd_status(counts: dict[str, int]) -> str | None:
+    """Riassume la distribuzione delle combinazioni senza produrre testi UI."""
+    total = sum(counts.values())
+    if total == 0:
+        return None
+    if counts["optimal"] == total:
+        return "all_optimal"
+    if counts["optimal"] > 0:
+        return "mixed"
+    if counts["intermediate"] > 0:
+        return "no_optimal_intermediate"
+    return "all_outside"
+
+
 @dataclass(frozen=True)
 class CoolingState:
     Tr_val: object
@@ -39,6 +70,10 @@ class CoolingState:
     t_med_raff_henssge_rounded_raw: float
     t_med_raff_henssge_rounded: float
     Qd_val_check: float
+    Qd_min: float
+    Qd_max: float
+    qd_range_status: str | None
+    qd_status_counts: tuple[tuple[str, int], ...]
     raffreddamento_calcolabile: bool
     Ta_for_pot: float
     qd_threshold: float
@@ -65,6 +100,10 @@ def compute_cooling_state(
     t_med_raff_henssge_rounded_raw = np.nan
     t_med_raff_henssge_rounded = np.nan
     Qd_val_check = np.nan
+    Qd_min = np.nan
+    Qd_max = np.nan
+    qd_range_status = None
+    qd_status_counts: tuple[tuple[str, int], ...] = ()
     raffreddamento_calcolabile = True
     detail_blocks: list[str] = []
 
@@ -141,7 +180,7 @@ def compute_cooling_state(
                 Ta_range=Ta_range,
                 CF_range=CF_range,
                 peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
-                mostra_tabella=False,
+                mostra_tabella=True,
                 solver_kwargs={
                     "Tr": float(Tr_val),
                     "T0": float(T0_val),
@@ -161,7 +200,21 @@ def compute_cooling_state(
             )
             t_med_raff_henssge_rounded_raw = float(_tmed_raw)
             t_med_raff_henssge_rounded = round_quarter_hour(_tmed_raw)
-            Qd_val_check = res.qd_min if (res.qd_min is not None) else np.nan
+            Qd_min = float(res.qd_min) if res.qd_min is not None else np.nan
+            Qd_max = float(res.qd_max) if res.qd_max is not None else np.nan
+            Qd_val_check = Qd_min
+
+            qd_counts = {"optimal": 0, "intermediate": 0, "outside": 0}
+            if res.df_combinazioni is not None:
+                for row in res.df_combinazioni.itertuples(index=False):
+                    status = _classify_qd_for_ta(row.Ta, row.Qd)
+                    if status is not None:
+                        qd_counts[status] += 1
+            qd_range_status = _aggregate_qd_status(qd_counts)
+            qd_status_counts = tuple(
+                (status, qd_counts[status])
+                for status in ("optimal", "intermediate", "outside")
+            )
             raffreddamento_calcolabile = True
 
             # --- Range Ta/CF per riepilogo ---
@@ -260,6 +313,8 @@ def compute_cooling_state(
             ) = calcola_raffreddamento(
                 Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
             )
+            Qd_min = Qd_val_check
+            Qd_max = Qd_val_check
             raffreddamento_calcolabile = (
                 not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
             )
@@ -277,6 +332,10 @@ def compute_cooling_state(
         t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw,
         t_med_raff_henssge_rounded=t_med_raff_henssge_rounded,
         Qd_val_check=Qd_val_check,
+        Qd_min=Qd_min,
+        Qd_max=Qd_max,
+        qd_range_status=qd_range_status,
+        qd_status_counts=qd_status_counts,
         raffreddamento_calcolabile=raffreddamento_calcolabile,
         Ta_for_pot=Ta_for_pot,
         qd_threshold=qd_threshold,
