@@ -58,6 +58,18 @@ def _aggregate_qd_status(counts: dict[str, int]) -> str | None:
     return "all_outside"
 
 
+def _potente_limit_for_combination(ta, cf, peso) -> float | None:
+    """Limite minimo di Potente per una singola combinazione cautelativa."""
+    if not all(_is_num(v) for v in (ta, cf, peso)):
+        return None
+    B = -1.2815 * (float(cf) * float(peso)) ** (-5 / 8) + 0.0284
+    ln_term = np.log(0.16) if float(ta) <= 23.0 else np.log(0.45)
+    mt_ore = ln_term / B
+    if not np.isfinite(mt_ore):
+        return None
+    return float(np.round(float(mt_ore) * 2.0) / 2.0)
+
+
 @dataclass(frozen=True)
 class CoolingState:
     Tr_val: object
@@ -74,6 +86,7 @@ class CoolingState:
     Qd_max: float
     qd_range_status: str | None
     qd_status_counts: tuple[tuple[str, int], ...]
+    potente_min_ore: float
     raffreddamento_calcolabile: bool
     Ta_for_pot: float
     qd_threshold: float
@@ -104,6 +117,7 @@ def compute_cooling_state(
     Qd_max = np.nan
     qd_range_status = None
     qd_status_counts: tuple[tuple[str, int], ...] = ()
+    potente_min_ore = np.nan
     raffreddamento_calcolabile = True
     detail_blocks: list[str] = []
 
@@ -205,11 +219,18 @@ def compute_cooling_state(
             Qd_val_check = Qd_min
 
             qd_counts = {"optimal": 0, "intermediate": 0, "outside": 0}
+            potente_candidates: list[float] = []
             if res.df_combinazioni is not None:
                 for row in res.df_combinazioni.itertuples(index=False):
                     status = _classify_qd_for_ta(row.Ta, row.Qd)
                     if status is not None:
                         qd_counts[status] += 1
+                    if status == "outside":
+                        mt_candidate = _potente_limit_for_combination(row.Ta, row.CF, row.peso_kg)
+                        if mt_candidate is not None:
+                            potente_candidates.append(mt_candidate)
+            if potente_candidates:
+                potente_min_ore = float(min(potente_candidates))
             qd_range_status = _aggregate_qd_status(qd_counts)
             qd_status_counts = tuple(
                 (status, qd_counts[status])
@@ -337,6 +358,7 @@ def compute_cooling_state(
         Qd_max=Qd_max,
         qd_range_status=qd_range_status,
         qd_status_counts=qd_status_counts,
+        potente_min_ore=potente_min_ore,
         raffreddamento_calcolabile=raffreddamento_calcolabile,
         Ta_for_pot=Ta_for_pot,
         qd_threshold=qd_threshold,
