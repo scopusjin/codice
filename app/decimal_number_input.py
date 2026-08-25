@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Input numerico decimale con punto e controlli integrati per Mor-tem."""
 
+import html
 import math
 import re
 from pathlib import Path
@@ -17,6 +18,13 @@ _component = components.declare_component(
     path=str(_FRONTEND_DIR),
 )
 _FORMAT_RE = re.compile(r"^%\.(\d+)f$")
+_TA_BASE_COMPONENT_KEY = "mortem_decimal_ta_base_val"
+_TA_OTHER_COMPONENT_KEY = "mortem_decimal_ta_other_val"
+_TA_HELP_OPEN_KEY = "__decimal_ta_help_open"
+_TA_RANGE_MOBILE_NOTE = (
+    "Inserisci i due estremi plausibili della temperatura ambientale media "
+    "riferita al periodo tra il decesso e l’ispezione."
+)
 
 
 def _theme_value(option, fallback):
@@ -48,6 +56,35 @@ def _finite_float(value):
     return number if math.isfinite(number) else None
 
 
+def _render_mobile_ta_note(text: str) -> None:
+    safe_text = html.escape(str(text or ""))
+    st.markdown(
+        """
+        <style>
+        [data-testid="stElementContainer"]:has(.mortem-ta-mobile-note) {
+          display: none !important;
+        }
+        @media (max-width: 768px) {
+          [data-testid="stElementContainer"]:has(.mortem-ta-mobile-note) {
+            display: block !important;
+            margin-top: -0.15rem !important;
+            margin-bottom: 0.08rem !important;
+          }
+          .mortem-ta-mobile-note {
+            display: block !important;
+            padding: 0.1rem 0.35rem 0.18rem 0.35rem;
+            font-size: 0.72rem;
+            line-height: 1.3;
+            color: #666;
+          }
+        }
+        </style>
+        """
+        f"<div class='mortem-ta-mobile-note'>{safe_text}</div>",
+        unsafe_allow_html=True,
+    )
+
+
 def decimal_number_input(
     value=None,
     *,
@@ -75,11 +112,17 @@ def decimal_number_input(
     current = _finite_float(value)
     minimum = _finite_float(min_value)
     maximum = _finite_float(max_value)
-    help_text = (
-        ui_text("full.ta_mean_help")
-        if key in {"mortem_decimal_ta_base_val", "mortem_decimal_ta_other_val"}
-        else ""
+
+    interval_mode = bool(
+        st.session_state.get("stima_cautelativa_beta", False)
+        and st.session_state.get("range_unico_beta", False)
     )
+    is_ta_base = key == _TA_BASE_COMPONENT_KEY
+    is_ta_other = key == _TA_OTHER_COMPONENT_KEY
+    help_enabled = bool(is_ta_base and not interval_mode)
+
+    if interval_mode and is_ta_base:
+        st.session_state[_TA_HELP_OPEN_KEY] = False
 
     result = _component(
         value=current,
@@ -93,7 +136,7 @@ def decimal_number_input(
         compact_mobile=bool(compact_mobile),
         compact_label=str(compact_label or ""),
         unit=str(unit or ""),
-        help_text=help_text,
+        help_enabled=help_enabled,
         hide_group_heading=bool(hide_group_heading),
         inline_weight_toggle=bool(inline_weight_toggle),
         suggest_enabled=bool(suggest_enabled),
@@ -114,16 +157,34 @@ def decimal_number_input(
             if st.session_state.get(event_key) != suggest_token:
                 st.session_state[event_key] = suggest_token
                 on_suggest()
+
+        help_token = result.get("help_token")
+        if help_token is not None and help_enabled:
+            event_key = f"__decimal_help_event_{key or aria_label}"
+            if st.session_state.get(event_key) != help_token:
+                st.session_state[event_key] = help_token
+                st.session_state[_TA_HELP_OPEN_KEY] = not bool(
+                    st.session_state.get(_TA_HELP_OPEN_KEY, False)
+                )
+
         result = result.get("value", current)
 
     if result is None:
-        return None
+        parsed_result = None
+    else:
+        parsed_result = _finite_float(result)
+        if parsed_result is None:
+            parsed_result = current
+        if parsed_result is not None and minimum is not None:
+            parsed_result = max(minimum, parsed_result)
+        if parsed_result is not None and maximum is not None:
+            parsed_result = min(maximum, parsed_result)
+        if parsed_result is not None:
+            parsed_result = round(parsed_result, decimals)
 
-    parsed = _finite_float(result)
-    if parsed is None:
-        return current
-    if minimum is not None:
-        parsed = max(minimum, parsed)
-    if maximum is not None:
-        parsed = min(maximum, parsed)
-    return round(parsed, decimals)
+    if help_enabled and st.session_state.get(_TA_HELP_OPEN_KEY, False):
+        _render_mobile_ta_note(ui_text("full.ta_mean_help"))
+    elif interval_mode and is_ta_other:
+        _render_mobile_ta_note(_TA_RANGE_MOBILE_NOTE)
+
+    return parsed_result
