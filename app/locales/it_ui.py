@@ -37,13 +37,26 @@ UI_TEXT = {
     "full.prudent_default_note": (
         "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
         "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-        "Nella stima prudente specificare gli intervalli di temperatura ambientale "
-        "e fattore di correzione da considerare nel calcolo."
+        "Usa questa modalità quando la temperatura ambientale media e il fattore di correzione "
+        "potrebbero essere cambiati nel tempo o sono incerti. Per ciascun parametro, inserisci "
+        "i due estremi plausibili dell’intervallo, cioè il valore minimo e il valore massimo da "
+        "considerare nel calcolo. Per il fattore di correzione, «Consiglia» aiuta a individuare "
+        "il valore da associare a ciascun estremo."
         "</div>"
     ),
     "full.specify_range": "Specifica range",
-    "full.ta_mean_label": "T. ambientale media (°C):",
-    "full.ta_range_label": "Range di T. ambientale media (°C):",
+    "full.ta_mean_label": (
+        "T. ambientale media (°C): "
+        "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
+        "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
+        "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+    ),
+    "full.ta_range_label": (
+        "Range di T. ambientale media (°C): "
+        "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
+        "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
+        "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+    ),
     "full.fc_label": "Fattore di correzione (FC):",
     "full.fc_range_label": "Range del fattore di correzione (FC):",
     "full.rectal_temp_label": "T. rettale (°C):",
