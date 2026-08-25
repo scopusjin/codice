@@ -210,6 +210,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     margin-top: -0.55rem !important;
   }
 
+  /* In modalità standard uniforma lo spazio Peso → T. amb. media alle altre righe. */
+  body:has([class*="st-key-stima_cautelativa_beta"]):not(:has([class*="st-key-prudent_explicit_ranges"]))
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]) {
+    margin-top: -0.55rem !important;
+  }
+
   /* Riga Peso: il controllo prende tutto lo spazio residuo; ±3 kg occupa
      esattamente il proprio contenuto e non può spezzarsi. */
   body:has([class*="st-key-stima_cautelativa_beta"])
