@@ -1,6 +1,7 @@
 # app/graphing.py
 from __future__ import annotations
 import datetime
+import textwrap
 from typing import Dict, List, Any
 from numbers import Real
 from app.theme import warn_box
@@ -659,7 +660,7 @@ def aggiorna_grafico(
     # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
     if not st.session_state.get("_pop_css_row_applied"):
         st.markdown(
-            """
+            textwrap.dedent("""
             <style>
             /* Trigger del popover in stile link */
             div[data-testid="stPopover"] button{
@@ -684,7 +685,7 @@ def aggiorna_grafico(
                 padding:10px 12px!important;
             }
             </style>
-            """,
+            """),
             unsafe_allow_html=True
         )
         st.session_state["_pop_css_row_applied"] = True
