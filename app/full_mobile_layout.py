@@ -67,6 +67,22 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (max-width: 768px) {
+  /* Titolo della schermata completa: resta leggibile ma senza occupare
+     l'altezza della testata desktop. */
+  body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-title {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.05rem !important;
+    font-weight: 650 !important;
+    line-height: 1.15 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stElementContainer"]:has(.mortem-full-title) {
+    margin: 0 0 -0.35rem 0 !important;
+    padding: 0 !important;
+  }
+
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
   body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
@@ -463,21 +479,54 @@ def install_full_mobile_layout():
     def _render_mobile_page_switch(label: str, target: str, key: str) -> None:
         nav_css = (
             "<style>\n"
+            ".mortem-msil-title { display: none !important; }\n"
             f'[class*="st-key-{key}"] {{ display: none !important; }}\n'
             "@media (max-width: 768px) {\n"
+            "  .mortem-msil-title {\n"
+            "    display: block !important;\n"
+            "    margin: 0 !important;\n"
+            "    padding: 0 !important;\n"
+            "    font-size: 1.05rem !important;\n"
+            "    font-weight: 650 !important;\n"
+            "    line-height: 1.15 !important;\n"
+            "  }\n"
+            "  [data-testid=\"stElementContainer\"]:has(.mortem-msil-title) {\n"
+            "    margin: 0 0 0.15rem 0 !important;\n"
+            "    padding: 0 !important;\n"
+            "  }\n"
+            f'  [data-testid="stElementContainer"]:has([class*="st-key-{key}"]) {{\n'
+            "    order: 9999 !important;\n"
+            "    margin-top: 0.45rem !important;\n"
+            "    margin-bottom: 0 !important;\n"
+            "  }\n"
             f'  [class*="st-key-{key}"] {{\n'
             "    display: block !important;\n"
             "    width: max-content !important;\n"
             "    max-width: 100% !important;\n"
             "    margin-left: auto !important;\n"
-            "    margin-top: -0.15rem !important;\n"
-            "    margin-bottom: 0.35rem !important;\n"
+            "    margin-top: 0 !important;\n"
+            "    margin-bottom: 0 !important;\n"
+            "    order: 9999 !important;\n"
             "  }\n"
-            f'  [class*="st-key-{key}"] button {{\n'
-            "    min-height: 1.95rem !important;\n"
-            "    padding: 0.20rem 0.65rem !important;\n"
-            "    font-size: 0.82rem !important;\n"
+            f'  [class*="st-key-{key}"] [data-testid="stButton"] button {{\n'
+            "    min-height: 1.75rem !important;\n"
+            "    height: auto !important;\n"
+            "    padding: 0.08rem 0.50rem !important;\n"
+            "    background: transparent !important;\n"
+            "    color: var(--primary-color, #2196F3) !important;\n"
+            "    border: 1px solid var(--primary-color, #2196F3) !important;\n"
+            "    border-radius: 7px !important;\n"
+            "    box-shadow: none !important;\n"
+            "    font-size: 0.76rem !important;\n"
+            "    font-weight: 600 !important;\n"
             "    white-space: nowrap !important;\n"
+            "  }\n"
+            f'  [class*="st-key-{key}"] [data-testid="stButton"] button:hover,\n'
+            f'  [class*="st-key-{key}"] [data-testid="stButton"] button:active {{\n'
+            "    background: transparent !important;\n"
+            "    color: var(--primary-color, #2196F3) !important;\n"
+            "    border-color: var(--primary-color, #2196F3) !important;\n"
+            "    box-shadow: none !important;\n"
             "  }\n"
             "}\n"
             "</style>"
@@ -503,6 +552,12 @@ def install_full_mobile_layout():
             and "Header e padding pagina" in tagged_body
             and 'header[data-testid="stHeader"]' in tagged_body
         )
+        if is_full_title and "mortem-full-title" not in tagged_body:
+            tagged_body = tagged_body.replace(
+                "<h5 ",
+                "<h5 class='mortem-full-title' ",
+                1,
+            )
         if isinstance(tagged_body, str) and ".final-text{" in tagged_body:
             tagged_body = _FULL_MOBILE_CSS + tagged_body
             kwargs["unsafe_allow_html"] = True
@@ -518,6 +573,10 @@ def install_full_mobile_layout():
                 "Versione completa",
                 "Stima_epoca_decesso.py",
                 "mobile_nav_to_full",
+            )
+            original_markdown(
+                '<div class="mortem-msil-title">Stima epoca decesso durante ispezione legale</div>',
+                unsafe_allow_html=True,
             )
         return result
 
