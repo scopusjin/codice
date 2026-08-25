@@ -150,6 +150,65 @@ def apply_theme():
         color: {C["OutText"]} !important;
         border: 1px solid rgba(0,0,0,0.12) !important;
       }}
+
+      /* Modalità sopralluogo: titolo compatto e ritorno alla Full discreto. */
+      @media (max-width: 768px) {{
+        body:has([class*="st-key-mobile_nav_to_full"]) div.block-container::before {{
+          content: "Stima epoca decesso durante ispezione legale";
+          display: block;
+          margin: 0.15rem 0 0.35rem 0;
+          padding: 0;
+          color: {C["Testo"]};
+          font-size: 0.88rem;
+          font-weight: 650;
+          line-height: 1.15;
+        }}
+
+        body:has([class*="st-key-mobile_nav_to_full"])
+        [class*="st-key-mobile_nav_to_full"] {{
+          position: fixed !important;
+          right: max(0.75rem, env(safe-area-inset-right)) !important;
+          bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+          width: max-content !important;
+          margin: 0 !important;
+          z-index: 1000 !important;
+        }}
+
+        body:has([class*="st-key-mobile_nav_to_full"])
+        [class*="st-key-mobile_nav_to_full"] button {{
+          min-height: 1.75rem !important;
+          height: auto !important;
+          padding: 0.10rem 0.50rem !important;
+          background: transparent !important;
+          color: {C["Btn"]} !important;
+          border: 1px solid {C["Btn"]} !important;
+          border-radius: 7px !important;
+          box-shadow: none !important;
+          font-size: 0.75rem !important;
+          font-weight: 600 !important;
+          white-space: nowrap !important;
+        }}
+
+        body:has([class*="st-key-mobile_nav_to_full"])
+        [class*="st-key-mobile_nav_to_full"] button:hover {{
+          background: transparent !important;
+          color: {C["BtnHover"]} !important;
+          border-color: {C["BtnHover"]} !important;
+        }}
+
+        body:has([class*="st-key-mobile_nav_to_full"])
+        [class*="st-key-mobile_nav_to_full"] button:active {{
+          background: transparent !important;
+          color: {C["BtnActive"]} !important;
+          border-color: {C["BtnActive"]} !important;
+        }}
+
+        body:has([class*="st-key-mobile_nav_to_full"])
+        [class*="st-key-mobile_nav_to_full"] button:focus {{
+          outline: 0 !important;
+          box-shadow: none !important;
+        }}
+      }}
     </style>
     """, unsafe_allow_html=True)
 
