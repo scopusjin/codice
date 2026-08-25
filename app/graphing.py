@@ -294,8 +294,9 @@ def aggiorna_grafico(
         qd_ok = (_is_num(Qd_val_check) and Qd_val_check <= qd_threshold) or (not _is_num(Qd_val_check))
         usa_potente = (mt_ore is not None) and (not np.isnan(mt_ore)) and qd_ok
 
-    # In condizioni variabili Henssge resta sempre visibile; Potente è un limite aggiuntivo.
-    raff_for_plot = raffreddamento_calcolabile and (condizioni_variabili or not usa_potente)
+    # Nel grafico il raffreddamento occupa sempre una sola riga.
+    # Se Potente scatta, il range combinato viene rappresentato come intervallo aperto.
+    raff_for_plot = raffreddamento_calcolabile and not usa_potente
 
     # extra da parametri aggiuntivi
     for p in parametri_aggiuntivi_da_considerare:
@@ -374,34 +375,20 @@ def aggiorna_grafico(
                 "adattato": bool(p.get("adattato", False)),
             })
 
-    # Potente resta separato da Henssge nel grafico quando le condizioni sono variabili.
+    # Se Potente scatta, mostra una sola barra "Raffreddamento" che rappresenta
+    # l'unione già usata per il risultato complessivo.
     if usa_potente and _is_num(mt_ore):
-        if condizioni_variabili and raffreddamento_calcolabile:
-            extra_params_for_plot.insert(0, {
-                "label": i18n.ui_text("graph.parameter_cooling_potente"),
-                "start": float(mt_ore),
-                "end": np.inf,
-                "order": -1,
-                "adattato": False,
-            })
-        else:
-            extra_params_for_plot.insert(0, {
-                "label": i18n.ui_text("plot.cooling"),
-                "start": float(mt_ore),
-                "end": np.inf,
-                "order": -1,
-                "adattato": False,
-                "is_potente": True,
-            })
-
-    # Nel grafico cautelativo con Potente, mostra il vero range Henssge separatamente.
-    qd_for_plot = Qd_val_check
-    mt_for_plot = mt_ore
-    if condizioni_variabili and usa_potente and raffreddamento_calcolabile:
-        if _is_num(t_max_raff_henssge):
-            qd_for_plot = np.nan
-        else:
-            mt_for_plot = None
+        raff_plot_start = float(mt_ore)
+        if condizioni_variabili and raffreddamento_calcolabile and _is_num(t_min_raff_henssge):
+            raff_plot_start = min(float(t_min_raff_henssge), float(mt_ore))
+        extra_params_for_plot.insert(0, {
+            "label": i18n.ui_text("plot.cooling"),
+            "start": raff_plot_start,
+            "end": np.inf,
+            "order": -1,
+            "adattato": False,
+            "is_potente": True,
+        })
 
     # --- grafico ---
     num_params_grafico = 0
@@ -424,8 +411,8 @@ def aggiorna_grafico(
                 t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
                 t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
                 t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
-                Qd_val_check=qd_for_plot if raff_for_plot else np.nan,
-                mt_ore=mt_for_plot,
+                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
+                mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
                 qd_threshold=qd_threshold,
                 extra_params=extra_params_for_plot,
@@ -440,8 +427,8 @@ def aggiorna_grafico(
                 t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
                 t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
                 t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
-                Qd_val_check=qd_for_plot if raff_for_plot else np.nan,
-                mt_ore=mt_for_plot,
+                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
+                mt_ore=mt_ore,
                 INF_HOURS=INF_HOURS,
                 qd_threshold=qd_threshold,
             )
