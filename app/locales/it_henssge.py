@@ -19,32 +19,26 @@ def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
 
 def henssge_qd_outside_warning() -> str:
     return (
-        " <b>Con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
+        " <b>Tuttavia, con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
         "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
         "agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_partial_warning() -> str:
-    return (
-        " <b>Con i dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
-        "È consigliabile fare riferimento soprattutto agli altri dati tanatologici disponibili."
-    )
+    return ""
 
 
 def henssge_qd_range_mixed_warning() -> str:
     return (
-        " <b>Per una parte dei dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
+        " <b>Tuttavia, per una parte dei dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
         "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
         "agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_range_intermediate_warning() -> str:
-    return (
-        " <b>Per una parte dei dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
-        "È consigliabile fare riferimento soprattutto agli altri dati tanatologici disponibili."
-    )
+    return ""
 
 
 def henssge_over_thirty_warning(mean_hours: str) -> str:
@@ -70,9 +64,9 @@ def qd_summary(
     if resolved_status == "intermediate":
         return (
             "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
-            "dell'equazione di Henssge, sebbene con un maggiore grado di incertezza "
-            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > {threshold}; "
-            f"nel caso in esame è pari a {qd_text}).</p>"
+            f"dell'equazione di Henssge (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text} e, essendo prossimo al limite "
+            "di applicazione del metodo, comporta un intervallo temporale di stima più ampio).</p>"
         )
 
     if resolved_status == "outside":
@@ -117,12 +111,21 @@ def qd_range_summary(
             f"{qd_value})."
         )
     elif status == "no_optimal_intermediate":
+        if single_value:
+            qd_near_limit = (
+                f"è pari a {qd_min_text} e, essendo prossimo al limite di applicazione del metodo, "
+                "comporta un intervallo temporale di stima più ampio"
+            )
+        else:
+            qd_near_limit = (
+                f"varia da {qd_min_text} a {qd_max_text} e, comprendendo valori prossimi al limite di applicazione "
+                "del metodo, comporta un intervallo temporale di stima più ampio"
+            )
         sentence = (
-            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge, "
-            "sebbene la stima presenti un maggiore grado di incertezza "
+            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge "
             "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2; "
             "nelle condizioni considerate "
-            f"{qd_value})."
+            f"{qd_near_limit})."
         )
     else:
         sentence = (
