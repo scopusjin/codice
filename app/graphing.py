@@ -135,6 +135,8 @@ def aggiorna_grafico(
     Qd_max = cooling.Qd_max
     qd_range_status = cooling.qd_range_status
     potente_min_ore = cooling.potente_min_ore
+    swisswuff_min_ore = cooling.swisswuff_min_ore
+    swisswuff_max_ore = cooling.swisswuff_max_ore
     raffreddamento_calcolabile = cooling.raffreddamento_calcolabile
     Ta_for_pot = cooling.Ta_for_pot
     qd_threshold = cooling.qd_threshold
@@ -538,16 +540,24 @@ def aggiorna_grafico(
 
         t_min_vis = t_min_raff_visualizzato if np.isfinite(t_min_raff_visualizzato) else np.nan
         t_max_vis = t_max_raff_visualizzato if np.isfinite(t_max_raff_visualizzato) else np.nan
-        par_h = paragrafo_raffreddamento_dettaglio(
-            t_min_visual=t_min_vis,
-            t_max_visual=t_max_vis,
-            t_med_round=t_med_raff_henssge_rounded,
-            qd_val=Qd_val_check,
-            ta_val=Ta_val,
-            qd_range_status=qd_range_status,
+        henssge_non_applicabile_singolo = (
+            not condizioni_variabili
+            and _is_num(Qd_val_check)
+            and float(Qd_val_check) <= qd_threshold
         )
-        if par_h:
-            _add_det(par_h)
+        if henssge_non_applicabile_singolo:
+            _add_det("<ul><li>Nel caso in esame, l’equazione di Henssge non è applicabile.</li></ul>")
+        else:
+            par_h = paragrafo_raffreddamento_dettaglio(
+                t_min_visual=t_min_vis,
+                t_max_visual=t_max_vis,
+                t_med_round=t_med_raff_henssge_rounded,
+                qd_val=Qd_val_check,
+                ta_val=Ta_val,
+                qd_range_status=qd_range_status,
+            )
+            if par_h:
+                _add_det(par_h)
 
         qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
         par_p = paragrafo_potente(
@@ -668,6 +678,21 @@ def aggiorna_grafico(
         qd_max=Qd_max,
         qd_range_status=qd_range_status,
     )
+    if (
+        frase_qd_html
+        and _is_num(swisswuff_min_ore)
+        and _is_num(swisswuff_max_ore)
+    ):
+        swiss_min_txt = i18n.prudent_hours_text(float(swisswuff_min_ore))
+        swiss_max_txt = i18n.prudent_hours_text(float(swisswuff_max_ore))
+        swiss_scope = "Per le condizioni con Qd ≤ 0,2, " if condizioni_variabili else ""
+        swiss_note = (
+            f"{swiss_scope}a titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
+            f"il range temporale sarebbe compreso tra {swiss_min_txt} e {swiss_max_txt}; tale range è da intendersi "
+            "come del tutto approssimativo, essendo calcolato applicando una variazione di ±20% alla stima centrale "
+            "e privo di uno specifico fondamento statistico."
+        )
+        frase_qd_html = frase_qd_html.replace("</p>", f" {swiss_note}</p>")
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
 
