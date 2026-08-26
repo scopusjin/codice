@@ -39,6 +39,13 @@ def calcola_raffreddamento(
     if np.isnan(Qd) or Qd <= 0 or Qd > 1:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
+    # Evita che l'errore floating-point sposti valori matematicamente esatti
+    # dall'altro lato delle soglie Qd usate dal metodo e dalla presentazione.
+    for qd_boundary in (0.2, 0.3, 0.5):
+        if np.isclose(Qd, qd_boundary, rtol=0.0, atol=1e-12):
+            Qd = qd_boundary
+            break
+
     A = 1.25 if Ta <= 23 else 10/9
     B = -1.2815 * (CF * W)**(-5/8) + 0.0284
 
