@@ -311,25 +311,28 @@ def compute_cooling_state(
 
             t_min_vis = t_min_raff_henssge
             t_max_vis = t_max_raff_henssge
-            detail_qd_status = (
-                "all_optimal"
-                if qd_range_status in {"mixed", "all_outside"}
-                else qd_range_status
-            )
             par_h_caut = paragrafo_raffreddamento_dettaglio(
                 t_min_visual=t_min_vis,
                 t_max_visual=t_max_vis,
                 t_med_round=t_med_raff_henssge_rounded,
                 qd_val=Qd_val_check,
                 ta_val=Ta_val,
-                qd_range_status=detail_qd_status,
+                qd_range_status=qd_range_status,
             )
             if par_h_caut:
+                if qd_range_status == "mixed":
+                    par_h_caut = par_h_caut.replace(
+                        i18n.henssge_qd_range_mixed_warning(),
+                        "",
+                    )
                 detail_blocks.append(par_h_caut)
 
             if qd_range_status == "mixed":
                 detail_blocks.append(
-                    "<ul><li>Per una parte delle condizioni considerate, l’equazione di Henssge non è applicabile.</li></ul>"
+                    "<ul><li>Il range sopra riportato si riferisce esclusivamente alle condizioni considerate nelle quali l’equazione di Henssge è applicabile.</li></ul>"
+                )
+                detail_blocks.append(
+                    "<ul><li>Per una parte delle restanti condizioni, l’equazione di Henssge non è applicabile.</li></ul>"
                 )
             elif qd_range_status == "all_outside":
                 detail_blocks.append(
