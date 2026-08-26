@@ -28,24 +28,22 @@ def henssge_qd_outside_warning() -> str:
 def henssge_qd_partial_warning() -> str:
     return (
         " <b>Con i dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
-        "La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
-        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
+        "È consigliabile fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_range_mixed_warning() -> str:
     return (
-        " <b>Per una parte dei dati inseriti, la stima presenta un maggiore grado di incertezza "
-        "o non è affidabile.</b> La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione "
-        "dell'epoca del decesso, è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
+        " <b>Per una parte dei dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
+        "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
+        "agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_range_intermediate_warning() -> str:
     return (
         " <b>Per una parte dei dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
-        "La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
-        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
+        "È consigliabile fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
@@ -113,16 +111,15 @@ def qd_range_summary(
         )
     elif status == "mixed":
         sentence = (
-            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge, "
-            "ma per una parte dei dati inseriti la stima presenta un maggiore grado di incertezza o non è affidabile "
-            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            "Nelle condizioni considerate, per una parte dei dati inseriti la stima mediante l’equazione di Henssge "
+            "non è affidabile (con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
             f"{qd_value})."
         )
     elif status == "no_optimal_intermediate":
         sentence = (
             "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge, "
-            "sebbene per una parte dei dati inseriti la stima presenti un maggiore grado di incertezza "
+            "sebbene la stima presenti un maggiore grado di incertezza "
             "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2; "
             "nelle condizioni considerate "
             f"{qd_value})."

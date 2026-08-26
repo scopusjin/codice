@@ -51,7 +51,9 @@ def _aggregate_qd_status(counts: dict[str, int]) -> str | None:
         return None
     if counts["optimal"] == total:
         return "all_optimal"
-    if counts["optimal"] > 0:
+    if counts["outside"] == total:
+        return "all_outside"
+    if counts["outside"] > 0:
         return "mixed"
     if counts["intermediate"] > 0:
         return "no_optimal_intermediate"
