@@ -287,41 +287,12 @@ def compute_cooling_state(
                 else f"{W_val:.0f} kg"
             )
 
-            # --- header / bullets / conclusione ---
-            header_blk = getattr(res, "header_html", None) or getattr(res, "header", None)
-            bullets_blk = getattr(res, "bullets_html", None) or getattr(res, "bullets", None)
-            conclusione_blk = getattr(res, "conclusione_html", None) or getattr(res, "conclusione", None)
-
-            if not (header_blk and bullets_blk and conclusione_blk):
-                t_lo = round_quarter_hour(t_min_raff_henssge)
-                if np.isnan(t_max_raff_henssge):
-                    risultato_txt = i18n.prudent_graphing_result_at_least(
-                        i18n.prudent_graphing_hours_text(t_lo)
-                    )
-                else:
-                    t_hi = round_quarter_hour(t_max_raff_henssge)
-                    risultato_txt = i18n.prudent_graphing_result_range(
-                        i18n.prudent_graphing_hours_text(t_lo),
-                        i18n.prudent_graphing_hours_text(t_hi),
-                    )
-
-                header_blk = i18n.prudent_header()
-                bullets_blk = i18n.prudent_simple_bullets(
-                    ta_text=ta_txt,
-                    cf_text=cf_txt,
-                    weight_text=p_txt,
-                )
-                conclusione_blk = i18n.prudent_conclusion(risultato_txt)
-
-            if header_blk:
-                elenco_html = i18n.prudent_graphing_detail_list(
-                    header=header_blk,
-                    ta_text=ta_txt,
-                    cf_text=cf_txt,
-                    weight_text=p_txt,
-                )
-            else:
-                elenco_html = "<ul></ul>"
+            elenco_html = i18n.prudent_graphing_detail_list(
+                header=i18n.prudent_header(),
+                ta_text=ta_txt,
+                cf_text=cf_txt,
+                weight_text=p_txt,
+            )
             detail_blocks.append(elenco_html)
 
             if qd_range_status == "all_outside":
