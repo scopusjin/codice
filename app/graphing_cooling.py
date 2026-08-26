@@ -19,7 +19,6 @@ from app import i18n
 from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento
 from app.parameters import INF_HOURS
-from app.textgen import paragrafo_raffreddamento_dettaglio
 from app.utils_time import round_quarter_hour
 
 
@@ -324,19 +323,6 @@ def compute_cooling_state(
             else:
                 elenco_html = "<ul></ul>"
             detail_blocks.append(elenco_html)
-
-            t_min_vis = t_min_raff_henssge
-            t_max_vis = t_max_raff_henssge
-            par_h_caut = paragrafo_raffreddamento_dettaglio(
-                t_min_visual=t_min_vis,
-                t_max_visual=t_max_vis,
-                t_med_round=t_med_raff_henssge_rounded,
-                qd_val=Qd_val_check,
-                ta_val=Ta_val,
-                qd_range_status=qd_range_status,
-            )
-            if par_h_caut:
-                detail_blocks.append(par_h_caut)
 
             if qd_range_status == "all_outside":
                 detail_blocks.append(
