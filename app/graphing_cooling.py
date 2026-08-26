@@ -336,21 +336,9 @@ def compute_cooling_state(
                 qd_range_status=qd_range_status,
             )
             if par_h_caut:
-                if qd_range_status == "mixed":
-                    par_h_caut = par_h_caut.replace(
-                        i18n.henssge_qd_range_mixed_warning(),
-                        "",
-                    )
                 detail_blocks.append(par_h_caut)
 
-            if qd_range_status == "mixed":
-                detail_blocks.append(
-                    "<ul><li>Il range sopra riportato si riferisce esclusivamente alle condizioni considerate nelle quali l’equazione di Henssge è applicabile.</li></ul>"
-                )
-                detail_blocks.append(
-                    "<ul><li>Per una parte delle restanti condizioni, l’equazione di Henssge non è applicabile.</li></ul>"
-                )
-            elif qd_range_status == "all_outside":
+            if qd_range_status == "all_outside":
                 detail_blocks.append(
                     "<ul><li>Nelle condizioni considerate, l’equazione di Henssge non è applicabile.</li></ul>"
                 )
