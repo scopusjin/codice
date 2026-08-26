@@ -14,7 +14,6 @@ from app.mobile_navigation import render_mobile_page_switch
 from app.graphing import aggiorna_grafico
 from app.data_sources import load_tabelle_correzione
 from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
-from app.textgen import paragrafi_descrizioni_base, paragrafi_parametri_aggiuntivi
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
@@ -131,23 +130,6 @@ st.markdown(
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
 
-def _descrizioni_html():
-    parts = []
-    try:
-        parts.extend(paragrafi_descrizioni_base(
-            selettore_macchie=st.session_state.get("selettore_macchie"),
-            selettore_rigidita=st.session_state.get("selettore_rigidita"),
-        ))
-    except Exception: pass
-    try:
-        parts.extend(paragrafi_parametri_aggiuntivi(
-            parametri=st.session_state.get("widgets_parametri_aggiuntivi", {})
-        ))
-    except Exception: pass
-    return "\n".join(parts) or i18n.ui_text("msil.no_description")
-
-
-
 def _raccomandazioni_html() -> str:
     return i18n.ui_text("msil.recommendations_html")
 
@@ -212,12 +194,6 @@ st.session_state["__desc_dettagliate_html"] = ""
 # Helpers
 # ------------------------------------------------------------
 
-
-def _safe_int(x):
-    try:
-        return int(x)
-    except Exception:
-        return 0
 
 def _label(text, hint=None):
     if hint:
