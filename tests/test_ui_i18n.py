@@ -30,7 +30,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
                 self.assertEqual(i18n.ui_text(key), value)
 
     def test_henssge_labels_and_help_match_current_ui(self):
-        self.assertEqual(i18n.ui_text("full.prudent_toggle"), "Stima prudente")
+        self.assertEqual(i18n.ui_text("full.prudent_toggle"), "Condizioni variabili?")
         self.assertEqual(
             i18n.ui_text("full.henssge_not_applicable"),
             "Metodo di Henssge non applicabile",
@@ -57,9 +57,11 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             i18n.ui_text("full.prudent_default_note"),
             "<div style='font-size:0.9rem; color:#444; padding:6px 8px; "
             "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
-            "Se non diversamente specificato, si considererà "
-            "un range di incertezza di ±1.0 °C per la T. ambientale media "
-            "e di ±0.10 per il fattore di correzione."
+            "Usa questa modalità quando la temperatura ambientale media e il fattore di correzione "
+            "potrebbero essere cambiati nel tempo o sono incerti. Per ciascun parametro, inserisci "
+            "i due estremi plausibili dell’intervallo, cioè il valore minimo e il valore massimo da "
+            "considerare nel calcolo. Per il fattore di correzione, «Consiglia» aiuta a individuare "
+            "il valore da associare a ciascun estremo."
             "</div>",
         )
         self.assertEqual(
@@ -72,10 +74,15 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
         )
 
     def test_factor_panel_labels_match_current_ui(self):
+        ta_help = (
+            "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
+            "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
+            "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+        )
         expected = {
             "full.specify_range": "Specifica range",
-            "full.ta_mean_label": "T. ambientale media (°C):",
-            "full.ta_range_label": "Range di T. ambientale media (°C):",
+            "full.ta_mean_label": f"T. ambientale media (°C): {ta_help}",
+            "full.ta_range_label": f"Range di T. ambientale media (°C): {ta_help}",
             "full.fc_label": "Fattore di correzione (FC):",
             "full.fc_range_label": "Range del fattore di correzione (FC):",
             "full.rectal_temp_label": "T. rettale (°C):",
