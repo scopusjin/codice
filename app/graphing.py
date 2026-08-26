@@ -403,37 +403,21 @@ def aggiorna_grafico(
         warn_box(i18n.ui_text("graph.no_useful_data"))
 
     if num_params_grafico > 0:
-        try:
-            plot_data = compute_plot_data(
-                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
-                t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
-                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
-                mt_ore=mt_ore,
-                INF_HOURS=INF_HOURS,
-                qd_threshold=qd_threshold,
-                extra_params=extra_params_for_plot,
-            )
-        except TypeError:
-            plot_data = compute_plot_data(
-                macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
-                macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
-                rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
-                rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
-                raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
-                t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
-                t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
-                t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
-                Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
-                mt_ore=mt_ore,
-                INF_HOURS=INF_HOURS,
-                qd_threshold=qd_threshold,
-            )
+        plot_data = compute_plot_data(
+            macchie_range=macchie_range if macchie_range_valido else (np.nan, np.nan),
+            macchie_medi_range=macchie_medi_range if macchie_range_valido else None,
+            rigidita_range=rigidita_range if rigidita_range_valido else (np.nan, np.nan),
+            rigidita_medi_range=rigidita_medi_range if rigidita_range_valido else None,
+            raffreddamento_calcolabile=raff_for_plot,   # <-- usa raff_for_plot
+            t_min_raff_henssge=t_min_raff_henssge if raff_for_plot else np.nan,
+            t_max_raff_henssge=t_max_raff_henssge if raff_for_plot else np.nan,
+            t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw if raff_for_plot else np.nan,
+            Qd_val_check=Qd_val_check if raff_for_plot else np.nan,
+            mt_ore=mt_ore,
+            INF_HOURS=INF_HOURS,
+            qd_threshold=qd_threshold,
+            extra_params=extra_params_for_plot,
+        )
 
         if isinstance(plot_data, dict):
             plot_data["extra_params"] = extra_params_for_plot
@@ -445,10 +429,7 @@ def aggiorna_grafico(
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
-        try:
-            fig_or_none = render_ranges_plot(plot_data, extra_params=extra_params_for_plot)
-        except TypeError:
-            fig_or_none = render_ranges_plot(plot_data)
+        fig_or_none = render_ranges_plot(plot_data)
 
         import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
