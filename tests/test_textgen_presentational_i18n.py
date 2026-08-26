@@ -42,15 +42,23 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             "<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: ipostasi, rigor e raffreddamento.</p>",
         )
 
-    def test_potente_paragraph_keeps_current_html_and_applicability(self):
-        self.assertIsNone(
+    def test_potente_paragraph_keeps_current_html_and_inclusive_boundary(self):
+        expected = (
+            "<ul><li>Il metodo proposto da Potente et al., basato sul modello di raffreddamento di Henssge, "
+            "consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti "
+            "con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
+            "Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse "
+            "almeno <b>26 ore 30 minuti</b> (≈ 1.1 giorni) dal decesso.</li></ul>"
+        )
+        self.assertEqual(
             paragrafo_potente(
                 mt_ore=26.5,
                 mt_giorni=1.1,
                 qd_val=0.2,
                 ta_val=20.0,
                 qd_threshold=0.2,
-            )
+            ),
+            expected,
         )
         self.assertEqual(
             paragrafo_potente(
@@ -60,8 +68,16 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 ta_val=20.0,
                 qd_threshold=0.2,
             ),
-            "<ul><li>Lo studio di Potente et al. permette di stimare grossolanamente l’intervallo minimo post-mortem quando i dati non consentono di ottenere risultati attendibili con il metodo di Henssge. "
-            "Applicandolo al caso specifico, si può ipotizzare che, al momento dell’ispezione legale, fossero trascorse almeno <b>26 ore 30 minuti</b> (≈ 1.1 giorni) dal decesso.</li></ul>",
+            expected,
+        )
+        self.assertIsNone(
+            paragrafo_potente(
+                mt_ore=26.5,
+                mt_giorni=1.1,
+                qd_val=0.21,
+                ta_val=20.0,
+                qd_threshold=0.2,
+            )
         )
 
     def test_cooling_input_paragraph_without_datetime_keeps_current_html(self):
@@ -123,10 +139,11 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.2,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
-            "<b>I valori ottenuti sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
-            "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
-            "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili.</li></ul>",
+            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
+            "<b>Tuttavia, con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
+            "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
+            "agli altri dati tanatologici disponibili.</li></ul>",
         )
 
     def test_henssge_detail_qd_between_point_two_and_point_three_keeps_current_html(self):
@@ -138,10 +155,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.25,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
-            "<b>Alcuni dei valori rilevati sono al di fuori dell'intervallo ottimale di applicazione dell'equazione.</b> "
-            "La stima ottenuta non ha una solida base statistica e deve quindi essere considerata con cautela. "
-            "Per la stima dell'epoca del decesso è opportuno basarsi soprattutto sugli altri dati tanatologici disponibili.</li></ul>",
+            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
     def test_henssge_detail_qd_at_point_three_has_no_qd_warning(self):
@@ -153,10 +168,11 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
-    def test_henssge_detail_over_thirty_hours_keeps_current_warning(self):
+    def test_henssge_detail_over_thirty_hours_has_no_separate_warning(self):
         self.assertEqual(
             paragrafo_raffreddamento_dettaglio(
                 t_min_visual=28.0,
@@ -165,42 +181,46 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, è stimabile che il decesso sia avvenuto, all'incirca, tra 28 e 34 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
-            "La stima media ottenuta dal raffreddamento cadaverico (31.0 h) è superiore alle 30 ore. "
-            "L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo.</li></ul>",
+            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 28 e 34 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
-    def test_henssge_warning_list_keeps_strict_over_thirty_boundary(self):
+    def test_henssge_warning_list_is_currently_empty(self):
         self.assertEqual(avvisi_raffreddamento_henssge(t_med_round=30.0, qd_val=0.1), [])
-        self.assertEqual(
-            avvisi_raffreddamento_henssge(t_med_round=30.1, qd_val=0.1),
-            [
-                "La stima media ottenuta dal raffreddamento cadaverico (30.1 h) è superiore alle 30 ore. "
-                "L'affidabilità del metodo di Henssge diminuisce significativamente oltre questo intervallo."
-            ],
-        )
+        self.assertEqual(avvisi_raffreddamento_henssge(t_med_round=30.1, qd_val=0.1), [])
 
     def test_qd_summary_keeps_temperature_dependent_thresholds(self):
         self.assertIsNone(frase_qd(None, 20.0))
         self.assertEqual(
             frase_qd(0.19, 23.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = 0.190. "
-            "Tale parametro è inferiore ai limiti ottimali per applicare l'equazione (per T. amb ≤ 23 °C, Qd deve essere superiore a 0.2).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
+            "(con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.190).</p>",
         )
         self.assertEqual(
             frase_qd(0.2, 23.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = 0.200. "
-            "Tale parametro rientra nei limiti ottimali per applicare l'equazione (per T. amb ≤ 23 °C, Qd deve essere superiore a 0.2).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
+            "(con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.200).</p>",
+        )
+        self.assertEqual(
+            frase_qd(0.25, 23.0),
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
+            "dell'equazione di Henssge (con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.250 e, essendo prossimo al limite "
+            "di applicazione del metodo, comporta un intervallo temporale di stima più ampio).</p>",
         )
         self.assertEqual(
             frase_qd(0.49, 24.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = 0.490. "
-            "Tale parametro è inferiore ai limiti ottimali per applicare l'equazione (per T. amb > 23 °C, Qd deve essere superiore a 0.5).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
+            "(con T. amb > 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.490).</p>",
         )
         self.assertEqual(
             frase_qd(0.5, 24.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico ha Qd = 0.500. "
-            "Tale parametro rientra nei limiti ottimali per applicare l'equazione (per T. amb > 23 °C, Qd deve essere superiore a 0.5).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
+            "(con T. amb > 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.500).</p>",
         )
 
 
