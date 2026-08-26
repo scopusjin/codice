@@ -75,6 +75,14 @@ def _discretize(lo: float, hi: float, step: float,
     return [float(round(v, 6)) for v in arr]
 
 
+def _henssge_applicable(ta: float, qd: Optional[float]) -> bool:
+    """True se la combinazione rientra nel campo operativo Henssge."""
+    if qd is None or not math.isfinite(qd):
+        return False
+    threshold = 0.2 if float(ta) <= 23.0 else 0.5
+    return float(qd) > threshold
+
+
 def _to_datetimes(ore_min: float,
                   ore_max: float,
                   dt_ispezione: datetime) -> Tuple[Optional[datetime], Optional[datetime]]:
@@ -159,6 +167,8 @@ def compute_raffreddamento_cautelativo(
     recs: List[Dict[str, Any]] = []
     ore_mins: List[float] = []
     ore_maxs: List[float] = []
+    ore_mins_henssge: List[float] = []
+    ore_maxs_henssge: List[float] = []
     qds: List[float] = []
 
     for Ta, CF, P in itertools.product(Ta_vals, CF_vals, P_vals):
@@ -170,10 +180,18 @@ def compute_raffreddamento_cautelativo(
         if ore_max < ore_min:
             ore_max = ore_min
 
+        # Conserva tutte le combinazioni per tabella/riepiloghi informativi.
         ore_mins.append(ore_min)
         ore_maxs.append(ore_max)
         if qd is not None and math.isfinite(qd):
             qds.append(qd)
+
+        # Il range operativo Henssge usa solo le combinazioni nel suo campo
+        # di applicazione. Le altre restano disponibili per Potente e per le
+        # informazioni approssimative, ma non ampliano l'envelope Henssge.
+        if _henssge_applicable(Ta, qd):
+            ore_mins_henssge.append(ore_min)
+            ore_maxs_henssge.append(ore_max)
 
         if mostra_tabella:
             recs.append({
@@ -186,8 +204,15 @@ def compute_raffreddamento_cautelativo(
             })
 
     # 4) Aggregati
-    agg_min = float(min(ore_mins)) if ore_mins else float("inf")
-    agg_max = float(max(ore_maxs)) if ore_maxs else float("inf")
+    # Tutte le combinazioni restano disponibili per il riepilogo informativo.
+    agg_min_all = float(min(ore_mins)) if ore_mins else float("inf")
+    agg_max_all = float(max(ore_maxs)) if ore_maxs else float("inf")
+
+    # Il risultato operativo Henssge esclude invece le combinazioni fuori campo.
+    # Se nessuna combinazione è applicabile, INF_HOURS funge da sentinella e
+    # consente al livello superiore di lasciare il risultato a Potente.
+    agg_min = float(min(ore_mins_henssge)) if ore_mins_henssge else float(INF_HOURS)
+    agg_max = float(max(ore_maxs_henssge)) if ore_maxs_henssge else float(INF_HOURS)
 
     qd_min = float(min(qds)) if qds else None
     qd_max = float(max(qds)) if qds else None
@@ -199,10 +224,12 @@ def compute_raffreddamento_cautelativo(
     df = pd.DataFrame.from_records(recs) if (mostra_tabella and recs) else None
 
     # 7) Frasi di riepilogo e parentetica
+    # Per ora il riepilogo interno conserva l'envelope completo: il relativo
+    # range ±20% verrà esposto separatamente solo nelle note informative.
     summary = build_summary_html(
         Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
-        agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
-        peso_stimato=peso_stimato, agg_max_raw=agg_max,
+        agg_min_all, agg_max_all, dt_min, dt_max, qd_min, qd_max,
+        peso_stimato=peso_stimato, agg_max_raw=agg_max_all,
     )
 
     try:
