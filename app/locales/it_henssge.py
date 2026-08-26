@@ -19,34 +19,33 @@ def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
 
 def henssge_qd_outside_warning() -> str:
     return (
-        " <b>I valori ottenuti ricadono al di fuori dell'intervallo ottimale di applicazione dell'equazione;</b> "
-        "la stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
-        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
+        " <b>Con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
+        "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
+        "agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_partial_warning() -> str:
     return (
-        " <b>Il valore di Qd si colloca nella fascia intermedia di applicazione dell'equazione.</b> "
-        "La stima deve pertanto essere interpretata con cautela e valutata congiuntamente "
-        "agli altri dati tanatologici disponibili."
+        " <b>Con i dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
+        "La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
+        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_range_mixed_warning() -> str:
     return (
-        " <b>Le condizioni considerate comprendono combinazioni sia favorevoli sia non pienamente ottimali "
-        "per l'applicazione dell'equazione di Henssge.</b> La stima deve pertanto essere interpretata con cautela, "
-        "soprattutto per gli estremi derivanti dalle condizioni meno favorevoli, e valutata congiuntamente "
-        "agli altri dati tanatologici disponibili."
+        " <b>Per una parte dei dati inseriti, la stima presenta un maggiore grado di incertezza "
+        "o non è affidabile.</b> La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione "
+        "dell'epoca del decesso, è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
 def henssge_qd_range_intermediate_warning() -> str:
     return (
-        " <b>Nessuna delle combinazioni considerate raggiunge la fascia pienamente ottimale, "
-        "pur ricadendo almeno alcune in una fascia intermedia.</b> La stima conserva pertanto un valore orientativo, "
-        "ma deve essere interpretata con cautela e integrata con gli altri dati tanatologici disponibili."
+        " <b>Per una parte dei dati inseriti, la stima presenta un maggiore grado di incertezza.</b> "
+        "La stima deve pertanto essere interpretata con cautela e, ai fini della valutazione dell'epoca del decesso, "
+        "è opportuno fare riferimento soprattutto agli altri dati tanatologici disponibili."
     )
 
 
@@ -67,29 +66,28 @@ def qd_summary(
     status: str | None = None,
 ) -> str:
     condition = "T. amb ≤ 23 °C" if ambient_at_most_23 else "T. amb > 23 °C"
+    threshold = "0,2" if ambient_at_most_23 else "0,5"
     resolved_status = status or ("optimal" if within_limits else "outside")
 
     if resolved_status == "intermediate":
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
-            f"ha Qd = {qd_text}. Tale parametro si colloca nella fascia intermedia "
-            "(0,20 < Qd < 0,30), non pienamente ottimale; la stima deve quindi essere interpretata "
-            "con maggiore cautela.</p>"
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
+            "dell'equazione di Henssge, sebbene con un maggiore grado di incertezza "
+            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > {threshold}; "
+            f"nel caso in esame è pari a {qd_text}).</p>"
         )
 
     if resolved_status == "outside":
-        boundary = "Qd ≤ 0,20" if ambient_at_most_23 else "Qd ≤ 0,50"
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
-            f"ha Qd = {qd_text}. Tale parametro ricade al di fuori dell'intervallo ottimale per l'applicazione "
-            f"dell'equazione (con {condition}, {boundary} identifica la fascia sfavorevole).</p>"
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, la stima mediante l'equazione di Henssge "
+            f"non è affidabile (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}).</p>"
         )
 
-    optimal_boundary = "Qd ≥ 0,30" if ambient_at_most_23 else "Qd > 0,50"
     return (
-        "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge per il raffreddamento cadaverico "
-        f"ha Qd = {qd_text}. Tale parametro rientra nella fascia ottimale per l'applicazione dell'equazione "
-        f"(per {condition}, {optimal_boundary}).</p>"
+        "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
+        f"dell'equazione di Henssge (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+        f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}).</p>"
     )
 
 
@@ -108,31 +106,33 @@ def qd_range_summary(
 
     if status == "all_optimal":
         sentence = (
-            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge rientrano "
-            "nei limiti ottimali (il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            f"{qd_value}; la fascia ottimale corrisponde a Qd ≥ 0,3 con T. amb. ≤ 23 °C e a Qd > 0,5 "
-            "con T. amb. > 23 °C)."
+            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge "
+            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            f"{qd_value})."
         )
     elif status == "mixed":
         sentence = (
-            "Nelle condizioni considerate, alcune combinazioni di parametri per l’applicazione dell’equazione di Henssge "
-            "rientrano nei limiti ottimali, mentre altre ricadono in una fascia meno favorevole (il parametro Qd, "
-            f"indicativo del grado di raffreddamento corporeo, {qd_value}; la fascia ottimale corrisponde a Qd ≥ 0,3 "
-            "con T. amb. ≤ 23 °C e a Qd > 0,5 con T. amb. > 23 °C)."
+            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge, "
+            "ma per una parte dei dati inseriti la stima presenta un maggiore grado di incertezza o non è affidabile "
+            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            f"{qd_value})."
         )
     elif status == "no_optimal_intermediate":
         sentence = (
-            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge non raggiungono "
-            "la fascia pienamente ottimale, pur comprendendo combinazioni che ricadono nella fascia intermedia "
-            f"(il parametro Qd, indicativo del grado di raffreddamento corporeo, {qd_value}; con T. amb. ≤ 23 °C "
-            "la fascia intermedia corrisponde a 0,2 < Qd < 0,3 e quella ottimale a Qd ≥ 0,3)."
+            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge, "
+            "sebbene per una parte dei dati inseriti la stima presenti un maggiore grado di incertezza "
+            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2; "
+            "nelle condizioni considerate "
+            f"{qd_value})."
         )
     else:
         sentence = (
-            "Nelle condizioni considerate, i parametri per l’applicazione dell’equazione di Henssge risultano "
-            "al di fuori dei limiti ottimali (il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            f"{qd_value}; con T. amb. ≤ 23 °C valori di Qd ≤ 0,2 ricadono nella fascia sfavorevole, mentre con "
-            "T. amb. > 23 °C tale limite è Qd ≤ 0,5)."
+            "Nelle condizioni considerate, la stima mediante l’equazione di Henssge non è affidabile "
+            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            f"{qd_value})."
         )
 
     return f"<p style='color:blue;font-size:small;'> {sentence}</p>"
