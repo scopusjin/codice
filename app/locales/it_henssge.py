@@ -71,8 +71,8 @@ def qd_summary(
 
     if resolved_status == "outside":
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, la stima mediante l'equazione di Henssge "
-            f"non è affidabile (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
+            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
             f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}).</p>"
         )
 
@@ -105,8 +105,8 @@ def qd_range_summary(
         )
     elif status == "mixed":
         sentence = (
-            "Nelle condizioni considerate, per una parte dei dati inseriti la stima mediante l’equazione di Henssge "
-            "non è affidabile (con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
+            "Per una parte delle condizioni considerate, l’equazione di Henssge non è applicabile "
+            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
             "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
             f"{qd_value})."
         )
@@ -129,7 +129,7 @@ def qd_range_summary(
         )
     else:
         sentence = (
-            "Nelle condizioni considerate, la stima mediante l’equazione di Henssge non è affidabile "
+            "Nelle condizioni considerate, l’equazione di Henssge non è applicabile "
             "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
             "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
             f"{qd_value})."
