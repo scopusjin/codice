@@ -43,22 +43,22 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             build_final_sentence(2, np.inf, isp_dt),
             "<p>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
             "<b>oltre 2 ore prima</b> dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero <b>prima delle ore 12:00 del 21.08.2026</b>.</p>",
+            "vale a dire <b>prima delle ore 12:00 del 21.08.2026</b>.</p>",
         )
         self.assertEqual(
             build_final_sentence(0, 4, isp_dt),
             "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
             "consente di stimare che la morte sia avvenuta all'incirca <b>non oltre 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero <b>successivamente alle ore 10:00 del 21.08.2026 "
+            "vale a dire <b>successivamente alle ore 10:00 del 21.08.2026 "
             "(ma prima delle ore 14:00 del 21.08.2026)</b>.</p>",
         )
         self.assertEqual(
             build_final_sentence(1, 4, isp_dt),
             "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
-            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>tra 1 e 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero circa <b>tra le ore 10:00 e le ore 13:00 del 21.08.2026</b>.</p>",
+            "vale a dire circa <b>tra le ore 10:00 e le ore 13:00 del 21.08.2026</b>.</p>",
         )
 
     def test_final_sentence_with_datetime_preserves_cross_midnight_window(self):
@@ -66,9 +66,9 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
         self.assertEqual(
             build_final_sentence(1, 4, isp_dt),
             "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
-            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>tra 1 e 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
+            "vale a dire circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
         )
 
     def test_simple_sentence_with_datetime_keeps_current_html(self):
@@ -78,7 +78,7 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>non oltre 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero all'incirca <b>successivamente alle ore 10:00 del 21.08.2026 "
+            "vale a dire all'incirca <b>successivamente alle ore 10:00 del 21.08.2026 "
             "(ma prima delle ore 14:00 del 21.08.2026)</b>.</p>",
         )
         self.assertEqual(
@@ -86,14 +86,14 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>oltre 2 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero <b>prima delle ore 12:00 del 21.08.2026</b>.</p>",
+            "vale a dire <b>prima delle ore 12:00 del 21.08.2026</b>.</p>",
         )
         self.assertEqual(
             build_simple_sentence(1, 4, isp_dt),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>tra 1 e 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero circa <b>tra le ore 10:00 e le ore 13:00 del 21.08.2026</b>.</p>",
+            "vale a dire circa <b>tra le ore 10:00 e le ore 13:00 del 21.08.2026</b>.</p>",
         )
 
     def test_simple_sentence_with_datetime_preserves_cross_midnight_window(self):
@@ -103,7 +103,7 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "<b>tra 1 e 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "ovvero circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
+            "vale a dire circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
         )
 
     def test_simple_sentence_without_datetime_keeps_current_html(self):
@@ -131,21 +131,21 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             build_final_sentence_simple(2, np.inf),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            "consente di stimare che la morte sia all'incirca avvenuta <b>più di 2 ore prima</b> "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>oltre 2 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
         self.assertEqual(
             build_final_sentence_simple(0, 4),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            "consente di stimare che la morte sia all'incirca avvenuta <b>non oltre 4 ore prima</b> "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>non oltre 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
         self.assertEqual(
             build_final_sentence_simple(1, 4),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
             "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
-            "consente di stimare che la morte sia avvenuta, all'incirca, <b>tra 1 e 4 ore prima</b> "
+            "consente di stimare che la morte sia avvenuta all'incirca <b>tra 1 e 4 ore prima</b> "
             "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
