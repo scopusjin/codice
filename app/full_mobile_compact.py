@@ -1,4 +1,3 @@
-\
 # -*- coding: utf-8 -*-
 """Regole di compattezza aggiuntive per la sola Full mobile."""
 
