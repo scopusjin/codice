@@ -1,0 +1,104 @@
+name: Temporary mobile FC final compact
+
+on:
+  push:
+    branches:
+      - tmp-mobile-fc-final-compact
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-mobile-fc-final-compact
+          fetch-depth: 0
+
+      - name: Apply compact FC mobile patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # 1) Pannello FC: correnti a destra senza overflow + risultato compatto.
+          panel_path = Path('app/full_factor_panel.py')
+          panel = panel_path.read_text(encoding='utf-8')
+
+          old_corr = '''            with st.container(width="content", key=k("corr_slot")):\n                corr_placeholder = st.empty()\n'''
+          new_corr = '''            with st.container(\n                horizontal=True,\n                wrap=False,\n                horizontal_alignment="right",\n                vertical_alignment="center",\n                width="stretch",\n                key=k("corr_slot"),\n            ):\n                corr_placeholder = st.empty()\n'''
+          assert panel.count(old_corr) == 1
+          panel = panel.replace(old_corr, new_corr, 1)
+
+          old_result = '''    _fc_box(result.fattore_finale, result.fattore_base, peso_eff)\n\n    def _apply_fc(val: float, riass: str | None) -> None:\n        st.session_state["fattore_correzione"] = round(float(val), 2)\n        st.session_state["fattori_condizioni_parentetica"] = None\n        st.session_state["fattori_condizioni_testo"] = None\n        st.session_state["toggle_fattore"] = False\n        st.session_state["fc_riassunto_contatori"] = riass\n\n    suffix = "_imm" if immersed else ""\n    if not st.session_state.get("range_unico_beta", False):\n        st.button(\n            i18n.ui_text("full.use_this_factor"),\n            on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),\n            use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"\n        )\n'''
+          new_result = '''    def _apply_fc(val: float, riass: str | None) -> None:\n        st.session_state["fattore_correzione"] = round(float(val), 2)\n        st.session_state["fattori_condizioni_parentetica"] = None\n        st.session_state["fattori_condizioni_testo"] = None\n        st.session_state["toggle_fattore"] = False\n        st.session_state["fc_riassunto_contatori"] = riass\n\n    suffix = "_imm" if immersed else ""\n    range_mode = st.session_state.get("range_unico_beta", False)\n    full_mobile = full_device_is_mobile()\n\n    if full_mobile and not range_mode:\n        side_text = ""\n        if (\n            result.fattore_base is not None\n            and peso_eff is not None\n            and abs(result.fattore_finale - result.fattore_base) > 1e-9\n        ):\n            side_text = i18n.ui_text(\n                "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base\n            )\n\n        with st.container(\n            horizontal=True,\n            wrap=False,\n            horizontal_alignment="distribute",\n            vertical_alignment="stretch",\n            gap=None,\n            key=f"{key_prefix}_fc_apply_row_mobile",\n        ):\n            with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):\n                st.markdown(\n                    f'<div class="mortem-fc-inline-result">FC suggerito: <strong>{result.fattore_finale:.2f}</strong></div>',\n                    unsafe_allow_html=True,\n                )\n            with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):\n                st.button(\n                    "✅ Usa",\n                    on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),\n                    key=f"{key_prefix}_btn_usa_fc{suffix}",\n                )\n        if side_text:\n            st.markdown(\n                f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',\n                unsafe_allow_html=True,\n            )\n    else:\n        _fc_box(result.fattore_finale, result.fattore_base, peso_eff)\n        if not range_mode:\n            st.button(\n                i18n.ui_text("full.use_this_factor"),\n                on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),\n                use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"\n            )\n'''
+          assert panel.count(old_result) == 1
+          panel = panel.replace(old_result, new_result, 1)
+          panel_path.write_text(panel, encoding='utf-8')
+
+          # 2) V2 dense: tinta leggera dello stesso colore primario del toggle attivo.
+          v2_path = Path('app/decimal_number_input_v2.py')
+          v2 = v2_path.read_text(encoding='utf-8')
+          old_dense = '''.number-control.is-dense {\n  height: 34px;\n  border-radius: 7px;\n}\n'''
+          new_dense = '''.number-control.is-dense {\n  height: 34px;\n  border-radius: 7px;\n  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 16%, var(--st-secondary-background-color, #F0F2F6));\n}\n'''
+          assert v2.count(old_dense) == 1
+          v2 = v2.replace(old_dense, new_dense, 1)
+          v2_path.write_text(v2, encoding='utf-8')
+
+          # 3) CSS Full mobile: correnti contenute, superficie più evidente, FC inline.
+          css_path = Path('app/full_mobile_compact.py')
+          css = css_path.read_text(encoding='utf-8')
+
+          old_corr_css = '''body:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_corr_slot"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_corr_slot"] {\n  width: max-content !important;\n  min-width: max-content !important;\n  margin-left: auto !important;\n}\n'''
+          new_corr_css = '''body:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_corr_slot"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_corr_slot"] {\n  flex: 1 1 0 !important;\n  width: auto !important;\n  min-width: 0 !important;\n  max-width: 100% !important;\n  margin-left: auto !important;\n  justify-content: flex-end !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_corr_slot"] [data-testid="stToggle"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_corr_slot"] [data-testid="stToggle"] {\n  width: max-content !important;\n  min-width: max-content !important;\n  max-width: max-content !important;\n  margin-left: auto !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_vest_group"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_vest_group"] {\n  flex: 0 1 auto !important;\n  min-width: 0 !important;\n}\n'''
+          assert css.count(old_corr_css) == 1
+          css = css.replace(old_corr_css, new_corr_css, 1)
+
+          old_surface = '''body:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_surface_select_mobile"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_surface_select_mobile"] {\n  padding: 0.07rem !important;\n  border: 1px solid color-mix(in srgb, var(--st-primary-color) 62%, transparent) !important;\n  border-radius: 0.58rem !important;\n  background: color-mix(in srgb, var(--st-secondary-background-color) 68%, var(--st-primary-color) 32%) !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {\n  background: color-mix(in srgb, var(--st-secondary-background-color) 72%, var(--st-primary-color) 28%) !important;\n  border-color: transparent !important;\n  box-shadow: none !important;\n}\n'''
+          new_surface = '''body:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_surface_select_mobile"],\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_surface_select_mobile"] {\n  padding: 0.07rem !important;\n  border: 1px solid color-mix(in srgb, #d79a00 72%, transparent) !important;\n  border-radius: 0.58rem !important;\n  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, #ffc107 22%) !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {\n  background: color-mix(in srgb, var(--st-secondary-background-color) 82%, #ffc107 18%) !important;\n  border-color: transparent !important;\n  box-shadow: none !important;\n}\n'''
+          assert css.count(old_surface) == 1
+          css = css.replace(old_surface, new_surface, 1)
+
+          insertion = '''\n/* Risultato FC standard mobile: valore e azione su una sola riga. */\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fc_apply_row_mobile"] {\n  box-sizing: border-box !important;\n  width: 100% !important;\n  min-width: 0 !important;\n  gap: 0 !important;\n  align-items: stretch !important;\n  overflow: hidden !important;\n  border: 1px solid color-mix(in srgb, var(--st-primary-color) 78%, transparent) !important;\n  border-radius: 0.58rem !important;\n  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, var(--st-primary-color) 22%) !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fc_apply_value_mobile"] {\n  flex: 1 1 auto !important;\n  min-width: 0 !important;\n  margin: 0 !important;\n  padding: 0 !important;\n}\n\n.mortem-fc-inline-result {\n  box-sizing: border-box;\n  display: flex;\n  align-items: center;\n  min-height: 2.55rem;\n  padding: 0.38rem 0.55rem;\n  font-size: 0.92rem;\n  line-height: 1.1;\n  font-weight: 600;\n  color: var(--st-text-color);\n  white-space: nowrap;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fc_apply_action_mobile"] {\n  flex: 0 0 auto !important;\n  width: max-content !important;\n  min-width: max-content !important;\n  margin: 0 !important;\n  padding: 0 !important;\n}\n\nbody:has([class*="st-key-stima_cautelativa_beta"])\n[class*="st-key-fc_apply_action_mobile"] button {\n  min-height: 2.55rem !important;\n  height: 100% !important;\n  margin: 0 !important;\n  padding: 0 0.72rem !important;\n  border-top: 0 !important;\n  border-right: 0 !important;\n  border-bottom: 0 !important;\n  border-left: 1px solid color-mix(in srgb, var(--st-primary-color) 45%, transparent) !important;\n  border-radius: 0 !important;\n  background: color-mix(in srgb, var(--st-primary-color) 24%, transparent) !important;\n  white-space: nowrap !important;\n}\n'''
+          marker = '\n.mortem-fc-weight-note-mobile {'
+          assert marker in css
+          css = css.replace(marker, insertion + marker, 1)
+
+          old_note = '''.mortem-fc-weight-note-mobile {\n  box-sizing: border-box;\n  width: 100%;\n  margin: 0.06rem 0 0.20rem 0;\n  padding: 0.10rem 0.12rem 0.16rem 0.12rem;\n  font-size: 0.80rem;\n  line-height: 1.28;\n  white-space: normal;\n  overflow: visible;\n}\n'''
+          new_note = '''.mortem-fc-weight-note-mobile {\n  box-sizing: border-box;\n  width: 100%;\n  margin: 0.10rem 0 0.04rem 0;\n  padding: 0 0.10rem;\n  font-size: 0.78rem;\n  line-height: 1.22;\n  white-space: normal;\n  overflow: visible;\n}\n'''
+          assert css.count(old_note) == 1
+          css = css.replace(old_note, new_note, 1)
+
+          css_path.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Check diff and syntax
+        shell: bash
+        run: |
+          git diff --check
+          python -m compileall -q app/full_factor_panel.py app/decimal_number_input_v2.py app/full_mobile_compact.py
+          python - <<'PY'
+          from pathlib import Path
+          panel = Path('app/full_factor_panel.py').read_text(encoding='utf-8')
+          v2 = Path('app/decimal_number_input_v2.py').read_text(encoding='utf-8')
+          css = Path('app/full_mobile_compact.py').read_text(encoding='utf-8')
+          assert 'FC suggerito:' in panel
+          assert '"✅ Usa"' in panel
+          assert 'horizontal_alignment="right"' in panel
+          assert 'var(--st-primary-color, #168AC1) 16%' in v2
+          assert '#ffc107 22%' in css
+          assert 'st-key-fc_apply_row_mobile' in css
+          PY
+          git diff -- app/full_factor_panel.py app/decimal_number_input_v2.py app/full_mobile_compact.py
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/full_factor_panel.py app/decimal_number_input_v2.py app/full_mobile_compact.py
+          git commit -m "Compatta risultato FC e distingue pannello mobile"
+          git push origin HEAD:tmp-mobile-fc-final-compact
