@@ -249,7 +249,7 @@ def _render_factor_panel(
                 wrap=False,
                 vertical_alignment="center",
                 gap="xsmall",
-                width="content",
+                width="stretch",
                 key=k("vest_group"),
             ):
                 with st.container(width="content", key=k("vest_slot")):
@@ -272,14 +272,7 @@ def _render_factor_panel(
                             """,
                             unsafe_allow_html=True,
                         )
-            with st.container(
-                horizontal=True,
-                wrap=False,
-                horizontal_alignment="right",
-                vertical_alignment="center",
-                width="stretch",
-                key=k("corr_slot"),
-            ):
+            with st.container(width="content", key=k("corr_slot")):
                 corr_placeholder = st.empty()
     elif mobile:
         col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
@@ -507,7 +500,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         ):
             with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):
                 st.markdown(
-                    f'<div class="mortem-fc-inline-result">FC suggerito: <strong>{result.fattore_finale:.2f}</strong></div>',
+                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
                     unsafe_allow_html=True,
                 )
             with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):

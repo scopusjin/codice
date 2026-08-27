@@ -188,12 +188,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_corr_slot"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_corr_slot"] {
-  flex: 1 1 0 !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: 44% !important;
   margin-left: auto !important;
-  justify-content: flex-end !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -203,15 +202,17 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   width: max-content !important;
   min-width: max-content !important;
   max-width: max-content !important;
-  margin-left: auto !important;
+  margin-left: 0 !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_vest_group"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_vest_group"] {
-  flex: 0 1 auto !important;
+  flex: 1 1 0 !important;
+  width: auto !important;
   min-width: 0 !important;
+  max-width: 56% !important;
 }
 
 /* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
@@ -239,12 +240,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 /* Risultato FC standard mobile: valore e azione su una sola riga. */
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-fc_apply_row_mobile"] {
+[class*="fc_apply_row_mobile"] {
   box-sizing: border-box !important;
   width: 100% !important;
   min-width: 0 !important;
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+  max-height: 2.25rem !important;
   gap: 0 !important;
-  align-items: stretch !important;
+  align-items: center !important;
   overflow: hidden !important;
   border: 1px solid color-mix(in srgb, var(--st-primary-color) 78%, transparent) !important;
   border-radius: 0.58rem !important;
@@ -252,7 +256,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-fc_apply_value_mobile"] {
+[class*="fc_apply_value_mobile"] {
   flex: 1 1 auto !important;
   min-width: 0 !important;
   margin: 0 !important;
@@ -263,9 +267,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  min-height: 2.55rem;
-  padding: 0.38rem 0.55rem;
-  font-size: 0.92rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  max-height: 2.25rem;
+  padding: 0 0.52rem;
+  font-size: 0.88rem;
   line-height: 1.1;
   font-weight: 600;
   color: var(--st-text-color);
@@ -273,7 +279,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-fc_apply_action_mobile"] {
+[class*="fc_apply_action_mobile"] {
   flex: 0 0 auto !important;
   width: max-content !important;
   min-width: max-content !important;
@@ -282,11 +288,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-fc_apply_action_mobile"] button {
-  min-height: 2.55rem !important;
-  height: 100% !important;
+[class*="fc_apply_action_mobile"] button {
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+  max-height: 2.25rem !important;
   margin: 0 !important;
-  padding: 0 0.72rem !important;
+  padding: 0 0.52rem !important;
   border-top: 0 !important;
   border-right: 0 !important;
   border-bottom: 0 !important;
@@ -294,6 +301,21 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   border-radius: 0 !important;
   background: color-mix(in srgb, var(--st-primary-color) 24%, transparent) !important;
   white-space: nowrap !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] > [data-testid="stVerticalBlock"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] [data-testid="stButton"] {
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+  max-height: 2.25rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .mortem-fc-weight-note-mobile {
