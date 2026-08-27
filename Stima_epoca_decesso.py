@@ -412,43 +412,78 @@ with st.container(border=True):
             # -------------------------
             # 🔷 MASCHERA STANDARD
             # -------------------------
-            col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-            with col1:
-                rectal_label = i18n.ui_text("full.rectal_temp_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
-                st.number_input(rectal_label,
-                                value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                key="rt_val", label_visibility="collapsed")
-            with col2:
-                antemortem_label = i18n.ui_text("full.antemortem_temp_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
-                st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
-                                value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                                key="tm_val", label_visibility="collapsed")
-            with col3:
-                weight_label_standard = i18n.ui_text("full.weight_label_standard")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label_standard}</div>", unsafe_allow_html=True)
-                st.number_input(i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed")
+            if full_mobile:
+                # Su mobile i V2 sono renderizzati direttamente nella pila:
+                # nessun vecchio st.columns limita la larghezza disponibile.
+                with st.container(gap="xsmall", key="cooling_standard_v2_stack_mobile"):
+                    rectal_label = i18n.ui_text("full.rectal_temp_label")
+                    st.number_input(
+                        rectal_label,
+                        value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                        key="rt_val", label_visibility="collapsed"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.antemortem_temp_estimated_label"),
+                        value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                        key="tm_val", label_visibility="collapsed"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.weight_label"),
+                        value=sget("peso", 70.0), step=1.0, format="%.1f",
+                        key="peso", label_visibility="collapsed"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.ta_input_label"),
+                        value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                        key="ta_base_val", label_visibility="collapsed"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.fc_input_label"),
+                        value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                        key="fattore_correzione", label_visibility="collapsed"
+                    )
+                    # Resta montato per conservare lo stesso stato; il CSS mobile
+                    # lo nasconde perché il comando Consiglia è integrato nel V2.
+                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
+                    st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+            else:
+                col1, col2, col3 = st.columns([1, 1, 1], gap="small")
+                with col1:
+                    rectal_label = i18n.ui_text("full.rectal_temp_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
+                    st.number_input(rectal_label,
+                                    value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                                    key="rt_val", label_visibility="collapsed")
+                with col2:
+                    antemortem_label = i18n.ui_text("full.antemortem_temp_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
+                    st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
+                                    value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                                    key="tm_val", label_visibility="collapsed")
+                with col3:
+                    weight_label_standard = i18n.ui_text("full.weight_label_standard")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label_standard}</div>", unsafe_allow_html=True)
+                    st.number_input(i18n.ui_text("full.weight_label"),
+                                    value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                    key="peso", label_visibility="collapsed")
 
-            col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-            with col1:
-                ta_label = i18n.ui_text("full.ta_mean_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{ta_label}</div>", unsafe_allow_html=True)
-                st.number_input(i18n.ui_text("full.ta_input_label"),
-                                value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                                key="ta_base_val", label_visibility="collapsed")
+                col1, col2, col3 = st.columns([1, 1, 1], gap="small")
+                with col1:
+                    ta_label = i18n.ui_text("full.ta_mean_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{ta_label}</div>", unsafe_allow_html=True)
+                    st.number_input(i18n.ui_text("full.ta_input_label"),
+                                    value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                                    key="ta_base_val", label_visibility="collapsed")
 
-            with col2:
-                fc_label = i18n.ui_text("full.fc_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{fc_label}</div>", unsafe_allow_html=True)
-                st.number_input(i18n.ui_text("full.fc_input_label"),
-                                value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                                key="fattore_correzione", label_visibility="collapsed")
-            with col3:
-                st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
-                st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+                with col2:
+                    fc_label = i18n.ui_text("full.fc_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{fc_label}</div>", unsafe_allow_html=True)
+                    st.number_input(i18n.ui_text("full.fc_input_label"),
+                                    value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                                    key="fattore_correzione", label_visibility="collapsed")
+                with col3:
+                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
+                    st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
 
     # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
     if st.session_state.get("toggle_fattore", False):

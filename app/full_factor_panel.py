@@ -239,29 +239,39 @@ def _render_factor_panel(
         with st.container(
             horizontal=True,
             wrap=False,
-            gap="xsmall",
+            horizontal_alignment="distribute",
+            vertical_alignment="center",
+            gap="small",
             key=k("switch_row"),
         ):
-            with st.container(width="content", key=k("vest_slot")):
-                toggle_vestito = st.toggle(
-                    "Vestiti/coperte",
-                    key=k("toggle_vestito"), value=False
-                )
-            with st.container(width="content", key=k("vest_help_slot")):
-                with st.popover("?"):
-                    st.markdown(
-                        """
-                        <div class="mortem-help-copy">
-                          <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>
-                          <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
-                          <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
-                          <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
-                          <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
-                          <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
+            with st.container(
+                horizontal=True,
+                wrap=False,
+                vertical_alignment="center",
+                gap="xsmall",
+                width="content",
+                key=k("vest_group"),
+            ):
+                with st.container(width="content", key=k("vest_slot")):
+                    toggle_vestito = st.toggle(
+                        "Vestiti/coperte",
+                        key=k("toggle_vestito"), value=False
                     )
+                with st.container(width="content", key=k("vest_help_slot")):
+                    with st.popover("?"):
+                        st.markdown(
+                            """
+                            <div class="mortem-help-copy">
+                              <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>
+                              <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
+                              <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
+                              <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
+                              <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
+                              <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
             with st.container(width="content", key=k("corr_slot")):
                 corr_placeholder = st.empty()
     elif mobile:
