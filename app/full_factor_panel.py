@@ -69,7 +69,26 @@ def _sync_fc_range_from_suggestions():
     vals = sorted({round(float(v), 2) for v in vals if v is not None})
     if not vals:
         return
-    lo, hi = (vals[0]-0.10, vals[0]+0.10) if len(vals) == 1 else (vals[0], vals[-1])
+
+    if len(vals) == 1:
+        suggested = vals[0]
+        current_bounds = []
+        for key in ("fc_min_val", "fc_other_val"):
+            try:
+                current_bounds.append(round(float(st.session_state.get(key)), 2))
+            except (TypeError, ValueError):
+                pass
+        if current_bounds:
+            anchor = max(current_bounds, key=lambda value: abs(value - suggested))
+        else:
+            try:
+                anchor = round(float(st.session_state.get("fattore_correzione", suggested)), 2)
+            except (TypeError, ValueError):
+                anchor = suggested
+        lo, hi = sorted((suggested, anchor))
+    else:
+        lo, hi = vals[0], vals[-1]
+
     lo, hi = round(lo, 2), round(hi, 2)
     st.session_state["fc_min_val"] = lo
     st.session_state["fc_other_val"] = hi
@@ -490,31 +509,32 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
             )
 
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            horizontal_alignment="distribute",
-            vertical_alignment="center",
-            gap=None,
-            key=f"{key_prefix}_fc_apply_row_mobile",
-        ):
-            with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):
+        with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
+            with st.container(
+                horizontal=True,
+                wrap=False,
+                horizontal_alignment="distribute",
+                vertical_alignment="center",
+                gap=None,
+                key=f"{key_prefix}_fc_apply_row_mobile",
+            ):
+                with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):
+                    st.markdown(
+                        f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
+                        unsafe_allow_html=True,
+                    )
+                with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
+                    st.button(
+                        "→ Usa",
+                        type="secondary",
+                        on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+                        key=f"{key_prefix}_btn_usa_fc{suffix}",
+                    )
+            if side_text:
                 st.markdown(
-                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
+                    f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
                     unsafe_allow_html=True,
                 )
-            with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
-                st.button(
-                    "→ Usa",
-                    type="primary",
-                    on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
-                    key=f"{key_prefix}_btn_usa_fc{suffix}",
-                )
-        if side_text:
-            st.markdown(
-                f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
-                unsafe_allow_html=True,
-            )
     else:
         _fc_box(result.fattore_finale, result.fattore_base, peso_eff)
         if not range_mode:

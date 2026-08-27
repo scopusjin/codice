@@ -240,21 +240,70 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   max-width: none !important;
 }
 
-/* Risultato FC standard mobile: valore e azione su una sola riga. */
+/* Modalità Condizioni variabili: V2 a piena larghezza. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_prudent_v2_stack_mobile"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 0.18rem !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_row_mobile"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 0.28rem !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_value_mobile"] {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_uncertainty_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+}
+
+/* Risultato FC standard mobile: valore, azione e nota peso in un solo blocco. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_block_mobile"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0.08rem 0.10rem 0.10rem !important;
+  border: 1px solid color-mix(in srgb, var(--st-primary-color) 70%, transparent) !important;
+  border-radius: 0.58rem !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 82%, var(--st-primary-color) 18%) !important;
+  overflow: hidden !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_block_mobile"] > [data-testid="stVerticalBlock"] {
+  gap: 0.02rem !important;
+}
+
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_row_mobile"] {
   box-sizing: border-box !important;
   width: 100% !important;
   min-width: 0 !important;
-  height: 2.25rem !important;
-  min-height: 2.25rem !important;
-  max-height: 2.25rem !important;
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  max-height: 2.15rem !important;
   gap: 0 !important;
   align-items: center !important;
   overflow: hidden !important;
-  border: 1px solid color-mix(in srgb, var(--st-primary-color) 78%, transparent) !important;
-  border-radius: 0.58rem !important;
-  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, var(--st-primary-color) 22%) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -269,10 +318,10 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  height: 2.25rem;
-  min-height: 2.25rem;
-  max-height: 2.25rem;
-  padding: 0 0.52rem;
+  height: 2.15rem;
+  min-height: 2.15rem;
+  max-height: 2.15rem;
+  padding: 0 0.48rem;
   font-size: 0.88rem;
   line-height: 1.1;
   font-weight: 600;
@@ -291,17 +340,25 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button {
-  height: 1.92rem !important;
-  min-height: 1.92rem !important;
-  max-height: 1.92rem !important;
-  margin: 0 0.20rem 0 0 !important;
+  height: 1.86rem !important;
+  min-height: 1.86rem !important;
+  max-height: 1.86rem !important;
+  margin: 0 0.12rem 0 0 !important;
   padding: 0 0.58rem !important;
   border: 1px solid var(--st-primary-color) !important;
-  border-radius: 0.46rem !important;
-  background: var(--st-primary-color) !important;
-  color: white !important;
+  border-radius: 0.44rem !important;
+  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;
+  color: var(--st-text-color) !important;
   font-weight: 650 !important;
   white-space: nowrap !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] button p,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] button span {
+  color: var(--st-text-color) !important;
+  font-weight: 650 !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -312,9 +369,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stButton"] {
-  height: 2.25rem !important;
-  min-height: 2.25rem !important;
-  max-height: 2.25rem !important;
+  height: 2.15rem !important;
+  min-height: 2.15rem !important;
+  max-height: 2.15rem !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
@@ -325,19 +382,21 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 .mortem-fc-weight-note-mobile {
   box-sizing: border-box;
   width: 100%;
-  margin: 0.10rem 0 0.04rem 0;
-  padding: 0 0.10rem;
-  font-size: 0.78rem;
-  line-height: 1.22;
+  margin: 0 !important;
+  padding: 0 0.48rem 0.12rem !important;
+  font-size: 0.76rem;
+  line-height: 1.20;
   white-space: normal;
   overflow: visible;
+  color: var(--st-text-color);
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stElementContainer"]:has(.mortem-fc-weight-note-mobile) {
   width: 100% !important;
   overflow: visible !important;
-  margin-bottom: 0.10rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */

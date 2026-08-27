@@ -249,10 +249,8 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
         if compact_mobile:
             if key == "fattore_correzione" and (not prudent_mode or not range_mode):
                 suggest_target = "single"
-            elif prudent_mode and range_mode and key == "fc_min_val":
-                suggest_target = "min"
             elif prudent_mode and range_mode and key == "fc_other_val":
-                suggest_target = "max"
+                suggest_target = "range"
 
         suggest_toggle_key = "toggle_fattore_inline" if prudent_mode else "toggle_fattore_inline_std"
         suggest_active = bool(

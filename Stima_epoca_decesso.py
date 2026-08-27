@@ -315,98 +315,185 @@ with st.container(border=True):
             label_ta = i18n.ui_text("full.ta_range_label")
             label_fc = i18n.ui_text("full.fc_range_label")
 
-            # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
-            c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
-            with c1:
-                rectal_label = i18n.ui_text("full.rectal_temp_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
-                st.number_input(rectal_label,
-                                value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                key="rt_val", label_visibility="collapsed")
-            with c2:
-                antemortem_label = i18n.ui_text("full.antemortem_temp_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
-                st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
-                                value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                                key="tm_val", label_visibility="collapsed")
-            with c3:
-                weight_label = i18n.ui_text("full.weight_label")
-                st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label}</div>", unsafe_allow_html=True)
-                pc1, pc2 = st.columns([1, 0.8], gap="small")
-                with pc1:
-                    st.number_input(weight_label,
-                                    value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                    key="peso", label_visibility="collapsed")
-                with pc2:
-                    st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+            if full_mobile:
+                with st.container(gap="xsmall", key="cooling_prudent_v2_stack_mobile"):
+                    rectal_label = i18n.ui_text("full.rectal_temp_label")
+                    st.number_input(
+                        rectal_label,
+                        value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                        key="rt_val", label_visibility="collapsed"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.antemortem_temp_estimated_label"),
+                        value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                        key="tm_val", label_visibility="collapsed"
+                    )
 
-            # Riga 2: intervallo T. ambientale media
-            st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
-            ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
-            with ta_c1:
-                ta_base_val = st.number_input(
-                    i18n.ui_text("full.ta_base_input"),
-                    value=sget("ta_base_val", 20.0),
-                    step=0.1, format="%.1f",
-                    key="ta_base_val",
-                    label_visibility="collapsed"
-                )
-            with ta_c2:
-                ta_other_val = st.number_input(
-                    i18n.ui_text("full.ta_other_input"),
-                    value=sget("ta_other_val", ta_base_val),
-                    step=0.1, format="%.1f",
-                    key="ta_other_val",
-                    label_visibility="collapsed"
-                )
-                ta_values = [
-                    st.session_state.get("ta_base_val"),
-                    st.session_state.get("ta_other_val"),
-                ]
-                if all(_is_num(v) for v in ta_values):
-                    lo_ta, hi_ta = sorted(float(v) for v in ta_values)
-                    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                else:
-                    st.session_state.pop("Ta_min_beta", None)
-                    st.session_state.pop("Ta_max_beta", None)
-            with ta_c3:
-                st.empty()
+                    with st.container(
+                        horizontal=True,
+                        wrap=False,
+                        horizontal_alignment="distribute",
+                        vertical_alignment="center",
+                        gap="small",
+                        key="prudent_weight_row_mobile",
+                    ):
+                        with st.container(width="stretch", key="prudent_weight_value_mobile"):
+                            st.number_input(
+                                i18n.ui_text("full.weight_label"),
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed"
+                            )
+                        with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
+                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-            # Riga 3: intervallo fattore di correzione
-            st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
-            fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
+                    ta_base_val = st.number_input(
+                        i18n.ui_text("full.ta_base_input"),
+                        value=sget("ta_base_val", 20.0),
+                        step=0.1, format="%.1f",
+                        key="ta_base_val",
+                        label_visibility="collapsed"
+                    )
+                    ta_other_val = st.number_input(
+                        i18n.ui_text("full.ta_other_input"),
+                        value=sget("ta_other_val", ta_base_val),
+                        step=0.1, format="%.1f",
+                        key="ta_other_val",
+                        label_visibility="collapsed"
+                    )
+                    ta_values = [
+                        st.session_state.get("ta_base_val"),
+                        st.session_state.get("ta_other_val"),
+                    ]
+                    if all(_is_num(v) for v in ta_values):
+                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
+                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                    else:
+                        st.session_state.pop("Ta_min_beta", None)
+                        st.session_state.pop("Ta_max_beta", None)
 
-            with fc_c1:
-                fc_min_val = st.number_input(
-                    i18n.ui_text("full.fc_min_input"),
-                    value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                    step=0.1, format="%.2f",
-                    key="fc_min_val",
-                    label_visibility="collapsed"
-                )
+                    fc_min_val = st.number_input(
+                        i18n.ui_text("full.fc_min_input"),
+                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                        step=0.1, format="%.2f",
+                        key="fc_min_val",
+                        label_visibility="collapsed"
+                    )
+                    fc_other_val = st.number_input(
+                        i18n.ui_text("full.fc_max_input"),
+                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                        step=0.1, format="%.2f",
+                        key="fc_other_val",
+                        label_visibility="collapsed"
+                    )
+                    fc_values = [
+                        st.session_state.get("fc_min_val"),
+                        st.session_state.get("fc_other_val"),
+                    ]
+                    if all(_is_num(v) for v in fc_values):
+                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
+                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                    else:
+                        st.session_state.pop("FC_min_beta", None)
+                        st.session_state.pop("FC_max_beta", None)
 
-            with fc_c2:
-                fc_other_val = st.number_input(
-                    i18n.ui_text("full.fc_max_input"),
-                    value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                    step=0.1, format="%.2f",
-                    key="fc_other_val",
-                    label_visibility="collapsed"
-                )
-                fc_values = [
-                    st.session_state.get("fc_min_val"),
-                    st.session_state.get("fc_other_val"),
-                ]
-                if all(_is_num(v) for v in fc_values):
-                    lo_fc, hi_fc = sorted(float(v) for v in fc_values)
-                    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                else:
-                    st.session_state.pop("FC_min_beta", None)
-                    st.session_state.pop("FC_max_beta", None)
+                    # In mobile il solo V2 "FC max" ospita il comando Consiglia.
+                    # Il pannello suggerisce l'intero intervallo, non un estremo specifico.
+                    st.session_state["toggle_fattore"] = bool(
+                        st.session_state.get("toggle_fattore_inline", False)
+                    )
+            else:
+                # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
+                c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
+                with c1:
+                    rectal_label = i18n.ui_text("full.rectal_temp_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
+                    st.number_input(rectal_label,
+                                    value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                                    key="rt_val", label_visibility="collapsed")
+                with c2:
+                    antemortem_label = i18n.ui_text("full.antemortem_temp_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
+                    st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
+                                    value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                                    key="tm_val", label_visibility="collapsed")
+                with c3:
+                    weight_label = i18n.ui_text("full.weight_label")
+                    st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label}</div>", unsafe_allow_html=True)
+                    pc1, pc2 = st.columns([1, 0.8], gap="small")
+                    with pc1:
+                        st.number_input(weight_label,
+                                        value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                        key="peso", label_visibility="collapsed")
+                    with pc2:
+                        st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-            with fc_c3:
-                st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
-            st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+                # Riga 2: intervallo T. ambientale media
+                st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
+                ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
+                with ta_c1:
+                    ta_base_val = st.number_input(
+                        i18n.ui_text("full.ta_base_input"),
+                        value=sget("ta_base_val", 20.0),
+                        step=0.1, format="%.1f",
+                        key="ta_base_val",
+                        label_visibility="collapsed"
+                    )
+                with ta_c2:
+                    ta_other_val = st.number_input(
+                        i18n.ui_text("full.ta_other_input"),
+                        value=sget("ta_other_val", ta_base_val),
+                        step=0.1, format="%.1f",
+                        key="ta_other_val",
+                        label_visibility="collapsed"
+                    )
+                    ta_values = [
+                        st.session_state.get("ta_base_val"),
+                        st.session_state.get("ta_other_val"),
+                    ]
+                    if all(_is_num(v) for v in ta_values):
+                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
+                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
+                    else:
+                        st.session_state.pop("Ta_min_beta", None)
+                        st.session_state.pop("Ta_max_beta", None)
+                with ta_c3:
+                    st.empty()
+
+                # Riga 3: intervallo fattore di correzione
+                st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
+                fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
+
+                with fc_c1:
+                    fc_min_val = st.number_input(
+                        i18n.ui_text("full.fc_min_input"),
+                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                        step=0.1, format="%.2f",
+                        key="fc_min_val",
+                        label_visibility="collapsed"
+                    )
+
+                with fc_c2:
+                    fc_other_val = st.number_input(
+                        i18n.ui_text("full.fc_max_input"),
+                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                        step=0.1, format="%.2f",
+                        key="fc_other_val",
+                        label_visibility="collapsed"
+                    )
+                    fc_values = [
+                        st.session_state.get("fc_min_val"),
+                        st.session_state.get("fc_other_val"),
+                    ]
+                    if all(_is_num(v) for v in fc_values):
+                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
+                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
+                    else:
+                        st.session_state.pop("FC_min_beta", None)
+                        st.session_state.pop("FC_max_beta", None)
+
+                with fc_c3:
+                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
+                st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
 
         else:
             # -------------------------

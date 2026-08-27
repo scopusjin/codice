@@ -73,6 +73,12 @@ _CSS = r"""
   font-weight: 400;
   line-height: 1.1;
 }
+.number-control.has-help .mobile-label {
+  flex: 0 1 auto;
+}
+.number-control.has-help .number-input {
+  margin-left: auto;
+}
 .number-input {
   box-sizing: border-box;
   flex: 0 0 58px;
@@ -329,6 +335,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
+  control.classList.toggle('has-help', showHelp);
   const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
   control.classList.toggle('is-dense', dense);
