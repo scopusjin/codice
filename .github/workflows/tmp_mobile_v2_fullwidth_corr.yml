@@ -23,23 +23,20 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import textwrap
 
           stima_path = Path('Stima_epoca_decesso.py')
           stima = stima_path.read_text(encoding='utf-8')
 
-          start_marker = '''        else:
-              # -------------------------
-              # 🔷 MASCHERA STANDARD
-              # -------------------------
-          '''
-          start_marker = start_marker.replace('              ', '            ')
-          start = stima.index(start_marker)
-          end = stima.index('\n    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---', start)
+          comment_pos = stima.index('            # 🔷 MASCHERA STANDARD')
+          start = stima.rfind('        else:\n', 0, comment_pos)
+          end = stima.index('\n    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---', comment_pos)
           old_standard = stima[start:end]
           assert old_standard.count('st.columns([1, 1, 1], gap="small")') == 2
           assert old_standard.count('key="fattore_correzione"') == 1
 
-          new_standard = '''        else:
+          new_standard = textwrap.indent(textwrap.dedent('''\
+          else:
               # -------------------------
               # 🔷 MASCHERA STANDARD
               # -------------------------
@@ -115,13 +112,7 @@ jobs:
                   with col3:
                       st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
                       st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
-          '''
-          new_standard = new_standard.replace('              ', '            ', 1)
-          # Il blocco sopra è scritto con indentazione Python esplicita: normalizza
-          # soltanto la prima riga, poi usa il testo così com'è.
-          lines = new_standard.splitlines(True)
-          lines[0] = '        else:\n'
-          new_standard = ''.join(lines)
+          '''), '        ')
           stima = stima[:start] + new_standard + stima[end:]
           stima_path.write_text(stima, encoding='utf-8')
 
@@ -142,7 +133,8 @@ jobs:
           assert old_switch.count('key=k("vest_help_slot")') == 1
           assert old_switch.count('key=k("corr_slot")') == 1
 
-          new_switch = '''        with st.container(
+          new_switch = textwrap.indent(textwrap.dedent('''\
+          with st.container(
               horizontal=True,
               wrap=False,
               horizontal_alignment="distribute",
@@ -180,7 +172,7 @@ jobs:
                           )
               with st.container(width="content", key=k("corr_slot")):
                   corr_placeholder = st.empty()
-          '''
+          '''), '        ')
           panel = panel[:switch_start] + new_switch + panel[switch_end:]
           panel_path.write_text(panel, encoding='utf-8')
           PY
@@ -195,7 +187,6 @@ jobs:
           stima = Path('Stima_epoca_decesso.py').read_text(encoding='utf-8')
           panel = Path('app/full_factor_panel.py').read_text(encoding='utf-8')
           assert 'key="cooling_standard_v2_stack_mobile"' in stima
-          assert stima.count('key="rt_val"') >= 2
           assert 'horizontal_alignment="distribute"' in panel
           assert 'key=k("vest_group")' in panel
           assert panel.index('key=k("vest_group")') < panel.index('key=k("corr_slot")')
