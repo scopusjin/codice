@@ -4,7 +4,6 @@ from streamlit.testing.v1 import AppTest
 
 from app.decimal_number_input_v2 import (
     _component_instance_key,
-    _get_renderer,
     is_full_mobile_v2_key,
     mobile_decimal_v2_available,
 )
@@ -13,7 +12,6 @@ from app.decimal_number_input_v2 import (
 class DecimalNumberInputV2Tests(unittest.TestCase):
     def test_v2_is_available_with_current_streamlit(self):
         self.assertTrue(mobile_decimal_v2_available())
-        self.assertTrue(callable(_get_renderer()))
 
     def test_v2_scope_is_full_mobile_only(self):
         for key in (
@@ -43,13 +41,17 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
 
     def test_v2_mounts_and_reruns_without_streamlit_exception(self):
         script = r'''
-from app.decimal_number_input_v2 import render_mobile_decimal_v2
+import app.decimal_number_input_v2 as v2
+
+# AppTest esegue lo script in un proprio ScriptRunContext: la registrazione
+# deve avvenire qui, non nel processo unittest esterno.
+v2._renderer = None
 
 for key, label, value in (
     ("mortem_decimal_rt_val", "T. rettale", 35.0),
     ("mortem_decimal_tm_val", "T. ante-mortem", 37.0),
 ):
-    render_mobile_decimal_v2(
+    v2.render_mobile_decimal_v2(
         value=value,
         step=0.1,
         decimals=1,
