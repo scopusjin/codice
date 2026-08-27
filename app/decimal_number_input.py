@@ -8,11 +8,6 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
-from app.decimal_number_input_v2 import (
-    is_full_mobile_v2_key,
-    mobile_decimal_v2_available,
-    render_mobile_decimal_v2,
-)
 from app.device_mode import full_device_is_mobile
 from app.locales.it_ui import ui_text
 
@@ -112,59 +107,31 @@ def decimal_number_input(
         help_text = _TA_RANGE_MOBILE_NOTE
     help_enabled = help_state_key is not None
 
-    use_v2_mobile = bool(
-        compact_mobile
-        and is_full_mobile_v2_key(key)
-        and mobile_decimal_v2_available()
+    result = _component(
+        value=current,
+        step=float(step),
+        decimals=decimals,
+        min_value=minimum,
+        max_value=maximum,
+        disabled=bool(disabled),
+        sync_token=int(sync_token),
+        aria_label=str(aria_label or "Valore numerico"),
+        compact_mobile=compact_mobile,
+        compact_label=str(compact_label or ""),
+        unit=str(unit or ""),
+        help_enabled=help_enabled,
+        hide_group_heading=bool(hide_group_heading),
+        inline_weight_toggle=bool(inline_weight_toggle),
+        suggest_enabled=bool(suggest_enabled),
+        suggest_label=str(suggest_label or ""),
+        suggest_active=bool(suggest_active),
+        primary_color=_theme_value("theme.primaryColor", "#168AC1"),
+        background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
+        text_color=_theme_value("theme.textColor", "#31333F"),
+        key=key,
+        on_change=on_change,
+        default=current,
     )
-
-    if use_v2_mobile:
-        result = render_mobile_decimal_v2(
-            value=current,
-            step=float(step),
-            decimals=decimals,
-            min_value=minimum,
-            max_value=maximum,
-            disabled=bool(disabled),
-            sync_token=int(sync_token),
-            aria_label=str(aria_label or "Valore numerico"),
-            compact_label=str(compact_label or ""),
-            unit=str(unit or ""),
-            help_enabled=help_enabled,
-            help_state_key=help_state_key,
-            suggest_enabled=bool(suggest_enabled),
-            suggest_label=str(suggest_label or ""),
-            suggest_active=bool(suggest_active),
-            on_suggest=on_suggest,
-            on_change=on_change,
-            key=key,
-        )
-    else:
-        result = _component(
-            value=current,
-            step=float(step),
-            decimals=decimals,
-            min_value=minimum,
-            max_value=maximum,
-            disabled=bool(disabled),
-            sync_token=int(sync_token),
-            aria_label=str(aria_label or "Valore numerico"),
-            compact_mobile=compact_mobile,
-            compact_label=str(compact_label or ""),
-            unit=str(unit or ""),
-            help_enabled=help_enabled,
-            hide_group_heading=bool(hide_group_heading),
-            inline_weight_toggle=bool(inline_weight_toggle),
-            suggest_enabled=bool(suggest_enabled),
-            suggest_label=str(suggest_label or ""),
-            suggest_active=bool(suggest_active),
-            primary_color=_theme_value("theme.primaryColor", "#168AC1"),
-            background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
-            text_color=_theme_value("theme.textColor", "#31333F"),
-            key=key,
-            on_change=on_change,
-            default=current,
-        )
 
     if isinstance(result, dict):
         suggest_token = result.get("suggest_token")
