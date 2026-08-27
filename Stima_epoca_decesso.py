@@ -86,6 +86,14 @@ st.markdown("""
   font-size: 10pt !important;
   line-height: 14pt !important;
 }
+.mortem-section-title {
+  margin: 0 0 0.28rem 0 !important;
+  padding: 0 !important;
+  font-size: 0.86rem !important;
+  font-weight: 600 !important;
+  line-height: 1.15 !important;
+  opacity: 0.82;
+}
 @media (max-width: 768px) {
   div.block-container { padding-top: 3rem !important; }
   .mortem-full-title {
@@ -196,7 +204,7 @@ with st.container(border=True):
 
     with col1:
         livor_heading = i18n.ui_text("full.livor_heading")
-        st.markdown(f"<div style='font-size: 0.88rem;'>{livor_heading}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='mortem-section-title'>{livor_heading}</div>", unsafe_allow_html=True)
         prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
         if prev_livor not in livor_labels:
             prev_livor = livor_labels[0]
@@ -213,7 +221,7 @@ with st.container(border=True):
 
     with col2:
         rigor_heading = i18n.ui_text("full.rigor_heading")
-        st.markdown(f"<div style='font-size: 0.88rem;'>{rigor_heading}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='mortem-section-title'>{rigor_heading}</div>", unsafe_allow_html=True)
         prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
         if prev_rigor not in rigor_labels:
             prev_rigor = rigor_labels[0]
@@ -228,37 +236,41 @@ with st.container(border=True):
         selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
         st.session_state["selettore_rigidita"] = selettore_rigidita
 
-# Toggle principale
-st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
-stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
-
-# La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
-# i due estremi coincidono con i valori correnti; nei rerun successivi si
-# conservano invece i valori già inseriti dall'utente.
-if stima_cautelativa_beta:
-    if not st.session_state.get("__prudent_explicit_ranges_initialized", False):
-        ta_seed = st.session_state.get("ta_base_val", 20.0)
-        fc_seed = st.session_state.get("fattore_correzione", 1.0)
-        if _is_num(ta_seed):
-            st.session_state["ta_other_val"] = float(ta_seed)
-        if _is_num(fc_seed):
-            st.session_state["fc_min_val"] = float(fc_seed)
-            st.session_state["fc_other_val"] = float(fc_seed)
-        st.session_state["__prudent_explicit_ranges_initialized"] = True
-    st.session_state["range_unico_beta"] = True
-else:
-    st.session_state["range_unico_beta"] = False
-
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 with st.container(border=True):
+    st.markdown(
+        f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+        unsafe_allow_html=True,
+    )
 
     henssge_non_app = st.checkbox(
         i18n.ui_text("full.henssge_not_applicable"),
         key="henssge_non_applicabile",
         help=i18n.ui_text("full.henssge_not_applicable_help"),
     )
+
+    st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+    stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
+
+    # La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
+    # i due estremi coincidono con i valori correnti; nei rerun successivi si
+    # conservano invece i valori già inseriti dall'utente.
+    if stima_cautelativa_beta:
+        if not st.session_state.get("__prudent_explicit_ranges_initialized", False):
+            ta_seed = st.session_state.get("ta_base_val", 20.0)
+            fc_seed = st.session_state.get("fattore_correzione", 1.0)
+            if _is_num(ta_seed):
+                st.session_state["ta_other_val"] = float(ta_seed)
+            if _is_num(fc_seed):
+                st.session_state["fc_min_val"] = float(fc_seed)
+                st.session_state["fc_other_val"] = float(fc_seed)
+            st.session_state["__prudent_explicit_ranges_initialized"] = True
+        st.session_state["range_unico_beta"] = True
+    else:
+        st.session_state["range_unico_beta"] = False
+
     if henssge_non_app:
         # Metodo di Henssge escluso: non mostrare la maschera di input del raffreddamento
         pass
@@ -413,16 +425,13 @@ with st.container(border=True):
                 st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
                 st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
 
-
-# --- Toggle pannello suggeritore in fondo al riquadro ---
-
-# --- Pannello "Suggerisci FC" ---
-if st.session_state.get("toggle_fattore", False):
-    with st.container(border=True):
-        pannello_suggerisci_fc(
-            peso_default=st.session_state.get("peso", 70.0),
-            key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-        )
+    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
+    if st.session_state.get("toggle_fattore", False):
+        with st.container(border=True):
+            pannello_suggerisci_fc(
+                peso_default=st.session_state.get("peso", 70.0),
+                key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+            )
 
 # Parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")

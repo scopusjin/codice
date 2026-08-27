@@ -16,14 +16,15 @@ UI_TEXT = {
     "full.add_datetime": "Aggiungi data/ora rilievi tanatologici",
     "full.inspection_date": "Data ispezione legale:",
     "full.inspection_time": "Ora ispezione legale (HH:MM):",
-    "full.livor_heading": "Ipostasi:",
+    "full.livor_heading": "Ipostasi",
     "full.livor_select_label": "Macchie ipostatiche:",
-    "full.rigor_heading": "Rigidità cadaverica:",
+    "full.rigor_heading": "Rigidità cadaverica",
     "full.rigor_select_label": "Rigidità cadaverica:",
 
     # UI completa — raffreddamento / fattore di correzione
+    "full.cooling_heading": "Raffreddamento cadaverico",
     "full.prudent_toggle": "Condizioni variabili?",
-    "full.henssge_not_applicable": "Metodo di Henssge non applicabile",
+    "full.henssge_not_applicable": "Henssge non applicabile",
     "full.henssge_not_applicable_help": (
         "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
         "• Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.\n"
