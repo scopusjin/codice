@@ -1,28 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app import i18n
-from app.factor_calc import (
-    build_cf_description,
-    SURF_DISPLAY_ORDER,
-)
-
-from app.henssge import (
-    calcola_raffreddamento,
-    ranges_in_disaccordo_completa,
-    INF_HOURS as INF_HOURS_HENSSGE,
-)
-from app.utils_time import (
-    arrotonda_quarto_dora,
-    split_hours_minutes as _split_hours_minutes,
-    round_quarter_hour,
-)
-
-from app.parameters import (
-    INF_HOURS,
-    opzioni_macchie, macchie_medi, testi_macchie,
-    opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
-    dati_parametri_aggiuntivi, nomi_brevi,
-)
+from app.parameters import dati_parametri_aggiuntivi
 from app.full_tanatology import (
     FULL_LIVOR_STATE_BY_LABEL,
     FULL_RIGOR_STATE_BY_LABEL,
@@ -43,32 +22,10 @@ from app.special_tanatology_states import (
 from app.native_time_picker import native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.mobile_navigation import render_mobile_page_switch
-
-from app.plotting import compute_plot_data, render_ranges_plot
-from app.textgen import (
-    build_final_sentence,
-    paragrafo_raffreddamento_dettaglio,
-    paragrafo_potente,
-    paragrafo_raffreddamento_input,
-    paragrafi_descrizioni_base,
-    paragrafi_parametri_aggiuntivi,
-    paragrafo_putrefattive,
-    frase_riepilogo_parametri_usati,
-    avvisi_raffreddamento_henssge,
-    frase_qd,
-    build_simple_sentence, 
-    build_final_sentence_simple,        
-    build_simple_sentence_no_dt,        
-)
-
-from app.cautelativa import compute_raffreddamento_cautelativo
-from app.graphing import aggiorna_grafico  # in cima al file
+from app.graphing import aggiorna_grafico
 
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
 import datetime
-import math
 
 def _is_num(x):
     try:
@@ -82,15 +39,6 @@ def _build_ta_values_from_ui():
         vals.extend([st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")])
     else:
         vals.append(st.session_state.get("ta_base_val"))
-    vals = [float(v) for v in vals if _is_num(v)]
-    return sorted(set(vals))
-
-def _build_fc_values_from_ui():
-    vals = []
-    if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
-        vals.extend([st.session_state.get("FC_min_beta"), st.session_state.get("FC_max_beta")])
-    else:
-        vals.append(st.session_state.get("fattore_correzione", 1.0))
     vals = [float(v) for v in vals if _is_num(v)]
     return sorted(set(vals))
 
@@ -154,9 +102,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-
-def _wrap_final(s: str | None) -> str | None:
-    return f'<div class="final-text">{s}</div>' if s else s
 
 # Helper: default stabile per ogni widget
 def sget(key, default):
