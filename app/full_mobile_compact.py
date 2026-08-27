@@ -191,8 +191,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   flex: 0 0 auto !important;
   width: max-content !important;
   min-width: max-content !important;
-  max-width: 44% !important;
+  max-width: none !important;
   margin-left: auto !important;
+  overflow: visible !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -209,10 +210,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_vest_group"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_vest_group"] {
-  flex: 1 1 0 !important;
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: 56% !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
 }
 
 /* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
@@ -289,17 +291,16 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button {
-  height: 2.25rem !important;
-  min-height: 2.25rem !important;
-  max-height: 2.25rem !important;
-  margin: 0 !important;
-  padding: 0 0.52rem !important;
-  border-top: 0 !important;
-  border-right: 0 !important;
-  border-bottom: 0 !important;
-  border-left: 1px solid color-mix(in srgb, var(--st-primary-color) 45%, transparent) !important;
-  border-radius: 0 !important;
-  background: color-mix(in srgb, var(--st-primary-color) 24%, transparent) !important;
+  height: 1.92rem !important;
+  min-height: 1.92rem !important;
+  max-height: 1.92rem !important;
+  margin: 0 0.20rem 0 0 !important;
+  padding: 0 0.58rem !important;
+  border: 1px solid var(--st-primary-color) !important;
+  border-radius: 0.46rem !important;
+  background: var(--st-primary-color) !important;
+  color: white !important;
+  font-weight: 650 !important;
   white-space: nowrap !important;
 }
 
@@ -316,6 +317,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   max-height: 2.25rem !important;
   margin: 0 !important;
   padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
 }
 
 .mortem-fc-weight-note-mobile {

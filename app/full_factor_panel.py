@@ -220,7 +220,7 @@ def _render_factor_panel(
                 flex-direction: row !important;
                 flex-wrap: nowrap !important;
                 align-items: center !important;
-                gap: 0.5rem !important;
+                gap: 0.30rem !important;
               }}
               [class*="st-key-{key_prefix}_switch_row"] [data-testid="stToggle"] {{
                 width: max-content !important;
@@ -249,7 +249,7 @@ def _render_factor_panel(
                 wrap=False,
                 vertical_alignment="center",
                 gap="xsmall",
-                width="stretch",
+                width="content",
                 key=k("vest_group"),
             ):
                 with st.container(width="content", key=k("vest_slot")):
@@ -505,7 +505,8 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 )
             with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
                 st.button(
-                    "✅ Usa",
+                    "→ Usa",
+                    type="primary",
                     on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
                     key=f"{key_prefix}_btn_usa_fc{suffix}",
                 )
