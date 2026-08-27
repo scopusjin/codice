@@ -362,14 +362,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     white-space: nowrap !important;
   }
 
-  /* Switch Vestiti/coperte e Correnti d'aria affiancati nella sola Full mobile. */
   [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"]),
   [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"]) {
     display: flex !important;
-    flex-direction: row !important;
+    flex-direction: column !important;
     flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: clamp(0.08rem, 0.8vw, 0.18rem) !important;
+    gap: clamp(0.18rem, 1vw, 0.32rem) !important;
     width: 100% !important;
   }
 
@@ -377,73 +375,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   > [data-testid="column"],
   [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"])
   > [data-testid="column"] {
-    flex: 1 1 0 !important;
-    width: 50% !important;
-    max-width: 50% !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
     min-width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"])
-  > [data-testid="column"]:has([class*="st-key-fcpanel_std_toggle_vestito"]),
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"])
-  > [data-testid="column"]:has([class*="st-key-fcpanel_caut_toggle_vestito"]) {
-    order: 1 !important;
-  }
-
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"])
-  > [data-testid="column"]:has([class*="st-key-fcpanel_std_toggle_correnti_fc"]),
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"])
-  > [data-testid="column"]:has([class*="st-key-fcpanel_caut_toggle_correnti_fc"]) {
-    order: 2 !important;
-  }
-
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"]):not(:has([class*="st-key-fcpanel_std_toggle_correnti_fc"]))
-  > [data-testid="column"]:first-child,
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"]):not(:has([class*="st-key-fcpanel_caut_toggle_correnti_fc"]))
-  > [data-testid="column"]:first-child {
-    display: none !important;
-  }
-
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"]):not(:has([class*="st-key-fcpanel_std_toggle_correnti_fc"]))
-  > [data-testid="column"]:has([class*="st-key-fcpanel_std_toggle_vestito"]),
-  [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_caut_toggle_vestito"]):not(:has([class*="st-key-fcpanel_caut_toggle_correnti_fc"]))
-  > [data-testid="column"]:has([class*="st-key-fcpanel_caut_toggle_vestito"]) {
-    flex: 1 1 100% !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  [class*="st-key-fcpanel_std_toggle_vestito"] label,
-  [class*="st-key-fcpanel_caut_toggle_vestito"] label,
-  [class*="st-key-fcpanel_std_toggle_correnti_fc"] label,
-  [class*="st-key-fcpanel_caut_toggle_correnti_fc"] label {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    gap: clamp(0.10rem, 0.6vw, 0.18rem) !important;
-    white-space: nowrap !important;
-  }
-
-  [class*="st-key-fcpanel_std_toggle_vestito"] label p,
-  [class*="st-key-fcpanel_caut_toggle_vestito"] label p,
-  [class*="st-key-fcpanel_std_toggle_correnti_fc"] label p,
-  [class*="st-key-fcpanel_caut_toggle_correnti_fc"] label p {
-    font-size: 0 !important;
-    white-space: nowrap !important;
-  }
-
-  [class*="st-key-fcpanel_std_toggle_vestito"] label p::after,
-  [class*="st-key-fcpanel_caut_toggle_vestito"] label p::after {
-    content: "Vestiti/coperte";
-    font-size: clamp(0.72rem, 3.2vw, 0.82rem) !important;
-  }
-
-  [class*="st-key-fcpanel_std_toggle_correnti_fc"] label p::after,
-  [class*="st-key-fcpanel_caut_toggle_correnti_fc"] label p::after {
-    content: "Correnti d’aria";
-    font-size: clamp(0.72rem, 3.2vw, 0.82rem) !important;
   }
 
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
