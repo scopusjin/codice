@@ -23,6 +23,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import textwrap
 
           app_path = Path("Stima_epoca_decesso.py")
           text = app_path.read_text(encoding="utf-8")
@@ -108,7 +109,8 @@ jobs:
           text = text.replace(panel_old, panel_new, 1)
           app_path.write_text(text, encoding="utf-8")
 
-          compact = r'''# -*- coding: utf-8 -*-
+          compact = textwrap.dedent(r'''\
+          # -*- coding: utf-8 -*-
           """Regole di compattezza aggiuntive per la sola Full mobile."""
 
           import streamlit as st
@@ -168,8 +170,6 @@ jobs:
               padding: 0 !important;
             }
 
-            body:has([class*="st-key-stima_cautelativa_beta"])
-            [class*="st-key-mortem_help-row-henssge"] [data-testid="stCheckbox"] label,
             body:has([class*="st-key-stima_cautelativa_beta"])
             [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
               position: relative !important;
@@ -241,8 +241,7 @@ jobs:
 
               st.markdown = markdown_with_full_mobile_compact_css
               st._full_mobile_compact_css_installed = True
-          '''
-          compact = "\n".join(line[10:] if line.startswith("          ") else line for line in compact.splitlines()) + "\n"
+          ''')
           Path("app/full_mobile_compact.py").write_text(compact, encoding="utf-8")
           PY
 
