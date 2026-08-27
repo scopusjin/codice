@@ -8,6 +8,7 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app.device_mode import full_device_is_mobile
 from app.locales.it_ui import ui_text
 
 
@@ -84,6 +85,11 @@ def decimal_number_input(
     minimum = _finite_float(min_value)
     maximum = _finite_float(max_value)
 
+    # ``compact_mobile`` indica che il chiamante supporta la resa compatta
+    # della schermata Full. La scelta effettiva mobile/desktop viene risolta
+    # una sola volta per sessione sul server, prima di inviare il componente.
+    compact_mobile = bool(compact_mobile and full_device_is_mobile())
+
     interval_mode = bool(
         st.session_state.get("stima_cautelativa_beta", False)
         and st.session_state.get("range_unico_beta", False)
@@ -110,7 +116,7 @@ def decimal_number_input(
         disabled=bool(disabled),
         sync_token=int(sync_token),
         aria_label=str(aria_label or "Valore numerico"),
-        compact_mobile=bool(compact_mobile),
+        compact_mobile=compact_mobile,
         compact_label=str(compact_label or ""),
         unit=str(unit or ""),
         help_enabled=help_enabled,
