@@ -385,6 +385,11 @@ def _get_renderer():
     return _renderer
 
 
+def _component_instance_key(key) -> str:
+    """Chiave V2 compatibile: ``__`` è riservato internamente da Streamlit."""
+    return f"{key}-v2"
+
+
 def _state_value(state, name, default=None):
     if state is None:
         return default
@@ -444,8 +449,8 @@ def render_mobile_decimal_v2(
     if renderer is None:
         raise RuntimeError("Streamlit Components V2 non disponibile")
 
-    internal_key = f"{key}__v2"
-    sync_key = f"{internal_key}__sync_token"
+    internal_key = _component_instance_key(key)
+    sync_key = f"{internal_key}:sync-token"
     sync_token = int(sync_token)
 
     if st.session_state.get(sync_key) != sync_token:
