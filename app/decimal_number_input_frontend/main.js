@@ -130,19 +130,8 @@ function stepBy(direction) {
   scheduleValue(next);
 }
 
-function parentViewportWidth() {
-  try {
-    if (window.parent && window.parent !== window) {
-      return Number(window.parent.innerWidth) || Infinity;
-    }
-  } catch (_) {
-    return Infinity;
-  }
-  return Infinity;
-}
-
 function updateCompactLayout() {
-  const compact = compactMobileEnabled && parentViewportWidth() <= 768;
+  const compact = compactMobileEnabled;
   const showHelp = compact && helpEnabled;
   const showSuggest = compact && suggestEnabled;
   control.classList.toggle("compact-mobile", compact);
@@ -211,7 +200,6 @@ minusButton.addEventListener("click", () => stepBy(-1));
 plusButton.addEventListener("click", () => stepBy(1));
 helpButton.addEventListener("click", sendHelpAction);
 suggestButton.addEventListener("click", sendSuggestAction);
-window.addEventListener("resize", updateCompactLayout);
 window.addEventListener("beforeunload", () => {
   if (sendTimer !== null) window.clearTimeout(sendTimer);
 });
