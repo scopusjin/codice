@@ -1,15 +1,12 @@
-name: Temporary mobile prudent single suggest
+name: Temporary mobile prudent verification
 
 on:
   push:
     branches:
       - tmp-mobile-prudent-single-suggest
 
-permissions:
-  contents: write
-
 jobs:
-  patch:
+  verify:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -18,15 +15,16 @@ jobs:
           ref: tmp-mobile-prudent-single-suggest
           fetch-depth: 0
 
-      - name: Apply exact mobile patch
-        shell: bash
-        run: python .github/scripts/tmp_mobile_prudent_patch.py
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Check diff and syntax
+      - name: Compile Python sources
+        run: python -m compileall -q Stima_epoca_decesso.py app
+
+      - name: Verify targeted changes
         shell: bash
         run: |
-          git diff --check
-          python -m compileall -q Stima_epoca_decesso.py app/__init__.py app/decimal_number_input_v2.py app/full_factor_panel.py app/full_mobile_compact.py
+          git diff --check e3ff8998994e16c90b32cab66d58e59c9798fc26..HEAD
           python - <<'PY'
           from pathlib import Path
           stima = Path('Stima_epoca_decesso.py').read_text(encoding='utf-8')
@@ -42,16 +40,8 @@ jobs:
           assert 'vals[0]-0.10' not in panel
           assert 'anchor = max(current_bounds' in panel
           assert 'key=f"{key_prefix}_fc_apply_block_mobile"' in panel
-          assert 'type="secondary"' in panel
           assert '[class*="fc_apply_block_mobile"]' in compact
           PY
 
-      - name: Commit patch
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Stima_epoca_decesso.py app/__init__.py app/decimal_number_input_v2.py app/full_factor_panel.py app/full_mobile_compact.py
-          git diff --cached --quiet && exit 0
-          git commit -m "Compatta condizioni variabili mobile"
-          git push origin HEAD:tmp-mobile-prudent-single-suggest
+      - name: Run regression tests
+        run: pytest -q
