@@ -197,6 +197,7 @@ input_data_rilievo = st.session_state.get("input_data_rilievo")
 input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 
 # 📌 2. Ipostasi e rigidità — RIQUADRO
+full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
 with st.container(border=True):
     col1, col2 = st.columns(2, gap="small")
 
@@ -214,7 +215,8 @@ with st.container(border=True):
             options=livor_labels,
             index=livor_labels.index(prev_livor),
             key="selettore_macchie_ui",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            filter_mode=full_select_filter_mode,
         )
         st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
         selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
@@ -231,7 +233,8 @@ with st.container(border=True):
             options=rigor_labels,
             index=rigor_labels.index(prev_rigor),
             key="selettore_rigidita_ui",
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            filter_mode=full_select_filter_mode,
         )
         st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
         selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)

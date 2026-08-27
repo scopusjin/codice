@@ -336,6 +336,7 @@ def _render_factor_panel(
         elif full_mobile:
             select_kwargs["label_visibility"] = "collapsed"
             select_kwargs["format_func"] = _full_mobile_surface_caption
+            select_kwargs["filter_mode"] = None
 
         superficie_display_label = st.selectbox(
             i18n.ui_text(f"{scope}.support_surface"),
