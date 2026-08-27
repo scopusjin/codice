@@ -12,10 +12,11 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.add_datetime": "Aggiungi data/ora rilievi tanatologici",
             "full.inspection_date": "Data ispezione legale:",
             "full.inspection_time": "Ora ispezione legale (HH:MM):",
-            "full.livor_heading": "Ipostasi:",
+            "full.livor_heading": "Ipostasi",
             "full.livor_select_label": "Macchie ipostatiche:",
-            "full.rigor_heading": "Rigidità cadaverica:",
+            "full.rigor_heading": "Rigidità cadaverica",
             "full.rigor_select_label": "Rigidità cadaverica:",
+            "full.cooling_heading": "Raffreddamento cadaverico",
             "full.add_special_data": "Aggiungi dati tanatologici speciali",
             "full.assessed_different_time": "Valutato ad un'ora diversa?",
             "full.measurement_date": "Data rilievo:",
@@ -33,7 +34,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
         self.assertEqual(i18n.ui_text("full.prudent_toggle"), "Condizioni variabili?")
         self.assertEqual(
             i18n.ui_text("full.henssge_not_applicable"),
-            "Metodo di Henssge non applicabile",
+            "Henssge non applicabile",
         )
         self.assertEqual(
             i18n.ui_text("full.henssge_not_applicable_help"),
