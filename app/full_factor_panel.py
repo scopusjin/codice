@@ -501,7 +501,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             horizontal=True,
             wrap=False,
             horizontal_alignment="distribute",
-            vertical_alignment="stretch",
+            vertical_alignment="center",
             gap=None,
             key=f"{key_prefix}_fc_apply_row_mobile",
         ):
