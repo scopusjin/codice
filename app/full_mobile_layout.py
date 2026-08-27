@@ -80,6 +80,30 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
   }
 
+  /* Compatta solo i blocchi iniziali della Full mobile. I selettori usati per
+     riconoscere i riquadri non esistono insieme nella MSIL. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
+    padding: 0.55rem 0.70rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]) {
+    margin-bottom: -0.32rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_prudent"] {
+    margin-top: -0.20rem !important;
+    margin-bottom: -0.20rem !important;
+  }
+
   /* Su mobile la spiegazione generale delle condizioni variabili resta
      disponibile tramite l'helper del toggle e non occupa spazio nel form. */
   body:has([class*="st-key-stima_cautelativa_beta"])
