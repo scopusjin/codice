@@ -113,7 +113,7 @@ def _safe_int(x):
         return 0
 
 
-_FULL_MOBILE_SURFACE_PLACEHOLDER = "Superficie di appoggio"
+_FULL_MOBILE_SURFACE_PLACEHOLDER = "Superficie di appoggio ?"
 
 
 def _full_mobile_surface_caption(value: str) -> str:
@@ -236,6 +236,21 @@ def _render_factor_panel(
                     "Vestiti/coperte",
                     key=k("toggle_vestito"), value=False
                 )
+            with st.container(width="content", key=k("vest_help_slot")):
+                with st.popover("?"):
+                    st.markdown(
+                        """
+                        <div class="mortem-help-copy">
+                          <div class="mortem-help-copy-intro">Esempi orientativi per distinguere gli strati:</div>
+                          <div class="mortem-help-copy-bullet">• Strati leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
+                          <div class="mortem-help-copy-bullet">• Strati pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
+                          <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
+                          <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
+                          <div class="mortem-help-copy-intro">Conta separatamente gli strati effettivamente presenti sul corpo.</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
             with st.container(width="content", key=k("corr_slot")):
                 corr_placeholder = st.empty()
     elif mobile:
@@ -267,26 +282,26 @@ def _render_factor_panel(
 
         if full_mobile:
             n_sottili = _safe_int(st.number_input(
-                label_sottili,
+                "Strati leggeri",
                 value=st.session_state.get(k("strati_sottili"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_sottili"), label_visibility="collapsed",
             ))
             n_spessi = _safe_int(st.number_input(
-                label_spessi,
+                "Strati pesanti",
                 value=st.session_state.get(k("strati_spessi"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_spessi"), label_visibility="collapsed",
             ))
             if stato_corpo == "Asciutto":
                 n_cop_medie = _safe_int(st.number_input(
-                    label_coperte_medie,
+                    "Coperte medie",
                     value=st.session_state.get(k("coperte_medie"), 0),
                     min_value=0, max_value=8, step=1, format="%.0f",
                     key=k("coperte_medie"), label_visibility="collapsed",
                 ))
                 n_cop_pesanti = _safe_int(st.number_input(
-                    label_coperte_pesanti,
+                    "Coperte pesanti/termiche",
                     value=st.session_state.get(k("coperte_pesanti"), 0),
                     min_value=0, max_value=8, step=1, format="%.0f",
                     key=k("coperte_pesanti"), label_visibility="collapsed",
@@ -365,11 +380,19 @@ def _render_factor_panel(
             select_kwargs["format_func"] = _full_mobile_surface_caption
             select_kwargs["filter_mode"] = None
 
-        superficie_display_label = st.selectbox(
-            i18n.ui_text(f"{scope}.support_surface"),
-            select_options,
-            **select_kwargs
-        )
+        if full_mobile:
+            with st.container(key=k("surface_select_mobile")):
+                superficie_display_label = st.selectbox(
+                    i18n.ui_text(f"{scope}.support_surface"),
+                    select_options,
+                    **select_kwargs
+                )
+        else:
+            superficie_display_label = st.selectbox(
+                i18n.ui_text(f"{scope}.support_surface"),
+                select_options,
+                **select_kwargs
+            )
         if full_mobile and superficie_display_label == _FULL_MOBILE_SURFACE_PLACEHOLDER:
             # Placeholder neutro: nessun effetto proprio della superficie.
             # Per le correnti mantiene la stessa classe INDIFFERENTE del

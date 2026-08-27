@@ -64,7 +64,7 @@ _CSS = r"""
   flex: 1 1 auto;
   min-width: 0;
   align-items: center;
-  padding: 0 6px 0 10px;
+  padding: 0 4px 0 8px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -75,16 +75,16 @@ _CSS = r"""
 }
 .number-input {
   box-sizing: border-box;
-  flex: 0 0 66px;
-  width: 66px;
-  min-width: 66px;
+  flex: 0 0 58px;
+  width: 58px;
+  min-width: 58px;
   height: 100%;
   border: 0;
   outline: none;
   background: transparent;
   color: inherit;
-  padding: 0 4px;
-  text-align: left;
+  padding: 0 5px 0 2px;
+  text-align: right;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.95rem;
   font-weight: 400;
@@ -119,8 +119,8 @@ _CSS = r"""
   touch-action: manipulation;
 }
 .step-button {
-  flex: 0 0 34px;
-  width: 34px;
+  flex: 0 0 32px;
+  width: 32px;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 1.15rem;
   font-weight: 600;
@@ -128,8 +128,8 @@ _CSS = r"""
 }
 .temperature-help {
   display: none;
-  flex: 0 0 24px;
-  width: 24px;
+  flex: 0 0 22px;
+  width: 22px;
   align-items: center;
   justify-content: center;
   margin-right: 2px;
@@ -155,7 +155,7 @@ _CSS = r"""
   align-items: center;
   justify-content: center;
   border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);
-  padding: 0 7px;
+  padding: 0 6px;
   white-space: nowrap;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.76rem;
@@ -163,9 +163,9 @@ _CSS = r"""
   line-height: 1;
 }
 .number-control.has-suggest .number-input {
-  flex-basis: 60px;
-  width: 60px;
-  min-width: 60px;
+  flex-basis: 58px;
+  width: 58px;
+  min-width: 58px;
 }
 .number-control.has-suggest .step-button {
   flex-basis: 32px;
@@ -191,6 +191,26 @@ _CSS = r"""
   opacity: 0.32;
 }
 .number-control.is-disabled { opacity: 0.65; }
+.number-control.is-dense {
+  height: 34px;
+  border-radius: 7px;
+}
+.number-control.is-dense .mobile-label {
+  padding-left: 8px;
+  font-size: 0.79rem;
+}
+.number-control.is-dense .number-input {
+  flex-basis: 38px;
+  width: 38px;
+  min-width: 38px;
+  padding-right: 4px;
+  font-size: 0.90rem;
+}
+.number-control.is-dense .step-button {
+  flex-basis: 30px;
+  width: 30px;
+  font-size: 1.02rem;
+}
 """
 
 _JS = r"""
@@ -308,7 +328,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
+  const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
+  control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp);
   suggestButton.classList.toggle('is-visible', showSuggest);
@@ -460,6 +482,7 @@ def render_mobile_decimal_v2(
     internal_key = _component_instance_key(key)
     sync_key = f"{internal_key}:sync-token"
     sync_token = int(sync_token)
+    dense = bool(key and key.startswith("mortem_decimal_fcpanel_"))
 
     if st.session_state.get(sync_key) != sync_token:
         _set_state_value(st.session_state.get(internal_key), "value", value)
@@ -496,6 +519,7 @@ def render_mobile_decimal_v2(
             "suggest_enabled": bool(suggest_enabled),
             "suggest_label": str(suggest_label or ""),
             "suggest_active": bool(suggest_active),
+            "dense": dense,
         },
         default={"value": value},
         on_value_change=_on_value_change,
@@ -503,7 +527,7 @@ def render_mobile_decimal_v2(
         on_suggest_change=_on_suggest_change,
         key=internal_key,
         width="stretch",
-        height=40,
+        height=34 if dense else 40,
     )
 
     return _finite_float(_state_value(result, "value", value))

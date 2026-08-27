@@ -128,6 +128,51 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
+
+  /* I quattro stepper vestiti sono volutamente più bassi degli altri V2. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] iframe {
+    display: block !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_help_slot"] button,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_help_slot"] button {
+    width: 1.42rem !important;
+    min-width: 1.42rem !important;
+    height: 1.42rem !important;
+    min-height: 1.42rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_help_slot"] button p,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_help_slot"] button p {
+    margin: 0 !important;
+    font-size: 0.74rem !important;
+    line-height: 1 !important;
+  }
+
+  /* La superficie resta un controllo distinto dal conteggio degli strati. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    background: color-mix(in srgb, var(--st-secondary-background-color) 86%, var(--st-primary-color) 14%) !important;
+    border-color: color-mix(in srgb, var(--st-primary-color) 38%, transparent) !important;
+  }
 }
 </style>
 """
