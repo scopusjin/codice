@@ -5,6 +5,8 @@ from collections.abc import Mapping
 
 import streamlit as st
 
+from app.full_mobile_compact import install_full_mobile_compact_css
+
 
 _SESSION_KEY = "__full_device_mobile"
 
@@ -71,3 +73,8 @@ def full_device_is_mobile() -> bool:
     mobile = classify_mobile_headers(headers)
     st.session_state[_SESSION_KEY] = mobile
     return mobile
+
+
+# Il modulo viene importato molto presto dalla Full: agganciare qui il CSS
+# permette di averlo già nel primo blocco di stile, senza lampeggi post-render.
+install_full_mobile_compact_css()
