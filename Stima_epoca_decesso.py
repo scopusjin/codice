@@ -21,6 +21,7 @@ from app.special_tanatology_states import (
 )
 from app.native_time_picker import native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
+from app.device_mode import full_device_is_mobile
 from app.mobile_navigation import render_mobile_page_switch
 from app.graphing import aggiorna_grafico
 
@@ -239,17 +240,38 @@ with st.container(border=True):
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
+full_mobile = full_device_is_mobile()
 with st.container(border=True):
-    st.markdown(
-        f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
-        unsafe_allow_html=True,
-    )
-
-    henssge_non_app = st.checkbox(
-        i18n.ui_text("full.henssge_not_applicable"),
-        key="henssge_non_applicabile",
-        help=i18n.ui_text("full.henssge_not_applicable_help"),
-    )
+    if full_mobile:
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            horizontal_alignment="distribute",
+            vertical_alignment="center",
+            gap="small",
+            key="cooling_heading_row_mobile",
+        ):
+            with st.container(width="stretch", key="cooling_heading_title_mobile"):
+                st.markdown(
+                    f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                    unsafe_allow_html=True,
+                )
+            with st.container(width="content", key="cooling_heading_actions_mobile"):
+                henssge_non_app = st.checkbox(
+                    i18n.ui_text("full.henssge_not_applicable"),
+                    key="henssge_non_applicabile",
+                    help=i18n.ui_text("full.henssge_not_applicable_help"),
+                )
+    else:
+        st.markdown(
+            f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+            unsafe_allow_html=True,
+        )
+        henssge_non_app = st.checkbox(
+            i18n.ui_text("full.henssge_not_applicable"),
+            key="henssge_non_applicabile",
+            help=i18n.ui_text("full.henssge_not_applicable_help"),
+        )
 
     st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
@@ -427,11 +449,18 @@ with st.container(border=True):
 
     # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
     if st.session_state.get("toggle_fattore", False):
-        with st.container(border=True):
-            pannello_suggerisci_fc(
-                peso_default=st.session_state.get("peso", 70.0),
-                key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-            )
+        if full_mobile:
+            with st.container(border=False, key="full_fc_panel_mobile"):
+                pannello_suggerisci_fc(
+                    peso_default=st.session_state.get("peso", 70.0),
+                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                )
+        else:
+            with st.container(border=True):
+                pannello_suggerisci_fc(
+                    peso_default=st.session_state.get("peso", 70.0),
+                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                )
 
 # Parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")

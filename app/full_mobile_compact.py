@@ -1,3 +1,4 @@
+\
 # -*- coding: utf-8 -*-
 """Regole di compattezza aggiuntive per la sola Full mobile."""
 
@@ -7,46 +8,34 @@ import streamlit as st
 _FULL_MOBILE_COMPACT_CSS = r"""
 <style>
 @media (max-width: 768px) {
-  /* Il riquadro Raffreddamento usa quasi tutta la larghezza disponibile. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
     padding: 0.42rem 0.34rem !important;
   }
 
-  /* Titolo a sinistra; controllo Henssge + helper all'estrema destra sulla
-     stessa riga. Tutti gli altri elementi continuano a occupare l'intera riga. */
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
-  > [data-testid="stVerticalBlock"] {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    column-gap: 0.18rem !important;
+  [class*="st-key-cooling_heading_row_mobile"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
-  > [data-testid="stVerticalBlock"] > * {
-    grid-column: 1 / -1;
-  }
-
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
-  > [data-testid="stVerticalBlock"] > *:has(.mortem-section-title) {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-    align-self: center !important;
+  [class*="st-key-cooling_heading_title_mobile"] {
+    flex: 1 1 auto !important;
     min-width: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
-  > [data-testid="stVerticalBlock"] > *:has([class*="st-key-mortem_help_row_henssge"]) {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: end !important;
-    align-self: center !important;
+  [class*="st-key-cooling_heading_actions_mobile"] {
+    flex: 0 0 auto !important;
     width: max-content !important;
+    min-width: max-content !important;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -61,8 +50,6 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     justify-content: flex-end !important;
   }
 
-  /* Il checkbox resta il vero controllo e conserva la stessa chiave/stato,
-     ma sul mobile viene visualizzato soltanto come simbolo di divieto. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
     width: 1.55rem !important;
@@ -112,34 +99,16 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     font-weight: 700 !important;
   }
 
-  /* Il pannello FC non ha più un secondo riquadro: uno sfondo azzurro leggero
-     delimita il gruppo senza sottrarre spazio laterale. */
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])),
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])) {
-    border: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0.55rem !important;
-    background: rgba(33, 150, 243, 0.055) !important;
-    padding: 0.34rem 0.28rem !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+  [class*="st-key-full_fc_panel_mobile"] {
     width: 100% !important;
-  }
-
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"]))
-  > [data-testid="stVerticalBlock"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"]))
-  > [data-testid="stVerticalBlock"] {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0.34rem 0.24rem !important;
     border: 0 !important;
-    outline: 0 !important;
+    border-radius: 0.55rem !important;
     box-shadow: none !important;
-    background: transparent !important;
-    padding: 0 !important;
+    background: rgba(33, 150, 243, 0.055) !important;
   }
 }
 </style>
@@ -155,8 +124,6 @@ def install_full_mobile_compact_css() -> None:
 
     def markdown_with_full_mobile_compact_css(body, *args, **kwargs):
         if isinstance(body, str) and ".final-text{" in body:
-            # Viene appeso dopo il CSS responsive principale, così queste
-            # regole più specifiche prevalgono senza manipolazioni DOM tardive.
             body = body + _FULL_MOBILE_COMPACT_CSS
             kwargs["unsafe_allow_html"] = True
         return original_markdown(body, *args, **kwargs)
