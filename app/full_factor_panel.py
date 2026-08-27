@@ -272,7 +272,14 @@ def _render_factor_panel(
                             """,
                             unsafe_allow_html=True,
                         )
-            with st.container(width="content", key=k("corr_slot")):
+            with st.container(
+                horizontal=True,
+                wrap=False,
+                horizontal_alignment="right",
+                vertical_alignment="center",
+                width="stretch",
+                key=k("corr_slot"),
+            ):
                 corr_placeholder = st.empty()
     elif mobile:
         col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
@@ -468,8 +475,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         full_mobile=full_device_is_mobile(),
     )
 
-    _fc_box(result.fattore_finale, result.fattore_base, peso_eff)
-
     def _apply_fc(val: float, riass: str | None) -> None:
         st.session_state["fattore_correzione"] = round(float(val), 2)
         st.session_state["fattori_condizioni_parentetica"] = None
@@ -478,12 +483,52 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         st.session_state["fc_riassunto_contatori"] = riass
 
     suffix = "_imm" if immersed else ""
-    if not st.session_state.get("range_unico_beta", False):
-        st.button(
-            i18n.ui_text("full.use_this_factor"),
-            on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
-            use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"
-        )
+    range_mode = st.session_state.get("range_unico_beta", False)
+    full_mobile = full_device_is_mobile()
+
+    if full_mobile and not range_mode:
+        side_text = ""
+        if (
+            result.fattore_base is not None
+            and peso_eff is not None
+            and abs(result.fattore_finale - result.fattore_base) > 1e-9
+        ):
+            side_text = i18n.ui_text(
+                "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
+            )
+
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            horizontal_alignment="distribute",
+            vertical_alignment="stretch",
+            gap=None,
+            key=f"{key_prefix}_fc_apply_row_mobile",
+        ):
+            with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):
+                st.markdown(
+                    f'<div class="mortem-fc-inline-result">FC suggerito: <strong>{result.fattore_finale:.2f}</strong></div>',
+                    unsafe_allow_html=True,
+                )
+            with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
+                st.button(
+                    "✅ Usa",
+                    on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+                    key=f"{key_prefix}_btn_usa_fc{suffix}",
+                )
+        if side_text:
+            st.markdown(
+                f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
+                unsafe_allow_html=True,
+            )
+    else:
+        _fc_box(result.fattore_finale, result.fattore_base, peso_eff)
+        if not range_mode:
+            st.button(
+                i18n.ui_text("full.use_this_factor"),
+                on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+                use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"
+            )
 
     if st.session_state.get("stima_cautelativa_beta", False):
         st.button(

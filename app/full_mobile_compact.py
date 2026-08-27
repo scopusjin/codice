@@ -188,9 +188,30 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_corr_slot"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_corr_slot"] {
+  flex: 1 1 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  justify-content: flex-end !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_corr_slot"] [data-testid="stToggle"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_corr_slot"] [data-testid="stToggle"] {
   width: max-content !important;
   min-width: max-content !important;
+  max-width: max-content !important;
   margin-left: auto !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_vest_group"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_vest_group"] {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
 }
 
 /* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
@@ -216,13 +237,72 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   max-width: none !important;
 }
 
+/* Risultato FC standard mobile: valore e azione su una sola riga. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fc_apply_row_mobile"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+  border: 1px solid color-mix(in srgb, var(--st-primary-color) 78%, transparent) !important;
+  border-radius: 0.58rem !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, var(--st-primary-color) 22%) !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fc_apply_value_mobile"] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mortem-fc-inline-result {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 2.55rem;
+  padding: 0.38rem 0.55rem;
+  font-size: 0.92rem;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--st-text-color);
+  white-space: nowrap;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fc_apply_action_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fc_apply_action_mobile"] button {
+  min-height: 2.55rem !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 0.72rem !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 1px solid color-mix(in srgb, var(--st-primary-color) 45%, transparent) !important;
+  border-radius: 0 !important;
+  background: color-mix(in srgb, var(--st-primary-color) 24%, transparent) !important;
+  white-space: nowrap !important;
+}
+
 .mortem-fc-weight-note-mobile {
   box-sizing: border-box;
   width: 100%;
-  margin: 0.06rem 0 0.20rem 0;
-  padding: 0.10rem 0.12rem 0.16rem 0.12rem;
-  font-size: 0.80rem;
-  line-height: 1.28;
+  margin: 0.10rem 0 0.04rem 0;
+  padding: 0 0.10rem;
+  font-size: 0.78rem;
+  line-height: 1.22;
   white-space: normal;
   overflow: visible;
 }
@@ -240,16 +320,16 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_surface_select_mobile"] {
   padding: 0.07rem !important;
-  border: 1px solid color-mix(in srgb, var(--st-primary-color) 62%, transparent) !important;
+  border: 1px solid color-mix(in srgb, #d79a00 72%, transparent) !important;
   border-radius: 0.58rem !important;
-  background: color-mix(in srgb, var(--st-secondary-background-color) 68%, var(--st-primary-color) 32%) !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, #ffc107 22%) !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
-  background: color-mix(in srgb, var(--st-secondary-background-color) 72%, var(--st-primary-color) 28%) !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 82%, #ffc107 18%) !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }

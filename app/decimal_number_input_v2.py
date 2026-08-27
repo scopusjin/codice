@@ -194,6 +194,7 @@ _CSS = r"""
 .number-control.is-dense {
   height: 34px;
   border-radius: 7px;
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 16%, var(--st-secondary-background-color, #F0F2F6));
 }
 .number-control.is-dense .mobile-label {
   padding-left: 8px;
