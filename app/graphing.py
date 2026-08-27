@@ -12,11 +12,7 @@ import streamlit as st
 from app import i18n
 from app.factor_calc import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
-from app.parameters import (
-    INF_HOURS, opzioni_macchie, macchie_medi, testi_macchie,
-    opzioni_rigidita, rigidita_medi, rigidita_descrizioni,
-    dati_parametri_aggiuntivi, nomi_brevi,
-)
+from app.parameters import INF_HOURS, nomi_brevi
 from app.graphing_tanatology import (
     FAMILY_LIVOR,
     FAMILY_RIGOR,
@@ -43,10 +39,6 @@ def _is_num(x):
 
 def _wrap_final(s: str | None) -> str | None:
     return f'<div class="final-text">{s}</div>' if s else s
-
-def show_final_sentence(text: str):
-    # Usa lo stile centralizzato .final-text definito nel tema
-    st.markdown(f'<div class="final-text">{text}</div>', unsafe_allow_html=True)
 
 def render_frase_breve(html: str, key: str = "fb_top"):
     with frase_breve_box(key):
@@ -91,13 +83,11 @@ def aggiorna_grafico(
             return
         try:
             ora_isp_obj = datetime.datetime.strptime(input_ora_rilievo, "%H:%M")
-            minuti_isp = ora_isp_obj.minute
         except ValueError:
             st.markdown(i18n.ui_text("graph.invalid_inspection_time_html"), unsafe_allow_html=True)
             return
         data_ora_ispezione = arrotonda_quarto_dora(datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time()))
     else:
-        minuti_isp = 0
         data_ora_ispezione = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
 
     # --- validazioni base (configurabili) ---
@@ -198,7 +188,6 @@ def aggiorna_grafico(
         if data_rilievo_param is None:
             data_rilievo_param = data_ora_ispezione.date()
 
-        chiave_descrizione = parametro_risolto.legacy_description_key
         range_valori = parametro_risolto.range_value
         if range_valori:
             descrizione = (
