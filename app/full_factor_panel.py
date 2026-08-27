@@ -5,6 +5,7 @@ import streamlit as st
 
 from app import i18n
 from app.data_sources import load_tabelle_correzione
+from app.device_mode import full_device_is_mobile
 from app.factor_calc import DressCounts, compute_factor, fattore_vestiti_coperte
 from app.factor_ui_states import (
     LAYER_THIN,
@@ -139,6 +140,7 @@ def _render_factor_panel(
     surface_label,
     surface_legacy_value,
     mobile: bool,
+    full_mobile: bool = False,
 ):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -183,21 +185,62 @@ def _render_factor_panel(
         )
         return result, peso_eff, True
 
-    if mobile:
+    if full_mobile:
+        # Streamlit 1.62 permette una vera riga orizzontale non spezzabile.
+        # Le stesse chiavi di stato restano usate anche su desktop.
+        st.markdown(
+            f"""
+            <style>
+            @media (max-width: 768px) {{
+              [class*="st-key-{key_prefix}_switch_row"][data-testid="stHorizontalBlock"],
+              [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"] {{
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+              }}
+              [class*="st-key-{key_prefix}_switch_row"] [data-testid="stToggle"] {{
+                width: max-content !important;
+                max-width: max-content !important;
+                min-width: max-content !important;
+              }}
+              [class*="st-key-{key_prefix}_switch_row"] label,
+              [class*="st-key-{key_prefix}_switch_row"] label p {{
+                white-space: nowrap !important;
+              }}
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            gap="xsmall",
+            key=k("switch_row"),
+        ):
+            with st.container(width="content", key=k("vest_slot")):
+                toggle_vestito = st.toggle(
+                    "Vestiti/coperte",
+                    key=k("toggle_vestito"), value=False
+                )
+            with st.container(width="content", key=k("corr_slot")):
+                corr_placeholder = st.empty()
+    elif mobile:
         col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
-    else:
-        col_corr, col_vest = st.columns([1.0, 1.3])
-
-    with col_corr:
-        corr_placeholder = st.empty()
-    with col_vest:
-        if mobile:
+        with col_corr:
+            corr_placeholder = st.empty()
+        with col_vest:
             toggle_vestito = st.toggle(
                 i18n.ui_text("msil.clothed_covered"),
                 value=st.session_state.get(k("toggle_vestito"), False),
                 key=k("toggle_vestito")
             )
-        else:
+    else:
+        col_corr, col_vest = st.columns([1.0, 1.3])
+        with col_corr:
+            corr_placeholder = st.empty()
+        with col_vest:
             toggle_vestito = st.toggle(
                 i18n.ui_text("full.clothed_covered"),
                 key=k("toggle_vestito"), value=False
@@ -289,7 +332,7 @@ def _render_factor_panel(
             if mobile:
                 toggle_kwargs["value"] = st.session_state.get(k("toggle_correnti_fc"), False)
             correnti_presenti = st.toggle(
-                i18n.ui_text(f"{scope}.air_currents"),
+                "Correnti d'aria" if full_mobile else i18n.ui_text(f"{scope}.air_currents"),
                 **toggle_kwargs
             )
 
@@ -319,6 +362,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         surface_label=full_surface_label,
         surface_legacy_value=full_surface_legacy_value,
         mobile=False,
+        full_mobile=full_device_is_mobile(),
     )
 
     _fc_box(result.fattore_finale, result.fattore_base, peso_eff)
