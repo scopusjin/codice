@@ -311,7 +311,18 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   }
 
   /* Pannello Suggerisci FC della schermata completa. I prefissi std/caut sono
-     distinti da fcpanel_mobile usato dalla MSIL. */
+     distinti da fcpanel_mobile usato dalla MSIL. Il bordo esterno del blocco
+     Raffreddamento resta; sul mobile si elimina soltanto il bordo annidato del
+     pannello FC per evitare riquadri dentro riquadri. */
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])),
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])) {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0.10rem 0 !important;
+  }
+
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
   [data-testid="stVerticalBlock"],
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"])
@@ -319,13 +330,36 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     gap: clamp(0.24rem, 1.1vw, 0.42rem) !important;
   }
 
+  /* I tre stati del corpo devono restare sempre sulla stessa riga, anche sui
+     telefoni più stretti. */
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
   div[role="radiogroup"],
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"])
   div[role="radiogroup"] {
     display: flex !important;
-    flex-wrap: wrap !important;
-    gap: clamp(0.18rem, 1vw, 0.34rem) !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: clamp(0.08rem, 0.7vw, 0.18rem) !important;
+    width: 100% !important;
+  }
+
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
+  div[role="radiogroup"] > label,
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"])
+  div[role="radiogroup"] > label {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
+  div[role="radiogroup"] > label p,
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"])
+  div[role="radiogroup"] > label p {
+    font-size: clamp(0.74rem, 3.3vw, 0.84rem) !important;
+    white-space: nowrap !important;
   }
 
   [data-testid="stHorizontalBlock"]:has([class*="st-key-fcpanel_std_toggle_vestito"]),
@@ -410,7 +444,7 @@ def _render_click_help(text: str, key: str) -> None:
         escaped = html.escape(line)
         css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
         blocks.append(f'<div class="{css_class}">{escaped}</div>')
-    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
+    content = f'<div class="mortem-help-copy'>{"".join(blocks)}</div>'
 
     with st.container(width="content", key=key):
         with st.popover("?"):
