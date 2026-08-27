@@ -109,6 +109,25 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     box-shadow: none !important;
     background: rgba(33, 150, 243, 0.055) !important;
   }
+
+  /* Il pannello FC mobile usa meno spazio verticale tra stato del corpo,
+     switch e superficie di appoggio. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"][data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
+    gap: 0.16rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
+    margin-top: -0.12rem !important;
+    margin-bottom: -0.12rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
 }
 </style>
 """

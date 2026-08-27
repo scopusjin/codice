@@ -113,6 +113,18 @@ def _safe_int(x):
         return 0
 
 
+_FULL_MOBILE_SURFACE_PLACEHOLDER = "Superficie di appoggio"
+
+
+def _full_mobile_surface_caption(value: str) -> str:
+    if value == _FULL_MOBILE_SURFACE_PLACEHOLDER:
+        return value
+    text = str(value).rstrip(".")
+    if not text:
+        return text
+    return f"Su {text[:1].lower()}{text[1:]}"
+
+
 def _panel_weight(peso_default: float, mobile: bool) -> float:
     if not mobile:
         return float(st.session_state.get("peso", peso_default))
@@ -297,6 +309,7 @@ def _render_factor_panel(
         coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
     )
 
+    surface_placeholder_selected = False
     superficie_display_selected = None if mobile else "/"
     if stato_corpo == "Asciutto":
         nudo_eff = ((not toggle_vestito)
@@ -305,22 +318,38 @@ def _render_factor_panel(
         if not nudo_eff:
             excluded_surface = surface_label(SURFACE_THICK_METAL_OUTDOOR)
             options_display = [o for o in options_display if o != excluded_surface]
+
+        select_options = options_display
+        if full_mobile:
+            select_options = [_FULL_MOBILE_SURFACE_PLACEHOLDER, *options_display]
+
         prev_display = st.session_state.get(k("superficie_display_sel"))
-        if prev_display not in options_display:
-            prev_display = options_display[0]
+        if prev_display not in select_options:
+            prev_display = _FULL_MOBILE_SURFACE_PLACEHOLDER if full_mobile else options_display[0]
 
         select_kwargs = dict(
-            index=options_display.index(prev_display),
+            index=select_options.index(prev_display),
             key=k("superficie_display_sel")
         )
         if mobile:
             select_kwargs["label_visibility"] = "visible"
+        elif full_mobile:
+            select_kwargs["label_visibility"] = "collapsed"
+            select_kwargs["format_func"] = _full_mobile_surface_caption
+
         superficie_display_label = st.selectbox(
             i18n.ui_text(f"{scope}.support_surface"),
-            options_display,
+            select_options,
             **select_kwargs
         )
-        superficie_display_selected = surface_legacy_value(superficie_display_label)
+        if full_mobile and superficie_display_label == _FULL_MOBILE_SURFACE_PLACEHOLDER:
+            # Placeholder neutro: nessun effetto proprio della superficie.
+            # Per le correnti mantiene la stessa classe INDIFFERENTE del
+            # precedente default (prima superficie dell'elenco).
+            surface_placeholder_selected = True
+            superficie_display_selected = surface_legacy_value(options_display[0])
+        else:
+            superficie_display_selected = surface_legacy_value(superficie_display_label)
 
     correnti_presenti = False
     with corr_placeholder.container():
@@ -346,6 +375,8 @@ def _render_factor_panel(
         peso=peso_eff,
         tabella2_df=tabella2
     )
+    if full_mobile and surface_placeholder_selected:
+        result.riassunto["superficie"] = "/"
     return result, peso_eff, False
 
 
