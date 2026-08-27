@@ -1,0 +1,263 @@
+name: Temporary mobile cooling structural patch
+
+on:
+  push:
+    branches:
+      - tmp-mobile-cooling-structural
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-mobile-cooling-structural
+          fetch-depth: 0
+
+      - name: Apply exact structural patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          app_path = Path("Stima_epoca_decesso.py")
+          text = app_path.read_text(encoding="utf-8")
+
+          import_old = "from app.full_factor_panel import pannello_suggerisci_fc\n"
+          import_new = import_old + "from app.device_mode import full_device_is_mobile\n"
+          assert text.count(import_old) == 1
+          assert "from app.device_mode import full_device_is_mobile\n" not in text
+          text = text.replace(import_old, import_new, 1)
+
+          heading_old = '''with st.container(border=True):
+              st.markdown(
+                  f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                  unsafe_allow_html=True,
+              )
+
+              henssge_non_app = st.checkbox(
+                  i18n.ui_text("full.henssge_not_applicable"),
+                  key="henssge_non_applicabile",
+                  help=i18n.ui_text("full.henssge_not_applicable_help"),
+              )
+          '''
+          heading_new = '''full_mobile = full_device_is_mobile()
+          with st.container(border=True):
+              if full_mobile:
+                  with st.container(
+                      horizontal=True,
+                      wrap=False,
+                      horizontal_alignment="distribute",
+                      vertical_alignment="center",
+                      gap="small",
+                      key="cooling_heading_row_mobile",
+                  ):
+                      with st.container(width="stretch", key="cooling_heading_title_mobile"):
+                          st.markdown(
+                              f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                              unsafe_allow_html=True,
+                          )
+                      with st.container(width="content", key="cooling_heading_actions_mobile"):
+                          henssge_non_app = st.checkbox(
+                              i18n.ui_text("full.henssge_not_applicable"),
+                              key="henssge_non_applicabile",
+                              help=i18n.ui_text("full.henssge_not_applicable_help"),
+                          )
+              else:
+                  st.markdown(
+                      f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                      unsafe_allow_html=True,
+                  )
+                  henssge_non_app = st.checkbox(
+                      i18n.ui_text("full.henssge_not_applicable"),
+                      key="henssge_non_applicabile",
+                      help=i18n.ui_text("full.henssge_not_applicable_help"),
+                  )
+          '''
+          assert text.count(heading_old) == 1
+          text = text.replace(heading_old, heading_new, 1)
+
+          panel_old = '''    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
+              if st.session_state.get("toggle_fattore", False):
+                  with st.container(border=True):
+                      pannello_suggerisci_fc(
+                          peso_default=st.session_state.get("peso", 70.0),
+                          key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                      )
+          '''
+          panel_new = '''    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
+              if st.session_state.get("toggle_fattore", False):
+                  if full_mobile:
+                      with st.container(border=False, key="full_fc_panel_mobile"):
+                          pannello_suggerisci_fc(
+                              peso_default=st.session_state.get("peso", 70.0),
+                              key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                          )
+                  else:
+                      with st.container(border=True):
+                          pannello_suggerisci_fc(
+                              peso_default=st.session_state.get("peso", 70.0),
+                              key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+                          )
+          '''
+          assert text.count(panel_old) == 1
+          text = text.replace(panel_old, panel_new, 1)
+          app_path.write_text(text, encoding="utf-8")
+
+          compact = r'''# -*- coding: utf-8 -*-
+          """Regole di compattezza aggiuntive per la sola Full mobile."""
+
+          import streamlit as st
+
+
+          _FULL_MOBILE_COMPACT_CSS = r"""
+          <style>
+          @media (max-width: 768px) {
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
+              padding: 0.42rem 0.34rem !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-cooling_heading_row_mobile"] {
+              width: 100% !important;
+              min-width: 0 !important;
+              flex-wrap: nowrap !important;
+              align-items: center !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-cooling_heading_title_mobile"] {
+              flex: 1 1 auto !important;
+              min-width: 0 !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-cooling_heading_actions_mobile"] {
+              flex: 0 0 auto !important;
+              width: max-content !important;
+              min-width: max-content !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] {
+              width: max-content !important;
+              min-width: max-content !important;
+              gap: 0.10rem !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              justify-content: flex-end !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
+              width: 1.55rem !important;
+              min-width: 1.55rem !important;
+              max-width: 1.55rem !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help-row-henssge"] [data-testid="stCheckbox"] label,
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
+              position: relative !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              width: 1.55rem !important;
+              min-width: 1.55rem !important;
+              height: 1.55rem !important;
+              min-height: 1.55rem !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              cursor: pointer !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
+              position: absolute !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
+              content: "⦸";
+              position: static !important;
+              display: block !important;
+              font-size: 1.22rem !important;
+              line-height: 1 !important;
+              font-weight: 500 !important;
+              opacity: 0.58;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label:has(input:checked)::after {
+              opacity: 1 !important;
+              color: #c62828 !important;
+              font-weight: 700 !important;
+            }
+
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [class*="st-key-full_fc_panel_mobile"] {
+              width: 100% !important;
+              min-width: 0 !important;
+              margin: 0 !important;
+              padding: 0.34rem 0.24rem !important;
+              border: 0 !important;
+              border-radius: 0.55rem !important;
+              box-shadow: none !important;
+              background: rgba(33, 150, 243, 0.055) !important;
+            }
+          }
+          </style>
+          """
+
+
+          def install_full_mobile_compact_css() -> None:
+              """Allega le regole al CSS iniziale della Full, senza render tardivi."""
+              if getattr(st, "_full_mobile_compact_css_installed", False):
+                  return
+
+              original_markdown = st.markdown
+
+              def markdown_with_full_mobile_compact_css(body, *args, **kwargs):
+                  if isinstance(body, str) and ".final-text{" in body:
+                      body = body + _FULL_MOBILE_COMPACT_CSS
+                      kwargs["unsafe_allow_html"] = True
+                  return original_markdown(body, *args, **kwargs)
+
+              st.markdown = markdown_with_full_mobile_compact_css
+              st._full_mobile_compact_css_installed = True
+          '''
+          compact = "\n".join(line[10:] if line.startswith("          ") else line for line in compact.splitlines()) + "\n"
+          Path("app/full_mobile_compact.py").write_text(compact, encoding="utf-8")
+          PY
+
+      - name: Check diff and syntax
+        shell: bash
+        run: |
+          git diff --check
+          python -m compileall -q Stima_epoca_decesso.py app/full_mobile_compact.py
+          git diff -- Stima_epoca_decesso.py app/full_mobile_compact.py
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Stima_epoca_decesso.py app/full_mobile_compact.py
+          git commit -m "Rende strutturale il layout raffreddamento mobile"
+          git push origin HEAD:tmp-mobile-cooling-structural
