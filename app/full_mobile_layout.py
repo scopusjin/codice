@@ -444,7 +444,7 @@ def _render_click_help(text: str, key: str) -> None:
         escaped = html.escape(line)
         css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
         blocks.append(f'<div class="{css_class}">{escaped}</div>')
-    content = f'<div class="mortem-help-copy'>{"".join(blocks)}</div>'
+    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
 
     with st.container(width="content", key=key):
         with st.popover("?"):
