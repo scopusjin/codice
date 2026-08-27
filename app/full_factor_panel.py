@@ -43,14 +43,25 @@ def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
         f'{i18n.ui_text("full.fc_suggested", value=f_finale)}'
         f'</div>'
     )
-    side = ""
+    side_text = ""
     if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
+        side_text = i18n.ui_text(
+            "full.fc_adjusted_for_weight", weight=peso_corrente, base=f_base
+        )
+
+    if full_device_is_mobile() and side_text:
+        st.markdown(main, unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
+            unsafe_allow_html=True,
+        )
+    else:
         side = (
             f'<div style="color:{pal["note"]};padding:10px 2px 0 2px;font-size:0.92em;">'
-            f'{i18n.ui_text("full.fc_adjusted_for_weight", weight=peso_corrente, base=f_base)}'
+            f'{side_text}'
             f'</div>'
-        )
-    st.markdown(main + side, unsafe_allow_html=True)
+        ) if side_text else ""
+        st.markdown(main + side, unsafe_allow_html=True)
 
 
 def _sync_fc_range_from_suggestions():
@@ -241,12 +252,12 @@ def _render_factor_panel(
                     st.markdown(
                         """
                         <div class="mortem-help-copy">
-                          <div class="mortem-help-copy-intro">Esempi orientativi per distinguere gli strati:</div>
-                          <div class="mortem-help-copy-bullet">• Strati leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
-                          <div class="mortem-help-copy-bullet">• Strati pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
+                          <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>
+                          <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
+                          <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
                           <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
                           <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
-                          <div class="mortem-help-copy-intro">Conta separatamente gli strati effettivamente presenti sul corpo.</div>
+                          <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>
                         </div>
                         """,
                         unsafe_allow_html=True,
@@ -282,13 +293,13 @@ def _render_factor_panel(
 
         if full_mobile:
             n_sottili = _safe_int(st.number_input(
-                "Strati leggeri",
+                "Vestiti/teli leggeri",
                 value=st.session_state.get(k("strati_sottili"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_sottili"), label_visibility="collapsed",
             ))
             n_spessi = _safe_int(st.number_input(
-                "Strati pesanti",
+                "Vestiti/teli pesanti",
                 value=st.session_state.get(k("strati_spessi"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_spessi"), label_visibility="collapsed",

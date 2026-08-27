@@ -123,8 +123,8 @@ _FULL_MOBILE_COMPACT_CSS = r"""
   [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
-    margin-top: -0.12rem !important;
-    margin-bottom: -0.12rem !important;
+    margin-top: 0.12rem !important;
+    margin-bottom: -0.08rem !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
   }
@@ -173,6 +173,86 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     background: color-mix(in srgb, var(--st-secondary-background-color) 86%, var(--st-primary-color) 14%) !important;
     border-color: color-mix(in srgb, var(--st-primary-color) 38%, transparent) !important;
   }
+
+
+/* Rifiniture finali pannello FC Full mobile. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_switch_row"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_switch_row"] {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_corr_slot"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_corr_slot"] {
+  width: max-content !important;
+  min-width: max-content !important;
+  margin-left: auto !important;
+}
+
+/* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_decimal_"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_decimal_"] iframe {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_"]) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.mortem-fc-weight-note-mobile {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0.06rem 0 0.20rem 0;
+  padding: 0.10rem 0.12rem 0.16rem 0.12rem;
+  font-size: 0.80rem;
+  line-height: 1.28;
+  white-space: normal;
+  overflow: visible;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stElementContainer"]:has(.mortem-fc-weight-note-mobile) {
+  width: 100% !important;
+  overflow: visible !important;
+  margin-bottom: 0.10rem !important;
+}
+
+/* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_surface_select_mobile"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_surface_select_mobile"] {
+  padding: 0.07rem !important;
+  border: 1px solid color-mix(in srgb, var(--st-primary-color) 62%, transparent) !important;
+  border-radius: 0.58rem !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 68%, var(--st-primary-color) 32%) !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+  background: color-mix(in srgb, var(--st-secondary-background-color) 72%, var(--st-primary-color) 28%) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
 }
 </style>
 """
