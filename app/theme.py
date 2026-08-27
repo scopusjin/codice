@@ -18,7 +18,6 @@ def _getopt(key, default=None):
 # ------------------------------------------------------------
 def theme_colors():
     base = (_getopt("theme.base", "light") or "light").lower()
-    custom = _getopt(f"theme.custom.{base}", {}) or {}
 
     # Default per Opzione 3 (Acquamarina soft)
     default_out_bg     = "#153A33" if base == "dark" else "#E6F1EF"
@@ -32,20 +31,20 @@ def theme_colors():
 
         # Pulsanti blu unificati
         "Btn":        _getopt("theme.primaryColor", "#0284C7"),
-        "BtnHover":   custom.get("buttonHover",   "#0369A1"),
-        "BtnActive":  custom.get("buttonActive",  "#0C4A6E"),
-        "BtnText":    custom.get("buttonText",    "#FFFFFF"),
-        "FocusRing":  custom.get("focusRing",     "rgba(34,211,238,0.45)"),
+        "BtnHover":   "#0369A1",
+        "BtnActive":  "#0C4A6E",
+        "BtnText":    "#FFFFFF",
+        "FocusRing":  "rgba(34,211,238,0.45)",
 
         # Output verdi soft (Opzione 3) per contenitori dedicati
-        "OutBg":      custom.get("outputBg",      default_out_bg),
-        "OutBorder":  custom.get("outputBorder",  default_out_border),
-        "OutText":    custom.get("outputText",    default_out_text),
+        "OutBg":      default_out_bg,
+        "OutBorder":  default_out_border,
+        "OutText":    default_out_text,
 
         # Avvisi
-        "WarnBg":     custom.get("warnBg",        "#fff3cd"),
-        "WarnText":   custom.get("warnText",      "#664d03"),
-        "WarnBorder": custom.get("warnBorder",    "#ffda6a"),
+        "WarnBg":     "#fff3cd",
+        "WarnText":   "#664d03",
+        "WarnBorder": "#ffda6a",
     }
 
 # ------------------------------------------------------------
