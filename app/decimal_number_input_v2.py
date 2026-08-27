@@ -15,6 +15,14 @@ _FULL_MOBILE_COMPONENT_KEYS = {
     "mortem_decimal_fattore_correzione",
     "mortem_decimal_fc_min_val",
     "mortem_decimal_fc_other_val",
+    "mortem_decimal_fcpanel_std_strati_sottili",
+    "mortem_decimal_fcpanel_std_strati_spessi",
+    "mortem_decimal_fcpanel_std_coperte_medie",
+    "mortem_decimal_fcpanel_std_coperte_pesanti",
+    "mortem_decimal_fcpanel_caut_strati_sottili",
+    "mortem_decimal_fcpanel_caut_strati_spessi",
+    "mortem_decimal_fcpanel_caut_coperte_medie",
+    "mortem_decimal_fcpanel_caut_coperte_pesanti",
 }
 
 _HTML = r"""

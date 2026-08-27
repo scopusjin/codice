@@ -265,44 +265,71 @@ def _render_factor_panel(
         label_coperte_medie = clothing_label(BLANKET_MEDIUM)
         label_coperte_pesanti = clothing_label(BLANKET_HEAVY)
 
-        item_col = i18n.ui_text("msil.item_column") if mobile else "--"
-        count_col = i18n.ui_text(f"{scope}.count_column")
-        defaults = {
-            label_sottili: st.session_state.get(k("strati_sottili"), 0),
-            label_spessi: st.session_state.get(k("strati_spessi"), 0),
-        }
-        if stato_corpo == "Asciutto":
-            defaults.update({
-                label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
-                label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
-            })
-
-        df = pd.DataFrame([{item_col: nome, count_col: val} for nome, val in defaults.items()])
-        if not mobile:
-            st.markdown("""
-            <style>
-            [data-testid="stDataFrameContainer"] thead {display: none;}
-            [data-testid="stElementToolbar"] {display: none;}
-            [data-testid="stDataFrameContainer"] tbody th {display: none;}
-            </style>
-            """, unsafe_allow_html=True)
-
-        edited = st.data_editor(
-            df, hide_index=True, use_container_width=True,
-            column_config={
-                item_col: st.column_config.TextColumn(disabled=True, width="medium"),
-                count_col: st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
-            },
-        )
-        if mobile:
-            vals = {r[item_col]: _safe_int(r[count_col]) for _, r in edited.iterrows()}
+        if full_mobile:
+            n_sottili = _safe_int(st.number_input(
+                label_sottili,
+                value=st.session_state.get(k("strati_sottili"), 0),
+                min_value=0, max_value=8, step=1, format="%.0f",
+                key=k("strati_sottili"), label_visibility="collapsed",
+            ))
+            n_spessi = _safe_int(st.number_input(
+                label_spessi,
+                value=st.session_state.get(k("strati_spessi"), 0),
+                min_value=0, max_value=8, step=1, format="%.0f",
+                key=k("strati_spessi"), label_visibility="collapsed",
+            ))
+            if stato_corpo == "Asciutto":
+                n_cop_medie = _safe_int(st.number_input(
+                    label_coperte_medie,
+                    value=st.session_state.get(k("coperte_medie"), 0),
+                    min_value=0, max_value=8, step=1, format="%.0f",
+                    key=k("coperte_medie"), label_visibility="collapsed",
+                ))
+                n_cop_pesanti = _safe_int(st.number_input(
+                    label_coperte_pesanti,
+                    value=st.session_state.get(k("coperte_pesanti"), 0),
+                    min_value=0, max_value=8, step=1, format="%.0f",
+                    key=k("coperte_pesanti"), label_visibility="collapsed",
+                ))
         else:
-            vals = {r[item_col]: int(r[count_col] or 0) for _, r in edited.iterrows()}
+            item_col = i18n.ui_text("msil.item_column") if mobile else "--"
+            count_col = i18n.ui_text(f"{scope}.count_column")
+            defaults = {
+                label_sottili: st.session_state.get(k("strati_sottili"), 0),
+                label_spessi: st.session_state.get(k("strati_spessi"), 0),
+            }
+            if stato_corpo == "Asciutto":
+                defaults.update({
+                    label_coperte_medie: st.session_state.get(k("coperte_medie"), 0),
+                    label_coperte_pesanti: st.session_state.get(k("coperte_pesanti"), 0),
+                })
 
-        n_sottili = vals.get(label_sottili, 0)
-        n_spessi = vals.get(label_spessi, 0)
-        n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get(label_coperte_pesanti, 0) if stato_corpo == "Asciutto" else 0
+            df = pd.DataFrame([{item_col: nome, count_col: val} for nome, val in defaults.items()])
+            if not mobile:
+                st.markdown("""
+                <style>
+                [data-testid="stDataFrameContainer"] thead {display: none;}
+                [data-testid="stElementToolbar"] {display: none;}
+                [data-testid="stDataFrameContainer"] tbody th {display: none;}
+                </style>
+                """, unsafe_allow_html=True)
+
+            edited = st.data_editor(
+                df, hide_index=True, use_container_width=True,
+                column_config={
+                    item_col: st.column_config.TextColumn(disabled=True, width="medium"),
+                    count_col: st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
+                },
+            )
+            if mobile:
+                vals = {r[item_col]: _safe_int(r[count_col]) for _, r in edited.iterrows()}
+            else:
+                vals = {r[item_col]: int(r[count_col] or 0) for _, r in edited.iterrows()}
+
+            n_sottili = vals.get(label_sottili, 0)
+            n_spessi = vals.get(label_spessi, 0)
+            n_cop_medie = vals.get(label_coperte_medie, 0) if stato_corpo == "Asciutto" else 0
+            n_cop_pesanti = vals.get(label_coperte_pesanti, 0) if stato_corpo == "Asciutto" else 0
 
     counts = DressCounts(
         sottili=n_sottili, spessi=n_spessi,

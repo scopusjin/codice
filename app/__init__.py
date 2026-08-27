@@ -26,6 +26,14 @@ _decimal_keys = {
     "rt_val_widget",
     "ta_base_val_widget",
     "peso_widget",
+    "fcpanel_std_strati_sottili",
+    "fcpanel_std_strati_spessi",
+    "fcpanel_std_coperte_medie",
+    "fcpanel_std_coperte_pesanti",
+    "fcpanel_caut_strati_sottili",
+    "fcpanel_caut_strati_spessi",
+    "fcpanel_caut_coperte_medie",
+    "fcpanel_caut_coperte_pesanti",
 }
 _msil_widget_state_keys = {
     "rt_val_widget": "rt_val",
@@ -41,6 +49,14 @@ _full_mobile_units = {
     "fattore_correzione": "",
     "fc_min_val": "",
     "fc_other_val": "",
+    "fcpanel_std_strati_sottili": "",
+    "fcpanel_std_strati_spessi": "",
+    "fcpanel_std_coperte_medie": "",
+    "fcpanel_std_coperte_pesanti": "",
+    "fcpanel_caut_strati_sottili": "",
+    "fcpanel_caut_strati_spessi": "",
+    "fcpanel_caut_coperte_medie": "",
+    "fcpanel_caut_coperte_pesanti": "",
 }
 _number_input_original = st.number_input
 _dg_number_input_original = DeltaGenerator.number_input
