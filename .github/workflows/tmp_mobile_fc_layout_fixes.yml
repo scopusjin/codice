@@ -23,17 +23,18 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import textwrap
 
           panel_path = Path('app/full_factor_panel.py')
           panel = panel_path.read_text(encoding='utf-8')
 
-          # Nota di adattamento peso: su Full mobile diventa un elemento separato
-          # per evitare compressioni/sovrapposizioni con il bottone successivo.
+          # Nota di adattamento peso separata su Full mobile.
           fc_start = panel.index('def _fc_box(')
           fc_end = panel.index('\n\ndef _sync_fc_range_from_suggestions', fc_start)
           old_fc = panel[fc_start:fc_end]
           assert 'st.markdown(main + side, unsafe_allow_html=True)' in old_fc
-          new_fc = '''def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
+          new_fc = textwrap.dedent('''
+          def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
               pal = _fc_palette()
               main = (
                   f'<div style="background:{pal["bg"]};color:{pal["text"]};'
@@ -61,82 +62,27 @@ jobs:
                       f'</div>'
                   ) if side_text else ""
                   st.markdown(main + side, unsafe_allow_html=True)
-          '''
-          import textwrap
-          new_fc = textwrap.dedent(new_fc)
+          ''').lstrip()
           panel = panel[:fc_start] + new_fc + panel[fc_end:]
 
-          # Switch: gruppo vestiti+helper a sinistra, correnti realmente a destra.
-          switch_start_marker = (
-              '        with st.container(\n'
-              '            horizontal=True,\n'
-              '            wrap=False,\n'
-              '            gap="xsmall",\n'
-              '            key=k("switch_row"),\n'
-              '        ):\n'
-          )
-          switch_start = panel.index(switch_start_marker)
-          switch_end = panel.index('    elif mobile:\n', switch_start)
-          old_switch = panel[switch_start:switch_end]
-          assert old_switch.count('Vestiti/coperte') == 1
-          assert 'key=k("vest_help_slot")' in old_switch
-          new_switch = '''        with st.container(
-              horizontal=True,
-              wrap=False,
-              horizontal_alignment="distribute",
-              vertical_alignment="center",
-              gap="small",
-              key=k("switch_row"),
-          ):
-              with st.container(
-                  horizontal=True,
-                  wrap=False,
-                  vertical_alignment="center",
-                  gap="xsmall",
-                  width="content",
-                  key=k("vest_group"),
-              ):
-                  with st.container(width="content", key=k("vest_slot")):
-                      toggle_vestito = st.toggle(
-                          "Vestiti/coperte",
-                          key=k("toggle_vestito"), value=False
-                      )
-                  with st.container(width="content", key=k("vest_help_slot")):
-                      with st.popover("?"):
-                          st.markdown(
-                              """
-                              <div class="mortem-help-copy">
-                                <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>
-                                <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
-                                <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
-                                <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
-                                <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
-                                <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>
-                              </div>
-                              """,
-                              unsafe_allow_html=True,
-                          )
-              with st.container(width="content", key=k("corr_slot")):
-                  corr_placeholder = st.empty()
-          '''
-          new_switch = textwrap.dedent(new_switch)
-          # Ripristina le 8 colonne iniziali del ramo if full_mobile.
-          new_switch = ''.join(('        ' + line if line.strip() else line) for line in new_switch.splitlines(keepends=True))
-          panel = panel[:switch_start] + new_switch + panel[switch_end:]
-
-          replacements = {
+          # Testi mobile più leggibili senza cambiare le etichette desktop/MSIL.
+          text_replacements = {
+              'Esempi orientativi per distinguere gli strati:': 'Esempi orientativi per classificare vestiti, teli e coperte:',
+              '• Strati leggeri: T-shirt, camicia, lenzuolo o telo sottile.': '• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.',
+              '• Strati pesanti: maglione, felpa pesante, giacca o telo spesso.': '• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.',
+              'Conta separatamente gli strati effettivamente presenti sul corpo.': 'Conta separatamente ogni strato effettivamente presente sul corpo.',
               '                "Strati leggeri",': '                "Vestiti/teli leggeri",',
               '                "Strati pesanti",': '                "Vestiti/teli pesanti",',
           }
-          for old, new in replacements.items():
+          for old, new in text_replacements.items():
               assert panel.count(old) == 1, (old, panel.count(old))
               panel = panel.replace(old, new, 1)
-
           panel_path.write_text(panel, encoding='utf-8')
 
           compact_path = Path('app/full_mobile_compact.py')
           compact = compact_path.read_text(encoding='utf-8')
 
+          # Un po' più aria tra stato del corpo e riga switch.
           assert compact.count('margin-top: -0.12rem !important;') == 1
           assert compact.count('margin-bottom: -0.12rem !important;') == 1
           compact = compact.replace('margin-top: -0.12rem !important;', 'margin-top: 0.12rem !important;', 1)
@@ -145,7 +91,7 @@ jobs:
           close_marker = '}\n</style>\n"""'
           close_at = compact.rfind(close_marker)
           assert close_at > 0
-          extra_css = r'''
+          extra_css = textwrap.dedent(r'''
 
           /* Rifiniture finali pannello FC Full mobile. */
           body:has([class*="st-key-stima_cautelativa_beta"])
@@ -154,16 +100,6 @@ jobs:
           [class*="st-key-fcpanel_caut_switch_row"] {
             width: 100% !important;
             min-width: 0 !important;
-          }
-
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-fcpanel_std_vest_group"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-fcpanel_caut_vest_group"] {
-            width: max-content !important;
-            min-width: max-content !important;
-            flex-wrap: nowrap !important;
-            align-items: center !important;
           }
 
           body:has([class*="st-key-stima_cautelativa_beta"])
@@ -235,8 +171,7 @@ jobs:
             border-color: transparent !important;
             box-shadow: none !important;
           }
-          '''
-          extra_css = textwrap.dedent(extra_css)
+          ''')
           compact = compact[:close_at] + extra_css + compact[close_at:]
           compact_path.write_text(compact, encoding='utf-8')
           PY
@@ -252,8 +187,6 @@ jobs:
           compact = Path('app/full_mobile_compact.py').read_text(encoding='utf-8')
           assert 'Vestiti/teli leggeri' in panel
           assert 'Vestiti/teli pesanti' in panel
-          assert 'horizontal_alignment="distribute"' in panel
-          assert 'key=k("vest_group")' in panel
           assert 'mortem-fc-weight-note-mobile' in panel
           assert 'margin-left: auto !important;' in compact
           assert 'align-self: stretch !important;' in compact
