@@ -1,6 +1,9 @@
 import unittest
 
+from streamlit.testing.v1 import AppTest
+
 from app.decimal_number_input_v2 import (
+    _component_instance_key,
     _get_renderer,
     is_full_mobile_v2_key,
     mobile_decimal_v2_available,
@@ -32,6 +35,49 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
             None,
         ):
             self.assertFalse(is_full_mobile_v2_key(key))
+
+    def test_v2_component_key_avoids_reserved_event_delimiter(self):
+        component_key = _component_instance_key("mortem_decimal_rt_val")
+        self.assertEqual(component_key, "mortem_decimal_rt_val-v2")
+        self.assertNotIn("__", component_key)
+
+    def test_v2_mounts_and_reruns_without_streamlit_exception(self):
+        script = r'''
+from app.decimal_number_input_v2 import render_mobile_decimal_v2
+
+for key, label, value in (
+    ("mortem_decimal_rt_val", "T. rettale", 35.0),
+    ("mortem_decimal_tm_val", "T. ante-mortem", 37.0),
+):
+    render_mobile_decimal_v2(
+        value=value,
+        step=0.1,
+        decimals=1,
+        min_value=None,
+        max_value=None,
+        disabled=False,
+        sync_token=0,
+        aria_label=label,
+        compact_label=label,
+        unit="°C",
+        help_enabled=False,
+        help_state_key=None,
+        suggest_enabled=False,
+        suggest_label="",
+        suggest_active=False,
+        on_suggest=None,
+        on_change=None,
+        key=key,
+    )
+'''
+        app = AppTest.from_string(script)
+        app.run(timeout=10)
+        first_errors = [str(item) for item in app.exception]
+        self.assertEqual(first_errors, [])
+
+        app.run(timeout=10)
+        rerun_errors = [str(item) for item in app.exception]
+        self.assertEqual(rerun_errors, [])
 
 
 if __name__ == "__main__":
