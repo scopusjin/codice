@@ -298,8 +298,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   height: 2.15rem !important;
   min-height: 2.15rem !important;
   max-height: 2.15rem !important;
-  gap: 0 !important;
+  gap: 0.34rem !important;
   align-items: center !important;
+  justify-content: flex-start !important;
   overflow: hidden !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -308,8 +309,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_value_mobile"] {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -343,13 +345,14 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   height: 1.86rem !important;
   min-height: 1.86rem !important;
   max-height: 1.86rem !important;
-  margin: 0 0.12rem 0 0 !important;
-  padding: 0 0.58rem !important;
-  border: 1px solid var(--st-primary-color) !important;
+  margin: 0 !important;
+  padding: 0 0.62rem !important;
+  border: 1.5px solid var(--st-primary-color) !important;
   border-radius: 0.44rem !important;
-  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;
-  color: var(--st-text-color) !important;
-  font-weight: 650 !important;
+  background: var(--st-secondary-background-color) !important;
+  color: var(--st-primary-color) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color) 14%, transparent) !important;
+  font-weight: 700 !important;
   white-space: nowrap !important;
 }
 
@@ -357,8 +360,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button p,
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button span {
-  color: var(--st-text-color) !important;
-  font-weight: 650 !important;
+  color: var(--st-primary-color) !important;
+  font-weight: 700 !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -376,7 +379,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   padding: 0 !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
 }
 
 .mortem-fc-weight-note-mobile {

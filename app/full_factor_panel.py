@@ -494,11 +494,17 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         st.session_state["toggle_fattore"] = False
         st.session_state["fc_riassunto_contatori"] = riass
 
+    def _apply_fc_range(val: float) -> None:
+        add_fc_suggestion_global(val)
+        st.session_state["toggle_fattore_inline"] = False
+        st.session_state["toggle_fattore"] = False
+        st.session_state.pop("__full_fc_suggest_target", None)
+
     suffix = "_imm" if immersed else ""
     range_mode = st.session_state.get("range_unico_beta", False)
     full_mobile = full_device_is_mobile()
 
-    if full_mobile and not range_mode:
+    if full_mobile:
         side_text = ""
         if (
             result.fattore_base is not None
@@ -509,25 +515,28 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
             )
 
+        apply_callback = _apply_fc_range if range_mode else _apply_fc
+        apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+
         with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
             with st.container(
                 horizontal=True,
                 wrap=False,
-                horizontal_alignment="distribute",
+                horizontal_alignment="left",
                 vertical_alignment="center",
-                gap=None,
+                gap="small",
                 key=f"{key_prefix}_fc_apply_row_mobile",
             ):
-                with st.container(width="stretch", key=f"{key_prefix}_fc_apply_value_mobile"):
+                with st.container(width="content", key=f"{key_prefix}_fc_apply_value_mobile"):
                     st.markdown(
                         f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
                         unsafe_allow_html=True,
                     )
                 with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
                     st.button(
-                        "→ Usa",
+                        "Usalo",
                         type="secondary",
-                        on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
+                        on_click=apply_callback, args=apply_args,
                         key=f"{key_prefix}_btn_usa_fc{suffix}",
                     )
             if side_text:
@@ -544,7 +553,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"
             )
 
-    if st.session_state.get("stima_cautelativa_beta", False):
+    if st.session_state.get("stima_cautelativa_beta", False) and not full_mobile:
         st.button(
             i18n.ui_text("full.add_to_fc_range"),
             use_container_width=True, on_click=add_fc_suggestion_global,
