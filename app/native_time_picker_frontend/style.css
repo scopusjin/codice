@@ -12,28 +12,57 @@ body {
   overflow: hidden;
 }
 
-#time-display {
+.time-control {
   box-sizing: border-box;
   width: 100%;
   height: 40px;
   border: 1px solid transparent;
   border-radius: 8px;
-  outline: none;
   background: var(--field-bg, #F0F2F6);
-  color: var(--text, #31333F);
-  padding: 0 12px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.time-control:hover,
+.time-control:focus-within {
+  border-color: var(--primary, #168AC1);
+  box-shadow: 0 0 0 1px var(--primary, #168AC1);
+}
+
+#time-input {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 38px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text, #31333F);
+  padding: 0 10px 0 12px;
   font: inherit;
   font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#picker-toggle {
+  box-sizing: border-box;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 38px;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--text, #31333F) 9%, transparent);
+  outline: none;
+  background: transparent;
+  color: var(--text, #31333F);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
-#time-display:hover,
-#time-display:focus-visible {
-  border-color: var(--primary, #168AC1);
-  box-shadow: 0 0 0 1px var(--primary, #168AC1);
+#picker-toggle:focus-visible {
+  background: color-mix(in srgb, var(--primary, #168AC1) 8%, transparent);
 }
 
 .chevron {
