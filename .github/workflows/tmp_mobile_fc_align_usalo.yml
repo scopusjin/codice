@@ -18,7 +18,7 @@ jobs:
           ref: tmp-mobile-fc-align-usalo-do5
           fetch-depth: 0
 
-      - name: Patch Usalo layout
+      - name: Patch Usalo appearance
         shell: bash
         run: |
           python - <<'PY'
@@ -30,33 +30,56 @@ jobs:
           end = s.index('/* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */', start)
           a, section, b = s[:start], s[start:end], s[end:]
 
-          section = section.replace('  gap: 0 !important;', '  gap: 0.20rem !important;', 1)
-          section = section.replace(
-              '  flex: 1 1 auto !important;\n  min-width: 0 !important;\n  margin: 0 !important;\n  padding: 0 !important;',
-              '  flex: 0 0 auto !important;\n  width: max-content !important;\n  min-width: max-content !important;\n  margin: 0 !important;\n  padding: 0 !important;',
+          assert '  gap: 0.34rem !important;' in section
+          section = section.replace('  gap: 0.34rem !important;', '  gap: 0.14rem !important;', 1)
+
+          marker = '[class*="fc_apply_action_mobile"] button {'
+          pos = section.index(marker)
+          tail = section[pos:]
+          assert '  border: 1.5px solid var(--st-primary-color) !important;' in tail
+          assert '  background: var(--st-secondary-background-color) !important;' in tail
+          assert '  color: var(--st-primary-color) !important;' in tail
+          tail = tail.replace(
+              '  height: 1.86rem !important;',
+              '  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  height: 1.86rem !important;',
               1,
           )
-          section = section.replace('  height: 1.86rem !important;', '  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  height: 1.90rem !important;', 1)
-          section = section.replace('  min-height: 1.86rem !important;', '  min-height: 1.90rem !important;', 1)
-          section = section.replace('  max-height: 1.86rem !important;', '  max-height: 1.90rem !important;', 1)
-          section = section.replace('  margin: 0 0.12rem 0 0 !important;', '  margin: 0 !important;', 1)
-          section = section.replace('  padding: 0 0.58rem !important;', '  padding: 0 0.62rem !important;', 1)
-          section = section.replace('  border: 1px solid var(--st-primary-color) !important;', '  border: 1.5px solid var(--st-primary-color, #168AC1) !important;', 1)
-          section = section.replace('  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;', '  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 11%, white) !important;', 1)
-          section = section.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
-          section = section.replace('  font-weight: 650 !important;\n  white-space: nowrap !important;', '  box-shadow: none !important;\n  font-weight: 650 !important;\n  line-height: 1 !important;\n  white-space: nowrap !important;', 1)
-          # Regola colore testo interna al bottone.
-          section = section.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
+          tail = tail.replace(
+              '  border: 1.5px solid var(--st-primary-color) !important;',
+              '  border: 1.5px solid var(--st-primary-color, #168AC1) !important;',
+              1,
+          )
+          tail = tail.replace(
+              '  background: var(--st-secondary-background-color) !important;',
+              '  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 10%, #ffffff) !important;',
+              1,
+          )
+          tail = tail.replace(
+              '  color: var(--st-primary-color) !important;',
+              '  color: var(--st-text-color, #31333F) !important;',
+              1,
+          )
+          tail = tail.replace(
+              '  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color) 14%, transparent) !important;',
+              '  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent) !important;',
+              1,
+          )
+          # Testo interno del bottone.
+          tail = tail.replace(
+              '  color: var(--st-primary-color) !important;',
+              '  color: var(--st-text-color, #31333F) !important;',
+              1,
+          )
+          section = section[:pos] + tail
 
-          assert 'gap: 0.20rem !important;' in section
-          assert 'flex: 0 0 auto !important;' in section
-          assert 'width: max-content !important;' in section
+          assert 'gap: 0.14rem !important;' in section
           assert 'border: 1.5px solid var(--st-primary-color, #168AC1) !important;' in section
+          assert 'background: color-mix(in srgb, var(--st-primary-color, #168AC1) 10%, #ffffff) !important;' in section
           assert 'display: inline-flex !important;' in section
           p.write_text(a + section + b, encoding='utf-8')
           PY
 
-      - name: Check CSS module
+      - name: Check CSS
         shell: bash
         run: |
           git diff --check
@@ -69,5 +92,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/full_mobile_compact.py
           git diff --cached --quiet && exit 0
-          git commit -m "Rende Usalo pulsante compatto mobile"
+          git commit -m "Rende visibile pulsante Usalo mobile"
           git push origin HEAD:tmp-mobile-fc-align-usalo-do5
