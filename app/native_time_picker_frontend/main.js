@@ -1,5 +1,5 @@
-const display = document.getElementById("time-display");
-const timeValue = document.getElementById("time-value");
+const timeInput = document.getElementById("time-input");
+const pickerToggle = document.getElementById("picker-toggle");
 const picker = document.getElementById("picker");
 const hoursWheel = document.getElementById("hours-wheel");
 const minutesWheel = document.getElementById("minutes-wheel");
@@ -30,8 +30,47 @@ function parseTime(value) {
   return { hour: Number(match[0]), minute: Number(match[1]) };
 }
 
+function normalizeTypedTime(value) {
+  const raw = String(value || "").trim();
+
+  if (/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(raw)) {
+    return raw;
+  }
+
+  if (/^\d{4}$/.test(raw)) {
+    const hour = Number(raw.slice(0, 2));
+    const minute = Number(raw.slice(2, 4));
+    if (hour <= 23 && minute <= 59) {
+      return formatTime(hour, minute);
+    }
+  }
+
+  return null;
+}
+
 function formatTime(hour, minute) {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function commitNormalizedValue(value) {
+  committedValue = value;
+  pendingCommittedValue = value;
+  timeInput.value = value;
+  Streamlit.setComponentValue(value);
+}
+
+function commitTypedValue() {
+  const normalized = normalizeTypedTime(timeInput.value);
+  if (normalized === null) {
+    timeInput.value = committedValue;
+    return false;
+  }
+
+  timeInput.value = normalized;
+  if (normalized !== committedValue) {
+    commitNormalizedValue(normalized);
+  }
+  return true;
 }
 
 function middleIndex(value, count) {
@@ -120,11 +159,12 @@ function settleWheel(wheel, count, setter) {
 }
 
 function openPicker() {
+  commitTypedValue();
   const parsed = parseTime(committedValue);
   draftHour = parsed.hour;
   draftMinute = parsed.minute;
   picker.hidden = false;
-  display.setAttribute("aria-expanded", "true");
+  pickerToggle.setAttribute("aria-expanded", "true");
   Streamlit.setFrameHeight(OPEN_HEIGHT);
 
   requestAnimationFrame(() => {
@@ -135,15 +175,17 @@ function openPicker() {
 
 function closePicker() {
   picker.hidden = true;
-  display.setAttribute("aria-expanded", "false");
+  pickerToggle.setAttribute("aria-expanded", "false");
   Streamlit.setFrameHeight(40);
 }
 
 function commitDraft() {
-  committedValue = formatTime(draftHour, draftMinute);
-  pendingCommittedValue = committedValue;
-  timeValue.textContent = committedValue;
-  Streamlit.setComponentValue(committedValue);
+  const value = formatTime(draftHour, draftMinute);
+  if (value !== committedValue) {
+    commitNormalizedValue(value);
+  } else {
+    timeInput.value = value;
+  }
   closePicker();
 }
 
@@ -158,17 +200,21 @@ function onRender(event) {
   if (incomingValue !== null) {
     if (!initialized) {
       committedValue = incomingValue;
-      timeValue.textContent = committedValue;
+      timeInput.value = committedValue;
       initialized = true;
     } else if (pendingCommittedValue !== null) {
       if (incomingValue === pendingCommittedValue) {
         committedValue = incomingValue;
-        timeValue.textContent = committedValue;
         pendingCommittedValue = null;
+        if (document.activeElement !== timeInput) {
+          timeInput.value = committedValue;
+        }
       }
     } else {
       committedValue = incomingValue;
-      timeValue.textContent = committedValue;
+      if (document.activeElement !== timeInput) {
+        timeInput.value = committedValue;
+      }
     }
   }
 
@@ -178,7 +224,39 @@ function onRender(event) {
 makeWheel(hoursWheel, 24);
 makeWheel(minutesWheel, 60);
 
-display.addEventListener("click", () => {
+timeInput.addEventListener("focus", () => {
+  if (!picker.hidden) {
+    closePicker();
+  }
+  window.setTimeout(() => timeInput.select(), 0);
+});
+
+timeInput.addEventListener("input", () => {
+  const raw = timeInput.value.trim();
+  if (/^\d{4}$/.test(raw)) {
+    const normalized = normalizeTypedTime(raw);
+    if (normalized !== null) {
+      timeInput.value = normalized;
+    }
+  }
+});
+
+timeInput.addEventListener("blur", commitTypedValue);
+
+timeInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    commitTypedValue();
+    timeInput.blur();
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    timeInput.value = committedValue;
+    timeInput.blur();
+  }
+});
+
+pickerToggle.addEventListener("click", () => {
+  timeInput.blur();
   if (picker.hidden) {
     openPicker();
   } else {
