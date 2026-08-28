@@ -1,0 +1,66 @@
+name: Temporary Full clothing helper
+
+on:
+  push:
+    branches:
+      - tmp-full-clothing-helper
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-full-clothing-helper
+          fetch-depth: 0
+
+      - name: Update Full clothing labels and helper
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('app/factor_ui_states.py')
+          text = p.read_text(encoding='utf-8')
+          old = '    BLANKET_MEDIUM: "Coperte di medio spessore",\n    BLANKET_HEAVY: "Coperte pesanti/Mantelline termiche",\n'
+          new = '    BLANKET_MEDIUM: "Coperta / copriletto spesso",\n    BLANKET_HEAVY: "Piumone / coperta molto spessa",\n'
+          assert text.count(old) == 2, f'Expected FULL+MSIL clothing blocks, found {text.count(old)}'
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+
+          p = Path('app/full_factor_panel.py')
+          text = p.read_text(encoding='utf-8')
+          old_helper = '''                            <div class="mortem-help-copy">\n                              <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>\n                              <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>\n                              <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>\n                              <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>\n                              <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>\n                              <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>\n                            </div>'''
+          new_helper = '''                            <div class="mortem-help-copy">\n                              <div class="mortem-help-copy-intro"><b>Le categorie sono orientative e non corrispondono a valori di FC rigidi.</b> Il sistema combina gli effetti dei diversi strati per suggerire un fattore di correzione plausibile. Considera soprattutto gli strati che coprono addome e bacino.</div>\n                              <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: biancheria, T-shirt, camicia, pigiama leggero, lenzuolo o telo sottile.</div>\n                              <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o cappotto che raggiunge il bacino, pantaloni molto spessi o imbottiti, telo spesso.</div>\n                              <div class="mortem-help-copy-bullet">• Coperta / copriletto spesso: coperta o copriletto con apprezzabile effetto isolante, ma non assimilabile a un piumone o a una coperta molto spessa. Lenzuoli, teli, copriletti leggeri e plaid sottili vanno considerati tra gli strati di vestiti/teli in base allo spessore.</div>\n                              <div class="mortem-help-copy-bullet">• Piumone / coperta molto spessa: piumone, trapunta molto imbottita o coperta particolarmente spessa e isolante.</div>\n                              <div class="mortem-help-copy-intro">Conta separatamente gli strati effettivamente sovrapposti nella regione addomino-pelvica. Prova le combinazioni plausibili; se più valori di FC restano ragionevoli, usa <b>Condizioni variabili</b> e considera un intervallo di FC.</div>\n                            </div>'''
+          assert text.count(old_helper) == 1, f'Helper block occurrences: {text.count(old_helper)}'
+          text = text.replace(old_helper, new_helper, 1)
+
+          replacements = {
+              'medium_blanket_input_label = "Coperte medie" if full_mobile else label_coperte_medie':
+                  'medium_blanket_input_label = "Coperta / copriletto spesso" if full_mobile else label_coperte_medie',
+              'heavy_blanket_input_label = "Coperte pesanti/termiche" if full_mobile else label_coperte_pesanti':
+                  'heavy_blanket_input_label = "Piumone / coperta molto spessa" if full_mobile else label_coperte_pesanti',
+          }
+          for old_text, new_text in replacements.items():
+              assert text.count(old_text) == 1, f'{old_text}: found {text.count(old_text)}'
+              text = text.replace(old_text, new_text, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Check diff and syntax
+        run: |
+          git diff --check
+          python -m py_compile app/factor_ui_states.py app/full_factor_panel.py
+          git diff -- app/factor_ui_states.py app/full_factor_panel.py
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/factor_ui_states.py app/full_factor_panel.py
+          git commit -m "Aggiorna categorie e helper vestiti Full"
+          git push origin HEAD:tmp-full-clothing-helper
