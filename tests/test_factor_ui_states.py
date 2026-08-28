@@ -4,6 +4,7 @@ import unittest
 
 from app.factor_ui_states import (
     BLANKET_HEAVY,
+    BLANKET_MEDIUM,
     BODY_IMMERSED,
     BODY_WET,
     BODY_DRY,
@@ -37,10 +38,23 @@ class FactorUIStateTests(unittest.TestCase):
         self.assertEqual(water_legacy_value("In acqua stagnante"), "stagnante")
         self.assertEqual(water_legacy_value("In acqua corrente"), "corrente")
 
-    def test_heavy_blanket_label_is_shared_between_uis(self):
-        expected = "Coperte pesanti/Mantelline termiche"
-        self.assertEqual(FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY], expected)
-        self.assertEqual(MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY], expected)
+    def test_blanket_labels_are_updated_only_in_full_ui(self):
+        self.assertEqual(
+            FULL_CLOTHING_LABEL_IT[BLANKET_MEDIUM],
+            "Coperta / copriletto spesso",
+        )
+        self.assertEqual(
+            FULL_CLOTHING_LABEL_IT[BLANKET_HEAVY],
+            "Piumone / coperta molto spessa",
+        )
+        self.assertEqual(
+            MSIL_CLOTHING_LABEL_IT[BLANKET_MEDIUM],
+            "Coperte di medio spessore",
+        )
+        self.assertEqual(
+            MSIL_CLOTHING_LABEL_IT[BLANKET_HEAVY],
+            "Coperte pesanti/Mantelline termiche",
+        )
 
 
 if __name__ == "__main__":
