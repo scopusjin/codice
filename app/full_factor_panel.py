@@ -87,10 +87,6 @@ def add_fc_suggestion_global(val: float) -> None:
     _sync_fc_range_from_suggestions()
 
 
-def clear_fc_suggestions_global() -> None:
-    st.session_state["fc_suggested_vals"] = []
-
-
 def _load_factor_table():
     try:
         return load_tabelle_correzione()

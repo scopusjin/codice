@@ -31,14 +31,6 @@ class ComputeResult:
     fattore_finale: float
     riassunto: Dict[str, Any]  # per sessione/parentetica
 
-@dataclass
-class FCContext:
-    stato: Literal["Asciutto", "Bagnato", "Immerso"]
-    acqua: Optional[Literal["stagnante", "corrente"]] = None
-    counts: Optional[Dict[str, int]] = None  # {"sottili":..,"spessi":..,"coperte_medie":..,"coperte_pesanti":..}
-    superficie_display: Optional[str] = None
-    correnti_aria: bool = False
-
 # --------------------------------
 # Superfici (mappa & ordine)
 # --------------------------------
@@ -374,83 +366,6 @@ def compute_factor(
         "peso_adattato": bool(peso_adattato),
     }
     return ComputeResult(fattore_base=f_corr, fattore_finale=fatt_finale, riassunto=riass)
-
-# --------------------------------
-# Ricalcolo/Autosync FC su cambio peso (riuso compute_factor)
-# --------------------------------
-def _counts_from_ctx(counts_like: Optional[Dict[str, Any]]) -> DressCounts:
-    d = counts_like or {}
-    return DressCounts(
-        sottili=int(d.get("sottili", 0) or 0),
-        spessi=int(d.get("spessi", 0) or 0),
-        coperte_medie=int(d.get("coperte_medie", 0) or 0),
-        coperte_pesanti=int(d.get("coperte_pesanti", 0) or 0),
-    )
-
-def recompute_fc_for_weight(ctx: FCContext, peso: float, tabella2_df: Optional[pd.DataFrame]) -> ComputeResult:
-    counts = _counts_from_ctx(ctx.counts)
-    return compute_factor(
-        stato=ctx.stato,
-        acqua=ctx.acqua,
-        counts=counts,
-        superficie_display=ctx.superficie_display if ctx.stato == "Asciutto" else None,
-        correnti_aria=bool(ctx.correnti_aria),
-        peso=float(peso),
-        tabella2_df=tabella2_df,
-    )
-
-def autosync_fc_if_needed(
-    fc_corrente: float,
-    peso_precedente: Optional[float],
-    peso_nuovo: float,
-    ctx: Optional[Dict[str, Any] | FCContext],
-    tabella2_df: Optional[pd.DataFrame],
-    *,
-    soglia_fc: float = 1.40
-) -> Tuple[float, bool]:
-    """
-    Se FC > soglia e il peso cambia, ricalcola FC con Tabella 2 usando il contesto.
-    Ritorna (fc_aggiornato, changed_bool).
-    """
-    try:
-        fc_val = float(fc_corrente)
-    except Exception:
-        return fc_corrente, False
-
-    if ctx is None or fc_val <= soglia_fc:
-        return fc_corrente, False
-
-    try:
-        p_new = float(peso_nuovo)
-        p_prev = None if (peso_precedente is None) else float(peso_precedente)
-    except Exception:
-        return fc_corrente, False
-
-    if p_prev is not None and abs(p_new - p_prev) < 1e-9:
-        return fc_corrente, False
-
-    # normalizza ctx
-    if isinstance(ctx, FCContext):
-        ctx_obj = ctx
-    else:
-        ctx_obj = FCContext(
-            stato=ctx.get("stato"),
-            acqua=ctx.get("acqua"),
-            counts=ctx.get("counts") or {
-                "sottili": ctx.get("sottili", 0),
-                "spessi": ctx.get("spessi", 0),
-                "coperte_medie": ctx.get("cop_medie", 0),
-                "coperte_pesanti": ctx.get("cop_pesanti", 0),
-            },
-            superficie_display=ctx.get("superficie") if ctx.get("stato") == "Asciutto" else None,
-            correnti_aria=bool(ctx.get("correnti") not in (None, "/", "")),
-        )
-
-    res = recompute_fc_for_weight(ctx_obj, p_new, tabella2_df)
-    fc_new = round(float(res.fattore_finale), 2)
-    if abs(fc_new - fc_val) > 1e-12:
-        return fc_new, True
-    return fc_corrente, False
 
 # --------------------------------
 # Parentetica (descrizione FC)
