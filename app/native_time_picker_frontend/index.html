@@ -8,6 +8,32 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <input id="time-input" type="time" step="60" aria-label="Ora" />
+  <div id="time-picker">
+    <button id="time-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">
+      <span id="time-value">00:00</span>
+      <span id="time-chevron" aria-hidden="true">⌄</span>
+    </button>
+
+    <section id="picker-panel" aria-label="Seleziona ora" hidden>
+      <div class="wheels">
+        <div class="wheel-column">
+          <div class="wheel-label">Ore</div>
+          <div id="hours-wheel" class="wheel" role="listbox" aria-label="Ore"></div>
+        </div>
+
+        <div class="wheel-separator" aria-hidden="true">:</div>
+
+        <div class="wheel-column">
+          <div class="wheel-label">Min</div>
+          <div id="minutes-wheel" class="wheel" role="listbox" aria-label="Minuti"></div>
+        </div>
+      </div>
+
+      <div class="picker-actions">
+        <button id="cancel-button" type="button">Annulla</button>
+        <button id="apply-button" type="button">Imposta</button>
+      </div>
+    </section>
+  </div>
 </body>
 </html>
