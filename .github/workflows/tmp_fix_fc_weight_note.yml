@@ -1,0 +1,136 @@
+name: Temporary FC weight note fix
+
+on:
+  push:
+    branches:
+      - refactor-tanatology-keys
+    paths:
+      - .tmp_fix_fc_weight_note_trigger
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refactor-tanatology-keys
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Apply presentation fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("app/full_factor_panel.py")
+          text = path.read_text(encoding="utf-8")
+
+          old_condition = '''    side_text = ""
+    if (
+        result.fattore_base is not None
+        and peso_eff is not None
+        and abs(result.fattore_finale - result.fattore_base) > 1e-9
+    ):
+        side_text = i18n.ui_text(
+            "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
+        )
+
+'''
+          new_condition = '''    side_text = ""
+    if result.riassunto.get("peso_adattato", False) and peso_eff is not None:
+        side_text = i18n.ui_text(
+            "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
+        )
+
+'''
+          if text.count(old_condition) != 1:
+              raise SystemExit("Weight-note condition mismatch")
+          text = text.replace(old_condition, new_condition, 1)
+
+          marker = '''    apply_callback = _apply_fc_range if range_mode else _apply_fc
+    apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+
+    with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
+'''
+          replacement = '''    apply_callback = _apply_fc_range if range_mode else _apply_fc
+    apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+
+    if full_mobile:
+        st.markdown(
+            f"""
+            <style>
+            @media (max-width: 768px) {{
+              [class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{
+                align-items: center !important;
+              }}
+              [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"],
+              [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{
+                display: flex !important;
+                align-items: center !important;
+                min-height: 2.5rem !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: 1 !important;
+              }}
+              [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{
+                display: flex !important;
+                align-items: center !important;
+                margin: 0 !important;
+                padding: 0 !important;
+              }}
+              [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{
+                display: flex !important;
+                align-items: center !important;
+                min-height: 2.5rem !important;
+                height: 2.5rem !important;
+              }}
+              [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{
+                margin: 0 !important;
+                line-height: 1 !important;
+              }}
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
+'''
+          if text.count(marker) != 1:
+              raise SystemExit("Final-row marker mismatch")
+          text = text.replace(marker, replacement, 1)
+
+          if 'result.riassunto.get("peso_adattato", False)' not in text:
+              raise SystemExit("Weight flag not applied")
+          if f'st-key-{{key_prefix}}_fc_apply_action_mobile' not in text:
+              raise SystemExit("Mobile alignment CSS not applied")
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Compile Python sources
+        run: python -m compileall -q app Stima_epoca_decesso.py pages
+
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit fix and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp_fix_fc_weight_note.yml .tmp_fix_fc_weight_note_trigger
+          git add app/full_factor_panel.py
+          git commit -m "Mostra adattamento peso e allinea risultato FC mobile"
+          git push origin HEAD:refactor-tanatology-keys
