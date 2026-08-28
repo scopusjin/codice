@@ -8,10 +8,20 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <button id="time-display" type="button" aria-haspopup="dialog" aria-expanded="false">
-    <span id="time-value">00:00</span>
-    <span class="chevron">⌄</span>
-  </button>
+  <div id="time-control" class="time-control">
+    <input
+      id="time-input"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      maxlength="5"
+      aria-label="Ora"
+      value="00:00"
+    />
+    <button id="picker-toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Apri selezione orario">
+      <span class="chevron">⌄</span>
+    </button>
+  </div>
 
   <div id="picker" class="picker" hidden>
     <div class="wheel-wrap">
