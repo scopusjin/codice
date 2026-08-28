@@ -18,102 +18,54 @@ jobs:
           ref: tmp-mobile-fc-align-usalo-do5
           fetch-depth: 0
 
-      - name: Apply mobile patch
+      - name: Patch V2 FC alignment
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          v2_path = Path('app/decimal_number_input_v2.py')
-          v2 = v2_path.read_text(encoding='utf-8')
+          p = Path('app/decimal_number_input_v2.py')
+          s = p.read_text(encoding='utf-8')
 
-          v2 = v2.replace(
-              '.suggest-button.is-visible {\n  display: flex;\n  flex: 0 0 auto;\n',
-              '.suggest-button.is-visible,\n.number-control.reserve-suggest .suggest-button {\n  display: flex;\n  flex: 0 0 5.4rem;\n  width: 5.4rem;\n  min-width: 5.4rem;\n',
-              1,
-          )
-          reserve_anchor = '}\n.number-control.has-suggest .number-input {'
-          reserve_block = '}\n.number-control.reserve-suggest .suggest-button {\n  visibility: hidden;\n  pointer-events: none;\n}\n.number-control.has-suggest .number-input {'
-          v2 = v2.replace(reserve_anchor, reserve_block, 1)
-          v2 = v2.replace(
-              '  const showSuggest = Boolean(data?.suggest_enabled);\n  control.classList.toggle(\'has-help\', showHelp);',
-              '  const showSuggest = Boolean(data?.suggest_enabled);\n  const reserveSuggest = Boolean(data?.reserve_suggest);\n  control.classList.toggle(\'has-help\', showHelp);',
-              1,
-          )
-          v2 = v2.replace(
-              "  control.classList.toggle('has-suggest', showSuggest);\n",
-              "  control.classList.toggle('has-suggest', showSuggest);\n  control.classList.toggle('reserve-suggest', reserveSuggest);\n",
-              1,
-          )
-          v2 = v2.replace(
-              '            "suggest_active": bool(suggest_active),\n            "dense": dense,',
-              '            "suggest_active": bool(suggest_active),\n            "reserve_suggest": key == "mortem_decimal_fc_min_val",\n            "dense": dense,',
-              1,
-          )
-          assert 'number-control.reserve-suggest .suggest-button' in v2
-          assert 'flex: 0 0 5.4rem;' in v2
-          assert "control.classList.toggle('reserve-suggest', reserveSuggest);" in v2
-          assert '"reserve_suggest": key == "mortem_decimal_fc_min_val"' in v2
-          v2_path.write_text(v2, encoding='utf-8')
+          old = '.suggest-button.is-visible {\n  display: flex;\n  flex: 0 0 auto;\n'
+          new = '.suggest-button.is-visible,\n.number-control.reserve-suggest .suggest-button {\n  display: flex;\n  flex: 0 0 5.4rem;\n  width: 5.4rem;\n  min-width: 5.4rem;\n'
+          assert old in s
+          s = s.replace(old, new, 1)
 
-          css_path = Path('app/full_mobile_compact.py')
-          css = css_path.read_text(encoding='utf-8')
-          start = css.index('/* Risultato FC standard mobile: valore, azione e nota peso in un solo blocco. */')
-          end = css.index('/* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */', start)
-          before, section, after = css[:start], css[start:end], css[end:]
+          anchor = '}\n.number-control.has-suggest .number-input {'
+          assert anchor in s
+          s = s.replace(anchor, '}\n.number-control.reserve-suggest .suggest-button {\n  visibility: hidden;\n  pointer-events: none;\n}\n.number-control.has-suggest .number-input {', 1)
 
-          row_marker = '[class*="fc_apply_row_mobile"] {'
-          row_start = section.index(row_marker)
-          row_tail = section[row_start:]
-          row_tail = row_tail.replace('  gap: 0 !important;', '  gap: 0.20rem !important;', 1)
-          section = section[:row_start] + row_tail
+          old = "  const showSuggest = Boolean(data?.suggest_enabled);\n  control.classList.toggle('has-help', showHelp);"
+          assert old in s
+          s = s.replace(old, "  const showSuggest = Boolean(data?.suggest_enabled);\n  const reserveSuggest = Boolean(data?.reserve_suggest);\n  control.classList.toggle('has-help', showHelp);", 1)
 
-          value_marker = '[class*="fc_apply_value_mobile"] {'
-          value_start = section.index(value_marker)
-          value_tail = section[value_start:]
-          value_tail = value_tail.replace('  flex: 1 1 auto !important;\n  min-width: 0 !important;', '  flex: 0 0 auto !important;\n  width: max-content !important;\n  min-width: max-content !important;', 1)
-          section = section[:value_start] + value_tail
+          old = "  control.classList.toggle('has-suggest', showSuggest);\n"
+          assert old in s
+          s = s.replace(old, old + "  control.classList.toggle('reserve-suggest', reserveSuggest);\n", 1)
 
-          button_marker = '[class*="fc_apply_action_mobile"] button {'
-          button_start = section.index(button_marker)
-          button_tail = section[button_start:]
-          button_tail = button_tail.replace(
-              '  height: 1.86rem !important;',
-              '  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  height: 1.90rem !important;',
-              1,
-          )
-          button_tail = button_tail.replace('  min-height: 1.86rem !important;', '  min-height: 1.90rem !important;', 1)
-          button_tail = button_tail.replace('  max-height: 1.86rem !important;', '  max-height: 1.90rem !important;', 1)
-          button_tail = button_tail.replace('  margin: 0 0.12rem 0 0 !important;', '  margin: 0 !important;', 1)
-          button_tail = button_tail.replace('  padding: 0 0.58rem !important;', '  padding: 0 0.62rem !important;', 1)
-          button_tail = button_tail.replace('  border: 1px solid var(--st-primary-color) !important;', '  border: 1.5px solid var(--st-primary-color, #168AC1) !important;', 1)
-          button_tail = button_tail.replace('  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;', '  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 11%, white) !important;', 1)
-          button_tail = button_tail.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
-          button_tail = button_tail.replace('  font-weight: 650 !important;\n  white-space: nowrap !important;', '  box-shadow: none !important;\n  font-weight: 650 !important;\n  line-height: 1 !important;\n  white-space: nowrap !important;', 1)
-          button_tail = button_tail.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
-          section = section[:button_start] + button_tail
+          old = '            "suggest_active": bool(suggest_active),\n            "dense": dense,'
+          assert old in s
+          s = s.replace(old, '            "suggest_active": bool(suggest_active),\n            "reserve_suggest": key == "mortem_decimal_fc_min_val",\n            "dense": dense,', 1)
 
-          css = before + section + after
-          assert 'gap: 0.20rem !important;' in section
-          assert 'width: max-content !important;' in section
-          assert 'border: 1.5px solid var(--st-primary-color, #168AC1) !important;' in section
-          assert 'display: inline-flex !important;' in section
-          css_path.write_text(css, encoding='utf-8')
+          assert 'number-control.reserve-suggest .suggest-button' in s
+          assert 'flex: 0 0 5.4rem;' in s
+          assert '"reserve_suggest": key == "mortem_decimal_fc_min_val"' in s
+          p.write_text(s, encoding='utf-8')
           PY
 
-      - name: Check diff and syntax
+      - name: Check V2
         shell: bash
         run: |
           git diff --check
-          python -m compileall -q app/decimal_number_input_v2.py app/full_mobile_compact.py
-          git diff -- app/decimal_number_input_v2.py app/full_mobile_compact.py
+          python -m compileall -q app/decimal_number_input_v2.py
 
-      - name: Commit patch
+      - name: Commit V2
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/decimal_number_input_v2.py app/full_mobile_compact.py
+          git add app/decimal_number_input_v2.py
           git diff --cached --quiet && exit 0
-          git commit -m "Allinea FC variabili e pulsante Usalo"
+          git commit -m "Allinea controlli FC variabili mobile"
           git push origin HEAD:tmp-mobile-fc-align-usalo-do5
