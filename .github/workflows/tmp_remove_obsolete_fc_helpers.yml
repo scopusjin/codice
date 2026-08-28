@@ -1,0 +1,106 @@
+name: Temporary obsolete FC helper cleanup
+
+on:
+  push:
+    branches:
+      - refactor-tanatology-keys
+    paths:
+      - .tmp_remove_obsolete_fc_helpers_trigger
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refactor-tanatology-keys
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Remove obsolete helpers
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          factor_path = Path("app/factor_calc.py")
+          text = factor_path.read_text(encoding="utf-8")
+
+          context_block = '''@dataclass
+          class FCContext:
+              stato: Literal["Asciutto", "Bagnato", "Immerso"]
+              acqua: Optional[Literal["stagnante", "corrente"]] = None
+              counts: Optional[Dict[str, int]] = None  # {"sottili":..,"spessi":..,"coperte_medie":..,"coperte_pesanti":..}
+              superficie_display: Optional[str] = None
+              correnti_aria: bool = False
+
+          '''
+          if text.count(context_block) != 1:
+              raise SystemExit("FCContext block mismatch")
+          text = text.replace(context_block, "", 1)
+
+          start_marker = '''# --------------------------------
+          # Ricalcolo/Autosync FC su cambio peso (riuso compute_factor)
+          # --------------------------------
+          '''
+          end_marker = '''# --------------------------------
+          # Parentetica (descrizione FC)
+          # --------------------------------
+          '''
+          if text.count(start_marker) != 1 or text.count(end_marker) != 1:
+              raise SystemExit("Autosync marker mismatch")
+          before, rest = text.split(start_marker, 1)
+          obsolete, after = rest.split(end_marker, 1)
+          required = ["def _counts_from_ctx", "def recompute_fc_for_weight", "def autosync_fc_if_needed"]
+          if not all(name in obsolete for name in required):
+              raise SystemExit("Expected autosync helpers not all present")
+          text = before + end_marker + after
+          factor_path.write_text(text, encoding="utf-8")
+
+          panel_path = Path("app/full_factor_panel.py")
+          panel = panel_path.read_text(encoding="utf-8")
+          clear_block = '''def clear_fc_suggestions_global() -> None:
+              st.session_state["fc_suggested_vals"] = []
+
+
+          '''
+          if panel.count(clear_block) != 1:
+              raise SystemExit("clear_fc_suggestions_global block mismatch")
+          panel = panel.replace(clear_block, "", 1)
+          panel_path.write_text(panel, encoding="utf-8")
+
+          for path, forbidden in [
+              (factor_path, ["FCContext", "_counts_from_ctx", "recompute_fc_for_weight", "autosync_fc_if_needed"]),
+              (panel_path, ["clear_fc_suggestions_global"]),
+          ]:
+              content = path.read_text(encoding="utf-8")
+              leftovers = [name for name in forbidden if name in content]
+              if leftovers:
+                  raise SystemExit(f"Leftovers in {path}: {leftovers}")
+          PY
+
+      - name: Compile Python sources
+        run: python -m compileall -q app Stima_epoca_decesso.py pages
+
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit cleanup and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp_remove_obsolete_fc_helpers.yml .tmp_remove_obsolete_fc_helpers_trigger
+          git add app/factor_calc.py app/full_factor_panel.py
+          git commit -m "Rimuove vecchio autosync FC inutilizzato"
+          git push origin HEAD:refactor-tanatology-keys
