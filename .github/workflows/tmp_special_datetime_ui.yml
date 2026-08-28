@@ -1,0 +1,48 @@
+name: Temporary special datetime UI update
+
+on:
+  push:
+    branches:
+      - refactor-tanatology-keys
+    paths:
+      - .tmp_special_datetime_ui_trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refactor-tanatology-keys
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Apply UI update
+        run: python .tmp_apply_special_datetime_ui.py
+
+      - name: Compile Python sources
+        run: python -m compileall -q app Stima_epoca_decesso.py pages
+
+      - name: Run regression tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit update and remove temporary files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/tmp_special_datetime_ui.yml .tmp_special_datetime_ui_trigger .tmp_apply_special_datetime_ui.py
+          git add Stima_epoca_decesso.py app/special_datetime_ui.py app/special_heading_ui.py
+          git commit -m "Uniforma data ora e titoli dei dati aggiuntivi"
+          git push origin HEAD:refactor-tanatology-keys
