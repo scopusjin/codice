@@ -9,7 +9,7 @@ localizzabili, evitando l'impilamento dei singoli pulsanti su mobile.
 import importlib
 
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
@@ -25,7 +25,7 @@ from app.special_tanatology_states import (
 )
 
 
-_IMAGE_ONLY_FRACTION = 0.76
+_IMAGE_ONLY_FRACTION = 0.69
 _PHASE_IDS = {
     SUPRA_PHASE_I,
     SUPRA_PHASE_II,
@@ -46,7 +46,7 @@ def _image_only_tile(ui, option):
     # "Non valutata": nella griglia corrente il testo è già nel pulsante
     # sottostante, quindi conserviamo soltanto il simbolo.
     if option == "Non valutata":
-        visible_height = max(1, round(height * 0.68))
+        visible_height = max(1, round(height * 0.60))
         cleaned = Image.new("RGB", (width, image_height), (255, 255, 255))
         cleaned.paste(tile.crop((0, 0, width, visible_height)).convert("RGB"), (0, 0))
         return cleaned
@@ -55,30 +55,38 @@ def _image_only_tile(ui, option):
 
 
 def _clean_tile_edges(tile):
-    """Elimina soltanto le linee/cornici raster presenti ai bordi originali."""
+    """Rimuove i bordi raster originari e recupera lo spazio bianco periferico."""
     width, height = tile.size
-    edge = 4
+    edge = 7
     if width <= edge * 2 or height <= edge * 2:
         return tile
 
-    cleaned = Image.new("RGB", (width, height), (255, 255, 255))
     interior = tile.crop((edge, edge, width - edge, height - edge))
-    cleaned.paste(interior, (edge, edge))
-    return cleaned
+    return interior.resize((width, height), Image.Resampling.LANCZOS)
 
 
 def _compose_row(ui, row):
-    """Compone tre immagini mute in una singola riga cliccabile."""
+    """Compone tre immagini pulite con la parte superiore della cornice unica."""
     options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
     tiles = [_clean_tile_edges(_image_only_tile(ui, option)) for option in options]
     sample = tiles[0]
     tile_width, tile_height = sample.size
-    row_image = Image.new("RGB", (tile_width * 3, tile_height), (255, 255, 255))
+    row_width = tile_width * 3
+    row_image = Image.new("RGB", (row_width, tile_height), (255, 255, 255))
 
     for col, tile in enumerate(tiles):
         if tile.size != sample.size:
             tile = tile.resize(sample.size, Image.Resampling.LANCZOS)
         row_image.paste(tile, (col * tile_width, 0))
+
+    # La cornice è unica con l'etichetta sottostante: qui disegniamo soltanto
+    # bordo superiore e divisori verticali; il bordo inferiore appartiene
+    # all'etichetta, senza linea di demarcazione tra immagine e testo.
+    frame = (105, 105, 105)
+    draw = ImageDraw.Draw(row_image)
+    draw.line((0, 0, row_width - 1, 0), fill=frame, width=1)
+    for x in (0, tile_width, tile_width * 2, row_width - 1):
+        draw.line((x, 0, x, tile_height - 1), fill=frame, width=1)
 
     return row_image
 
@@ -203,16 +211,9 @@ def _install_label_css():
     st.markdown(
         """
         <style>
-        @media (max-width: 768px) {
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [data-testid="stElementContainer"]:has([class*="st-key-eccitabilita_sopraciliare_grid"]) {
-              margin-top: -1.50rem !important;
-              margin-bottom: 0 !important;
-          }
-        }
-
         [class*="st-key-eccitabilita_sopraciliare_grid"] {
             margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_grid"] > [data-testid="stVerticalBlock"] {
@@ -226,8 +227,9 @@ def _install_label_css():
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] {
             width: 100% !important;
-            margin-top: -1.50rem !important;
-            margin-bottom: -0.42rem !important;
+            margin-top: -0.08rem !important;
+            margin-bottom: 0 !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] div[role="group"],
@@ -235,25 +237,37 @@ def _install_label_css():
             display: grid !important;
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
             width: 100% !important;
-            gap: 2px !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button {
             min-width: 0 !important;
             width: 100% !important;
-            min-height: 1.95rem !important;
+            min-height: 0 !important;
             height: auto !important;
-            padding: 1px 2px !important;
+            padding: 2px 2px !important;
+            margin: 0 !important;
             white-space: normal !important;
-            border-color: rgba(128, 128, 128, 0.35) !important;
-            border-top: none !important;
-            border-top-left-radius: 0 !important;
-            border-top-right-radius: 0 !important;
+            border: 0 !important;
+            border-left: 1px solid rgba(105, 105, 105, 0.72) !important;
+            border-bottom: 1px solid rgba(105, 105, 105, 0.72) !important;
+            border-radius: 0 !important;
             background: transparent !important;
+            box-shadow: none !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_segment_"] button > div {
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button:last-child {
+            border-right: 1px solid rgba(105, 105, 105, 0.72) !important;
+        }
+
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] button > div,
+        [class*="st-key-eccitabilita_sopraciliare_segment_"] [data-testid="stMarkdownContainer"] {
             min-height: 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
         }
 
@@ -261,18 +275,18 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-pressed="true"],
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[aria-checked="true"],
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[data-selected="true"] {
-            border-color: #008F84 !important;
             background: #00A699 !important;
             box-shadow: none !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button p {
             margin: 0 !important;
+            padding: 0 !important;
             white-space: pre-line !important;
             overflow-wrap: anywhere !important;
             text-align: center !important;
             line-height: 1.00 !important;
-            font-size: clamp(0.54rem, 1.9vw, 0.67rem) !important;
+            font-size: clamp(0.53rem, 1.85vw, 0.66rem) !important;
             font-weight: 600 !important;
         }
 

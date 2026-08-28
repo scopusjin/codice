@@ -52,6 +52,12 @@ def install_special_heading_style():
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
+            margin-bottom: -1.18rem !important;
+          }
+
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [class*="st-key-electrical_pair_layout"] [data-testid="stHorizontalBlock"] {
             margin: 0 !important;
           }
@@ -107,8 +113,11 @@ def install_special_heading_style():
             and isinstance(nome_parametro, str)
             and nome_parametro in body
         ):
+            title_class = "mortem-section-title"
+            if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
+                title_class += " mortem-section-title--supra"
             body = (
-                "<div class='mortem-section-title'>"
+                f"<div class='{title_class}'>"
                 f"{html.escape(nome_parametro)}"
                 "</div>"
             )
