@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Picker orario nativo del browser/dispositivo per Mor-tem."""
+"""Picker orario personalizzato per Mor-tem."""
 
 import re
 from pathlib import Path
@@ -24,8 +24,8 @@ def _theme_value(option, fallback):
     return value or fallback
 
 
-def native_time_picker(value="00:00", *, key=None):
-    """Restituisce un orario HH:MM usando il controllo nativo type=time."""
+def native_time_picker(value="00:00", *, key=None, mobile=False):
+    """Restituisce un orario HH:MM con input diretto e picker touch su mobile."""
     if not isinstance(value, str) or not _TIME_RE.fullmatch(value.strip()):
         value = "00:00"
     else:
@@ -33,6 +33,7 @@ def native_time_picker(value="00:00", *, key=None):
 
     result = _component(
         value=value,
+        mobile=bool(mobile),
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
