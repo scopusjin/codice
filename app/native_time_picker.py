@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Picker orario nativo del browser/dispositivo per Mor-tem."""
+"""Picker orario personalizzato per Mor-tem."""
 
 import re
 from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
+
+from app.device_mode import full_device_is_mobile
 
 
 _FRONTEND_DIR = (Path(__file__).resolve().parent / "native_time_picker_frontend").absolute()
@@ -25,7 +27,7 @@ def _theme_value(option, fallback):
 
 
 def native_time_picker(value="00:00", *, key=None):
-    """Restituisce un orario HH:MM usando il controllo nativo type=time."""
+    """Restituisce un orario HH:MM; ruote touch solo sulla Full mobile."""
     if not isinstance(value, str) or not _TIME_RE.fullmatch(value.strip()):
         value = "00:00"
     else:
@@ -33,6 +35,7 @@ def native_time_picker(value="00:00", *, key=None):
 
     result = _component(
         value=value,
+        mobile=full_device_is_mobile(),
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
