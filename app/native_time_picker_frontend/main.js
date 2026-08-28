@@ -8,6 +8,8 @@ const setButton = document.getElementById("set-button");
 
 const ITEM_HEIGHT = 44;
 let committedValue = "00:00";
+let pendingCommittedValue = null;
+let initialized = false;
 let draftHour = 0;
 let draftMinute = 0;
 let hourScrollTimer = null;
@@ -102,6 +104,7 @@ function closePicker() {
 
 function commitDraft() {
   committedValue = formatTime(draftHour, draftMinute);
+  pendingCommittedValue = committedValue;
   timeValue.textContent = committedValue;
   Streamlit.setComponentValue(committedValue);
   closePicker();
@@ -111,9 +114,25 @@ function onRender(event) {
   const args = event.detail.args || {};
   setTheme(args);
 
-  if (typeof args.value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(args.value)) {
-    committedValue = args.value;
-    timeValue.textContent = committedValue;
+  const incomingValue = (
+    typeof args.value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(args.value)
+  ) ? args.value : null;
+
+  if (incomingValue !== null) {
+    if (!initialized) {
+      committedValue = incomingValue;
+      timeValue.textContent = committedValue;
+      initialized = true;
+    } else if (pendingCommittedValue !== null) {
+      if (incomingValue === pendingCommittedValue) {
+        committedValue = incomingValue;
+        timeValue.textContent = committedValue;
+        pendingCommittedValue = null;
+      }
+    } else {
+      committedValue = incomingValue;
+      timeValue.textContent = committedValue;
+    }
   }
 
   Streamlit.setFrameHeight(picker.hidden ? 40 : 286);
