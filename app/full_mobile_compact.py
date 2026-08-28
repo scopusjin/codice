@@ -298,7 +298,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   height: 2.15rem !important;
   min-height: 2.15rem !important;
   max-height: 2.15rem !important;
-  gap: 0.34rem !important;
+  gap: 0.14rem !important;
   align-items: center !important;
   justify-content: flex-start !important;
   overflow: hidden !important;
@@ -342,16 +342,19 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   height: 1.86rem !important;
   min-height: 1.86rem !important;
   max-height: 1.86rem !important;
   margin: 0 !important;
   padding: 0 0.62rem !important;
-  border: 1.5px solid var(--st-primary-color) !important;
+  border: 1.5px solid var(--st-primary-color, #168AC1) !important;
   border-radius: 0.44rem !important;
-  background: var(--st-secondary-background-color) !important;
-  color: var(--st-primary-color) !important;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color) 14%, transparent) !important;
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 10%, #ffffff) !important;
+  color: var(--st-text-color, #31333F) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent) !important;
   font-weight: 700 !important;
   white-space: nowrap !important;
 }
@@ -360,7 +363,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button p,
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button span {
-  color: var(--st-primary-color) !important;
+  color: var(--st-text-color, #31333F) !important;
   font-weight: 700 !important;
 }
 
