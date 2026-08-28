@@ -1,0 +1,30 @@
+name: Temp unused code scan
+
+on:
+  push:
+    branches:
+      - refactor-tanatology-keys
+    paths:
+      - .github/workflows/tmp_unused_scan.yml
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor-tanatology-keys
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install vulture
+        run: python -m pip install --disable-pip-version-check vulture
+      - name: Scan Python code
+        run: |
+          echo '=== VULTURE 90 ==='
+          vulture Stima_epoca_decesso.py app pages tests --min-confidence 90 || true
+          echo '=== VULTURE 80 ==='
+          vulture Stima_epoca_decesso.py app pages tests --min-confidence 80 || true
