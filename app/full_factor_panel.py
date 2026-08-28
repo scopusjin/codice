@@ -473,17 +473,19 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     full_mobile = full_device_is_mobile()
 
     side_text = ""
-    if (
-        result.fattore_base is not None
-        and peso_eff is not None
-        and abs(result.fattore_finale - result.fattore_base) > 1e-9
-    ):
+    if result.riassunto.get("peso_adattato", False) and peso_eff is not None:
         side_text = i18n.ui_text(
             "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
         )
 
     apply_callback = _apply_fc_range if range_mode else _apply_fc
     apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+
+    if full_mobile:
+        st.markdown(
+            f'''<style>@media (max-width: 768px) {{[class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{align-items:center!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"], [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{display:flex!important;align-items:center!important;min-height:2.5rem!important;margin:0!important;padding:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{display:flex!important;align-items:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{display:flex!important;align-items:center!important;min-height:2.5rem!important;height:2.5rem!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{margin:0!important;line-height:1!important;}}}}</style>''',
+            unsafe_allow_html=True,
+        )
 
     with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
         with st.container(
