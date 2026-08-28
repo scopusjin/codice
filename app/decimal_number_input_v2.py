@@ -155,9 +155,12 @@ _CSS = r"""
   opacity: 0.8;
 }
 .suggest-button { display: none; }
-.suggest-button.is-visible {
+.suggest-button.is-visible,
+.number-control.reserve-suggest .suggest-button {
   display: flex;
-  flex: 0 0 auto;
+  flex: 0 0 5.4rem;
+  width: 5.4rem;
+  min-width: 5.4rem;
   align-items: center;
   justify-content: center;
   border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);
@@ -167,6 +170,10 @@ _CSS = r"""
   font-size: 0.76rem;
   font-weight: 500;
   line-height: 1;
+}
+.number-control.reserve-suggest .suggest-button {
+  visibility: hidden;
+  pointer-events: none;
 }
 .number-control.has-suggest .number-input {
   flex-basis: 58px;
@@ -335,9 +342,11 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
+  const reserveSuggest = Boolean(data?.reserve_suggest);
   control.classList.toggle('has-help', showHelp);
   const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
+  control.classList.toggle('reserve-suggest', reserveSuggest);
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp);
@@ -527,6 +536,7 @@ def render_mobile_decimal_v2(
             "suggest_enabled": bool(suggest_enabled),
             "suggest_label": str(suggest_label or ""),
             "suggest_active": bool(suggest_active),
+            "reserve_suggest": key == "mortem_decimal_fc_min_val",
             "dense": dense,
         },
         default={"value": value},
