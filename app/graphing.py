@@ -38,7 +38,10 @@ def _is_num(x):
     return x is not None and not (isinstance(x, float) and np.isnan(x))
 
 def _wrap_final(s: str | None) -> str | None:
-    return f'<div class="final-text">{s}</div>' if s else s
+    return (
+        f'<div class="final-text" style="font-family:Arial,sans-serif;font-size:10pt;line-height:14pt;mso-line-height-rule:at-least;">{s}</div>'
+        if s else s
+    )
 
 def render_frase_breve(html: str, key: str = "fb_top"):
     with frase_breve_box(key):
