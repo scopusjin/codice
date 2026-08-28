@@ -70,9 +70,15 @@ body {
 }
 
 .chevron {
-  font-size: 0.96rem;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-1px, -1px);
+  font-size: 0;
   line-height: 1;
-  opacity: 0.68;
+  opacity: 0.88;
 }
 
 .picker {
@@ -188,4 +194,21 @@ body {
   border: 1px solid var(--primary, #168AC1);
   background: var(--primary, #168AC1);
   color: #fff;
+}
+
+@media (max-width: 768px) {
+  .time-control {
+    width: 8.25rem;
+    max-width: 100%;
+  }
+
+  #time-input {
+    font-size: 0.875rem;
+    padding: 0 6px 0 10px;
+  }
+
+  #picker-toggle {
+    flex: 0 0 46px;
+    width: 46px;
+  }
 }
