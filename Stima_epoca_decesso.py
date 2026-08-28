@@ -179,6 +179,7 @@ with st.container(border=True):
                 st.date_input(
                     i18n.ui_text("full.inspection_date"),
                     value=st.session_state["input_data_rilievo"],
+                    format="DD/MM/YYYY",
                     label_visibility="collapsed",
                     key="input_data_rilievo",
                 )
