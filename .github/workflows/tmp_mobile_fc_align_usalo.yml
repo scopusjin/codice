@@ -18,54 +18,56 @@ jobs:
           ref: tmp-mobile-fc-align-usalo-do5
           fetch-depth: 0
 
-      - name: Patch V2 FC alignment
+      - name: Patch Usalo layout
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          p = Path('app/decimal_number_input_v2.py')
+          p = Path('app/full_mobile_compact.py')
           s = p.read_text(encoding='utf-8')
+          start = s.index('/* Risultato FC standard mobile: valore, azione e nota peso in un solo blocco. */')
+          end = s.index('/* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */', start)
+          a, section, b = s[:start], s[start:end], s[end:]
 
-          old = '.suggest-button.is-visible {\n  display: flex;\n  flex: 0 0 auto;\n'
-          new = '.suggest-button.is-visible,\n.number-control.reserve-suggest .suggest-button {\n  display: flex;\n  flex: 0 0 5.4rem;\n  width: 5.4rem;\n  min-width: 5.4rem;\n'
-          assert old in s
-          s = s.replace(old, new, 1)
+          section = section.replace('  gap: 0 !important;', '  gap: 0.20rem !important;', 1)
+          section = section.replace(
+              '  flex: 1 1 auto !important;\n  min-width: 0 !important;\n  margin: 0 !important;\n  padding: 0 !important;',
+              '  flex: 0 0 auto !important;\n  width: max-content !important;\n  min-width: max-content !important;\n  margin: 0 !important;\n  padding: 0 !important;',
+              1,
+          )
+          section = section.replace('  height: 1.86rem !important;', '  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  height: 1.90rem !important;', 1)
+          section = section.replace('  min-height: 1.86rem !important;', '  min-height: 1.90rem !important;', 1)
+          section = section.replace('  max-height: 1.86rem !important;', '  max-height: 1.90rem !important;', 1)
+          section = section.replace('  margin: 0 0.12rem 0 0 !important;', '  margin: 0 !important;', 1)
+          section = section.replace('  padding: 0 0.58rem !important;', '  padding: 0 0.62rem !important;', 1)
+          section = section.replace('  border: 1px solid var(--st-primary-color) !important;', '  border: 1.5px solid var(--st-primary-color, #168AC1) !important;', 1)
+          section = section.replace('  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;', '  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 11%, white) !important;', 1)
+          section = section.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
+          section = section.replace('  font-weight: 650 !important;\n  white-space: nowrap !important;', '  box-shadow: none !important;\n  font-weight: 650 !important;\n  line-height: 1 !important;\n  white-space: nowrap !important;', 1)
+          # Regola colore testo interna al bottone.
+          section = section.replace('  color: var(--st-text-color) !important;', '  color: var(--st-text-color, #31333F) !important;', 1)
 
-          anchor = '}\n.number-control.has-suggest .number-input {'
-          assert anchor in s
-          s = s.replace(anchor, '}\n.number-control.reserve-suggest .suggest-button {\n  visibility: hidden;\n  pointer-events: none;\n}\n.number-control.has-suggest .number-input {', 1)
-
-          old = "  const showSuggest = Boolean(data?.suggest_enabled);\n  control.classList.toggle('has-help', showHelp);"
-          assert old in s
-          s = s.replace(old, "  const showSuggest = Boolean(data?.suggest_enabled);\n  const reserveSuggest = Boolean(data?.reserve_suggest);\n  control.classList.toggle('has-help', showHelp);", 1)
-
-          old = "  control.classList.toggle('has-suggest', showSuggest);\n"
-          assert old in s
-          s = s.replace(old, old + "  control.classList.toggle('reserve-suggest', reserveSuggest);\n", 1)
-
-          old = '            "suggest_active": bool(suggest_active),\n            "dense": dense,'
-          assert old in s
-          s = s.replace(old, '            "suggest_active": bool(suggest_active),\n            "reserve_suggest": key == "mortem_decimal_fc_min_val",\n            "dense": dense,', 1)
-
-          assert 'number-control.reserve-suggest .suggest-button' in s
-          assert 'flex: 0 0 5.4rem;' in s
-          assert '"reserve_suggest": key == "mortem_decimal_fc_min_val"' in s
-          p.write_text(s, encoding='utf-8')
+          assert 'gap: 0.20rem !important;' in section
+          assert 'flex: 0 0 auto !important;' in section
+          assert 'width: max-content !important;' in section
+          assert 'border: 1.5px solid var(--st-primary-color, #168AC1) !important;' in section
+          assert 'display: inline-flex !important;' in section
+          p.write_text(a + section + b, encoding='utf-8')
           PY
 
-      - name: Check V2
+      - name: Check CSS module
         shell: bash
         run: |
           git diff --check
-          python -m compileall -q app/decimal_number_input_v2.py
+          python -m compileall -q app/full_mobile_compact.py
 
-      - name: Commit V2
+      - name: Commit CSS
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/decimal_number_input_v2.py
+          git add app/full_mobile_compact.py
           git diff --cached --quiet && exit 0
-          git commit -m "Allinea controlli FC variabili mobile"
+          git commit -m "Rende Usalo pulsante compatto mobile"
           git push origin HEAD:tmp-mobile-fc-align-usalo-do5
