@@ -9,7 +9,7 @@ localizzabili, evitando l'impilamento dei singoli pulsanti su mobile.
 import importlib
 
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
@@ -41,13 +41,40 @@ def _image_only_tile(ui, option):
     tile = ui._SUPRA_TILES[option]
     width, height = tile.size
     image_height = max(1, round(height * _IMAGE_ONLY_FRACTION))
+
+    # La cella neutra originale contiene anche la scritta raster
+    # "Non valutata": nella griglia corrente il testo è già nel pulsante
+    # sottostante, quindi conserviamo soltanto il simbolo.
+    if option == "Non valutata":
+        visible_height = max(1, round(height * 0.68))
+        cleaned = Image.new("RGB", (width, image_height), (255, 255, 255))
+        cleaned.paste(tile.crop((0, 0, width, visible_height)).convert("RGB"), (0, 0))
+        return cleaned
+
     return tile.crop((0, 0, width, image_height)).convert("RGB")
+
+
+def _uniform_tile_frame(tile):
+    """Uniforma la sottile cornice delle celle senza alterarne il contenuto."""
+    framed = tile.copy()
+    width, height = framed.size
+    draw = ImageDraw.Draw(framed)
+    erase = 3
+    white = (255, 255, 255)
+    frame = (95, 95, 95)
+
+    draw.rectangle((0, 0, width - 1, erase), fill=white)
+    draw.rectangle((0, height - erase - 1, width - 1, height - 1), fill=white)
+    draw.rectangle((0, 0, erase, height - 1), fill=white)
+    draw.rectangle((width - erase - 1, 0, width - 1, height - 1), fill=white)
+    draw.rectangle((0, 0, width - 1, height - 1), outline=frame, width=1)
+    return framed
 
 
 def _compose_row(ui, row):
     """Compone tre immagini mute in una singola riga cliccabile."""
     options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
-    tiles = [_image_only_tile(ui, option) for option in options]
+    tiles = [_uniform_tile_frame(_image_only_tile(ui, option)) for option in options]
     sample = tiles[0]
     tile_width, tile_height = sample.size
     row_image = Image.new("RGB", (tile_width * 3, tile_height), (255, 255, 255))
@@ -180,8 +207,12 @@ def _install_label_css():
     st.markdown(
         """
         <style>
+        [class*="st-key-eccitabilita_sopraciliare_grid"] {
+            margin-top: -0.72rem !important;
+        }
+
         [class*="st-key-eccitabilita_sopraciliare_grid"] > [data-testid="stVerticalBlock"] {
-            gap: 0.04rem !important;
+            gap: 0 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_row_click_"] {
@@ -191,8 +222,8 @@ def _install_label_css():
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] {
             width: 100% !important;
-            margin-top: -0.98rem !important;
-            margin-bottom: -0.24rem !important;
+            margin-top: -1.20rem !important;
+            margin-bottom: -0.34rem !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] div[role="group"],
@@ -206,10 +237,13 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button {
             min-width: 0 !important;
             width: 100% !important;
-            min-height: 2.65rem !important;
-            padding: 3px 3px !important;
+            min-height: 2.45rem !important;
+            padding: 2px 2px !important;
             white-space: normal !important;
             border-color: rgba(128, 128, 128, 0.35) !important;
+            border-top: none !important;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
             background: transparent !important;
         }
 
@@ -219,7 +253,7 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button[data-selected="true"] {
             border-color: #008F84 !important;
             background: #00A699 !important;
-            box-shadow: inset 0 0 0 1px #008F84 !important;
+            box-shadow: none !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] button p {
@@ -227,8 +261,8 @@ def _install_label_css():
             white-space: pre-line !important;
             overflow-wrap: anywhere !important;
             text-align: center !important;
-            line-height: 1.10 !important;
-            font-size: clamp(0.57rem, 2.15vw, 0.72rem) !important;
+            line-height: 1.05 !important;
+            font-size: clamp(0.55rem, 2vw, 0.69rem) !important;
             font-weight: 600 !important;
         }
 
