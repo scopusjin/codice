@@ -6,7 +6,11 @@ const minutesWheel = document.getElementById("minutes-wheel");
 const cancelButton = document.getElementById("cancel-button");
 const setButton = document.getElementById("set-button");
 
-const ITEM_HEIGHT = 44;
+const ITEM_HEIGHT = 36;
+const WHEEL_CYCLES = 7;
+const CENTER_CYCLE = Math.floor(WHEEL_CYCLES / 2);
+const OPEN_HEIGHT = 224;
+
 let committedValue = "00:00";
 let pendingCommittedValue = null;
 let initialized = false;
@@ -30,21 +34,29 @@ function formatTime(hour, minute) {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
+function middleIndex(value, count) {
+  return CENTER_CYCLE * count + value;
+}
+
 function makeWheel(wheel, count) {
   const topSpacer = document.createElement("div");
   topSpacer.className = "wheel-spacer";
   wheel.appendChild(topSpacer);
 
-  for (let i = 0; i < count; i += 1) {
-    const item = document.createElement("div");
-    item.className = "wheel-item";
-    item.textContent = String(i).padStart(2, "0");
-    item.dataset.value = String(i);
-    item.setAttribute("role", "option");
-    item.addEventListener("click", () => {
-      wheel.scrollTo({ top: i * ITEM_HEIGHT, behavior: "smooth" });
-    });
-    wheel.appendChild(item);
+  for (let cycle = 0; cycle < WHEEL_CYCLES; cycle += 1) {
+    for (let value = 0; value < count; value += 1) {
+      const physicalIndex = cycle * count + value;
+      const item = document.createElement("div");
+      item.className = "wheel-item";
+      item.textContent = String(value).padStart(2, "0");
+      item.dataset.value = String(value);
+      item.dataset.physical = String(physicalIndex);
+      item.setAttribute("role", "option");
+      item.addEventListener("click", () => {
+        wheel.scrollTo({ top: physicalIndex * ITEM_HEIGHT, behavior: "smooth" });
+      });
+      wheel.appendChild(item);
+    }
   }
 
   const bottomSpacer = document.createElement("div");
@@ -52,32 +64,59 @@ function makeWheel(wheel, count) {
   wheel.appendChild(bottomSpacer);
 }
 
-function selectedIndex(wheel, max) {
+function selectedPhysicalIndex(wheel, count) {
+  const max = count * WHEEL_CYCLES - 1;
   const raw = Math.round(wheel.scrollTop / ITEM_HEIGHT);
   return Math.max(0, Math.min(max, raw));
 }
 
-function paintSelection(wheel, value) {
-  wheel.querySelectorAll(".wheel-item").forEach((item) => {
-    const selected = Number(item.dataset.value) === value;
-    item.classList.toggle("selected", selected);
-    item.setAttribute("aria-selected", selected ? "true" : "false");
+function valueForIndex(index, count) {
+  return ((index % count) + count) % count;
+}
+
+function paintSelection(wheel, physicalIndex) {
+  wheel.querySelectorAll(".wheel-item.selected").forEach((item) => {
+    item.classList.remove("selected");
+    item.setAttribute("aria-selected", "false");
   });
+
+  const selected = wheel.querySelector(`.wheel-item[data-physical="${physicalIndex}"]`);
+  if (selected) {
+    selected.classList.add("selected");
+    selected.setAttribute("aria-selected", "true");
+  }
 }
 
-function updateHourFromScroll() {
-  draftHour = selectedIndex(hoursWheel, 23);
-  paintSelection(hoursWheel, draftHour);
+function setWheelValue(wheel, count, value) {
+  const physicalIndex = middleIndex(value, count);
+  wheel.scrollTop = physicalIndex * ITEM_HEIGHT;
+  paintSelection(wheel, physicalIndex);
+  return physicalIndex;
 }
 
-function updateMinuteFromScroll() {
-  draftMinute = selectedIndex(minutesWheel, 59);
-  paintSelection(minutesWheel, draftMinute);
+function updateFromScroll(wheel, count, setter) {
+  const physicalIndex = selectedPhysicalIndex(wheel, count);
+  setter(valueForIndex(physicalIndex, count));
+  paintSelection(wheel, physicalIndex);
+  return physicalIndex;
 }
 
-function settleWheel(wheel, value, callback) {
-  wheel.scrollTo({ top: value * ITEM_HEIGHT, behavior: "smooth" });
-  window.setTimeout(callback, 150);
+function settleWheel(wheel, count, setter) {
+  let physicalIndex = selectedPhysicalIndex(wheel, count);
+  wheel.scrollTo({ top: physicalIndex * ITEM_HEIGHT, behavior: "smooth" });
+
+  window.setTimeout(() => {
+    physicalIndex = selectedPhysicalIndex(wheel, count);
+    const value = valueForIndex(physicalIndex, count);
+
+    if (physicalIndex < count || physicalIndex >= (WHEEL_CYCLES - 1) * count) {
+      physicalIndex = middleIndex(value, count);
+      wheel.scrollTop = physicalIndex * ITEM_HEIGHT;
+    }
+
+    setter(value);
+    paintSelection(wheel, physicalIndex);
+  }, 120);
 }
 
 function openPicker() {
@@ -86,13 +125,11 @@ function openPicker() {
   draftMinute = parsed.minute;
   picker.hidden = false;
   display.setAttribute("aria-expanded", "true");
-  Streamlit.setFrameHeight(286);
+  Streamlit.setFrameHeight(OPEN_HEIGHT);
 
   requestAnimationFrame(() => {
-    hoursWheel.scrollTop = draftHour * ITEM_HEIGHT;
-    minutesWheel.scrollTop = draftMinute * ITEM_HEIGHT;
-    paintSelection(hoursWheel, draftHour);
-    paintSelection(minutesWheel, draftMinute);
+    setWheelValue(hoursWheel, 24, draftHour);
+    setWheelValue(minutesWheel, 60, draftMinute);
   });
 }
 
@@ -135,7 +172,7 @@ function onRender(event) {
     }
   }
 
-  Streamlit.setFrameHeight(picker.hidden ? 40 : 286);
+  Streamlit.setFrameHeight(picker.hidden ? 40 : OPEN_HEIGHT);
 }
 
 makeWheel(hoursWheel, 24);
@@ -151,18 +188,18 @@ display.addEventListener("click", () => {
 
 hoursWheel.addEventListener("scroll", () => {
   window.clearTimeout(hourScrollTimer);
-  updateHourFromScroll();
+  updateFromScroll(hoursWheel, 24, (value) => { draftHour = value; });
   hourScrollTimer = window.setTimeout(() => {
-    settleWheel(hoursWheel, draftHour, updateHourFromScroll);
-  }, 90);
+    settleWheel(hoursWheel, 24, (value) => { draftHour = value; });
+  }, 70);
 }, { passive: true });
 
 minutesWheel.addEventListener("scroll", () => {
   window.clearTimeout(minuteScrollTimer);
-  updateMinuteFromScroll();
+  updateFromScroll(minutesWheel, 60, (value) => { draftMinute = value; });
   minuteScrollTimer = window.setTimeout(() => {
-    settleWheel(minutesWheel, draftMinute, updateMinuteFromScroll);
-  }, 90);
+    settleWheel(minutesWheel, 60, (value) => { draftMinute = value; });
+  }, 70);
 }, { passive: true });
 
 cancelButton.addEventListener("click", closePicker);
