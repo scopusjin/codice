@@ -186,6 +186,7 @@ with st.container(border=True):
                 selected_time = native_time_picker(
                     st.session_state["input_ora_rilievo"],
                     key="input_ora_rilievo_native",
+                    mobile=full_device_is_mobile(),
                 )
                 st.session_state["input_ora_rilievo"] = selected_time
     else:
@@ -215,8 +216,7 @@ with st.container(border=True):
             options=livor_labels,
             index=livor_labels.index(prev_livor),
             key="selettore_macchie_ui",
-            label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
+            label_visibility="collapsed"
         )
         st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
         selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
@@ -233,12 +233,15 @@ with st.container(border=True):
             options=rigor_labels,
             index=rigor_labels.index(prev_rigor),
             key="selettore_rigidita_ui",
-            label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
+            label_visibility="collapsed"
         )
         st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
         selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
         st.session_state["selettore_rigidita"] = selettore_rigidita
+
+# Toggle principale
+st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
@@ -256,7 +259,7 @@ with st.container(border=True):
         ):
             with st.container(width="stretch", key="cooling_heading_title_mobile"):
                 st.markdown(
-                    f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                    f"<div class='mortem-section-title'>{i18n.ui_text('full.henssge_heading')}</div>",
                     unsafe_allow_html=True,
                 )
             with st.container(width="content", key="cooling_heading_actions_mobile"):
@@ -276,7 +279,7 @@ with st.container(border=True):
         ):
             with st.container(width="stretch", key="cooling_heading_title_desktop"):
                 st.markdown(
-                    f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                    f"<div class='mortem-section-title'>{i18n.ui_text('full.henssge_heading')}</div>",
                     unsafe_allow_html=True,
                 )
             with st.container(width="content", key="cooling_heading_actions_desktop"):
@@ -285,26 +288,6 @@ with st.container(border=True):
                     key="henssge_non_applicabile",
                     help=i18n.ui_text("full.henssge_not_applicable_help"),
                 )
-
-    st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
-    stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
-
-    # La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
-    # i due estremi coincidono con i valori correnti; nei rerun successivi si
-    # conservano invece i valori già inseriti dall'utente.
-    if stima_cautelativa_beta:
-        if not st.session_state.get("__prudent_explicit_ranges_initialized", False):
-            ta_seed = st.session_state.get("ta_base_val", 20.0)
-            fc_seed = st.session_state.get("fattore_correzione", 1.0)
-            if _is_num(ta_seed):
-                st.session_state["ta_other_val"] = float(ta_seed)
-            if _is_num(fc_seed):
-                st.session_state["fc_min_val"] = float(fc_seed)
-                st.session_state["fc_other_val"] = float(fc_seed)
-            st.session_state["__prudent_explicit_ranges_initialized"] = True
-        st.session_state["range_unico_beta"] = True
-    else:
-        st.session_state["range_unico_beta"] = False
 
     if henssge_non_app:
         # Metodo di Henssge escluso: non mostrare la maschera di input del raffreddamento
@@ -316,29 +299,41 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
         if stima_cautelativa_beta:
-            with st.container(key="prudent_explicit_ranges"):
+            rg1, rg2 = st.columns([3, 1], gap="small") if not full_mobile else (None, None)
+            if full_mobile:
                 st.markdown(
                     i18n.ui_text("full.prudent_default_note"),
                     unsafe_allow_html=True
                 )
+                range_unico = st.toggle(i18n.ui_text("full.specify_range"), key="range_unico_beta")
+            else:
+                with rg1:
+                    st.markdown(
+                        i18n.ui_text("full.prudent_default_note"),
+                        unsafe_allow_html=True
+                    )
+                with rg2:
+                    range_unico = st.toggle(i18n.ui_text("full.specify_range"), key="range_unico_beta")
 
-            label_ta = i18n.ui_text("full.ta_range_label")
-            label_fc = i18n.ui_text("full.fc_range_label")
+            # Etichette dinamiche
+            label_ta = i18n.ui_text("full.ta_mean_label")
+            label_fc = i18n.ui_text("full.fc_label")
+            if st.session_state.get("range_unico_beta", False):
+                label_ta = i18n.ui_text("full.ta_range_label")
+                label_fc = i18n.ui_text("full.fc_range_label")
 
             if full_mobile:
                 with st.container(gap="xsmall", key="cooling_prudent_v2_stack_mobile"):
-                    rectal_label = i18n.ui_text("full.rectal_temp_label")
                     st.number_input(
-                        rectal_label,
-                        value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                        key="rt_val", label_visibility="collapsed"
+                        "Temperatura rettale",
+                        min_value=0.0, max_value=45.0, step=0.1, value=None,
+                        placeholder="es. 32.0", key="rt_val", format="%.1f"
                     )
                     st.number_input(
-                        i18n.ui_text("full.antemortem_temp_estimated_label"),
-                        value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                        key="tm_val", label_visibility="collapsed"
+                        "Temperatura ante-mortem",
+                        min_value=35.0, max_value=42.0, step=0.1,
+                        value=sget("tm_val", 37.2), key="tm_val", format="%.1f"
                     )
-
                     with st.container(
                         horizontal=True,
                         wrap=False,
@@ -349,85 +344,58 @@ with st.container(border=True):
                     ):
                         with st.container(width="stretch", key="prudent_weight_value_mobile"):
                             st.number_input(
-                                i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed"
+                                "Peso corporeo",
+                                min_value=1.0, max_value=250.0, step=0.5,
+                                value=float(sget("peso", 70.0)), key="peso", format="%.1f"
                             )
-                        with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
-                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+                        with st.container(width="content", key="prudent_weight_toggle_mobile"):
+                            st.toggle(
+                                i18n.ui_text("full.weight_estimated_toggle"),
+                                key="peso_stimato_beta",
+                            )
 
                     ta_base_val = st.number_input(
-                        i18n.ui_text("full.ta_base_input"),
-                        value=sget("ta_base_val", 20.0),
-                        step=0.1, format="%.1f",
-                        key="ta_base_val",
-                        label_visibility="collapsed"
+                        "Temperatura ambientale 1",
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_base_val", 20.0)), key="ta_base_val", format="%.1f"
                     )
                     ta_other_val = st.number_input(
-                        i18n.ui_text("full.ta_other_input"),
-                        value=sget("ta_other_val", ta_base_val),
-                        step=0.1, format="%.1f",
-                        key="ta_other_val",
-                        label_visibility="collapsed"
+                        "Temperatura ambientale 2",
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_other_val", ta_base_val)), key="ta_other_val", format="%.1f"
                     )
-                    ta_values = [
-                        st.session_state.get("ta_base_val"),
-                        st.session_state.get("ta_other_val"),
-                    ]
-                    if all(_is_num(v) for v in ta_values):
-                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
-                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                    else:
-                        st.session_state.pop("Ta_min_beta", None)
-                        st.session_state.pop("Ta_max_beta", None)
 
                     fc_min_val = st.number_input(
-                        i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_min_val",
-                        label_visibility="collapsed"
+                        "Fattore di correzione minimo",
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fc_min_val", 1.00)), key="fc_min_val", format="%.2f"
                     )
                     fc_other_val = st.number_input(
-                        i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_other_val",
-                        label_visibility="collapsed"
+                        "Fattore di correzione massimo",
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fc_other_val", fc_min_val)), key="fc_other_val", format="%.2f"
                     )
-                    fc_values = [
-                        st.session_state.get("fc_min_val"),
-                        st.session_state.get("fc_other_val"),
-                    ]
-                    if all(_is_num(v) for v in fc_values):
-                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
-                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                    else:
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
-
-                    # In mobile il solo V2 "FC max" ospita il comando Consiglia.
-                    # Il pannello suggerisce l'intero intervallo, non un estremo specifico.
+                    st.toggle(
+                        i18n.ui_text("full.suggest_fc"),
+                        key="toggle_fattore_inline",
+                    )
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
                     )
-            else:
-                with st.container(gap="small", key="cooling_prudent_v2_grid_desktop"):
-                    c1, c2 = st.columns(2, gap="small")
-                    with c1:
-                        rectal_label = i18n.ui_text("full.rectal_temp_label")
-                        st.number_input(
-                            rectal_label,
-                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                            key="rt_val", label_visibility="collapsed"
-                        )
-                    with c2:
-                        st.number_input(
-                            i18n.ui_text("full.antemortem_temp_estimated_label"),
-                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed"
-                        )
 
+            else:
+                # Desktop: stessi controlli V2 della Full mobile, con etichette estese.
+                with st.container(gap="xsmall", key="cooling_prudent_v2_stack_desktop"):
+                    st.number_input(
+                        i18n.ui_text("full.rectal_temp_label"),
+                        min_value=0.0, max_value=45.0, step=0.1, value=None,
+                        placeholder="es. 32.0", key="rt_val", format="%.1f"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.ante_mortem_temp_label"),
+                        min_value=35.0, max_value=42.0, step=0.1,
+                        value=sget("tm_val", 37.2), key="tm_val", format="%.1f"
+                    )
                     with st.container(
                         horizontal=True,
                         wrap=False,
@@ -439,411 +407,167 @@ with st.container(border=True):
                         with st.container(width="stretch", key="prudent_weight_value_desktop"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed"
+                                min_value=1.0, max_value=250.0, step=0.5,
+                                value=float(sget("peso", 70.0)), key="peso", format="%.1f"
                             )
-                        with st.container(width="content", key="prudent_weight_uncertainty_desktop"):
-                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+                        with st.container(width="content", key="prudent_weight_toggle_desktop"):
+                            st.toggle(
+                                i18n.ui_text("full.weight_estimated_toggle"),
+                                key="peso_stimato_beta",
+                            )
 
-                    ta_c1, ta_c2 = st.columns(2, gap="small")
-                    with ta_c1:
-                        ta_base_val = st.number_input(
-                            i18n.ui_text("full.ta_base_input"),
-                            value=sget("ta_base_val", 20.0),
-                            step=0.1, format="%.1f",
-                            key="ta_base_val",
-                            label_visibility="collapsed"
-                        )
-                    with ta_c2:
-                        ta_other_val = st.number_input(
-                            i18n.ui_text("full.ta_other_input"),
-                            value=sget("ta_other_val", ta_base_val),
-                            step=0.1, format="%.1f",
-                            key="ta_other_val",
-                            label_visibility="collapsed"
-                        )
-                    ta_values = [
-                        st.session_state.get("ta_base_val"),
-                        st.session_state.get("ta_other_val"),
-                    ]
-                    if all(_is_num(v) for v in ta_values):
-                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
-                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                    else:
-                        st.session_state.pop("Ta_min_beta", None)
-                        st.session_state.pop("Ta_max_beta", None)
+                    ta_base_val = st.number_input(
+                        i18n.ui_text("full.ambient_temp_1_label"),
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_base_val", 20.0)), key="ta_base_val", format="%.1f"
+                    )
+                    ta_other_val = st.number_input(
+                        i18n.ui_text("full.ambient_temp_2_label"),
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_other_val", ta_base_val)), key="ta_other_val", format="%.1f"
+                    )
 
                     fc_min_val = st.number_input(
-                        i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_min_val",
-                        label_visibility="collapsed"
+                        i18n.ui_text("full.fc_min_label"),
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fc_min_val", 1.00)), key="fc_min_val", format="%.2f"
                     )
                     fc_other_val = st.number_input(
-                        i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_other_val",
-                        label_visibility="collapsed"
+                        i18n.ui_text("full.fc_max_label"),
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fc_other_val", fc_min_val)), key="fc_other_val", format="%.2f"
                     )
-                    fc_values = [
-                        st.session_state.get("fc_min_val"),
-                        st.session_state.get("fc_other_val"),
-                    ]
-                    if all(_is_num(v) for v in fc_values):
-                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
-                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                    else:
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
-
+                    st.toggle(
+                        i18n.ui_text("full.suggest_fc"),
+                        key="toggle_fattore_inline",
+                    )
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
                     )
 
+            # Sincronizza i range globali
+            tmin, tmax = sorted([ta_base_val, ta_other_val])
+            fmin, fmax = sorted([fc_min_val, fc_other_val])
+            st.session_state["Ta_min_beta"] = tmin
+            st.session_state["Ta_max_beta"] = tmax
+            st.session_state["FC_min_beta"] = fmin
+            st.session_state["FC_max_beta"] = fmax
+
+        # -------------------------
+        # 🔹 MASCHERA STANDARD
+        # -------------------------
         else:
-            # -------------------------
-            # 🔷 MASCHERA STANDARD
-            # -------------------------
             if full_mobile:
-                # Su mobile i V2 sono renderizzati direttamente nella pila:
-                # nessun vecchio st.columns limita la larghezza disponibile.
                 with st.container(gap="xsmall", key="cooling_standard_v2_stack_mobile"):
-                    rectal_label = i18n.ui_text("full.rectal_temp_label")
                     st.number_input(
-                        rectal_label,
-                        value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                        key="rt_val", label_visibility="collapsed"
+                        "Temperatura rettale",
+                        min_value=0.0, max_value=45.0, step=0.1, value=None,
+                        placeholder="es. 32.0", key="rt_val", format="%.1f"
                     )
                     st.number_input(
-                        i18n.ui_text("full.antemortem_temp_estimated_label"),
-                        value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                        key="tm_val", label_visibility="collapsed"
+                        "Temperatura ante-mortem",
+                        min_value=35.0, max_value=42.0, step=0.1,
+                        value=sget("tm_val", 37.2), key="tm_val", format="%.1f"
+                    )
+                    st.number_input(
+                        "Peso corporeo",
+                        min_value=1.0, max_value=250.0, step=0.5,
+                        value=float(sget("peso", 70.0)), key="peso", format="%.1f"
+                    )
+                    st.number_input(
+                        "Temperatura ambientale",
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_base_val", 20.0)), key="ta_base_val", format="%.1f"
+                    )
+                    st.number_input(
+                        "Fattore di correzione",
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fattore_correzione", 1.0)), key="fattore_correzione", format="%.2f"
+                    )
+                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
+                    st.session_state["toggle_fattore"] = bool(
+                        st.session_state.get("toggle_fattore_inline_std", False)
+                    )
+            else:
+                with st.container(gap="xsmall", key="cooling_standard_v2_stack_desktop"):
+                    st.number_input(
+                        i18n.ui_text("full.rectal_temp_label"),
+                        min_value=0.0, max_value=45.0, step=0.1, value=None,
+                        placeholder="es. 32.0", key="rt_val", format="%.1f"
+                    )
+                    st.number_input(
+                        i18n.ui_text("full.ante_mortem_temp_label"),
+                        min_value=35.0, max_value=42.0, step=0.1,
+                        value=sget("tm_val", 37.2), key="tm_val", format="%.1f"
                     )
                     st.number_input(
                         i18n.ui_text("full.weight_label"),
-                        value=sget("peso", 70.0), step=1.0, format="%.1f",
-                        key="peso", label_visibility="collapsed"
+                        min_value=1.0, max_value=250.0, step=0.5,
+                        value=float(sget("peso", 70.0)), key="peso", format="%.1f"
                     )
                     st.number_input(
-                        i18n.ui_text("full.ta_input_label"),
-                        value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                        key="ta_base_val", label_visibility="collapsed"
+                        i18n.ui_text("full.ambient_temp_label"),
+                        min_value=-10.0, max_value=50.0, step=0.1,
+                        value=float(sget("ta_base_val", 20.0)), key="ta_base_val", format="%.1f"
                     )
                     st.number_input(
-                        i18n.ui_text("full.fc_input_label"),
-                        value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                        key="fattore_correzione", label_visibility="collapsed"
+                        i18n.ui_text("full.fc_label"),
+                        min_value=0.5, max_value=3.0, step=0.01,
+                        value=float(sget("fattore_correzione", 1.0)), key="fattore_correzione", format="%.2f"
                     )
-                    # Resta montato per conservare lo stesso stato; il CSS mobile
-                    # lo nasconde perché il comando Consiglia è integrato nel V2.
                     st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
-                    st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
-            else:
-                with st.container(gap="small", key="cooling_standard_v2_grid_desktop"):
-                    c1, c2 = st.columns(2, gap="small")
-                    with c1:
-                        rectal_label = i18n.ui_text("full.rectal_temp_label")
-                        st.number_input(
-                            rectal_label,
-                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                            key="rt_val", label_visibility="collapsed"
-                        )
-                    with c2:
-                        st.number_input(
-                            i18n.ui_text("full.antemortem_temp_estimated_label"),
-                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed"
-                        )
-
-                    c1, c2 = st.columns(2, gap="small")
-                    with c1:
-                        st.number_input(
-                            i18n.ui_text("full.weight_label"),
-                            value=sget("peso", 70.0), step=1.0, format="%.1f",
-                            key="peso", label_visibility="collapsed"
-                        )
-                    with c2:
-                        st.number_input(
-                            i18n.ui_text("full.ta_input_label"),
-                            value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                            key="ta_base_val", label_visibility="collapsed"
-                        )
-
-                    st.number_input(
-                        i18n.ui_text("full.fc_input_label"),
-                        value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                        key="fattore_correzione", label_visibility="collapsed"
-                    )
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline_std", False)
                     )
 
-    # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
-    if st.session_state.get("toggle_fattore", False):
-        if full_mobile:
-            with st.container(border=False, key="full_fc_panel_mobile"):
-                pannello_suggerisci_fc(
-                    peso_default=st.session_state.get("peso", 70.0),
-                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-                )
-        else:
-            with st.container(border=True):
-                pannello_suggerisci_fc(
-                    peso_default=st.session_state.get("peso", 70.0),
-                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-                )
-
-# Parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")
-widgets_parametri_aggiuntivi = {}
-
-if mostra_parametri_aggiuntivi:
-    with st.container(border=True):
-        usa_orario_custom_globale = st.session_state.get("usa_orario_custom", False)
-
-        if not usa_orario_custom_globale:
-            st.markdown(
-                i18n.ui_text("full.special_datetime_hint"),
-                unsafe_allow_html=True
-            )
-
-        for parametro_id in FULL_SPECIAL_PARAM_BY_LABEL.values():
-            nome_parametro = full_special_parameter_label(parametro_id)
-            nome_parametro_legacy = full_special_parameter_legacy_value(parametro_id)
-            dati_parametro = dati_parametri_aggiuntivi[nome_parametro_legacy]
-            col1, col2 = st.columns([1, 2], gap="small")
-
-            with col1:
-                subcol1, subcol2 = st.columns([1, 0.5])
-                with subcol1:
-                    st.markdown(
-                        f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{nome_parametro}:</div>",
-                        unsafe_allow_html=True
+        # Pannello FC (dentro lo stesso riquadro del raffreddamento)
+        if st.session_state.get("toggle_fattore", False):
+            if full_mobile:
+                with st.container(border=False, key="full_fc_panel_mobile"):
+                    pannello_suggerisci_fc(
+                        peso_default=st.session_state.get("peso", 70.0),
+                        key_prefix="fcpanel_caut" if stima_cautelativa_beta else "fcpanel_std",
                     )
-                with subcol2:
-                    if parametro_id in {PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL}:
-                        with st.popover(" "):
-                            if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
-                                st.image(
-                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/eccitabilit%C3%A0.PNG",
-                                    width=400
-                                )
-                            elif parametro_id == PARAM_ELECTRICAL_PERIORAL:
-                                st.image(
-                                    "https://raw.githubusercontent.com/scopusjin/codice/main/immagini/peribuccale.PNG",
-                                    width=300
-                                )
-
-            with col2:
-                selettore = st.selectbox(
-                    label=nome_parametro,
-                    options=list(full_special_option_labels(parametro_id)),
-                    key=f"{nome_parametro_legacy}_selector",
-                    label_visibility="collapsed"
-                )
-                selettore_id = full_special_option_id(parametro_id, selettore)
-                selettore_legacy = full_special_option_legacy_value(parametro_id, selettore)
-                st.session_state[f"special_{parametro_id}_id"] = selettore_id
-
-            data_picker = None
-            ora_input = None
-            usa_orario_personalizzato = False
-
-            if selettore_id != OPTION_NOT_ASSESSED and usa_orario_custom_globale:
-                chiave_checkbox = f"{nome_parametro_legacy}_diversa"
-                colx1, colx2 = st.columns([0.75, 0.25], gap="small")
-                with colx1:
-                    st.markdown(
-                        "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
-                        f"{i18n.ui_text('full.assessed_different_time')}"
-                        "</div>",
-                        unsafe_allow_html=True
+            else:
+                with st.container(border=True, key="full_fc_panel_desktop"):
+                    pannello_suggerisci_fc(
+                        peso_default=st.session_state.get("peso", 70.0),
+                        key_prefix="fcpanel_caut" if stima_cautelativa_beta else "fcpanel_std",
                     )
-                with colx2:
-                    usa_orario_personalizzato = st.checkbox(label="", key=chiave_checkbox)
 
-            if usa_orario_custom_globale and usa_orario_personalizzato:
-                coly1, coly2 = st.columns(2)
-                with coly1:
-                    measurement_date = i18n.ui_text("full.measurement_date")
-                    st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_date}</div>", unsafe_allow_html=True)
-                    data_picker = st.date_input(measurement_date, value=input_data_rilievo,
-                                                key=f"{nome_parametro_legacy}_data", label_visibility="collapsed")
-                with coly2:
-                    measurement_time = i18n.ui_text("full.measurement_time")
-                    st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_time}</div>", unsafe_allow_html=True)
-                    ora_input = st.text_input(i18n.ui_text("full.measurement_time_input"), value=input_ora_rilievo,
-                                              key=f"{nome_parametro_legacy}_ora", label_visibility="collapsed")
-
-            widgets_parametri_aggiuntivi[nome_parametro_legacy] = {
-                "selettore": selettore_legacy,
-                "data_rilievo": data_picker,
-                "ora_rilievo": ora_input
-            }
-
-        chk_putrefattive = st.checkbox(i18n.ui_text("full.putrefactive_changes"), value=st.session_state.get("alterazioni_putrefattive", False))
-        st.session_state["alterazioni_putrefattive"] = chk_putrefattive
-else:
-    st.session_state["alterazioni_putrefattive"] = False
-
-def _inputs_signature():
-    import numpy as np
-    import datetime as _dt
-    import streamlit as st
-
-    def _freeze(v):
-        if v is None or isinstance(v, bool):
-            return v
-        if isinstance(v, (np.floating,)):
-            return float(v)
-        if isinstance(v, (np.integer,)):
-            return int(v)
-        if isinstance(v, (int, float)):
-            return v
-        if isinstance(v, (_dt.date, _dt.datetime, _dt.time)):
-            try:
-                return v.isoformat()
-            except Exception:
-                return str(v)
-        if isinstance(v, (list, tuple)):
-            return tuple(_freeze(x) for x in v)
-        if isinstance(v, dict):
-            return tuple(sorted((k, _freeze(val)) for k, val in v.items()))
-        return str(v)
-
-    base = [
-        bool(st.session_state.get("usa_orario_custom", False)),
-        bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
-        bool(st.session_state.get("henssge_non_applicabile", False)),
-        _freeze(st.session_state.get("input_data_rilievo")),
-        _freeze(st.session_state.get("input_ora_rilievo")),
-        _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
-        _freeze(st.session_state.get("selettore_rigidita") if "selettore_rigidita" in st.session_state else None),
-        _freeze(st.session_state.get("rt_val")),
-        _freeze(st.session_state.get("ta_base_val") if "ta_base_val" in st.session_state else None),
-        _freeze(st.session_state.get("tm_val")),
-        _freeze(st.session_state.get("peso")),
-        _freeze(st.session_state.get("fattore_correzione", 1.0)),
-        bool(st.session_state.get("alterazioni_putrefattive", False)),
-        bool(st.session_state.get("stima_cautelativa_beta", False)),
-    ]
-
-    try:
-        from app.parameters import dati_parametri_aggiuntivi
-        extra = []
-        for nome_parametro, _ in dati_parametri_aggiuntivi.items():
-            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_selector")))
-            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_diversa")))
-            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_data")))
-            extra.append(_freeze(st.session_state.get(f"{nome_parametro}_ora")))
-    except Exception:
-        extra = []
-
-    caut = [
-        _freeze(st.session_state.get("Ta_min_beta")),
-        _freeze(st.session_state.get("Ta_max_beta")),
-        _freeze(st.session_state.get("FC_min_beta")),
-        _freeze(st.session_state.get("FC_max_beta")),
-        bool(st.session_state.get("peso_stimato_beta", False)),
-        bool(st.session_state.get("range_unico_beta", False)),
-        _freeze(st.session_state.get("ta_other_val")),
-        _freeze(st.session_state.get("fc_other_val")),
-        tuple(sorted(_freeze(st.session_state.get("fc_suggested_vals", [])))),
-    ]
-
-    return tuple(_freeze(base + extra + caut))
-
-# --- Firma degli input che influenzano la stima ---
-curr_sig = _inputs_signature()
-
-# Stato iniziale sicuro
-if "last_run_sig" not in st.session_state:
-    st.session_state["last_run_sig"] = None
-if "show_results" not in st.session_state:
-    st.session_state["show_results"] = False
-
-# Stile bottone
-st.markdown("""
-    <style>
-    div.stButton > button {
-        border: 2px solid #2196F3 !important;
-        color: black !important;
-        background-color: white !important;
-        font-weight: bold;
-        border-radius: 8px !important;
-        padding: 0.6em 2em !important;
-    }
-    div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Bottone: esegue il calcolo SOLO su click ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    if st.button(i18n.ui_text("full.estimate_button"), key="btn_stima"):
-        st.session_state["last_run_sig"] = curr_sig
-        st.session_state["show_results"] = True
-
-# --- Se QUALSIASI input cambia: nascondi risultati (NON ricalcolare) ---
-if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr_sig:
-    st.session_state["show_results"] = False
-
-# --- Mostra risultati SOLO se richiesti e firma invariata ---
-if st.session_state["show_results"]:
-    input_rt = st.session_state.get("rt_val")
-    input_ta = st.session_state.get("ta_base_val")
-    input_tm = st.session_state.get("tm_val")
-    input_w  = st.session_state.get("peso")
-
-    no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
-    no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
-    no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
-
-    if no_rt and no_macchie and no_rigidita:
-        st.warning(i18n.ui_text("full.no_data_warning"))
-        st.stop()
-
-    base_ok = (
-        not st.session_state.get("henssge_non_applicabile", False) and
-        not no_rt and
-        input_ta is not None and
-        input_tm is not None and
-        input_w  is not None and input_w > 0
+# --- Parametri aggiuntivi ---
+with st.container(border=True):
+    st.markdown(
+        f"<div class='mortem-section-title'>{i18n.ui_text('full.additional_parameters_heading')}</div>",
+        unsafe_allow_html=True,
     )
+    for param_id, opts in dati_parametri_aggiuntivi.items():
+        label = full_special_parameter_label(param_id)
+        option_labels = full_special_option_labels(param_id)
+        current_legacy = st.session_state.get(param_id)
+        current_id = st.session_state.get(f"{param_id}_id")
+        if current_id is None:
+            current_id = OPTION_NOT_ASSESSED
+        current_label = next(
+            (lbl for lbl in option_labels if full_special_option_id(param_id, lbl) == current_id),
+            option_labels[0],
+        )
+        selected_label = st.selectbox(
+            label,
+            options=option_labels,
+            index=option_labels.index(current_label),
+            key=f"{param_id}_ui",
+            label_visibility="visible",
+            filter_mode=full_select_filter_mode,
+        )
+        st.session_state[f"{param_id}_id"] = full_special_option_id(param_id, selected_label)
+        st.session_state[param_id] = full_special_option_legacy_value(param_id, selected_label)
 
-    prudente_ok = True
-    if base_ok and st.session_state.get("stima_cautelativa_beta", False):
-        ta_vals = _build_ta_values_from_ui()
-        if not ta_vals and _is_num(input_ta):
-            ta_vals = [float(input_ta)]
-        prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
-        if not prudente_ok:
-            _warn_box(i18n.ui_text("full.henssge_incoherent_warning"))
+# --- Calcola / Risultati ---
+if st.button(i18n.ui_text("full.calculate"), type="primary", use_container_width=True):
+    st.session_state["show_results"] = True
 
-    considera_raffreddamento = base_ok and (
-        not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
-    )
+if st.session_state.get("show_results", False):
+    aggiorna_grafico()
 
-    aggiorna_grafico(
-        selettore_macchie=selettore_macchie,
-        selettore_rigidita=selettore_rigidita,
-        input_rt=(input_rt if considera_raffreddamento else None),
-        input_ta=(input_ta if considera_raffreddamento else None),
-        input_tm=(input_tm if considera_raffreddamento else None),
-        input_w=(input_w if considera_raffreddamento else None),
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
-        widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
-        usa_orario_custom=st.session_state.get("usa_orario_custom", False),
-        input_data_rilievo=st.session_state.get("input_data_rilievo"),
-        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
-        alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
-        skip_warnings=True,
-    )
-
-render_mobile_page_switch(
-    "Modalità sopralluogo",
-    "pages/App_MSIL.py",
-    "mobile_nav_footer_to_msil",
-)
+render_mobile_page_switch(target="msil")
