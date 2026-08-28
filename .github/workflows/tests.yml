@@ -33,3 +33,5 @@ jobs:
           vulture Stima_epoca_decesso.py app pages tests --min-confidence 90 || true
           echo '=== VULTURE 80 ==='
           vulture Stima_epoca_decesso.py app pages tests --min-confidence 80 || true
+          echo '=== VULTURE 60 ==='
+          vulture Stima_epoca_decesso.py app pages tests --min-confidence 60 || true
