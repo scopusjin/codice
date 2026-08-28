@@ -26,44 +26,6 @@ from app.full_factor_ui import (
 from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
 
 
-def _fc_palette():
-    base = st.get_option("theme.base") or "light"
-    if base.lower() == "dark":
-        return dict(bg="#0d2a47", text="#d6e9ff", border="#1976d2", note="#a7c7ff")
-    else:
-        return dict(bg="#e8f0fe", text="#0d47a1", border="#1976d2", note="#3f6fb5")
-            
-
-def _fc_box(f_finale: float, f_base: float | None, peso_corrente: float | None):
-    pal = _fc_palette()
-    main = (
-        f'<div style="background:{pal["bg"]};color:{pal["text"]};'
-        f'border:1px solid {pal["border"]};border-radius:8px;'
-        f'padding:10px;font-weight:600;">'
-        f'{i18n.ui_text("full.fc_suggested", value=f_finale)}'
-        f'</div>'
-    )
-    side_text = ""
-    if f_base is not None and peso_corrente is not None and abs(f_finale - f_base) > 1e-9:
-        side_text = i18n.ui_text(
-            "full.fc_adjusted_for_weight", weight=peso_corrente, base=f_base
-        )
-
-    if full_device_is_mobile() and side_text:
-        st.markdown(main, unsafe_allow_html=True)
-        st.markdown(
-            f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        side = (
-            f'<div style="color:{pal["note"]};padding:10px 2px 0 2px;font-size:0.92em;">'
-            f'{side_text}'
-            f'</div>'
-        ) if side_text else ""
-        st.markdown(main + side, unsafe_allow_html=True)
-
-
 def _sync_fc_range_from_suggestions():
     vals = st.session_state.get("fc_suggested_vals", [])
     vals = sorted({round(float(v), 2) for v in vals if v is not None})

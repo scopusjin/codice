@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict, Any, Literal, Tuple
 import numpy as np
 import pandas as pd
-from decimal import Decimal, ROUND_FLOOR, InvalidOperation
+from decimal import Decimal, ROUND_FLOOR
 
 from app import i18n
 
@@ -455,91 +455,6 @@ def autosync_fc_if_needed(
 # --------------------------------
 # Parentetica (descrizione FC)
 # --------------------------------
-def _classifica_superficie(s: Optional[str]) -> Optional[str]:
-    """Riduce il testo della superficie a: 'conduttiva' | 'isolante' | 'indifferente'."""
-    if not s or s == "/":
-        return None
-    s_low = s.lower()
-    if ("metall" in s_low) or ("cemento" in s_low) or ("pietra" in s_low) or ("pvc" in s_low) or ("pavimentazione fredda" in s_low) or ("pavimentazione esterna" in s_low):
-        return "conduttiva"
-    if ("materasso" in s_low) or ("tappeto" in s_low) or ("imbottito" in s_low) or ("imbottitura" in s_low) or ("foglie" in s_low) or ("polistirolo" in s_low):
-        return "isolante"
-    return "indifferente"
-
-def _classifica_superficie_from_key(k: Optional[str]) -> Optional[str]:
-    if not k or k == SURF_INDIFF:
-        return None
-    if k in {SURF_ISOL, SURF_FOGLIU, SURF_FOGLIS}:
-        return "isolante"
-    if k == SURF_MOLTOI:
-        return "molto isolante"
-    if k == SURF_COND:
-        return "conduttiva"
-    if k == SURF_MOLTOC:
-        return "molto conduttiva"
-    return None
-
-def _format_stato(s: Optional[str]) -> Optional[str]:
-    if not s:
-        return None
-    if s == "Immerso":
-        return "corpo immerso"
-    if s == "Bagnato":
-        return "corpo bagnato"
-    # Asciutto non va indicato
-    return None
-
-def _format_corrente(c: Optional[str]) -> Optional[str]:
-    if not c or c == "/":
-        return None
-    c_low = c.lower()
-    if "acqua corrente" in c_low:
-        return "in acqua corrente"
-    if "acqua stagnante" in c_low:
-        return "in acqua stagnante"
-    if "correnti d'aria" in c_low or "con correnti" in c_low or "esposto a corrente" in c_low:
-        return "con correnti d'aria"
-    return None  # non scrivere se assenti
-
-def _format_indumenti(sottili: int, spessi: int, stato: Optional[str]) -> Optional[str]:
-    if sottili == 0 and spessi == 0:
-        if stato in ("Bagnato", "Immerso"):
-            return "nudo"
-        else:
-            return "corpo nudo"
-    if spessi == 0:
-        if 1 <= sottili <= 2: return "con indosso pochi strati leggeri"
-        if 3 <= sottili <= 4: return "con indosso alcuni strati leggeri"
-        if sottili >= 5:      return "con indosso molti strati leggeri"
-    if sottili == 0:
-        if 1 <= spessi <= 2: return "con indosso pochi strati pesanti"
-        if 3 <= spessi <= 4: return "con indosso vari strati pesanti"
-        if spessi >= 5:      return "con indosso molti strati pesanti"
-    tot = sottili + spessi
-    if 1 <= tot <= 2: return "con indosso pochi strati di vario spessore"
-    if 3 <= tot <= 4: return "con indosso alcuni strati di vario spessore"
-    if tot >= 5:      return "con indosso molti strati di vario spessore"
-    return None
-
-def _format_coperte(cop_med: int, cop_pes: int, is_nudo: bool) -> Optional[str]:
-    if cop_med == 0 and cop_pes == 0:
-        return None
-    if cop_med > 0 and cop_pes == 0:
-        if cop_med == 1:  base = "sotto una coperta di medio spessore"
-        elif cop_med == 2: base = "sotto due coperte di medio spessore"
-        else:              base = "sotto varie coperte di medio spessore"
-        return ("corpo nudo " + base) if is_nudo else base
-    if cop_pes > 0 and cop_med == 0:
-        if cop_pes == 1:  base = "sotto una coperta pesante"
-        elif cop_pes == 2: base = "sotto due coperte pesanti"
-        else:              base = "sotto varie coperte pesanti"
-        return ("corpo nudo " + base) if is_nudo else base
-    tot = cop_med + cop_pes
-    if 1 <= tot <= 2: base = "sotto poche coperte di diverso spessore"
-    elif 3 <= tot <= 4: base = "sotto alcune coperte di diverso spessore"
-    else: base = "sotto molte coperte di diverso spessore"
-    return ("corpo nudo " + base) if is_nudo else base
-
 def build_cf_description(
     cf_value: float,
     riassunto: Optional[Dict[str, Any]],

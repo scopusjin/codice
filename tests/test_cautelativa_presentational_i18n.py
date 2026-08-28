@@ -36,7 +36,7 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
             build_summary_html(
                 19.0, 21.0, 0.9, 1.1, 70.0, 70.0,
                 5.0, 10.0, None, None, None, None,
-                peso_stimato=False, agg_max_raw=10.0,
+                peso_stimato=False,
             ),
             expected,
         )

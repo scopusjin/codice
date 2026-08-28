@@ -21,9 +21,6 @@ def _fmt_dt(dt: datetime.datetime) -> Tuple[str, str]:
 def _safe_is_nan(x: Optional[float]) -> bool:
     return x is None or np.isnan(x)
 
-def _bold(txt: str) -> str:
-    return f"<b>{txt}</b>"
-
 # --- Helper formattazione ore/minuti ---
 
 def _hm_from_hours(ore_float: float) -> tuple[int, int]:

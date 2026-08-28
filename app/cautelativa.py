@@ -229,7 +229,7 @@ def compute_raffreddamento_cautelativo(
     summary = build_summary_html(
         Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
         agg_min_all, agg_max_all, dt_min, dt_max, qd_min, qd_max,
-        peso_stimato=peso_stimato, agg_max_raw=agg_max_all,
+        peso_stimato=peso_stimato,
     )
 
     try:
@@ -287,11 +287,6 @@ def _fmt_ore(ore: float) -> str:
     return i18n.prudent_hours_text(ore)
 
 
-def _lbl_ore(x: float) -> str:
-    """Ritorna 'ora' al singolare se =1, altrimenti 'ore'."""
-    return "ora" if abs(x - 1.0) < 1e-9 else "ore"
-
-
 def build_summary_html(
     Ta_lo: float, Ta_hi: float,
     CF_lo: float, CF_hi: float,
@@ -299,7 +294,7 @@ def build_summary_html(
     ore_min: float, ore_max: float,
     dt_min: Optional[datetime], dt_max: Optional[datetime],
     qd_min: Optional[float], qd_max: Optional[float],
-    *, peso_stimato: bool, agg_max_raw: float
+    *, peso_stimato: bool
 ) -> str:
     # Formattazioni base
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
