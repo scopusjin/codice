@@ -534,7 +534,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                     )
                 with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
                     st.button(
-                        "Usalo",
+                        "→ Usalo",
                         type="secondary",
                         on_click=apply_callback, args=apply_args,
                         key=f"{key_prefix}_btn_usa_fc{suffix}",

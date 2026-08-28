@@ -295,9 +295,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box !important;
   width: 100% !important;
   min-width: 0 !important;
-  height: 2.15rem !important;
-  min-height: 2.15rem !important;
-  max-height: 2.15rem !important;
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
   gap: 0.14rem !important;
   align-items: center !important;
   justify-content: flex-start !important;
@@ -320,9 +320,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  height: 2.15rem;
-  min-height: 2.15rem;
-  max-height: 2.15rem;
+  height: 1.90rem;
+  min-height: 1.90rem;
+  max-height: 1.90rem;
   padding: 0 0.48rem;
   font-size: 0.88rem;
   line-height: 1.1;
@@ -345,9 +345,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  height: 1.86rem !important;
-  min-height: 1.86rem !important;
-  max-height: 1.86rem !important;
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
   margin: 0 !important;
   padding: 0 0.62rem !important;
   border: 1.5px solid var(--st-primary-color, #168AC1) !important;
@@ -375,9 +375,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stButton"] {
-  height: 2.15rem !important;
-  min-height: 2.15rem !important;
-  max-height: 2.15rem !important;
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
