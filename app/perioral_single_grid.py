@@ -215,10 +215,19 @@ def _install_label_css():
     st.markdown(
         """
         <style>
+        [class*="st-key-eccitabilita_peribuccale_grid"] > [data-testid="stVerticalBlock"] {
+            gap: 0.04rem !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_row_click_"] {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         [class*="st-key-eccitabilita_peribuccale_segment_"] {
             width: 100% !important;
-            margin-top: -0.85rem !important;
-            margin-bottom: 0.20rem !important;
+            margin-top: -0.98rem !important;
+            margin-bottom: -0.24rem !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] div[role="group"],

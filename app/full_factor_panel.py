@@ -6,7 +6,7 @@ import streamlit as st
 from app import i18n
 from app.data_sources import load_tabelle_correzione
 from app.device_mode import full_device_is_mobile
-from app.factor_calc import DressCounts, compute_factor, fattore_vestiti_coperte
+from app.factor_calc import DressCounts, compute_factor, fattore_vestiti_coperte, floor_to_step
 from app.factor_ui_states import (
     LAYER_THIN,
     LAYER_THICK,
@@ -473,7 +473,18 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     full_mobile = full_device_is_mobile()
 
     side_text = ""
-    if result.riassunto.get("peso_adattato", False) and peso_eff is not None:
+    peso_adattato = bool(result.riassunto.get("peso_adattato", False))
+    if not peso_adattato and peso_eff is not None and result.fattore_base is not None:
+        try:
+            base_senza_peso = floor_to_step(round(float(result.fattore_base), 2))
+            peso_adattato = (
+                abs(float(peso_eff) - 70.0) > 1e-9
+                and float(result.fattore_base) >= 1.4
+                and abs(float(result.fattore_finale) - base_senza_peso) > 1e-9
+            )
+        except (TypeError, ValueError):
+            peso_adattato = False
+    if peso_adattato and peso_eff is not None:
         side_text = i18n.ui_text(
             "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
         )
@@ -483,7 +494,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     if full_mobile:
         st.markdown(
-            f'''<style>@media (max-width: 768px) {{[class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{align-items:center!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"], [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{display:flex!important;align-items:center!important;min-height:2.5rem!important;margin:0!important;padding:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{display:flex!important;align-items:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{display:flex!important;align-items:center!important;min-height:2.5rem!important;height:2.5rem!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{margin:0!important;line-height:1!important;}}}}</style>''',
+            f'''<style>@media (max-width: 768px) {{[class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{align-items:center!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"], [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{display:flex!important;align-items:center!important;min-height:2.5rem!important;margin:0!important;padding:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{display:flex!important;align-items:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{display:flex!important;align-items:center!important;min-height:2.5rem!important;height:2.5rem!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{margin:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack {{display:flex!important;flex-direction:column!important;justify-content:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack .mortem-fc-inline-result {{min-height:0!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-weight-note-mobile {{font-size:0.74rem!important;line-height:1.15!important;margin:0.12rem 0 0 0!important;padding:0!important;opacity:0.78!important;white-space:normal!important;}}}}</style>''',
             unsafe_allow_html=True,
         )
 
@@ -497,8 +508,14 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             key=f"{key_prefix}_fc_apply_row_mobile",
         ):
             with st.container(width="content", key=f"{key_prefix}_fc_apply_value_mobile"):
+                weight_note_html = (
+                    f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>'
+                    if side_text else ""
+                )
                 st.markdown(
-                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
+                    f'<div class="mortem-fc-result-stack">'
+                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>'
+                    f'{weight_note_html}</div>',
                     unsafe_allow_html=True,
                 )
             with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
@@ -508,11 +525,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                     on_click=apply_callback, args=apply_args,
                     key=f"{key_prefix}_btn_usa_fc{suffix}",
                 )
-        if side_text:
-            st.markdown(
-                f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
-                unsafe_allow_html=True,
-            )
 
 
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):

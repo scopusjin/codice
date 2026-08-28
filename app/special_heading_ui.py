@@ -29,6 +29,38 @@ def install_special_heading_style():
 
     original_markdown = st.markdown
 
+    original_markdown(
+        """
+        <style>
+        @media (max-width: 768px) {
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
+            padding: 0.48rem 0.62rem !important;
+          }
+
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stVerticalBlock"] {
+            gap: 0.22rem !important;
+          }
+
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stElementContainer"]:has(.mortem-section-title) {
+            margin: 0 0 -0.18rem 0 !important;
+            padding: 0 !important;
+          }
+
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [class*="st-key-electrical_pair_layout"] [data-testid="stHorizontalBlock"] {
+            margin: 0 !important;
+          }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     def markdown_with_special_heading(body, *args, **kwargs):
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
