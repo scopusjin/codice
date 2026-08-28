@@ -35,19 +35,19 @@ def install_special_heading_style():
         @media (max-width: 768px) {
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
-            padding: 0.48rem 0.62rem !important;
+            padding: 0.42rem 0.62rem !important;
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
           [data-testid="stVerticalBlock"] {
-            gap: 0.22rem !important;
+            gap: 0.10rem !important;
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
           [data-testid="stElementContainer"]:has(.mortem-section-title) {
-            margin: 0 0 -0.18rem 0 !important;
+            margin: 0 0 -0.58rem 0 !important;
             padding: 0 !important;
           }
 
