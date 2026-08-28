@@ -670,13 +670,23 @@ if mostra_parametri_aggiuntivi:
                 with coly1:
                     measurement_date = i18n.ui_text("full.measurement_date")
                     st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_date}</div>", unsafe_allow_html=True)
-                    data_picker = st.date_input(measurement_date, value=input_data_rilievo,
-                                                key=f"{nome_parametro_legacy}_data", label_visibility="collapsed")
+                    data_picker = st.date_input(
+                        measurement_date,
+                        value=input_data_rilievo,
+                        format="DD/MM/YYYY",
+                        key=f"{nome_parametro_legacy}_data",
+                        label_visibility="collapsed",
+                    )
                 with coly2:
                     measurement_time = i18n.ui_text("full.measurement_time")
                     st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_time}</div>", unsafe_allow_html=True)
-                    ora_input = st.text_input(i18n.ui_text("full.measurement_time_input"), value=input_ora_rilievo,
-                                              key=f"{nome_parametro_legacy}_ora", label_visibility="collapsed")
+                    ora_key = f"{nome_parametro_legacy}_ora"
+                    ora_value = st.session_state.get(ora_key) or input_ora_rilievo or "00:00"
+                    ora_input = native_time_picker(
+                        ora_value,
+                        key=f"{ora_key}_native",
+                    )
+                    st.session_state[ora_key] = ora_input
 
             widgets_parametri_aggiuntivi[nome_parametro_legacy] = {
                 "selettore": selettore_legacy,

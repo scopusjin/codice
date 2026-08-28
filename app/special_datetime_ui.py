@@ -2,8 +2,8 @@
 """UI compatta per data/ora dei parametri tanatologici speciali.
 
 La vecchia conferma "valutato a un'ora diversa" viene resa implicita.
-Data e ora restano i widget originali, ma vengono mostrati direttamente
-su una sola riga compatta anche su schermi stretti.
+Data e ora vengono mostrati direttamente su una sola riga compatta anche
+su schermi stretti; i widget effettivi sono definiti dalla pagina Full.
 """
 
 import inspect
@@ -105,9 +105,14 @@ def install_special_datetime_ui():
         }
 
         [class*="st-key-special_datetime_row_"] div[data-baseweb="input"],
-        [class*="st-key-special_datetime_row_"] input {
+        [class*="st-key-special_datetime_row_"] input,
+        [class*="st-key-special_datetime_time_"] iframe {
             width: 100% !important;
             min-width: 0 !important;
+        }
+
+        [class*="st-key-special_datetime_time_"] iframe {
+            display: block !important;
         }
         </style>
         """,
