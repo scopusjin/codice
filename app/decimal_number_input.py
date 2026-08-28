@@ -13,7 +13,6 @@ from app.decimal_number_input_v2 import (
     mobile_decimal_v2_available,
     render_mobile_decimal_v2,
 )
-from app.device_mode import full_device_is_mobile
 from app.locales.it_ui import ui_text
 
 
@@ -90,10 +89,10 @@ def decimal_number_input(
     minimum = _finite_float(min_value)
     maximum = _finite_float(max_value)
 
-    # ``compact_mobile`` indica che il chiamante supporta la resa compatta
-    # della schermata Full. La scelta effettiva mobile/desktop viene risolta
-    # una sola volta per sessione sul server, prima di inviare il componente.
-    compact_mobile = bool(compact_mobile and full_device_is_mobile())
+    # ``compact_mobile`` è il flag storico della resa compatta della Full.
+    # La stessa UI V2 viene ora usata sia su mobile sia su desktop; la MSIL non
+    # passa questo flag per le proprie chiavi e conserva quindi il renderer V1.
+    compact_mobile = bool(compact_mobile)
 
     interval_mode = bool(
         st.session_state.get("stima_cautelativa_beta", False)

@@ -266,15 +266,25 @@ with st.container(border=True):
                     help=i18n.ui_text("full.henssge_not_applicable_help"),
                 )
     else:
-        st.markdown(
-            f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
-            unsafe_allow_html=True,
-        )
-        henssge_non_app = st.checkbox(
-            i18n.ui_text("full.henssge_not_applicable"),
-            key="henssge_non_applicabile",
-            help=i18n.ui_text("full.henssge_not_applicable_help"),
-        )
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            horizontal_alignment="distribute",
+            vertical_alignment="center",
+            gap="small",
+            key="cooling_heading_row_desktop",
+        ):
+            with st.container(width="stretch", key="cooling_heading_title_desktop"):
+                st.markdown(
+                    f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                    unsafe_allow_html=True,
+                )
+            with st.container(width="content", key="cooling_heading_actions_desktop"):
+                henssge_non_app = st.checkbox(
+                    i18n.ui_text("full.henssge_not_applicable"),
+                    key="henssge_non_applicabile",
+                    help=i18n.ui_text("full.henssge_not_applicable_help"),
+                )
 
     st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
@@ -402,50 +412,56 @@ with st.container(border=True):
                         st.session_state.get("toggle_fattore_inline", False)
                     )
             else:
-                # Riga 1: T. rettale, T. ante-mortem, Peso + switch ±3 kg
-                c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
-                with c1:
-                    rectal_label = i18n.ui_text("full.rectal_temp_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
-                    st.number_input(rectal_label,
-                                    value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                    key="rt_val", label_visibility="collapsed")
-                with c2:
-                    antemortem_label = i18n.ui_text("full.antemortem_temp_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
-                    st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
-                                    value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                                    key="tm_val", label_visibility="collapsed")
-                with c3:
-                    weight_label = i18n.ui_text("full.weight_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label}</div>", unsafe_allow_html=True)
-                    pc1, pc2 = st.columns([1, 0.8], gap="small")
-                    with pc1:
-                        st.number_input(weight_label,
-                                        value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                        key="peso", label_visibility="collapsed")
-                    with pc2:
-                        st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+                with st.container(gap="small", key="cooling_prudent_v2_grid_desktop"):
+                    c1, c2 = st.columns(2, gap="small")
+                    with c1:
+                        rectal_label = i18n.ui_text("full.rectal_temp_label")
+                        st.number_input(
+                            rectal_label,
+                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed"
+                        )
+                    with c2:
+                        st.number_input(
+                            i18n.ui_text("full.antemortem_temp_estimated_label"),
+                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed"
+                        )
 
-                # Riga 2: intervallo T. ambientale media
-                st.markdown(f"<div style='font-size: 0.88rem;'>{label_ta}</div>", unsafe_allow_html=True)
-                ta_c1, ta_c2, ta_c3 = st.columns([1, 1, 1.6], gap="small")
-                with ta_c1:
-                    ta_base_val = st.number_input(
-                        i18n.ui_text("full.ta_base_input"),
-                        value=sget("ta_base_val", 20.0),
-                        step=0.1, format="%.1f",
-                        key="ta_base_val",
-                        label_visibility="collapsed"
-                    )
-                with ta_c2:
-                    ta_other_val = st.number_input(
-                        i18n.ui_text("full.ta_other_input"),
-                        value=sget("ta_other_val", ta_base_val),
-                        step=0.1, format="%.1f",
-                        key="ta_other_val",
-                        label_visibility="collapsed"
-                    )
+                    with st.container(
+                        horizontal=True,
+                        wrap=False,
+                        horizontal_alignment="distribute",
+                        vertical_alignment="center",
+                        gap="small",
+                        key="prudent_weight_row_desktop",
+                    ):
+                        with st.container(width="stretch", key="prudent_weight_value_desktop"):
+                            st.number_input(
+                                i18n.ui_text("full.weight_label"),
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed"
+                            )
+                        with st.container(width="content", key="prudent_weight_uncertainty_desktop"):
+                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+
+                    ta_c1, ta_c2 = st.columns(2, gap="small")
+                    with ta_c1:
+                        ta_base_val = st.number_input(
+                            i18n.ui_text("full.ta_base_input"),
+                            value=sget("ta_base_val", 20.0),
+                            step=0.1, format="%.1f",
+                            key="ta_base_val",
+                            label_visibility="collapsed"
+                        )
+                    with ta_c2:
+                        ta_other_val = st.number_input(
+                            i18n.ui_text("full.ta_other_input"),
+                            value=sget("ta_other_val", ta_base_val),
+                            step=0.1, format="%.1f",
+                            key="ta_other_val",
+                            label_visibility="collapsed"
+                        )
                     ta_values = [
                         st.session_state.get("ta_base_val"),
                         st.session_state.get("ta_other_val"),
@@ -456,14 +472,7 @@ with st.container(border=True):
                     else:
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
-                with ta_c3:
-                    st.empty()
 
-                # Riga 3: intervallo fattore di correzione
-                st.markdown(f"<div style='font-size: 0.88rem;'>{label_fc}</div>", unsafe_allow_html=True)
-                fc_c1, fc_c2, fc_c3 = st.columns([1, 1, 1.6], gap="small")
-
-                with fc_c1:
                     fc_min_val = st.number_input(
                         i18n.ui_text("full.fc_min_input"),
                         value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
@@ -471,8 +480,6 @@ with st.container(border=True):
                         key="fc_min_val",
                         label_visibility="collapsed"
                     )
-
-                with fc_c2:
                     fc_other_val = st.number_input(
                         i18n.ui_text("full.fc_max_input"),
                         value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
@@ -491,9 +498,9 @@ with st.container(border=True):
                         st.session_state.pop("FC_min_beta", None)
                         st.session_state.pop("FC_max_beta", None)
 
-                with fc_c3:
-                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline")
-                st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline", False)
+                    st.session_state["toggle_fattore"] = bool(
+                        st.session_state.get("toggle_fattore_inline", False)
+                    )
 
         else:
             # -------------------------
@@ -534,43 +541,44 @@ with st.container(border=True):
                     st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
             else:
-                col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-                with col1:
-                    rectal_label = i18n.ui_text("full.rectal_temp_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{rectal_label}</div>", unsafe_allow_html=True)
-                    st.number_input(rectal_label,
-                                    value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                    key="rt_val", label_visibility="collapsed")
-                with col2:
-                    antemortem_label = i18n.ui_text("full.antemortem_temp_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{antemortem_label}</div>", unsafe_allow_html=True)
-                    st.number_input(i18n.ui_text("full.antemortem_temp_estimated_label"),
-                                    value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                                    key="tm_val", label_visibility="collapsed")
-                with col3:
-                    weight_label_standard = i18n.ui_text("full.weight_label_standard")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{weight_label_standard}</div>", unsafe_allow_html=True)
-                    st.number_input(i18n.ui_text("full.weight_label"),
-                                    value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                    key="peso", label_visibility="collapsed")
+                with st.container(gap="small", key="cooling_standard_v2_grid_desktop"):
+                    c1, c2 = st.columns(2, gap="small")
+                    with c1:
+                        rectal_label = i18n.ui_text("full.rectal_temp_label")
+                        st.number_input(
+                            rectal_label,
+                            value=sget("rt_val", 35.0), step=0.1, format="%.1f",
+                            key="rt_val", label_visibility="collapsed"
+                        )
+                    with c2:
+                        st.number_input(
+                            i18n.ui_text("full.antemortem_temp_estimated_label"),
+                            value=sget("tm_val", 37.2), step=0.1, format="%.1f",
+                            key="tm_val", label_visibility="collapsed"
+                        )
 
-                col1, col2, col3 = st.columns([1, 1, 1], gap="small")
-                with col1:
-                    ta_label = i18n.ui_text("full.ta_mean_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{ta_label}</div>", unsafe_allow_html=True)
-                    st.number_input(i18n.ui_text("full.ta_input_label"),
-                                    value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                                    key="ta_base_val", label_visibility="collapsed")
+                    c1, c2 = st.columns(2, gap="small")
+                    with c1:
+                        st.number_input(
+                            i18n.ui_text("full.weight_label"),
+                            value=sget("peso", 70.0), step=1.0, format="%.1f",
+                            key="peso", label_visibility="collapsed"
+                        )
+                    with c2:
+                        st.number_input(
+                            i18n.ui_text("full.ta_input_label"),
+                            value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                            key="ta_base_val", label_visibility="collapsed"
+                        )
 
-                with col2:
-                    fc_label = i18n.ui_text("full.fc_label")
-                    st.markdown(f"<div style='font-size: 0.88rem;'>{fc_label}</div>", unsafe_allow_html=True)
-                    st.number_input(i18n.ui_text("full.fc_input_label"),
-                                    value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                                    key="fattore_correzione", label_visibility="collapsed")
-                with col3:
-                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
-                    st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
+                    st.number_input(
+                        i18n.ui_text("full.fc_input_label"),
+                        value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                        key="fattore_correzione", label_visibility="collapsed"
+                    )
+                    st.session_state["toggle_fattore"] = bool(
+                        st.session_state.get("toggle_fattore_inline_std", False)
+                    )
 
     # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
     if st.session_state.get("toggle_fattore", False):

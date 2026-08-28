@@ -144,6 +144,7 @@ def _safe_int(x):
 
 
 _FULL_MOBILE_SURFACE_PLACEHOLDER = "Superficie di appoggio ?"
+_FULL_DESKTOP_SURFACE_PLACEHOLDER = "Seleziona la superficie"
 
 
 def _full_mobile_surface_caption(value: str) -> str:
@@ -227,34 +228,33 @@ def _render_factor_panel(
         )
         return result, peso_eff, True
 
-    if full_mobile:
-        # Streamlit 1.62 permette una vera riga orizzontale non spezzabile.
-        # Le stesse chiavi di stato restano usate anche su desktop.
-        st.markdown(
-            f"""
-            <style>
-            @media (max-width: 768px) {{
-              [class*="st-key-{key_prefix}_switch_row"][data-testid="stHorizontalBlock"],
-              [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"] {{
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                align-items: center !important;
-                gap: 0.30rem !important;
-              }}
-              [class*="st-key-{key_prefix}_switch_row"] [data-testid="stToggle"] {{
-                width: max-content !important;
-                max-width: max-content !important;
-                min-width: max-content !important;
-              }}
-              [class*="st-key-{key_prefix}_switch_row"] label,
-              [class*="st-key-{key_prefix}_switch_row"] label p {{
-                white-space: nowrap !important;
-              }}
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
+    if not mobile:
+        if full_mobile:
+            st.markdown(
+                f"""
+                <style>
+                @media (max-width: 768px) {{
+                  [class*="st-key-{key_prefix}_switch_row"][data-testid="stHorizontalBlock"],
+                  [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"] {{
+                    flex-direction: row !important;
+                    flex-wrap: nowrap !important;
+                    align-items: center !important;
+                    gap: 0.30rem !important;
+                  }}
+                  [class*="st-key-{key_prefix}_switch_row"] [data-testid="stToggle"] {{
+                    width: max-content !important;
+                    max-width: max-content !important;
+                    min-width: max-content !important;
+                  }}
+                  [class*="st-key-{key_prefix}_switch_row"] label,
+                  [class*="st-key-{key_prefix}_switch_row"] label p {{
+                    white-space: nowrap !important;
+                  }}
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
         with st.container(
             horizontal=True,
             wrap=False,
@@ -273,7 +273,7 @@ def _render_factor_panel(
             ):
                 with st.container(width="content", key=k("vest_slot")):
                     toggle_vestito = st.toggle(
-                        "Vestiti/coperte",
+                        "Vestiti/coperte" if full_mobile else i18n.ui_text("full.clothed_covered"),
                         key=k("toggle_vestito"), value=False
                     )
                 with st.container(width="content", key=k("vest_help_slot")):
@@ -293,7 +293,7 @@ def _render_factor_panel(
                         )
             with st.container(width="content", key=k("corr_slot")):
                 corr_placeholder = st.empty()
-    elif mobile:
+    else:
         col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
         with col_corr:
             corr_placeholder = st.empty()
@@ -303,15 +303,6 @@ def _render_factor_panel(
                 value=st.session_state.get(k("toggle_vestito"), False),
                 key=k("toggle_vestito")
             )
-    else:
-        col_corr, col_vest = st.columns([1.0, 1.3])
-        with col_corr:
-            corr_placeholder = st.empty()
-        with col_vest:
-            toggle_vestito = st.toggle(
-                i18n.ui_text("full.clothed_covered"),
-                key=k("toggle_vestito"), value=False
-            )
 
     n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
     if toggle_vestito:
@@ -320,28 +311,33 @@ def _render_factor_panel(
         label_coperte_medie = clothing_label(BLANKET_MEDIUM)
         label_coperte_pesanti = clothing_label(BLANKET_HEAVY)
 
-        if full_mobile:
+        if not mobile:
+            thin_input_label = "Vestiti/teli leggeri" if full_mobile else label_sottili
+            thick_input_label = "Vestiti/teli pesanti" if full_mobile else label_spessi
+            medium_blanket_input_label = "Coperte medie" if full_mobile else label_coperte_medie
+            heavy_blanket_input_label = "Coperte pesanti/termiche" if full_mobile else label_coperte_pesanti
+
             n_sottili = _safe_int(st.number_input(
-                "Vestiti/teli leggeri",
+                thin_input_label,
                 value=st.session_state.get(k("strati_sottili"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_sottili"), label_visibility="collapsed",
             ))
             n_spessi = _safe_int(st.number_input(
-                "Vestiti/teli pesanti",
+                thick_input_label,
                 value=st.session_state.get(k("strati_spessi"), 0),
                 min_value=0, max_value=8, step=1, format="%.0f",
                 key=k("strati_spessi"), label_visibility="collapsed",
             ))
             if stato_corpo == "Asciutto":
                 n_cop_medie = _safe_int(st.number_input(
-                    "Coperte medie",
+                    medium_blanket_input_label,
                     value=st.session_state.get(k("coperte_medie"), 0),
                     min_value=0, max_value=8, step=1, format="%.0f",
                     key=k("coperte_medie"), label_visibility="collapsed",
                 ))
                 n_cop_pesanti = _safe_int(st.number_input(
-                    "Coperte pesanti/termiche",
+                    heavy_blanket_input_label,
                     value=st.session_state.get(k("coperte_pesanti"), 0),
                     min_value=0, max_value=8, step=1, format="%.0f",
                     key=k("coperte_pesanti"), label_visibility="collapsed",
@@ -401,13 +397,19 @@ def _render_factor_panel(
             excluded_surface = surface_label(SURFACE_THICK_METAL_OUTDOOR)
             options_display = [o for o in options_display if o != excluded_surface]
 
+        full_surface_placeholder = None
         select_options = options_display
-        if full_mobile:
-            select_options = [_FULL_MOBILE_SURFACE_PLACEHOLDER, *options_display]
+        if not mobile:
+            full_surface_placeholder = (
+                _FULL_MOBILE_SURFACE_PLACEHOLDER
+                if full_mobile
+                else _FULL_DESKTOP_SURFACE_PLACEHOLDER
+            )
+            select_options = [full_surface_placeholder, *options_display]
 
         prev_display = st.session_state.get(k("superficie_display_sel"))
         if prev_display not in select_options:
-            prev_display = _FULL_MOBILE_SURFACE_PLACEHOLDER if full_mobile else options_display[0]
+            prev_display = full_surface_placeholder if full_surface_placeholder else options_display[0]
 
         select_kwargs = dict(
             index=select_options.index(prev_display),
@@ -419,9 +421,18 @@ def _render_factor_panel(
             select_kwargs["label_visibility"] = "collapsed"
             select_kwargs["format_func"] = _full_mobile_surface_caption
             select_kwargs["filter_mode"] = None
+        else:
+            select_kwargs["label_visibility"] = "visible"
 
         if full_mobile:
             with st.container(key=k("surface_select_mobile")):
+                superficie_display_label = st.selectbox(
+                    i18n.ui_text(f"{scope}.support_surface"),
+                    select_options,
+                    **select_kwargs
+                )
+        elif not mobile:
+            with st.container(key=k("surface_select_desktop")):
                 superficie_display_label = st.selectbox(
                     i18n.ui_text(f"{scope}.support_surface"),
                     select_options,
@@ -433,10 +444,9 @@ def _render_factor_panel(
                 select_options,
                 **select_kwargs
             )
-        if full_mobile and superficie_display_label == _FULL_MOBILE_SURFACE_PLACEHOLDER:
-            # Placeholder neutro: nessun effetto proprio della superficie.
-            # Per le correnti mantiene la stessa classe INDIFFERENTE del
-            # precedente default (prima superficie dell'elenco).
+        if full_surface_placeholder and superficie_display_label == full_surface_placeholder:
+            # Placeholder neutro: non attribuisce un fattore proprio alla superficie.
+            # Per le correnti usa la stessa classe INDIFFERENTE del default storico.
             surface_placeholder_selected = True
             superficie_display_selected = surface_legacy_value(options_display[0])
         else:
@@ -466,7 +476,7 @@ def _render_factor_panel(
         peso=peso_eff,
         tabella2_df=tabella2
     )
-    if full_mobile and surface_placeholder_selected:
+    if not mobile and surface_placeholder_selected:
         result.riassunto["superficie"] = "/"
     return result, peso_eff, False
 
@@ -504,61 +514,45 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     range_mode = st.session_state.get("range_unico_beta", False)
     full_mobile = full_device_is_mobile()
 
-    if full_mobile:
-        side_text = ""
-        if (
-            result.fattore_base is not None
-            and peso_eff is not None
-            and abs(result.fattore_finale - result.fattore_base) > 1e-9
+    side_text = ""
+    if (
+        result.fattore_base is not None
+        and peso_eff is not None
+        and abs(result.fattore_finale - result.fattore_base) > 1e-9
+    ):
+        side_text = i18n.ui_text(
+            "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
+        )
+
+    apply_callback = _apply_fc_range if range_mode else _apply_fc
+    apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+
+    with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            horizontal_alignment="left",
+            vertical_alignment="center",
+            gap="small",
+            key=f"{key_prefix}_fc_apply_row_mobile",
         ):
-            side_text = i18n.ui_text(
-                "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
-            )
-
-        apply_callback = _apply_fc_range if range_mode else _apply_fc
-        apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
-
-        with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
-            with st.container(
-                horizontal=True,
-                wrap=False,
-                horizontal_alignment="left",
-                vertical_alignment="center",
-                gap="small",
-                key=f"{key_prefix}_fc_apply_row_mobile",
-            ):
-                with st.container(width="content", key=f"{key_prefix}_fc_apply_value_mobile"):
-                    st.markdown(
-                        f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
-                        unsafe_allow_html=True,
-                    )
-                with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
-                    st.button(
-                        "→ Usalo",
-                        type="secondary",
-                        on_click=apply_callback, args=apply_args,
-                        key=f"{key_prefix}_btn_usa_fc{suffix}",
-                    )
-            if side_text:
+            with st.container(width="content", key=f"{key_prefix}_fc_apply_value_mobile"):
                 st.markdown(
-                    f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
+                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>',
                     unsafe_allow_html=True,
                 )
-    else:
-        _fc_box(result.fattore_finale, result.fattore_base, peso_eff)
-        if not range_mode:
-            st.button(
-                i18n.ui_text("full.use_this_factor"),
-                on_click=_apply_fc, args=(result.fattore_finale, result.riassunto),
-                use_container_width=True, key=f"{key_prefix}_btn_usa_fc{suffix}"
+            with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
+                st.button(
+                    "→ Usalo",
+                    type="secondary",
+                    on_click=apply_callback, args=apply_args,
+                    key=f"{key_prefix}_btn_usa_fc{suffix}",
+                )
+        if side_text:
+            st.markdown(
+                f'<div class="mortem-fc-weight-note-mobile">{side_text}</div>',
+                unsafe_allow_html=True,
             )
-
-    if st.session_state.get("stima_cautelativa_beta", False) and not full_mobile:
-        st.button(
-            i18n.ui_text("full.add_to_fc_range"),
-            use_container_width=True, on_click=add_fc_suggestion_global,
-            args=(result.fattore_finale,), key=f"{key_prefix}_btn_add_fc{suffix}"
-        )
 
 
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):

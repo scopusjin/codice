@@ -6,6 +6,7 @@ from streamlit.delta_generator import DeltaGenerator
 import app.perioral_single_grid as _perioral_single_grid
 import app.sopraciliare_ui as _sopraciliare_ui
 from app.decimal_number_input import decimal_number_input
+from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import install_full_mobile_layout
 from app.special_datetime_ui import install_special_datetime_ui
 from app.special_heading_ui import install_special_heading_style
@@ -135,6 +136,31 @@ def _same_decimal_value(a, b) -> bool:
 def _compact_mobile_label(label, key) -> str:
     prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
     range_mode = bool(st.session_state.get("range_unico_beta", False))
+
+    if not full_device_is_mobile():
+        if key == "fattore_correzione":
+            return "Fattore di correzione (FC)"
+        if key == "fc_min_val":
+            return "Fattore di correzione minimo"
+        if key == "fc_other_val":
+            return "Fattore di correzione massimo"
+        if key == "ta_base_val":
+            return "T. ambientale media 1" if prudent_mode and range_mode else "T. ambientale media"
+        if key == "ta_other_val":
+            return "T. ambientale media 2"
+        if key == "rt_val":
+            return "T. rettale"
+        if key == "tm_val":
+            return "T. ante-mortem stimata"
+        if key == "peso":
+            return "Peso"
+
+        text = str(label or key).strip().rstrip(":")
+        for suffix in (" (°C)", " (kg)"):
+            if text.endswith(suffix):
+                text = text[:-len(suffix)]
+                break
+        return text
 
     if key == "fattore_correzione":
         return "FC"
