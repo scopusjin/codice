@@ -1,0 +1,101 @@
+name: Temporary mobile FC align Usalo
+
+on:
+  push:
+    branches:
+      - tmp-mobile-fc-align-usalo-do5
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-mobile-fc-align-usalo-do5
+          fetch-depth: 0
+
+      - name: Apply exact patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          v2_path = Path('app/decimal_number_input_v2.py')
+          v2 = v2_path.read_text(encoding='utf-8')
+
+          old_suggest_css = '''.suggest-button { display: none; }\n.suggest-button.is-visible {\n  display: flex;\n  flex: 0 0 auto;\n  align-items: center;\n  justify-content: center;\n  border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);\n  padding: 0 6px;\n  white-space: nowrap;\n  font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);\n  font-size: 0.76rem;\n  font-weight: 500;\n  line-height: 1;\n}\n'''
+          new_suggest_css = '''.suggest-button { display: none; }\n.suggest-button.is-visible,\n.number-control.reserve-suggest .suggest-button {\n  display: flex;\n  flex: 0 0 5.4rem;\n  width: 5.4rem;\n  min-width: 5.4rem;\n  align-items: center;\n  justify-content: center;\n  border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);\n  padding: 0 6px;\n  white-space: nowrap;\n  font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);\n  font-size: 0.76rem;\n  font-weight: 500;\n  line-height: 1;\n}\n.number-control.reserve-suggest .suggest-button {\n  visibility: hidden;\n  pointer-events: none;\n}\n'''
+          assert v2.count(old_suggest_css) == 1
+          v2 = v2.replace(old_suggest_css, new_suggest_css, 1)
+
+          old_js = '''  const showHelp = Boolean(data?.help_enabled);\n  const showSuggest = Boolean(data?.suggest_enabled);\n  control.classList.toggle('has-help', showHelp);\n  const dense = Boolean(data?.dense);\n  control.classList.toggle('has-suggest', showSuggest);\n'''
+          new_js = '''  const showHelp = Boolean(data?.help_enabled);\n  const showSuggest = Boolean(data?.suggest_enabled);\n  const reserveSuggest = Boolean(data?.reserve_suggest);\n  control.classList.toggle('has-help', showHelp);\n  const dense = Boolean(data?.dense);\n  control.classList.toggle('has-suggest', showSuggest);\n  control.classList.toggle('reserve-suggest', reserveSuggest);\n'''
+          assert v2.count(old_js) == 1
+          v2 = v2.replace(old_js, new_js, 1)
+
+          old_data = '''            "suggest_enabled": bool(suggest_enabled),\n            "suggest_label": str(suggest_label or ""),\n            "suggest_active": bool(suggest_active),\n            "dense": dense,\n'''
+          new_data = '''            "suggest_enabled": bool(suggest_enabled),\n            "suggest_label": str(suggest_label or ""),\n            "suggest_active": bool(suggest_active),\n            "reserve_suggest": key == "mortem_decimal_fc_min_val",\n            "dense": dense,\n'''
+          assert v2.count(old_data) == 1
+          v2 = v2.replace(old_data, new_data, 1)
+          v2_path.write_text(v2, encoding='utf-8')
+
+          css_path = Path('app/full_mobile_compact.py')
+          css = css_path.read_text(encoding='utf-8')
+
+          old_row = '''  gap: 0 !important;\n  align-items: center !important;\n'''
+          new_row = '''  gap: 0.20rem !important;\n  align-items: center !important;\n'''
+          assert css.count(old_row) >= 1
+          # Replace only the occurrence inside fc_apply_row_mobile.
+          marker = '[class*="fc_apply_row_mobile"] {'
+          pos = css.index(marker)
+          row_pos = css.index(old_row, pos)
+          css = css[:row_pos] + new_row + css[row_pos + len(old_row):]
+
+          old_value = '''[class*="fc_apply_value_mobile"] {\n  flex: 1 1 auto !important;\n  min-width: 0 !important;\n  margin: 0 !important;\n  padding: 0 !important;\n}\n'''
+          new_value = '''[class*="fc_apply_value_mobile"] {\n  flex: 0 0 auto !important;\n  width: max-content !important;\n  min-width: max-content !important;\n  margin: 0 !important;\n  padding: 0 !important;\n}\n'''
+          assert css.count(old_value) == 1
+          css = css.replace(old_value, new_value, 1)
+
+          old_button = '''[class*="fc_apply_action_mobile"] button {\n  height: 1.86rem !important;\n  min-height: 1.86rem !important;\n  max-height: 1.86rem !important;\n  margin: 0 0.12rem 0 0 !important;\n  padding: 0 0.58rem !important;\n  border: 1px solid var(--st-primary-color) !important;\n  border-radius: 0.44rem !important;\n  background: color-mix(in srgb, var(--st-primary-color) 13%, var(--st-secondary-background-color)) !important;\n  color: var(--st-text-color) !important;\n  font-weight: 650 !important;\n  white-space: nowrap !important;\n}\n'''
+          new_button = '''[class*="fc_apply_action_mobile"] button {\n  display: inline-flex !important;\n  align-items: center !important;\n  justify-content: center !important;\n  height: 1.90rem !important;\n  min-height: 1.90rem !important;\n  max-height: 1.90rem !important;\n  margin: 0 !important;\n  padding: 0 0.62rem !important;\n  border: 1.5px solid var(--st-primary-color, #168AC1) !important;\n  border-radius: 0.46rem !important;\n  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 11%, white) !important;\n  color: var(--st-text-color, #31333F) !important;\n  box-shadow: none !important;\n  font-weight: 650 !important;\n  line-height: 1 !important;\n  white-space: nowrap !important;\n}\n'''
+          assert css.count(old_button) == 1
+          css = css.replace(old_button, new_button, 1)
+
+          old_text = '''  color: var(--st-text-color) !important;\n  font-weight: 650 !important;\n}\n'''
+          new_text = '''  color: var(--st-text-color, #31333F) !important;\n  font-weight: 650 !important;\n}\n'''
+          # This exact block is the button p/span rule immediately after the button.
+          button_pos = css.index(new_button)
+          text_pos = css.index(old_text, button_pos)
+          css = css[:text_pos] + new_text + css[text_pos + len(old_text):]
+
+          css_path.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Check diff and syntax
+        shell: bash
+        run: |
+          git diff --check
+          python -m compileall -q app/decimal_number_input_v2.py app/full_mobile_compact.py
+          python - <<'PY'
+          from pathlib import Path
+          v2 = Path('app/decimal_number_input_v2.py').read_text(encoding='utf-8')
+          css = Path('app/full_mobile_compact.py').read_text(encoding='utf-8')
+          assert 'reserve_suggest' in v2
+          assert '5.4rem' in v2
+          assert 'flex: 0 0 auto !important;' in css
+          assert 'var(--st-primary-color, #168AC1)' in css
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/decimal_number_input_v2.py app/full_mobile_compact.py
+          git diff --cached --quiet && exit 0
+          git commit -m "Allinea FC variabili e pulsante Usalo"
+          git push origin HEAD:tmp-mobile-fc-align-usalo-do5
