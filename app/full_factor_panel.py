@@ -281,12 +281,12 @@ def _render_factor_panel(
                         st.markdown(
                             """
                             <div class="mortem-help-copy">
-                              <div class="mortem-help-copy-intro">Esempi orientativi per classificare vestiti, teli e coperte:</div>
-                              <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: T-shirt, camicia, lenzuolo o telo sottile.</div>
-                              <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o telo spesso.</div>
-                              <div class="mortem-help-copy-bullet">• Coperte medie: coperta di normale spessore.</div>
-                              <div class="mortem-help-copy-bullet">• Coperte pesanti/termiche: piumone pesante o mantellina/coperta termica.</div>
-                              <div class="mortem-help-copy-intro">Conta separatamente ogni strato effettivamente presente sul corpo.</div>
+                              <div class="mortem-help-copy-intro"><b>Le categorie sono orientative e non corrispondono a valori di FC rigidi.</b> Il sistema combina gli effetti dei diversi strati per suggerire un fattore di correzione plausibile. Considera soprattutto gli strati che coprono addome e bacino.</div>
+                              <div class="mortem-help-copy-bullet">• Vestiti/teli leggeri: biancheria, T-shirt, camicia, pigiama leggero, lenzuolo o telo sottile.</div>
+                              <div class="mortem-help-copy-bullet">• Vestiti/teli pesanti: maglione, felpa pesante, giacca o cappotto che raggiunge il bacino, pantaloni molto spessi o imbottiti, telo spesso.</div>
+                              <div class="mortem-help-copy-bullet">• Coperta / copriletto spesso: coperta o copriletto con apprezzabile effetto isolante, ma non assimilabile a un piumone o a una coperta molto spessa. Lenzuoli, teli, copriletti leggeri e plaid sottili vanno considerati tra gli strati di vestiti/teli in base allo spessore.</div>
+                              <div class="mortem-help-copy-bullet">• Piumone / coperta molto spessa: piumone, trapunta molto imbottita o coperta particolarmente spessa e isolante.</div>
+                              <div class="mortem-help-copy-intro">Conta separatamente gli strati effettivamente sovrapposti nella regione addomino-pelvica. Prova le combinazioni plausibili; se più valori di FC restano ragionevoli, usa <b>Condizioni variabili</b> e considera un intervallo di FC.</div>
                             </div>
                             """,
                             unsafe_allow_html=True,
@@ -314,8 +314,8 @@ def _render_factor_panel(
         if not mobile:
             thin_input_label = "Vestiti/teli leggeri" if full_mobile else label_sottili
             thick_input_label = "Vestiti/teli pesanti" if full_mobile else label_spessi
-            medium_blanket_input_label = "Coperte medie" if full_mobile else label_coperte_medie
-            heavy_blanket_input_label = "Coperte pesanti/termiche" if full_mobile else label_coperte_pesanti
+            medium_blanket_input_label = "Coperta / copriletto spesso" if full_mobile else label_coperte_medie
+            heavy_blanket_input_label = "Piumone / coperta molto spessa" if full_mobile else label_coperte_pesanti
 
             n_sottili = _safe_int(st.number_input(
                 thin_input_label,

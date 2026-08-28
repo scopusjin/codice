@@ -67,8 +67,8 @@ BLANKET_HEAVY = "blanket_heavy"
 FULL_CLOTHING_LABEL_IT: Dict[str, str] = {
     LAYER_THIN: "Strati leggeri (indumenti o teli sottili)",
     LAYER_THICK: "Strati pesanti (indumenti o teli spessi)",
-    BLANKET_MEDIUM: "Coperte di medio spessore",
-    BLANKET_HEAVY: "Coperte pesanti/Mantelline termiche",
+    BLANKET_MEDIUM: "Coperta / copriletto spesso",
+    BLANKET_HEAVY: "Piumone / coperta molto spessa",
 }
 
 MSIL_CLOTHING_LABEL_IT: Dict[str, str] = {
