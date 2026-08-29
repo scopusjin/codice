@@ -9,7 +9,7 @@ localizzabili, evitando l'impilamento dei singoli pulsanti su mobile.
 import importlib
 
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
@@ -25,7 +25,10 @@ from app.special_tanatology_states import (
 )
 
 
-_IMAGE_ONLY_FRACTION = 0.69
+_IMAGE_SCAN_FRACTION = 0.69
+_CONTENT_THRESHOLD = 246
+_CONTENT_PAD_TOP = 3
+_CONTENT_PAD_BOTTOM = 4
 _PHASE_IDS = {
     SUPRA_PHASE_I,
     SUPRA_PHASE_II,
@@ -36,39 +39,65 @@ _PHASE_IDS = {
 }
 
 
-def _image_only_tile(ui, option):
-    """Rimuove la didascalia raster dalla cella originale."""
+def _image_scan_tile(ui, option):
+    """Esclude la vecchia didascalia raster mantenendo una fascia di scansione uniforme."""
     tile = ui._SUPRA_TILES[option]
     width, height = tile.size
-    image_height = max(1, round(height * _IMAGE_ONLY_FRACTION))
+    scan_height = max(1, round(height * _IMAGE_SCAN_FRACTION))
+    scan = tile.crop((0, 0, width, scan_height)).convert("RGB")
 
-    # La cella neutra originale contiene anche la scritta raster
-    # "Non valutata": nella griglia corrente il testo è già nel pulsante
-    # sottostante, quindi conserviamo soltanto il simbolo.
+    # La nona cella conteneva la vecchia scritta raster "Non valutata" più in alto:
+    # conserviamo il simbolo e rendiamo bianco il resto prima del crop sul contenuto.
     if option == "Non valutata":
         visible_height = max(1, round(height * 0.60))
-        cleaned = Image.new("RGB", (width, image_height), (255, 255, 255))
+        cleaned = Image.new("RGB", (width, scan_height), (255, 255, 255))
         cleaned.paste(tile.crop((0, 0, width, visible_height)).convert("RGB"), (0, 0))
         return cleaned
 
-    return tile.crop((0, 0, width, image_height)).convert("RGB")
+    return scan
 
 
-def _clean_tile_edges(tile):
-    """Rimuove i bordi raster originari e recupera lo spazio bianco periferico."""
+def _strip_original_edges(tile):
+    """Elimina i bordi/cornici raster originari senza ridimensionare il disegno."""
     width, height = tile.size
     edge = 7
     if width <= edge * 2 or height <= edge * 2:
         return tile
+    return tile.crop((edge, edge, width - edge, height - edge)).convert("RGB")
 
-    interior = tile.crop((edge, edge, width - edge, height - edge))
-    return interior.resize((width, height), Image.Resampling.LANCZOS)
+
+def _content_vertical_bounds(tile):
+    """Trova l'estensione verticale reale del disegno, ignorando il fondo quasi bianco."""
+    gray = ImageOps.grayscale(tile)
+    mask = gray.point(lambda pixel: 255 if pixel < _CONTENT_THRESHOLD else 0)
+    bbox = mask.getbbox()
+    if bbox is None:
+        return None
+    return bbox[1], bbox[3]
+
+
+def _row_content_tiles(ui, row):
+    """Ritaglia le tre celle della riga sugli stessi limiti reali del contenuto."""
+    options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
+    tiles = [_strip_original_edges(_image_scan_tile(ui, option)) for option in options]
+    bounds = [bound for tile in tiles if (bound := _content_vertical_bounds(tile)) is not None]
+    if not bounds:
+        return tiles
+
+    top = max(0, min(bound[0] for bound in bounds) - _CONTENT_PAD_TOP)
+    bottom = min(
+        min(tile.height for tile in tiles),
+        max(bound[1] for bound in bounds) + _CONTENT_PAD_BOTTOM,
+    )
+    if bottom <= top:
+        return tiles
+
+    return [tile.crop((0, top, tile.width, bottom)) for tile in tiles]
 
 
 def _compose_row(ui, row):
     """Compone tre immagini pulite con la parte superiore della cornice unica."""
-    options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
-    tiles = [_clean_tile_edges(_image_only_tile(ui, option)) for option in options]
+    tiles = _row_content_tiles(ui, row)
     sample = tiles[0]
     tile_width, tile_height = sample.size
     row_width = tile_width * 3
@@ -223,12 +252,27 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_row_click_"] {
             margin: 0 !important;
             padding: 0 !important;
+            line-height: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_sopraciliare_row_click_"] iframe {
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_sopraciliare_grid"]
+        [data-testid="stElementContainer"]:has([class*="st-key-eccitabilita_sopraciliare_row_click_"]),
+        [class*="st-key-eccitabilita_sopraciliare_grid"]
+        [data-testid="stElementContainer"]:has([class*="st-key-eccitabilita_sopraciliare_segment_"]) {
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_segment_"] {
             width: 100% !important;
-            margin-top: -0.08rem !important;
-            margin-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: -0.18rem !important;
             padding: 0 !important;
         }
 
@@ -247,7 +291,7 @@ def _install_label_css():
             width: 100% !important;
             min-height: 0 !important;
             height: auto !important;
-            padding: 2px 2px !important;
+            padding: 1px 2px !important;
             margin: 0 !important;
             white-space: normal !important;
             border: 0 !important;
