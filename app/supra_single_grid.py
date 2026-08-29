@@ -257,6 +257,13 @@ def _install_label_css():
             margin-bottom: -0.80rem !important;
         }
 
+        @media (max-width: 768px) {
+            [class*="st-key-eccitabilita_sopraciliare_grid"] {
+                top: -2.40rem !important;
+                margin-bottom: -2.40rem !important;
+            }
+        }
+
         [class*="st-key-eccitabilita_sopraciliare_row_click_"] {
             margin: 0 !important;
             padding: 0 !important;
