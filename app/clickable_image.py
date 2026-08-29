@@ -21,7 +21,7 @@ def responsive_image_coordinates(source, *, key=None, cursor="pointer"):
         raise ValueError("source deve essere un'immagine PIL o compatibile con save()")
 
     buffer = BytesIO()
-    source.save(buffer, format="PNG", compress_level=0)
+    source.save(buffer, format="PNG", compress_level=6)
     src = "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     return _component(
