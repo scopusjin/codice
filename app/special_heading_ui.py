@@ -85,6 +85,12 @@ def install_special_heading_style():
             line-height: 1.05 !important;
           }
         }
+
+        body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+        [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+        [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
+          margin-bottom: -1.18rem !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,

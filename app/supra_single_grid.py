@@ -250,12 +250,10 @@ def _install_label_css():
             row-gap: 0 !important;
         }
 
-        @media (max-width: 768px) {
-            [class*="st-key-eccitabilita_sopraciliare_grid"] {
-                position: relative !important;
-                top: -0.80rem !important;
-                margin-bottom: -0.80rem !important;
-            }
+        [class*="st-key-eccitabilita_sopraciliare_grid"] {
+            position: relative !important;
+            top: -0.80rem !important;
+            margin-bottom: -0.80rem !important;
         }
 
         [class*="st-key-eccitabilita_sopraciliare_row_click_"] {
