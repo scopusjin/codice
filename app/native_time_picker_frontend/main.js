@@ -19,6 +19,7 @@ let draftHour = 0;
 let draftMinute = 0;
 let hourScrollTimer = null;
 let minuteScrollTimer = null;
+let desktopWheelCommitTimer = null;
 
 function setTheme(args) {
   document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
@@ -80,12 +81,26 @@ function commitTypedValue() {
   return true;
 }
 
-function adjustByMinutes(delta) {
+function adjustByMinutes(delta, commit = true) {
   const normalized = normalizeTypedTime(timeInput.value) || committedValue;
   const parsed = parseTime(normalized);
   let total = parsed.hour * 60 + parsed.minute + delta;
   total = ((total % 1440) + 1440) % 1440;
-  commitNormalizedValue(formatTime(Math.floor(total / 60), total % 60));
+  const value = formatTime(Math.floor(total / 60), total % 60);
+
+  if (commit) {
+    commitNormalizedValue(value);
+  } else {
+    timeInput.value = value;
+  }
+}
+
+function scheduleDesktopWheelCommit() {
+  window.clearTimeout(desktopWheelCommitTimer);
+  desktopWheelCommitTimer = window.setTimeout(() => {
+    desktopWheelCommitTimer = null;
+    commitTypedValue();
+  }, 320);
 }
 
 function middleIndex(value, count) {
@@ -264,7 +279,11 @@ timeInput.addEventListener("input", () => {
   }
 });
 
-timeInput.addEventListener("blur", commitTypedValue);
+timeInput.addEventListener("blur", () => {
+  window.clearTimeout(desktopWheelCommitTimer);
+  desktopWheelCommitTimer = null;
+  commitTypedValue();
+});
 
 timeInput.addEventListener("keydown", (event) => {
   if (!isMobile && event.key === "ArrowUp") {
@@ -289,7 +308,8 @@ timeInput.addEventListener("wheel", (event) => {
     return;
   }
   event.preventDefault();
-  adjustByMinutes(event.deltaY < 0 ? 5 : -5);
+  adjustByMinutes(event.deltaY < 0 ? 5 : -5, false);
+  scheduleDesktopWheelCommit();
 }, { passive: false });
 
 pickerToggle.addEventListener("click", () => {
