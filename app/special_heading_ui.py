@@ -61,29 +61,6 @@ def install_special_heading_style():
           [class*="st-key-electrical_pair_layout"] [data-testid="stHorizontalBlock"] {
             margin: 0 !important;
           }
-
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [class*="st-key-eccitabilita_peribuccale_grid"] > [data-testid="stVerticalBlock"] {
-            gap: 0 !important;
-          }
-
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [class*="st-key-eccitabilita_peribuccale_segment_"] {
-            margin-top: -1.04rem !important;
-            margin-bottom: -0.30rem !important;
-          }
-
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [class*="st-key-eccitabilita_peribuccale_segment_"] button {
-            min-height: 2.50rem !important;
-            padding: 2px 2px !important;
-          }
-
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [class*="st-key-eccitabilita_peribuccale_segment_"] button p {
-            font-size: clamp(0.55rem, 2vw, 0.69rem) !important;
-            line-height: 1.05 !important;
-          }
         }
 
         body:has([class*="st-key-mostra_parametri_aggiuntivi"])

@@ -9,7 +9,7 @@ localizzabili, con intervallo orario su una seconda riga e selezione evidente.
 import importlib
 
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
 from app.i18n import normalize_language, special_option_label
@@ -30,6 +30,9 @@ _PERIORAL_TILE_OPTIONS = (
     "Non valutata",
 )
 _IMAGE_ONLY_FRACTION = 0.76
+_CONTENT_THRESHOLD = 246
+_CONTENT_PAD_TOP = 3
+_CONTENT_PAD_BOTTOM = 4
 
 
 def _source_tile(ui, index):
@@ -54,10 +57,29 @@ def _image_only_tile(tile):
     return tile.crop((0, 0, width, image_height)).convert("RGB")
 
 
+def _strip_original_edges(tile):
+    """Elimina i bordi/cornici raster originari senza ridimensionare il disegno."""
+    width, height = tile.size
+    edge = 7
+    if width <= edge * 2 or height <= edge * 2:
+        return tile
+    return tile.crop((edge, edge, width - edge, height - edge)).convert("RGB")
+
+
+def _content_vertical_bounds(tile):
+    """Trova l'estensione verticale reale del disegno ignorando il fondo quasi bianco."""
+    gray = ImageOps.grayscale(tile)
+    mask = gray.point(lambda pixel: 255 if pixel < _CONTENT_THRESHOLD else 0)
+    bbox = mask.getbbox()
+    if bbox is None:
+        return None
+    return bbox[1], bbox[3]
+
+
 def _build_tiles(ui):
-    """Costruisce le cinque immagini originali e la cella neutra 'Non valutata'."""
+    """Costruisce le cinque immagini pulite e la cella neutra 'Non valutata'."""
     tiles = {
-        option: _image_only_tile(_source_tile(ui, index))
+        option: _strip_original_edges(_image_only_tile(_source_tile(ui, index)))
         for index, option in enumerate(_PERIORAL_TILE_OPTIONS[:5])
     }
 
@@ -90,21 +112,45 @@ def _build_tiles(ui):
     return tiles
 
 
-def _compose_row(tiles, row):
-    """Compone tre immagini mute in una singola riga cliccabile."""
+def _row_content_tiles(tiles, row):
+    """Ritaglia le tre celle della riga sugli stessi limiti reali del contenuto."""
     options = _PERIORAL_TILE_OPTIONS[row * 3:(row + 1) * 3]
     row_tiles = [tiles[option] for option in options]
+    bounds = [bound for tile in row_tiles if (bound := _content_vertical_bounds(tile)) is not None]
+    if not bounds:
+        return row_tiles
+
+    top = max(0, min(bound[0] for bound in bounds) - _CONTENT_PAD_TOP)
+    bottom = min(
+        min(tile.height for tile in row_tiles),
+        max(bound[1] for bound in bounds) + _CONTENT_PAD_BOTTOM,
+    )
+    if bottom <= top:
+        return row_tiles
+
+    return [tile.crop((0, top, tile.width, bottom)) for tile in row_tiles]
+
+
+def _compose_row(tiles, row):
+    """Compone tre immagini pulite con la parte superiore della cornice unica."""
+    row_tiles = _row_content_tiles(tiles, row)
     sample = row_tiles[0]
     tile_width, tile_height = sample.size
-    row_image = Image.new("RGB", (tile_width * 3, tile_height), (255, 255, 255))
+    row_width = tile_width * 3
+    row_image = Image.new("RGB", (row_width, tile_height), (255, 255, 255))
 
     for col, tile in enumerate(row_tiles):
         if tile.size != sample.size:
             tile = tile.resize(sample.size, Image.Resampling.LANCZOS)
         row_image.paste(tile, (col * tile_width, 0))
 
-    return row_image
+    frame = (105, 105, 105)
+    draw = ImageDraw.Draw(row_image)
+    draw.line((0, 0, row_width - 1, 0), fill=frame, width=1)
+    for x in (0, tile_width, tile_width * 2, row_width - 1):
+        draw.line((x, 0, x, tile_height - 1), fill=frame, width=1)
 
+    return row_image
 
 def _option_from_row_click(row, click):
     """Converte il clic nella corrispondente cella della riga."""
@@ -215,19 +261,55 @@ def _install_label_css():
     st.markdown(
         """
         <style>
-        [class*="st-key-eccitabilita_peribuccale_grid"] > [data-testid="stVerticalBlock"] {
-            gap: 0.04rem !important;
+        [class*="st-key-eccitabilita_peribuccale_grid"] {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_grid"][data-testid="stVerticalBlock"],
+        [class*="st-key-eccitabilita_peribuccale_grid"] [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+            row-gap: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_grid"] {
+            position: relative !important;
+            top: -0.80rem !important;
+            margin-bottom: -0.80rem !important;
+        }
+
+        @media (max-width: 768px) {
+            [class*="st-key-eccitabilita_peribuccale_grid"] {
+                top: -2.40rem !important;
+                margin-bottom: -2.40rem !important;
+            }
         }
 
         [class*="st-key-eccitabilita_peribuccale_row_click_"] {
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_row_click_"] iframe {
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_grid"]
+        [data-testid="stElementContainer"]:has([class*="st-key-eccitabilita_peribuccale_row_click_"]),
+        [class*="st-key-eccitabilita_peribuccale_grid"]
+        [data-testid="stElementContainer"]:has([class*="st-key-eccitabilita_peribuccale_segment_"]) {
             margin: 0 !important;
             padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] {
             width: 100% !important;
-            margin-top: -0.98rem !important;
-            margin-bottom: -0.24rem !important;
+            margin-top: 0 !important;
+            margin-bottom: 0.22rem !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] div[role="group"],
@@ -235,35 +317,56 @@ def _install_label_css():
             display: grid !important;
             grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
             width: 100% !important;
-            gap: 2px !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] button {
             min-width: 0 !important;
             width: 100% !important;
-            min-height: 2.65rem !important;
-            padding: 3px 3px !important;
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 1px 2px !important;
+            margin: 0 !important;
             white-space: normal !important;
-            border-color: rgba(128, 128, 128, 0.35) !important;
+            border: 0 !important;
+            border-left: 1px solid rgba(105, 105, 105, 0.72) !important;
+            border-bottom: 1px solid rgba(105, 105, 105, 0.72) !important;
+            border-radius: 0 !important;
             background: transparent !important;
+            box-shadow: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_segment_"] button:last-child {
+            border-right: 1px solid rgba(105, 105, 105, 0.72) !important;
+        }
+
+        [class*="st-key-eccitabilita_peribuccale_segment_"] button > div,
+        [class*="st-key-eccitabilita_peribuccale_segment_"] [data-testid="stMarkdownContainer"] {
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] button[kind="segmented_controlActive"],
         [class*="st-key-eccitabilita_peribuccale_segment_"] button[aria-pressed="true"],
         [class*="st-key-eccitabilita_peribuccale_segment_"] button[aria-checked="true"],
         [class*="st-key-eccitabilita_peribuccale_segment_"] button[data-selected="true"] {
-            border-color: #008F84 !important;
             background: #00A699 !important;
-            box-shadow: inset 0 0 0 1px #008F84 !important;
+            box-shadow: none !important;
         }
 
         [class*="st-key-eccitabilita_peribuccale_segment_"] button p {
             margin: 0 !important;
+            padding: 0 !important;
             white-space: pre-line !important;
             overflow-wrap: anywhere !important;
             text-align: center !important;
-            line-height: 1.10 !important;
-            font-size: clamp(0.57rem, 2.15vw, 0.72rem) !important;
+            line-height: 1.00 !important;
+            font-size: clamp(0.53rem, 1.85vw, 0.66rem) !important;
             font-weight: 600 !important;
         }
 
@@ -278,7 +381,6 @@ def _install_label_css():
         """,
         unsafe_allow_html=True,
     )
-
 
 def _render_segmented_labels(*, row, selected, widget_key, options, language=None):
     row_options = [
