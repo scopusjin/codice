@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Trigger del workflow temporaneo.
 path = Path("app/native_time_picker_frontend/main.js")
 text = path.read_text(encoding="utf-8")
 
