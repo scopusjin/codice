@@ -245,6 +245,7 @@ def _install_label_css():
             margin-bottom: 0 !important;
         }
 
+        [class*="st-key-eccitabilita_sopraciliare_grid"][data-testid="stVerticalBlock"],
         [class*="st-key-eccitabilita_sopraciliare_grid"] [data-testid="stVerticalBlock"] {
             gap: 0 !important;
             row-gap: 0 !important;
