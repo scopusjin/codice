@@ -665,6 +665,13 @@ if mostra_parametri_aggiuntivi:
                 with colx2:
                     usa_orario_personalizzato = st.checkbox(label="", key=chiave_checkbox)
 
+            ora_key = f"{nome_parametro_legacy}_ora"
+            ora_manual_key = f"{ora_key}__manual"
+            ora_last_main_key = f"{ora_key}__last_main"
+            if not usa_orario_personalizzato:
+                st.session_state.pop(ora_manual_key, None)
+                st.session_state.pop(ora_last_main_key, None)
+
             if usa_orario_custom_globale and usa_orario_personalizzato:
                 coly1, coly2 = st.columns(2)
                 with coly1:
@@ -680,12 +687,40 @@ if mostra_parametri_aggiuntivi:
                 with coly2:
                     measurement_time = i18n.ui_text("full.measurement_time")
                     st.markdown(f"<div style='font-size: 0.88rem; padding-top: 0.4rem;'>{measurement_time}</div>", unsafe_allow_html=True)
-                    ora_key = f"{nome_parametro_legacy}_ora"
-                    ora_value = st.session_state.get(ora_key) or input_ora_rilievo or "00:00"
-                    ora_input = native_time_picker(
+                    ora_main = input_ora_rilievo or "00:00"
+                    ora_manual = bool(st.session_state.get(ora_manual_key, False))
+                    ora_value = (
+                        (st.session_state.get(ora_key) or ora_main)
+                        if ora_manual
+                        else ora_main
+                    )
+                    ora_picker = native_time_picker(
                         ora_value,
                         key=f"{ora_key}_native",
+                        inherited=not ora_manual,
                     )
+
+                    if ora_manual:
+                        ora_input = ora_picker
+                    else:
+                        ora_last_main = st.session_state.get(ora_last_main_key)
+                        if ora_last_main is None:
+                            # Primo render (o riattivazione): ignora un eventuale
+                            # valore residuo del componente e parti dall'orario principale.
+                            ora_input = ora_main
+                        elif ora_main != ora_last_main and ora_picker == ora_last_main:
+                            # Dopo un cambio programmatico del principale il componente
+                            # può restituire per un singolo rerun il vecchio valore.
+                            ora_input = ora_main
+                        elif ora_picker != ora_main:
+                            # Da questo momento il valore è stato modificato localmente
+                            # e non deve più seguire l'orario principale.
+                            st.session_state[ora_manual_key] = True
+                            ora_input = ora_picker
+                        else:
+                            ora_input = ora_main
+                        st.session_state[ora_last_main_key] = ora_main
+
                     st.session_state[ora_key] = ora_input
 
             widgets_parametri_aggiuntivi[nome_parametro_legacy] = {

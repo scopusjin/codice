@@ -26,7 +26,12 @@ def _theme_value(option, fallback):
     return value or fallback
 
 
-def native_time_picker(value="00:00", *, key=None):
+def _inherited_background_color():
+    base = str(_theme_value("theme.base", "light")).lower()
+    return "#3b2a00" if base == "dark" else "#fff3cd"
+
+
+def native_time_picker(value="00:00", *, key=None, inherited=False):
     """Restituisce un orario HH:MM; ruote touch solo sulla Full mobile."""
     if not isinstance(value, str) or not _TIME_RE.fullmatch(value.strip()):
         value = "00:00"
@@ -39,6 +44,8 @@ def native_time_picker(value="00:00", *, key=None):
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
+        inherited=bool(inherited),
+        inherited_background_color=_inherited_background_color(),
         key=key,
         default=value,
     )

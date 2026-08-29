@@ -24,6 +24,10 @@ body {
   overflow: hidden;
 }
 
+.time-control.inherited {
+  background: var(--inherited-bg, #fff3cd);
+}
+
 .time-control:hover,
 .time-control:focus-within {
   border-color: var(--primary, #168AC1);

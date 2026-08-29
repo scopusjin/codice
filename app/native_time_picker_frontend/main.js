@@ -1,4 +1,5 @@
 const timeInput = document.getElementById("time-input");
+const timeControl = document.getElementById("time-control");
 const pickerToggle = document.getElementById("picker-toggle");
 const picker = document.getElementById("picker");
 const hoursWheel = document.getElementById("hours-wheel");
@@ -25,6 +26,11 @@ function setTheme(args) {
   document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
   document.documentElement.style.setProperty("--field-bg", args.background_color || "#F0F2F6");
   document.documentElement.style.setProperty("--text", args.text_color || "#31333F");
+  document.documentElement.style.setProperty("--inherited-bg", args.inherited_background_color || "#fff3cd");
+}
+
+function setInheritedState(active) {
+  timeControl.classList.toggle("inherited", Boolean(active));
 }
 
 function parseTime(value) {
@@ -64,6 +70,7 @@ function commitNormalizedValue(value) {
   committedValue = value;
   pendingCommittedValue = value;
   timeInput.value = value;
+  setInheritedState(false);
   Streamlit.setComponentValue(value);
 }
 
@@ -224,6 +231,7 @@ function commitDraft() {
 function onRender(event) {
   const args = event.detail.args || {};
   setTheme(args);
+  setInheritedState(args.inherited);
 
   isMobile = Boolean(args.mobile);
   pickerToggle.hidden = !isMobile;
