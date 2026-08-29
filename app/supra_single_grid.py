@@ -245,8 +245,17 @@ def _install_label_css():
             margin-bottom: 0 !important;
         }
 
-        [class*="st-key-eccitabilita_sopraciliare_grid"] > [data-testid="stVerticalBlock"] {
+        [class*="st-key-eccitabilita_sopraciliare_grid"] [data-testid="stVerticalBlock"] {
             gap: 0 !important;
+            row-gap: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            [class*="st-key-eccitabilita_sopraciliare_grid"] {
+                position: relative !important;
+                top: -0.80rem !important;
+                margin-bottom: -0.80rem !important;
+            }
         }
 
         [class*="st-key-eccitabilita_sopraciliare_row_click_"] {
@@ -272,7 +281,7 @@ def _install_label_css():
         [class*="st-key-eccitabilita_sopraciliare_segment_"] {
             width: 100% !important;
             margin-top: 0 !important;
-            margin-bottom: -0.18rem !important;
+            margin-bottom: 0.22rem !important;
             padding: 0 !important;
         }
 
