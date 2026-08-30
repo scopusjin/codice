@@ -22,6 +22,11 @@ _COMBINED_REFERENCE = (
     "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
 )
 
+_HENSSGE_BASE_REFERENCE = (
+    "Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. "
+    "Forensic Sci Int. 1988;38(3–4):209–236. doi:10.1016/0379-0738(88)90168-5."
+)
+
 _MALLACH_TABLE_TEXT = {
     "it": {
         "caption": (
@@ -200,6 +205,75 @@ _COMBINED_TABLE_TEXT = {
     },
 }
 
+_HENSSGE_BASE_TABLE_TEXT = {
+    "it": {
+        "caption": "Fattori di correzione empirici del peso corporeo",
+        "dry": "Abbigliamento/copertura asciutti",
+        "in_air": "In aria",
+        "factor": "Fattore di correzione",
+        "wet": "Abbigliamento/copertura bagnati, superficie corporea bagnata",
+        "in_water": "In acqua",
+        "naked": "Nudo",
+        "moving": "In movimento",
+        "still": "Ferma",
+        "flowing": "Corrente",
+        "thin_1_2": "1–2 strati sottili",
+        "thicker_2_plus": "2 o più strati più spessi",
+        "more_than_2_thicker": "Più di 2 strati più spessi",
+        "thicker_2": "2 strati più spessi",
+        "thin_2_3": "2–3 strati sottili",
+        "thicker_1_2": "1–2 strati più spessi",
+        "thin_3_4": "3–4 strati sottili",
+        "more_layers": "Più strati sottili/spessi",
+        "moving_or_still": "In movimento o ferma",
+        "without_influence": "Senza influenza",
+        "thick_bedspread": "Coperta spessa",
+        "clothing_combined": "+ abbigliamento combinato",
+        "note": (
+            "* I valori indicati si riferiscono a corpi di peso medio (riferimento: 70 kg), "
+            "in posizione distesa su una base termicamente indifferente."
+        ),
+        "lower_trunk": (
+            "Per la scelta del fattore di correzione è rilevante solo l'abbigliamento "
+            "o la copertura del tronco inferiore."
+        ),
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "caption": "Empiric corrective factors of the body weight",
+        "dry": "Dry clothing/covering",
+        "in_air": "In air",
+        "factor": "Corrective factor",
+        "wet": "Wet-through clothing/covering, wet body surface",
+        "in_water": "In water",
+        "naked": "Naked",
+        "moving": "Moving",
+        "still": "Still",
+        "flowing": "Flowing",
+        "thin_1_2": "1–2 thin layers",
+        "thicker_2_plus": "2 or more thicker layers",
+        "more_than_2_thicker": "More than 2 thicker layers",
+        "thicker_2": "2 thicker layers",
+        "thin_2_3": "2–3 thin layers",
+        "thicker_1_2": "1–2 thicker layers",
+        "thin_3_4": "3–4 thin layers",
+        "more_layers": "More thin/thicker layers",
+        "moving_or_still": "Moving or still",
+        "without_influence": "Without influence",
+        "thick_bedspread": "Thick bedspread",
+        "clothing_combined": "+ clothing combined",
+        "note": (
+            "* The listed values apply to bodies of average weight (reference: 70 kg), "
+            "in an extended position on a thermally indifferent base."
+        ),
+        "lower_trunk": (
+            "For the selection of the corrective factor of any case, only the clothing "
+            "or covering of the lower trunk is relevant."
+        ),
+        "adapted": "Adapted from",
+    },
+}
+
 
 def _render_livor_table(language: str) -> None:
     text = _MALLACH_TABLE_TEXT[language]
@@ -351,6 +425,50 @@ def _render_combined_table(language: str) -> None:
     st.caption(f"{text['adapted']}: {_COMBINED_REFERENCE}")
 
 
+def _render_henssge_base_table(language: str) -> None:
+    text = _HENSSGE_BASE_TABLE_TEXT[language]
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table henssge-base-table">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+              {text['caption']}*
+            </caption>
+            <thead>
+              <tr>
+                <th>{text['dry']}</th>
+                <th>{text['in_air']}</th>
+                <th>{text['factor']}</th>
+                <th>{text['wet']}</th>
+                <th>{text['in_air']}</th>
+                <th>{text['in_water']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td></td><td></td><td>0.35</td><td>{text['naked']}</td><td></td><td>{text['flowing']}</td></tr>
+              <tr><td></td><td></td><td>0.50</td><td>{text['naked']}</td><td></td><td>{text['still']}</td></tr>
+              <tr><td></td><td></td><td>0.70</td><td>{text['naked']}</td><td>{text['moving']}</td><td></td></tr>
+              <tr><td></td><td></td><td>0.70</td><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td></td></tr>
+              <tr><td>{text['naked']}</td><td>{text['moving']}</td><td>0.75</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td>0.90</td><td>{text['thicker_2_plus']}</td><td>{text['moving']}</td><td></td></tr>
+              <tr><td>{text['naked']}</td><td>{text['still']}</td><td>1.00</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thin_1_2']}</td><td>{text['still']}</td><td>1.10</td><td>{text['thicker_2']}</td><td>{text['still']}</td><td></td></tr>
+              <tr><td>{text['thin_2_3']}</td><td></td><td>1.20</td><td>{text['more_than_2_thicker']}</td><td>{text['still']}</td><td></td></tr>
+              <tr><td>{text['thicker_1_2']}</td><td>{text['moving_or_still']}</td><td>1.20</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thin_3_4']}</td><td></td><td>1.30</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['more_layers']}</td><td>{text['without_influence']}</td><td>1.40</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thick_bedspread']}</td><td></td><td>1.80</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['clothing_combined']}</td><td></td><td>2.40</td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mallach-note">{text['note']}<br>{text['lower_trunk']}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
+
+
 st.title("Tabelle di riferimento")
 
 st.markdown(
@@ -412,6 +530,18 @@ st.markdown(
     .combined-table th:nth-child(5) {
         min-width: 8.5rem;
     }
+    .henssge-base-table td:first-child,
+    .henssge-base-table td:nth-child(4) {
+        min-width: 12rem;
+    }
+    .henssge-base-table th:nth-child(2),
+    .henssge-base-table th:nth-child(5),
+    .henssge-base-table th:nth-child(6) {
+        min-width: 6rem;
+    }
+    .henssge-base-table th:nth-child(3) {
+        min-width: 7rem;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -450,11 +580,14 @@ _render_combined_table("it" if combined_language == "Italiano" else "en")
 
 # --- Sezione 2: Tabelle Henssge ---
 st.markdown("## Fattori di correzione base")
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%201%20henssge.png",
-    caption="Tabella 1 henssge",
-    use_container_width=True
+henssge_base_language = st.radio(
+    "Lingua tabella fattori di correzione base",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="henssge_base_table_language",
+    label_visibility="collapsed",
 )
+_render_henssge_base_table("it" if henssge_base_language == "Italiano" else "en")
 
 st.markdown("Situazioni speciali")
 st.image(
