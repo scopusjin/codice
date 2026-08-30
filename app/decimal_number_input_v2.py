@@ -38,11 +38,20 @@ _HTML = r"""
 """
 
 _CSS = r"""
+:root {
+  --mortem-control-max-width: 29.4rem;
+}
+@media (max-width: 768px) {
+  :root {
+    --mortem-control-max-width: 22.9rem;
+  }
+}
 .number-control {
   box-sizing: border-box;
   display: flex;
   align-items: stretch;
-  width: 100%;
+  width: min(100%, var(--mortem-control-max-width));
+  max-width: var(--mortem-control-max-width);
   height: 40px;
   min-width: 0;
   overflow: hidden;
@@ -81,15 +90,15 @@ _CSS = r"""
 }
 .number-input {
   box-sizing: border-box;
-  flex: 0 0 58px;
-  width: 58px;
-  min-width: 58px;
+  flex: 0 0 48px;
+  width: 48px;
+  min-width: 48px;
   height: 100%;
   border: 0;
   outline: none;
   background: transparent;
   color: inherit;
-  padding: 0 5px 0 2px;
+  padding: 0 3px 0 1px;
   text-align: right;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.95rem;
@@ -101,7 +110,7 @@ _CSS = r"""
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  padding: 0 5px 0 1px;
+  padding: 0 3px 0 0;
   white-space: nowrap;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.80rem;
@@ -125,8 +134,8 @@ _CSS = r"""
   touch-action: manipulation;
 }
 .step-button {
-  flex: 0 0 32px;
-  width: 32px;
+  flex: 0 0 30px;
+  width: 30px;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 1.15rem;
   font-weight: 600;
@@ -155,8 +164,7 @@ _CSS = r"""
   opacity: 0.8;
 }
 .suggest-button { display: none; }
-.suggest-button.is-visible,
-.number-control.reserve-suggest .suggest-button {
+.suggest-button.is-visible {
   display: flex;
   flex: 0 0 5.4rem;
   width: 5.4rem;
@@ -171,18 +179,14 @@ _CSS = r"""
   font-weight: 500;
   line-height: 1;
 }
-.number-control.reserve-suggest .suggest-button {
-  visibility: hidden;
-  pointer-events: none;
-}
 .number-control.has-suggest .number-input {
-  flex-basis: 58px;
-  width: 58px;
-  min-width: 58px;
+  flex-basis: 48px;
+  width: 48px;
+  min-width: 48px;
 }
 .number-control.has-suggest .step-button {
-  flex-basis: 32px;
-  width: 32px;
+  flex-basis: 30px;
+  width: 30px;
 }
 .suggest-button.is-visible.is-active {
   background: color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent);
@@ -342,11 +346,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
-  const reserveSuggest = Boolean(data?.reserve_suggest);
   control.classList.toggle('has-help', showHelp);
   const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
-  control.classList.toggle('reserve-suggest', reserveSuggest);
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp);
@@ -536,7 +538,6 @@ def render_mobile_decimal_v2(
             "suggest_enabled": bool(suggest_enabled),
             "suggest_label": str(suggest_label or ""),
             "suggest_active": bool(suggest_active),
-            "reserve_suggest": key == "mortem_decimal_fc_min_val",
             "dense": dense,
         },
         default={"value": value},
