@@ -12,21 +12,18 @@ from app.full_mobile_compact import install_full_mobile_compact_css
 _SESSION_KEY = "__full_device_mobile"
 
 
-# Griglia unica dei controlli del raffreddamento della Full.
-# Il CSS viene accodato al blocco compatto già iniettato a ogni rerun:
-# non introduce un secondo meccanismo di stile e resta stabile dopo Consiglia.
+# Rifiniture esterne dei controlli del raffreddamento della Full.
+# L'allineamento interno etichetta/valore/unità/−/+ resta responsabilità del
+# componente V2; qui si governa soltanto la larghezza dei wrapper Streamlit e,
+# in modalità prudente, la colonna esterna ±3 kg della riga Peso.
 _FULL_COOLING_ROW_WIDTH_CSS = r"""
 <style>
 body:has([class*="st-key-stima_cautelativa_beta"]) {
   --mortem-cooling-row-width: 20rem;
-  --mortem-cooling-label-col: 7.5rem;
-  --mortem-cooling-value-col: 3rem;
-  --mortem-cooling-unit-col: 1.5rem;
-  --mortem-cooling-step-col: 1.8rem;
   --mortem-cooling-action-col: 4.4rem;
 }
 
-/* Tutti i componenti numerici hanno la stessa larghezza complessiva. */
+/* Tutte le righe numeriche hanno la stessa larghezza complessiva. */
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_decimal_"],
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -38,108 +35,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   align-self: flex-start !important;
 }
 
-/* Dentro ogni riga: etichetta | valore | unità | − | + | azione.
-   La colonna azione resta vuota quando non serve; così valori e pulsanti
-   rimangono perfettamente incolonnati con la riga FC/Consiglia. */
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile {
-  position: relative !important;
-  display: grid !important;
-  grid-template-columns:
-    var(--mortem-cooling-label-col)
-    var(--mortem-cooling-value-col)
-    var(--mortem-cooling-unit-col)
-    var(--mortem-cooling-step-col)
-    var(--mortem-cooling-step-col)
-    var(--mortem-cooling-action-col) !important;
-  align-items: stretch !important;
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .mobile-label {
-  grid-column: 1 !important;
-  min-width: 0 !important;
-  width: auto !important;
-  padding-left: 8px !important;
-  padding-right: 5px !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .number-input {
-  grid-column: 2 !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin-left: 0 !important;
-  padding-left: 1px !important;
-  padding-right: 3px !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .mobile-unit {
-  grid-column: 3 !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  justify-content: flex-start !important;
-  padding-left: 1px !important;
-  padding-right: 1px !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .mobile-unit:empty {
-  visibility: hidden !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .number-minus {
-  grid-column: 4 !important;
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .number-plus {
-  grid-column: 5 !important;
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .suggest-button {
-  grid-column: 6 !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-}
-
-/* Il ? della temperatura appartiene visivamente alla colonna etichetta,
-   senza spostare la colonna dei valori. */
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile .temperature-help.is-visible {
-  position: absolute !important;
-  left: calc(var(--mortem-cooling-label-col) - 1.55rem) !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 1.35rem !important;
-  height: 100% !important;
-  z-index: 2 !important;
-  margin: 0 !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile.has-help .mobile-label {
-  padding-right: 1.7rem !important;
-}
-
-/* Riga Peso con ±3 kg: il toggle occupa esattamente la colonna "azione".
-   Il componente numerico usa le prime cinque colonne, quindi 70.0 resta
-   allineato con tutti gli altri valori. */
+/* Condizioni variabili: Peso e ±3 kg formano una sola riga della stessa
+   larghezza delle altre. Il componente Peso occupa le prime cinque colonne;
+   ±3 kg occupa la colonna azione, senza spostare il valore 70.0. */
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_row_mobile"],
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -151,7 +49,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box !important;
   display: grid !important;
   grid-template-columns:
-    calc(var(--mortem-cooling-row-width) - var(--mortem-cooling-action-col))
+    minmax(0, calc(var(--mortem-cooling-row-width) - var(--mortem-cooling-action-col)))
     var(--mortem-cooling-action-col) !important;
   align-items: center !important;
   gap: 0 !important;
@@ -161,12 +59,13 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-prudent_weight_row_mobile"] [data-testid="column"],
+[class*="st-key-prudent_weight_value_mobile"],
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-prudent_weight_row_desktop"] [data-testid="column"] {
+[class*="st-key-prudent_weight_value_desktop"] {
+  box-sizing: border-box !important;
   width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
-  max-width: none !important;
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -181,46 +80,57 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_value_desktop"] [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_peso"]) {
   width: 100% !important;
   max-width: 100% !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-prudent_weight_value_mobile"] .number-control.compact-mobile,
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-prudent_weight_value_desktop"] .number-control.compact-mobile {
-  grid-template-columns:
-    var(--mortem-cooling-label-col)
-    var(--mortem-cooling-value-col)
-    var(--mortem-cooling-unit-col)
-    var(--mortem-cooling-step-col)
-    var(--mortem-cooling-step-col) !important;
+  min-width: 0 !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_uncertainty_mobile"],
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_uncertainty_desktop"] {
+  box-sizing: border-box !important;
   width: var(--mortem-cooling-action-col) !important;
   max-width: var(--mortem-cooling-action-col) !important;
   min-width: var(--mortem-cooling-action-col) !important;
   margin: 0 !important;
-  padding-left: 0.18rem !important;
+  padding: 0 0 0 0.18rem !important;
 }
 
-/* Anche i contatori di vestiti/coperte usano le stesse colonne di valore e
-   −/+; cambia solo l'altezza compatta della riga. */
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile.is-dense .number-input,
-body:has([class*="st-key-stima_cautelativa_beta"])
-.number-control.compact-mobile.is-dense .step-button {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
+@media (max-width: 768px) {
+  /* Il testo esplicativo della modalità prudente è già omesso visivamente
+     nella Full mobile: eliminiamo anche il contenitore residuo che lasciava
+     una fascia bianca tra il toggle e T. rettale. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-prudent_explicit_ranges"] {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_prudent_v2_stack_mobile"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    gap: 0.18rem !important;
+  }
+
+  /* Mantiene il toggle Condizioni variabili sopra eventuali wrapper della
+     modalità che vengono montati/smontati durante il rerun. */
+  [class*="st-key-stima_cautelativa_beta"] [data-testid="stToggle"],
+  [class*="st-key-stima_cautelativa_beta"] [data-testid="stToggle"] label {
+    position: relative !important;
+    z-index: 3 !important;
+    pointer-events: auto !important;
+  }
 }
 
 @media (min-width: 769px) {
   body:has([class*="st-key-stima_cautelativa_beta"]) {
     --mortem-cooling-row-width: 28rem;
-    --mortem-cooling-label-col: 15.5rem;
   }
 }
 </style>
