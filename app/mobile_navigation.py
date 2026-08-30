@@ -108,17 +108,68 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 outline: 0 !important;
             }}
 
-            /* Full mobile: nasconde la toolbar Streamlit mantenendo il comando
-               laterale e recupera lo spazio superiore del titolo. */
+            /* Full mobile: mantiene il controllo nativo della sidebar ma
+               nasconde gli altri elementi della toolbar Streamlit. */
             body:has([class*="st-key-stima_cautelativa_beta"])
             [data-testid="stToolbar"] {{
+                display: block !important;
+                position: static !important;
+                width: 0 !important;
+                min-width: 0 !important;
+                max-width: 0 !important;
+                height: 0 !important;
+                min-height: 0 !important;
+                max-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stToolbar"] > *:not([data-testid="stSidebarCollapsedControl"]):not([data-testid="collapsedControl"]):not(:has([data-testid="stSidebarCollapsedControl"])):not(:has([data-testid="collapsedControl"])) {{
                 display: none !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            :is([data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"]) {{
+                display: flex !important;
+                position: fixed !important;
+                top: auto !important;
+                right: auto !important;
+                bottom: 0.70rem !important;
+                left: 0.70rem !important;
+                z-index: 1000000 !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 2.15rem !important;
+                min-width: 2.15rem !important;
+                height: 2.15rem !important;
+                min-height: 2.15rem !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            :is([data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"]) button {{
+                display: flex !important;
+                width: 2.15rem !important;
+                min-width: 2.15rem !important;
+                height: 2.15rem !important;
+                min-height: 2.15rem !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0 !important;
+                border: 1px solid var(--primary-color, #2196F3) !important;
+                border-radius: 8px !important;
+                background: var(--background-color, #FFFFFF) !important;
+                color: var(--primary-color, #2196F3) !important;
+                box-shadow: 0 1px 4px rgba(0,0,0,.12) !important;
             }}
             body:has([class*="st-key-stima_cautelativa_beta"])
             header[data-testid="stHeader"] {{
                 min-height: 2.35rem !important;
                 height: 2.35rem !important;
                 background: transparent !important;
+                overflow: visible !important;
             }}
             body:has([class*="st-key-stima_cautelativa_beta"])
             div.block-container {{
