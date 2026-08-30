@@ -44,7 +44,119 @@ def install_special_heading_style():
           font-weight: 400 !important;
         }
 
+        /* Campi numerici del raffreddamento: larghezza omogenea dimensionata
+           sul testo più lungo del gruppo, senza occupare tutta la riga. */
+        html body:has([class*="st-key-stima_cautelativa_beta"]) {
+          --mortem-cooling-field-width: 24rem;
+          --mortem-cooling-suggest-width: 5.4rem;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-mortem_decimal_"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]) {
+          box-sizing: border-box !important;
+          width: min(100%, var(--mortem-cooling-field-width)) !important;
+          max-width: var(--mortem-cooling-field-width) !important;
+          min-width: 0 !important;
+          align-self: flex-start !important;
+        }
+
+        /* I soli campi che mostrano davvero “Consiglia” conservano a destra
+           la larghezza del pulsante; il campo numerico termina prima. */
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-mortem_decimal_fc_other_val"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fc_other_val"]),
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-mortem_decimal_fattore_correzione"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fattore_correzione"]) {
+          width: min(100%, calc(var(--mortem-cooling-field-width) + var(--mortem-cooling-suggest-width))) !important;
+          max-width: calc(var(--mortem-cooling-field-width) + var(--mortem-cooling-suggest-width)) !important;
+        }
+
+        /* FC min non deve più riservare un falso pulsante invisibile. */
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        .number-control.reserve-suggest .suggest-button {
+          display: none !important;
+          flex: 0 0 0 !important;
+          width: 0 !important;
+          min-width: 0 !important;
+          max-width: 0 !important;
+          padding: 0 !important;
+          border: 0 !important;
+        }
+
+        /* Valore appena sufficiente per le cifre visualizzate; −/+ restano
+           subito dopo l'eventuale unità di misura. */
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        .number-control:not(.is-dense) .number-input {
+          flex: 0 0 48px !important;
+          width: 48px !important;
+          min-width: 48px !important;
+          padding-left: 1px !important;
+          padding-right: 3px !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        .number-control:not(.is-dense) .step-button {
+          flex: 0 0 30px !important;
+          width: 30px !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        .number-control .mobile-unit {
+          padding-left: 0 !important;
+          padding-right: 3px !important;
+        }
+
+        /* Peso + ±3 kg: il toggle segue subito il campo compatto invece di
+           essere spinto al margine destro del riquadro. */
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_row_mobile"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_row_mobile"] [data-testid="stHorizontalBlock"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_row_desktop"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_row_desktop"] [data-testid="stHorizontalBlock"] {
+          display: flex !important;
+          flex-direction: row !important;
+          flex-wrap: nowrap !important;
+          align-items: center !important;
+          justify-content: flex-start !important;
+          gap: 0.34rem !important;
+          width: fit-content !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_value_mobile"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_value_desktop"] {
+          flex: 0 1 var(--mortem-cooling-field-width) !important;
+          width: var(--mortem-cooling-field-width) !important;
+          max-width: var(--mortem-cooling-field-width) !important;
+          min-width: 0 !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_uncertainty_mobile"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_weight_uncertainty_desktop"] {
+          flex: 0 0 auto !important;
+          width: max-content !important;
+          min-width: max-content !important;
+          margin-left: 0 !important;
+        }
+
         @media (max-width: 768px) {
+          html body:has([class*="st-key-stima_cautelativa_beta"]) {
+            --mortem-cooling-field-width: 17.5rem;
+          }
+
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
             padding: 0.42rem 0.62rem !important;
@@ -104,6 +216,54 @@ def install_special_heading_style():
             max-width: 100% !important;
             min-width: 0 !important;
             overflow: visible !important;
+          }
+
+          /* Il pannello di suggerimento sale fino alla riga FC/Consiglia e
+             aumenta appena il respiro tra stato del corpo e vestiti/coperte. */
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"] {
+            margin-top: -0.22rem !important;
+            padding-top: 0.42rem !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
+            margin-top: 0.22rem !important;
+            margin-bottom: 0.06rem !important;
+          }
+
+          /* FC suggerito + Usalo: centrati come gruppo, con un piccolo spazio
+             tra il valore e il pulsante. */
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="fc_apply_block_mobile"] {
+            width: 100% !important;
+            margin-top: 0.12rem !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="fc_apply_row_mobile"],
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="fc_apply_row_mobile"] [data-testid="stHorizontalBlock"] {
+            width: fit-content !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            justify-content: center !important;
+            gap: 0.32rem !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="fc_apply_value_mobile"] .mortem-fc-inline-result {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="fc_apply_action_mobile"] {
+            margin-left: 0.04rem !important;
           }
         }
 
