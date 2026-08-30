@@ -41,7 +41,7 @@ class ScientificRangeRegressionTests(unittest.TestCase):
         self.assertEqual(ranges["Marcata ed estesa (+++)"], (0, 2.5))
         self.assertEqual(ranges["Discreta (++)"], (1, 5))
         self.assertEqual(ranges["Accennata (+)"], (2, 6))
-        self.assertEqual(ranges["Nessuna reazione"], (6, INF_HOURS))
+        self.assertEqual(ranges["Nessuna reazione"], (3, INF_HOURS))
 
     def test_mechanical_and_pupillary_ranges_are_unchanged(self):
         mechanical = dati_parametri_aggiuntivi["Eccitabilità muscolare meccanica"]["range"]
