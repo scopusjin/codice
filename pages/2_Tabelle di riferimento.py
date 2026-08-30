@@ -22,6 +22,66 @@ _COMBINED_REFERENCE = (
     "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
 )
 
+_MALLACH_TABLE_TEXT = {
+    "it": {
+        "caption": (
+            "Decorso temporale dei diversi criteri delle ipostasi: calcoli statistici "
+            "di Mallach basati su dati riportati nei testi*"
+        ),
+        "criterion": "Criterio",
+        "sd": "DS",
+        "range": "Range di dispersione",
+        "references": "N. citazioni",
+        "lower": "Limite inferiore",
+        "upper": "Limite superiore",
+        "development": "Sviluppo",
+        "confluence": "Confluenza",
+        "maximum": "Massima distensione e intensità",
+        "disappearance": "Scomparsa",
+        "thumb": "1. Completa alla pressione con il pollice",
+        "point": "2. Incompleta alla pressione puntiforme (pinza)",
+        "shifting": "Spostamento dopo rotazione del corpo",
+        "complete": "1. Completo",
+        "incomplete": "2. Incompleto",
+        "slight": "3. Solo lieve impallidimento",
+        "note": (
+            "* I calcoli statistici non sono basati su studi trasversali o longitudinali, "
+            "ma su conoscenze empiriche riportate nei testi.<br>"
+            "x̄ = valore medio; DS = deviazione standard. "
+            "Tutti i tempi sono espressi in ore post-mortem."
+        ),
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "caption": (
+            "Time course of the different criteria of lividity: Mallach's statistical "
+            "calculations based on data reported in textbooks*"
+        ),
+        "criterion": "Criterion",
+        "sd": "SD",
+        "range": "Range of variation",
+        "references": "No. references",
+        "lower": "Lower limit",
+        "upper": "Upper limit",
+        "development": "Development",
+        "confluence": "Confluence",
+        "maximum": "Maximum extension and intensity",
+        "disappearance": "Disappearance",
+        "thumb": "1. Complete on thumb pressure",
+        "point": "2. Incomplete on point pressure (forceps)",
+        "shifting": "Shifting after rotation of the body",
+        "complete": "1. Complete",
+        "incomplete": "2. Incomplete",
+        "slight": "3. Slight blanching only",
+        "note": (
+            "* The statistical calculations are not based on cross-sectional or longitudinal "
+            "studies, but on empirical knowledge reported in textbooks.<br>"
+            "x̄ = mean; SD = standard deviation. All times are expressed in hours postmortem."
+        ),
+        "adapted": "Adapted from",
+    },
+}
+
 _RIGOR_TABLE_TEXT = {
     "it": {
         "caption": "Tabella 1 — Decorso temporale della rigidità cadaverica",
@@ -141,6 +201,52 @@ _COMBINED_TABLE_TEXT = {
 }
 
 
+def _render_livor_table(language: str) -> None:
+    text = _MALLACH_TABLE_TEXT[language]
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+              {text['caption']}
+            </caption>
+            <thead>
+              <tr>
+                <th rowspan="2">{text['criterion']}</th>
+                <th rowspan="2">x̄</th>
+                <th rowspan="2">{text['sd']}</th>
+                <th colspan="2">2 {text['sd']}</th>
+                <th colspan="2">{text['range']}</th>
+                <th rowspan="2">{text['references']}</th>
+              </tr>
+              <tr>
+                <th>{text['lower']}</th>
+                <th>{text['upper']}</th>
+                <th>{text['lower']}</th>
+                <th>{text['upper']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>{text['development']}</td><td>¾</td><td>½</td><td>—</td><td>2</td><td>¼</td><td>3</td><td>17</td></tr>
+              <tr><td>{text['confluence']}</td><td>2½</td><td>1</td><td>¾</td><td>4¼</td><td>1</td><td>4</td><td>5</td></tr>
+              <tr><td>{text['maximum']}</td><td>9½</td><td>4½</td><td>½</td><td>18¼</td><td>3</td><td>16</td><td>7</td></tr>
+              <tr class="group-row"><td colspan="8">{text['disappearance']}</td></tr>
+              <tr><td class="subcriterion">{text['thumb']}</td><td>5½</td><td>6</td><td>—</td><td>17½</td><td>1</td><td>20</td><td>5</td></tr>
+              <tr><td class="subcriterion">{text['point']}</td><td>17</td><td>10½</td><td>—</td><td>37½</td><td>10</td><td>36</td><td>4</td></tr>
+              <tr class="group-row"><td colspan="8">{text['shifting']}</td></tr>
+              <tr><td class="subcriterion">{text['complete']}</td><td>3¾</td><td>1</td><td>2</td><td>5½</td><td>2</td><td>6</td><td>11</td></tr>
+              <tr><td class="subcriterion">{text['incomplete']}</td><td>11</td><td>4½</td><td>2¼</td><td>20</td><td>4</td><td>24</td><td>11</td></tr>
+              <tr><td class="subcriterion">{text['slight']}</td><td>18½</td><td>8</td><td>2½</td><td>34½</td><td>10</td><td>30</td><td>7</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mallach-note">{text['note']}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_MALLACH_REFERENCE}")
+
+
 def _render_rigor_table(language: str) -> None:
     text = _RIGOR_TABLE_TEXT[language]
     st.markdown(
@@ -216,16 +322,13 @@ def _render_combined_table(language: str) -> None:
               <tr><td class="subcriterion">{text['complete_shifting']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>6.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>3.0</td><td>{n}</td><td>16.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['incomplete_shifting']}</td><td>{n}</td><td>4.0</td><td>{p}</td><td>24.0</td><td></td><td></td></tr>
-
               <tr class="group-row"><td>{text['rigor']}</td><td></td><td></td><td></td><td></td><td></td><td>[8]</td></tr>
               <tr><td class="subcriterion">{text['beginning']}</td><td>{p}</td><td>0.5</td><td>{n}</td><td>7.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['reestablishment']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>8.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>2.0</td><td>{n}</td><td>20.0</td><td>{v}</td><td></td></tr>
-
               <tr class="group-row"><td>{text['mechanical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
               <tr><td class="subcriterion">{text['tendon']}</td><td>{n}</td><td>0.0</td><td>{p}</td><td>2.5</td><td>{v}</td><td>[9, 10]</td></tr>
               <tr><td class="subcriterion">{text['idiomuscular']}</td><td>{n}</td><td>1.5</td><td>{p}</td><td>13.0</td><td>{v}</td><td>[10, 11]</td></tr>
-
               <tr class="group-row"><td>{text['electrical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
               <tr><td class="subcriterion">{text['eyebrow']}</td><td></td><td></td><td></td><td></td><td></td><td>[4, 7]</td></tr>
               <tr><td class="subcriterion nested">{text['grade']} VI</td><td>{n}</td><td>1.0</td><td>{p}</td><td>6.0</td><td>{c}</td><td></td></tr>
@@ -235,7 +338,6 @@ def _render_combined_table(language: str) -> None:
               <tr><td class="subcriterion nested">{text['grade']} II</td><td>{n}</td><td>5.0</td><td>{p}</td><td>26.0</td><td>{c}</td><td></td></tr>
               <tr><td class="subcriterion nested">{text['grade']} I</td><td>{n}</td><td>5.0</td><td>{p}</td><td>22.0</td><td>{c}</td><td></td></tr>
               <tr><td class="subcriterion">{text['mouth']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>11.0</td><td>{v}</td><td>[4]</td></tr>
-
               <tr class="group-row"><td>{text['chemical']}</td><td></td><td></td><td></td><td></td><td></td><td>[4]</td></tr>
               <tr><td class="subcriterion">{text['atropin']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>10.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['tropicamide']}</td><td>{n}</td><td>5.0</td><td>{p}</td><td>30.0</td><td>{v}</td><td></td></tr>
@@ -251,8 +353,6 @@ def _render_combined_table(language: str) -> None:
 
 st.title("Tabelle di riferimento")
 
-# --- Sezione 1: Mallach ---
-st.markdown(f"## {i18n.ui_text('full.livor_heading')}")
 st.markdown(
     """
     <style>
@@ -313,51 +413,20 @@ st.markdown(
         min-width: 8.5rem;
     }
     </style>
-
-    <div class="mallach-table-wrap">
-      <table class="mallach-table">
-        <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
-          Decorso temporale dei diversi criteri delle ipostasi: calcoli statistici di Mallach basati su dati riportati nei testi*
-        </caption>
-        <thead>
-          <tr>
-            <th rowspan="2">Criterio</th>
-            <th rowspan="2">x̄</th>
-            <th rowspan="2">DS</th>
-            <th colspan="2">2 DS</th>
-            <th colspan="2">Range di dispersione</th>
-            <th rowspan="2">N. citazioni</th>
-          </tr>
-          <tr>
-            <th>Limite inferiore</th>
-            <th>Limite superiore</th>
-            <th>Limite inferiore</th>
-            <th>Limite superiore</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Sviluppo</td><td>¾</td><td>½</td><td>—</td><td>2</td><td>¼</td><td>3</td><td>17</td></tr>
-          <tr><td>Confluenza</td><td>2½</td><td>1</td><td>¾</td><td>4¼</td><td>1</td><td>4</td><td>5</td></tr>
-          <tr><td>Massima distensione e intensità</td><td>9½</td><td>4½</td><td>½</td><td>18¼</td><td>3</td><td>16</td><td>7</td></tr>
-          <tr class="group-row"><td colspan="8">Scomparsa</td></tr>
-          <tr><td class="subcriterion">1. Completa alla pressione con il pollice</td><td>5½</td><td>6</td><td>—</td><td>17½</td><td>1</td><td>20</td><td>5</td></tr>
-          <tr><td class="subcriterion">2. Incompleta alla pressione puntiforme (pinza)</td><td>17</td><td>10½</td><td>—</td><td>37½</td><td>10</td><td>36</td><td>4</td></tr>
-          <tr class="group-row"><td colspan="8">Spostamento dopo rotazione del corpo</td></tr>
-          <tr><td class="subcriterion">1. Completo</td><td>3¾</td><td>1</td><td>2</td><td>5½</td><td>2</td><td>6</td><td>11</td></tr>
-          <tr><td class="subcriterion">2. Incompleto</td><td>11</td><td>4½</td><td>2¼</td><td>20</td><td>4</td><td>24</td><td>11</td></tr>
-          <tr><td class="subcriterion">3. Solo lieve impallidimento</td><td>18½</td><td>8</td><td>2½</td><td>34½</td><td>10</td><td>30</td><td>7</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="mallach-note">
-      * I calcoli statistici non sono basati su studi trasversali o longitudinali, ma su conoscenze empiriche riportate nei testi.<br>
-      x̄ = valore medio; DS = deviazione standard. Tutti i tempi sono espressi in ore post-mortem.
-    </div>
     """,
     unsafe_allow_html=True,
 )
-st.caption(f"Adattato da: {_MALLACH_REFERENCE}")
+
+# --- Sezione 1: Mallach ---
+st.markdown(f"## {i18n.ui_text('full.livor_heading')}")
+livor_language = st.radio(
+    "Lingua tabella ipostasi",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="livor_table_language",
+    label_visibility="collapsed",
+)
+_render_livor_table("it" if livor_language == "Italiano" else "en")
 
 st.markdown("## Rigidità cadaverica")
 rigor_language = st.radio(
