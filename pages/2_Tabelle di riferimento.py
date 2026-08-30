@@ -86,11 +86,9 @@ st.markdown(
           <tr><td>Sviluppo</td><td>¾</td><td>½</td><td>—</td><td>2</td><td>¼</td><td>3</td><td>17</td></tr>
           <tr><td>Confluenza</td><td>2½</td><td>1</td><td>¾</td><td>4¼</td><td>1</td><td>4</td><td>5</td></tr>
           <tr><td>Massima distensione e intensità</td><td>9½</td><td>4½</td><td>½</td><td>18¼</td><td>3</td><td>16</td><td>7</td></tr>
-
           <tr class="group-row"><td colspan="8">Scomparsa</td></tr>
           <tr><td class="subcriterion">1. Completa alla pressione con il pollice</td><td>5½</td><td>6</td><td>—</td><td>17½</td><td>1</td><td>20</td><td>5</td></tr>
           <tr><td class="subcriterion">2. Incompleta alla pressione puntiforme (pinza)</td><td>17</td><td>10½</td><td>—</td><td>37½</td><td>10</td><td>36</td><td>4</td></tr>
-
           <tr class="group-row"><td colspan="8">Spostamento dopo rotazione del corpo</td></tr>
           <tr><td class="subcriterion">1. Completo</td><td>3¾</td><td>1</td><td>2</td><td>5½</td><td>2</td><td>6</td><td>11</td></tr>
           <tr><td class="subcriterion">2. Incompleto</td><td>11</td><td>4½</td><td>2¼</td><td>20</td><td>4</td><td>24</td><td>11</td></tr>
