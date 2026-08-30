@@ -32,6 +32,14 @@ _HENSSGE_SPECIAL_REFERENCE = (
     "Rechtsmedizin. 2002;12(2):112–131. doi:10.1007/s00194-002-0136-8."
 )
 
+_HENSSGE_WEIGHT_REFERENCE = (
+    "Igari Y, Hosokai Y, Funayama M. Rectal temperature-based death time estimation in infants. "
+    "Legal Med. 2016;19:35–42. doi:10.1016/j.legalmed.2016.02.002, Table 3; "
+    "dati da Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors "
+    "on the body weight under stronger thermic insulation conditions. "
+    "Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G."
+)
+
 _MALLACH_TABLE_TEXT = {
     "it": {
         "caption": (
@@ -323,6 +331,37 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
     },
 }
 
+_HENSSGE_WEIGHT_TABLE_TEXT = {
+    "it": {
+        "weight": "Peso corporeo reale (kg)",
+        "cooling": "Condizioni di raffreddamento",
+        "clothing": "Abbigliamento, più strati",
+        "example": "es.",
+        "bedspread": "Coperta, es.",
+        "clothing_bedspread": "Abbigliamento + coperta",
+        "feather_bed": "Piumone, es.",
+        "note": (
+            "Estratto parziale da Henssge; per ciascun peso corporeo, la Modifica A utilizza "
+            "il fattore di correzione massimo (sottolineato)."
+        ),
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "weight": "Real body weight (kg)",
+        "cooling": "Cooling conditions",
+        "clothing": "Clothing, more layers",
+        "example": "e.g.",
+        "bedspread": "Bedspread, e.g.",
+        "clothing_bedspread": "Clothing + bedspread",
+        "feather_bed": "Feather-bed, e.g.",
+        "note": (
+            "Partial extract from Henssge; for each body weight, Modification A uses the highest "
+            "corrective factor (underlined)."
+        ),
+        "adapted": "Adapted from",
+    },
+}
+
 
 def _render_livor_table(language: str) -> None:
     text = _MALLACH_TABLE_TEXT[language]
@@ -560,6 +599,43 @@ def _render_henssge_special_table(language: str) -> None:
     st.caption(f"{text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
 
 
+def _render_henssge_weight_table(language: str) -> None:
+    text = _HENSSGE_WEIGHT_TABLE_TEXT[language]
+    blank = "<td></td>"
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table henssge-weight-table">
+            <thead>
+              <tr>
+                <th rowspan="2">{text['cooling']}</th>
+                <th colspan="12">{text['weight']}</th>
+              </tr>
+              <tr>
+                <th>4</th><th>6</th><th>8</th><th>10</th><th>20</th><th>30</th>
+                <th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>{text['clothing']}</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td>{blank * 6}</tr>
+              <tr><td>{text['example']}</td><td>2.1</td><td>2.1</td><td>2</td><td>2</td><td>1.9</td><td>1.8</td><td>1.6</td>{blank * 5}</tr>
+              <tr><td>{text['bedspread']}</td><td>2.7</td><td>2.7</td><td>2.6</td><td>2.5</td><td>2.3</td><td>2.2</td><td>2.1</td><td>2</td><td>1.8</td>{blank * 3}</tr>
+              <tr><td></td><td>3.5</td><td>3.4</td><td>3.3</td><td>3.2</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.3</td><td>2</td><td>1.8</td>{blank * 2}</tr>
+              <tr><td></td><td>4.5</td><td>4.3</td><td>4.1</td><td>3.9</td><td>3.4</td><td>3</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.2</td><td>2.1</td><td>2</td></tr>
+              <tr><td>{text['clothing_bedspread']}</td><td>5.7</td><td>5.3</td><td>5</td><td>4.8</td><td>4</td><td>3.5</td><td>3.2</td><td>2.9</td><td>2.7</td><td>2.4</td><td>2.3</td><td>2.2</td></tr>
+              <tr><td>{text['example']}</td><td>7.1</td><td>6.6</td><td>6.2</td><td>5.8</td><td>4.7</td><td>4</td><td>3.6</td><td>3.2</td><td>2.9</td><td>2.6</td><td>2.5</td><td>2.3</td></tr>
+              <tr><td>{text['feather_bed']}</td><td>8.8</td><td>8.1</td><td>7.5</td><td>7</td><td>5.5</td><td>4.6</td><td>3.9</td><td>3.5</td><td>3.2</td><td>2.8</td><td>2.7</td><td>2.5</td></tr>
+              <tr class="weight-maximum"><td></td><td>10.9</td><td>9.8</td><td>8.9</td><td>8.3</td><td>6.2</td><td>5.1</td><td>4.3</td><td>3.8</td><td>3.4</td><td>3</td><td>2.8</td><td>2.6</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mallach-note">{text['note']}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
+
+
 st.title("Tabelle di riferimento")
 
 st.markdown(
@@ -652,6 +728,22 @@ st.markdown(
     .henssge-special-table th:nth-child(3) {
         min-width: 6rem;
     }
+    .henssge-weight-table {
+        font-size: 0.64rem !important;
+    }
+    .henssge-weight-table td:first-child {
+        min-width: 8.2rem;
+        white-space: normal;
+    }
+    .henssge-weight-table th:not(:first-child),
+    .henssge-weight-table td:not(:first-child) {
+        min-width: 2.25rem;
+        padding-left: 0.12rem;
+        padding-right: 0.12rem;
+    }
+    .henssge-weight-table .weight-maximum td:not(:first-child) {
+        text-decoration: underline;
+    }
     .henssge-table-title {
         font-size: 0.78rem;
         font-weight: 650;
@@ -659,15 +751,19 @@ st.markdown(
         margin: 0.20rem 0 0.02rem 0;
     }
     div[data-testid="stElementContainer"]:has(div[data-testid="stRadio"]) {
-        margin-top: -0.10rem !important;
-        margin-bottom: -0.22rem !important;
+        margin-top: -0.16rem !important;
+        margin-bottom: -0.28rem !important;
     }
     div[data-testid="stRadio"] {
         margin: 0 !important;
         padding: 0 !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] {
-        gap: 0.35rem !important;
+        gap: 0.08rem !important;
+    }
+    div[data-testid="stRadio"] [role="radiogroup"] > label {
+        margin: 0 !important;
+        padding: 0 0.04rem 0 0 !important;
     }
     div[data-testid="stRadio"] label p {
         font-size: 0.68rem !important;
@@ -761,15 +857,26 @@ henssge_special_language = st.radio(
 )
 _render_henssge_special_table("it" if henssge_special_language == "Italiano" else "en")
 
+_weight_language_before = st.session_state.get("henssge_weight_table_language", "Italiano")
 st.markdown(
-    "<div class='henssge-table-title'>Tabella 3 — Adattamento per peso corporeo</div>",
+    "<div class='henssge-table-title'>"
+    + (
+        "Tabella 3 — Adattamento per peso corporeo"
+        if _weight_language_before == "Italiano"
+        else "Table 3 — Body-weight adjustment"
+    )
+    + "</div>",
     unsafe_allow_html=True,
 )
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%203%20Henssge.png",
-    caption="Tabella 3 Henssge",
-    width="stretch"
+henssge_weight_language = st.radio(
+    "Lingua tabella adattamento per peso corporeo",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="henssge_weight_table_language",
+    label_visibility="collapsed",
 )
+_render_henssge_weight_table("it" if henssge_weight_language == "Italiano" else "en")
+
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
     st.switch_page("Stima_epoca_decesso.py")
 
