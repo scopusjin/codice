@@ -32,6 +32,18 @@ def install_special_heading_style():
     original_markdown(
         """
         <style>
+        .final-text,
+        .final-text p,
+        .final-text li {
+          text-align: justify !important;
+          font-weight: 400 !important;
+        }
+
+        .final-text b,
+        .final-text strong {
+          font-weight: 400 !important;
+        }
+
         @media (max-width: 768px) {
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
