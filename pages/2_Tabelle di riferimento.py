@@ -15,6 +15,13 @@ _RIGOR_REFERENCE = (
     "dati da Mallach H. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
 )
 
+_COMBINED_REFERENCE = (
+    "Henssge C, Althaus L, Bolt J, Freislederer A, Haffner H-T, Henssge CA, "
+    "Hoppe B, Schneider V. Experiences with a compound method for estimating "
+    "the time since death. II. Integration of non-temperature-based methods. "
+    "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
+)
+
 _RIGOR_TABLE_TEXT = {
     "it": {
         "caption": "Tabella 1 — Decorso temporale della rigidità cadaverica",
@@ -58,6 +65,77 @@ _RIGOR_TABLE_TEXT = {
             "Mean and standard deviation calculated from the literature data of 150 years "
             "(1811–1960) by Mallach 1964 [43] (Schleyer [44] slightly modified)."
         ),
+        "adapted": "Adapted from",
+    },
+}
+
+_COMBINED_TABLE_TEXT = {
+    "it": {
+        "caption": "Tabella 1 — Limiti temporali dei metodi/criteri non basati sulla temperatura",
+        "method": "Metodo/criterio",
+        "result": "Risultato dell'esame",
+        "minimum": "Limite minimo del periodo dalla morte (hpm)",
+        "maximum": "Limite massimo del periodo dalla morte (hpm)",
+        "statistics": "Statistica (limiti)",
+        "reference": "Riferimento",
+        "lividity": "Ipostasi",
+        "beginning": "Inizio",
+        "confluence": "Confluenza",
+        "thumb_pressure": "Pressione con il pollice",
+        "complete_shifting": "Spostamento completo",
+        "maximum_row": "Massimo",
+        "incomplete_shifting": "Spostamento incompleto",
+        "rigor": "Rigidità",
+        "reestablishment": "Ripristino",
+        "mechanical": "Eccitabilità meccanica muscolare",
+        "tendon": "Reazione tendinea",
+        "idiomuscular": "Contrazione idiomuscolare",
+        "electrical": "Eccitabilità elettrica muscolare",
+        "eyebrow": "Elettrodi nel sopracciglio",
+        "grade": "Grado",
+        "mouth": "Elettrodi all'angolo della bocca",
+        "chemical": "Eccitabilità chimica dell'iride",
+        "atropin": "Atropina",
+        "tropicamide": "Tropicamide",
+        "acetylcholine": "Acetilcolina",
+        "positive": "Positivo",
+        "negative": "Negativo",
+        "variation": "Variazione",
+        "confidence": "Confidenza 95%",
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "caption": "Table 1 — Time limits used of the non-temperature-based methods/criteria",
+        "method": "Method/criterion",
+        "result": "Result of examination",
+        "minimum": "Minimum limit of the period since death (hpm)",
+        "maximum": "Maximum limit of the period since death (hpm)",
+        "statistics": "Statistics (limits)",
+        "reference": "Reference",
+        "lividity": "Lividity",
+        "beginning": "Beginning",
+        "confluence": "Confluence",
+        "thumb_pressure": "Thumb pressure",
+        "complete_shifting": "Complete shifting",
+        "maximum_row": "Maximum",
+        "incomplete_shifting": "Incomplete shifting",
+        "rigor": "Rigor",
+        "reestablishment": "Re-establishment",
+        "mechanical": "Mechanical excitability muscle",
+        "tendon": "Tendon reaction",
+        "idiomuscular": "Idiomuscular contraction",
+        "electrical": "Electrical excitability muscle",
+        "eyebrow": "Electrodes in eyebrow",
+        "grade": "Grade",
+        "mouth": "Electrodes in corner of mouth",
+        "chemical": "Chemical excitability iris",
+        "atropin": "Atropin",
+        "tropicamide": "Tropicamide",
+        "acetylcholine": "Acetylcholine",
+        "positive": "Positive",
+        "negative": "Negative",
+        "variation": "Variation",
+        "confidence": "95% confidence",
         "adapted": "Adapted from",
     },
 }
@@ -106,6 +184,71 @@ def _render_rigor_table(language: str) -> None:
     st.caption(f"{text['adapted']}: {_RIGOR_REFERENCE}")
 
 
+def _render_combined_table(language: str) -> None:
+    text = _COMBINED_TABLE_TEXT[language]
+    p = text["positive"]
+    n = text["negative"]
+    v = text["variation"]
+    c = text["confidence"]
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table combined-table">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+              {text['caption']}
+            </caption>
+            <thead>
+              <tr>
+                <th>{text['method']}</th>
+                <th>{text['result']}</th>
+                <th>{text['minimum']}</th>
+                <th>{text['result']}</th>
+                <th>{text['maximum']}</th>
+                <th>{text['statistics']}</th>
+                <th>{text['reference']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="group-row"><td>{text['lividity']}</td><td></td><td></td><td></td><td></td><td></td><td>[8]</td></tr>
+              <tr><td class="subcriterion">{text['beginning']}</td><td>{p}</td><td>0.0</td><td>{n}</td><td>3.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['confluence']}</td><td>{p}</td><td>1.0</td><td>{n}</td><td>4.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['thumb_pressure']}</td><td>{n}</td><td>1.0</td><td>{p}</td><td>20.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['complete_shifting']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>6.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>3.0</td><td>{n}</td><td>16.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['incomplete_shifting']}</td><td>{n}</td><td>4.0</td><td>{p}</td><td>24.0</td><td></td><td></td></tr>
+
+              <tr class="group-row"><td>{text['rigor']}</td><td></td><td></td><td></td><td></td><td></td><td>[8]</td></tr>
+              <tr><td class="subcriterion">{text['beginning']}</td><td>{p}</td><td>0.5</td><td>{n}</td><td>7.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['reestablishment']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>8.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>2.0</td><td>{n}</td><td>20.0</td><td>{v}</td><td></td></tr>
+
+              <tr class="group-row"><td>{text['mechanical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td class="subcriterion">{text['tendon']}</td><td>{n}</td><td>0.0</td><td>{p}</td><td>2.5</td><td>{v}</td><td>[9, 10]</td></tr>
+              <tr><td class="subcriterion">{text['idiomuscular']}</td><td>{n}</td><td>1.5</td><td>{p}</td><td>13.0</td><td>{v}</td><td>[10, 11]</td></tr>
+
+              <tr class="group-row"><td>{text['electrical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td class="subcriterion">{text['eyebrow']}</td><td></td><td></td><td></td><td></td><td></td><td>[4, 7]</td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} VI</td><td>{n}</td><td>1.0</td><td>{p}</td><td>6.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} V</td><td>{n}</td><td>2.0</td><td>{p}</td><td>7.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} IV</td><td>{n}</td><td>3.0</td><td>{p}</td><td>8.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} III</td><td>{n}</td><td>3.5</td><td>{p}</td><td>13.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} II</td><td>{n}</td><td>5.0</td><td>{p}</td><td>26.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion nested">{text['grade']} I</td><td>{n}</td><td>5.0</td><td>{p}</td><td>22.0</td><td>{c}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['mouth']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>11.0</td><td>{v}</td><td>[4]</td></tr>
+
+              <tr class="group-row"><td>{text['chemical']}</td><td></td><td></td><td></td><td></td><td></td><td>[4]</td></tr>
+              <tr><td class="subcriterion">{text['atropin']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>10.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['tropicamide']}</td><td>{n}</td><td>5.0</td><td>{p}</td><td>30.0</td><td>{v}</td><td></td></tr>
+              <tr><td class="subcriterion">{text['acetylcholine']}</td><td>{n}</td><td>14.0</td><td>{p}</td><td>46.0</td><td>{v}</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_COMBINED_REFERENCE}")
+
+
 st.title("Tabelle di riferimento")
 
 # --- Sezione 1: Mallach ---
@@ -150,10 +293,24 @@ st.markdown(
     .mallach-table .subcriterion {
         padding-left: 1rem;
     }
+    .mallach-table .subcriterion.nested {
+        padding-left: 2rem;
+    }
     .mallach-note {
         font-size: 0.78rem;
         line-height: 1.3;
         margin-top: 0.35rem;
+    }
+    .combined-table td:first-child {
+        min-width: 12rem;
+    }
+    .combined-table th:nth-child(2),
+    .combined-table th:nth-child(4) {
+        min-width: 7.5rem;
+    }
+    .combined-table th:nth-child(3),
+    .combined-table th:nth-child(5) {
+        min-width: 8.5rem;
     }
     </style>
 
@@ -210,11 +367,11 @@ with rigor_en_tab:
     _render_rigor_table("en")
 
 st.markdown("## Metodi combinati")
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Metodi%20combinati.jpeg",
-    caption="Metodi combinati",
-    use_container_width=True
-)
+combined_it_tab, combined_en_tab = st.tabs(["Italiano", "English"])
+with combined_it_tab:
+    _render_combined_table("it")
+with combined_en_tab:
+    _render_combined_table("en")
 
 # --- Sezione 2: Tabelle Henssge ---
 st.markdown("## Fattori di correzione base")
