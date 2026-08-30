@@ -9,6 +9,102 @@ _MALLACH_REFERENCE = (
     "Mallach HJ. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
 )
 
+_RIGOR_REFERENCE = (
+    "Henßge C, Madea B. Estimation of the time since death. "
+    "Forensic Sci Int. 2004;144:167–175. doi:10.1016/j.forsciint.2004.04.051, Table 1; "
+    "dati da Mallach H. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
+)
+
+_RIGOR_TABLE_TEXT = {
+    "it": {
+        "caption": "Tabella 1 — Decorso temporale della rigidità cadaverica",
+        "phase": "Fase della rigidità",
+        "mean": "Media con deviazione standard",
+        "hours": "Ore post-mortem",
+        "probability": "Limiti della probabilità del 95,5% (2 s)",
+        "variations": "Variazioni",
+        "lower": "Limite inferiore",
+        "upper": "Limite superiore",
+        "publications": "Numero di pubblicazioni valutate",
+        "delay": "Periodo di latenza",
+        "reestablishment": "Ripristino possibile",
+        "up_to_5": "Fino a 5",
+        "complete": "Rigidità completa",
+        "persistence": "Persistenza",
+        "resolution": "Risoluzione",
+        "note": (
+            "Media e deviazione standard calcolate sui dati della letteratura di 150 anni "
+            "(1811–1960) da Mallach 1964 [43] (Schleyer [44], leggermente modificata)."
+        ),
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "caption": "Table 1 — Time course of cadavric rigidity",
+        "phase": "Rigor phase",
+        "mean": "Mean with standard deviation(s)",
+        "hours": "Hours postmortem",
+        "probability": "Limits of 95.5% probability (2 s)",
+        "variations": "Variations",
+        "lower": "Lower limit",
+        "upper": "Upper limit",
+        "publications": "Number of publications evaluated",
+        "delay": "Delay period",
+        "reestablishment": "Re-establishment possible",
+        "up_to_5": "Up to 5",
+        "complete": "Complete rigidity",
+        "persistence": "Persistence",
+        "resolution": "Resolution",
+        "note": (
+            "Mean and standard deviation calculated from the literature data of 150 years "
+            "(1811–1960) by Mallach 1964 [43] (Schleyer [44] slightly modified)."
+        ),
+        "adapted": "Adapted from",
+    },
+}
+
+
+def _render_rigor_table(language: str) -> None:
+    text = _RIGOR_TABLE_TEXT[language]
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+              {text['caption']}
+            </caption>
+            <thead>
+              <tr>
+                <th rowspan="3">{text['phase']}</th>
+                <th rowspan="3">{text['mean']}</th>
+                <th colspan="4">{text['hours']}</th>
+                <th rowspan="3">{text['publications']}</th>
+              </tr>
+              <tr>
+                <th colspan="2">{text['probability']}</th>
+                <th colspan="2">{text['variations']}</th>
+              </tr>
+              <tr>
+                <th>{text['lower']}</th>
+                <th>{text['upper']}</th>
+                <th>{text['lower']}</th>
+                <th>{text['upper']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>{text['delay']}</td><td>3 ± 2</td><td>–</td><td>7</td><td>&lt;1/2</td><td>7</td><td>26</td></tr>
+              <tr><td>{text['reestablishment']}</td><td>{text['up_to_5']}</td><td>–</td><td>–</td><td>2</td><td>8</td><td>–</td></tr>
+              <tr><td>{text['complete']}</td><td>8 ± 1</td><td>6</td><td>10</td><td>2</td><td>20</td><td>28</td></tr>
+              <tr><td>{text['persistence']}</td><td>57 ± 14</td><td>29</td><td>85</td><td>24</td><td>96</td><td>27</td></tr>
+              <tr><td>{text['resolution']}</td><td>76 ± 32</td><td>12</td><td>140</td><td>24</td><td>192</td><td>27</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mallach-note">{text['note']}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_RIGOR_REFERENCE}")
+
 
 st.title("Tabelle di riferimento")
 
@@ -107,11 +203,11 @@ st.markdown(
 st.caption(f"Adattato da: {_MALLACH_REFERENCE}")
 
 st.markdown("## Rigidità cadaverica")
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Rigor%20(Mallach).jpeg",
-    caption="Rigor (Mallach)",
-    use_container_width=True
-)
+rigor_it_tab, rigor_en_tab = st.tabs(["Italiano", "English"])
+with rigor_it_tab:
+    _render_rigor_table("it")
+with rigor_en_tab:
+    _render_rigor_table("en")
 
 st.markdown("## Metodi combinati")
 st.image(
