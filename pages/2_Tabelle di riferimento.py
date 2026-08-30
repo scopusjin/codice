@@ -93,7 +93,7 @@ _RIGOR_TABLE_TEXT = {
         "phase": "Fase della rigidità",
         "mean": "Media con deviazione standard",
         "hours": "Ore post-mortem",
-        "probability": "Limiti di probabilità del 95,5% (2 s)",
+        "probability": "Limiti di probabilità del 95.5% (2 s)",
         "variations": "Variazioni",
         "lower": "Limite inferiore",
         "upper": "Limite superiore",
@@ -477,28 +477,34 @@ st.markdown(
     .mallach-table-wrap {
         width: 100%;
         overflow-x: auto;
-        margin: 0.25rem 0 0.35rem 0;
+        margin: 0.08rem 0 0.16rem 0;
     }
     table.mallach-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.88rem;
-        line-height: 1.2;
+        font-size: 0.70rem;
+        line-height: 1.05;
+    }
+    table.mallach-table caption {
+        font-size: 0.73rem;
+        line-height: 1.08;
+        padding-bottom: 0.14rem !important;
     }
     .mallach-table th,
     .mallach-table td {
         border: 1px solid rgba(128,128,128,.35);
-        padding: 0.38rem 0.42rem;
+        padding: 0.13rem 0.20rem;
         vertical-align: middle;
     }
     .mallach-table thead th {
         text-align: center;
         font-weight: 650;
         background: rgba(128,128,128,.08);
+        line-height: 1.05;
     }
     .mallach-table td:first-child {
         text-align: left;
-        min-width: 13rem;
+        min-width: 9.8rem;
     }
     .mallach-table td:not(:first-child) {
         text-align: center;
@@ -509,38 +515,61 @@ st.markdown(
         background: rgba(128,128,128,.05);
     }
     .mallach-table .subcriterion {
-        padding-left: 1rem;
+        padding-left: 0.50rem;
     }
     .mallach-table .subcriterion.nested {
-        padding-left: 2rem;
+        padding-left: 1rem;
     }
     .mallach-note {
-        font-size: 0.78rem;
-        line-height: 1.3;
-        margin-top: 0.35rem;
+        font-size: 0.64rem;
+        line-height: 1.10;
+        margin-top: 0.14rem;
     }
     .combined-table td:first-child {
-        min-width: 12rem;
+        min-width: 9rem;
     }
     .combined-table th:nth-child(2),
     .combined-table th:nth-child(4) {
-        min-width: 7.5rem;
+        min-width: 5.2rem;
     }
     .combined-table th:nth-child(3),
     .combined-table th:nth-child(5) {
-        min-width: 8.5rem;
+        min-width: 6.2rem;
     }
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
-        min-width: 12rem;
+        min-width: 8.5rem;
+    }
+    .henssge-base-table td:nth-child(4) {
+        white-space: normal;
     }
     .henssge-base-table th:nth-child(2),
     .henssge-base-table th:nth-child(5),
     .henssge-base-table th:nth-child(6) {
-        min-width: 6rem;
+        min-width: 4.5rem;
     }
     .henssge-base-table th:nth-child(3) {
-        min-width: 7rem;
+        min-width: 5rem;
+    }
+    div[data-testid="stRadio"] {
+        margin-top: -0.30rem !important;
+        margin-bottom: -0.35rem !important;
+    }
+    div[data-testid="stRadio"] [role="radiogroup"] {
+        gap: 0.45rem !important;
+    }
+    div[data-testid="stRadio"] label p {
+        font-size: 0.68rem !important;
+        line-height: 1 !important;
+    }
+    div[data-testid="stCaptionContainer"] p {
+        font-size: 0.62rem !important;
+        line-height: 1.10 !important;
+    }
+    div[data-testid="stMarkdownContainer"] h2 {
+        font-size: 1.15rem !important;
+        margin-top: 0.70rem !important;
+        margin-bottom: 0.05rem !important;
     }
     </style>
     """,
