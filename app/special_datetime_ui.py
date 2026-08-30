@@ -259,6 +259,9 @@ def install_special_datetime_ui():
 
     def date_input_with_main_inheritance(label, *args, **kwargs):
         key = kwargs.get("key")
+        if key == "input_data_rilievo" and key in st.session_state:
+            kwargs.pop("value", None)
+
         parametro_id = _DATE_KEY_TO_PARAM_ID.get(key)
         caller = inspect.currentframe().f_back
         if (
