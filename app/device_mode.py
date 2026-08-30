@@ -24,6 +24,41 @@ body:has([class*="st-key-stima_cautelativa_beta"]) {
   --mortem-cooling-weight-shift: 0.55rem;
 }
 
+/* L'intestazione del raffreddamento non deve mai diventare un'area scrollabile.
+   La specificità supera le vecchie regole responsive che lasciavano overflow
+   visibile, senza modificare la disposizione di titolo, Henssge e pulsante ?. */
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_mobile"],
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_mobile"] [data-testid="stHorizontalBlock"],
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_desktop"],
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+}
+
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_mobile"]::-webkit-scrollbar,
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_mobile"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar,
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_desktop"]::-webkit-scrollbar,
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 /* Tutte le righe numeriche hanno la stessa larghezza complessiva. */
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_decimal_"],
@@ -163,14 +198,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   }
 
   /* Il pannello suggerimenti ha la stessa larghezza della riga FC e risale
-     sotto il pulsante Consiglia: il fondo azzurro crea un unico blocco visivo. */
+     fino a raccordarsi con Consiglia. Lo sfondo usa la stessa miscela del
+     pulsante Consiglia attivo nel componente V2. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] {
     box-sizing: border-box !important;
     width: var(--mortem-cooling-row-width) !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    margin-top: -0.26rem !important;
+    margin-top: -0.70rem !important;
     margin-bottom: 0 !important;
     padding: 0.52rem 0.24rem 0.34rem !important;
     border: 0 !important;
@@ -178,8 +214,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     box-shadow: none !important;
     background: color-mix(
       in srgb,
-      var(--st-secondary-background-color, #F0F2F6) 88%,
-      var(--st-primary-color, #168AC1) 12%
+      var(--st-secondary-background-color, #F0F2F6) 86%,
+      var(--st-primary-color, #168AC1) 14%
     ) !important;
   }
 
