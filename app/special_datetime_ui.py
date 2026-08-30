@@ -50,6 +50,21 @@ _ORANGE_PROMPT_PREFIX = (
 _DATETIME_LABEL_PREFIX = "<div style='font-size: 0.88rem; padding-top: 0.4rem;'>"
 _TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 
+_FULL_INITIAL_FRAMELESS_CSS = r"""
+<style>
+@media (max-width: 768px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]) {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+}
+</style>
+"""
+
 
 class _NoopContext:
     """Context manager che non crea alcun elemento Streamlit."""
@@ -146,6 +161,10 @@ def install_special_datetime_ui():
     def toggle_without_main_datetime_switch(label, *args, **kwargs):
         caller = inspect.currentframe().f_back
         if kwargs.get("key") == "usa_orario_custom" and _is_full_page_frame(caller):
+            original_markdown(
+                "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
+                unsafe_allow_html=True,
+            )
             # Il codice della pagina continua a percorrere il ramo legacy ON,
             # così i campi restano montati. L'effettiva applicazione della data/ora
             # viene decisa in fondo alla pagina in base alla presenza di un'ora valida.
@@ -189,6 +208,10 @@ def install_special_datetime_ui():
 
     def markdown_without_datetime_labels(body, *args, **kwargs):
         if isinstance(body, str):
+            if ".final-text{" in body:
+                body = _FULL_INITIAL_FRAMELESS_CSS + body
+                kwargs["unsafe_allow_html"] = True
+
             if context["await_checkbox"] and body.startswith(_ORANGE_PROMPT_PREFIX):
                 return None
 
