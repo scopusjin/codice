@@ -370,7 +370,7 @@ def _render_livor_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table">
-            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -416,7 +416,7 @@ def _render_rigor_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table">
-            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -463,7 +463,7 @@ def _render_combined_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
-            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -587,7 +587,8 @@ def _render_henssge_special_table(language: str) -> None:
               <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
               <tr>
                 <td rowspan="3"><strong>{text['conducting']}</strong><br>{text['concrete']}</td>
-                <td>{text['thick']}</td><td>−0.1</td></tr>
+                <td>{text['thick']}</td><td>−0.1</td>
+              </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
               <tr><td>{text['no']}</td><td>0.75</td></tr>
             </tbody>
@@ -686,7 +687,8 @@ st.markdown(
         margin: 0 0 0.10rem 0;
     }
     table.mallach-table {
-        width: 100%;
+        width: max-content;
+        max-width: none;
         border-collapse: collapse;
         font-size: 0.70rem;
         line-height: 1.02;
@@ -695,7 +697,7 @@ st.markdown(
         font-size: 0.73rem;
         line-height: 1.05;
         padding-bottom: 0.08rem !important;
-        text-align: center !important;
+        text-align: left !important;
     }
     .mallach-table th,
     .mallach-table td {
@@ -734,7 +736,6 @@ st.markdown(
         font-size: 0.64rem;
         line-height: 1.08;
         margin-top: 0.08rem;
-        text-align: center;
     }
     .combined-table td:first-child {
         min-width: 7.2rem;
@@ -792,7 +793,6 @@ st.markdown(
         font-weight: 650;
         line-height: 1.02;
         margin: 0.12rem 0 -0.10rem 0;
-        text-align: center;
     }
     div[data-testid="stElementContainer"]:has(div[data-testid="stRadio"]) {
         margin-top: -0.24rem !important;
@@ -804,7 +804,6 @@ st.markdown(
     }
     div[data-testid="stRadio"] [role="radiogroup"] {
         gap: 0.02rem !important;
-        justify-content: center !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] > label {
         margin: 0 !important;
@@ -817,13 +816,11 @@ st.markdown(
     div[data-testid="stCaptionContainer"] p {
         font-size: 0.62rem !important;
         line-height: 1.08 !important;
-        text-align: center !important;
     }
     div[data-testid="stMarkdownContainer"] h2 {
         font-size: 1.15rem !important;
         margin-top: 0.55rem !important;
         margin-bottom: -0.10rem !important;
-        text-align: center !important;
     }
     </style>
     """,
