@@ -12,10 +12,12 @@ const WHEEL_CYCLES = 7;
 const CENTER_CYCLE = Math.floor(WHEEL_CYCLES / 2);
 const OPEN_HEIGHT = 224;
 
-let committedValue = "00:00";
+let committedValue = "";
 let pendingCommittedValue = null;
 let initialized = false;
 let isMobile = false;
+let allowEmpty = false;
+let openDefaultNow = false;
 let draftHour = 0;
 let draftMinute = 0;
 let hourScrollTimer = null;
@@ -42,8 +44,17 @@ function formatTime(hour, minute) {
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
+function currentLocalTime() {
+  const now = new Date();
+  return formatTime(now.getHours(), now.getMinutes());
+}
+
 function normalizeTypedTime(value) {
   const raw = String(value || "").trim();
+
+  if (allowEmpty && raw === "") {
+    return "";
+  }
 
   const colonMatch = raw.match(/^(\d{1,2}):([0-5]\d)$/);
   if (colonMatch) {
@@ -89,7 +100,10 @@ function commitTypedValue() {
 }
 
 function adjustByMinutes(delta, commit = true) {
-  const normalized = normalizeTypedTime(timeInput.value) || committedValue;
+  let normalized = normalizeTypedTime(timeInput.value);
+  if (normalized === null || normalized === "") {
+    normalized = openDefaultNow ? currentLocalTime() : "00:00";
+  }
   const parsed = parseTime(normalized);
   let total = parsed.hour * 60 + parsed.minute + delta;
   total = ((total % 1440) + 1440) % 1440;
@@ -199,7 +213,8 @@ function openPicker() {
   }
 
   commitTypedValue();
-  const parsed = parseTime(committedValue);
+  const baseValue = committedValue || (openDefaultNow ? currentLocalTime() : "00:00");
+  const parsed = parseTime(baseValue);
   draftHour = parsed.hour;
   draftMinute = parsed.minute;
   picker.hidden = false;
@@ -234,14 +249,17 @@ function onRender(event) {
   setInheritedState(args.inherited);
 
   isMobile = Boolean(args.mobile);
+  allowEmpty = Boolean(args.allow_empty);
+  openDefaultNow = Boolean(args.open_default_now);
   pickerToggle.hidden = !isMobile;
   if (!isMobile && !picker.hidden) {
     closePicker();
   }
 
+  const rawIncoming = typeof args.value === "string" ? args.value.trim() : null;
   const incomingValue = (
-    typeof args.value === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(args.value)
-  ) ? args.value : null;
+    rawIncoming !== null && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(rawIncoming)
+  ) ? rawIncoming : ((allowEmpty && rawIncoming === "") ? "" : null);
 
   if (incomingValue !== null) {
     if (!initialized) {

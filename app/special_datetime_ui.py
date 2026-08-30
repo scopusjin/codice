@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 """UI compatta per data/ora dei parametri tanatologici speciali.
 
-La vecchia conferma "valutato a un'ora diversa" viene resa implicita.
-Data e ora vengono mostrati direttamente su una sola riga compatta anche
-su schermi stretti; i widget effettivi sono definiti dalla pagina Full.
+Nella pagina Full la data/ora principale è sempre visibile: il vecchio toggle
+viene soppresso e l'assenza dell'ora mantiene la stessa semantica del precedente
+stato OFF. Per i parametri speciali data e ora sono mostrate direttamente,
+ereditate dal rilievo principale e modificabili senza conferme intermedie.
 """
 
+import datetime
 import inspect
+import re
 
 import streamlit as st
 
+from app.native_time_picker import EMPTY_TIME_SENTINEL
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
     PARAM_ELECTRICAL_PERIORAL,
@@ -35,11 +39,16 @@ _SELECTOR_KEY_TO_PARAM_ID = {
     f"{label}_selector": param_id
     for param_id, label in SPECIAL_PARAM_LABEL_IT.items()
 }
+_DATE_KEY_TO_PARAM_ID = {
+    f"{label}_data": param_id
+    for param_id, label in SPECIAL_PARAM_LABEL_IT.items()
+}
 
 _ORANGE_PROMPT_PREFIX = (
     "<div style='font-size: 0.8em; color: orange; margin-bottom: 3px;'>"
 )
 _DATETIME_LABEL_PREFIX = "<div style='font-size: 0.88rem; padding-top: 0.4rem;'>"
+_TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 
 
 class _NoopContext:
@@ -61,8 +70,20 @@ def _spec_values(spec):
         return None
 
 
+def _is_full_page_frame(frame) -> bool:
+    if frame is None:
+        return False
+    filename = str(frame.f_globals.get("__file__", "")).replace("\\", "/")
+    return filename.endswith("/Stima_epoca_decesso.py") or filename == "Stima_epoca_decesso.py"
+
+
+def _main_time_is_valid() -> bool:
+    value = st.session_state.get("input_ora_rilievo")
+    return isinstance(value, str) and bool(_TIME_RE.fullmatch(value.strip()))
+
+
 def install_special_datetime_ui():
-    """Mostra direttamente Data | Ora senza righe o conferme intermedie."""
+    """Installa data/ora sempre visibili nella Full e UI speciale compatta."""
     if getattr(st, "_special_datetime_ui_installed", False):
         return
 
@@ -70,6 +91,9 @@ def install_special_datetime_ui():
     original_markdown = st.markdown
     original_columns = st.columns
     original_selectbox = st.selectbox
+    original_toggle = st.toggle
+    original_date_input = st.date_input
+    original_button = st.button
 
     # Stato locale del renderer: viene impostato dal selectbox del parametro
     # speciale e consumato soltanto dalla sequenza immediatamente successiva.
@@ -119,6 +143,21 @@ def install_special_datetime_ui():
         unsafe_allow_html=True,
     )
 
+    def toggle_without_main_datetime_switch(label, *args, **kwargs):
+        caller = inspect.currentframe().f_back
+        if kwargs.get("key") == "usa_orario_custom" and _is_full_page_frame(caller):
+            # Il codice della pagina continua a percorrere il ramo legacy ON,
+            # così i campi restano montati. L'effettiva applicazione della data/ora
+            # viene decisa in fondo alla pagina in base alla presenza di un'ora valida.
+            st.session_state["__full_datetime_always_visible"] = True
+            st.session_state["usa_orario_custom"] = True
+            if not st.session_state.get("input_ora_rilievo"):
+                # Sentinella truthy: impedisce al codice legacy di sostituire il
+                # campo vuoto con 00:00 prima che il picker venga renderizzato.
+                st.session_state["input_ora_rilievo"] = EMPTY_TIME_SENTINEL
+            return True
+        return original_toggle(label, *args, **kwargs)
+
     def selectbox_with_special_context(label, options, *args, **kwargs):
         parametro_id = _SELECTOR_KEY_TO_PARAM_ID.get(kwargs.get("key"))
         if parametro_id is not None:
@@ -161,6 +200,39 @@ def install_special_datetime_ui():
                 return None
 
         return original_markdown(body, *args, **kwargs)
+
+    def date_input_with_main_inheritance(label, *args, **kwargs):
+        key = kwargs.get("key")
+        parametro_id = _DATE_KEY_TO_PARAM_ID.get(key)
+        caller = inspect.currentframe().f_back
+        if (
+            parametro_id not in _SPECIAL_PARAM_IDS
+            or not _is_full_page_frame(caller)
+            or not st.session_state.get("__full_datetime_always_visible", False)
+        ):
+            return original_date_input(label, *args, **kwargs)
+
+        main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
+        manual_key = f"{key}__manual"
+        last_main_key = f"{key}__last_main"
+        manual = bool(st.session_state.get(manual_key, False))
+        last_main = st.session_state.get(last_main_key)
+        current = st.session_state.get(key)
+
+        if not manual:
+            if current is None or last_main is None or current == last_main:
+                st.session_state[key] = main_date
+            kwargs["value"] = st.session_state.get(key, main_date)
+
+        result = original_date_input(label, *args, **kwargs)
+
+        if result == main_date:
+            st.session_state[manual_key] = False
+            st.session_state[last_main_key] = main_date
+        else:
+            st.session_state[manual_key] = True
+
+        return result
 
     def _datetime_boxes(parametro_id):
         with st.container(
@@ -223,8 +295,30 @@ def install_special_datetime_ui():
 
         return original_columns(spec, *args, **kwargs)
 
+    def button_with_effective_main_datetime(label, *args, **kwargs):
+        caller = inspect.currentframe().f_back
+        if kwargs.get("key") == "btn_stima" and _is_full_page_frame(caller):
+            main_time_valid = _main_time_is_valid()
+            st.session_state["usa_orario_custom"] = main_time_valid
+
+            # Se l'ora principale è vuota, la data/ora resta solo informativa:
+            # anche eventuali modifiche ai singoli parametri non devono traslare
+            # i range, esattamente come nel precedente stato toggle OFF.
+            if not main_time_valid:
+                widgets = caller.f_locals.get("widgets_parametri_aggiuntivi")
+                if isinstance(widgets, dict):
+                    for values in widgets.values():
+                        if isinstance(values, dict):
+                            values["data_rilievo"] = None
+                            values["ora_rilievo"] = None
+
+        return original_button(label, *args, **kwargs)
+
+    st.toggle = toggle_without_main_datetime_switch
     st.selectbox = selectbox_with_special_context
     st.checkbox = checkbox_without_different_time
     st.markdown = markdown_without_datetime_labels
+    st.date_input = date_input_with_main_inheritance
     st.columns = columns_with_compact_datetime
+    st.button = button_with_effective_main_datetime
     st._special_datetime_ui_installed = True
