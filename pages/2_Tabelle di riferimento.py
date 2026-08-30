@@ -28,7 +28,7 @@ _RIGOR_TABLE_TEXT = {
         "phase": "Fase della rigidità",
         "mean": "Media con deviazione standard",
         "hours": "Ore post-mortem",
-        "probability": "Limiti della probabilità del 95,5% (2 s)",
+        "probability": "Limiti di probabilità del 95,5% (2 s)",
         "variations": "Variazioni",
         "lower": "Limite inferiore",
         "upper": "Limite superiore",
@@ -74,8 +74,8 @@ _COMBINED_TABLE_TEXT = {
         "caption": "Tabella 1 — Limiti temporali dei metodi/criteri non basati sulla temperatura",
         "method": "Metodo/criterio",
         "result": "Risultato dell'esame",
-        "minimum": "Limite minimo del periodo dalla morte (hpm)",
-        "maximum": "Limite massimo del periodo dalla morte (hpm)",
+        "minimum": "Limite minimo del periodo dalla morte (ore post-mortem)",
+        "maximum": "Limite massimo del periodo dalla morte (ore post-mortem)",
         "statistics": "Statistica (limiti)",
         "reference": "Riferimento",
         "lividity": "Ipostasi",
@@ -108,8 +108,8 @@ _COMBINED_TABLE_TEXT = {
         "caption": "Table 1 — Time limits used of the non-temperature-based methods/criteria",
         "method": "Method/criterion",
         "result": "Result of examination",
-        "minimum": "Minimum limit of the period since death (hpm)",
-        "maximum": "Maximum limit of the period since death (hpm)",
+        "minimum": "Minimum limit of the period since death (hours postmortem)",
+        "maximum": "Maximum limit of the period since death (hours postmortem)",
         "statistics": "Statistics (limits)",
         "reference": "Reference",
         "lividity": "Lividity",
@@ -360,18 +360,24 @@ st.markdown(
 st.caption(f"Adattato da: {_MALLACH_REFERENCE}")
 
 st.markdown("## Rigidità cadaverica")
-rigor_it_tab, rigor_en_tab = st.tabs(["Italiano", "English"])
-with rigor_it_tab:
-    _render_rigor_table("it")
-with rigor_en_tab:
-    _render_rigor_table("en")
+rigor_language = st.radio(
+    "Lingua tabella rigidità",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="rigor_table_language",
+    label_visibility="collapsed",
+)
+_render_rigor_table("it" if rigor_language == "Italiano" else "en")
 
 st.markdown("## Metodi combinati")
-combined_it_tab, combined_en_tab = st.tabs(["Italiano", "English"])
-with combined_it_tab:
-    _render_combined_table("it")
-with combined_en_tab:
-    _render_combined_table("en")
+combined_language = st.radio(
+    "Lingua tabella metodi combinati",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="combined_table_language",
+    label_visibility="collapsed",
+)
+_render_combined_table("it" if combined_language == "Italiano" else "en")
 
 # --- Sezione 2: Tabelle Henssge ---
 st.markdown("## Fattori di correzione base")
