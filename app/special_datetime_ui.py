@@ -13,6 +13,7 @@ import re
 
 import streamlit as st
 
+from app.device_mode import full_device_is_mobile
 from app.native_time_picker import EMPTY_TIME_SENTINEL
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
@@ -129,6 +130,7 @@ def install_special_datetime_ui():
     original_toggle = st.toggle
     original_date_input = st.date_input
     original_button = st.button
+    original_container = st.container
 
     # Stato locale del renderer: viene impostato dal selectbox del parametro
     # speciale e consumato soltanto dalla sequenza immediatamente successiva.
@@ -177,6 +179,17 @@ def install_special_datetime_ui():
         """,
         unsafe_allow_html=True,
     )
+
+    def container_without_initial_mobile_frames(*args, **kwargs):
+        caller = inspect.currentframe().f_back
+        if (
+            kwargs.get("border") is True
+            and _is_full_page_frame(caller)
+            and full_device_is_mobile()
+            and "full_mobile" not in caller.f_locals
+        ):
+            kwargs["border"] = False
+        return original_container(*args, **kwargs)
 
     def toggle_without_main_datetime_switch(label, *args, **kwargs):
         caller = inspect.currentframe().f_back
@@ -357,6 +370,7 @@ def install_special_datetime_ui():
 
         return original_button(label, *args, **kwargs)
 
+    st.container = container_without_initial_mobile_frames
     st.toggle = toggle_without_main_datetime_switch
     st.selectbox = selectbox_with_special_context
     st.checkbox = checkbox_without_different_time
