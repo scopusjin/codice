@@ -67,10 +67,10 @@ def _restore_full_navigation_state() -> None:
 
 
 def _render_mobile_sidebar_button() -> None:
-    """Mostra un pulsante mobile fisso che attiva il controllo sidebar di Streamlit."""
+    """Mostra in fondo alla pagina un pulsante mobile che apre la sidebar."""
     components.html(
         """
-        <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰</button>
+        <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰ Menu</button>
         <style>
           html, body {
             margin: 0 !important;
@@ -79,20 +79,21 @@ def _render_mobile_sidebar_button() -> None:
             background: transparent !important;
           }
           #mortem-sidebar-button {
-            width: 2.2rem;
-            height: 2.2rem;
+            height: 2.1rem;
             margin: 0;
-            padding: 0;
-            display: flex;
+            padding: 0.08rem 0.58rem;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 0.28rem;
             border: 1px solid #2196F3;
             border-radius: 8px;
             background: white;
             color: #2196F3;
-            box-shadow: 0 1px 4px rgba(0,0,0,.12);
-            font: 600 1.35rem/1 Arial, sans-serif;
+            box-shadow: none;
+            font: 600 0.78rem/1 Arial, sans-serif;
             cursor: pointer;
+            white-space: nowrap;
           }
         </style>
         <script>
@@ -107,19 +108,16 @@ def _render_mobile_sidebar_button() -> None:
             }
 
             Object.assign(frame.style, {
-              position: "fixed",
-              left: "0.70rem",
-              bottom: "0.70rem",
-              width: "2.2rem",
-              minWidth: "2.2rem",
+              position: "static",
+              width: "6.2rem",
+              minWidth: "6.2rem",
               height: "2.2rem",
               minHeight: "2.2rem",
               border: "0",
-              margin: "0",
+              margin: "0.35rem 0 0.10rem 0",
               padding: "0",
               background: "transparent",
-              overflow: "visible",
-              zIndex: "1000000"
+              overflow: "hidden"
             });
 
             const button = document.getElementById("mortem-sidebar-button");
@@ -127,38 +125,18 @@ def _render_mobile_sidebar_button() -> None:
 
             button.addEventListener("click", () => {
               const doc = window.parent.document;
-              const selectors = [
-                '[data-testid="stSidebarCollapsedControl"] button',
-                'button[data-testid="stSidebarCollapsedControl"]',
-                '[data-testid="stSidebarCollapsedControl"]',
-                '[data-testid="collapsedControl"] button',
-                'button[data-testid="collapsedControl"]',
-                '[data-testid="collapsedControl"]',
-                'button[aria-label="Open sidebar"]',
-                'button[aria-label="Expand sidebar"]',
-                'button[aria-label*="sidebar" i]'
-              ];
-
-              let target = null;
-              for (const selector of selectors) {
-                target = doc.querySelector(selector);
-                if (target) break;
-              }
-
-              if (!target) {
-                target = Array.from(doc.querySelectorAll("button")).find((el) => {
-                  const text = (el.innerText || el.textContent || "").trim();
-                  return text === "»" || text === ">>";
-                }) || null;
-              }
+              const target =
+                doc.querySelector('[data-testid="stExpandSidebarButton"] button') ||
+                doc.querySelector('button[data-testid="stExpandSidebarButton"]') ||
+                doc.querySelector('[data-testid="stExpandSidebarButton"]');
 
               if (target) target.click();
             });
           })();
         </script>
         """,
-        height=1,
-        width=1,
+        height=38,
+        width=105,
         scrolling=False,
     )
 
@@ -207,7 +185,7 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             }}
 
             /* Full mobile: nasconde la toolbar Streamlit; l'apertura della
-               sidebar è affidata al pulsante mobile autonomo in basso. */
+               sidebar è affidata al pulsante mobile in fondo alla pagina. */
             body:has([class*="st-key-stima_cautelativa_beta"])
             [data-testid="stToolbar"] {{
                 display: none !important;
@@ -251,9 +229,6 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         unsafe_allow_html=True,
     )
 
-    if key == "mobile_nav_footer_to_msil":
-        _render_mobile_sidebar_button()
-
     with st.container(
         horizontal=True,
         horizontal_alignment="right",
@@ -265,3 +240,6 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             elif key == "mobile_nav_footer_to_full":
                 _restore_full_navigation_state()
             st.switch_page(target)
+
+    if key == "mobile_nav_footer_to_msil":
+        _render_mobile_sidebar_button()
