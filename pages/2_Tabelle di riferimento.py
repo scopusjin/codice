@@ -108,10 +108,10 @@ _RIGOR_TABLE_TEXT = {
         "lower": "Limite inferiore",
         "upper": "Limite superiore",
         "publications": "Numero di pubblicazioni valutate",
-        "delay": "Periodo di latenza",
-        "reestablishment": "Ripristino possibile",
+        "delay": "Latenza prima della comparsa",
+        "reestablishment": "Si riforma dopo esser stato vinto",
         "up_to_5": "Fino a 5",
-        "complete": "Rigidità completa",
+        "complete": "Rigidità estesa a tutto il corpo e massima",
         "persistence": "Persistenza",
         "resolution": "Risoluzione",
         "note": (
@@ -370,7 +370,7 @@ def _render_livor_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -416,7 +416,7 @@ def _render_rigor_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -463,7 +463,7 @@ def _render_combined_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+            <caption style="caption-side:top;text-align:center;font-weight:650;padding-bottom:.20rem;">
               {text['caption']}
             </caption>
             <thead>
@@ -587,8 +587,7 @@ def _render_henssge_special_table(language: str) -> None:
               <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
               <tr>
                 <td rowspan="3"><strong>{text['conducting']}</strong><br>{text['concrete']}</td>
-                <td>{text['thick']}</td><td>−0.1</td>
-              </tr>
+                <td>{text['thick']}</td><td>−0.1</td></tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
               <tr><td>{text['no']}</td><td>0.75</td></tr>
             </tbody>
@@ -684,34 +683,37 @@ st.markdown(
     .mallach-table-wrap {
         width: 100%;
         overflow-x: auto;
-        margin: 0.08rem 0 0.16rem 0;
+        margin: 0 0 0.10rem 0;
     }
     table.mallach-table {
         width: 100%;
         border-collapse: collapse;
         font-size: 0.70rem;
-        line-height: 1.05;
+        line-height: 1.02;
     }
     table.mallach-table caption {
         font-size: 0.73rem;
-        line-height: 1.08;
-        padding-bottom: 0.14rem !important;
+        line-height: 1.05;
+        padding-bottom: 0.08rem !important;
+        text-align: center !important;
     }
     .mallach-table th,
     .mallach-table td {
         border: 1px solid rgba(128,128,128,.35);
-        padding: 0.13rem 0.20rem;
+        padding: 0.08rem 0.10rem;
         vertical-align: middle;
+        text-align: center;
     }
     .mallach-table thead th {
         text-align: center;
         font-weight: 650;
         background: rgba(128,128,128,.08);
-        line-height: 1.05;
+        line-height: 1.02;
     }
     .mallach-table td:first-child {
-        text-align: left;
-        min-width: 9.8rem;
+        text-align: center;
+        min-width: 7.2rem;
+        white-space: normal;
     }
     .mallach-table td:not(:first-child) {
         text-align: center;
@@ -720,66 +722,66 @@ st.markdown(
     .mallach-table .group-row td {
         font-weight: 650;
         background: rgba(128,128,128,.05);
+        text-align: center;
     }
     .mallach-table .subcriterion {
-        padding-left: 0.50rem;
+        padding-left: 0.10rem;
     }
     .mallach-table .subcriterion.nested {
-        padding-left: 1rem;
+        padding-left: 0.15rem;
     }
     .mallach-note {
         font-size: 0.64rem;
-        line-height: 1.10;
-        margin-top: 0.14rem;
+        line-height: 1.08;
+        margin-top: 0.08rem;
+        text-align: center;
     }
     .combined-table td:first-child {
-        min-width: 9rem;
+        min-width: 7.2rem;
     }
     .combined-table th:nth-child(2),
     .combined-table th:nth-child(4) {
-        min-width: 5.2rem;
+        min-width: 4.0rem;
     }
     .combined-table th:nth-child(3),
     .combined-table th:nth-child(5) {
-        min-width: 6.2rem;
+        min-width: 4.8rem;
     }
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
-        min-width: 8.5rem;
-    }
-    .henssge-base-table td:nth-child(4) {
+        min-width: 6.8rem;
         white-space: normal;
     }
     .henssge-base-table th:nth-child(2),
     .henssge-base-table th:nth-child(5),
     .henssge-base-table th:nth-child(6) {
-        min-width: 4.5rem;
+        min-width: 3.4rem;
     }
     .henssge-base-table th:nth-child(3) {
-        min-width: 5rem;
+        min-width: 3.8rem;
     }
     .henssge-special-table td:first-child {
-        min-width: 10rem;
+        min-width: 7.5rem;
         white-space: normal;
     }
     .henssge-special-table th:nth-child(2) {
-        min-width: 5rem;
+        min-width: 4rem;
     }
     .henssge-special-table th:nth-child(3) {
-        min-width: 6rem;
+        min-width: 4.5rem;
     }
     .henssge-weight-table {
         font-size: 0.64rem !important;
     }
     .henssge-weight-table td:first-child {
-        min-width: 8.2rem;
+        min-width: 6.4rem;
         white-space: normal;
     }
     .henssge-weight-table th:not(:first-child),
     .henssge-weight-table td:not(:first-child) {
-        min-width: 2.25rem;
-        padding-left: 0.12rem;
-        padding-right: 0.12rem;
+        min-width: 1.65rem;
+        padding-left: 0.05rem;
+        padding-right: 0.05rem;
     }
     .henssge-weight-table .weight-reference {
         font-weight: 700;
@@ -788,23 +790,25 @@ st.markdown(
     .henssge-table-title {
         font-size: 0.78rem;
         font-weight: 650;
-        line-height: 1.05;
-        margin: 0.20rem 0 0.02rem 0;
+        line-height: 1.02;
+        margin: 0.12rem 0 -0.10rem 0;
+        text-align: center;
     }
     div[data-testid="stElementContainer"]:has(div[data-testid="stRadio"]) {
-        margin-top: -0.16rem !important;
-        margin-bottom: -0.28rem !important;
+        margin-top: -0.24rem !important;
+        margin-bottom: -0.42rem !important;
     }
     div[data-testid="stRadio"] {
         margin: 0 !important;
         padding: 0 !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] {
-        gap: 0.08rem !important;
+        gap: 0.02rem !important;
+        justify-content: center !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] > label {
         margin: 0 !important;
-        padding: 0 0.04rem 0 0 !important;
+        padding: 0 0.01rem 0 0 !important;
     }
     div[data-testid="stRadio"] label p {
         font-size: 0.68rem !important;
@@ -812,12 +816,14 @@ st.markdown(
     }
     div[data-testid="stCaptionContainer"] p {
         font-size: 0.62rem !important;
-        line-height: 1.10 !important;
+        line-height: 1.08 !important;
+        text-align: center !important;
     }
     div[data-testid="stMarkdownContainer"] h2 {
         font-size: 1.15rem !important;
-        margin-top: 0.70rem !important;
-        margin-bottom: 0.05rem !important;
+        margin-top: 0.55rem !important;
+        margin-bottom: -0.10rem !important;
+        text-align: center !important;
     }
     </style>
     """,
