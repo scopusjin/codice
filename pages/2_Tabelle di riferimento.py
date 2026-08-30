@@ -740,13 +740,30 @@ st.markdown(
     .combined-table td:first-child {
         min-width: 7.2rem;
     }
+    .combined-table thead th {
+        white-space: normal;
+    }
+    .combined-table th:first-child {
+        width: 7.2rem;
+        max-width: 7.2rem;
+    }
     .combined-table th:nth-child(2),
     .combined-table th:nth-child(4) {
-        min-width: 4.0rem;
+        width: 4.0rem;
+        max-width: 4.0rem;
     }
     .combined-table th:nth-child(3),
     .combined-table th:nth-child(5) {
-        min-width: 4.8rem;
+        width: 5.2rem;
+        max-width: 5.2rem;
+    }
+    .combined-table th:nth-child(6) {
+        width: 4.6rem;
+        max-width: 4.6rem;
+    }
+    .combined-table th:nth-child(7) {
+        width: 3.8rem;
+        max-width: 3.8rem;
     }
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
@@ -792,11 +809,11 @@ st.markdown(
         font-size: 0.78rem;
         font-weight: 650;
         line-height: 1.02;
-        margin: 0.12rem 0 -0.10rem 0;
+        margin: 0.12rem 0 -0.16rem 0;
     }
     div[data-testid="stElementContainer"]:has(div[data-testid="stRadio"]) {
-        margin-top: -0.24rem !important;
-        margin-bottom: -0.42rem !important;
+        margin-top: -0.48rem !important;
+        margin-bottom: -0.62rem !important;
     }
     div[data-testid="stRadio"] {
         margin: 0 !important;
@@ -804,6 +821,8 @@ st.markdown(
     }
     div[data-testid="stRadio"] [role="radiogroup"] {
         gap: 0.02rem !important;
+        margin: -0.04rem 0 !important;
+        padding: 0 !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] > label {
         margin: 0 !important;
@@ -820,7 +839,7 @@ st.markdown(
     div[data-testid="stMarkdownContainer"] h2 {
         font-size: 1.15rem !important;
         margin-top: 0.55rem !important;
-        margin-bottom: -0.10rem !important;
+        margin-bottom: -0.16rem !important;
     }
     </style>
     """,
