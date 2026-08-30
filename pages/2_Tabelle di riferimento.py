@@ -33,11 +33,11 @@ _HENSSGE_SPECIAL_REFERENCE = (
 )
 
 _HENSSGE_WEIGHT_REFERENCE = (
-    "Igari Y, Hosokai Y, Funayama M. Rectal temperature-based death time estimation in infants. "
-    "Legal Med. 2016;19:35–42. doi:10.1016/j.legalmed.2016.02.002, Table 3; "
-    "dati da Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors "
+    "Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors "
     "on the body weight under stronger thermic insulation conditions. "
-    "Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G."
+    "Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G; "
+    "Madea B. Methods for determining time of death. "
+    "Forensic Sci Med Pathol. 2016;12(4):451–485. doi:10.1007/s12024-016-9776-y, Table 10."
 )
 
 _MALLACH_TABLE_TEXT = {
@@ -336,13 +336,15 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "weight": "Peso corporeo reale (kg)",
         "cooling": "Condizioni di raffreddamento",
         "clothing": "Abbigliamento, più strati",
-        "example": "es.",
-        "bedspread": "Coperta, es.",
+        "bedspread": "Coperta",
         "clothing_bedspread": "Abbigliamento + coperta",
-        "feather_bed": "Piumone, es.",
+        "feather_bed": "Piumone",
         "note": (
-            "Estratto parziale da Henssge; per ciascun peso corporeo, la Modifica A utilizza "
-            "il fattore di correzione massimo (sottolineato)."
+            "Il riferimento dei fattori empirici è 70 kg (valori in grassetto). "
+            "Per un peso corporeo diverso, il fattore scelto per 70 kg va adattato leggendo "
+            "il valore sulla stessa riga. Per fattori inferiori a 1.4 (fino a 0.75), "
+            "la dipendenza dal peso corporeo può essere trascurata. "
+            "Le celle vuote corrispondono a valori non riportati nella tabella originale."
         ),
         "adapted": "Adattato da",
     },
@@ -350,13 +352,15 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "weight": "Real body weight (kg)",
         "cooling": "Cooling conditions",
         "clothing": "Clothing, more layers",
-        "example": "e.g.",
-        "bedspread": "Bedspread, e.g.",
+        "bedspread": "Bedspread",
         "clothing_bedspread": "Clothing + bedspread",
-        "feather_bed": "Feather-bed, e.g.",
+        "feather_bed": "Feather bed",
         "note": (
-            "Partial extract from Henssge; for each body weight, Modification A uses the highest "
-            "corrective factor (underlined)."
+            "The empirical corrective factors use 70 kg as the reference body weight "
+            "(values in bold). For a different body weight, the factor selected for 70 kg "
+            "is adjusted by reading the value on the same row. For corrective factors below "
+            "1.4 (down to 0.75), dependence on body weight may be neglected. "
+            "Blank cells correspond to values not reported in the original table."
         ),
         "adapted": "Adapted from",
     },
@@ -609,23 +613,62 @@ def _render_henssge_weight_table(language: str) -> None:
             <thead>
               <tr>
                 <th rowspan="2">{text['cooling']}</th>
-                <th colspan="12">{text['weight']}</th>
+                <th colspan="18">{text['weight']}</th>
               </tr>
               <tr>
                 <th>4</th><th>6</th><th>8</th><th>10</th><th>20</th><th>30</th>
-                <th>40</th><th>50</th><th>60</th><th>70</th><th>80</th><th>90</th>
+                <th>40</th><th>50</th><th>60</th><th class="weight-reference">70</th><th>80</th><th>90</th>
+                <th>100</th><th>110</th><th>120</th><th>130</th><th>140</th><th>150</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>{text['clothing']}</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td>{blank * 6}</tr>
-              <tr><td>{text['example']}</td><td>2.1</td><td>2.1</td><td>2</td><td>2</td><td>1.9</td><td>1.8</td><td>1.6</td>{blank * 5}</tr>
-              <tr><td>{text['bedspread']}</td><td>2.7</td><td>2.7</td><td>2.6</td><td>2.5</td><td>2.3</td><td>2.2</td><td>2.1</td><td>2</td><td>1.8</td>{blank * 3}</tr>
-              <tr><td></td><td>3.5</td><td>3.4</td><td>3.3</td><td>3.2</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.3</td><td>2</td><td>1.8</td>{blank * 2}</tr>
-              <tr><td></td><td>4.5</td><td>4.3</td><td>4.1</td><td>3.9</td><td>3.4</td><td>3</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.2</td><td>2.1</td><td>2</td></tr>
-              <tr><td>{text['clothing_bedspread']}</td><td>5.7</td><td>5.3</td><td>5</td><td>4.8</td><td>4</td><td>3.5</td><td>3.2</td><td>2.9</td><td>2.7</td><td>2.4</td><td>2.3</td><td>2.2</td></tr>
-              <tr><td>{text['example']}</td><td>7.1</td><td>6.6</td><td>6.2</td><td>5.8</td><td>4.7</td><td>4</td><td>3.6</td><td>3.2</td><td>2.9</td><td>2.6</td><td>2.5</td><td>2.3</td></tr>
-              <tr><td>{text['feather_bed']}</td><td>8.8</td><td>8.1</td><td>7.5</td><td>7</td><td>5.5</td><td>4.6</td><td>3.9</td><td>3.5</td><td>3.2</td><td>2.8</td><td>2.7</td><td>2.5</td></tr>
-              <tr class="weight-maximum"><td></td><td>10.9</td><td>9.8</td><td>8.9</td><td>8.3</td><td>6.2</td><td>5.1</td><td>4.3</td><td>3.8</td><td>3.4</td><td>3</td><td>2.8</td><td>2.6</td></tr>
+              <tr>
+                <td rowspan="2">{text['clothing']}</td>
+                <td>1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td>
+                <td>1.3</td><td>1.2</td><td>1.2</td><td class="weight-reference">1.2</td>{blank * 8}
+              </tr>
+              <tr>
+                <td>2.1</td><td>2.1</td><td>2.0</td><td>2.0</td><td>1.9</td><td>1.8</td>
+                <td>1.6</td><td>1.4</td><td>1.4</td><td class="weight-reference">1.4</td><td>1.3</td><td>1.3</td>{blank * 6}
+              </tr>
+              <tr>
+                <td rowspan="3">{text['bedspread']}</td>
+                <td>2.7</td><td>2.7</td><td>2.6</td><td>2.5</td><td>2.3</td><td>2.2</td>
+                <td>2.1</td><td>2.0</td><td>1.8</td><td class="weight-reference">1.6</td><td>1.6</td><td>1.6</td>
+                <td>1.5</td><td>1.4</td><td>1.4</td>{blank * 3}
+              </tr>
+              <tr>
+                <td>3.5</td><td>3.4</td><td>3.3</td><td>3.2</td><td>2.8</td><td>2.6</td>
+                <td>2.4</td><td>2.3</td><td>2.0</td><td class="weight-reference">1.8</td><td>1.8</td><td>1.7</td>
+                <td>1.6</td><td>1.6</td><td>1.5</td><td>1.5</td>{blank * 2}
+              </tr>
+              <tr>
+                <td>4.5</td><td>4.3</td><td>4.1</td><td>3.9</td><td>3.4</td><td>3.0</td>
+                <td>2.8</td><td>2.6</td><td>2.4</td><td class="weight-reference">2.2</td><td>2.1</td><td>2.0</td>
+                <td>1.9</td><td>1.8</td><td>1.7</td><td>1.7</td><td>1.6</td><td>1.6</td>
+              </tr>
+              <tr>
+                <td rowspan="2">{text['clothing_bedspread']}</td>
+                <td>5.7</td><td>5.3</td><td>5.0</td><td>4.8</td><td>4.0</td><td>3.5</td>
+                <td>3.2</td><td>2.9</td><td>2.7</td><td class="weight-reference">2.4</td><td>2.3</td><td>2.2</td>
+                <td>2.1</td><td>1.9</td><td>1.9</td><td>1.8</td><td>1.7</td><td>1.6</td>
+              </tr>
+              <tr>
+                <td>7.1</td><td>6.6</td><td>6.2</td><td>5.8</td><td>4.7</td><td>4.0</td>
+                <td>3.6</td><td>3.2</td><td>2.9</td><td class="weight-reference">2.6</td><td>2.5</td><td>2.3</td>
+                <td>2.2</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
+              </tr>
+              <tr>
+                <td rowspan="2">{text['feather_bed']}</td>
+                <td>8.8</td><td>8.1</td><td>7.5</td><td>7.0</td><td>5.5</td><td>4.6</td>
+                <td>3.9</td><td>3.5</td><td>3.2</td><td class="weight-reference">2.8</td><td>2.7</td><td>2.5</td>
+                <td>2.3</td><td>2.2</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
+              </tr>
+              <tr>
+                <td>10.9</td><td>9.8</td><td>8.9</td><td>8.3</td><td>6.2</td><td>5.1</td>
+                <td>4.3</td><td>3.8</td><td>3.4</td><td class="weight-reference">3.0</td><td>2.8</td><td>2.6</td>
+                <td>2.4</td><td>2.3</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -741,8 +784,9 @@ st.markdown(
         padding-left: 0.12rem;
         padding-right: 0.12rem;
     }
-    .henssge-weight-table .weight-maximum td:not(:first-child) {
-        text-decoration: underline;
+    .henssge-weight-table .weight-reference {
+        font-weight: 700;
+        background: rgba(128,128,128,.10);
     }
     .henssge-table-title {
         font-size: 0.78rem;
