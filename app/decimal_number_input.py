@@ -30,6 +30,9 @@ _TA_RANGE_MOBILE_NOTE = (
     "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
     "nel periodo tra il decesso e l’ispezione."
 )
+_COMPACT_LABEL_ALIASES = {
+    "Piumone / coperta molto spessa": "Piumone / coperta pesante",
+}
 
 
 def _theme_value(option, fallback):
@@ -93,6 +96,7 @@ def decimal_number_input(
     # La stessa UI V2 viene ora usata sia su mobile sia su desktop; la MSIL non
     # passa questo flag per le proprie chiavi e conserva quindi il renderer V1.
     compact_mobile = bool(compact_mobile)
+    compact_label = _COMPACT_LABEL_ALIASES.get(str(compact_label or ""), str(compact_label or ""))
 
     interval_mode = bool(
         st.session_state.get("stima_cautelativa_beta", False)
