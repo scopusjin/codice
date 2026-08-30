@@ -56,7 +56,27 @@ _FULL_INITIAL_FRAMELESS_CSS = r"""
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"]),
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]) {
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"]) > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]) > [data-testid="stVerticalBlock"] {
+    border: 0 !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"])::before,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"])::after,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"])::before,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"])::after {
     border: 0 !important;
     box-shadow: none !important;
     background: transparent !important;
