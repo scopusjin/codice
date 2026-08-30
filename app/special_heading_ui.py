@@ -29,8 +29,7 @@ def install_special_heading_style():
 
     original_markdown = st.markdown
 
-    original_markdown(
-        """
+    style_html = """
         <style>
         .final-text,
         .final-text p,
@@ -44,11 +43,11 @@ def install_special_heading_style():
           font-weight: 400 !important;
         }
 
-        /* Campi numerici del raffreddamento: larghezza omogenea dimensionata
-           sul testo più lungo del gruppo, senza occupare tutta la riga. */
+        /* Tutti i controlli del raffreddamento usano la stessa larghezza
+           finale, pari alla riga FC che contiene anche “Consiglia”. */
         html body:has([class*="st-key-stima_cautelativa_beta"]) {
-          --mortem-cooling-field-width: 24rem;
-          --mortem-cooling-suggest-width: 5.4rem;
+          --mortem-cooling-field-width: 29.4rem;
+          --mortem-cooling-suggest-width: 0rem;
         }
 
         html body:has([class*="st-key-stima_cautelativa_beta"])
@@ -62,8 +61,7 @@ def install_special_heading_style():
           align-self: flex-start !important;
         }
 
-        /* I soli campi che mostrano davvero “Consiglia” conservano a destra
-           la larghezza del pulsante; il campo numerico termina prima. */
+        /* FC con e senza “Consiglia” mantiene la stessa larghezza delle altre righe. */
         html body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-mortem_decimal_fc_other_val"],
         html body:has([class*="st-key-stima_cautelativa_beta"])
@@ -111,8 +109,7 @@ def install_special_heading_style():
           padding-right: 3px !important;
         }
 
-        /* Peso + ±3 kg: il toggle segue subito il campo compatto invece di
-           essere spinto al margine destro del riquadro. */
+        /* Peso + ±3 kg resta complessivamente largo quanto le altre righe. */
         html body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_weight_row_mobile"],
         html body:has([class*="st-key-stima_cautelativa_beta"])
@@ -127,8 +124,8 @@ def install_special_heading_style():
           align-items: center !important;
           justify-content: flex-start !important;
           gap: 0.34rem !important;
-          width: fit-content !important;
-          max-width: 100% !important;
+          width: min(100%, var(--mortem-cooling-field-width)) !important;
+          max-width: var(--mortem-cooling-field-width) !important;
           min-width: 0 !important;
         }
 
@@ -136,9 +133,9 @@ def install_special_heading_style():
         [class*="st-key-prudent_weight_value_mobile"],
         html body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_weight_value_desktop"] {
-          flex: 0 1 var(--mortem-cooling-field-width) !important;
-          width: var(--mortem-cooling-field-width) !important;
-          max-width: var(--mortem-cooling-field-width) !important;
+          flex: 1 1 0 !important;
+          width: auto !important;
+          max-width: none !important;
           min-width: 0 !important;
         }
 
@@ -152,9 +149,43 @@ def install_special_heading_style():
           margin-left: 0 !important;
         }
 
+        /* Riga FC suggerito: gruppo centrato, con un piccolo distacco da Usalo. */
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="fc_apply_block_mobile"] {
+          box-sizing: border-box !important;
+          width: min(100%, var(--mortem-cooling-field-width)) !important;
+          max-width: var(--mortem-cooling-field-width) !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="fc_apply_row_mobile"],
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="fc_apply_row_mobile"] [data-testid="stHorizontalBlock"] {
+          width: fit-content !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+          justify-content: center !important;
+          gap: 0.28rem !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="fc_apply_value_mobile"] .mortem-fc-inline-result {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+
+        html body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="fc_apply_action_mobile"] {
+          margin-left: 0.06rem !important;
+        }
+
         @media (max-width: 768px) {
           html body:has([class*="st-key-stima_cautelativa_beta"]) {
-            --mortem-cooling-field-width: 17.5rem;
+            --mortem-cooling-field-width: 22.9rem;
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
@@ -218,52 +249,45 @@ def install_special_heading_style():
             overflow: visible !important;
           }
 
-          /* Il pannello di suggerimento sale fino alla riga FC/Consiglia e
-             aumenta appena il respiro tra stato del corpo e vestiti/coperte. */
+          /* Il pannello di suggerimento usa la stessa larghezza della riga FC,
+             sale fino a Consiglia e lascia appena più respiro nei punti indicati. */
           html body:has([class*="st-key-stima_cautelativa_beta"])
           [class*="st-key-full_fc_panel_mobile"] {
-            margin-top: -0.22rem !important;
-            padding-top: 0.42rem !important;
+            box-sizing: border-box !important;
+            width: min(100%, var(--mortem-cooling-field-width)) !important;
+            max-width: var(--mortem-cooling-field-width) !important;
+            min-width: 0 !important;
+            margin-top: -0.30rem !important;
+            margin-right: 0 !important;
+            margin-bottom: 0 !important;
+            margin-left: 0 !important;
+            padding: 0.50rem 0.24rem 0.34rem !important;
+            border: 0 !important;
+            border-radius: 0.55rem !important;
+            box-shadow: none !important;
+            background: rgba(33, 150, 243, 0.055) !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"][data-testid="stVerticalBlock"],
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
+            gap: 0.22rem !important;
           }
 
           html body:has([class*="st-key-stima_cautelativa_beta"])
           [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
           html body:has([class*="st-key-stima_cautelativa_beta"])
           [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
-            margin-top: 0.22rem !important;
-            margin-bottom: 0.06rem !important;
+            margin-top: 0.28rem !important;
+            margin-bottom: 0.12rem !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
           }
 
-          /* FC suggerito + Usalo: centrati come gruppo, con un piccolo spazio
-             tra il valore e il pulsante. */
           html body:has([class*="st-key-stima_cautelativa_beta"])
           [class*="fc_apply_block_mobile"] {
-            width: 100% !important;
-            margin-top: 0.12rem !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="fc_apply_row_mobile"],
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="fc_apply_row_mobile"] [data-testid="stHorizontalBlock"] {
-            width: fit-content !important;
-            max-width: 100% !important;
-            min-width: 0 !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-            justify-content: center !important;
-            gap: 0.32rem !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="fc_apply_value_mobile"] .mortem-fc-inline-result {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="fc_apply_action_mobile"] {
-            margin-left: 0.04rem !important;
+            margin-top: 0.14rem !important;
           }
         }
 
@@ -421,11 +445,17 @@ def install_special_heading_style():
           }
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+        """
+
+    original_markdown(style_html, unsafe_allow_html=True)
 
     def markdown_with_special_heading(body, *args, **kwargs):
+        # Il blocco CSS iniziale della Full viene ricreato a ogni rerun:
+        # accodiamo anche queste rifiniture, così restano attive dopo Consiglia.
+        if isinstance(body, str) and ".final-text{" in body:
+            body = body + style_html
+            kwargs["unsafe_allow_html"] = True
+
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
         frame = inspect.currentframe().f_back
