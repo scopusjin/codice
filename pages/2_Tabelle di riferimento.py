@@ -480,9 +480,6 @@ def _render_henssge_base_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table henssge-base-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
-              {text['caption']}*
-            </caption>
             <thead>
               <tr>
                 <th>{text['dry']}</th>
@@ -524,9 +521,6 @@ def _render_henssge_special_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table henssge-special-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
-              {text['caption']}
-            </caption>
             <thead>
               <tr>
                 <th>{text['ground']}</th>
@@ -658,12 +652,22 @@ st.markdown(
     .henssge-special-table th:nth-child(3) {
         min-width: 6rem;
     }
+    .henssge-table-title {
+        font-size: 0.78rem;
+        font-weight: 650;
+        line-height: 1.05;
+        margin: 0.20rem 0 0.02rem 0;
+    }
+    div[data-testid="stElementContainer"]:has(div[data-testid="stRadio"]) {
+        margin-top: -0.10rem !important;
+        margin-bottom: -0.22rem !important;
+    }
     div[data-testid="stRadio"] {
-        margin-top: -0.30rem !important;
-        margin-bottom: -0.35rem !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     div[data-testid="stRadio"] [role="radiogroup"] {
-        gap: 0.45rem !important;
+        gap: 0.35rem !important;
     }
     div[data-testid="stRadio"] label p {
         font-size: 0.68rem !important;
@@ -715,7 +719,19 @@ combined_language = st.radio(
 _render_combined_table("it" if combined_language == "Italiano" else "en")
 
 # --- Sezione 2: Tabelle Henssge ---
-st.markdown("## Fattori di correzione base")
+st.markdown("## Fattori di correzione")
+
+_base_language_before = st.session_state.get("henssge_base_table_language", "Italiano")
+st.markdown(
+    "<div class='henssge-table-title'>"
+    + (
+        "Tabella 1 — Fattori di correzione base"
+        if _base_language_before == "Italiano"
+        else "Table 1 — Basic correction factors"
+    )
+    + "</div>",
+    unsafe_allow_html=True,
+)
 henssge_base_language = st.radio(
     "Lingua tabella fattori di correzione base",
     ["Italiano", "English"],
@@ -725,7 +741,17 @@ henssge_base_language = st.radio(
 )
 _render_henssge_base_table("it" if henssge_base_language == "Italiano" else "en")
 
-st.markdown("## Situazioni speciali")
+_special_language_before = st.session_state.get("henssge_special_table_language", "Italiano")
+st.markdown(
+    "<div class='henssge-table-title'>"
+    + (
+        "Tabella 2 — Situazioni speciali"
+        if _special_language_before == "Italiano"
+        else "Table 2 — Special situations"
+    )
+    + "</div>",
+    unsafe_allow_html=True,
+)
 henssge_special_language = st.radio(
     "Lingua tabella situazioni speciali",
     ["Italiano", "English"],
@@ -735,7 +761,10 @@ henssge_special_language = st.radio(
 )
 _render_henssge_special_table("it" if henssge_special_language == "Italiano" else "en")
 
-st.markdown("Adattamento per peso corporeo")
+st.markdown(
+    "<div class='henssge-table-title'>Tabella 3 — Adattamento per peso corporeo</div>",
+    unsafe_allow_html=True,
+)
 st.image(
     "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%203%20Henssge.png",
     caption="Tabella 3 Henssge",
