@@ -29,7 +29,8 @@ def install_special_heading_style():
 
     original_markdown = st.markdown
 
-    style_html = """
+    original_markdown(
+        """
         <style>
         .final-text,
         .final-text p,
@@ -43,151 +44,7 @@ def install_special_heading_style():
           font-weight: 400 !important;
         }
 
-        /* Tutti i controlli del raffreddamento usano la stessa larghezza
-           finale, pari alla riga FC che contiene anche “Consiglia”. */
-        html body:has([class*="st-key-stima_cautelativa_beta"]) {
-          --mortem-cooling-field-width: 29.4rem;
-          --mortem-cooling-suggest-width: 0rem;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-mortem_decimal_"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]) {
-          box-sizing: border-box !important;
-          width: min(100%, var(--mortem-cooling-field-width)) !important;
-          max-width: var(--mortem-cooling-field-width) !important;
-          min-width: 0 !important;
-          align-self: flex-start !important;
-        }
-
-        /* FC con e senza “Consiglia” mantiene la stessa larghezza delle altre righe. */
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-mortem_decimal_fc_other_val"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fc_other_val"]),
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-mortem_decimal_fattore_correzione"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fattore_correzione"]) {
-          width: min(100%, calc(var(--mortem-cooling-field-width) + var(--mortem-cooling-suggest-width))) !important;
-          max-width: calc(var(--mortem-cooling-field-width) + var(--mortem-cooling-suggest-width)) !important;
-        }
-
-        /* FC min non deve più riservare un falso pulsante invisibile. */
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        .number-control.reserve-suggest .suggest-button {
-          display: none !important;
-          flex: 0 0 0 !important;
-          width: 0 !important;
-          min-width: 0 !important;
-          max-width: 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-        }
-
-        /* Valore appena sufficiente per le cifre visualizzate; −/+ restano
-           subito dopo l'eventuale unità di misura. */
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        .number-control:not(.is-dense) .number-input {
-          flex: 0 0 48px !important;
-          width: 48px !important;
-          min-width: 48px !important;
-          padding-left: 1px !important;
-          padding-right: 3px !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        .number-control:not(.is-dense) .step-button {
-          flex: 0 0 30px !important;
-          width: 30px !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        .number-control .mobile-unit {
-          padding-left: 0 !important;
-          padding-right: 3px !important;
-        }
-
-        /* Peso + ±3 kg resta complessivamente largo quanto le altre righe. */
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_row_mobile"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_row_mobile"] [data-testid="stHorizontalBlock"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_row_desktop"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_row_desktop"] [data-testid="stHorizontalBlock"] {
-          display: flex !important;
-          flex-direction: row !important;
-          flex-wrap: nowrap !important;
-          align-items: center !important;
-          justify-content: flex-start !important;
-          gap: 0.34rem !important;
-          width: min(100%, var(--mortem-cooling-field-width)) !important;
-          max-width: var(--mortem-cooling-field-width) !important;
-          min-width: 0 !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_value_mobile"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_value_desktop"] {
-          flex: 1 1 0 !important;
-          width: auto !important;
-          max-width: none !important;
-          min-width: 0 !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_uncertainty_mobile"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_weight_uncertainty_desktop"] {
-          flex: 0 0 auto !important;
-          width: max-content !important;
-          min-width: max-content !important;
-          margin-left: 0 !important;
-        }
-
-        /* Riga FC suggerito: gruppo centrato, con un piccolo distacco da Usalo. */
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="fc_apply_block_mobile"] {
-          box-sizing: border-box !important;
-          width: min(100%, var(--mortem-cooling-field-width)) !important;
-          max-width: var(--mortem-cooling-field-width) !important;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="fc_apply_row_mobile"],
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="fc_apply_row_mobile"] [data-testid="stHorizontalBlock"] {
-          width: fit-content !important;
-          max-width: 100% !important;
-          min-width: 0 !important;
-          margin-left: auto !important;
-          margin-right: auto !important;
-          justify-content: center !important;
-          gap: 0.28rem !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="fc_apply_value_mobile"] .mortem-fc-inline-result {
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-        }
-
-        html body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="fc_apply_action_mobile"] {
-          margin-left: 0.06rem !important;
-        }
-
         @media (max-width: 768px) {
-          html body:has([class*="st-key-stima_cautelativa_beta"]) {
-            --mortem-cooling-field-width: 22.9rem;
-          }
-
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
             padding: 0.42rem 0.62rem !important;
@@ -247,47 +104,6 @@ def install_special_heading_style():
             max-width: 100% !important;
             min-width: 0 !important;
             overflow: visible !important;
-          }
-
-          /* Il pannello di suggerimento usa la stessa larghezza della riga FC,
-             sale fino a Consiglia e lascia appena più respiro nei punti indicati. */
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"] {
-            box-sizing: border-box !important;
-            width: min(100%, var(--mortem-cooling-field-width)) !important;
-            max-width: var(--mortem-cooling-field-width) !important;
-            min-width: 0 !important;
-            margin-top: -0.30rem !important;
-            margin-right: 0 !important;
-            margin-bottom: 0 !important;
-            margin-left: 0 !important;
-            padding: 0.50rem 0.24rem 0.34rem !important;
-            border: 0 !important;
-            border-radius: 0.55rem !important;
-            box-shadow: none !important;
-            background: rgba(33, 150, 243, 0.055) !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"][data-testid="stVerticalBlock"],
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
-            gap: 0.22rem !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
-            margin-top: 0.28rem !important;
-            margin-bottom: 0.12rem !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="fc_apply_block_mobile"] {
-            margin-top: 0.14rem !important;
           }
         }
 
@@ -445,17 +261,11 @@ def install_special_heading_style():
           }
         }
         </style>
-        """
-
-    original_markdown(style_html, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
     def markdown_with_special_heading(body, *args, **kwargs):
-        # Il blocco CSS iniziale della Full viene ricreato a ogni rerun:
-        # accodiamo anche queste rifiniture, così restano attive dopo Consiglia.
-        if isinstance(body, str) and ".final-text{" in body:
-            body = body + style_html
-            kwargs["unsafe_allow_html"] = True
-
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
         frame = inspect.currentframe().f_back
