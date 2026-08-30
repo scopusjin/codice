@@ -4,3 +4,4 @@ numpy
 scipy
 openpyxl>=3.1
 streamlit-extras
+pyarrow<25
