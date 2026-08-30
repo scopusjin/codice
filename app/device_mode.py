@@ -103,6 +103,35 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   padding: 0 0 0 0.18rem !important;
 }
 
+/* La riga del risultato FC resta centrata come gruppo anche su desktop. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_row_mobile"] {
+  justify-content: center !important;
+  gap: 0.34rem !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_value_mobile"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] {
+  margin-left: 0.08rem !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+.mortem-fc-inline-result {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 @media (max-width: 768px) {
   /* Il testo esplicativo della modalità prudente non deve lasciare spazio. */
   body:has([class*="st-key-stima_cautelativa_beta"])
@@ -131,6 +160,56 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     position: relative !important;
     z-index: 3 !important;
     pointer-events: auto !important;
+  }
+
+  /* Il pannello suggerimenti ha la stessa larghezza della riga FC e risale
+     sotto il pulsante Consiglia: il fondo azzurro crea un unico blocco visivo. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] {
+    box-sizing: border-box !important;
+    width: var(--mortem-cooling-row-width) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-top: -0.26rem !important;
+    margin-bottom: 0 !important;
+    padding: 0.52rem 0.24rem 0.34rem !important;
+    border: 0 !important;
+    border-radius: 0 0 0.55rem 0.55rem !important;
+    box-shadow: none !important;
+    background: color-mix(
+      in srgb,
+      var(--st-secondary-background-color, #F0F2F6) 88%,
+      var(--st-primary-color, #168AC1) 12%
+    ) !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
+    gap: 0.18rem !important;
+  }
+
+  /* Un po' più di respiro prima e dopo la riga Vestiti/coperte. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
+    margin-top: 0.20rem !important;
+    margin-bottom: 0.08rem !important;
+  }
+
+  /* FC suggerito e Usalo restano centrati, con un distacco minimo tra i due. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="fc_apply_block_mobile"] {
+    width: 100% !important;
+    margin-top: 0.10rem !important;
+    padding-top: 0.08rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="fc_apply_row_mobile"] {
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 0.34rem !important;
   }
 }
 
