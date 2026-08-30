@@ -21,6 +21,7 @@ _FULL_COOLING_ROW_WIDTH_CSS = r"""
 body:has([class*="st-key-stima_cautelativa_beta"]) {
   --mortem-cooling-row-width: 20rem;
   --mortem-cooling-action-col: 4.4rem;
+  --mortem-cooling-weight-shift: 0.55rem;
 }
 
 /* Tutte le righe numeriche hanno la stessa larghezza complessiva. */
@@ -36,8 +37,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 /* Condizioni variabili: Peso e ±3 kg formano una sola riga della stessa
-   larghezza delle altre. Il componente Peso occupa le prime cinque colonne;
-   ±3 kg occupa la colonna azione, senza spostare il valore 70.0. */
+   larghezza delle altre. La parte numerica viene accorciata leggermente per
+   mantenere 70.0 sulla stessa verticale dei valori delle altre righe. */
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_row_mobile"],
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -49,8 +50,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   box-sizing: border-box !important;
   display: grid !important;
   grid-template-columns:
-    minmax(0, calc(var(--mortem-cooling-row-width) - var(--mortem-cooling-action-col)))
-    var(--mortem-cooling-action-col) !important;
+    minmax(
+      0,
+      calc(
+        var(--mortem-cooling-row-width)
+        - var(--mortem-cooling-action-col)
+        - var(--mortem-cooling-weight-shift)
+      )
+    )
+    calc(var(--mortem-cooling-action-col) + var(--mortem-cooling-weight-shift)) !important;
   align-items: center !important;
   gap: 0 !important;
   width: var(--mortem-cooling-row-width) !important;
@@ -88,17 +96,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_uncertainty_desktop"] {
   box-sizing: border-box !important;
-  width: var(--mortem-cooling-action-col) !important;
-  max-width: var(--mortem-cooling-action-col) !important;
-  min-width: var(--mortem-cooling-action-col) !important;
+  width: calc(var(--mortem-cooling-action-col) + var(--mortem-cooling-weight-shift)) !important;
+  max-width: calc(var(--mortem-cooling-action-col) + var(--mortem-cooling-weight-shift)) !important;
+  min-width: calc(var(--mortem-cooling-action-col) + var(--mortem-cooling-weight-shift)) !important;
   margin: 0 !important;
   padding: 0 0 0 0.18rem !important;
 }
 
 @media (max-width: 768px) {
-  /* Il testo esplicativo della modalità prudente è già omesso visivamente
-     nella Full mobile: eliminiamo anche il contenitore residuo che lasciava
-     una fascia bianca tra il toggle e T. rettale. */
+  /* Il testo esplicativo della modalità prudente non deve lasciare spazio. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-prudent_explicit_ranges"] {
     display: none !important;
@@ -111,15 +117,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     overflow: hidden !important;
   }
 
+  /* Compensa il gap verticale del blocco Streamlit tra il toggle e la pila
+     prudente: le righe iniziano subito sotto Condizioni variabili. */
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_prudent_v2_stack_mobile"] {
-    margin-top: 0 !important;
+    margin-top: -0.70rem !important;
     padding-top: 0 !important;
     gap: 0.18rem !important;
   }
 
-  /* Mantiene il toggle Condizioni variabili sopra eventuali wrapper della
-     modalità che vengono montati/smontati durante il rerun. */
   [class*="st-key-stima_cautelativa_beta"] [data-testid="stToggle"],
   [class*="st-key-stima_cautelativa_beta"] [data-testid="stToggle"] label {
     position: relative !important;
@@ -131,6 +137,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 @media (min-width: 769px) {
   body:has([class*="st-key-stima_cautelativa_beta"]) {
     --mortem-cooling-row-width: 28rem;
+    --mortem-cooling-weight-shift: 0.55rem;
   }
 }
 </style>
