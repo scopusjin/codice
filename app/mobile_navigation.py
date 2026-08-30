@@ -2,7 +2,6 @@
 """Navigazione mobile tra versione completa e modalità sopralluogo."""
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 
 _FULL_NAV_STATE_KEYS = (
@@ -68,7 +67,7 @@ def _restore_full_navigation_state() -> None:
 
 def _render_mobile_sidebar_button() -> None:
     """Mostra in fondo alla pagina un pulsante mobile che apre la sidebar."""
-    components.html(
+    st.iframe(
         """
         <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰ Menu</button>
         <style>
@@ -137,7 +136,6 @@ def _render_mobile_sidebar_button() -> None:
         """,
         height=38,
         width=105,
-        scrolling=False,
     )
 
 
