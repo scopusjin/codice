@@ -5,10 +5,48 @@ from collections.abc import Mapping
 
 import streamlit as st
 
+import app.full_mobile_compact as _full_mobile_compact
 from app.full_mobile_compact import install_full_mobile_compact_css
 
 
 _SESSION_KEY = "__full_device_mobile"
+
+
+# Larghezza unica dei controlli numerici della Full. Queste regole vengono
+# accodate al CSS compatto già iniettato a ogni rerun, quindi prevalgono sulle
+# vecchie regole ``width: 100%`` senza aggiungere un secondo meccanismo di
+# rendering degli stili.
+_FULL_COOLING_ROW_WIDTH_CSS = r"""
+<style>
+@media (max-width: 768px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]) {
+    box-sizing: border-box !important;
+    width: 20rem !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    align-self: flex-start !important;
+  }
+}
+
+@media (min-width: 769px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]) {
+    box-sizing: border-box !important;
+    width: 26rem !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    align-self: flex-start !important;
+  }
+}
+</style>
+"""
+
+_full_mobile_compact._FULL_MOBILE_COMPACT_CSS += _FULL_COOLING_ROW_WIDTH_CSS
 
 
 def _header_value(headers, name: str) -> str:
