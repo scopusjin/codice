@@ -96,7 +96,7 @@ dati_parametri_aggiuntivi = {
         ],
         "range": {
             "Non valutata": None,
-            "Nessuna reazione": (6, INF_HOURS),
+            "Nessuna reazione": (3, INF_HOURS),
             "Non valutabile/non attendibile": None,
             "Marcata ed estesa (+++)": (0, 2.5),
             "Discreta (++)": (1, 5),
