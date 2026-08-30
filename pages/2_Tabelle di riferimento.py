@@ -27,6 +27,11 @@ _HENSSGE_BASE_REFERENCE = (
     "Forensic Sci Int. 1988;38(3–4):209–236. doi:10.1016/0379-0738(88)90168-5."
 )
 
+_HENSSGE_SPECIAL_REFERENCE = (
+    "Henßge C. Todeszeitbestimmung an Leichen. "
+    "Rechtsmedizin. 2002;12(2):112–131. doi:10.1007/s00194-002-0136-8."
+)
+
 _MALLACH_TABLE_TEXT = {
     "it": {
         "caption": (
@@ -275,6 +280,50 @@ _HENSSGE_BASE_TABLE_TEXT = {
 }
 
 
+_HENSSGE_SPECIAL_TABLE_TEXT = {
+    "it": {
+        "caption": "Adattamento dei fattori di correzione (f, vedi Tabella 1) alla superficie di appoggio",
+        "ground": "Superficie di appoggio",
+        "clothing": "Abbigliamento",
+        "factor": "Fattore di correzione f",
+        "indifferent": "Termicamente indifferente",
+        "indifferent_ground": "Pavimento di casa/appartamento, prato, terreno asciutto, asfalto",
+        "isolating": "Isolante",
+        "heavy_padding": "Forte imbottitura",
+        "mattress": "Materasso, tappeto spesso",
+        "conducting": "Termoconduttiva",
+        "concrete": "Cemento, pietra, piastrelle",
+        "yes": "Sì",
+        "no": "No",
+        "thick": "Spesso",
+        "thin": "Sottile",
+        "very_thin": "Molto sottile",
+        "see_table_1": "vedi Tabella 1",
+        "adapted": "Adattato da",
+    },
+    "en": {
+        "caption": "Adaptation of corrective factors (f, see Table 1) to ground under body",
+        "ground": "Ground under body",
+        "clothing": "Clothing",
+        "factor": "Corrective factor f",
+        "indifferent": "Indifferent",
+        "indifferent_ground": "House or apartment flooring, lawn, dry earth, asphalt",
+        "isolating": "Isolating",
+        "heavy_padding": "Heavy padding",
+        "mattress": "Mattress, thick carpet",
+        "conducting": "Conducting heat",
+        "concrete": "Concrete, stone, tiles",
+        "yes": "Yes",
+        "no": "No",
+        "thick": "Thick",
+        "thin": "Thin",
+        "very_thin": "Very thin",
+        "see_table_1": "see Table 1",
+        "adapted": "Adapted from",
+    },
+}
+
+
 def _render_livor_table(language: str) -> None:
     text = _MALLACH_TABLE_TEXT[language]
     st.markdown(
@@ -469,6 +518,54 @@ def _render_henssge_base_table(language: str) -> None:
     st.caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
 
 
+def _render_henssge_special_table(language: str) -> None:
+    text = _HENSSGE_SPECIAL_TABLE_TEXT[language]
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table henssge-special-table">
+            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.45rem;">
+              {text['caption']}
+            </caption>
+            <thead>
+              <tr>
+                <th>{text['ground']}</th>
+                <th>{text['clothing']}</th>
+                <th>{text['factor']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="2"><strong>{text['indifferent']}</strong><br>{text['indifferent_ground']}</td>
+                <td>{text['yes']}</td><td>{text['see_table_1']}</td>
+              </tr>
+              <tr><td>{text['no']}</td><td>{text['see_table_1']}</td></tr>
+              <tr>
+                <td rowspan="3"><strong>{text['isolating']}</strong><br>{text['heavy_padding']}</td>
+                <td>{text['thick']}</td><td>+0.1</td>
+              </tr>
+              <tr><td>{text['thin']}</td><td>+0.3</td></tr>
+              <tr><td>{text['no']}</td><td>1.3</td></tr>
+              <tr>
+                <td rowspan="2">{text['mattress']}</td>
+                <td>{text['yes']}</td><td>+0.1</td>
+              </tr>
+              <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
+              <tr>
+                <td rowspan="3"><strong>{text['conducting']}</strong><br>{text['concrete']}</td>
+                <td>{text['thick']}</td><td>−0.1</td>
+              </tr>
+              <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
+              <tr><td>{text['no']}</td><td>0.75</td></tr>
+            </tbody>
+          </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(f"{text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
+
+
 st.title("Tabelle di riferimento")
 
 st.markdown(
@@ -551,6 +648,16 @@ st.markdown(
     .henssge-base-table th:nth-child(3) {
         min-width: 5rem;
     }
+    .henssge-special-table td:first-child {
+        min-width: 10rem;
+        white-space: normal;
+    }
+    .henssge-special-table th:nth-child(2) {
+        min-width: 5rem;
+    }
+    .henssge-special-table th:nth-child(3) {
+        min-width: 6rem;
+    }
     div[data-testid="stRadio"] {
         margin-top: -0.30rem !important;
         margin-bottom: -0.35rem !important;
@@ -618,12 +725,15 @@ henssge_base_language = st.radio(
 )
 _render_henssge_base_table("it" if henssge_base_language == "Italiano" else "en")
 
-st.markdown("Situazioni speciali")
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%202%20Henssge.png",
-    caption="Tabella 2 Henssge",
-    width="stretch"
+st.markdown("## Situazioni speciali")
+henssge_special_language = st.radio(
+    "Lingua tabella situazioni speciali",
+    ["Italiano", "English"],
+    horizontal=True,
+    key="henssge_special_table_language",
+    label_visibility="collapsed",
 )
+_render_henssge_special_table("it" if henssge_special_language == "Italiano" else "en")
 
 st.markdown("Adattamento per peso corporeo")
 st.image(
