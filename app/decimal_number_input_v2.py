@@ -40,7 +40,9 @@ _HTML = r"""
 _CSS = r"""
 .number-control {
   box-sizing: border-box;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
+  grid-template-rows: 1fr;
   align-items: stretch;
   width: 100%;
   height: 40px;
@@ -51,6 +53,9 @@ _CSS = r"""
   background: var(--st-secondary-background-color, #F0F2F6);
   color: var(--st-text-color, #31333F);
 }
+.number-control.external-action {
+  grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem;
+}
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
 }
@@ -60,11 +65,12 @@ _CSS = r"""
 }
 .mobile-label {
   box-sizing: border-box;
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
-  flex: 1 1 auto;
   min-width: 0;
   align-items: center;
-  padding: 0 4px 0 8px;
+  padding: 0 5px 0 8px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -74,22 +80,20 @@ _CSS = r"""
   line-height: 1.1;
 }
 .number-control.has-help .mobile-label {
-  flex: 0 1 auto;
-}
-.number-control.has-help .number-input {
-  margin-left: auto;
+  padding-right: 24px;
 }
 .number-input {
   box-sizing: border-box;
-  flex: 0 0 58px;
-  width: 58px;
-  min-width: 58px;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
   height: 100%;
   border: 0;
   outline: none;
   background: transparent;
   color: inherit;
-  padding: 0 5px 0 2px;
+  padding: 0 3px 0 1px;
   text-align: right;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.95rem;
@@ -98,10 +102,14 @@ _CSS = r"""
 }
 .mobile-unit {
   box-sizing: border-box;
+  grid-column: 3;
+  grid-row: 1;
   display: flex;
-  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
   align-items: center;
-  padding: 0 5px 0 1px;
+  justify-content: flex-start;
+  padding: 0 1px;
   white-space: nowrap;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.80rem;
@@ -109,7 +117,10 @@ _CSS = r"""
   line-height: 1.1;
   opacity: 0.82;
 }
-.mobile-unit:empty { display: none; }
+.mobile-unit:empty {
+  display: flex;
+  visibility: hidden;
+}
 .step-button,
 .suggest-button,
 .temperature-help {
@@ -124,21 +135,32 @@ _CSS = r"""
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+.number-minus {
+  grid-column: 4;
+  grid-row: 1;
+}
+.number-plus {
+  grid-column: 5;
+  grid-row: 1;
+}
 .step-button {
-  flex: 0 0 32px;
-  width: 32px;
+  width: 100%;
+  min-width: 0;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 1.15rem;
   font-weight: 600;
   line-height: 1;
 }
 .temperature-help {
+  grid-column: 1;
+  grid-row: 1;
   display: none;
-  flex: 0 0 22px;
   width: 22px;
+  justify-self: end;
   align-items: center;
   justify-content: center;
-  margin-right: 2px;
+  margin: 0 2px 0 0;
+  z-index: 2;
   font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
 .temperature-help.is-visible { display: flex; }
@@ -154,35 +176,32 @@ _CSS = r"""
   line-height: 1;
   opacity: 0.8;
 }
-.suggest-button { display: none; }
-.suggest-button.is-visible,
-.number-control.reserve-suggest .suggest-button {
-  display: flex;
-  flex: 0 0 5.4rem;
-  width: 5.4rem;
-  min-width: 5.4rem;
+.suggest-button {
+  grid-column: 6;
+  grid-row: 1;
+  display: none;
+  width: 100%;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);
-  padding: 0 6px;
+  padding: 0 4px;
   white-space: nowrap;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.76rem;
   font-weight: 500;
   line-height: 1;
 }
-.number-control.reserve-suggest .suggest-button {
+.suggest-button.is-visible,
+.number-control.reserve-action .suggest-button {
+  display: flex;
+}
+.number-control.reserve-action:not(.has-suggest) .suggest-button {
   visibility: hidden;
   pointer-events: none;
 }
-.number-control.has-suggest .number-input {
-  flex-basis: 58px;
-  width: 58px;
-  min-width: 58px;
-}
-.number-control.has-suggest .step-button {
-  flex-basis: 32px;
-  width: 32px;
+.number-control.external-action .suggest-button {
+  display: none !important;
 }
 .suggest-button.is-visible.is-active {
   background: color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent);
@@ -205,25 +224,34 @@ _CSS = r"""
 }
 .number-control.is-disabled { opacity: 0.65; }
 .number-control.is-dense {
+  grid-template-columns: minmax(0, 1fr) 38px 0 30px 30px;
   height: 34px;
   border-radius: 7px;
   background: color-mix(in srgb, var(--st-primary-color, #168AC1) 16%, var(--st-secondary-background-color, #F0F2F6));
 }
 .number-control.is-dense .mobile-label {
   padding-left: 8px;
+  padding-right: 4px;
   font-size: 0.79rem;
 }
 .number-control.is-dense .number-input {
-  flex-basis: 38px;
-  width: 38px;
-  min-width: 38px;
+  width: 100%;
+  min-width: 0;
   padding-right: 4px;
   font-size: 0.90rem;
 }
+.number-control.is-dense .mobile-unit {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
 .number-control.is-dense .step-button {
-  flex-basis: 30px;
-  width: 30px;
+  width: 100%;
+  min-width: 0;
   font-size: 1.02rem;
+}
+.number-control.is-dense .suggest-button {
+  display: none !important;
 }
 """
 
@@ -342,11 +370,13 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
-  const reserveSuggest = Boolean(data?.reserve_suggest);
+  const reserveAction = Boolean(data?.reserve_action);
+  const externalAction = Boolean(data?.external_action);
   control.classList.toggle('has-help', showHelp);
   const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
-  control.classList.toggle('reserve-suggest', reserveSuggest);
+  control.classList.toggle('reserve-action', reserveAction);
+  control.classList.toggle('external-action', externalAction);
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp);
@@ -500,6 +530,11 @@ def render_mobile_decimal_v2(
     sync_key = f"{internal_key}:sync-token"
     sync_token = int(sync_token)
     dense = bool(key and key.startswith("mortem_decimal_fcpanel_"))
+    external_action = bool(
+        key == "mortem_decimal_peso"
+        and st.session_state.get("stima_cautelativa_beta", False)
+    )
+    reserve_action = bool(not dense and not external_action)
 
     if st.session_state.get(sync_key) != sync_token:
         _set_state_value(st.session_state.get(internal_key), "value", value)
@@ -536,7 +571,8 @@ def render_mobile_decimal_v2(
             "suggest_enabled": bool(suggest_enabled),
             "suggest_label": str(suggest_label or ""),
             "suggest_active": bool(suggest_active),
-            "reserve_suggest": key == "mortem_decimal_fc_min_val",
+            "reserve_action": reserve_action,
+            "external_action": external_action,
             "dense": dense,
         },
         default={"value": value},
