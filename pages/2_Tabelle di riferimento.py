@@ -622,14 +622,14 @@ st.markdown("Situazioni speciali")
 st.image(
     "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%202%20Henssge.png",
     caption="Tabella 2 Henssge",
-    use_container_width=True
+    width="stretch"
 )
 
 st.markdown("Adattamento per peso corporeo")
 st.image(
     "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Tabella%203%20Henssge.png",
     caption="Tabella 3 Henssge",
-    use_container_width=True
+    width="stretch"
 )
 if st.button("⬅️ Torna alla pagina principale", key="back_home"):
     st.switch_page("Stima_epoca_decesso.py")
