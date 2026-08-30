@@ -34,6 +34,89 @@ _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
 }
 
+_RANGE_FC_TALL_SUGGEST_CSS = r"""
+<style data-mortem-range-fc-suggest-style>
+[data-testid="stElementContainer"]:has(style[data-mortem-range-fc-suggest-style]) {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 768px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_prudent_v2_stack_mobile"] {
+    position: relative !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] {
+    box-sizing: border-box !important;
+    position: absolute !important;
+    left: calc(min(100%, var(--mortem-cooling-row-width)) - var(--mortem-cooling-action-col)) !important;
+    bottom: 0 !important;
+    width: var(--mortem-cooling-action-col) !important;
+    min-width: var(--mortem-cooling-action-col) !important;
+    max-width: var(--mortem-cooling-action-col) !important;
+    height: calc(80px + 0.18rem) !important;
+    min-height: calc(80px + 0.18rem) !important;
+    max-height: calc(80px + 0.18rem) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 6 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] > div,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] [data-testid="stButton"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] button {
+    padding: 0 0.22rem !important;
+    border: 0 !important;
+    border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent) !important;
+    border-radius: 0 8px 8px 0 !important;
+    background: var(--st-secondary-background-color, #F0F2F6) !important;
+    color: inherit !important;
+    font-size: 0.76rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+}
+</style>
+"""
+
+_RANGE_FC_TALL_SUGGEST_ACTIVE_CSS = r"""
+<style data-mortem-range-fc-suggest-style>
+@media (max-width: 768px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_range_fc_suggest_tall"] button {
+    background: color-mix(
+      in srgb,
+      var(--st-secondary-background-color, #F0F2F6) 86%,
+      var(--st-primary-color, #168AC1) 14%
+    ) !important;
+    color: var(--st-primary-color, #168AC1) !important;
+    font-weight: 650 !important;
+  }
+}
+</style>
+"""
+
 
 def _theme_value(option, fallback):
     try:
@@ -120,6 +203,14 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
+    tall_range_suggest = bool(
+        use_v2_mobile
+        and interval_mode
+        and key == "mortem_decimal_fc_other_val"
+        and st.session_state.get("__full_device_mobile", False)
+        and suggest_enabled
+        and callable(on_suggest)
+    )
 
     if use_v2_mobile:
         result = render_mobile_decimal_v2(
@@ -135,10 +226,10 @@ def decimal_number_input(
             unit=str(unit or ""),
             help_enabled=help_enabled,
             help_state_key=help_state_key,
-            suggest_enabled=bool(suggest_enabled),
+            suggest_enabled=bool(suggest_enabled and not tall_range_suggest),
             suggest_label=str(suggest_label or ""),
             suggest_active=bool(suggest_active),
-            on_suggest=on_suggest,
+            on_suggest=None if tall_range_suggest else on_suggest,
             on_change=on_change,
             key=key,
         )
@@ -167,6 +258,18 @@ def decimal_number_input(
             key=key,
             on_change=on_change,
             default=current,
+        )
+
+    if tall_range_suggest:
+        st.markdown(
+            _RANGE_FC_TALL_SUGGEST_CSS
+            + (_RANGE_FC_TALL_SUGGEST_ACTIVE_CSS if suggest_active else ""),
+            unsafe_allow_html=True,
+        )
+        st.button(
+            str(suggest_label or "Consiglia"),
+            key="full_range_fc_suggest_tall",
+            on_click=on_suggest,
         )
 
     if isinstance(result, dict):
