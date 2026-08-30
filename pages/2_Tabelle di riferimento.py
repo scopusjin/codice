@@ -42,23 +42,20 @@ _HENSSGE_WEIGHT_REFERENCE = (
 
 _MALLACH_TABLE_TEXT = {
     "it": {
-        "caption": (
-            "Decorso temporale dei diversi criteri delle ipostasi: calcoli statistici "
-            "di Mallach basati su dati riportati nei testi*"
-        ),
+        "caption": "Decorso temporale di diverse caratteristiche delle macchie ipostatiche*",
         "criterion": "Criterio",
         "sd": "DS",
         "range": "Range di dispersione",
-        "references": "N. citazioni",
+        "references": "Numero di pubblicazioni valutate",
         "lower": "Limite inferiore",
         "upper": "Limite superiore",
-        "development": "Sviluppo",
+        "development": "In via di comparsa",
         "confluence": "Confluenza",
-        "maximum": "Massima distensione e intensità",
-        "disappearance": "Scomparsa",
+        "maximum": "Massima estensione e intensità",
+        "disappearance": "Improntabilità",
         "thumb": "1. Completa alla pressione con il pollice",
-        "point": "2. Incompleta alla pressione puntiforme (pinza)",
-        "shifting": "Spostamento dopo rotazione del corpo",
+        "point": "2. Incompleta alla pressione focale e intensa (pinza)",
+        "shifting": "Migrabilità dopo aver spostato il corpo",
         "complete": "1. Completo",
         "incomplete": "2. Incompleto",
         "slight": "3. Solo lieve impallidimento",
