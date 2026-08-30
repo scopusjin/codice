@@ -201,7 +201,7 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato "
-            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 6 ore dal decesso."
+            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 3 ore dal decesso."
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono attendibili "
