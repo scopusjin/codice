@@ -1,14 +1,56 @@
 import streamlit as st
 
+from app import i18n
+from app.parameters import INF_HOURS
+from app.tanatology_data import LIVOR_RANGES_BY_ID, LIVOR_TYPICAL_RANGES_BY_ID
+from app.tanatology_states import (
+    LIVOR_ABSENT,
+    LIVOR_CONFLUING,
+    LIVOR_FULLY_MIGRATABLE,
+    LIVOR_PARTIALLY_MIGRATABLE,
+    LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
+    LIVOR_FIXED,
+)
+
+
+_MALLACH_REFERENCE = (
+    "Mallach HJ. Zur Frage der Todeszeitbestimmung. "
+    "Berl Med. 1964;18:577–582."
+)
+
+_LIVOR_TABLE_IDS = (
+    LIVOR_ABSENT,
+    LIVOR_CONFLUING,
+    LIVOR_FULLY_MIGRATABLE,
+    LIVOR_PARTIALLY_MIGRATABLE,
+    LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
+    LIVOR_FIXED,
+)
+
+
+def _format_range(value):
+    if value is None:
+        return "—"
+    lo, hi = value
+    if hi >= INF_HOURS:
+        return f"≥ {lo:g} h"
+    return f"{lo:g}–{hi:g} h"
+
+
 st.title("Tabelle di riferimento")
 
 # --- Sezione 1: Mallach ---
-st.markdown("## Ipostasi")
-st.image(
-    "https://raw.githubusercontent.com/scopusjin/codice/Fattore-di-correzione/immagini/Ipostasi%20(Mallach).jpg",
-    caption="Ipostasi (Mallach)",
-    use_container_width=True
-)
+st.markdown(f"## {i18n.ui_text('full.livor_heading')}")
+livor_rows = [
+    {
+        "Reperto": i18n.livor_label(state_id),
+        "Intervallo compatibile": _format_range(LIVOR_RANGES_BY_ID.get(state_id)),
+        "Intervallo tipico": _format_range(LIVOR_TYPICAL_RANGES_BY_ID.get(state_id)),
+    }
+    for state_id in _LIVOR_TABLE_IDS
+]
+st.dataframe(livor_rows, hide_index=True, use_container_width=True)
+st.caption(f"Adattato da: {_MALLACH_REFERENCE}")
 
 st.markdown("## Rigidità cadaverica")
 st.image(
