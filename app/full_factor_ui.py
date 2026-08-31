@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-import streamlit as st
-
 from app import i18n
 from app.factor_ui_states import (
     BODY_LABEL_IT,
@@ -34,57 +32,6 @@ FULL_WATER_STATE_BY_LABEL: Dict[str, str] = {
 FULL_SURFACE_STATE_BY_LABEL: Dict[str, str] = {
     i18n.surface_label(surface_id): surface_id for surface_id in SURFACE_LABEL_IT
 }
-
-
-def _install_full_water_radio_position_css() -> None:
-    """Allinea a destra la scelta del tipo d'acqua nella Full, desktop e mobile."""
-    st.html(
-        """
-        <style>
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
-          display: flex !important;
-          justify-content: flex-end !important;
-          width: 100% !important;
-          min-width: 0 !important;
-          max-width: 100% !important;
-          margin: 0.14rem 0 0 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-        }
-
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_std_radio_acqua"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_caut_radio_acqua"] {
-          width: max-content !important;
-          min-width: max-content !important;
-          max-width: 100% !important;
-          margin-left: auto !important;
-          margin-right: 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-        }
-
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_std_radio_acqua"] div[role="radiogroup"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_caut_radio_acqua"] div[role="radiogroup"] {
-          width: max-content !important;
-          min-width: max-content !important;
-          max-width: 100% !important;
-          justify-content: flex-end !important;
-          margin-left: auto !important;
-          margin-right: 0 !important;
-        }
-        </style>
-        """
-    )
-
-
-_install_full_water_radio_position_css()
 
 
 def full_body_labels(language: Optional[str] = None):
