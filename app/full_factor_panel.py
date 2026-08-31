@@ -164,7 +164,25 @@ def _render_factor_panel(
     radio_kwargs = dict(index=0, horizontal=True, key=k("radio_stato_corpo"))
     if mobile:
         radio_kwargs["label_visibility"] = "collapsed"
-    stato_label = st.radio("" if mobile else "dummy", list(body_labels()), **radio_kwargs)
+
+    corr_placeholder = None
+    desktop_compact = compact_full and not full_mobile and not mobile
+    if desktop_compact:
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            horizontal_alignment="distribute",
+            vertical_alignment="center",
+            gap="small",
+            key=k("body_row_desktop"),
+        ):
+            with st.container(width="content", key=k("body_radio_slot_desktop")):
+                stato_label = st.radio("dummy", list(body_labels()), **radio_kwargs)
+            with st.container(width="content", key=k("corr_slot_desktop")):
+                corr_placeholder = st.empty()
+    else:
+        stato_label = st.radio("" if mobile else "dummy", list(body_labels()), **radio_kwargs)
+
     stato_corpo = body_legacy_value(stato_label)
 
     tabella2_mobile = _load_factor_table() if mobile else None
@@ -209,14 +227,56 @@ def _render_factor_panel(
                   [class*="st-key-{key_prefix}_switch_row"] label p {{
                     white-space: nowrap !important;
                   }}
+                  @media (min-width: 769px) {{
+                    [class*="st-key-{key_prefix}_body_row_desktop"],
+                    [class*="st-key-{key_prefix}_body_row_desktop"] [data-testid="stHorizontalBlock"] {{
+                      width: 100% !important;
+                      min-width: 0 !important;
+                      align-items: center !important;
+                      overflow: visible !important;
+                    }}
+                    [class*="st-key-{key_prefix}_body_radio_slot_desktop"] {{
+                      flex: 0 1 auto !important;
+                      width: auto !important;
+                      min-width: 0 !important;
+                      overflow: visible !important;
+                    }}
+                    [class*="st-key-{key_prefix}_corr_slot_desktop"] {{
+                      flex: 0 0 auto !important;
+                      width: max-content !important;
+                      min-width: max-content !important;
+                      max-width: none !important;
+                      margin-left: auto !important;
+                      overflow: visible !important;
+                    }}
+                    [class*="st-key-{key_prefix}_switch_row"],
+                    [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"],
+                    [class*="st-key-{key_prefix}_vest_group"],
+                    [class*="st-key-{key_prefix}_vest_group"] [data-testid="stHorizontalBlock"] {{
+                      min-height: 2.55rem !important;
+                      height: auto !important;
+                      max-height: none !important;
+                      overflow: visible !important;
+                      scrollbar-width: none !important;
+                    }}
+                    [class*="st-key-{key_prefix}_switch_row"]::-webkit-scrollbar,
+                    [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar,
+                    [class*="st-key-{key_prefix}_vest_group"]::-webkit-scrollbar,
+                    [class*="st-key-{key_prefix}_vest_group"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar {{
+                      display: none !important;
+                      width: 0 !important;
+                      height: 0 !important;
+                    }}
+                  }}
                 </style>
                 """,
                 unsafe_allow_html=True,
             )
+        switch_alignment = "left" if corr_placeholder is not None else "distribute"
         with st.container(
             horizontal=True,
             wrap=False,
-            horizontal_alignment="distribute",
+            horizontal_alignment=switch_alignment,
             vertical_alignment="center",
             gap="small",
             key=k("switch_row"),
@@ -249,8 +309,9 @@ def _render_factor_panel(
                             """,
                             unsafe_allow_html=True,
                         )
-            with st.container(width="content", key=k("corr_slot")):
-                corr_placeholder = st.empty()
+            if corr_placeholder is None:
+                with st.container(width="content", key=k("corr_slot")):
+                    corr_placeholder = st.empty()
     else:
         col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
         with col_corr:
