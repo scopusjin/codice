@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """Supporto UI per l'eccitabilità elettrica sopraciliare e peribuccale.
 
-Mantiene le immagini di base, il layout affiancato dei due parametri elettrici
-e sopprime i vecchi popover. I renderer cliccabili correnti vengono installati
-dai moduli ``supra_single_grid`` e ``perioral_single_grid``.
+Mantiene le immagini di base, il layout affiancato dei due parametri elettrici,
+posiziona meccanica e chimica pupillare sotto la peribuccale e sopprime i
+vecchi popover. I renderer cliccabili correnti vengono installati dai moduli
+``supra_single_grid`` e ``perioral_single_grid``.
 """
 
 import base64
@@ -15,8 +16,10 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
 
 from app.special_tanatology_states import (
+    PARAM_CHEMICAL_PUPILLARY,
     PARAM_ELECTRICAL_PERIORAL,
     PARAM_ELECTRICAL_SUPRACILIARY,
+    PARAM_MECHANICAL_MUSCLE,
 )
 
 
@@ -24,6 +27,10 @@ _SUPRA_LABEL = "Eccitabilità elettrica sopraciliare"
 _PERIORAL_LABEL = "Eccitabilità elettrica peribuccale"
 _DATA_DIR = Path(__file__).resolve().parent
 _SUPRA_SELECTION_KEY = "_eccitabilita_sopraciliare_selected"
+_RIGHT_STACK_PARAMS = {
+    PARAM_MECHANICAL_MUSCLE,
+    PARAM_CHEMICAL_PUPILLARY,
+}
 
 
 def _load_embedded_image(filenames):
@@ -210,7 +217,12 @@ def install_sopraciliare_click_selector():
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
 
-        if parametro_id not in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
+        supported_params = {
+            PARAM_ELECTRICAL_SUPRACILIARY,
+            PARAM_ELECTRICAL_PERIORAL,
+            *_RIGHT_STACK_PARAMS,
+        }
+        if parametro_id not in supported_params:
             return original_columns(spec, *args, **kwargs)
 
         is_main_row = _is_main_special_row(spec)
@@ -218,6 +230,24 @@ def install_sopraciliare_click_selector():
         if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY and is_main_row:
             with st.container(key="electrical_pair_layout"):
                 electrical_pair["columns"] = original_columns(2, gap="small")
+
+        # Meccanica e chimica pupillare devono seguire la peribuccale nella
+        # colonna destra. Se per qualunque motivo la coppia elettrica non fosse
+        # ancora stata creata, manteniamo il layout originale invece di
+        # ricostruirla fuori ordine.
+        if parametro_id in _RIGHT_STACK_PARAMS:
+            if electrical_pair["columns"] is None:
+                return original_columns(spec, *args, **kwargs)
+            if not is_main_row:
+                return original_columns(spec, *args, **kwargs)
+
+            target_column = electrical_pair["columns"][1]
+            with target_column:
+                compact_stack = st.container(
+                    gap="xsmall",
+                    key=f"special_right_stack_{parametro_id}",
+                )
+            return compact_stack, compact_stack
 
         if electrical_pair["columns"] is None:
             with st.container(key="electrical_pair_layout"):
