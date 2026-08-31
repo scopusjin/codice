@@ -53,9 +53,6 @@ _CSS = r"""
   background: var(--st-secondary-background-color, #F0F2F6);
   color: var(--st-text-color, #31333F);
 }
-.number-control:not(.is-dense) {
-  border-color: #d6ad21;
-}
 .number-control.external-action {
   grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem;
 }
@@ -102,6 +99,10 @@ _CSS = r"""
   font-size: 0.95rem;
   font-weight: 400;
   line-height: 1.2;
+}
+.number-control:not(.is-dense) .number-input {
+  border: 1px solid #d6ad21;
+  border-radius: 6px;
 }
 .mobile-unit {
   box-sizing: border-box;
