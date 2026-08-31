@@ -2,8 +2,9 @@
 """Supporto UI per l'eccitabilità elettrica sopraciliare e peribuccale.
 
 Mantiene le immagini di base, il layout affiancato dei due parametri elettrici,
-posiziona meccanica e chimica pupillare sotto la peribuccale e sopprime i
-vecchi popover. I renderer cliccabili correnti vengono installati dai moduli
+posiziona meccanica e chimica pupillare sotto la peribuccale e sostituisce i
+vecchi popover illustrati con helper testuali compatti.
+I renderer cliccabili correnti vengono installati dai moduli
 ``supra_single_grid`` e ``perioral_single_grid``.
 """
 
@@ -154,20 +155,31 @@ def _build_supra_tiles(image):
 _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
-class _SuppressedElectricalPopover:
-    """Contesto vuoto usato per sopprimere le vecchie immagini elettriche."""
+class _ElectricalHelperPopover:
+    """Riusa il vecchio popover elettrico mostrando solo il testo helper."""
+
+    def __init__(self, popover, markdown, helper_text):
+        self._popover = popover
+        self._markdown = markdown
+        self._helper_text = helper_text
+        self._ctx = None
 
     def __enter__(self):
+        self._ctx = self._popover("?")
+        self._ctx.__enter__()
+        self._markdown(self._helper_text)
         st._suppress_legacy_electrical_image = True
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         st._suppress_legacy_electrical_image = False
-        return False
+        if self._ctx is None:
+            return False
+        return self._ctx.__exit__(exc_type, exc_val, exc_tb)
 
 
 def _install_responsive_image_css():
-    """Mantiene le griglie responsive e ancora stabilmente la Full desktop a sinistra."""
+    """Mantiene le griglie responsive e organizza la Full desktop larga a sinistra."""
     st.markdown(
         """
         <style>
@@ -179,13 +191,9 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
-        /* Helper elettrici: stesse misure del piccolo ? di T. ambientale media. */
-        [class*="st-key-electrical_help_row_"] {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        [class*="st-key-electrical_help_button_"] {
+        /* Piccolo ? degli helper elettrici: stesse misure del controllo
+           informativo di T. ambientale media. */
+        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] {
             width: 18px !important;
             min-width: 18px !important;
             max-width: 18px !important;
@@ -196,20 +204,7 @@ def _install_responsive_image_css():
             padding: 0 !important;
         }
 
-        [class*="st-key-electrical_help_button_"] div.stButton,
-        [class*="st-key-electrical_help_button_"] [data-testid="stButton"] {
-            width: 18px !important;
-            min-width: 18px !important;
-            max-width: 18px !important;
-            height: 18px !important;
-            min-height: 18px !important;
-            max-height: 18px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        [class*="st-key-electrical_help_button_"] div.stButton > button,
-        [class*="st-key-electrical_help_button_"] [data-testid="stButton"] > button {
+        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button {
             box-sizing: border-box !important;
             display: inline-flex !important;
             width: 18px !important;
@@ -225,35 +220,81 @@ def _install_responsive_image_css():
             outline: none !important;
             background: transparent !important;
             color: inherit !important;
-            padding: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
             font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
             line-height: 1 !important;
             opacity: 0.8 !important;
             box-shadow: none !important;
         }
 
-        [class*="st-key-electrical_help_button_"] button p {
+        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button p {
             margin: 0 !important;
             padding: 0 !important;
             font: inherit !important;
             line-height: 1 !important;
         }
 
-        [class*="st-key-electrical_help_button_"] button:hover,
-        [class*="st-key-electrical_help_button_"] button:active {
+        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button:hover,
+        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button:active {
             background: color-mix(in srgb, var(--st-text-color, #31333F) 9%, transparent) !important;
         }
 
-        /* Allineamento desktop statico: non dipende da rerun, checkbox o
-           dalla struttura interna dei dati tanatologici aggiuntivi. */
+        /* Full desktop: conserva la larghezza compatta quando i dati speciali
+           sono chiusi, ma ancora la pagina al margine sinistro. */
         @media (min-width: 769px) {
+          html body:has([class*="st-key-stima_cautelativa_beta"])
           [data-testid="stMainBlockContainer"] {
             box-sizing: border-box !important;
             width: min(100%, 46rem) !important;
             max-width: 46rem !important;
             margin-left: 0 !important;
             margin-right: auto !important;
+          }
+        }
+
+        /* Se i dati speciali sono aperti e c'è spazio reale, la Full usa due
+           colonne: blocchi principali a sinistra, dati speciali a destra.
+           Gli elementi successivi (stima/grafico) tornano a occupare entrambe. */
+        @media (min-width: 1180px) {
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] {
+            width: min(100%, 92rem) !important;
+            max-width: 92rem !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            grid-auto-flow: row dense !important;
+            column-gap: 1rem !important;
+            row-gap: 0.65rem !important;
+            align-items: start !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+            grid-column: 1 / -1;
+            min-width: 0 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-selettore_macchie_ui"]),
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-henssge_non_applicabile"]) {
+            grid-column: 1 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-mostra_parametri_aggiuntivi"]),
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-electrical_pair_layout"]) {
+            grid-column: 2 !important;
           }
         }
         </style>
@@ -289,12 +330,12 @@ def _is_main_special_row(spec):
 
 
 def _is_electrical_title_row(spec):
-    """Riconosce la sottoriga [1, 0.5] che ospita titolo e vecchio popover."""
+    """Riconosce la sottoriga [1, 0.5] di titolo e helper elettrico."""
     return _columns_signature(spec) == (1.0, 0.5)
 
 
 def install_sopraciliare_click_selector():
-    """Installa layout elettrico, soppressione legacy e renderer correnti."""
+    """Installa layout elettrico, helper testuali e renderer correnti."""
     if getattr(st, "_sopraciliare_click_selector_installed", False):
         return
 
@@ -305,7 +346,6 @@ def install_sopraciliare_click_selector():
     original_image = st.image
     original_columns = st.columns
     original_markdown = st.markdown
-    original_button = st.button
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -354,45 +394,23 @@ def install_sopraciliare_click_selector():
         target_index = 0 if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY else 1
         target_column = electrical_pair["columns"][target_index]
 
-        if is_main_row or _is_electrical_title_row(spec):
+        if is_main_row:
             return target_column, target_column
 
         with target_column:
+            if _is_electrical_title_row(spec):
+                return original_columns([1, 0.12], gap="small")
             return original_columns(spec, *args, **kwargs)
 
-    def markdown_with_electrical_help(body, *args, **kwargs):
-        caller = inspect.currentframe().f_back
-        parametro_id = caller.f_locals.get("parametro_id") if caller else None
-        nome_parametro = caller.f_locals.get("nome_parametro") if caller else None
-        if (
-            parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL)
-            and isinstance(body, str)
-            and nome_parametro
-            and nome_parametro in body
-        ):
-            with st.container(
-                horizontal=True,
-                wrap=False,
-                vertical_alignment="center",
-                gap="small",
-                key=f"electrical_help_row_{parametro_id}",
-            ):
-                original_markdown(body, *args, **kwargs)
-                with st.container(width="content", key=f"electrical_help_button_{parametro_id}"):
-                    original_button(
-                        "?",
-                        key=f"electrical_help_trigger_{parametro_id}",
-                        help=_ELECTRICAL_HELPER_TEXT[parametro_id],
-                        type="tertiary",
-                    )
-            return None
-        return original_markdown(body, *args, **kwargs)
-
-    def popover_without_legacy_electrical_images(*args, **kwargs):
+    def popover_with_electrical_helper(*args, **kwargs):
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
-            return _SuppressedElectricalPopover()
+            return _ElectricalHelperPopover(
+                original_popover,
+                original_markdown,
+                _ELECTRICAL_HELPER_TEXT[parametro_id],
+            )
         return original_popover(*args, **kwargs)
 
     def image_without_legacy_electrical_images(image, *args, **kwargs):
@@ -411,8 +429,7 @@ def install_sopraciliare_click_selector():
         return original_selectbox(label, options, *args, **kwargs)
 
     st.columns = columns_with_electrical_pair
-    st.markdown = markdown_with_electrical_help
-    st.popover = popover_without_legacy_electrical_images
+    st.popover = popover_with_electrical_helper
     st.image = image_without_legacy_electrical_images
     st.selectbox = selectbox_with_electrical_images
     st._sopraciliare_click_selector_installed = True
