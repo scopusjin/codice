@@ -142,6 +142,8 @@ def _render_factor_panel(
     surface_legacy_value,
     mobile: bool,
     full_mobile: bool = False,
+    compact_full: bool = False,
+    extended_clothing_labels: bool = False,
 ):
     def k(name: str) -> str:
         return f"{key_prefix}_{name}"
@@ -187,11 +189,10 @@ def _render_factor_panel(
         return result, peso_eff, True
 
     if not mobile:
-        if full_mobile:
+        if compact_full:
             st.markdown(
                 f"""
                 <style>
-                @media (max-width: 768px) {{
                   [class*="st-key-{key_prefix}_switch_row"][data-testid="stHorizontalBlock"],
                   [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"] {{
                     flex-direction: row !important;
@@ -208,7 +209,6 @@ def _render_factor_panel(
                   [class*="st-key-{key_prefix}_switch_row"] label p {{
                     white-space: nowrap !important;
                   }}
-                }}
                 </style>
                 """,
                 unsafe_allow_html=True,
@@ -231,7 +231,7 @@ def _render_factor_panel(
             ):
                 with st.container(width="content", key=k("vest_slot")):
                     toggle_vestito = st.toggle(
-                        "Vestiti/coperte" if full_mobile else i18n.ui_text("full.clothed_covered"),
+                        "Vestiti/coperte" if compact_full else i18n.ui_text("full.clothed_covered"),
                         key=k("toggle_vestito"), value=False
                     )
                 with st.container(width="content", key=k("vest_help_slot")):
@@ -270,10 +270,16 @@ def _render_factor_panel(
         label_coperte_pesanti = clothing_label(BLANKET_HEAVY)
 
         if not mobile:
-            thin_input_label = "Vestiti/teli leggeri" if full_mobile else label_sottili
-            thick_input_label = "Vestiti/teli pesanti" if full_mobile else label_spessi
-            medium_blanket_input_label = "Coperta / copriletto spesso" if full_mobile else label_coperte_medie
-            heavy_blanket_input_label = "Piumone / coperta molto spessa" if full_mobile else label_coperte_pesanti
+            if compact_full and not extended_clothing_labels:
+                thin_input_label = "Vestiti/teli leggeri"
+                thick_input_label = "Vestiti/teli pesanti"
+                medium_blanket_input_label = "Coperta / copriletto spesso"
+                heavy_blanket_input_label = "Piumone / coperta molto spessa"
+            else:
+                thin_input_label = label_sottili
+                thick_input_label = label_spessi
+                medium_blanket_input_label = label_coperte_medie
+                heavy_blanket_input_label = label_coperte_pesanti
 
             n_sottili = _safe_int(st.number_input(
                 thin_input_label,
@@ -360,7 +366,7 @@ def _render_factor_panel(
         if not mobile:
             full_surface_placeholder = (
                 _FULL_MOBILE_SURFACE_PLACEHOLDER
-                if full_mobile
+                if compact_full
                 else _FULL_DESKTOP_SURFACE_PLACEHOLDER
             )
             select_options = [full_surface_placeholder, *options_display]
@@ -375,14 +381,14 @@ def _render_factor_panel(
         )
         if mobile:
             select_kwargs["label_visibility"] = "visible"
-        elif full_mobile:
+        elif compact_full:
             select_kwargs["label_visibility"] = "collapsed"
             select_kwargs["format_func"] = _full_mobile_surface_caption
             select_kwargs["filter_mode"] = None
         else:
             select_kwargs["label_visibility"] = "visible"
 
-        if full_mobile:
+        if compact_full:
             with st.container(key=k("surface_select_mobile")):
                 superficie_display_label = st.selectbox(
                     i18n.ui_text(f"{scope}.support_surface"),
@@ -420,7 +426,7 @@ def _render_factor_panel(
             if mobile:
                 toggle_kwargs["value"] = st.session_state.get(k("toggle_correnti_fc"), False)
             correnti_presenti = st.toggle(
-                "Correnti d'aria" if full_mobile else i18n.ui_text(f"{scope}.air_currents"),
+                "Correnti d'aria" if compact_full else i18n.ui_text(f"{scope}.air_currents"),
                 **toggle_kwargs
             )
 
@@ -441,6 +447,7 @@ def _render_factor_panel(
 
 # --- Pannello “Suggerisci FC”
 def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpanel"):
+    full_mobile = full_device_is_mobile()
     result, peso_eff, immersed = _render_factor_panel(
         peso_default, key_prefix,
         body_labels=full_body_labels,
@@ -452,7 +459,9 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         surface_label=full_surface_label,
         surface_legacy_value=full_surface_legacy_value,
         mobile=False,
-        full_mobile=full_device_is_mobile(),
+        full_mobile=full_mobile,
+        compact_full=True,
+        extended_clothing_labels=not full_mobile,
     )
 
     def _apply_fc(val: float, riass: str | None) -> None:
@@ -470,7 +479,6 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
 
     suffix = "_imm" if immersed else ""
     range_mode = st.session_state.get("range_unico_beta", False)
-    full_mobile = full_device_is_mobile()
 
     side_text = ""
     peso_adattato = bool(result.riassunto.get("peso_adattato", False))
@@ -492,11 +500,118 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     apply_callback = _apply_fc_range if range_mode else _apply_fc
     apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
 
-    if full_mobile:
-        st.markdown(
-            f'''<style>@media (max-width: 768px) {{[class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{align-items:center!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"], [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{display:flex!important;align-items:center!important;min-height:2.5rem!important;margin:0!important;padding:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{display:flex!important;align-items:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{display:flex!important;align-items:center!important;min-height:2.5rem!important;height:2.5rem!important;}} [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{margin:0!important;line-height:1!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack {{display:flex!important;flex-direction:column!important;justify-content:center!important;margin:0!important;padding:0!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack .mortem-fc-inline-result {{min-height:0!important;}} [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-weight-note-mobile {{font-size:0.74rem!important;line-height:1.15!important;margin:0.12rem 0 0 0!important;padding:0!important;opacity:0.78!important;white-space:normal!important;}}}}</style>''',
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        f'''<style>
+        [class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{
+          display:flex!important;
+          align-items:center!important;
+          gap:0.34rem!important;
+          margin:0.04rem 0 0 0!important;
+          padding:0!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_value_mobile"] [data-testid="stMarkdownContainer"],
+        [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-inline-result {{
+          display:flex!important;
+          align-items:center!important;
+          min-height:2.5rem!important;
+          margin:0!important;
+          padding:0!important;
+          line-height:1!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_action_mobile"] [data-testid="stButton"] {{
+          display:flex!important;
+          align-items:center!important;
+          margin:0!important;
+          padding:0!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button {{
+          display:flex!important;
+          align-items:center!important;
+          justify-content:center!important;
+          min-height:2.5rem!important;
+          height:2.5rem!important;
+          margin:0!important;
+          padding:0 0.85rem!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{
+          margin:0!important;
+          line-height:1!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack {{
+          display:flex!important;
+          flex-direction:column!important;
+          justify-content:center!important;
+          margin:0!important;
+          padding:0!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack .mortem-fc-inline-result {{
+          min-height:0!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-weight-note-mobile {{
+          font-size:0.74rem!important;
+          line-height:1.15!important;
+          margin:0.12rem 0 0 0!important;
+          padding:0!important;
+          opacity:0.78!important;
+          white-space:normal!important;
+        }}
+        @media (min-width:769px) {{
+          [class*="st-key-full_fc_panel_desktop"] {{
+            box-sizing:border-box!important;
+            width:min(100%,46rem)!important;
+            max-width:46rem!important;
+            min-width:0!important;
+            align-self:flex-start!important;
+            margin:0.18rem 0 0 0!important;
+            padding:0.34rem 0.24rem!important;
+            border:0!important;
+            border-radius:0.55rem!important;
+            box-shadow:none!important;
+            background:color-mix(in srgb, var(--st-primary-color,#168AC1) 14%, transparent)!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"][data-testid="stVerticalBlock"],
+          [class*="st-key-full_fc_panel_desktop"] > [data-testid="stVerticalBlock"] {{
+            gap:0.16rem!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-{key_prefix}_switch_row"] {{
+            margin-top:0.12rem!important;
+            margin-bottom:-0.08rem!important;
+            padding-top:0!important;
+            padding-bottom:0!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-{key_prefix}_corr_slot"] {{
+            flex:0 0 auto!important;
+            width:max-content!important;
+            min-width:max-content!important;
+            max-width:none!important;
+            margin-left:auto!important;
+            overflow:visible!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-{key_prefix}_vest_group"] {{
+            flex:0 0 auto!important;
+            width:max-content!important;
+            min-width:max-content!important;
+            max-width:none!important;
+            overflow:visible!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-mortem_decimal_{key_prefix}_"] {{
+            height:34px!important;
+            min-height:34px!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-mortem_decimal_{key_prefix}_"] iframe {{
+            display:block!important;
+            height:34px!important;
+            min-height:34px!important;
+            max-height:34px!important;
+          }}
+          [class*="st-key-full_fc_panel_desktop"] [class*="st-key-{key_prefix}_surface_select_mobile"] [data-testid="stSelectbox"] {{
+            margin-top:0.04rem!important;
+            margin-bottom:0!important;
+          }}
+        }}
+        </style>''',
+        unsafe_allow_html=True,
+    )
 
     with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
         with st.container(
