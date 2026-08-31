@@ -102,17 +102,6 @@ def apply_theme():
         color: #1f1f1f !important;
       }}
 
-      /* Nel popover, il riepilogo conclusivo resta come ultimo blocco. */
-      div[data-testid="stPopoverContent"]
-      div[data-testid="stMarkdownContainer"]:has(> .final-text > ul > li > p > b) {{
-        display: flex !important;
-        flex-direction: column !important;
-      }}
-      div[data-testid="stPopoverContent"]
-      div[data-testid="stMarkdownContainer"] > .final-text:has(> ul > li > p > b) {{
-        order: 999 !important;
-      }}
-
       /* Contenitore generico eventualmente usato altrove */
       .fc-box {{
         background: #ffffff !important;
@@ -164,29 +153,38 @@ def frase_breve_box(key: str = "frase_breve"):
           background:{C['OutBg']};
           border:1px solid {C['OutBorder']};
           border-radius:8px;
-          padding:14px 18px;
+          padding:12px 20px;
           margin:4px 0;
           color:{C['OutText']};
+          display:flex;
+          align-items:center;
+          box-sizing:border-box;
         }}
 
         [data-stylable-key="{key}"] .fb-compact {{
           margin:0 !important;
           padding:0 !important;
           line-height:1.4 !important;
+          width:100% !important;
+          text-align:justify !important;
+          text-justify:inter-word !important;
         }}
 
         [data-stylable-key="{key}"] .fb-compact p {{
           margin:0 !important;
           padding:0 !important;
+          width:100% !important;
         }}
 
         [data-stylable-key="{key}"] div[data-testid="stMarkdownContainer"] {{
           margin:0 !important;
           padding:0 !important;
+          width:100% !important;
         }}
 
         [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
           gap:0 !important;
+          width:100% !important;
         }}
         """
     )
