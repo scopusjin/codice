@@ -186,6 +186,51 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
+        [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 0.28rem !important;
+        }
+
+        [class*="st-key-electrical_title_text_"] {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-electrical_title_text_"] .mortem-section-title {
+            margin: 0 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] {
+            flex: 0 0 auto !important;
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] button {
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            padding: 0 !important;
+            border-radius: 50% !important;
+            line-height: 1 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] button p {
+            margin: 0 !important;
+            font-size: 0.72rem !important;
+            line-height: 1 !important;
+        }
+
         /* Full desktop: conserva la larghezza compatta quando i dati speciali
            sono chiusi, ma ancora la pagina al margine sinistro. */
         @media (min-width: 769px) {
@@ -345,14 +390,22 @@ def install_sopraciliare_click_selector():
 
         with target_column:
             if _is_electrical_title_row(spec):
-                title_row = original_container(
+                with original_container(
                     horizontal=True,
                     wrap=False,
                     vertical_alignment="center",
                     gap="small",
                     key=f"electrical_title_help_row_{parametro_id}",
-                )
-                return title_row, title_row
+                ):
+                    title_cell = original_container(
+                        width="content",
+                        key=f"electrical_title_text_{parametro_id}",
+                    )
+                    help_cell = original_container(
+                        width="content",
+                        key=f"electrical_title_help_{parametro_id}",
+                    )
+                return title_cell, help_cell
             return original_columns(spec, *args, **kwargs)
 
     def popover_with_electrical_helper(*args, **kwargs):
