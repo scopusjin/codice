@@ -137,9 +137,9 @@ dati_parametri_aggiuntivi = {
     "Eccitabilità muscolare meccanica": {
         "opzioni": [
             "Non valutata",
-            "Contrazione reversibile dell’intero muscolo",
-            "Formazione di una tumefazione reversibile",
-            "Formazione di una piccola tumefazione persistente",
+            "Contrazione dell’intero muscolo",
+            "Tumefazione reversibile",
+            "Piccola tumefazione persistente",
             "Nessuna reazione",
             "Non valutabile/non attendibile",
         ],
@@ -147,9 +147,9 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (1.5, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Formazione di una piccola tumefazione persistente": (0, 12),
-            "Formazione di una tumefazione reversibile": (0, 5),
-            "Contrazione reversibile dell’intero muscolo": (0, 2.5),
+            "Piccola tumefazione persistente": (0, 12),
+            "Tumefazione reversibile": (0, 5),
+            "Contrazione dell’intero muscolo": (0, 2.5),
         },
         "descrizioni": dict(
             SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL["Eccitabilità muscolare meccanica"]
