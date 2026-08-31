@@ -224,7 +224,7 @@ def _install_responsive_image_css():
         /* Allineamento desktop statico: non dipende da rerun, checkbox o
            dalla struttura interna dei dati tanatologici aggiuntivi. */
         @media (min-width: 769px) {
-          div.block-container {
+          [data-testid="stMainBlockContainer"] {
             box-sizing: border-box !important;
             width: min(100%, 46rem) !important;
             max-width: 46rem !important;
