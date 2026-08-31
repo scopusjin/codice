@@ -154,21 +154,10 @@ def _build_supra_tiles(image):
 _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
-class _ElectricalHelperControl:
-    """Contesto tecnico che sopprime le vecchie immagini elettriche."""
-
-    def __init__(self, button, helper_text, key):
-        self._button = button
-        self._helper_text = helper_text
-        self._key = key
+class _SuppressedElectricalPopover:
+    """Contesto vuoto usato per sopprimere le vecchie immagini elettriche."""
 
     def __enter__(self):
-        self._button(
-            "?",
-            key=self._key,
-            help=self._helper_text,
-            type="tertiary",
-        )
         st._suppress_legacy_electrical_image = True
         return None
 
@@ -190,10 +179,30 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
-        /* Il vecchio comando separato resta solo come contesto tecnico per
-           sopprimere le immagini legacy; l'help visibile è quello nativo del titolo. */
-        [class*="st-key-electrical_helper_"] {
+        /* Titoli elettrici: usa davvero una label di checkbox per ottenere
+           l'identico help nativo dei checkbox/toggle della Full, ma nasconde
+           esclusivamente il quadratino della checkbox. */
+        [class*="st-key-electrical_native_label_"] [data-testid="stCheckbox"] label > div:first-child {
             display: none !important;
+        }
+
+        [class*="st-key-electrical_native_label_"] [data-testid="stCheckbox"] label {
+            gap: 0 !important;
+            padding: 0.4rem 0 0 0 !important;
+            margin: 0 !important;
+            align-items: center !important;
+        }
+
+        [class*="st-key-electrical_native_label_"] [data-testid="stMarkdownContainer"] {
+            pointer-events: none !important;
+        }
+
+        [class*="st-key-electrical_native_label_"] [data-testid="stMarkdownContainer"] p {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0.88rem !important;
+            font-weight: 600 !important;
+            line-height: 1.15 !important;
         }
 
         /* Allineamento desktop statico: non dipende da rerun, checkbox o
@@ -247,7 +256,7 @@ def install_sopraciliare_click_selector():
     original_popover = st.popover
     original_image = st.image
     original_columns = st.columns
-    original_button = st.button
+    original_checkbox = st.checkbox
     original_markdown = st.markdown
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
@@ -313,19 +322,20 @@ def install_sopraciliare_click_selector():
             and nome_parametro
             and nome_parametro in body
         ):
-            kwargs = dict(kwargs)
-            kwargs.setdefault("help", _ELECTRICAL_HELPER_TEXT[parametro_id])
+            with st.container(key=f"electrical_native_label_{parametro_id}"):
+                original_checkbox(
+                    f"{nome_parametro}:",
+                    value=False,
+                    help=_ELECTRICAL_HELPER_TEXT[parametro_id],
+                )
+            return None
         return original_markdown(body, *args, **kwargs)
 
     def popover_without_legacy_electrical_images(*args, **kwargs):
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
-            return _ElectricalHelperControl(
-                original_button,
-                _ELECTRICAL_HELPER_TEXT[parametro_id],
-                key=f"electrical_helper_{parametro_id}",
-            )
+            return _SuppressedElectricalPopover()
         return original_popover(*args, **kwargs)
 
     def image_without_legacy_electrical_images(image, *args, **kwargs):
