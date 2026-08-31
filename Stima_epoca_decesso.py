@@ -576,18 +576,14 @@ with st.container(border=True):
 
     # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
     if st.session_state.get("toggle_fattore", False):
-        if full_mobile:
-            with st.container(border=False, key="full_fc_panel_mobile"):
-                pannello_suggerisci_fc(
-                    peso_default=st.session_state.get("peso", 70.0),
-                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-                )
-        else:
-            with st.container(border=True):
-                pannello_suggerisci_fc(
-                    peso_default=st.session_state.get("peso", 70.0),
-                    key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
-                )
+        with st.container(
+            border=False,
+            key="full_fc_panel_mobile" if full_mobile else "full_fc_panel_desktop",
+        ):
+            pannello_suggerisci_fc(
+                peso_default=st.session_state.get("peso", 70.0),
+                key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
+            )
 
 # Parametri aggiuntivi
 mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")
