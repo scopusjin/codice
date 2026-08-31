@@ -53,6 +53,9 @@ _CSS = r"""
   background: var(--st-secondary-background-color, #F0F2F6);
   color: var(--st-text-color, #31333F);
 }
+.number-control:not(.is-dense) {
+  border-color: #d6ad21;
+}
 .number-control.external-action {
   grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem;
 }
