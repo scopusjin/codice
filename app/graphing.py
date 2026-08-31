@@ -641,7 +641,7 @@ def aggiorna_grafico(
     for blocco in dettagli:
         chunks.append(_wrap_final(blocco))
 
-    # Qd è parte della descrizione metodologica e precede la conclusione complessiva.
+    # Prepara la frase Qd; verrà aggiunta come ultimo elemento delle descrizioni.
     frase_qd_html = frase_qd(
         Qd_val_check,
         Ta_val,
@@ -664,8 +664,6 @@ def aggiorna_grafico(
             "e privo di uno specifico fondamento statistico."
         )
         frase_qd_html = frase_qd_html.replace("</p>", f" {swiss_note}</p>")
-    if frase_qd_html:
-        chunks.append(_wrap_final(frase_qd_html))
 
     # 2) stima complessiva / eventuale discordanza
     if discordanti:
@@ -673,7 +671,7 @@ def aggiorna_grafico(
     elif overlap and frase_finale_html:
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
-    # 3) frase blu di riepilogo dei parametri usati, sempre in fondo.
+    # 3) frase blu di riepilogo dei parametri usati.
     if overlap and len(nomi_usati) > 0:
         nomi_finali = []
         for nome, family_id in zip(nomi_usati, famiglie_usate):
@@ -686,6 +684,10 @@ def aggiorna_grafico(
         small_html = frase_riepilogo_parametri_usati(nomi_finali)
         if small_html:
             chunks.append(_wrap_final(small_html))
+
+    # 4) frase blu Qd sempre in fondo alle descrizioni dettagliate.
+    if frase_qd_html:
+        chunks.append(_wrap_final(frase_qd_html))
 
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
