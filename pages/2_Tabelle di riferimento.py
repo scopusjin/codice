@@ -711,6 +711,10 @@ st.markdown(
         font-weight: 650;
         background: rgba(128,128,128,.08);
         line-height: 1.02;
+        white-space: normal;
+    }
+    .mallach-table:not(.henssge-weight-table) thead th {
+        max-width: 8rem;
     }
     .mallach-table td:first-child {
         text-align: center;
@@ -719,7 +723,7 @@ st.markdown(
     }
     .mallach-table td:not(:first-child) {
         text-align: center;
-        white-space: nowrap;
+        white-space: normal;
     }
     .mallach-table .group-row td {
         font-weight: 650;
@@ -768,6 +772,7 @@ st.markdown(
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
         min-width: 6.8rem;
+        max-width: 8rem;
         white-space: normal;
     }
     .henssge-base-table th:nth-child(2),
@@ -780,6 +785,7 @@ st.markdown(
     }
     .henssge-special-table td:first-child {
         min-width: 7.5rem;
+        max-width: 9rem;
         white-space: normal;
     }
     .henssge-special-table th:nth-child(2) {
@@ -800,6 +806,7 @@ st.markdown(
         min-width: 1.65rem;
         padding-left: 0.05rem;
         padding-right: 0.05rem;
+        white-space: nowrap;
     }
     .henssge-weight-table .weight-reference {
         font-weight: 700;
@@ -840,6 +847,29 @@ st.markdown(
         font-size: 1.15rem !important;
         margin-top: 0.55rem !important;
         margin-bottom: -0.16rem !important;
+    }
+    @media (min-width: 900px) {
+        table.mallach-table {
+            font-size: 0.82rem;
+            line-height: 1.08;
+        }
+        table.mallach-table caption {
+            font-size: 0.84rem;
+            line-height: 1.10;
+        }
+        .henssge-weight-table {
+            font-size: 0.72rem !important;
+        }
+        .mallach-note {
+            font-size: 0.70rem;
+            line-height: 1.12;
+        }
+        .henssge-table-title {
+            font-size: 0.86rem;
+        }
+        div[data-testid="stRadio"] label p {
+            font-size: 0.74rem !important;
+        }
     }
     </style>
     """,
