@@ -37,91 +37,47 @@ FULL_SURFACE_STATE_BY_LABEL: Dict[str, str] = {
 
 
 def _install_full_water_radio_position_css() -> None:
-    """Posiziona la scelta del tipo d'acqua senza comprimere la riga principale."""
+    """Allinea a destra la scelta del tipo d'acqua nella Full, desktop e mobile."""
     st.html(
         """
         <style>
-        @media (min-width: 769px) {
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"] {
-            position: relative !important;
-            overflow: visible !important;
-          }
-
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
-            position: absolute !important;
-            top: 0.30rem !important;
-            right: 0.42rem !important;
-            width: max-content !important;
-            min-width: max-content !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            z-index: 2 !important;
-          }
-
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_desktop"]
-          [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
-            width: max-content !important;
-            min-width: max-content !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-          }
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
+          display: flex !important;
+          justify-content: flex-end !important;
+          width: 100% !important;
+          min-width: 0 !important;
+          max-width: 100% !important;
+          margin: 0.14rem 0 0 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
         }
 
-        @media (max-width: 768px) {
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
-            width: max-content !important;
-            min-width: max-content !important;
-            max-width: 100% !important;
-            align-self: flex-end !important;
-            margin: 0.16rem 0 0 auto !important;
-            padding: 0 !important;
-            overflow: visible !important;
-          }
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_std_radio_acqua"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_caut_radio_acqua"] {
+          width: max-content !important;
+          min-width: max-content !important;
+          max-width: 100% !important;
+          margin-left: auto !important;
+          margin-right: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+        }
 
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
-          body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-full_fc_panel_mobile"]
-          [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
-            width: max-content !important;
-            min-width: max-content !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-          }
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_std_radio_acqua"] div[role="radiogroup"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_caut_radio_acqua"] div[role="radiogroup"] {
+          width: max-content !important;
+          min-width: max-content !important;
+          max-width: 100% !important;
+          justify-content: flex-end !important;
+          margin-left: auto !important;
+          margin-right: 0 !important;
         }
         </style>
         """
