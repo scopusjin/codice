@@ -3,7 +3,7 @@
 
 Mantiene le immagini di base, il layout affiancato dei due parametri elettrici,
 posiziona meccanica e chimica pupillare sotto la peribuccale e sostituisce i
-vecchi popover illustrati con helper testuali compatti.
+vecchi popover illustrati con gli stessi helper testuali usati nella Full.
 I renderer cliccabili correnti vengono installati dai moduli
 ``supra_single_grid`` e ``perioral_single_grid``.
 """
@@ -16,6 +16,7 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
 
+from app.full_mobile_layout import _render_click_help
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
     PARAM_ELECTRICAL_PERIORAL,
@@ -156,26 +157,20 @@ _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
 class _ElectricalHelperPopover:
-    """Riusa il vecchio popover elettrico mostrando solo il testo helper."""
+    """Sostituisce il vecchio popover illustrato con l'helper comune della Full."""
 
-    def __init__(self, popover, markdown, helper_text):
-        self._popover = popover
-        self._markdown = markdown
+    def __init__(self, helper_text, key):
         self._helper_text = helper_text
-        self._ctx = None
+        self._key = key
 
     def __enter__(self):
-        self._ctx = self._popover("?")
-        self._ctx.__enter__()
-        self._markdown(self._helper_text)
+        _render_click_help(self._helper_text, self._key)
         st._suppress_legacy_electrical_image = True
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         st._suppress_legacy_electrical_image = False
-        if self._ctx is None:
-            return False
-        return self._ctx.__exit__(exc_type, exc_val, exc_tb)
+        return False
 
 
 def _install_responsive_image_css():
@@ -189,55 +184,6 @@ def _install_responsive_image_css():
             max-width: 100%;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        /* Piccolo ? degli helper elettrici: stesse misure del controllo
-           informativo di T. ambientale media. */
-        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] {
-            width: 18px !important;
-            min-width: 18px !important;
-            max-width: 18px !important;
-            height: 18px !important;
-            min-height: 18px !important;
-            max-height: 18px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button {
-            box-sizing: border-box !important;
-            display: inline-flex !important;
-            width: 18px !important;
-            min-width: 18px !important;
-            max-width: 18px !important;
-            height: 18px !important;
-            min-height: 18px !important;
-            max-height: 18px !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 58%, transparent) !important;
-            border-radius: 50% !important;
-            outline: none !important;
-            background: transparent !important;
-            color: inherit !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
-            line-height: 1 !important;
-            opacity: 0.8 !important;
-            box-shadow: none !important;
-        }
-
-        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button p {
-            margin: 0 !important;
-            padding: 0 !important;
-            font: inherit !important;
-            line-height: 1 !important;
-        }
-
-        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button:hover,
-        [class*="st-key-electrical_pair_layout"] [data-testid="stPopover"] button:active {
-            background: color-mix(in srgb, var(--st-text-color, #31333F) 9%, transparent) !important;
         }
 
         /* Full desktop: conserva la larghezza compatta quando i dati speciali
@@ -345,7 +291,7 @@ def install_sopraciliare_click_selector():
     original_popover = st.popover
     original_image = st.image
     original_columns = st.columns
-    original_markdown = st.markdown
+    original_container = st.container
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -399,7 +345,14 @@ def install_sopraciliare_click_selector():
 
         with target_column:
             if _is_electrical_title_row(spec):
-                return original_columns([1, 0.12], gap="small")
+                title_row = original_container(
+                    horizontal=True,
+                    wrap=False,
+                    vertical_alignment="center",
+                    gap="small",
+                    key=f"electrical_title_help_row_{parametro_id}",
+                )
+                return title_row, title_row
             return original_columns(spec, *args, **kwargs)
 
     def popover_with_electrical_helper(*args, **kwargs):
@@ -407,9 +360,8 @@ def install_sopraciliare_click_selector():
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
             return _ElectricalHelperPopover(
-                original_popover,
-                original_markdown,
                 _ELECTRICAL_HELPER_TEXT[parametro_id],
+                f"mortem_help_prudent_electrical_{parametro_id}",
             )
         return original_popover(*args, **kwargs)
 
