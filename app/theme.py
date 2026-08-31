@@ -109,6 +109,29 @@ def apply_theme():
         border-radius: 8px !important;
       }}
 
+      /* Full: evidenzia soltanto i campi numerici da compilare per il
+         raffreddamento; gli stepper dei vestiti e gli altri controlli restano neutri. */
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_rt_val"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_tm_val"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_peso"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_ta_base_val"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_ta_other_val"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_fattore_correzione"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_fc_min_val"] iframe,
+      body:has([class*="st-key-stima_cautelativa_beta"])
+      [class*="st-key-mortem_decimal_fc_other_val"] iframe {{
+        box-sizing: border-box !important;
+        border: 1px solid #d6ad21 !important;
+        border-radius: 8px !important;
+      }}
+
       /* Pulsanti */
       .stButton > button {{
         background: {C["Btn"]} !important;
