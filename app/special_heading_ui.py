@@ -24,6 +24,7 @@ _SPECIAL_PARAM_IDS = {
 _FULL_DESKTOP_LAYOUT_CSS = """
 <style>
 @media (min-width: 769px) {
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     box-sizing: border-box !important;
     width: min(100%, 46rem) !important;
@@ -34,50 +35,60 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 }
 
 @media (min-width: 1180px) {
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 92rem) !important;
     max-width: 92rem !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
     column-gap: 1rem !important;
     row-gap: 0.65rem !important;
     align-items: start !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
     grid-column: 1 !important;
     min-width: 0 !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has(.mortem-full-title) {
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-inspection_datetime_row"]) {
     grid-column: 1 !important;
     grid-row: 2 !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-selettore_macchie_ui"]) {
     grid-column: 1 !important;
     grid-row: 3 !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-henssge_non_applicabile"]) {
     grid-column: 1 !important;
     grid-row: 4 !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > [class*="st-key-mostra_parametri_aggiuntivi"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
     grid-column: 2 !important;
@@ -85,8 +96,10 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     align-self: start !important;
   }
 
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > [class*="st-key-electrical_pair_layout"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-electrical_pair_layout"]) {
     grid-column: 2 !important;
