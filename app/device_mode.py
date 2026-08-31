@@ -12,15 +12,60 @@ from app.full_mobile_compact import install_full_mobile_compact_css
 _SESSION_KEY = "__full_device_mobile"
 
 
-# Il desktop usa direttamente le regole già collaudate della Full mobile.
-# L'unica eccezione è l'etichetta Henssge, che su desktop resta testuale e
-# completa invece di essere sostituita dall'icona compatta usata su mobile.
-_FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
-<style>
-@media (min-width: 769px) {
-  /* La riga del titolo non deve diventare un contenitore scrollabile quando
-     l'etichetta Henssge è mostrata per esteso. */
+# Sul desktop il CSS della Full deve nascere già con Henssge testuale.
+# Sostituiamo quindi, prima dell'iniezione nel browser, il solo blocco desktop
+# che trasformava la checkbox in icona. Il blocco mobile resta intatto.
+_DESKTOP_HENSSGE_ICON_RULES = r'''  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    max-width: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    height: 1.55rem !important;
+    min-height: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
+    content: "⦸";
+    position: static !important;
+    display: block !important;
+    font-size: 1.22rem !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+    opacity: 0.58;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label:has(input:checked)::after {
+    opacity: 1 !important;
+    color: #c62828 !important;
+    font-weight: 700 !important;
+  }
+'''
+
+_DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_row_desktop"],
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"] {
@@ -31,7 +76,7 @@ _FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-    overflow: clip !important;
+    overflow: visible !important;
     scrollbar-width: none !important;
   }
 
@@ -45,21 +90,10 @@ _FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-cooling_heading_actions_desktop"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-mortem_help_row_henssge"] {
-    width: max-content !important;
-    min-width: max-content !important;
-    max-width: none !important;
-    overflow: visible !important;
-  }
-
-  body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
     width: auto !important;
     min-width: max-content !important;
     max-width: none !important;
-    height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
   }
@@ -93,8 +127,7 @@ _FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
     display: none !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
+  body:has([class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
     width: max-content !important;
     min-width: max-content !important;
     max-width: none !important;
@@ -103,15 +136,27 @@ _FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
     text-overflow: clip !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
+  body:has([class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
     content: "Metodo di ";
   }
-}
-</style>
-"""
+'''
 
-_full_mobile_compact._FULL_MOBILE_COMPACT_CSS += _FULL_DESKTOP_LABEL_OVERRIDE_CSS
+
+def _prepare_full_desktop_henssge_css() -> None:
+    css = _full_mobile_compact._FULL_MOBILE_COMPACT_CSS
+    marker = "@media (min-width: 769px) {"
+    prefix, separator, desktop_css = css.partition(marker)
+    if not separator or _DESKTOP_HENSSGE_ICON_RULES not in desktop_css:
+        return
+    desktop_css = desktop_css.replace(
+        _DESKTOP_HENSSGE_ICON_RULES,
+        _DESKTOP_HENSSGE_TEXT_RULES,
+        1,
+    )
+    _full_mobile_compact._FULL_MOBILE_COMPACT_CSS = prefix + separator + desktop_css
+
+
+_prepare_full_desktop_henssge_css()
 
 
 def _header_value(headers, name: str) -> str:
