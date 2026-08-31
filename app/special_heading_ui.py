@@ -291,7 +291,6 @@ def install_special_heading_style():
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
                     display: grid !important;
                     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-                    grid-auto-flow: row dense !important;
                     column-gap: 1rem !important;
                     row-gap: 0.65rem !important;
                     align-items: start !important;
@@ -305,26 +304,38 @@ def install_special_heading_style():
 
                   html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has(.mortem-full-title),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-usa_orario_custom"]),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-selettore_macchie_ui"]),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-henssge_non_applicabile"]) {
+                  > *:has([class*="st-key-inspection_datetime_row"]) {
                     grid-column: 1 !important;
+                    grid-row: 2 !important;
                   }
 
                   html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]),
+                  > *:has([class*="st-key-selettore_macchie_ui"]) {
+                    grid-column: 1 !important;
+                    grid-row: 3 !important;
+                  }
+
+                  html body:has([class*="st-key-electrical_pair_layout"])
+                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+                  > *:has([class*="st-key-henssge_non_applicabile"]) {
+                    grid-column: 1 !important;
+                    grid-row: 4 !important;
+                  }
+
+                  html body:has([class*="st-key-electrical_pair_layout"])
+                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+                  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
+                    grid-column: 1 !important;
+                    grid-row: 5 !important;
+                  }
+
                   html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-electrical_pair_layout"]) {
                     grid-column: 2 !important;
+                    grid-row: 2 / span 4 !important;
+                    align-self: start !important;
                   }
                 }
                 </style>
