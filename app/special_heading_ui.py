@@ -44,10 +44,11 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: grid !important;
+    position: relative !important;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     grid-auto-flow: row !important;
     column-gap: 1rem !important;
-    row-gap: 0.65rem !important;
+    row-gap: 0.42rem !important;
     align-items: start !important;
   }
 
@@ -94,6 +95,8 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     grid-column: 2 !important;
     grid-row: 2 !important;
     align-self: start !important;
+    margin: 0 !important;
+    z-index: 2 !important;
   }
 
   html body:has(.mortem-full-title):has(.mortem-full-title)
@@ -103,8 +106,28 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-electrical_pair_layout"]) {
     grid-column: 2 !important;
-    grid-row: 3 / span 2 !important;
+    grid-row: 2 !important;
+    position: absolute !important;
+    top: 2rem !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
     align-self: start !important;
+    margin: 0 !important;
+    z-index: 1 !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+  > [data-testid="stVerticalBlock"] {
+    gap: 0.28rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [class*="st-key-special_datetime_row_"] {
+    margin-top: 0 !important;
+    margin-bottom: 0.03rem !important;
   }
 }
 </style>
