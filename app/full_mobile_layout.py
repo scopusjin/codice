@@ -405,6 +405,59 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     min-height: 2.2rem !important;
   }
 }
+
+@media (min-width: 769px) {
+  body:has([class*="st-key-stima_cautelativa_beta"]) .block-container {
+    padding-top: 2rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_row"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 0.40rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_values"] {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_values"] > [data-testid="stVerticalBlock"] {
+    gap: 0.35rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_action"] {
+    flex: 0 0 5.3rem !important;
+    width: 5.3rem !important;
+    min-width: 5.3rem !important;
+    max-width: 5.3rem !important;
+    align-self: stretch !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_suggest"] [data-testid="stButton"] > button {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 5.35rem !important;
+    min-height: 5.35rem !important;
+    max-height: 5.35rem !important;
+    margin: 0 !important;
+    padding: 0.25rem 0.35rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 0.48rem !important;
+    white-space: nowrap !important;
+  }
+}
 </style>
 """
 
@@ -459,6 +512,7 @@ def install_full_mobile_layout():
     original_markdown = st.markdown
     original_toggle = st.toggle
     original_checkbox = st.checkbox
+    original_number_input = st.number_input
 
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
@@ -497,7 +551,82 @@ def install_full_mobile_layout():
             _render_click_help(help_text, "mortem_help_henssge")
         return result
 
+    def _toggle_desktop_range_fc_suggest() -> None:
+        same_open_target = bool(
+            st.session_state.get("toggle_fattore_inline", False)
+            and st.session_state.get("__full_fc_suggest_target") == "range"
+        )
+        if same_open_target:
+            st.session_state["toggle_fattore_inline"] = False
+            st.session_state["toggle_fattore"] = False
+            st.session_state.pop("__full_fc_suggest_target", None)
+            return
+
+        st.session_state["toggle_fattore_inline"] = True
+        st.session_state["toggle_fattore"] = True
+        st.session_state["__full_fc_suggest_target"] = "range"
+
+    def number_input_with_desktop_range_action(label, *args, **kwargs):
+        key = kwargs.get("key")
+        desktop_range = bool(
+            not st.session_state.get("__full_device_mobile", False)
+            and st.session_state.get("stima_cautelativa_beta", False)
+            and st.session_state.get("range_unico_beta", False)
+            and key in {"fc_min_val", "fc_other_val"}
+        )
+        if not desktop_range or args:
+            return original_number_input(label, *args, **kwargs)
+
+        if key == "fc_other_val":
+            if st.session_state.pop("__desktop_caut_fc_max_pre_rendered", False):
+                return st.session_state.pop(
+                    "__desktop_caut_fc_max_rendered_value",
+                    st.session_state.get("fc_other_val", kwargs.get("value")),
+                )
+            return original_number_input(label, *args, **kwargs)
+
+        range_mode = st.session_state.get("range_unico_beta", False)
+        max_kwargs = dict(kwargs)
+        max_kwargs["key"] = "fc_other_val"
+        max_kwargs["value"] = st.session_state.get("fc_other_val", kwargs.get("value"))
+
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            vertical_alignment="top",
+            gap="small",
+            key="desktop_caut_fc_range_row",
+        ):
+            with st.container(width="stretch", gap="small", key="desktop_caut_fc_range_values"):
+                st.session_state["range_unico_beta"] = False
+                try:
+                    min_value = original_number_input(label, **kwargs)
+                    max_value = original_number_input(
+                        ui_text("full.fc_max_input"),
+                        **max_kwargs,
+                    )
+                finally:
+                    st.session_state["range_unico_beta"] = range_mode
+
+            with st.container(width="content", key="desktop_caut_fc_range_action"):
+                active = bool(
+                    st.session_state.get("toggle_fattore_inline", False)
+                    and st.session_state.get("__full_fc_suggest_target") == "range"
+                )
+                st.button(
+                    "Consiglia",
+                    key="desktop_caut_fc_range_suggest",
+                    type="primary" if active else "secondary",
+                    width="stretch",
+                    on_click=_toggle_desktop_range_fc_suggest,
+                )
+
+        st.session_state["__desktop_caut_fc_max_pre_rendered"] = True
+        st.session_state["__desktop_caut_fc_max_rendered_value"] = max_value
+        return min_value
+
     st.markdown = markdown_with_full_mobile_layout
     st.toggle = toggle_with_full_mobile_help
     st.checkbox = checkbox_with_full_mobile_help
+    st.number_input = number_input_with_desktop_range_action
     st._full_mobile_layout_installed = True
