@@ -44,8 +44,16 @@ def _wrap_final(s: str | None) -> str | None:
     )
 
 def render_frase_breve(html: str, key: str = "fb_top"):
-    with frase_breve_box(key):
-        st.markdown(f'<div class="fb-compact">{html}</div>', unsafe_allow_html=True)
+    contenuto = html.strip()
+    if contenuto.startswith("<p>") and contenuto.endswith("</p>"):
+        contenuto = contenuto[3:-4]
+    st.markdown(
+        '<div style="background:#E6F1EF; border:1px solid #7FA8A0; border-radius:8px; '
+        'padding:12px 20px; margin:4px 0; color:#123C34; line-height:1.4; '
+        'text-align:justify; text-justify:inter-word; box-sizing:border-box; width:100%;">'
+        f'{contenuto}</div>',
+        unsafe_allow_html=True,
+    )
 
 # --------- pubblico ----------
 def aggiorna_grafico(
