@@ -1,5 +1,7 @@
 # app/theme.py
 # -*- coding: utf-8 -*-
+from contextlib import nullcontext
+
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
 
@@ -102,6 +104,25 @@ def apply_theme():
         color: #1f1f1f !important;
       }}
 
+      /* Riepilogo finale: il riquadro visibile è direttamente il div HTML. */
+      .fb-compact {{
+        background: {C["OutBg"]} !important;
+        border: 1px solid {C["OutBorder"]} !important;
+        border-radius: 8px !important;
+        color: {C["OutText"]} !important;
+        margin: 4px 0 !important;
+        padding: 12px 20px !important;
+        line-height: 1.4 !important;
+        width: 100% !important;
+        text-align: justify !important;
+        text-justify: inter-word !important;
+        box-sizing: border-box !important;
+      }}
+      .fb-compact p {{
+        margin: 0 !important;
+        padding: 0 !important;
+      }}
+
       /* Contenitore generico eventualmente usato altrove */
       .fc-box {{
         background: #ffffff !important;
@@ -145,58 +166,10 @@ def apply_theme():
 # Box frase breve con sfondo verde soft (come FC)
 # ------------------------------------------------------------
 def frase_breve_box(key: str = "frase_breve"):
-    C = theme_colors()
-    return stylable_container(
-        key=key,
-        css_styles=f"""
-        {{
-          background:transparent;
-          border:none;
-          padding:0;
-          margin:4px 0;
-          box-sizing:border-box;
-        }}
-
-        [data-stylable-key="{key}"] .fb-compact {{
-          background:{C['OutBg']} !important;
-          border:1px solid {C['OutBorder']} !important;
-          border-radius:8px !important;
-          color:{C['OutText']} !important;
-          margin:0 !important;
-          padding:12px 20px !important;
-          line-height:1.4 !important;
-          width:100% !important;
-          text-align:justify !important;
-          text-justify:inter-word !important;
-          box-sizing:border-box !important;
-        }}
-
-        [data-stylable-key="{key}"] .fb-compact p {{
-          margin:0 !important;
-          padding:0 !important;
-          width:100% !important;
-        }}
-
-        [data-stylable-key="{key}"] div[data-testid="stMarkdownContainer"] {{
-          margin:0 !important;
-          padding:0 !important;
-          width:100% !important;
-        }}
-
-        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
-          gap:0 !important;
-          width:100% !important;
-          margin:0 !important;
-          padding:0 !important;
-        }}
-
-        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] {{
-          margin:0 !important;
-          padding:0 !important;
-          width:100% !important;
-        }}
-        """
-    )
+    # Il renderer esistente usa ``with frase_breve_box(...):``.
+    # Un contesto neutro lascia il div .fb-compact direttamente nel flusso
+    # Streamlit, evitando wrapper grafici che ne alterano la centratura.
+    return nullcontext()
 
 # ------------------------------------------------------------
 # Helper per pannello FC
