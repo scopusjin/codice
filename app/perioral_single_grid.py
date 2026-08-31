@@ -22,9 +22,9 @@ from app.special_tanatology_states import (
 
 _PERIORAL_SELECTION_KEY = "_eccitabilita_peribuccale_selected"
 _PERIORAL_TILE_OPTIONS = (
-    "Marcata ed estesa (+++)",
-    "Discreta (++)",
-    "Accennata (+)",
+    "Muscoli facciali (+++)",
+    "Muscoli peribuccali (++)",
+    "Reazione focale (+)",
     "Nessuna reazione",
     "Non valutabile/non attendibile",
     "Non valutata",
