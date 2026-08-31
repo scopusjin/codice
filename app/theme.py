@@ -150,24 +150,25 @@ def frase_breve_box(key: str = "frase_breve"):
         key=key,
         css_styles=f"""
         {{
-          background:{C['OutBg']};
-          border:1px solid {C['OutBorder']};
-          border-radius:8px;
-          padding:12px 20px;
+          background:transparent;
+          border:none;
+          padding:0;
           margin:4px 0;
-          color:{C['OutText']};
-          display:flex;
-          align-items:center;
           box-sizing:border-box;
         }}
 
         [data-stylable-key="{key}"] .fb-compact {{
+          background:{C['OutBg']} !important;
+          border:1px solid {C['OutBorder']} !important;
+          border-radius:8px !important;
+          color:{C['OutText']} !important;
           margin:0 !important;
-          padding:0 !important;
+          padding:12px 20px !important;
           line-height:1.4 !important;
           width:100% !important;
           text-align:justify !important;
           text-justify:inter-word !important;
+          box-sizing:border-box !important;
         }}
 
         [data-stylable-key="{key}"] .fb-compact p {{
@@ -183,12 +184,8 @@ def frase_breve_box(key: str = "frase_breve"):
         }}
 
         [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
-          display:flex !important;
-          flex-direction:column !important;
-          justify-content:center !important;
           gap:0 !important;
           width:100% !important;
-          height:100% !important;
           margin:0 !important;
           padding:0 !important;
         }}
