@@ -250,17 +250,17 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (min-width: 769px) {
-  /* La Full desktop resta ampia, ma non si dilata oltre il necessario. */
+  /* Full desktop: ampia quanto serve, ma responsiva alla finestra. */
   html:has(body .mortem-full-title) {
     font-size: 18px !important;
   }
 
   html body:has(.mortem-full-title) div.block-container {
     box-sizing: border-box !important;
-    width: min(92vw, 1320px) !important;
-    max-width: 1320px !important;
-    padding-left: clamp(1rem, 2.2vw, 2rem) !important;
-    padding-right: clamp(1rem, 2.2vw, 2rem) !important;
+    width: min(96vw, 1440px) !important;
+    max-width: 1440px !important;
+    padding-left: clamp(0.8rem, 1.7vw, 1.5rem) !important;
+    padding-right: clamp(0.8rem, 1.7vw, 1.5rem) !important;
   }
 
   html body:has(.mortem-full-title) .mortem-full-title {
@@ -270,7 +270,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
   html body:has(.mortem-full-title) .mortem-section-title {
     font-size: 0.98rem !important;
-    line-height: 1.18 !important;
+    line-height: 1.12 !important;
+    margin-bottom: 0.12rem !important;
   }
 
   html body:has(.mortem-full-title) [data-testid="stCheckbox"] label p,
@@ -284,12 +285,24 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     font-size: 0.96rem !important;
   }
 
-  /* Il riquadro del raffreddamento deve occupare solo l'altezza dei contenuti. */
+  /* Compatta verticalmente il solo riquadro del raffreddamento. */
+  html body:has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
+    padding: 0.72rem 0.92rem !important;
+  }
+
   html body:has(.mortem-full-title)
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) > [data-testid="stVerticalBlock"] {
     justify-content: flex-start !important;
-    gap: 0.72rem !important;
+    gap: 0.34rem !important;
     min-height: 0 !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_standard_v2_grid_desktop"] > [data-testid="stVerticalBlock"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_prudent_v2_grid_desktop"] > [data-testid="stVerticalBlock"] {
+    gap: 0.42rem !important;
   }
 
   html body:has(.mortem-full-title)
@@ -297,20 +310,26 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   html body:has(.mortem-full-title)
   [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"] {
     align-items: center !important;
-    min-height: 2rem !important;
+    min-height: 1.65rem !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
   }
 
-  /* Su desktop Henssge torna ad essere una checkbox testuale normale, con il
-     relativo helper accanto; l'icona ⦸ resta una scelta esclusivamente mobile. */
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_title_desktop"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  /* Su desktop Henssge è una checkbox testuale normale; l'icona resta mobile. */
   html body:has(.mortem-full-title)
   [class*="st-key-cooling_heading_actions_desktop"] {
     box-sizing: border-box !important;
     flex: 0 0 auto !important;
     width: max-content !important;
-    min-width: 0 !important;
-    max-width: 44% !important;
+    min-width: max-content !important;
+    max-width: none !important;
     overflow: visible !important;
   }
 
@@ -320,18 +339,19 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     align-items: center !important;
     justify-content: flex-end !important;
     width: max-content !important;
-    min-width: 0 !important;
+    min-width: max-content !important;
     height: auto !important;
     min-height: 0 !important;
-    gap: 0.25rem !important;
+    gap: 0.22rem !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
   }
 
   html body:has(.mortem-full-title)
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
     width: auto !important;
-    min-width: 0 !important;
+    min-width: max-content !important;
     max-width: none !important;
     height: auto !important;
     margin: 0 !important;
@@ -344,8 +364,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    width: auto !important;
-    min-width: 0 !important;
+    width: max-content !important;
+    min-width: max-content !important;
     max-width: none !important;
     height: auto !important;
     min-height: 0 !important;
@@ -371,6 +391,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
     width: max-content !important;
     min-width: max-content !important;
+    max-width: none !important;
     overflow: visible !important;
     white-space: nowrap !important;
     text-overflow: clip !important;
@@ -381,29 +402,66 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     content: "Metodo di ";
   }
 
-  /* Le righe principali hanno tutte la stessa misura: crescono con la finestra
-     fino alla dimensione necessaria per l'etichetta più lunga, poi si fermano. */
+  /* Una sola misura per tutti gli input principali: poco più larga della voce
+     più lunga, ma capace di ridursi insieme alla finestra. */
   body:has([class*="st-key-stima_cautelativa_beta"]) {
-    --mortem-cooling-row-width: clamp(22rem, 33vw, 30rem);
+    --mortem-cooling-row-width: clamp(21.5rem, 27vw, 27rem);
     --mortem-cooling-weight-shift: 0.55rem;
+  }
+
+  /* I due campi di ciascuna riga non si dilatano fino ai bordi della pagina. */
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_standard_v2_grid_desktop"] [data-testid="stHorizontalBlock"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_prudent_v2_grid_desktop"] [data-testid="stHorizontalBlock"]:not([class*="st-key-prudent_weight_row_desktop"]) {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, var(--mortem-cooling-row-width))) !important;
+    column-gap: clamp(0.70rem, 1.5vw, 1.15rem) !important;
+    row-gap: 0 !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    justify-content: start !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_standard_v2_grid_desktop"] [data-testid="stHorizontalBlock"] > [data-testid="column"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_prudent_v2_grid_desktop"] [data-testid="stHorizontalBlock"]:not([class*="st-key-prudent_weight_row_desktop"]) > [data-testid="column"] {
+    box-sizing: border-box !important;
+    flex: none !important;
+    width: var(--mortem-cooling-row-width) !important;
+    max-width: var(--mortem-cooling-row-width) !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Su finestre che non contengono due righe complete, la griglia si riduce
+     mantenendo due colonne finché possibile. */
+  @media (max-width: 980px) {
+    body:has([class*="st-key-stima_cautelativa_beta"]) {
+      --mortem-cooling-row-width: min(43vw, 24rem);
+    }
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_decimal_fcpanel_"],
   body:has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fcpanel_"]) {
-    width: min(100%, 26rem) !important;
-    max-width: 26rem !important;
+    width: min(100%, 24rem) !important;
+    max-width: 24rem !important;
   }
 
-  /* Il pannello FC resta leggibile ma non occupa tutta la larghezza della Full. */
+  /* Il pannello FC resta compatto e aderente ai suoi contenuti. */
   html body:has(.mortem-full-title)
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]),
   html body:has(.mortem-full-title)
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]) {
     box-sizing: border-box !important;
-    width: min(100%, 48rem) !important;
-    max-width: 48rem !important;
+    width: min(100%, 44rem) !important;
+    max-width: 44rem !important;
     min-width: 0 !important;
     align-self: flex-start !important;
   }
@@ -416,8 +474,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_std_surface_select_desktop"],
   html body:has(.mortem-full-title)
   [class*="st-key-fcpanel_caut_surface_select_desktop"] {
-    width: min(100%, 44rem) !important;
-    max-width: 44rem !important;
+    width: min(100%, 40rem) !important;
+    max-width: 40rem !important;
   }
 
   html body:has(.mortem-full-title)
@@ -425,7 +483,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     width: max-content !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    margin: 0.16rem 0 0 !important;
+    margin: 0.10rem 0 0 !important;
     padding: 0 !important;
     border: 0 !important;
     border-radius: 0 !important;
@@ -442,15 +500,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     min-height: 0 !important;
     max-height: none !important;
     justify-content: flex-start !important;
-    gap: 0.35rem !important;
+    gap: 0.28rem !important;
     overflow: visible !important;
   }
 
   html body:has(.mortem-full-title) .mortem-fc-inline-result {
-    height: 2.05rem !important;
-    min-height: 2.05rem !important;
-    max-height: 2.05rem !important;
-    padding: 0 0.15rem 0 0 !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    max-height: 2rem !important;
+    padding: 0 0.10rem 0 0 !important;
     background: transparent !important;
   }
 }
