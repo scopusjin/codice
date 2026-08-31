@@ -67,14 +67,16 @@ def apply_theme():
           font-size: 102% !important;
         }}
 
-        /* Full desktop: compatta in modo controllato il solo riquadro
-           raffreddamento, senza cambiare l'altezza dei widget. */
+        /* Il toggle Condizioni variabili è realmente renderizzato dentro
+           mortem_help_row_prudent insieme al pulsante ?. Riduciamo soltanto
+           lo spazio esterno di quella riga, senza alterare altezza o overflow. */
         body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
-        > [data-testid="stVerticalBlock"] {{
-          gap: 0.42rem !important;
+        [class*="st-key-mortem_help_row_prudent"] {{
+          margin-top: -0.35rem !important;
+          margin-bottom: -0.35rem !important;
         }}
 
+        /* Il testo esplicativo successivo non aggiunge margini propri. */
         body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_explicit_ranges"],
         body:has([class*="st-key-stima_cautelativa_beta"])
@@ -103,30 +105,6 @@ def apply_theme():
         background: {C["Input"]} !important;
         color: {C["Testo"]} !important;
         border: 1px solid rgba(0,0,0,0.12) !important;
-        border-radius: 8px !important;
-      }}
-
-      /* Full: evidenzia il wrapper reale dei V2 da compilare. I componenti V2
-         non sono iframe; gli stepper dei vestiti hanno chiavi diverse. */
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_rt_val"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_tm_val"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_peso"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_ta_base_val"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_ta_other_val"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fattore_correzione"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fc_min_val"],
-      body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fc_other_val"] {{
-        box-sizing: border-box !important;
-        outline: 1px solid #d6ad21 !important;
-        outline-offset: -1px !important;
         border-radius: 8px !important;
       }}
 
