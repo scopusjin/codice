@@ -166,20 +166,19 @@ def _render_factor_panel(
         radio_kwargs["label_visibility"] = "collapsed"
 
     corr_placeholder = None
-    desktop_compact = compact_full and not full_mobile and not mobile
-    if desktop_compact:
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            horizontal_alignment="distribute",
-            vertical_alignment="center",
-            gap="small",
-            key=k("body_row_desktop"),
-        ):
-            with st.container(width="content", key=k("body_radio_slot_desktop")):
-                stato_label = st.radio("dummy", list(body_labels()), **radio_kwargs)
-            with st.container(width="content", key=k("corr_slot_desktop")):
-                corr_placeholder = st.empty()
+    full_compact_row = compact_full and not mobile
+    if full_compact_row:
+        row_key = "body_row_mobile" if full_mobile else "body_row_desktop"
+        body_slot_key = "body_radio_slot_mobile" if full_mobile else "body_radio_slot_desktop"
+        corr_slot_key = "corr_slot_mobile" if full_mobile else "corr_slot_desktop"
+        with st.container(key=k(row_key)):
+            body_col, right_col = st.columns([1.15, 1.0], gap="small")
+            with body_col:
+                with st.container(key=k(body_slot_key)):
+                    stato_label = st.radio("dummy", list(body_labels()), **radio_kwargs)
+            with right_col:
+                with st.container(key=k(corr_slot_key)):
+                    corr_placeholder = st.empty()
     else:
         stato_label = st.radio("" if mobile else "dummy", list(body_labels()), **radio_kwargs)
 
@@ -192,7 +191,11 @@ def _render_factor_panel(
         acqua_kwargs = dict(index=0, horizontal=True, key=k("radio_acqua"))
         if mobile:
             acqua_kwargs["label_visibility"] = "collapsed"
-        acqua_label = st.radio("" if mobile else "dummy", list(water_labels()), **acqua_kwargs)
+        if corr_placeholder is not None:
+            with corr_placeholder.container():
+                acqua_label = st.radio("dummy", list(water_labels()), **acqua_kwargs)
+        else:
+            acqua_label = st.radio("" if mobile else "dummy", list(water_labels()), **acqua_kwargs)
         acqua_mode = water_legacy_value(acqua_label)
 
         tabella2 = tabella2_mobile if mobile else _load_factor_table()
