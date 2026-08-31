@@ -68,7 +68,7 @@ def _warn_box(msg: str):
     st.markdown(
         f'<div style="background:{pal["bg"]};color:{pal["text"]};'
         f'border:1px solid {pal["border"]};border-radius:6px;'
-        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;">'
+        f'padding:8px 10px;margin:4px 0;font-size:0.92rem;'> '
         f'⚠️ {msg}'
         f'</div>',
         unsafe_allow_html=True
@@ -78,7 +78,7 @@ def _warn_box(msg: str):
 # =========================
 # Stato e costanti globali
 # =========================
-st.set_page_config(page_title="Mor-tem", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
 <style>
