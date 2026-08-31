@@ -9,15 +9,20 @@ from app.parameters import (
     nomi_brevi,
 )
 from app.tanatology_states import LIVOR_LABEL_IT, RIGOR_LABEL_IT
-from app.special_tanatology_states import SPECIAL_PARAM_LABEL_IT, SPECIAL_OPTION_LABEL_IT
+from app.special_tanatology_states import (
+    SPECIAL_PARAM_LABEL_IT,
+    OPTION_NOT_ASSESSED,
+    OPTION_UNRELIABLE,
+    special_option_ids,
+    special_option_legacy_label,
+    special_description,
+)
 from app.tanatology_texts_it import (
     LIVOR_DESCRIPTION_IT_BY_ID,
     RIGOR_DESCRIPTION_IT_BY_ID,
-    SPECIAL_DESCRIPTION_IT_BY_ID,
     SPECIAL_GRAPH_LABEL_IT_BY_ID,
     TESTI_MACCHIE_LEGACY,
     RIGIDITA_DESCRIZIONI_LEGACY,
-    SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL,
     NOMI_BREVI_LEGACY,
 )
 
@@ -39,21 +44,17 @@ class TanatologyItalianTextsCompatibilityTests(unittest.TestCase):
         self.assertEqual(RIGOR_DESCRIPTION_IT_BY_ID, expected)
         self.assertEqual(RIGIDITA_DESCRIZIONI_LEGACY, rigidita_descrizioni)
 
-    def test_special_descriptions_match_legacy_exactly(self):
-        expected = {
-            param_id: {
-                option_id: dati_parametri_aggiuntivi[param_label]["descrizioni"].get(option_label)
-                for option_id, option_label in SPECIAL_OPTION_LABEL_IT[param_id].items()
-            }
-            for param_id, param_label in SPECIAL_PARAM_LABEL_IT.items()
-        }
-        self.assertEqual(SPECIAL_DESCRIPTION_IT_BY_ID, expected)
-
-        legacy_expected = {
-            param_label: data["descrizioni"]
-            for param_label, data in dati_parametri_aggiuntivi.items()
-        }
-        self.assertEqual(SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL, legacy_expected)
+    def test_special_descriptions_match_current_data(self):
+        for param_id, param_label in SPECIAL_PARAM_LABEL_IT.items():
+            for option_id in special_option_ids(param_id):
+                if option_id in {OPTION_NOT_ASSESSED, OPTION_UNRELIABLE}:
+                    continue
+                option_label = special_option_legacy_label(param_id, option_id)
+                self.assertEqual(
+                    special_description(param_id, option_id),
+                    dati_parametri_aggiuntivi[param_label]["descrizioni"].get(option_label),
+                    msg=f"Description mismatch: {param_label} / {option_label}",
+                )
 
     def test_graph_labels_match_legacy_exactly(self):
         expected_special = {
