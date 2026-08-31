@@ -179,8 +179,7 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
-        /* Helper elettrici: replica le misure del piccolo ? usato nel
-           componente T. ambientale media (18x18 px, bordo circolare). */
+        /* Helper elettrici: stesse misure del piccolo ? di T. ambientale media. */
         [class*="st-key-electrical_help_row_"] {
             margin: 0 !important;
             padding: 0 !important;
@@ -197,8 +196,8 @@ def _install_responsive_image_css():
             padding: 0 !important;
         }
 
-        [class*="st-key-electrical_help_button_"] [data-testid="stPopover"],
-        [class*="st-key-electrical_help_button_"] [data-testid="stPopover"] > div {
+        [class*="st-key-electrical_help_button_"] div.stButton,
+        [class*="st-key-electrical_help_button_"] [data-testid="stButton"] {
             width: 18px !important;
             min-width: 18px !important;
             max-width: 18px !important;
@@ -209,7 +208,8 @@ def _install_responsive_image_css():
             padding: 0 !important;
         }
 
-        [class*="st-key-electrical_help_button_"] button {
+        [class*="st-key-electrical_help_button_"] div.stButton > button,
+        [class*="st-key-electrical_help_button_"] [data-testid="stButton"] > button {
             box-sizing: border-box !important;
             display: inline-flex !important;
             width: 18px !important;
@@ -229,7 +229,7 @@ def _install_responsive_image_css():
             margin: 0 !important;
             font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
             line-height: 1 !important;
-            opacity: 0.8;
+            opacity: 0.8 !important;
             box-shadow: none !important;
         }
 
@@ -305,6 +305,7 @@ def install_sopraciliare_click_selector():
     original_image = st.image
     original_columns = st.columns
     original_markdown = st.markdown
+    original_button = st.button
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -378,8 +379,12 @@ def install_sopraciliare_click_selector():
             ):
                 original_markdown(body, *args, **kwargs)
                 with st.container(width="content", key=f"electrical_help_button_{parametro_id}"):
-                    with original_popover("?"):
-                        original_markdown(_ELECTRICAL_HELPER_TEXT[parametro_id])
+                    original_button(
+                        "?",
+                        key=f"electrical_help_trigger_{parametro_id}",
+                        help=_ELECTRICAL_HELPER_TEXT[parametro_id],
+                        type="tertiary",
+                    )
             return None
         return original_markdown(body, *args, **kwargs)
 
