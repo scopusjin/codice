@@ -179,30 +179,70 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
-        /* Titoli elettrici: usa davvero una label di checkbox per ottenere
-           l'identico help nativo dei checkbox/toggle della Full, ma nasconde
-           esclusivamente il quadratino della checkbox. */
-        [class*="st-key-electrical_native_label_"] [data-testid="stCheckbox"] label > div:first-child {
-            display: none !important;
-        }
-
-        [class*="st-key-electrical_native_label_"] [data-testid="stCheckbox"] label {
-            gap: 0 !important;
-            padding: 0.4rem 0 0 0 !important;
-            margin: 0 !important;
-            align-items: center !important;
-        }
-
-        [class*="st-key-electrical_native_label_"] [data-testid="stMarkdownContainer"] {
-            pointer-events: none !important;
-        }
-
-        [class*="st-key-electrical_native_label_"] [data-testid="stMarkdownContainer"] p {
+        /* Helper elettrici: replica le misure del piccolo ? usato nel
+           componente T. ambientale media (18x18 px, bordo circolare). */
+        [class*="st-key-electrical_help_row_"] {
             margin: 0 !important;
             padding: 0 !important;
-            font-size: 0.88rem !important;
-            font-weight: 600 !important;
-            line-height: 1.15 !important;
+        }
+
+        [class*="st-key-electrical_help_button_"] {
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-electrical_help_button_"] [data-testid="stPopover"],
+        [class*="st-key-electrical_help_button_"] [data-testid="stPopover"] > div {
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-electrical_help_button_"] button {
+            box-sizing: border-box !important;
+            display: inline-flex !important;
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 58%, transparent) !important;
+            border-radius: 50% !important;
+            outline: none !important;
+            background: transparent !important;
+            color: inherit !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif) !important;
+            line-height: 1 !important;
+            opacity: 0.8;
+            box-shadow: none !important;
+        }
+
+        [class*="st-key-electrical_help_button_"] button p {
+            margin: 0 !important;
+            padding: 0 !important;
+            font: inherit !important;
+            line-height: 1 !important;
+        }
+
+        [class*="st-key-electrical_help_button_"] button:hover,
+        [class*="st-key-electrical_help_button_"] button:active {
+            background: color-mix(in srgb, var(--st-text-color, #31333F) 9%, transparent) !important;
         }
 
         /* Allineamento desktop statico: non dipende da rerun, checkbox o
@@ -234,15 +274,23 @@ def _click_identity(click):
     return None
 
 
+def _columns_signature(spec):
+    if isinstance(spec, int):
+        return None
+    try:
+        return tuple(float(value) for value in spec)
+    except (TypeError, ValueError):
+        return None
+
+
 def _is_main_special_row(spec):
     """Riconosce la riga principale [1, 2] usata dai parametri aggiuntivi."""
-    if isinstance(spec, int):
-        return False
-    try:
-        values = tuple(float(value) for value in spec)
-    except (TypeError, ValueError):
-        return False
-    return values == (1.0, 2.0)
+    return _columns_signature(spec) == (1.0, 2.0)
+
+
+def _is_electrical_title_row(spec):
+    """Riconosce la sottoriga [1, 0.5] che ospita titolo e vecchio popover."""
+    return _columns_signature(spec) == (1.0, 0.5)
 
 
 def install_sopraciliare_click_selector():
@@ -256,7 +304,6 @@ def install_sopraciliare_click_selector():
     original_popover = st.popover
     original_image = st.image
     original_columns = st.columns
-    original_checkbox = st.checkbox
     original_markdown = st.markdown
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
@@ -306,7 +353,7 @@ def install_sopraciliare_click_selector():
         target_index = 0 if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY else 1
         target_column = electrical_pair["columns"][target_index]
 
-        if is_main_row:
+        if is_main_row or _is_electrical_title_row(spec):
             return target_column, target_column
 
         with target_column:
@@ -322,12 +369,17 @@ def install_sopraciliare_click_selector():
             and nome_parametro
             and nome_parametro in body
         ):
-            with st.container(key=f"electrical_native_label_{parametro_id}"):
-                original_checkbox(
-                    f"{nome_parametro}:",
-                    value=False,
-                    help=_ELECTRICAL_HELPER_TEXT[parametro_id],
-                )
+            with st.container(
+                horizontal=True,
+                wrap=False,
+                vertical_alignment="center",
+                gap="small",
+                key=f"electrical_help_row_{parametro_id}",
+            ):
+                original_markdown(body, *args, **kwargs)
+                with st.container(width="content", key=f"electrical_help_button_{parametro_id}"):
+                    with original_popover("?"):
+                        original_markdown(_ELECTRICAL_HELPER_TEXT[parametro_id])
             return None
         return original_markdown(body, *args, **kwargs)
 
