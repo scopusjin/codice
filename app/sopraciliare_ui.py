@@ -31,6 +31,16 @@ _RIGHT_STACK_PARAMS = {
     PARAM_MECHANICAL_MUSCLE,
     PARAM_CHEMICAL_PUPILLARY,
 }
+_ELECTRICAL_HELPER_TEXT = {
+    PARAM_ELECTRICAL_SUPRACILIARY: (
+        "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
+        "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+    ),
+    PARAM_ELECTRICAL_PERIORAL: (
+        "Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità di circa "
+        "0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+    ),
+}
 
 
 def _load_embedded_image(filenames):
@@ -144,16 +154,22 @@ def _build_supra_tiles(image):
 _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
-class _SuppressedElectricalPopover:
-    """Contesto vuoto usato per eliminare i vecchi popover delle immagini."""
+class _ElectricalHelperPopover:
+    """Popover testuale che continua a sopprimere le vecchie immagini."""
+
+    def __init__(self, popover, helper_text):
+        self._popover = popover
+        self._helper_text = helper_text
 
     def __enter__(self):
+        self._popover.__enter__()
         st._suppress_legacy_electrical_image = True
+        st.caption(self._helper_text)
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         st._suppress_legacy_electrical_image = False
-        return False
+        return self._popover.__exit__(exc_type, exc_val, exc_tb)
 
 
 def _install_responsive_image_css():
@@ -324,7 +340,10 @@ def install_sopraciliare_click_selector():
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
-            return _SuppressedElectricalPopover()
+            return _ElectricalHelperPopover(
+                original_popover(*args, **kwargs),
+                _ELECTRICAL_HELPER_TEXT[parametro_id],
+            )
         return original_popover(*args, **kwargs)
 
     def image_without_legacy_electrical_images(image, *args, **kwargs):
