@@ -12,7 +12,7 @@ import streamlit as st
 from app import i18n
 from app.factor_calc import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
-from app.parameters import INF_HOURS, nomi_brevi
+from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
 from app.graphing_tanatology import (
     FAMILY_LIVOR,
     FAMILY_RIGOR,
@@ -21,6 +21,7 @@ from app.graphing_tanatology import (
     resolve_base_tanatology_ranges,
     resolve_special_tanatology_value,
 )
+from app.special_tanatology_states import PARAM_ELECTRICAL_PERIORAL
 from app.graphing_cooling import compute_cooling_state
 from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
@@ -221,12 +222,23 @@ def aggiorna_grafico(
                 range_trasl = (range_valori[0] - diff_h, range_valori[1] - diff_h)
             lo, hi = round_quarter_hour(range_trasl[0]), round_quarter_hour(range_trasl[1])
             lo = max(0, lo)
+
+            green_range_traslato = None
+            if parametro_risolto.parameter_id == PARAM_ELECTRICAL_PERIORAL:
+                pp_range = peribuccale_popwassilew_palm_ranges.get(stato_selezionato)
+                if pp_range is not None:
+                    pp_lo = max(0, round_quarter_hour(pp_range[0] - diff_h))
+                    pp_hi = max(0, round_quarter_hour(pp_range[1] - diff_h))
+                    if pp_hi >= pp_lo:
+                        green_range_traslato = (pp_lo, pp_hi)
+
             parametri_aggiuntivi_da_considerare.append(dict(
                 nome=nome_parametro, label=parametro_label,
                 parameter_id=parametro_risolto.parameter_id,
                 stato=stato_selezionato,
                 range_traslato=(lo, hi), descrizione=descrizione,
-                differenza_ore=diff_h, adattato=(diff_h != 0)
+                differenza_ore=diff_h, adattato=(diff_h != 0),
+                green_range_traslato=green_range_traslato,
             ))
             diffs = {p["differenza_ore"] for p in parametri_aggiuntivi_da_considerare if p.get("adattato")}
             nota_globale_range_adattato = len(diffs) == 1
@@ -244,7 +256,8 @@ def aggiorna_grafico(
                 nome=nome_parametro, label=parametro_label,
                 parameter_id=parametro_risolto.parameter_id,
                 stato=stato_selezionato,
-                range_traslato=(np.nan, np.nan), descrizione=descrizione
+                range_traslato=(np.nan, np.nan), descrizione=descrizione,
+                green_range_traslato=None,
             ))
 
     # --- range Henssge per grafico ---
@@ -376,13 +389,18 @@ def aggiorna_grafico(
             )
             if p.get("adattato"):
                 label += "*"
-            extra_params_for_plot.append({
+            extra_param = {
                 "label": label,
                 "start": float(lo),
                 "end": float(hi) if _is_num(hi) else np.inf,
                 "order": idx,
                 "adattato": bool(p.get("adattato", False)),
-            })
+            }
+            green_range = p.get("green_range_traslato")
+            if isinstance(green_range, tuple) and len(green_range) == 2:
+                extra_param["green_start"] = float(green_range[0])
+                extra_param["green_end"] = float(green_range[1])
+            extra_params_for_plot.append(extra_param)
 
     # Se Potente scatta, mostra una sola barra "Raffreddamento" che rappresenta
     # l'unione già usata per il risultato complessivo.
@@ -443,8 +461,25 @@ def aggiorna_grafico(
         import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
             fig = fig_or_none
+            ax = fig.axes[0]
+
+            # Sottorange Popwassilew–Palm: informativo soltanto, non entra nell'intersezione.
+            extra_base_y = int(macchie_range_valido) + int(rigidita_range_valido)
+            for pos, e in enumerate(extra_params_for_plot):
+                green_start = e.get("green_start")
+                green_end = e.get("green_end")
+                if _is_num(green_start) and _is_num(green_end) and float(green_end) > float(green_start):
+                    ax.hlines(
+                        extra_base_y + pos,
+                        max(0.0, float(green_start)),
+                        min(float(tail), float(green_end)),
+                        color='mediumseagreen',
+                        linewidth=6,
+                        alpha=1.0,
+                        zorder=3,
+                    )
+
             if overlap and (np.isnan(comune_fine) or comune_fine > 0):
-                ax = fig.axes[0]
                 if comune_inizio < tail:
                     ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
                 if not np.isnan(comune_fine) and comune_fine > 0:
