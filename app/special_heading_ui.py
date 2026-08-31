@@ -23,6 +23,20 @@ _SPECIAL_PARAM_IDS = {
 
 _FULL_DESKTOP_LAYOUT_CSS = """
 <style>
+[class*="st-key-mortem_result_box"] {
+  box-sizing: border-box !important;
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 6%, var(--st-background-color, #FFFFFF)) !important;
+  border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 32%, transparent) !important;
+  border-radius: 10px !important;
+  padding: 0.45rem 0.55rem 0.55rem !important;
+  margin-top: 0.15rem !important;
+  margin-bottom: 0.30rem !important;
+}
+
+[class*="st-key-mortem_result_box"] > [data-testid="stVerticalBlock"] {
+  gap: 0.30rem !important;
+}
+
 @media (min-width: 769px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
@@ -31,6 +45,49 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     max-width: 46rem !important;
     margin-left: 0 !important;
     margin-right: auto !important;
+  }
+
+  /* Data/ora principale: niente riquadro esterno, restano solo titolo e campi. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"]),
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"])
+  > [data-testid="stVerticalBlock"] {
+    border: 0 !important;
+    border-width: 0 !important;
+    border-color: transparent !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-inspection_datetime_row"]) {
+    padding: 0 !important;
+  }
+
+  /* Raffreddamento: titolo/Henssge e Condizioni variabili più vicini. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
+  > [data-testid="stVerticalBlock"] {
+    gap: 0.18rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [class*="st-key-cooling_heading_row_desktop"] {
+    margin-bottom: -0.08rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [class*="st-key-mortem_help_row_prudent"] {
+    margin-top: -0.08rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Eccitabilità: titoli più vicini alle immagini. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [class*="st-key-electrical_title_help_row_"] {
+    margin-bottom: -0.28rem !important;
   }
 }
 
@@ -48,7 +105,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     grid-auto-flow: row !important;
     column-gap: 1rem !important;
-    row-gap: 0.42rem !important;
+    row-gap: 0.30rem !important;
     align-items: start !important;
   }
 
@@ -108,7 +165,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     grid-column: 2 !important;
     grid-row: 2 !important;
     position: absolute !important;
-    top: 2rem !important;
+    top: 1.55rem !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
@@ -121,13 +178,13 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
   > [data-testid="stVerticalBlock"] {
-    gap: 0.28rem !important;
+    gap: 0.16rem !important;
   }
 
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [class*="st-key-special_datetime_row_"] {
-    margin-top: 0 !important;
-    margin-bottom: 0.03rem !important;
+    margin-top: -0.12rem !important;
+    margin-bottom: 0 !important;
   }
 }
 </style>
@@ -141,6 +198,31 @@ def install_special_heading_style():
 
     original_markdown = st.markdown
     original_set_page_config = st.set_page_config
+    original_pyplot = st.pyplot
+    original_container = st.container
+    result_box_state = {
+        "container": None,
+        "full_page": False,
+    }
+
+    def _called_from_graphing(function_name):
+        frame = inspect.currentframe().f_back
+        for _ in range(10):
+            if frame is None:
+                break
+            filename = str(frame.f_globals.get("__file__", "")).replace("\\", "/")
+            if filename.endswith("/app/graphing.py") and frame.f_code.co_name == function_name:
+                return True
+            frame = frame.f_back
+        return False
+
+    def _result_box():
+        if result_box_state["container"] is None:
+            result_box_state["container"] = original_container(
+                border=True,
+                key="mortem_result_box",
+            )
+        return result_box_state["container"]
 
     original_markdown(
         """
@@ -380,11 +462,23 @@ def install_special_heading_style():
 
     def set_page_config_with_full_layout(*args, **kwargs):
         result = original_set_page_config(*args, **kwargs)
-        if kwargs.get("page_title") == "Mor-tem":
+        result_box_state["container"] = None
+        result_box_state["full_page"] = kwargs.get("page_title") == "Mor-tem"
+        if result_box_state["full_page"]:
             original_markdown(_FULL_DESKTOP_LAYOUT_CSS, unsafe_allow_html=True)
         return result
 
+    def pyplot_with_result_box(*args, **kwargs):
+        if result_box_state["full_page"] and _called_from_graphing("aggiorna_grafico"):
+            with _result_box():
+                return original_pyplot(*args, **kwargs)
+        return original_pyplot(*args, **kwargs)
+
     def markdown_with_special_heading(body, *args, **kwargs):
+        if result_box_state["full_page"] and _called_from_graphing("render_frase_breve"):
+            with _result_box():
+                return original_markdown(body, *args, **kwargs)
+
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
         frame = inspect.currentframe().f_back
@@ -420,5 +514,6 @@ def install_special_heading_style():
         return original_markdown(body, *args, **kwargs)
 
     st.set_page_config = set_page_config_with_full_layout
+    st.pyplot = pyplot_with_result_box
     st.markdown = markdown_with_special_heading
     st._special_heading_style_installed = True
