@@ -62,8 +62,10 @@ def apply_theme():
         --primary-color: {C["Btn"]};
       }}
 
-      html {{
-        font-size: 102% !important;
+      @media (min-width: 769px) {{
+        html {{
+          font-size: 102% !important;
+        }}
       }}
 
       html, body, [data-testid="stAppViewContainer"] {{
