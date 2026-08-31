@@ -66,7 +66,7 @@ def _restore_full_navigation_state() -> None:
 
 
 def _render_mobile_sidebar_button() -> None:
-    """Mostra in fondo alla pagina un pulsante mobile che apre la sidebar."""
+    """Mostra in fondo alla Full un pulsante che apre la sidebar."""
     st.iframe(
         """
         <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰ Menu</button>
@@ -99,12 +99,6 @@ def _render_mobile_sidebar_button() -> None:
           (() => {
             const frame = window.frameElement;
             if (!frame) return;
-
-            const isMobile = window.parent.matchMedia("(max-width: 768px)").matches;
-            if (!isMobile) {
-              frame.style.display = "none";
-              return;
-            }
 
             Object.assign(frame.style, {
               position: "static",
@@ -150,6 +144,25 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         [class*="st-key-{key}"] {{
             display: none !important;
         }}
+
+        /* Full: la toolbar Streamlit non viene usata; l'apertura della sidebar
+           è affidata al pulsante Menu in fondo alla pagina. */
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stToolbar"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stExpandSidebarButton"] {{
+            display: none !important;
+        }}
+
+        @media (min-width: 769px) {{
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            header[data-testid="stHeader"] {{
+                min-height: 0 !important;
+                height: 0 !important;
+                background: transparent !important;
+            }}
+        }}
+
         @media (max-width: 768px) {{
             [class*="st-key-{key}"] {{
                 display: flex !important;
@@ -182,12 +195,6 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 outline: 0 !important;
             }}
 
-            /* Full mobile: nasconde la toolbar Streamlit; l'apertura della
-               sidebar è affidata al pulsante mobile in fondo alla pagina. */
-            body:has([class*="st-key-stima_cautelativa_beta"])
-            [data-testid="stToolbar"] {{
-                display: none !important;
-            }}
             body:has([class*="st-key-stima_cautelativa_beta"])
             header[data-testid="stHeader"] {{
                 min-height: 2.35rem !important;
