@@ -81,6 +81,24 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_title_desktop"] {
+    flex: 1 1 13rem !important;
+    width: auto !important;
+    min-width: 13rem !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_title_desktop"] .mortem-section-title {
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_row_desktop"]::-webkit-scrollbar,
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
