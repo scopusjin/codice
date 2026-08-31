@@ -130,16 +130,58 @@ dati_parametri_aggiuntivi = {
     },
 
     "Eccitabilità chimica pupillare": {
-        "opzioni": ["Non valutata", "Non valutabile/non attendibile", "Positiva", "Negativa"],
+        "opzioni": [
+            "Non valutata",
+            "Dilatazione con atropina",
+            "Nessuna variazione con atropina",
+            "Dilatazione con tropicamide",
+            "Nessuna variazione con tropicamide",
+            "Riduzione con acetilcolina",
+            "Nessuna variazione con acetilcolina",
+            "Non valutabile/non attendibile",
+        ],
         "range": {
             "Non valutata": None,
+            "Dilatazione con atropina": (0, 10),
+            "Nessuna variazione con atropina": (3, INF_HOURS),
+            "Dilatazione con tropicamide": (0, 30),
+            "Nessuna variazione con tropicamide": (5, INF_HOURS),
+            "Riduzione con acetilcolina": (0, 46),
+            "Nessuna variazione con acetilcolina": (14, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Positiva": (0, 30),
-            "Negativa": (5, INF_HOURS),
         },
-        "descrizioni": dict(
-            SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL["Eccitabilità chimica pupillare"]
-        ),
+        "descrizioni": {
+            "Dilatazione con atropina": (
+                "L’instillazione di atropina ha determinato una dilatazione pupillare. "
+                "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
+                "meno di 10 ore prima della valutazione del dato tanatologico."
+            ),
+            "Nessuna variazione con atropina": (
+                "L’instillazione di atropina non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’assenza di reazione suggerisce che fossero trascorse almeno 3 ore dal decesso al momento della "
+                "valutazione del dato tanatologico."
+            ),
+            "Dilatazione con tropicamide": (
+                "L’instillazione di tropicamide ha determinato una dilatazione pupillare. "
+                "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
+                "meno di 30 ore prima della valutazione del dato tanatologico."
+            ),
+            "Nessuna variazione con tropicamide": (
+                "L’instillazione di tropicamide non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’assenza di reazione suggerisce che fossero trascorse almeno 5 ore dal decesso al momento della "
+                "valutazione del dato tanatologico."
+            ),
+            "Riduzione con acetilcolina": (
+                "L’instillazione di acetilcolina ha determinato una riduzione del diametro pupillare. "
+                "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
+                "meno di 46 ore prima della valutazione del dato tanatologico."
+            ),
+            "Nessuna variazione con acetilcolina": (
+                "L’instillazione di acetilcolina non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’assenza di reazione suggerisce che fossero trascorse almeno 14 ore dal decesso al momento della "
+                "valutazione del dato tanatologico."
+            ),
+        },
     },
 }
 
