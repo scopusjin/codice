@@ -86,6 +86,8 @@ st.markdown("""
   font-family: Arial, sans-serif !important;
   font-size: 10pt !important;
   line-height: 14pt !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 .mortem-section-title {
   margin: 0 0 0.28rem 0 !important;
@@ -835,8 +837,17 @@ if st.session_state["show_results"]:
     no_rt = (input_rt is None) or (isinstance(input_rt, (int, float)) and input_rt <= 0)
     no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
+    ha_parametro_aggiuntivo_stimabile = any(
+        isinstance(
+            dati_parametri_aggiuntivi.get(nome_parametro, {})
+            .get("range", {})
+            .get((widgets or {}).get("selettore")),
+            tuple,
+        )
+        for nome_parametro, widgets in widgets_parametri_aggiuntivi.items()
+    )
 
-    if no_rt and no_macchie and no_rigidita:
+    if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile:
         st.warning(i18n.ui_text("full.no_data_warning"))
         st.stop()
 
