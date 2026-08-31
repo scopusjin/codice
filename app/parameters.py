@@ -91,20 +91,43 @@ dati_parametri_aggiuntivi = {
 
     "Eccitabilità elettrica peribuccale": {
         "opzioni": [
-            "Non valutata", "Marcata ed estesa (+++)", "Discreta (++)",
-            "Accennata (+)", "Nessuna reazione", "Non valutabile/non attendibile"
+            "Non valutata", "Muscoli facciali (+++)", "Muscoli peribuccali (++)",
+            "Reazione focale (+)", "Nessuna reazione", "Non valutabile/non attendibile"
         ],
         "range": {
             "Non valutata": None,
             "Nessuna reazione": (3, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Marcata ed estesa (+++)": (0, 2.5),
-            "Discreta (++)": (1, 5),
-            "Accennata (+)": (2, 6),
+            "Muscoli facciali (+++)": (0, 11),
+            "Muscoli peribuccali (++)": (0, 11),
+            "Reazione focale (+)": (0, 11),
         },
-        "descrizioni": dict(
-            SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL["Eccitabilità elettrica peribuccale"]
-        ),
+        "descrizioni": {
+            "Muscoli facciali (+++)": (
+                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione "
+                "generalizzata della muscolatura facciale. Tale reazione di eccitabilità muscolare elettrica residua "
+                "suggerisce che il decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico "
+                "(secondo un metodo meno recente, una simile reazione si osserva indicativamente entro circa 2 ore e "
+                "30 minuti dal decesso)."
+            ),
+            "Muscoli peribuccali (++)": (
+                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione limitata "
+                "alla muscolatura peribuccale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che "
+                "il decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un "
+                "metodo meno recente, una simile reazione si osserva indicativamente tra 1 e 5 ore dal decesso)."
+            ),
+            "Reazione focale (+)": (
+                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una reazione focale in "
+                "prossimità degli elettrodi. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+                "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
+                "meno recente, una simile reazione si osserva indicativamente tra 2 e 6 ore dal decesso)."
+            ),
+            "Nessuna reazione": (
+                "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari "
+                "apprezzabili. L’assenza di eccitabilità muscolare elettrica residua suggerisce che fossero trascorse "
+                "almeno 3 ore dal decesso al momento della valutazione del dato tanatologico."
+            ),
+        },
     },
 
     "Eccitabilità muscolare meccanica": {
@@ -185,6 +208,14 @@ dati_parametri_aggiuntivi = {
     },
 }
 
+# Range descrittivi del metodo Popwassilew–Palm: solo per il segmento verde del grafico.
+# Non partecipano all'intersezione prudente, che usa i limiti Klein/Henssge sopra.
+peribuccale_popwassilew_palm_ranges = {
+    "Muscoli facciali (+++)": (0, 2.5),
+    "Muscoli peribuccali (++)": (1, 5),
+    "Reazione focale (+)": (2, 6),
+}
+
 # --- Nomi brevi per etichette nel grafico ---
 nomi_brevi = dict(NOMI_BREVI_LEGACY)
 
@@ -192,5 +223,5 @@ __all__ = [
     "INF_HOURS",
     "opzioni_macchie", "macchie_medi", "testi_macchie",
     "opzioni_rigidita", "rigidita_medi", "rigidita_descrizioni",
-    "dati_parametri_aggiuntivi", "nomi_brevi",
+    "dati_parametri_aggiuntivi", "peribuccale_popwassilew_palm_ranges", "nomi_brevi",
 ]
