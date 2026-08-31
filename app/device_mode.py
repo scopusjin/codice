@@ -250,8 +250,74 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (min-width: 769px) {
+  /* La versione completa desktop sfrutta meglio la larghezza disponibile,
+     senza modificare la resa mobile né la pagina MSIL. */
+  html:has(body .mortem-full-title) {
+    font-size: 18px !important;
+  }
+
+  html body:has(.mortem-full-title) div.block-container {
+    box-sizing: border-box !important;
+    width: min(94vw, 1500px) !important;
+    max-width: 1500px !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+
+  html body:has(.mortem-full-title) .mortem-full-title {
+    font-size: 1.28rem !important;
+    line-height: 1.10 !important;
+  }
+
+  html body:has(.mortem-full-title) .mortem-section-title {
+    font-size: 0.98rem !important;
+    line-height: 1.18 !important;
+  }
+
+  html body:has(.mortem-full-title) [data-testid="stCheckbox"] label p,
+  html body:has(.mortem-full-title) [data-testid="stToggle"] label p,
+  html body:has(.mortem-full-title) [data-baseweb="select"] * {
+    font-size: 0.96rem !important;
+  }
+
+  html body:has(.mortem-full-title) [data-testid="stDateInput"] input,
+  html body:has(.mortem-full-title) button {
+    font-size: 0.96rem !important;
+  }
+
+  /* L'azione Henssge deve mostrare per intero il testo, senza ellissi. */
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_actions_desktop"] {
+    box-sizing: border-box !important;
+    flex: 0 0 18.5rem !important;
+    width: 18.5rem !important;
+    min-width: 18.5rem !important;
+    max-width: 18.5rem !important;
+    overflow: visible !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label,
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label p {
+    box-sizing: border-box !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label p::before {
+    content: "Metodo di ";
+  }
+
   body:has([class*="st-key-stima_cautelativa_beta"]) {
-    --mortem-cooling-row-width: 28rem;
+    --mortem-cooling-row-width: 36rem;
     --mortem-cooling-weight-shift: 0.55rem;
   }
 }
