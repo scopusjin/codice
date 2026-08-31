@@ -66,6 +66,29 @@ def apply_theme():
         html {{
           font-size: 102% !important;
         }}
+
+        /* Full desktop: avvicina leggermente il toggle Condizioni variabili
+           al titolo del raffreddamento, senza comprimere l'altezza dei widget. */
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-stima_cautelativa_beta"] {{
+          margin-top: -0.18rem !important;
+          margin-bottom: 0 !important;
+        }}
+
+        /* La spiegazione della modalità cautelativa resta aderente al toggle. */
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"] {{
+          margin-top: -0.34rem !important;
+          margin-bottom: 0 !important;
+          padding-top: 0 !important;
+        }}
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"] [data-testid="stMarkdownContainer"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"] p {{
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+        }}
       }}
 
       html, body, [data-testid="stAppViewContainer"] {{
