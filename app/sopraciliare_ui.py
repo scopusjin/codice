@@ -155,7 +155,7 @@ _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
 class _ElectricalHelperControl:
-    """Help nativo Streamlit che continua a sopprimere le vecchie immagini."""
+    """Contesto tecnico che sopprime le vecchie immagini elettriche."""
 
     def __init__(self, button, helper_text, key):
         self._button = button
@@ -190,35 +190,10 @@ def _install_responsive_image_css():
             margin-right: auto;
         }
 
-        /* Gli helper elettrici usano lo stesso linguaggio visivo discreto
-           dei controlli nativi con help della Full. */
-        [class*="st-key-electrical_helper_"] button {
-            width: 1.15rem !important;
-            min-width: 1.15rem !important;
-            height: 1.15rem !important;
-            min-height: 1.15rem !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border: 0 !important;
-            border-radius: 50% !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 0.68;
-            font-size: 0.76rem !important;
-            line-height: 1 !important;
-        }
-
-        [class*="st-key-electrical_helper_"] button:hover {
-            background: transparent !important;
-            opacity: 1;
-        }
-
-        [class*="st-key-electrical_helper_"] button p {
-            margin: 0 !important;
-            padding: 0 !important;
-            font-size: 0.76rem !important;
-            line-height: 1 !important;
-            font-weight: 600 !important;
+        /* Il vecchio comando separato resta solo come contesto tecnico per
+           sopprimere le immagini legacy; l'help visibile è quello nativo del titolo. */
+        [class*="st-key-electrical_helper_"] {
+            display: none !important;
         }
 
         /* Allineamento desktop statico: non dipende da rerun, checkbox o
@@ -273,6 +248,7 @@ def install_sopraciliare_click_selector():
     original_image = st.image
     original_columns = st.columns
     original_button = st.button
+    original_markdown = st.markdown
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -327,6 +303,20 @@ def install_sopraciliare_click_selector():
         with target_column:
             return original_columns(spec, *args, **kwargs)
 
+    def markdown_with_electrical_help(body, *args, **kwargs):
+        caller = inspect.currentframe().f_back
+        parametro_id = caller.f_locals.get("parametro_id") if caller else None
+        nome_parametro = caller.f_locals.get("nome_parametro") if caller else None
+        if (
+            parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL)
+            and isinstance(body, str)
+            and nome_parametro
+            and nome_parametro in body
+        ):
+            kwargs = dict(kwargs)
+            kwargs.setdefault("help", _ELECTRICAL_HELPER_TEXT[parametro_id])
+        return original_markdown(body, *args, **kwargs)
+
     def popover_without_legacy_electrical_images(*args, **kwargs):
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
@@ -354,6 +344,7 @@ def install_sopraciliare_click_selector():
         return original_selectbox(label, options, *args, **kwargs)
 
     st.columns = columns_with_electrical_pair
+    st.markdown = markdown_with_electrical_help
     st.popover = popover_without_legacy_electrical_images
     st.image = image_without_legacy_electrical_images
     st.selectbox = selectbox_with_electrical_images
