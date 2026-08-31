@@ -267,25 +267,18 @@ with st.container(border=True):
                     help=i18n.ui_text("full.henssge_not_applicable_help"),
                 )
     else:
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            horizontal_alignment="distribute",
-            vertical_alignment="center",
-            gap="small",
-            key="cooling_heading_row_desktop",
-        ):
-            with st.container(width="stretch", key="cooling_heading_title_desktop"):
-                st.markdown(
-                    f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
-                    unsafe_allow_html=True,
-                )
-            with st.container(width="content", key="cooling_heading_actions_desktop"):
-                henssge_non_app = st.checkbox(
-                    i18n.ui_text("full.henssge_not_applicable"),
-                    key="henssge_non_applicabile",
-                    help=i18n.ui_text("full.henssge_not_applicable_help"),
-                )
+        cooling_title_col, cooling_actions_col = st.columns([1, 1], gap="small")
+        with cooling_title_col:
+            st.markdown(
+                f"<div class='mortem-section-title'>{i18n.ui_text('full.cooling_heading')}</div>",
+                unsafe_allow_html=True,
+            )
+        with cooling_actions_col:
+            henssge_non_app = st.checkbox(
+                i18n.ui_text("full.henssge_not_applicable"),
+                key="henssge_non_applicabile",
+                help=i18n.ui_text("full.henssge_not_applicable_help"),
+            )
 
     st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
