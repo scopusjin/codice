@@ -36,53 +36,99 @@ FULL_SURFACE_STATE_BY_LABEL: Dict[str, str] = {
 }
 
 
-def _install_full_water_radio_spacing_css() -> None:
-    """Evita la sovrapposizione della riga acqua nella Full, desktop e mobile."""
+def _install_full_water_radio_position_css() -> None:
+    """Posiziona la scelta del tipo d'acqua senza comprimere la riga principale."""
     st.html(
         """
         <style>
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
-          min-height: 2.55rem !important;
-          height: auto !important;
-          max-height: none !important;
-          margin-top: 0.68rem !important;
-          margin-bottom: 0.10rem !important;
-          overflow: visible !important;
+        @media (min-width: 769px) {
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"] {
+            position: relative !important;
+            overflow: visible !important;
+          }
+
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
+            position: absolute !important;
+            top: 0.30rem !important;
+            right: 0.42rem !important;
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            z-index: 2 !important;
+          }
+
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_desktop"]
+          [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
         }
 
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
-          min-height: 2.45rem !important;
-          height: auto !important;
-          max-height: none !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: visible !important;
-        }
+        @media (max-width: 768px) {
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: 100% !important;
+            align-self: flex-end !important;
+            margin: 0.16rem 0 0 auto !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
 
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_std_radio_acqua"] div[role="radiogroup"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-fcpanel_caut_radio_acqua"] div[role="radiogroup"] {
-          min-height: 2.45rem !important;
-          align-items: center !important;
-          overflow: visible !important;
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-full_fc_panel_mobile"]
+          [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
         }
         </style>
         """
     )
 
 
-_install_full_water_radio_spacing_css()
+_install_full_water_radio_position_css()
 
 
 def full_body_labels(language: Optional[str] = None):
