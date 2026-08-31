@@ -530,9 +530,17 @@ def render_mobile_decimal_v2(
     sync_key = f"{internal_key}:sync-token"
     sync_token = int(sync_token)
     dense = bool(key and key.startswith("mortem_decimal_fcpanel_"))
+    full_mobile = bool(st.session_state.get("__full_device_mobile", False))
     external_action = bool(
-        key == "mortem_decimal_peso"
-        and st.session_state.get("stima_cautelativa_beta", False)
+        (
+            key == "mortem_decimal_peso"
+            and st.session_state.get("stima_cautelativa_beta", False)
+        )
+        or (
+            not full_mobile
+            and not dense
+            and not suggest_enabled
+        )
     )
     reserve_action = bool(not dense and not external_action)
 
