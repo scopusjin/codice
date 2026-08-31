@@ -281,13 +281,11 @@ def install_special_heading_style():
                 }
 
                 @media (min-width: 1180px) {
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] {
                     width: min(100%, 92rem) !important;
                     max-width: 92rem !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
                     display: grid !important;
                     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -296,45 +294,46 @@ def install_special_heading_style():
                     align-items: start !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
-                    grid-column: 1 / -1;
+                    grid-column: 1 !important;
                     min-width: 0 !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
+                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+                  > *:has(.mortem-full-title) {
+                    grid-column: 1 / -1 !important;
+                    grid-row: 1 !important;
+                  }
+
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-inspection_datetime_row"]) {
                     grid-column: 1 !important;
                     grid-row: 2 !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-selettore_macchie_ui"]) {
                     grid-column: 1 !important;
                     grid-row: 3 !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-henssge_non_applicabile"]) {
                     grid-column: 1 !important;
                     grid-row: 4 !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
-                    grid-column: 1 !important;
-                    grid-row: 5 !important;
+                    grid-column: 2 !important;
+                    grid-row: 2 !important;
+                    align-self: start !important;
                   }
 
-                  html body:has([class*="st-key-electrical_pair_layout"])
                   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
                   > *:has([class*="st-key-electrical_pair_layout"]) {
                     grid-column: 2 !important;
-                    grid-row: 2 / span 4 !important;
+                    grid-row: 3 / span 2 !important;
                     align-self: start !important;
                   }
                 }
