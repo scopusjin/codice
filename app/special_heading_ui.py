@@ -21,6 +21,82 @@ _SPECIAL_PARAM_IDS = {
     PARAM_CHEMICAL_PUPILLARY,
 }
 
+_FULL_DESKTOP_LAYOUT_CSS = """
+<style>
+@media (min-width: 769px) {
+  [data-testid="stMainBlockContainer"] {
+    box-sizing: border-box !important;
+    width: min(100%, 46rem) !important;
+    max-width: 46rem !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 1180px) {
+  [data-testid="stMainBlockContainer"] {
+    width: min(100%, 92rem) !important;
+    max-width: 92rem !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 1rem !important;
+    row-gap: 0.65rem !important;
+    align-items: start !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+    grid-column: 1 !important;
+    min-width: 0 !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has(.mortem-full-title) {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-inspection_datetime_row"]) {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-selettore_macchie_ui"]) {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-henssge_non_applicabile"]) {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-mostra_parametri_aggiuntivi"],
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    align-self: start !important;
+  }
+
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-electrical_pair_layout"],
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-electrical_pair_layout"]) {
+    grid-column: 2 !important;
+    grid-row: 3 / span 2 !important;
+    align-self: start !important;
+  }
+}
+</style>
+"""
+
 
 def install_special_heading_style():
     """Rende più evidenti e ravvicinati i titoli senza modificare le stringhe localizzate."""
@@ -28,6 +104,7 @@ def install_special_heading_style():
         return
 
     original_markdown = st.markdown
+    original_set_page_config = st.set_page_config
 
     original_markdown(
         """
@@ -265,83 +342,13 @@ def install_special_heading_style():
         unsafe_allow_html=True,
     )
 
+    def set_page_config_with_full_layout(*args, **kwargs):
+        result = original_set_page_config(*args, **kwargs)
+        if kwargs.get("page_title") == "Mor-tem":
+            original_markdown(_FULL_DESKTOP_LAYOUT_CSS, unsafe_allow_html=True)
+        return result
+
     def markdown_with_special_heading(body, *args, **kwargs):
-        if isinstance(body, str) and "mortem-full-title" in body:
-            original_markdown(
-                """
-                <style>
-                @media (min-width: 769px) {
-                  [data-testid="stMainBlockContainer"] {
-                    box-sizing: border-box !important;
-                    width: min(100%, 46rem) !important;
-                    max-width: 46rem !important;
-                    margin-left: 0 !important;
-                    margin-right: auto !important;
-                  }
-                }
-
-                @media (min-width: 1180px) {
-                  [data-testid="stMainBlockContainer"] {
-                    width: min(100%, 92rem) !important;
-                    max-width: 92rem !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
-                    display: grid !important;
-                    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-                    column-gap: 1rem !important;
-                    row-gap: 0.65rem !important;
-                    align-items: start !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
-                    grid-column: 1 !important;
-                    min-width: 0 !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has(.mortem-full-title) {
-                    grid-column: 1 / -1 !important;
-                    grid-row: 1 !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-inspection_datetime_row"]) {
-                    grid-column: 1 !important;
-                    grid-row: 2 !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-selettore_macchie_ui"]) {
-                    grid-column: 1 !important;
-                    grid-row: 3 !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-henssge_non_applicabile"]) {
-                    grid-column: 1 !important;
-                    grid-row: 4 !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
-                    grid-column: 2 !important;
-                    grid-row: 2 !important;
-                    align-self: start !important;
-                  }
-
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-electrical_pair_layout"]) {
-                    grid-column: 2 !important;
-                    grid-row: 3 / span 2 !important;
-                    align-self: start !important;
-                  }
-                }
-                </style>
-                """,
-                unsafe_allow_html=True,
-            )
-
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
         frame = inspect.currentframe().f_back
@@ -376,5 +383,6 @@ def install_special_heading_style():
 
         return original_markdown(body, *args, **kwargs)
 
+    st.set_page_config = set_page_config_with_full_layout
     st.markdown = markdown_with_special_heading
     st._special_heading_style_installed = True
