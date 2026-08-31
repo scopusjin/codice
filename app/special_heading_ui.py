@@ -6,6 +6,7 @@ import inspect
 
 import streamlit as st
 
+from app.device_mode import full_device_is_mobile
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
     PARAM_ELECTRICAL_PERIORAL,
@@ -28,6 +29,14 @@ def install_special_heading_style():
         return
 
     original_markdown = st.markdown
+    original_container = st.container
+    original_checkbox = st.checkbox
+    workspace_state = {
+        "enabled": False,
+        "main": None,
+        "special": None,
+        "border_count": 0,
+    }
 
     original_markdown(
         """
@@ -278,59 +287,45 @@ def install_special_heading_style():
                     margin-left: 0 !important;
                     margin-right: auto !important;
                   }
-                }
 
-                @media (min-width: 1180px) {
-                  html body:has([class*="st-key-electrical_pair_layout"])
+                  html body:has([class*="st-key-full_workspace_layout"])
                   [data-testid="stMainBlockContainer"] {
                     width: min(100%, 92rem) !important;
                     max-width: 92rem !important;
-                  }
-
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
-                    display: grid !important;
-                    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-                    grid-auto-flow: row dense !important;
-                    column-gap: 1rem !important;
-                    row-gap: 0.65rem !important;
-                    align-items: start !important;
-                  }
-
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
-                    grid-column: 1 / -1;
-                    min-width: 0 !important;
-                  }
-
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has(.mortem-full-title),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-usa_orario_custom"]),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-selettore_macchie_ui"]),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-henssge_non_applicabile"]) {
-                    grid-column: 1 !important;
-                  }
-
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]),
-                  html body:has([class*="st-key-electrical_pair_layout"])
-                  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-                  > *:has([class*="st-key-electrical_pair_layout"]) {
-                    grid-column: 2 !important;
                   }
                 }
                 </style>
                 """,
                 unsafe_allow_html=True,
             )
+
+            title_result = original_markdown(body, *args, **kwargs)
+
+            workspace_state["enabled"] = bool(
+                not full_device_is_mobile()
+                and st.session_state.get("mostra_parametri_aggiuntivi", False)
+            )
+            workspace_state["main"] = None
+            workspace_state["special"] = None
+            workspace_state["border_count"] = 0
+
+            if workspace_state["enabled"]:
+                with original_container(
+                    horizontal=True,
+                    wrap=True,
+                    gap="small",
+                    key="full_workspace_layout",
+                ):
+                    workspace_state["main"] = original_container(
+                        width=700,
+                        key="full_workspace_main",
+                    )
+                    workspace_state["special"] = original_container(
+                        width=700,
+                        key="full_workspace_special",
+                    )
+
+            return title_result
 
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
@@ -366,5 +361,32 @@ def install_special_heading_style():
 
         return original_markdown(body, *args, **kwargs)
 
+    def container_with_full_workspace(*args, **kwargs):
+        caller = inspect.currentframe().f_back
+        caller_file = caller.f_code.co_filename if caller else ""
+        if (
+            workspace_state["enabled"]
+            and caller_file.endswith("Stima_epoca_decesso.py")
+            and kwargs.get("border") is True
+        ):
+            workspace_state["border_count"] += 1
+            border_count = workspace_state["border_count"]
+            if border_count <= 3 and workspace_state["main"] is not None:
+                return workspace_state["main"].container(*args, **kwargs)
+            if border_count == 4 and workspace_state["special"] is not None:
+                return workspace_state["special"].container(*args, **kwargs)
+        return original_container(*args, **kwargs)
+
+    def checkbox_with_full_workspace(label, *args, **kwargs):
+        if (
+            workspace_state["enabled"]
+            and kwargs.get("key") == "mostra_parametri_aggiuntivi"
+            and workspace_state["main"] is not None
+        ):
+            return workspace_state["main"].checkbox(label, *args, **kwargs)
+        return original_checkbox(label, *args, **kwargs)
+
+    st.container = container_with_full_workspace
+    st.checkbox = checkbox_with_full_workspace
     st.markdown = markdown_with_special_heading
     st._special_heading_style_installed = True
