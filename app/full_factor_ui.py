@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
+import streamlit as st
+
 from app import i18n
 from app.factor_ui_states import (
     BODY_LABEL_IT,
@@ -32,6 +34,55 @@ FULL_WATER_STATE_BY_LABEL: Dict[str, str] = {
 FULL_SURFACE_STATE_BY_LABEL: Dict[str, str] = {
     i18n.surface_label(surface_id): surface_id for surface_id in SURFACE_LABEL_IT
 }
+
+
+def _install_full_water_radio_spacing_css() -> None:
+    """Evita la sovrapposizione della riga acqua nella Full, desktop e mobile."""
+    st.html(
+        """
+        <style>
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_std_radio_acqua"]),
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stElementContainer"]:has([class*="st-key-fcpanel_caut_radio_acqua"]) {
+          min-height: 2.55rem !important;
+          height: auto !important;
+          max-height: none !important;
+          margin-top: 0.68rem !important;
+          margin-bottom: 0.10rem !important;
+          overflow: visible !important;
+        }
+
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_std_radio_acqua"][data-testid="stRadio"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_std_radio_acqua"] [data-testid="stRadio"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_caut_radio_acqua"][data-testid="stRadio"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_caut_radio_acqua"] [data-testid="stRadio"] {
+          min-height: 2.45rem !important;
+          height: auto !important;
+          max-height: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+        }
+
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_std_radio_acqua"] div[role="radiogroup"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-fcpanel_caut_radio_acqua"] div[role="radiogroup"] {
+          min-height: 2.45rem !important;
+          align-items: center !important;
+          overflow: visible !important;
+        }
+        </style>
+        """
+    )
+
+
+_install_full_water_radio_spacing_css()
 
 
 def full_body_labels(language: Optional[str] = None):
