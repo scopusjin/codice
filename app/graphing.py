@@ -443,7 +443,7 @@ def aggiorna_grafico(
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
             st.pyplot(fig)
 
-        # La frase breve viene calcolata qui ma mostrata solo dopo descrizioni e stima complessiva.
+        # La frase breve viene calcolata qui e mostrata prima dei comandi di dettaglio.
         if overlap:
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
@@ -629,21 +629,7 @@ def aggiorna_grafico(
     st.session_state["__desc_dettagliate_html"] = ""  # reset
     chunks = []
 
-    # 1) dati utilizzati nella stima
-    if overlap and len(nomi_usati) > 0:
-        nomi_finali = []
-        for nome, family_id in zip(nomi_usati, famiglie_usate):
-            if (family_id == FAMILY_COOLING
-                and not usa_potente
-                and mt_ore is not None and not np.isnan(mt_ore)
-                and abs(comune_inizio - mt_ore) < 0.25):
-                continue
-            nomi_finali.append(nome)
-        small_html = frase_riepilogo_parametri_usati(nomi_finali)
-        if small_html:
-            chunks.append(_wrap_final(small_html))
-
-    # 2) descrizioni dettagliate dei dati/metodi effettivamente valutati
+    # 1) descrizioni dettagliate dei dati/metodi effettivamente valutati
     for blocco in dettagli:
         chunks.append(_wrap_final(blocco))
 
@@ -673,17 +659,36 @@ def aggiorna_grafico(
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
 
-    # 3) stima complessiva / eventuale discordanza
+    # 2) stima complessiva / eventuale discordanza
     if discordanti:
         chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
     elif overlap and frase_finale_html:
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
+    # 3) frase blu di riepilogo dei parametri usati, sempre in fondo.
+    if overlap and len(nomi_usati) > 0:
+        nomi_finali = []
+        for nome, family_id in zip(nomi_usati, famiglie_usate):
+            if (family_id == FAMILY_COOLING
+                and not usa_potente
+                and mt_ore is not None and not np.isnan(mt_ore)
+                and abs(comune_inizio - mt_ore) < 0.25):
+                continue
+            nomi_finali.append(nome)
+        small_html = frase_riepilogo_parametri_usati(nomi_finali)
+        if small_html:
+            chunks.append(_wrap_final(small_html))
+
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
 
+    # Riepilogo verde prima dei comandi di dettaglio.
+    frase_breve_html = st.session_state.get("frase_breve")
+    if frase_breve_html:
+        render_frase_breve(frase_breve_html, key="fb_before_details")
+
     # margine verticale prima dei link
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
 
     # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
     if not st.session_state.get("_pop_css_row_applied"):
@@ -739,8 +744,3 @@ def aggiorna_grafico(
                 with st.popover(i18n.ui_text("graph.warnings_popover")):
                     for m in avvisi:
                         warn_box(m)  # usa l'helper locale
-
-    # 4) frase breve blu: sempre dopo descrizioni e stima complessiva.
-    frase_breve_html = st.session_state.get("frase_breve")
-    if frase_breve_html:
-        render_frase_breve(frase_breve_html, key="fb_after_details")
