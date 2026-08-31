@@ -127,7 +127,8 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
     display: none !important;
   }
 
-  body:has([class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
     width: max-content !important;
     min-width: max-content !important;
     max-width: none !important;
@@ -136,7 +137,8 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
     text-overflow: clip !important;
   }
 
-  body:has([class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
     content: "Metodo di ";
   }
 '''
