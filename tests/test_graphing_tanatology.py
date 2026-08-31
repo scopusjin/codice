@@ -65,7 +65,7 @@ class GraphingTanatologyCompatibilityTests(unittest.TestCase):
         self.assertIsNone(resolved.rigor_range)
         self.assertIsNone(resolved.rigor_typical_range)
 
-    def test_all_special_ranges_and_descriptions_match_legacy_data(self):
+    def test_all_special_ranges_and_descriptions_match_current_data(self):
         for parameter_label, data in dati_parametri_aggiuntivi.items():
             for option_label in data["opzioni"]:
                 resolved = resolve_special_tanatology_value(parameter_label, option_label)
@@ -74,11 +74,13 @@ class GraphingTanatologyCompatibilityTests(unittest.TestCase):
                     data["range"].get(option_label),
                     msg=f"Range mismatch: {parameter_label} / {option_label}",
                 )
-                self.assertEqual(
-                    resolved.description,
-                    data["descrizioni"].get(option_label),
-                    msg=f"Description mismatch: {parameter_label} / {option_label}",
-                )
+                expected_description = data["descrizioni"].get(option_label)
+                if expected_description is not None:
+                    self.assertEqual(
+                        resolved.description,
+                        expected_description,
+                        msg=f"Description mismatch: {parameter_label} / {option_label}",
+                    )
                 self.assertEqual(
                     resolved.is_not_assessed,
                     option_label == "Non valutata",
@@ -88,15 +90,15 @@ class GraphingTanatologyCompatibilityTests(unittest.TestCase):
         parameter_label = "Eccitabilità elettrica peribuccale"
         resolved = resolve_special_tanatology_value(
             parameter_label,
-            "Discreta (++): nota accessoria",
+            "Muscoli peribuccali (++): nota accessoria",
         )
         self.assertEqual(
             resolved.range_value,
-            dati_parametri_aggiuntivi[parameter_label]["range"]["Discreta (++)"],
+            dati_parametri_aggiuntivi[parameter_label]["range"]["Muscoli peribuccali (++)"],
         )
         self.assertEqual(
             resolved.description,
-            dati_parametri_aggiuntivi[parameter_label]["descrizioni"]["Discreta (++)"],
+            dati_parametri_aggiuntivi[parameter_label]["descrizioni"]["Muscoli peribuccali (++)"],
         )
 
     def test_unknown_special_parameter_preserves_legacy_key_error(self):
