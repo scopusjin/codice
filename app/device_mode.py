@@ -216,6 +216,23 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
     max-height: 34px !important;
   }
 
+  /* I quattro stepper degli strati desktop hanno tutti la stessa larghezza,
+     poco superiore a quella necessaria per l'etichetta più lunga. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"][class*="_strati_sottili"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"][class*="_strati_spessi"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"][class*="_coperte_medie"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"][class*="_coperte_pesanti"] {
+    box-sizing: border-box !important;
+    width: min(100%, 29rem) !important;
+    max-width: 29rem !important;
+    min-width: 0 !important;
+    align-self: flex-start !important;
+  }
+
   /* Sul desktop il selettore mantiene il testo interno ma non il titolo
      separato "Superficie di appoggio". */
   body:has([class*="st-key-stima_cautelativa_beta"])
