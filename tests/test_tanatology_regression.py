@@ -38,21 +38,25 @@ class ScientificRangeRegressionTests(unittest.TestCase):
 
     def test_perioral_ranges_are_unchanged(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica peribuccale"]["range"]
-        self.assertEqual(ranges["Marcata ed estesa (+++)"], (0, 2.5))
-        self.assertEqual(ranges["Discreta (++)"], (1, 5))
-        self.assertEqual(ranges["Accennata (+)"], (2, 6))
+        self.assertEqual(ranges["Muscoli facciali (+++)"], (0, 11))
+        self.assertEqual(ranges["Muscoli peribuccali (++)"], (0, 11))
+        self.assertEqual(ranges["Reazione focale (+)"], (0, 11))
         self.assertEqual(ranges["Nessuna reazione"], (3, INF_HOURS))
 
     def test_mechanical_and_pupillary_ranges_are_unchanged(self):
         mechanical = dati_parametri_aggiuntivi["Eccitabilità muscolare meccanica"]["range"]
-        self.assertEqual(mechanical["Contrazione reversibile dell’intero muscolo"], (0, 2))
-        self.assertEqual(mechanical["Formazione di una tumefazione reversibile"], (2, 5))
-        self.assertEqual(mechanical["Formazione di una piccola tumefazione persistente"], (0, 12))
+        self.assertEqual(mechanical["Contrazione dell’intero muscolo"], (0, 2.5))
+        self.assertEqual(mechanical["Tumefazione reversibile"], (0, 5))
+        self.assertEqual(mechanical["Piccola tumefazione persistente"], (0, 12))
         self.assertEqual(mechanical["Nessuna reazione"], (1.5, INF_HOURS))
 
         pupillary = dati_parametri_aggiuntivi["Eccitabilità chimica pupillare"]["range"]
-        self.assertEqual(pupillary["Positiva"], (0, 30))
-        self.assertEqual(pupillary["Negativa"], (5, INF_HOURS))
+        self.assertEqual(pupillary["Dilatazione con atropina"], (0, 10))
+        self.assertEqual(pupillary["Nessuna variazione con atropina"], (3, INF_HOURS))
+        self.assertEqual(pupillary["Dilatazione con tropicamide"], (0, 30))
+        self.assertEqual(pupillary["Nessuna variazione con tropicamide"], (5, INF_HOURS))
+        self.assertEqual(pupillary["Riduzione con acetilcolina"], (0, 46))
+        self.assertEqual(pupillary["Nessuna variazione con acetilcolina"], (14, INF_HOURS))
 
 
 class ItalianTextRegressionTests(unittest.TestCase):
