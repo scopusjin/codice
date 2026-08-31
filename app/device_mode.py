@@ -250,18 +250,17 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (min-width: 769px) {
-  /* La versione completa desktop sfrutta meglio la larghezza disponibile,
-     senza modificare la resa mobile né la pagina MSIL. */
+  /* La Full desktop resta ampia, ma non si dilata oltre il necessario. */
   html:has(body .mortem-full-title) {
     font-size: 18px !important;
   }
 
   html body:has(.mortem-full-title) div.block-container {
     box-sizing: border-box !important;
-    width: min(94vw, 1500px) !important;
-    max-width: 1500px !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
+    width: min(92vw, 1320px) !important;
+    max-width: 1320px !important;
+    padding-left: clamp(1rem, 2.2vw, 2rem) !important;
+    padding-right: clamp(1rem, 2.2vw, 2rem) !important;
   }
 
   html body:has(.mortem-full-title) .mortem-full-title {
@@ -285,40 +284,174 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     font-size: 0.96rem !important;
   }
 
-  /* L'azione Henssge deve mostrare per intero il testo, senza ellissi. */
+  /* Il riquadro del raffreddamento deve occupare solo l'altezza dei contenuti. */
+  html body:has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) > [data-testid="stVerticalBlock"] {
+    justify-content: flex-start !important;
+    gap: 0.72rem !important;
+    min-height: 0 !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_row_desktop"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"] {
+    align-items: center !important;
+    min-height: 2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Su desktop Henssge torna ad essere una checkbox testuale normale, con il
+     relativo helper accanto; l'icona ⦸ resta una scelta esclusivamente mobile. */
   html body:has(.mortem-full-title)
   [class*="st-key-cooling_heading_actions_desktop"] {
     box-sizing: border-box !important;
-    flex: 0 0 18.5rem !important;
-    width: 18.5rem !important;
-    min-width: 18.5rem !important;
-    max-width: 18.5rem !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: 44% !important;
     overflow: visible !important;
   }
 
   html body:has(.mortem-full-title)
-  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"],
+  [class*="st-key-mortem_help_row_henssge"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    gap: 0.25rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   html body:has(.mortem-full-title)
-  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label,
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   html body:has(.mortem-full-title)
-  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label p {
-    box-sizing: border-box !important;
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
+    position: static !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p {
     width: max-content !important;
     min-width: max-content !important;
-    max-width: none !important;
     overflow: visible !important;
     white-space: nowrap !important;
     text-overflow: clip !important;
   }
 
   html body:has(.mortem-full-title)
-  [class*="st-key-cooling_heading_actions_desktop"] [data-testid="stCheckbox"] label p::before {
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
     content: "Metodo di ";
   }
 
+  /* Le righe principali hanno tutte la stessa misura: crescono con la finestra
+     fino alla dimensione necessaria per l'etichetta più lunga, poi si fermano. */
   body:has([class*="st-key-stima_cautelativa_beta"]) {
-    --mortem-cooling-row-width: 36rem;
+    --mortem-cooling-row-width: clamp(22rem, 33vw, 30rem);
     --mortem-cooling-weight-shift: 0.55rem;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_fcpanel_"]) {
+    width: min(100%, 26rem) !important;
+    max-width: 26rem !important;
+  }
+
+  /* Il pannello FC resta leggibile ma non occupa tutta la larghezza della Full. */
+  html body:has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]),
+  html body:has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]) {
+    box-sizing: border-box !important;
+    width: min(100%, 48rem) !important;
+    max-width: 48rem !important;
+    min-width: 0 !important;
+    align-self: flex-start !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-fcpanel_std_switch_row"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-fcpanel_caut_switch_row"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-fcpanel_std_surface_select_desktop"],
+  html body:has(.mortem-full-title)
+  [class*="st-key-fcpanel_caut_surface_select_desktop"] {
+    width: min(100%, 44rem) !important;
+    max-width: 44rem !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="fc_apply_block_mobile"] {
+    width: max-content !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0.16rem 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="fc_apply_row_mobile"] {
+    width: max-content !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    justify-content: flex-start !important;
+    gap: 0.35rem !important;
+    overflow: visible !important;
+  }
+
+  html body:has(.mortem-full-title) .mortem-fc-inline-result {
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    max-height: 2.05rem !important;
+    padding: 0 0.15rem 0 0 !important;
+    background: transparent !important;
   }
 }
 </style>
