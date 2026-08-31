@@ -96,9 +96,9 @@ SPECIAL_OPTION_LABEL_IT: Dict[str, Dict[str, str]] = {
     },
     PARAM_ELECTRICAL_PERIORAL: {
         OPTION_NOT_ASSESSED: "Non valutata",
-        PERIORAL_MARKED: "Marcata ed estesa (+++)",
-        PERIORAL_MODERATE: "Discreta (++)",
-        PERIORAL_SLIGHT: "Accennata (+)",
+        PERIORAL_MARKED: "Muscoli facciali (+++)",
+        PERIORAL_MODERATE: "Muscoli peribuccali (++)",
+        PERIORAL_SLIGHT: "Reazione focale (+)",
         OPTION_NO_REACTION: "Nessuna reazione",
         OPTION_UNRELIABLE: "Non valutabile/non attendibile",
     },
@@ -181,8 +181,8 @@ def special_range(param_id: str, option_id: str) -> RangeValue:
 def special_description(param_id: str, option_id: str):
     """Descrizione corrente esposta tramite il livello i18n."""
     if (
-        param_id == PARAM_CHEMICAL_PUPILLARY
-        and option_id in _PUPILLARY_HENSSGE_OPTION_IDS
+        param_id in {PARAM_CHEMICAL_PUPILLARY, PARAM_ELECTRICAL_PERIORAL}
+        and (param_id != PARAM_CHEMICAL_PUPILLARY or option_id in _PUPILLARY_HENSSGE_OPTION_IDS)
     ):
         from app.parameters import dati_parametri_aggiuntivi
 
