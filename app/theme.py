@@ -67,16 +67,17 @@ def apply_theme():
           font-size: 102% !important;
         }}
 
-        /* Il toggle Condizioni variabili è realmente renderizzato dentro
-           mortem_help_row_prudent insieme al pulsante ?. Riduciamo soltanto
-           lo spazio esterno di quella riga, senza alterare altezza o overflow. */
+        /* Condizioni variabili, nota esplicativa e blocchi successivi sono figli
+           dello stesso stVerticalBlock. La distanza reale è il gap del parent,
+           non il margine interno della riga del toggle. */
         body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-mortem_help_row_prudent"] {{
-          margin-top: -0.35rem !important;
-          margin-bottom: -0.35rem !important;
+        [data-testid="stVerticalBlock"]:has(
+          > [data-testid="stElementContainer"] [class*="st-key-mortem_help_row_prudent"]
+        ) {{
+          gap: 0.28rem !important;
         }}
 
-        /* Il testo esplicativo successivo non aggiunge margini propri. */
+        /* Il testo esplicativo non aggiunge margini propri. */
         body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_explicit_ranges"],
         body:has([class*="st-key-stima_cautelativa_beta"])
