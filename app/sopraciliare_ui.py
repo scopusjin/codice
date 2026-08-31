@@ -157,7 +157,7 @@ class _SuppressedElectricalPopover:
 
 
 def _install_responsive_image_css():
-    """Mantiene entrambe le griglie elettriche alla larghezza disponibile."""
+    """Mantiene le griglie responsive e organizza la Full desktop larga a sinistra."""
     st.markdown(
         """
         <style>
@@ -167,6 +167,64 @@ def _install_responsive_image_css():
             max-width: 100%;
             margin-left: auto;
             margin-right: auto;
+        }
+
+        /* Full desktop: conserva la larghezza compatta quando i dati speciali
+           sono chiusi, ma ancora la pagina al margine sinistro. */
+        @media (min-width: 769px) {
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [data-testid="stMainBlockContainer"] {
+            box-sizing: border-box !important;
+            width: min(100%, 46rem) !important;
+            max-width: 46rem !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+          }
+        }
+
+        /* Se i dati speciali sono aperti e c'è spazio reale, la Full usa due
+           colonne: blocchi principali a sinistra, dati speciali a destra.
+           Gli elementi successivi (stima/grafico) tornano a occupare entrambe. */
+        @media (min-width: 1180px) {
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] {
+            width: min(100%, 92rem) !important;
+            max-width: 92rem !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            grid-auto-flow: row dense !important;
+            column-gap: 1rem !important;
+            row-gap: 0.65rem !important;
+            align-items: start !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+            grid-column: 1 / -1;
+            min-width: 0 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-selettore_macchie_ui"]),
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-henssge_non_applicabile"]) {
+            grid-column: 1 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-mostra_parametri_aggiuntivi"]),
+          html body:has([class*="st-key-stima_cautelativa_beta"]):has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+          > [data-testid="stElementContainer"]:has([class*="st-key-electrical_pair_layout"]) {
+            grid-column: 2 !important;
+          }
         }
         </style>
         """,
