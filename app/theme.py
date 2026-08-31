@@ -67,27 +67,24 @@ def apply_theme():
           font-size: 102% !important;
         }}
 
-        /* Full desktop: avvicina leggermente il toggle Condizioni variabili
-           al titolo del raffreddamento, senza comprimere l'altezza dei widget. */
+        /* Full desktop: compatta in modo controllato il solo riquadro
+           raffreddamento, senza cambiare l'altezza dei widget. */
         body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-stima_cautelativa_beta"] {{
-          margin-top: -0.18rem !important;
-          margin-bottom: 0 !important;
+        [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"])
+        > [data-testid="stVerticalBlock"] {{
+          gap: 0.42rem !important;
         }}
 
-        /* La spiegazione della modalità cautelativa resta aderente al toggle. */
         body:has([class*="st-key-stima_cautelativa_beta"])
-        [class*="st-key-prudent_explicit_ranges"] {{
-          margin-top: -0.34rem !important;
-          margin-bottom: 0 !important;
-          padding-top: 0 !important;
-        }}
+        [class*="st-key-prudent_explicit_ranges"],
         body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_explicit_ranges"] [data-testid="stMarkdownContainer"],
         body:has([class*="st-key-stima_cautelativa_beta"])
         [class*="st-key-prudent_explicit_ranges"] p {{
           margin-top: 0 !important;
           margin-bottom: 0 !important;
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
         }}
       }}
 
@@ -109,26 +106,27 @@ def apply_theme():
         border-radius: 8px !important;
       }}
 
-      /* Full: evidenzia soltanto i campi numerici da compilare per il
-         raffreddamento; gli stepper dei vestiti e gli altri controlli restano neutri. */
+      /* Full: evidenzia il wrapper reale dei V2 da compilare. I componenti V2
+         non sono iframe; gli stepper dei vestiti hanno chiavi diverse. */
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_rt_val"] iframe,
+      [class*="st-key-mortem_decimal_rt_val"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_tm_val"] iframe,
+      [class*="st-key-mortem_decimal_tm_val"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_peso"] iframe,
+      [class*="st-key-mortem_decimal_peso"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_ta_base_val"] iframe,
+      [class*="st-key-mortem_decimal_ta_base_val"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_ta_other_val"] iframe,
+      [class*="st-key-mortem_decimal_ta_other_val"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fattore_correzione"] iframe,
+      [class*="st-key-mortem_decimal_fattore_correzione"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fc_min_val"] iframe,
+      [class*="st-key-mortem_decimal_fc_min_val"],
       body:has([class*="st-key-stima_cautelativa_beta"])
-      [class*="st-key-mortem_decimal_fc_other_val"] iframe {{
+      [class*="st-key-mortem_decimal_fc_other_val"] {{
         box-sizing: border-box !important;
-        border: 1px solid #d6ad21 !important;
+        outline: 1px solid #d6ad21 !important;
+        outline-offset: -1px !important;
         border-radius: 8px !important;
       }}
 
