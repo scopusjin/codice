@@ -266,6 +266,24 @@ def install_special_heading_style():
     )
 
     def markdown_with_special_heading(body, *args, **kwargs):
+        if isinstance(body, str) and "mortem-full-title" in body:
+            original_markdown(
+                """
+                <style>
+                @media (min-width: 769px) {
+                  [data-testid="stMainBlockContainer"] {
+                    box-sizing: border-box !important;
+                    width: min(100%, 46rem) !important;
+                    max-width: 46rem !important;
+                    margin-left: 0 !important;
+                    margin-right: auto !important;
+                  }
+                }
+                </style>
+                """,
+                unsafe_allow_html=True,
+            )
+
         # Altri piccoli wrapper UI possono trovarsi tra questa funzione e il
         # ciclo dei parametri: recuperiamo il contesto risalendo pochi frame.
         frame = inspect.currentframe().f_back
