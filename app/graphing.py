@@ -105,6 +105,10 @@ def aggiorna_grafico(
             st.error(i18n.ui_text("graph.missing_temperatures"))
             return
 
+    raffreddamento_richiesto = any(
+        v is not None for v in (input_rt, input_ta, input_tm, input_w)
+    )
+
     cooling = compute_cooling_state(
         input_rt=input_rt,
         input_ta=input_ta,
@@ -156,6 +160,9 @@ def aggiorna_grafico(
     rigidita_range = base_tanatology.rigor_range
     rigidita_range_valido = isinstance(rigidita_range, tuple)
     rigidita_medi_range = base_tanatology.rigor_typical_range if rigidita_range_valido else None
+
+    macchie_non_valutate = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
+    rigidita_non_valutata = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     # --- parametri aggiuntivi ---
     parametri_aggiuntivi_da_considerare: List[Dict[str, Any]] = []
@@ -390,7 +397,9 @@ def aggiorna_grafico(
     if rigidita_range_valido: num_params_grafico += 1
     if raff_for_plot: num_params_grafico += 1
     num_params_grafico += len(extra_params_for_plot)
-    
+
+    st.session_state["frase_breve"] = None
+
     if num_params_grafico == 0:
         warn_box(i18n.ui_text("graph.no_useful_data"))
 
@@ -434,8 +443,7 @@ def aggiorna_grafico(
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
             st.pyplot(fig)
 
-        # frase breve subito dopo il grafico
-        st.session_state["frase_breve"] = None
+        # La frase breve viene calcolata qui ma mostrata solo dopo descrizioni e stima complessiva.
         if overlap:
             if usa_orario_custom:
                 frase_semplice = build_simple_sentence(
@@ -446,7 +454,6 @@ def aggiorna_grafico(
                 )
                 if frase_semplice:
                     st.session_state["frase_breve"] = frase_semplice
-                    render_frase_breve(frase_semplice, key="fb_with_dt")
             else:
                 frase_semplice_no_dt = build_simple_sentence_no_dt(
                     comune_inizio=comune_inizio,
@@ -455,7 +462,6 @@ def aggiorna_grafico(
                 )
                 if frase_semplice_no_dt:
                     st.session_state["frase_breve"] = frase_semplice_no_dt
-                    render_frase_breve(frase_semplice_no_dt, key="fb_no_dt")
 
     # --- avvisi ---
     if nota_globale_range_adattato:
@@ -466,7 +472,7 @@ def aggiorna_grafico(
         not _is_num(W_val) or not _is_num(CF_val) or
         (_is_num(W_val) and W_val <= 0) or (_is_num(CF_val) and CF_val <= 0)
     )
-    if not raffreddamento_calcolabile:
+    if raffreddamento_richiesto and not raffreddamento_calcolabile:
         if missing_or_invalid:
             avvisi.append(i18n.ui_text("graph.henssge_missing_invalid"))
         elif temperatures_equal:
@@ -478,7 +484,6 @@ def aggiorna_grafico(
             avvisi.append(i18n.ui_text("graph.henssge_below_ambient_warning"))
         else:
             msg = i18n.ui_text("graph.henssge_incoherent")
-            
             avvisi.append(msg)
 
     if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
@@ -538,15 +543,6 @@ def aggiorna_grafico(
         )
         _add_det(par_p)
 
-        for blocco in paragrafi_descrizioni_base(
-            testo_macchie=i18n.livor_description(base_tanatology.livor_id),
-            testo_rigidita=i18n.rigor_description(base_tanatology.rigor_id),
-        ):
-            _add_det(blocco)
-        for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
-            _add_det(blocco)
-        _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
-
         # --- frase finale complessiva ---
         frase_finale_html: str = ""
         if usa_orario_custom:
@@ -578,6 +574,20 @@ def aggiorna_grafico(
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
+
+    # Descrizioni tanatologiche: includi solo rilievi effettivamente valutati.
+    # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
+    if not macchie_non_valutate:
+        testo_macchie = i18n.livor_description(base_tanatology.livor_id)
+        if testo_macchie:
+            _add_det(f"<ul><li>{testo_macchie}</li></ul>")
+    if not rigidita_non_valutata:
+        testo_rigidita = i18n.rigor_description(base_tanatology.rigor_id)
+        if testo_rigidita:
+            _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
+    for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
+        _add_det(blocco)
+    _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
 
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
@@ -619,17 +629,7 @@ def aggiorna_grafico(
     st.session_state["__desc_dettagliate_html"] = ""  # reset
     chunks = []
 
-    # blocchi principali
-    for blocco in dettagli:
-        chunks.append(_wrap_final(blocco))
-
-    # discordanze o frase finale
-    if discordanti:
-        chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
-    elif overlap and frase_finale_html:
-        chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
-
-    # riepilogo parametri usati
+    # 1) dati utilizzati nella stima
     if overlap and len(nomi_usati) > 0:
         nomi_finali = []
         for nome, family_id in zip(nomi_usati, famiglie_usate):
@@ -643,7 +643,11 @@ def aggiorna_grafico(
         if small_html:
             chunks.append(_wrap_final(small_html))
 
-    # frase Qd
+    # 2) descrizioni dettagliate dei dati/metodi effettivamente valutati
+    for blocco in dettagli:
+        chunks.append(_wrap_final(blocco))
+
+    # Qd è parte della descrizione metodologica e precede la conclusione complessiva.
     frase_qd_html = frase_qd(
         Qd_val_check,
         Ta_val,
@@ -669,24 +673,11 @@ def aggiorna_grafico(
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
 
-    # testi base se raffreddamento non calcolabile
-    if not raffreddamento_calcolabile and missing_or_invalid:
-        no_macchie = str(selettore_macchie).strip() in {"Non valutata", "Non valutate", "/"}
-        no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
-        if not no_macchie or not no_rigidita:
-            for blk in paragrafi_descrizioni_base(
-                testo_macchie=i18n.livor_description(base_tanatology.livor_id),
-                testo_rigidita=i18n.rigor_description(base_tanatology.rigor_id),
-            ):
-                chunks.append(_wrap_final(blk))
-
-        # >>> aggiunta: testi di eccitabilità anche senza dati di temperatura <<<
-        if parametri_aggiuntivi_da_considerare:
-            for blocco in paragrafi_parametri_aggiuntivi(
-                parametri=parametri_aggiuntivi_da_considerare
-            ):
-                chunks.append(_wrap_final(blocco))
-
+    # 3) stima complessiva / eventuale discordanza
+    if discordanti:
+        chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
+    elif overlap and frase_finale_html:
+        chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
@@ -720,6 +711,8 @@ def aggiorna_grafico(
                 border:1px solid rgba(0,0,0,0.08)!important;
                 border-radius:8px!important;
                 padding:10px 12px!important;
+                text-align:justify!important;
+                text-justify:inter-word!important;
             }
             </style>
             """),
@@ -746,3 +739,8 @@ def aggiorna_grafico(
                 with st.popover(i18n.ui_text("graph.warnings_popover")):
                     for m in avvisi:
                         warn_box(m)  # usa l'helper locale
+
+    # 4) frase breve blu: sempre dopo descrizioni e stima complessiva.
+    frase_breve_html = st.session_state.get("frase_breve")
+    if frase_breve_html:
+        render_frase_breve(frase_breve_html, key="fb_after_details")
