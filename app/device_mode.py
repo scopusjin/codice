@@ -18,6 +18,32 @@ _SESSION_KEY = "__full_device_mobile"
 _FULL_DESKTOP_LABEL_OVERRIDE_CSS = r"""
 <style>
 @media (min-width: 769px) {
+  /* La riga del titolo non deve diventare un contenitore scrollabile quando
+     l'etichetta Henssge è mostrata per esteso. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_desktop"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: clip !important;
+    scrollbar-width: none !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_desktop"]::-webkit-scrollbar,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_desktop"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_actions_desktop"],
   body:has([class*="st-key-stima_cautelativa_beta"])
