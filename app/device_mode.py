@@ -159,6 +159,115 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
     content: "Metodo di ";
   }
+
+  /* Pannello FC desktop: stessa resa compatta della Full mobile, mantenendo
+     però le etichette estese già fornite dal ramo desktop. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])),
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"]):not(:has([class*="st-key-henssge_non_applicabile"])) {
+    box-sizing: border-box !important;
+    width: min(100%, 46rem) !important;
+    max-width: 46rem !important;
+    min-width: 0 !important;
+    align-self: flex-start !important;
+    margin: 0.18rem 0 0 0 !important;
+    padding: 0.34rem 0.42rem !important;
+    border: 0 !important;
+    border-radius: 0.55rem !important;
+    box-shadow: none !important;
+    background: color-mix(
+      in srgb,
+      var(--st-secondary-background-color, #F0F2F6) 86%,
+      var(--st-primary-color, #168AC1) 14%
+    ) !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_std_radio_stato_corpo"])
+  > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-fcpanel_caut_radio_stato_corpo"])
+  > [data-testid="stVerticalBlock"] {
+    gap: 0.16rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_switch_row"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_switch_row"] {
+    margin-top: 0.12rem !important;
+    margin-bottom: -0.08rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] iframe {
+    display: block !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  /* Sul desktop il selettore mantiene il testo interno ma non il titolo
+     separato "Superficie di appoggio". */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_desktop"] [data-testid="stSelectbox"] > label,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_desktop"] [data-testid="stSelectbox"] > label {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_desktop"] [data-testid="stSelectbox"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_desktop"] [data-testid="stSelectbox"] {
+    margin-top: 0.04rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_fc_apply_row_mobile"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_fc_apply_row_mobile"] {
+    align-items: center !important;
+    gap: 0.34rem !important;
+    margin-top: 0.04rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_fc_apply_value_mobile"] .mortem-fc-inline-result,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_fc_apply_value_mobile"] .mortem-fc-inline-result {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 2.2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_fc_apply_action_mobile"] button,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_fc_apply_action_mobile"] button {
+    min-height: 2.2rem !important;
+    height: 2.2rem !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
 '''
 
 
