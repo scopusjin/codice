@@ -244,7 +244,7 @@ def install_sopraciliare_click_selector():
             target_column = electrical_pair["columns"][1]
             with target_column:
                 compact_stack = st.container(
-                    gap="xsmall",
+                    gap="small",
                     key=f"special_right_stack_{parametro_id}",
                 )
             return compact_stack, compact_stack
