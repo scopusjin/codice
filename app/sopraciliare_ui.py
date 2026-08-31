@@ -154,22 +154,27 @@ def _build_supra_tiles(image):
 _SUPRA_TILES = _build_supra_tiles(_SUPRA_IMAGE)
 
 
-class _ElectricalHelperPopover:
-    """Popover testuale che continua a sopprimere le vecchie immagini."""
+class _ElectricalHelperControl:
+    """Help nativo Streamlit che continua a sopprimere le vecchie immagini."""
 
-    def __init__(self, popover, helper_text):
-        self._popover = popover
+    def __init__(self, button, helper_text, key):
+        self._button = button
         self._helper_text = helper_text
+        self._key = key
 
     def __enter__(self):
-        self._popover.__enter__()
+        self._button(
+            "?",
+            key=self._key,
+            help=self._helper_text,
+            type="tertiary",
+        )
         st._suppress_legacy_electrical_image = True
-        st.caption(self._helper_text)
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         st._suppress_legacy_electrical_image = False
-        return self._popover.__exit__(exc_type, exc_val, exc_tb)
+        return False
 
 
 def _install_responsive_image_css():
@@ -183,6 +188,37 @@ def _install_responsive_image_css():
             max-width: 100%;
             margin-left: auto;
             margin-right: auto;
+        }
+
+        /* Gli helper elettrici usano lo stesso linguaggio visivo discreto
+           dei controlli nativi con help della Full. */
+        [class*="st-key-electrical_helper_"] button {
+            width: 1.15rem !important;
+            min-width: 1.15rem !important;
+            height: 1.15rem !important;
+            min-height: 1.15rem !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            border-radius: 50% !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            opacity: 0.68;
+            font-size: 0.76rem !important;
+            line-height: 1 !important;
+        }
+
+        [class*="st-key-electrical_helper_"] button:hover {
+            background: transparent !important;
+            opacity: 1;
+        }
+
+        [class*="st-key-electrical_helper_"] button p {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0.76rem !important;
+            line-height: 1 !important;
+            font-weight: 600 !important;
         }
 
         /* Full desktop: conserva la larghezza compatta quando i dati speciali
@@ -282,6 +318,7 @@ def install_sopraciliare_click_selector():
     original_popover = st.popover
     original_image = st.image
     original_columns = st.columns
+    original_button = st.button
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -340,9 +377,10 @@ def install_sopraciliare_click_selector():
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if parametro_id in (PARAM_ELECTRICAL_SUPRACILIARY, PARAM_ELECTRICAL_PERIORAL):
-            return _ElectricalHelperPopover(
-                original_popover(*args, **kwargs),
+            return _ElectricalHelperControl(
+                original_button,
                 _ELECTRICAL_HELPER_TEXT[parametro_id],
+                key=f"electrical_helper_{parametro_id}",
             )
         return original_popover(*args, **kwargs)
 
