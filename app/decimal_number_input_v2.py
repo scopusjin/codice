@@ -104,6 +104,15 @@ _CSS = r"""
   border: 1px solid #d6ad21;
   border-radius: 6px;
 }
+.number-control:not(.is-dense).has-unit .number-input {
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+}
+.number-control:not(.is-dense).has-unit .mobile-unit {
+  border: 1px solid #d6ad21;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+}
 .mobile-unit {
   box-sizing: border-box;
   grid-column: 3;
@@ -377,6 +386,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const reserveAction = Boolean(data?.reserve_action);
   const externalAction = Boolean(data?.external_action);
   control.classList.toggle('has-help', showHelp);
+  control.classList.toggle('has-unit', Boolean(String(data?.unit || '')));
   const dense = Boolean(data?.dense);
   control.classList.toggle('has-suggest', showSuggest);
   control.classList.toggle('reserve-action', reserveAction);
