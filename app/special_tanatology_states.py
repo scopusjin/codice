@@ -104,9 +104,9 @@ SPECIAL_OPTION_LABEL_IT: Dict[str, Dict[str, str]] = {
     },
     PARAM_MECHANICAL_MUSCLE: {
         OPTION_NOT_ASSESSED: "Non valutata",
-        MECH_WHOLE_MUSCLE: "Contrazione reversibile dell’intero muscolo",
-        MECH_REVERSIBLE_SWELLING: "Formazione di una tumefazione reversibile",
-        MECH_SMALL_PERSISTENT_SWELLING: "Formazione di una piccola tumefazione persistente",
+        MECH_WHOLE_MUSCLE: "Contrazione dell’intero muscolo",
+        MECH_REVERSIBLE_SWELLING: "Tumefazione reversibile",
+        MECH_SMALL_PERSISTENT_SWELLING: "Piccola tumefazione persistente",
         OPTION_NO_REACTION: "Nessuna reazione",
         OPTION_UNRELIABLE: "Non valutabile/non attendibile",
     },
