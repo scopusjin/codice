@@ -127,6 +127,10 @@ dati_parametri_aggiuntivi = {
                 "apprezzabili. L’assenza di eccitabilità muscolare elettrica residua suggerisce che fossero trascorse "
                 "almeno 3 ore dal decesso al momento della valutazione del dato tanatologico."
             ),
+            "Non valutabile/non attendibile": (
+                "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non "
+                "sono attendibili per la stima dell'epoca della morte."
+            ),
         },
     },
 
