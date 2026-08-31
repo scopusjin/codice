@@ -183,7 +183,19 @@ def frase_breve_box(key: str = "frase_breve"):
         }}
 
         [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
+          display:flex !important;
+          flex-direction:column !important;
+          justify-content:center !important;
           gap:0 !important;
+          width:100% !important;
+          height:100% !important;
+          margin:0 !important;
+          padding:0 !important;
+        }}
+
+        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] > div[data-testid="stElementContainer"] {{
+          margin:0 !important;
+          padding:0 !important;
           width:100% !important;
         }}
         """
