@@ -102,7 +102,7 @@ UI_TEXT = {
     "full.measurement_time": "Ora rilievo:",
     "full.measurement_time_input": "Ora rilievo (HH:MM):",
     "full.putrefactive_changes": "Alterazioni putrefattive?",
-    "full.estimate_button": "STIMA EPOCA DECESSO",
+    "full.estimate_button": "Procedi con la stima",
     "full.no_data_warning": "Nessun dato inserito per la stima",
     "full.henssge_incoherent_warning": (
         "Non è stato possibile applicare il metodo di Henssge "
