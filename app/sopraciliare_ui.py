@@ -337,6 +337,7 @@ def install_sopraciliare_click_selector():
     original_image = st.image
     original_columns = st.columns
     original_container = st.container
+    original_checkbox = st.checkbox
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
@@ -433,8 +434,17 @@ def install_sopraciliare_click_selector():
                 )
         return original_selectbox(label, options, *args, **kwargs)
 
+    def checkbox_with_putrefactive_right_stack(label, *args, **kwargs):
+        if str(label).strip() == "Alterazioni putrefattive?" and electrical_pair["columns"] is not None:
+            target_column = electrical_pair["columns"][1]
+            with target_column:
+                with st.container(gap="small", key="special_right_stack_putrefactive"):
+                    return original_checkbox(label, *args, **kwargs)
+        return original_checkbox(label, *args, **kwargs)
+
     st.columns = columns_with_electrical_pair
     st.popover = popover_with_electrical_helper
     st.image = image_without_legacy_electrical_images
     st.selectbox = selectbox_with_electrical_images
+    st.checkbox = checkbox_with_putrefactive_right_stack
     st._sopraciliare_click_selector_installed = True
