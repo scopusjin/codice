@@ -163,6 +163,55 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             }}
         }}
 
+        /* Desktop largo: il pulsante parte alla stessa quota dell'ipostasi.
+           Il risultato resta sotto, più alto e con più respiro attorno alla frase. */
+        @media (min-width: 1440px) {{
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has([class*="st-key-btn_stima"]) {{
+                grid-column: 2 !important;
+                grid-row: 3 !important;
+                position: sticky !important;
+                top: 1rem !important;
+                width: 100% !important;
+                max-width: 34rem !important;
+                align-self: start !important;
+                margin: 0 !important;
+                z-index: 4 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > [class*="st-key-mortem_result_box"],
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has([class*="st-key-mortem_result_box"]) {{
+                grid-column: 2 !important;
+                grid-row: 4 / span 12 !important;
+                position: sticky !important;
+                top: 5.2rem !important;
+                width: 100% !important;
+                max-width: 34rem !important;
+                min-height: 31rem !important;
+                padding: 0.85rem 0.85rem 1.10rem !important;
+                align-self: start !important;
+                margin: 0 !important;
+                z-index: 3 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_result_box"] > [data-testid="stVerticalBlock"] {{
+                gap: 0.55rem !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_result_box"]
+            [data-testid="stMarkdownContainer"] > div[style*="background:#E6F1EF"] {{
+                margin: 0.70rem 0 1.05rem !important;
+                padding: 1rem 1.25rem !important;
+            }}
+        }}
+
         @media (max-width: 768px) {{
             [class*="st-key-{key}"] {{
                 display: flex !important;
