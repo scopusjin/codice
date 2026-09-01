@@ -19,7 +19,7 @@ from app.special_tanatology_states import (
     PARAM_ELECTRICAL_PERIORAL,
     OPTION_NOT_ASSESSED,
 )
-from app.native_time_picker import native_time_picker
+from app.native_time_picker import EMPTY_TIME_SENTINEL, native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
 from app.mobile_navigation import render_mobile_page_switch
@@ -160,40 +160,39 @@ st.markdown(
 
 # --- Data/Ora ispezione legale ---
 with st.container(border=True):
-    usa_orario_custom = st.toggle(
-        i18n.ui_text("full.add_datetime"),
-        key="usa_orario_custom",
+    st.markdown(
+        "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
+        unsafe_allow_html=True,
     )
+    # I campi restano sempre visibili. Finché l'ora è vuota, data e ora sono
+    # soltanto informative e non vengono applicate alla stima.
+    st.session_state["__full_datetime_always_visible"] = True
+    st.session_state["usa_orario_custom"] = True
+    if st.session_state.get("input_data_rilievo") is None:
+        st.session_state["input_data_rilievo"] = datetime.date.today()
+    if not st.session_state.get("input_ora_rilievo"):
+        st.session_state["input_ora_rilievo"] = EMPTY_TIME_SENTINEL
 
-    if st.session_state["usa_orario_custom"]:
-        if st.session_state.get("input_data_rilievo") is None:
-            st.session_state["input_data_rilievo"] = datetime.date.today()
-        if not st.session_state.get("input_ora_rilievo"):
-            st.session_state["input_ora_rilievo"] = "00:00"
-
-        with st.container(
-            horizontal=True,
-            horizontal_alignment="left",
-            gap="small",
-            key="inspection_datetime_row",
-        ):
-            with st.container(width="stretch", key="inspection_datetime_date"):
-                st.date_input(
-                    i18n.ui_text("full.inspection_date"),
-                    value=st.session_state["input_data_rilievo"],
-                    format="DD/MM/YYYY",
-                    label_visibility="collapsed",
-                    key="input_data_rilievo",
-                )
-            with st.container(width="stretch", key="inspection_datetime_time"):
-                selected_time = native_time_picker(
-                    st.session_state["input_ora_rilievo"],
-                    key="input_ora_rilievo_native",
-                )
-                st.session_state["input_ora_rilievo"] = selected_time
-    else:
-        st.session_state["input_data_rilievo"] = None
-        st.session_state["input_ora_rilievo"] = None
+    with st.container(
+        horizontal=True,
+        horizontal_alignment="left",
+        gap="small",
+        key="inspection_datetime_row",
+    ):
+        with st.container(width="stretch", key="inspection_datetime_date"):
+            st.date_input(
+                i18n.ui_text("full.inspection_date"),
+                value=st.session_state["input_data_rilievo"],
+                format="DD/MM/YYYY",
+                label_visibility="collapsed",
+                key="input_data_rilievo",
+            )
+        with st.container(width="stretch", key="inspection_datetime_time"):
+            selected_time = native_time_picker(
+                st.session_state["input_ora_rilievo"],
+                key="input_ora_rilievo_native",
+            )
+            st.session_state["input_ora_rilievo"] = selected_time
 
 # Alias locali
 input_data_rilievo = st.session_state.get("input_data_rilievo")
