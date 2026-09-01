@@ -66,7 +66,7 @@ def _restore_full_navigation_state() -> None:
 
 
 def _render_mobile_sidebar_button() -> None:
-    """Mostra in fondo alla Full un pulsante che apre la sidebar."""
+    """Su mobile mostra Menu; su desktop mantiene la sidebar realmente aperta."""
     st.iframe(
         """
         <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰ Menu</button>
@@ -100,6 +100,35 @@ def _render_mobile_sidebar_button() -> None:
             const frame = window.frameElement;
             if (!frame) return;
 
+            const doc = window.parent.document;
+            const isDesktop = window.parent.innerWidth >= 769;
+            const expandTarget = () =>
+              doc.querySelector('[data-testid="stExpandSidebarButton"] button') ||
+              doc.querySelector('button[data-testid="stExpandSidebarButton"]') ||
+              doc.querySelector('[data-testid="stExpandSidebarButton"]') ||
+              doc.querySelector('[data-testid="stSidebarCollapsedControl"] button') ||
+              doc.querySelector('[data-testid="collapsedControl"] button');
+
+            if (isDesktop) {
+              Object.assign(frame.style, {
+                display: "none",
+                width: "0",
+                minWidth: "0",
+                height: "0",
+                minHeight: "0",
+                border: "0",
+                margin: "0",
+                padding: "0"
+              });
+
+              const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+              if (!sidebar || sidebar.getAttribute("aria-expanded") === "false") {
+                const target = expandTarget();
+                if (target) target.click();
+              }
+              return;
+            }
+
             Object.assign(frame.style, {
               position: "static",
               width: "6.2rem",
@@ -117,12 +146,7 @@ def _render_mobile_sidebar_button() -> None:
             if (!button) return;
 
             button.addEventListener("click", () => {
-              const doc = window.parent.document;
-              const target =
-                doc.querySelector('[data-testid="stExpandSidebarButton"] button') ||
-                doc.querySelector('button[data-testid="stExpandSidebarButton"]') ||
-                doc.querySelector('[data-testid="stExpandSidebarButton"]');
-
+              const target = expandTarget();
               if (target) target.click();
             });
           })();
@@ -144,9 +168,15 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         [class*="st-key-{key}"] {{
             display: none !important;
         }}
+        [class*="st-key-mobile_sidebar_menu_footer"] {{
+            height: 0 !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }}
 
-        /* Full: la toolbar Streamlit non viene usata; l'apertura della sidebar
-           è affidata al pulsante Menu in fondo alla pagina. */
+        /* La toolbar Streamlit non viene usata nella Full. */
         body:has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stToolbar"],
         body:has([class*="st-key-stima_cautelativa_beta"])
@@ -160,6 +190,32 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 min-height: 0 !important;
                 height: 0 !important;
                 background: transparent !important;
+            }}
+
+            /* Desktop: sidebar sempre aperta e più stretta. */
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            section[data-testid="stSidebar"] {{
+                visibility: visible !important;
+                transform: none !important;
+                left: 0 !important;
+                width: 13rem !important;
+                min-width: 13rem !important;
+                max-width: 13rem !important;
+                flex: 0 0 13rem !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {{
+                width: 13rem !important;
+                min-width: 13rem !important;
+                max-width: 13rem !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stSidebarCollapseButton"],
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stSidebarCollapsedControl"],
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="collapsedControl"] {{
+                display: none !important;
             }}
         }}
 
@@ -244,6 +300,14 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 outline: 0 !important;
             }}
 
+            [class*="st-key-mobile_sidebar_menu_footer"] {{
+                height: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }}
+
             body:has([class*="st-key-stima_cautelativa_beta"])
             header[data-testid="stHeader"] {{
                 min-height: 2.35rem !important;
@@ -296,4 +360,5 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             st.switch_page(target)
 
     if key == "mobile_nav_footer_to_msil":
-        _render_mobile_sidebar_button()
+        with st.container(key="mobile_sidebar_menu_footer"):
+            _render_mobile_sidebar_button()
