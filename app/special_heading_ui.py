@@ -37,6 +37,29 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   gap: 0.30rem !important;
 }
 
+/* Le righe dei titoli elettrici devono avere altezza naturale: nessuna
+   scrollbar, ma il titolo resta aderente alla griglia di immagini. */
+[class*="st-key-electrical_title_help_row_"],
+[class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+  box-sizing: border-box !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin-top: 0 !important;
+  margin-bottom: -0.30rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+[class*="st-key-electrical_title_text_"],
+[class*="st-key-electrical_title_text_"] .mortem-section-title {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
 @media (min-width: 769px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
@@ -83,31 +106,26 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     margin-top: -0.08rem !important;
     margin-bottom: 0 !important;
   }
-
-  /* Eccitabilità: titoli più vicini alle immagini. */
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [class*="st-key-electrical_title_help_row_"] {
-    margin-bottom: -0.28rem !important;
-  }
 }
 
-/* Sotto 1440 px la Full resta nel flusso naturale Streamlit. Questa regola
-   neutralizza il vecchio layout elettrico installato al primo import senza
-   introdurre un secondo sistema flex/grid concorrente. */
+/* Sotto 1440 px deve vincere sempre il flusso naturale Streamlit, anche sulla
+   vecchia regola elettrica che viene emessa più tardi durante il primo render. */
 @media (min-width: 769px) and (max-width: 1439px) {
-  html body:has(.mortem-full-title):has(.mortem-full-title)
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 46rem) !important;
     max-width: 46rem !important;
   }
 
-  html body:has(.mortem-full-title):has(.mortem-full-title)
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: block !important;
     position: static !important;
+    grid-template-columns: none !important;
+    grid-auto-flow: initial !important;
   }
 
-  html body:has(.mortem-full-title):has(.mortem-full-title)
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
     grid-column: auto !important;
     grid-row: auto !important;
@@ -122,7 +140,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 }
 
 /* Desktop realmente largo: tutti gli input, compresi i dati speciali, restano
-   nello stack sinistro. Solo il risultato occupa la colonna destra. */
+   nello stack sinistro. Pulsante e risultato occupano la colonna destra. */
 @media (min-width: 1440px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
@@ -181,7 +199,30 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     z-index: auto !important;
   }
 
-  /* Grafico + frase di riepilogo: colonna destra, sempre visibile durante lo scroll. */
+  /* Pulsante di calcolo: colonna destra, sopra il risultato e sempre raggiungibile. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-btn_stima"]) {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    position: sticky !important;
+    top: 1rem !important;
+    width: 100% !important;
+    max-width: 34rem !important;
+    align-self: start !important;
+    margin: 0 !important;
+    z-index: 4 !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-btn_stima"]) [data-testid="stHorizontalBlock"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  /* Grafico + frase di riepilogo: sotto il pulsante, sticky nella stessa colonna. */
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > [class*="st-key-mortem_result_box"],
@@ -189,9 +230,9 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > *:has([class*="st-key-mortem_result_box"]) {
     grid-column: 2 !important;
-    grid-row: 2 / span 12 !important;
+    grid-row: 3 / span 12 !important;
     position: sticky !important;
-    top: 1rem !important;
+    top: 4.7rem !important;
     width: 100% !important;
     max-width: 34rem !important;
     align-self: start !important;
