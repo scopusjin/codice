@@ -12,6 +12,11 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
+from app.electrical_grid_geometry import (
+    ELECTRICAL_TILE_SIZE,
+    neutral_electrical_tile,
+    normalize_electrical_tile,
+)
 from app.i18n import normalize_language, special_option_label
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
@@ -97,15 +102,19 @@ def _row_content_tiles(ui, row):
 
 def _compose_row(ui, row):
     """Compone tre immagini pulite con la parte superiore della cornice unica."""
-    tiles = _row_content_tiles(ui, row)
-    sample = tiles[0]
-    tile_width, tile_height = sample.size
+    options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
+    source_tiles = _row_content_tiles(ui, row)
+    tiles = [
+        neutral_electrical_tile()
+        if option == "Non valutata"
+        else normalize_electrical_tile(tile)
+        for option, tile in zip(options, source_tiles)
+    ]
+    tile_width, tile_height = ELECTRICAL_TILE_SIZE
     row_width = tile_width * 3
     row_image = Image.new("RGB", (row_width, tile_height), (255, 255, 255))
 
     for col, tile in enumerate(tiles):
-        if tile.size != sample.size:
-            tile = tile.resize(sample.size, Image.Resampling.LANCZOS)
         row_image.paste(tile, (col * tile_width, 0))
 
     # La cornice è unica con l'etichetta sottostante: qui disegniamo soltanto

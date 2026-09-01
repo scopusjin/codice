@@ -12,6 +12,11 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
+from app.electrical_grid_geometry import (
+    ELECTRICAL_TILE_SIZE,
+    neutral_electrical_tile,
+    normalize_electrical_tile,
+)
 from app.i18n import normalize_language, special_option_label
 from app.special_tanatology_states import (
     OPTION_NOT_ASSESSED,
@@ -83,32 +88,7 @@ def _build_tiles(ui):
         for index, option in enumerate(_PERIORAL_TILE_OPTIONS[:5])
     }
 
-    sample = next(iter(tiles.values()))
-    neutral = Image.new("RGB", sample.size, (255, 255, 255))
-    draw = ImageDraw.Draw(neutral)
-    width, height = neutral.size
-    radius = min(width, height) * 0.20
-    cx, cy = width / 2, height / 2
-    stroke = max(2, round(min(width, height) * 0.018))
-    gray = (170, 170, 170)
-
-    draw.ellipse(
-        (cx - radius, cy - radius, cx + radius, cy + radius),
-        outline=gray,
-        width=stroke,
-    )
-    draw.line(
-        (
-            cx - radius * 0.72,
-            cy + radius * 0.72,
-            cx + radius * 0.72,
-            cy - radius * 0.72,
-        ),
-        fill=gray,
-        width=stroke,
-    )
-
-    tiles["Non valutata"] = neutral
+    tiles["Non valutata"] = neutral_electrical_tile()
     return tiles
 
 
@@ -133,15 +113,19 @@ def _row_content_tiles(tiles, row):
 
 def _compose_row(tiles, row):
     """Compone tre immagini pulite con la parte superiore della cornice unica."""
-    row_tiles = _row_content_tiles(tiles, row)
-    sample = row_tiles[0]
-    tile_width, tile_height = sample.size
+    options = _PERIORAL_TILE_OPTIONS[row * 3:(row + 1) * 3]
+    source_tiles = _row_content_tiles(tiles, row)
+    row_tiles = [
+        neutral_electrical_tile()
+        if option == "Non valutata"
+        else normalize_electrical_tile(tile)
+        for option, tile in zip(options, source_tiles)
+    ]
+    tile_width, tile_height = ELECTRICAL_TILE_SIZE
     row_width = tile_width * 3
     row_image = Image.new("RGB", (row_width, tile_height), (255, 255, 255))
 
     for col, tile in enumerate(row_tiles):
-        if tile.size != sample.size:
-            tile = tile.resize(sample.size, Image.Resampling.LANCZOS)
         row_image.paste(tile, (col * tile_width, 0))
 
     frame = (105, 105, 105)
