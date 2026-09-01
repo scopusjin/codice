@@ -224,6 +224,36 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         @media (min-width: 1440px) {{
             html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
             [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > [class*="st-key-inspection_datetime_row"],
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has([class*="st-key-inspection_datetime_row"]) {{
+                grid-column: 1 !important;
+                grid-row: 2 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > [class*="st-key-selettore_macchie_ui"],
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has([class*="st-key-selettore_macchie_ui"]) {{
+                grid-column: 1 !important;
+                grid-row: 3 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > [class*="st-key-henssge_non_applicabile"],
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has([class*="st-key-henssge_non_applicabile"]) {{
+                grid-column: 1 !important;
+                grid-row: 4 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
             > *:has([class*="st-key-btn_stima"]) {{
                 grid-column: 2 !important;
                 grid-row: 3 !important;
