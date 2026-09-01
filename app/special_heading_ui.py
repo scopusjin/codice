@@ -265,6 +265,7 @@ def install_special_heading_style():
     original_set_page_config = st.set_page_config
     original_pyplot = st.pyplot
     original_container = st.container
+    original_columns = st.columns
     result_box_state = {
         "container": None,
         "full_page": False,
@@ -539,6 +540,12 @@ def install_special_heading_style():
                 return original_pyplot(*args, **kwargs)
         return original_pyplot(*args, **kwargs)
 
+    def columns_with_result_box(*args, **kwargs):
+        if result_box_state["full_page"] and _called_from_graphing("aggiorna_grafico"):
+            with _result_box():
+                return original_columns(*args, **kwargs)
+        return original_columns(*args, **kwargs)
+
     def markdown_with_special_heading(body, *args, **kwargs):
         if result_box_state["full_page"] and _called_from_graphing("render_frase_breve"):
             with _result_box():
@@ -580,5 +587,6 @@ def install_special_heading_style():
 
     st.set_page_config = set_page_config_with_full_layout
     st.pyplot = pyplot_with_result_box
+    st.columns = columns_with_result_box
     st.markdown = markdown_with_special_heading
     st._special_heading_style_installed = True
