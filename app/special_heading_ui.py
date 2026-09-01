@@ -91,105 +91,9 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   }
 }
 
-@media (min-width: 1180px) {
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] {
-    width: min(100%, 92rem) !important;
-    max-width: 92rem !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
-    display: grid !important;
-    position: relative !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    grid-auto-flow: row !important;
-    column-gap: 1rem !important;
-    row-gap: 0.30rem !important;
-    align-items: start !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
-    grid-column: 1 !important;
-    min-width: 0 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has(.mortem-full-title) {
-    grid-column: 1 / -1 !important;
-    grid-row: 1 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has([class*="st-key-inspection_datetime_row"]) {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has([class*="st-key-selettore_macchie_ui"]) {
-    grid-column: 1 !important;
-    grid-row: 3 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has([class*="st-key-henssge_non_applicabile"]) {
-    grid-column: 1 !important;
-    grid-row: 4 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > [class*="st-key-mostra_parametri_aggiuntivi"],
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]) {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    align-self: start !important;
-    margin: 0 !important;
-    z-index: 2 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > [class*="st-key-electrical_pair_layout"],
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-  > *:has([class*="st-key-electrical_pair_layout"]) {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-    position: absolute !important;
-    top: 1.55rem !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    align-self: start !important;
-    margin: 0 !important;
-    z-index: 1 !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
-  > [data-testid="stVerticalBlock"] {
-    gap: 0.16rem !important;
-  }
-
-  html body:has(.mortem-full-title):has(.mortem-full-title)
-  [class*="st-key-special_datetime_row_"] {
-    margin-top: -0.12rem !important;
-    margin-bottom: 0 !important;
-  }
-}
-
-/* Layout finale: su schermi non abbastanza larghi si annulla completamente
-   il vecchio doppio pannello, evitando che la colonna principale venga compressa. */
+/* Sotto 1440 px la Full resta nel flusso naturale Streamlit. Questa regola
+   neutralizza il vecchio layout elettrico installato al primo import senza
+   introdurre un secondo sistema flex/grid concorrente. */
 @media (min-width: 769px) and (max-width: 1439px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
@@ -199,10 +103,8 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
     position: static !important;
-    gap: 0.30rem !important;
   }
 
   html body:has(.mortem-full-title):has(.mortem-full-title)
@@ -254,7 +156,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     grid-row: 1 !important;
   }
 
-  /* Annulla il vecchio spostamento dei dati speciali a destra. */
+  /* Dati speciali nello stack sinistro. */
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
   > [class*="st-key-mostra_parametri_aggiuntivi"],
@@ -295,6 +197,18 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     align-self: start !important;
     margin: 0 !important;
     z-index: 3 !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+  > [data-testid="stVerticalBlock"] {
+    gap: 0.16rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [class*="st-key-special_datetime_row_"] {
+    margin-top: -0.12rem !important;
+    margin-bottom: 0 !important;
   }
 }
 </style>
