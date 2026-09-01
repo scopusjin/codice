@@ -187,6 +187,116 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     margin-bottom: 0 !important;
   }
 }
+
+/* Layout finale: su schermi non abbastanza larghi si annulla completamente
+   il vecchio doppio pannello, evitando che la colonna principale venga compressa. */
+@media (min-width: 769px) and (max-width: 1439px) {
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] {
+    width: min(100%, 46rem) !important;
+    max-width: 46rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    display: flex !important;
+    flex-direction: column !important;
+    position: static !important;
+    gap: 0.30rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    z-index: auto !important;
+  }
+}
+
+/* Desktop realmente largo: tutti gli input, compresi i dati speciali, restano
+   nello stack sinistro. Solo il risultato occupa la colonna destra. */
+@media (min-width: 1440px) {
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] {
+    width: min(100%, 82rem) !important;
+    max-width: 82rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    display: grid !important;
+    position: relative !important;
+    grid-template-columns: minmax(44rem, 46rem) minmax(28rem, 34rem) !important;
+    grid-auto-flow: row !important;
+    justify-content: start !important;
+    column-gap: 1rem !important;
+    row-gap: 0.30rem !important;
+    align-items: start !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    min-width: 0 !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has(.mortem-full-title) {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+
+  /* Annulla il vecchio spostamento dei dati speciali a destra. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-mostra_parametri_aggiuntivi"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mostra_parametri_aggiuntivi"]),
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-electrical_pair_layout"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-electrical_pair_layout"]) {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    z-index: auto !important;
+  }
+
+  /* Grafico + frase di riepilogo: colonna destra, sempre visibile durante lo scroll. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-mortem_result_box"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mortem_result_box"]) {
+    grid-column: 2 !important;
+    grid-row: 2 / span 12 !important;
+    position: sticky !important;
+    top: 1rem !important;
+    width: 100% !important;
+    max-width: 34rem !important;
+    align-self: start !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+  }
+}
 </style>
 """
 
