@@ -27,8 +27,10 @@ _FULL_MOBILE_COMPONENT_KEYS = {
 
 _HTML = r"""
 <div class="number-control compact-mobile">
-  <span class="mobile-label"></span>
-  <button class="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
+  <span class="label-help-cluster">
+    <span class="mobile-label"></span>
+    <button class="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
+  </span>
   <input class="number-input" type="text" inputmode="decimal" autocomplete="off" />
   <span class="mobile-unit"></span>
   <button class="step-button number-minus" type="button" aria-label="Diminuisci">−</button>
@@ -63,7 +65,7 @@ _CSS = r"""
   border-color: var(--st-primary-color, #168AC1);
   box-shadow: 0 0 0 1px var(--st-primary-color, #168AC1);
 }
-.mobile-label {
+.label-help-cluster {
   box-sizing: border-box;
   grid-column: 1;
   grid-row: 1;
@@ -72,15 +74,20 @@ _CSS = r"""
   align-items: center;
   padding: 0 5px 0 8px;
   overflow: hidden;
+}
+.mobile-label {
+  box-sizing: border-box;
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.82rem;
   font-weight: 400;
   line-height: 1.1;
-}
-.number-control.has-help .mobile-label {
-  padding-right: 24px;
 }
 .number-input {
   box-sizing: border-box;
@@ -165,14 +172,13 @@ _CSS = r"""
   line-height: 1;
 }
 .temperature-help {
-  grid-column: 1;
-  grid-row: 1;
   display: none;
+  flex: 0 0 22px;
   width: 22px;
-  justify-self: end;
+  min-width: 22px;
   align-items: center;
   justify-content: center;
-  margin: 0 2px 0 0;
+  margin: 0 0 0 2px;
   z-index: 2;
   font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
@@ -242,9 +248,12 @@ _CSS = r"""
   border-radius: 7px;
   background: color-mix(in srgb, var(--st-primary-color, #168AC1) 16%, var(--st-secondary-background-color, #F0F2F6));
 }
-.number-control.is-dense .mobile-label {
+.number-control.is-dense .label-help-cluster {
   padding-left: 8px;
   padding-right: 4px;
+}
+.number-control.is-dense .mobile-label {
+  padding: 0;
   font-size: 0.79rem;
 }
 .number-control.is-dense .number-input {
