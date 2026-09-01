@@ -541,6 +541,10 @@ def install_special_heading_style():
         return original_pyplot(*args, **kwargs)
 
     def columns_with_result_box(*args, **kwargs):
+        # Il layout elettrico sottostante legge parametro_id dal chiamante
+        # immediato: propaghiamo il contesto attraverso questo wrapper.
+        frame = inspect.currentframe().f_back
+        parametro_id = frame.f_locals.get("parametro_id") if frame else None
         if result_box_state["full_page"] and _called_from_graphing("aggiorna_grafico"):
             with _result_box():
                 return original_columns(*args, **kwargs)
