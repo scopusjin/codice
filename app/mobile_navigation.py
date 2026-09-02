@@ -168,54 +168,33 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
         [class*="st-key-{key}"] {{
             display: none !important;
         }}
-        [class*="st-key-mobile_sidebar_menu_footer"] {{
-            height: 0 !important;
-            min-height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-        }}
 
-        /* La toolbar Streamlit non viene usata nella Full. */
+        /* Nasconde la toolbar Streamlit ma lascia disponibile il controllo nativo della sidebar. */
         body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stToolbar"],
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stExpandSidebarButton"] {{
+        [data-testid="stToolbar"] {{
             display: none !important;
         }}
 
         @media (min-width: 769px) {{
             body:has([class*="st-key-stima_cautelativa_beta"])
             header[data-testid="stHeader"] {{
-                min-height: 0 !important;
-                height: 0 !important;
+                min-height: 2.35rem !important;
+                height: 2.35rem !important;
                 background: transparent !important;
             }}
 
-            /* Desktop: sidebar sempre aperta e più stretta. */
+            /* Desktop: sidebar più stretta quando viene aperta, senza forzarne lo stato. */
             body:has([class*="st-key-stima_cautelativa_beta"])
             section[data-testid="stSidebar"] {{
-                visibility: visible !important;
-                transform: none !important;
-                left: 0 !important;
                 width: 13rem !important;
                 min-width: 13rem !important;
                 max-width: 13rem !important;
-                flex: 0 0 13rem !important;
             }}
             body:has([class*="st-key-stima_cautelativa_beta"])
             section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {{
                 width: 13rem !important;
                 min-width: 13rem !important;
                 max-width: 13rem !important;
-            }}
-            body:has([class*="st-key-stima_cautelativa_beta"])
-            [data-testid="stSidebarCollapseButton"],
-            body:has([class*="st-key-stima_cautelativa_beta"])
-            [data-testid="stSidebarCollapsedControl"],
-            body:has([class*="st-key-stima_cautelativa_beta"])
-            [data-testid="collapsedControl"] {{
-                display: none !important;
             }}
         }}
 
@@ -347,14 +326,6 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 outline: 0 !important;
             }}
 
-            [class*="st-key-mobile_sidebar_menu_footer"] {{
-                height: auto !important;
-                min-height: 0 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: visible !important;
-            }}
-
             body:has([class*="st-key-stima_cautelativa_beta"])
             header[data-testid="stHeader"] {{
                 min-height: 2.35rem !important;
@@ -405,7 +376,3 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             elif key == "mobile_nav_footer_to_full":
                 _restore_full_navigation_state()
             st.switch_page(target)
-
-    if key == "mobile_nav_footer_to_msil":
-        with st.container(key="mobile_sidebar_menu_footer"):
-            _render_mobile_sidebar_button()
