@@ -36,6 +36,49 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent_electrical_"] {
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  align-self: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent_electrical_"] button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* Il triangolino standard dei popover non serve nei piccoli pulsanti di aiuto
+   e li fa apparire decentrati rispetto alle etichette. */
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button [data-testid="stIconMaterial"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button [data-testid="stIconMaterial"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent_electrical_"] button [data-testid="stIconMaterial"] {
+  display: none !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button p,
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button p {
@@ -50,6 +93,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_row_henssge"] {
   align-items: center !important;
   gap: 0.35rem !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_row_prudent"] [data-testid="stHorizontalBlock"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_row_henssge"] [data-testid="stHorizontalBlock"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
 }
 
 .mortem-help-copy {

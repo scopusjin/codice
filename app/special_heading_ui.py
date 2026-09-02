@@ -47,7 +47,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   max-height: none !important;
   overflow: visible !important;
   margin-top: 0 !important;
-  margin-bottom: -0.30rem !important;
+  margin-bottom: 0.10rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -121,9 +121,9 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   }
 }
 
-/* Sotto 1440 px deve vincere sempre il flusso naturale Streamlit, anche sulla
+/* Sotto 1280 px deve vincere sempre il flusso naturale Streamlit, anche sulla
    vecchia regola elettrica che viene emessa più tardi durante il primo render. */
-@media (min-width: 769px) and (max-width: 1439px) {
+@media (min-width: 769px) and (max-width: 1279px) {
   html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 46rem) !important;
@@ -154,7 +154,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 
 /* Desktop realmente largo: tutti gli input, compresi i dati speciali, restano
    nello stack sinistro. Pulsante e risultato occupano la colonna destra. */
-@media (min-width: 1440px) {
+@media (min-width: 1280px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 82rem) !important;
@@ -253,6 +253,24 @@ _FULL_DESKTOP_LAYOUT_CSS = """
     z-index: 3 !important;
   }
 
+  /* Anche l'avviso senza dati segue il pulsante nella colonna destra. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > [class*="st-key-mortem_no_data_box"],
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mortem_no_data_box"]) {
+    grid-column: 2 !important;
+    grid-row: 4 !important;
+    position: sticky !important;
+    top: 5.2rem !important;
+    width: 100% !important;
+    max-width: 34rem !important;
+    align-self: start !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+  }
+
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
   > [data-testid="stVerticalBlock"] {
@@ -333,14 +351,14 @@ def install_special_heading_style():
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
           [data-testid="stElementContainer"]:has(.mortem-section-title) {
-            margin: 0 0 -0.58rem 0 !important;
+            margin: 0 0 0.08rem 0 !important;
             padding: 0 !important;
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
           [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
           [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
-            margin-bottom: -1.18rem !important;
+            margin-bottom: 0.08rem !important;
           }
 
           body:has([class*="st-key-mostra_parametri_aggiuntivi"])
@@ -381,13 +399,12 @@ def install_special_heading_style():
           }
         }
 
-        body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-        [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
-        [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
-          margin-bottom: -1.18rem !important;
-        }
-
         @media (min-width: 769px) {
+          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
+          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
+          [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
+            margin-bottom: -1.18rem !important;
+          }
           /* Desktop: titolo + comando Henssge nella stessa riga, senza overflow.
              Le regole hanno specificità volutamente maggiore delle vecchie
              rifiniture che trasformavano il checkbox nel solo simbolo ⦸. */

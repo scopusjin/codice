@@ -847,7 +847,8 @@ if st.session_state["show_results"]:
     )
 
     if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile:
-        st.warning(i18n.ui_text("full.no_data_warning"))
+        with st.container(key="mortem_no_data_box"):
+            st.warning(i18n.ui_text("full.no_data_warning"))
         st.stop()
 
     base_ok = (
