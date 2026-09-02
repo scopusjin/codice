@@ -59,9 +59,22 @@ _full_mobile_units = {
     "fcpanel_caut_coperte_medie": "",
     "fcpanel_caut_coperte_pesanti": "",
 }
-_number_input_original = st.number_input
+_main_delta_generator = getattr(st, "_main", None)
+
+
+def _native_main_widget(method_name, fallback):
+    """Restituisce il widget Streamlit nativo, senza wrapper di hot reload."""
+    if _main_delta_generator is None:
+        return fallback
+    method = getattr(DeltaGenerator, method_name, None)
+    if method is None:
+        return fallback
+    return method.__get__(_main_delta_generator, DeltaGenerator)
+
+
+_number_input_original = _native_main_widget("number_input", st.number_input)
 _dg_number_input_original = DeltaGenerator.number_input
-_toggle_original = st.toggle
+_toggle_original = _native_main_widget("toggle", st.toggle)
 
 
 def _sync_full_interval_mode_state():
