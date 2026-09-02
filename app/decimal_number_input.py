@@ -155,6 +155,61 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   font-size: 0.72rem !important;
   line-height: 1 !important;
 }
+
+/* Override emesso a ogni rerun: evita che gli stili degli helper conservati
+   da Streamlit durante un aggiornamento a caldo mantengano le vecchie misure. */
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"],
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] {
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button,
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button {
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  line-height: 1 !important;
+}
+
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] button p,
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] button p {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+}
+
+html body:has(.mortem-full-title):has(.mortem-full-title)
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] [class~="st-key-mortem_help_row_henssge"]):has(> [data-testid="stLayoutWrapper"] > [class~="st-key-mortem_help_row_prudent"]) {
+  gap: 0.45rem !important;
+}
+
+html body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-electrical_title_help_row_"] {
+  margin-top: 0 !important;
+  margin-bottom: -0.65rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 </style>
 """
 
