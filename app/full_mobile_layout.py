@@ -594,13 +594,20 @@ def _render_click_help(text: str, key: str) -> None:
 
 def install_full_mobile_layout():
     """Installa il layout senza eseguire comandi Streamlit all'import."""
-    if getattr(st, "_full_mobile_layout_installed", False):
-        return
+    already_installed = getattr(st, "_full_mobile_layout_installed", False)
 
-    original_markdown = st.markdown
+    # ``app.__init__`` ripristina a ogni hot reload i wrapper di toggle e input
+    # numerico. Vanno quindi riagganciati anche quando gli stili e il wrapper
+    # markdown sono già installati; in caso contrario il desktop torna alla
+    # pila verticale fino al successivo riavvio completo di Streamlit.
+    original_markdown = getattr(st, "_full_mobile_layout_original_markdown", st.markdown)
     original_toggle = st.toggle
-    original_checkbox = st.checkbox
+    original_checkbox = getattr(st, "_full_mobile_layout_original_checkbox", st.checkbox)
     original_number_input = st.number_input
+
+    if not already_installed:
+        st._full_mobile_layout_original_markdown = original_markdown
+        st._full_mobile_layout_original_checkbox = original_checkbox
 
     def markdown_with_full_mobile_layout(body, *args, **kwargs):
         tagged_body = _tag_full_field_heading(body)
@@ -722,8 +729,9 @@ def install_full_mobile_layout():
         st.session_state["__desktop_caut_fc_max_rendered_value"] = max_value
         return min_value
 
-    st.markdown = markdown_with_full_mobile_layout
+    if not already_installed:
+        st.markdown = markdown_with_full_mobile_layout
+        st.checkbox = checkbox_with_full_mobile_help
     st.toggle = toggle_with_full_mobile_help
-    st.checkbox = checkbox_with_full_mobile_help
     st.number_input = number_input_with_desktop_range_action
     st._full_mobile_layout_installed = True
