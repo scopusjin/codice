@@ -161,6 +161,9 @@ UI_TEXT = {
     "graph.special_without_range": "{parameter} ({state}) senza range definito.",
     "graph.no_useful_data": "Mancanza di dati utili per la stima",
     "graph.shifted_ranges_note": "Alcuni parametri sono stati rilevati in orari diversi; i range indicati con \"*\" sono stati traslati per renderli confrontabili.",
+    "graph.special_time_context_singular": "valutazione del dato tanatologico, effettuata {measurement_when} (rilievi termometrici {reference_when})",
+    "graph.special_time_context_plural": "valutazioni del dato tanatologico, effettuate {measurement_when} (rilievi termometrici {reference_when})",
+    "graph.special_time_context_fallback": "Rilievo effettuato {measurement_when} (rilievi termometrici {reference_when}).",
     "graph.henssge_missing_invalid": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati mancanti o non validi.",
     "graph.henssge_incoherent": "Non è stato possibile applicare il metodo di Henssge per il raffreddamento cadaverico: dati incoerenti o fuori range",
     "graph.henssge_equal_temperature_warning": (
