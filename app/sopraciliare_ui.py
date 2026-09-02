@@ -14,7 +14,7 @@ from io import BytesIO
 from pathlib import Path
 
 import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 from app.full_mobile_layout import _render_click_help
 from app.special_tanatology_states import (
@@ -78,42 +78,25 @@ _SUPRA_TILE_OPTIONS = (
     "Nessuna reazione", "Non valutabile/non attendibile", "Non valutata",
 )
 
-# Posizione degli otto riquadri nella tavola originale 2 x 4.
+# Posizione dei nove riquadri nella tavola corrente 3 x 3.
 _SUPRA_SOURCE_POSITIONS = {
     "Fase VI": (0, 0),
     "Fase V": (0, 1),
-    "Fase IV": (1, 0),
-    "Fase III": (1, 1),
-    "Fase II": (2, 0),
-    "Fase I": (2, 1),
-    "Nessuna reazione": (3, 0),
-    "Non valutabile/non attendibile": (3, 1),
+    "Fase IV": (0, 2),
+    "Fase III": (1, 0),
+    "Fase II": (1, 1),
+    "Fase I": (1, 2),
+    "Nessuna reazione": (2, 0),
+    "Non valutabile/non attendibile": (2, 1),
+    "Non valutata": (2, 2),
 }
 
 
-def _scaled_default_text(text, target_width):
-    """Crea una piccola etichetta raster senza dipendere da font esterni."""
-    font = ImageFont.load_default()
-    probe = Image.new("L", (1, 1), 0)
-    probe_draw = ImageDraw.Draw(probe)
-    bbox = probe_draw.textbbox((0, 0), text, font=font)
-    text_width = max(1, bbox[2] - bbox[0])
-    text_height = max(1, bbox[3] - bbox[1])
-
-    label = Image.new("L", (text_width + 4, text_height + 4), 255)
-    label_draw = ImageDraw.Draw(label)
-    label_draw.text((2 - bbox[0], 2 - bbox[1]), text, fill=45, font=font)
-
-    scale = min(4.0, max(1.0, target_width / label.width))
-    new_size = (round(label.width * scale), round(label.height * scale))
-    return label.resize(new_size, Image.Resampling.LANCZOS)
-
-
 def _build_supra_tiles(image):
-    """Ricava gli otto riquadri completi di didascalia e crea 'Non valutata'."""
+    """Ricava i nove riquadri dalla tavola sopraciliare 3 x 3."""
     width, height = image.size
-    cell_width = width / 2
-    cell_height = height / 4
+    cell_width = width / 3
+    cell_height = height / 3
     tiles = {}
 
     for option, (row, col) in _SUPRA_SOURCE_POSITIONS.items():
@@ -122,34 +105,6 @@ def _build_supra_tiles(image):
         y0 = round(row * cell_height) + 3
         y1 = round((row + 1) * cell_height) - 3
         tiles[option] = image.crop((x0, y0, x1, y1)).convert("RGB")
-
-    sample = next(iter(tiles.values()))
-    neutral = Image.new("RGB", sample.size, (255, 255, 255))
-    draw = ImageDraw.Draw(neutral)
-    w, h = neutral.size
-    radius = min(w, h) * 0.20
-    cx, cy = w / 2, h * 0.40
-    box = (cx - radius, cy - radius, cx + radius, cy + radius)
-    stroke = max(2, round(min(w, h) * 0.018))
-    neutral_gray = (170, 170, 170)
-    draw.ellipse(box, outline=neutral_gray, width=stroke)
-    draw.line(
-        (
-            cx - radius * 0.72,
-            cy + radius * 0.72,
-            cx + radius * 0.72,
-            cy - radius * 0.72,
-        ),
-        fill=neutral_gray,
-        width=stroke,
-    )
-
-    label = _scaled_default_text("Non valutata", round(w * 0.72))
-    label_x = round((w - label.width) / 2)
-    label_y = round(h * 0.78 - label.height / 2)
-    neutral.paste(Image.merge("RGB", (label, label, label)), (label_x, label_y))
-
-    tiles["Non valutata"] = neutral
     return tiles
 
 

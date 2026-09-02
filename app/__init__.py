@@ -358,9 +358,9 @@ def _dg_number_input_with_decimal_point(self, label, *args, **kwargs):
 DeltaGenerator.number_input = _dg_number_input_with_decimal_point
 
 
-# La tavola peribuccale originale lascia più bianco sotto i disegni rispetto
-# alla sopraciliare. Manteniamo però bocca e mento integralmente visibili.
-_perioral_single_grid._IMAGE_ONLY_FRACTION = 0.82
+# La tavola peribuccale corrente non contiene didascalie raster: la cella viene
+# letta per intero e poi normalizzata dal renderer comune.
+_perioral_single_grid._IMAGE_ONLY_FRACTION = 1.0
 
 install_supra_single_grid(_sopraciliare_ui)
 _perioral_single_grid.install_perioral_single_grid(_sopraciliare_ui)

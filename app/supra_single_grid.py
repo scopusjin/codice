@@ -30,7 +30,7 @@ from app.special_tanatology_states import (
 )
 
 
-_IMAGE_SCAN_FRACTION = 0.69
+_IMAGE_SCAN_FRACTION = 1.0
 _CONTENT_THRESHOLD = 246
 _CONTENT_PAD_TOP = 3
 _CONTENT_PAD_BOTTOM = 4
@@ -45,21 +45,11 @@ _PHASE_IDS = {
 
 
 def _image_scan_tile(ui, option):
-    """Esclude la vecchia didascalia raster mantenendo una fascia di scansione uniforme."""
+    """Legge l'intera cella: la tavola corrente non contiene didascalie raster."""
     tile = ui._SUPRA_TILES[option]
     width, height = tile.size
     scan_height = max(1, round(height * _IMAGE_SCAN_FRACTION))
-    scan = tile.crop((0, 0, width, scan_height)).convert("RGB")
-
-    # La nona cella conteneva la vecchia scritta raster "Non valutata" più in alto:
-    # conserviamo il simbolo e rendiamo bianco il resto prima del crop sul contenuto.
-    if option == "Non valutata":
-        visible_height = max(1, round(height * 0.60))
-        cleaned = Image.new("RGB", (width, scan_height), (255, 255, 255))
-        cleaned.paste(tile.crop((0, 0, width, visible_height)).convert("RGB"), (0, 0))
-        return cleaned
-
-    return scan
+    return tile.crop((0, 0, width, scan_height)).convert("RGB")
 
 
 def _strip_original_edges(tile):

@@ -34,7 +34,7 @@ _PERIORAL_TILE_OPTIONS = (
     "Non valutabile/non attendibile",
     "Non valutata",
 )
-_IMAGE_ONLY_FRACTION = 0.76
+_IMAGE_ONLY_FRACTION = 1.0
 _CONTENT_THRESHOLD = 246
 _CONTENT_PAD_TOP = 3
 _CONTENT_PAD_BOTTOM = 4
@@ -56,7 +56,7 @@ def _source_tile(ui, index):
 
 
 def _image_only_tile(tile):
-    """Rimuove la didascalia raster dalla cella originale."""
+    """Legge l'intera cella: la tavola corrente non contiene didascalie raster."""
     width, height = tile.size
     image_height = max(1, round(height * _IMAGE_ONLY_FRACTION))
     return tile.crop((0, 0, width, image_height)).convert("RGB")
