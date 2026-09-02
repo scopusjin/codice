@@ -159,10 +159,30 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-ta_native_help_button_"] button p {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
   font-size: 0.72rem !important;
   line-height: 1 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Override emesso a ogni rerun: evita che gli stili degli helper conservati

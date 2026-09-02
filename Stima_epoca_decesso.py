@@ -311,12 +311,6 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
         if stima_cautelativa_beta:
-            with st.container(key="prudent_explicit_ranges"):
-                st.markdown(
-                    i18n.ui_text("full.prudent_default_note"),
-                    unsafe_allow_html=True
-                )
-
             label_ta = i18n.ui_text("full.ta_range_label")
             label_fc = i18n.ui_text("full.fc_range_label")
 

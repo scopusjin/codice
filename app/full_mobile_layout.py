@@ -67,6 +67,25 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   transform: none !important;
 }
 
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] [data-testid="stPopover"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_henssge"] [data-testid="stPopover"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* Il triangolino standard dei popover non serve nei piccoli pulsanti di aiuto
    e li fa apparire decentrati rispetto alle etichette. */
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -81,8 +100,16 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button p,
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_henssge"] button p {
+[class*="st-key-mortem_help_henssge"] button p,
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent_electrical_"] button p {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
   margin: 0 !important;
+  padding: 0 !important;
   font-size: 0.72rem !important;
   line-height: 1 !important;
 }
@@ -156,15 +183,6 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_prudent"] {
     margin-top: -0.20rem !important;
     margin-bottom: -0.20rem !important;
-  }
-
-  /* Su mobile la spiegazione generale delle condizioni variabili resta
-     disponibile tramite l'helper del toggle e non occupa spazio nel form. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-prudent_explicit_ranges"] {
-    display: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
   }
 
   /* Riserva subito l'altezza dei componenti numerici custom: l'iframe nasce
@@ -281,15 +299,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
   /* Nella modalità con intervalli le righe separate hanno la stessa distanza
      delle righe interne della pila, senza dipendere dal gap di Streamlit. */
-  body:has([class*="st-key-prudent_explicit_ranges"])
+  body:has([class*="st-key-mortem_decimal_ta_other_val"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
-  body:has([class*="st-key-prudent_explicit_ranges"])
+  body:has([class*="st-key-mortem_decimal_fc_other_val"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
     margin-top: -0.55rem !important;
   }
 
   /* In modalità standard uniforma lo spazio Peso → T. amb. media alle altre righe. */
-  body:has([class*="st-key-stima_cautelativa_beta"]):not(:has([class*="st-key-prudent_explicit_ranges"]))
+  body:has([class*="st-key-stima_cautelativa_beta"]):not(:has([class*="st-key-mortem_decimal_ta_other_val"]))
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]) {
     margin-top: -0.55rem !important;
   }
@@ -470,7 +488,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     width: 100% !important;
     min-width: 0 !important;
     flex-wrap: nowrap !important;
-    align-items: stretch !important;
+    align-items: center !important;
     gap: 0.40rem !important;
   }
 
@@ -482,17 +500,33 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
-  [class*="st-key-desktop_caut_fc_range_values"] > [data-testid="stVerticalBlock"] {
-    gap: 0.35rem !important;
+  [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 0.40rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] > *,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_min"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-desktop_caut_fc_range_max"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-desktop_caut_fc_range_action"] {
-    flex: 0 0 5.3rem !important;
-    width: 5.3rem !important;
-    min-width: 5.3rem !important;
-    max-width: 5.3rem !important;
-    align-self: stretch !important;
+    flex: 0 0 6.25rem !important;
+    width: 6.25rem !important;
+    min-width: 6.25rem !important;
+    max-width: 6.25rem !important;
+    align-self: center !important;
   }
 
   body:has([class*="st-key-stima_cautelativa_beta"])
@@ -500,9 +534,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     box-sizing: border-box !important;
     width: 100% !important;
     min-width: 0 !important;
-    height: 5.35rem !important;
-    min-height: 5.35rem !important;
-    max-height: 5.35rem !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
     margin: 0 !important;
     padding: 0.25rem 0.35rem !important;
     display: flex !important;
@@ -651,14 +685,23 @@ def install_full_mobile_layout():
             gap="small",
             key="desktop_caut_fc_range_row",
         ):
-            with st.container(width="stretch", gap="small", key="desktop_caut_fc_range_values"):
+            with st.container(
+                horizontal=True,
+                wrap=False,
+                vertical_alignment="center",
+                width="stretch",
+                gap="small",
+                key="desktop_caut_fc_range_values",
+            ):
                 st.session_state["range_unico_beta"] = False
                 try:
-                    min_value = original_number_input(label, **kwargs)
-                    max_value = original_number_input(
-                        ui_text("full.fc_max_input"),
-                        **max_kwargs,
-                    )
+                    with st.container(width="stretch", key="desktop_caut_fc_range_min"):
+                        min_value = original_number_input(label, **kwargs)
+                    with st.container(width="stretch", key="desktop_caut_fc_range_max"):
+                        max_value = original_number_input(
+                            ui_text("full.fc_max_input"),
+                            **max_kwargs,
+                        )
                 finally:
                     st.session_state["range_unico_beta"] = range_mode
 

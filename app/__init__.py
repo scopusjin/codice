@@ -141,9 +141,9 @@ def _compact_mobile_label(label, key) -> str:
         if key == "fattore_correzione":
             return "Fattore di correzione (FC)"
         if key == "fc_min_val":
-            return "Fattore di correzione minimo"
+            return "Fattore minimo"
         if key == "fc_other_val":
-            return "Fattore di correzione massimo"
+            return "Fattore massimo"
         if key == "ta_base_val":
             return "T. ambientale media 1" if prudent_mode and range_mode else "T. ambientale media"
         if key == "ta_other_val":
