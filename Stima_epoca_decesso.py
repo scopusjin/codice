@@ -812,6 +812,76 @@ st.markdown("""
         padding: 0.6em 2em !important;
     }
     div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
+
+    /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
+       garantisce il layout a due colonne anche durante gli hot reload. */
+    @media (min-width: 1280px) {
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] {
+            box-sizing: border-box !important;
+            width: min(100%, 82rem) !important;
+            max-width: 82rem !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+            display: grid !important;
+            position: relative !important;
+            grid-template-columns: minmax(44rem, 46rem) minmax(28rem, 34rem) !important;
+            grid-auto-flow: row !important;
+            justify-content: start !important;
+            column-gap: 1rem !important;
+            row-gap: 0.30rem !important;
+            align-items: start !important;
+        }
+
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+            grid-column: 1 !important;
+            grid-row: auto !important;
+            min-width: 0 !important;
+        }
+
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has(.mortem-full-title) {
+            grid-column: 1 / -1 !important;
+            grid-row: 1 !important;
+        }
+
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-btn_stima"]) {
+            grid-column: 2 !important;
+            grid-row: 3 !important;
+            position: sticky !important;
+            top: 1rem !important;
+            width: 100% !important;
+            max-width: 34rem !important;
+            align-self: start !important;
+            margin: 0 !important;
+            z-index: 4 !important;
+        }
+
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-mortem_result_box"]),
+        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-mortem_no_data_box"]) {
+            grid-column: 2 !important;
+            grid-row: 4 / span 12 !important;
+            position: sticky !important;
+            top: 5.2rem !important;
+            width: 100% !important;
+            max-width: 34rem !important;
+            align-self: start !important;
+            margin: 0 !important;
+            z-index: 3 !important;
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
