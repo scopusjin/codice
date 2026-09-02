@@ -816,7 +816,7 @@ st.markdown("""
     /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
        garantisce il layout a due colonne anche durante gli hot reload. */
     @media (min-width: 1280px) {
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] {
             box-sizing: border-box !important;
             width: min(100%, 82rem) !important;
@@ -825,7 +825,7 @@ st.markdown("""
             margin-right: auto !important;
         }
 
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
             display: grid !important;
             position: relative !important;
@@ -837,21 +837,21 @@ st.markdown("""
             align-items: start !important;
         }
 
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
             grid-column: 1 !important;
             grid-row: auto !important;
             min-width: 0 !important;
         }
 
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
         > *:has(.mortem-full-title) {
             grid-column: 1 / -1 !important;
             grid-row: 1 !important;
         }
 
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
         > *:has([class*="st-key-btn_stima"]) {
             grid-column: 2 !important;
@@ -865,10 +865,10 @@ st.markdown("""
             z-index: 4 !important;
         }
 
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
         > *:has([class*="st-key-mortem_result_box"]),
-        html body:has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
         > *:has([class*="st-key-mortem_no_data_box"]) {
             grid-column: 2 !important;
