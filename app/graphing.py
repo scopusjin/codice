@@ -258,6 +258,10 @@ def aggiorna_grafico(
                             reference_when=reference_when,
                         )
                     )
+                descrizione = descrizione.replace(
+                    f" (rilievi termometrici {reference_when})",
+                    "",
+                )
 
             if range_valori[1] >= INF_HOURS:
                 range_trasl = (range_valori[0] - diff_h, INF_HOURS)
@@ -302,6 +306,10 @@ def aggiorna_grafico(
                 range_traslato=(np.nan, np.nan), descrizione=descrizione,
                 green_range_traslato=None,
             ))
+
+    orari_parametri_differenti = any(
+        bool(p.get("adattato")) for p in parametri_aggiuntivi_da_considerare
+    )
 
     # --- range Henssge per grafico ---
     t_min_raff_visualizzato = t_min_raff_henssge if raffreddamento_calcolabile else np.nan
@@ -621,6 +629,12 @@ def aggiorna_grafico(
                 qd_range_status=qd_range_status,
             )
             if par_h:
+                if usa_orario_custom:
+                    par_h = par_h.replace(
+                        "prima dei rilievi effettuati nel corso dell’ispezione legale.",
+                        f"prima dei rilievi effettuati nel corso dell’ispezione legale, alle ore {data_ora_ispezione_raw:%H:%M}.",
+                        1,
+                    )
                 _add_det(par_h)
 
         qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
@@ -660,6 +674,27 @@ def aggiorna_grafico(
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
+
+    if orari_parametri_differenti and frase_finale_html:
+        intro_orari_diversi = (
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi "
+            "e tenendo conto dei diversi orari di misurazione dei vari parametri,"
+        )
+        intro_min_max = (
+            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi,"
+        )
+        intro_generico = "La valutazione complessiva dei dati tanatologici consente"
+        intro_semplice = "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali,"
+        if intro_min_max in frase_finale_html:
+            frase_finale_html = frase_finale_html.replace(intro_min_max, intro_orari_diversi, 1)
+        elif intro_generico in frase_finale_html:
+            frase_finale_html = frase_finale_html.replace(
+                intro_generico,
+                f"{intro_orari_diversi} consente",
+                1,
+            )
+        elif intro_semplice in frase_finale_html:
+            frase_finale_html = frase_finale_html.replace(intro_semplice, intro_orari_diversi, 1)
 
     # Descrizioni tanatologiche: includi solo rilievi effettivamente valutati.
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
