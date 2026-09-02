@@ -38,6 +38,7 @@ _IMAGE_ONLY_FRACTION = 1.0
 _CONTENT_THRESHOLD = 246
 _CONTENT_PAD_TOP = 3
 _CONTENT_PAD_BOTTOM = 4
+_LAST_ROW_CONTENT_PAD_BOTTOM = 18
 
 
 def _source_tile(ui, index):
@@ -96,19 +97,38 @@ def _row_content_tiles(tiles, row):
     """Ritaglia le tre celle della riga sugli stessi limiti reali del contenuto."""
     options = _PERIORAL_TILE_OPTIONS[row * 3:(row + 1) * 3]
     row_tiles = [tiles[option] for option in options]
-    bounds = [bound for tile in row_tiles if (bound := _content_vertical_bounds(tile)) is not None]
+    content_tiles = [
+        tile
+        for option, tile in zip(options, row_tiles)
+        if option != "Non valutata"
+    ]
+    bounds = [
+        bound
+        for tile in content_tiles
+        if (bound := _content_vertical_bounds(tile)) is not None
+    ]
     if not bounds:
         return row_tiles
 
     top = max(0, min(bound[0] for bound in bounds) - _CONTENT_PAD_TOP)
+    pad_bottom = (
+        _LAST_ROW_CONTENT_PAD_BOTTOM
+        if row == 1
+        else _CONTENT_PAD_BOTTOM
+    )
     bottom = min(
-        min(tile.height for tile in row_tiles),
-        max(bound[1] for bound in bounds) + _CONTENT_PAD_BOTTOM,
+        min(tile.height for tile in content_tiles),
+        max(bound[1] for bound in bounds) + pad_bottom,
     )
     if bottom <= top:
         return row_tiles
 
-    return [tile.crop((0, top, tile.width, bottom)) for tile in row_tiles]
+    return [
+        tile
+        if option == "Non valutata"
+        else tile.crop((0, top, tile.width, bottom))
+        for option, tile in zip(options, row_tiles)
+    ]
 
 
 def _compose_row(tiles, row):

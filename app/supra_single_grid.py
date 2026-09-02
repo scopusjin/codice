@@ -34,6 +34,7 @@ _IMAGE_SCAN_FRACTION = 1.0
 _CONTENT_THRESHOLD = 246
 _CONTENT_PAD_TOP = 3
 _CONTENT_PAD_BOTTOM = 4
+_LAST_ROW_CONTENT_PAD_BOTTOM = 18
 _PHASE_IDS = {
     SUPRA_PHASE_I,
     SUPRA_PHASE_II,
@@ -75,19 +76,38 @@ def _row_content_tiles(ui, row):
     """Ritaglia le tre celle della riga sugli stessi limiti reali del contenuto."""
     options = ui._SUPRA_TILE_OPTIONS[row * 3:(row + 1) * 3]
     tiles = [_strip_original_edges(_image_scan_tile(ui, option)) for option in options]
-    bounds = [bound for tile in tiles if (bound := _content_vertical_bounds(tile)) is not None]
+    content_tiles = [
+        tile
+        for option, tile in zip(options, tiles)
+        if option != "Non valutata"
+    ]
+    bounds = [
+        bound
+        for tile in content_tiles
+        if (bound := _content_vertical_bounds(tile)) is not None
+    ]
     if not bounds:
         return tiles
 
     top = max(0, min(bound[0] for bound in bounds) - _CONTENT_PAD_TOP)
+    pad_bottom = (
+        _LAST_ROW_CONTENT_PAD_BOTTOM
+        if row == 2
+        else _CONTENT_PAD_BOTTOM
+    )
     bottom = min(
-        min(tile.height for tile in tiles),
-        max(bound[1] for bound in bounds) + _CONTENT_PAD_BOTTOM,
+        min(tile.height for tile in content_tiles),
+        max(bound[1] for bound in bounds) + pad_bottom,
     )
     if bottom <= top:
         return tiles
 
-    return [tile.crop((0, top, tile.width, bottom)) for tile in tiles]
+    return [
+        tile
+        if option == "Non valutata"
+        else tile.crop((0, top, tile.width, bottom))
+        for option, tile in zip(options, tiles)
+    ]
 
 
 def _compose_row(ui, row):
