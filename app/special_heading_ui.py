@@ -165,7 +165,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: grid !important;
     position: relative !important;
-    grid-template-columns: minmax(44rem, 46rem) minmax(28rem, 34rem) !important;
+    grid-template-columns: minmax(38rem, 3fr) minmax(25rem, 2fr) !important;
     grid-auto-flow: row !important;
     justify-content: start !important;
     column-gap: 1rem !important;
