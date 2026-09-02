@@ -824,6 +824,108 @@ st.markdown("""
         padding: 0 !important;
     }
 
+    /* Centratura tardiva degli helper: prevale anche sugli stili conservati
+       da Streamlit durante un aggiornamento a caldo. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_prudent"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_henssge"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-electrical_title_help_row_"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_"] {
+        align-items: center !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        max-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        max-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent_electrical_"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] button {
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        max-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        max-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* La riga FC desktop deve restare una sola riga di controlli alti 40 px. */
+    @media (min-width: 769px) {
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_row"] {
+            align-items: center !important;
+            gap: 0.40rem !important;
+            height: auto !important;
+            min-height: 40px !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            align-items: center !important;
+            gap: 0.40rem !important;
+            width: 100% !important;
+            min-width: 0 !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_action"],
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_suggest"],
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_suggest"] [data-testid="stButton"],
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_suggest"] [data-testid="stButton"] > button {
+            box-sizing: border-box !important;
+            height: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+            margin: 0 !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+        [class*="st-key-desktop_caut_fc_range_action"] {
+            flex: 0 0 6.25rem !important;
+            width: 6.25rem !important;
+            min-width: 6.25rem !important;
+            max-width: 6.25rem !important;
+            align-self: center !important;
+        }
+    }
+
     /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
        garantisce il layout a due colonne anche durante gli hot reload. */
     @media (min-width: 1280px) {
