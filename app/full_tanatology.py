@@ -17,6 +17,7 @@ from app import i18n
 from app.tanatology_states import (
     LIVOR_LABEL_IT,
     RIGOR_LABEL_IT,
+    RIGOR_DEVELOPING,
     livor_legacy_label,
     rigor_legacy_label,
 )
@@ -48,6 +49,13 @@ class _DynamicLabelMap(Mapping[str, str]):
         return len(self._ids)
 
 
+def _full_rigor_label(state_id: str, language: Optional[str] = None) -> str:
+    """Etichetta della rigidità mostrata nella versione completa."""
+    if i18n.normalize_language(language) == "it" and state_id == RIGOR_DEVELOPING:
+        return "Presente, in aumento"
+    return i18n.rigor_label(state_id, language)
+
+
 # Viste dinamiche mantenute con gli stessi nomi per compatibilità con le pagine
 # esistenti. Non congelano più le etichette al momento dell'importazione.
 FULL_LIVOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
@@ -57,7 +65,7 @@ FULL_LIVOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
 
 FULL_RIGOR_STATE_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
     RIGOR_LABEL_IT,
-    i18n.rigor_label,
+    _full_rigor_label,
 )
 
 FULL_SPECIAL_PARAM_BY_LABEL: Mapping[str, str] = _DynamicLabelMap(
@@ -73,7 +81,7 @@ def full_livor_labels(language: Optional[str] = None):
 
 def full_rigor_labels(language: Optional[str] = None):
     """Etichette localizzate della rigidità nell'identico ordine corrente."""
-    return tuple(i18n.rigor_label(state_id, language) for state_id in RIGOR_LABEL_IT)
+    return tuple(_full_rigor_label(state_id, language) for state_id in RIGOR_LABEL_IT)
 
 
 def full_livor_state_id(ui_label: str, language: Optional[str] = None) -> str:
@@ -88,7 +96,7 @@ def full_livor_state_id(ui_label: str, language: Optional[str] = None) -> str:
 def full_rigor_state_id(ui_label: str, language: Optional[str] = None) -> str:
     """Restituisce l'ID stabile associato a una voce della UI completa."""
     state_by_label = {
-        i18n.rigor_label(state_id, language): state_id
+        _full_rigor_label(state_id, language): state_id
         for state_id in RIGOR_LABEL_IT
     }
     return state_by_label[ui_label]
