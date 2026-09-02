@@ -47,7 +47,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   max-height: none !important;
   overflow: visible !important;
   margin-top: 0 !important;
-  margin-bottom: -0.65rem !important;
+  margin-bottom: -0.30rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -61,6 +61,11 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 }
 
 @media (min-width: 769px) {
+  [class*="st-key-electrical_title_help_row_"],
+  [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+    margin-bottom: -0.65rem !important;
+  }
+
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     box-sizing: border-box !important;

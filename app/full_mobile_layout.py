@@ -71,11 +71,6 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 @media (max-width: 768px) {
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
-  [data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] [class~="st-key-mortem_help_row_henssge"]):has(> [data-testid="stLayoutWrapper"] > [class~="st-key-mortem_help_row_prudent"]) {
-    gap: 0.35rem !important;
-  }
-
   body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
     display: none !important;
   }

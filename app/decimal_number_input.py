@@ -45,6 +45,7 @@ _TA_NATIVE_POPOVER_CSS = r"""
   padding: 0 !important;
 }
 
+@media (min-width: 769px) {
 body:has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_standard"]),
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -209,6 +210,7 @@ html body:has([class*="st-key-stima_cautelativa_beta"])
   margin-bottom: -0.65rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+}
 }
 </style>
 """
@@ -401,7 +403,14 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
-    native_ta_popover = bool(use_v2_mobile and help_enabled)
+    # Il popover esterno serve soltanto nel layout desktop. Su telefono deve
+    # restare l'helper interno al componente V2: segue l'etichetta corretta e
+    # non altera il posizionamento delle righe cautelative e di "Consiglia".
+    native_ta_popover = bool(
+        use_v2_mobile
+        and help_enabled
+        and not st.session_state.get("__full_device_mobile", False)
+    )
     if native_ta_popover and help_state_key:
         # Il vecchio helper V2 espandeva una caption sotto il campo. Il nuovo
         # popover nativo non usa quello stato e non deve lasciare residui aperti.
