@@ -46,12 +46,16 @@ _TA_NATIVE_POPOVER_CSS = r"""
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has([class*="st-key-ta_native_help_"]) {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_standard"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_range"]) {
   position: relative !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_"] {
+[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_standard"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_range"]) {
   box-sizing: border-box !important;
   position: absolute !important;
   top: 0 !important;
@@ -69,8 +73,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_"] > [data-testid="stHorizontalBlock"] {
+[class~="st-key-ta_native_help_standard"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class~="st-key-ta_native_help_range"] {
   box-sizing: border-box !important;
+  position: static !important;
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;

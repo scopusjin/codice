@@ -47,7 +47,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   max-height: none !important;
   overflow: visible !important;
   margin-top: 0 !important;
-  margin-bottom: -0.30rem !important;
+  margin-bottom: -0.65rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -94,6 +94,14 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
   > [data-testid="stVerticalBlock"] {
     gap: 0.18rem !important;
+  }
+
+  /* Nelle versioni recenti di Streamlit il contenitore con bordo coincide
+     con lo stVerticalBlock: limita direttamente gli intervalli tra intestazione,
+     helper, campi di temperatura e fattore di correzione. */
+  html body:has(.mortem-full-title):has(.mortem-full-title)
+  [data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] [class~="st-key-mortem_help_row_henssge"]):has(> [data-testid="stLayoutWrapper"] > [class~="st-key-mortem_help_row_prudent"]) {
+    gap: 0.45rem !important;
   }
 
   html body:has(.mortem-full-title):has(.mortem-full-title)

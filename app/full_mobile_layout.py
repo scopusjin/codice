@@ -24,10 +24,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button,
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button {
-  width: 1.6rem !important;
-  min-width: 1.6rem !important;
-  height: 1.6rem !important;
-  min-height: 1.6rem !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
   padding: 0 !important;
   border-radius: 50% !important;
   line-height: 1 !important;
@@ -38,7 +40,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button p {
   margin: 0 !important;
-  font-size: 0.82rem !important;
+  font-size: 0.72rem !important;
   line-height: 1 !important;
 }
 
@@ -69,6 +71,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 @media (max-width: 768px) {
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] [class~="st-key-mortem_help_row_henssge"]):has(> [data-testid="stLayoutWrapper"] > [class~="st-key-mortem_help_row_prudent"]) {
+    gap: 0.35rem !important;
+  }
+
   body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
     display: none !important;
   }
