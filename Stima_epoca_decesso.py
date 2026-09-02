@@ -813,6 +813,23 @@ st.markdown("""
     }
     div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
 
+    /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
+       automatica di Streamlit altera centratura e larghezza del cerchio. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] button [data-testid="stIconMaterial"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] button [data-testid="stIconMaterial"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] button [data-testid="stIconMaterial"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
        garantisce il layout a due colonne anche durante gli hot reload. */
     @media (min-width: 1280px) {
