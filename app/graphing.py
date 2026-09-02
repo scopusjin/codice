@@ -98,9 +98,11 @@ def aggiorna_grafico(
         except ValueError:
             st.markdown(i18n.ui_text("graph.invalid_inspection_time_html"), unsafe_allow_html=True)
             return
-        data_ora_ispezione = arrotonda_quarto_dora(datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time()))
+        data_ora_ispezione_raw = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
+        data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_raw)
     else:
-        data_ora_ispezione = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
+        data_ora_ispezione_raw = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
+        data_ora_ispezione = data_ora_ispezione_raw
 
     # --- validazioni base (configurabili) ---
     if not skip_warnings:
@@ -192,7 +194,7 @@ def aggiorna_grafico(
 
         # orario
         if not ora_rilievo_param_str or not str(ora_rilievo_param_str).strip():
-            ora_rilievo_time = data_ora_ispezione.time()
+            ora_rilievo_time = data_ora_ispezione_raw.time()
         else:
             try:
                 ora_rilievo_time = datetime.datetime.strptime(ora_rilievo_param_str, "%H:%M").time()
@@ -205,7 +207,7 @@ def aggiorna_grafico(
                 continue
 
         if data_rilievo_param is None:
-            data_rilievo_param = data_ora_ispezione.date()
+            data_rilievo_param = data_ora_ispezione_raw.date()
 
         range_valori = parametro_risolto.range_value
         if range_valori:
@@ -214,8 +216,8 @@ def aggiorna_grafico(
                 if parametro_risolto.description is not None
                 else i18n.ui_text("graph.missing_special_description", state=stato_selezionato)
             )
-            data_ora_param = arrotonda_quarto_dora(datetime.datetime.combine(data_rilievo_param, ora_rilievo_time))
-            diff_h = (data_ora_param - data_ora_ispezione).total_seconds() / 3600.0
+            data_ora_param = datetime.datetime.combine(data_rilievo_param, ora_rilievo_time)
+            diff_h = (data_ora_param - data_ora_ispezione_raw).total_seconds() / 3600.0
             if range_valori[1] >= INF_HOURS:
                 range_trasl = (range_valori[0] - diff_h, INF_HOURS)
             else:
