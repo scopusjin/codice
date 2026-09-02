@@ -121,9 +121,9 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   }
 }
 
-/* Sotto 1280 px deve vincere sempre il flusso naturale Streamlit, anche sulla
+/* Sotto 1024 px deve vincere sempre il flusso naturale Streamlit, anche sulla
    vecchia regola elettrica che viene emessa più tardi durante il primo render. */
-@media (min-width: 769px) and (max-width: 1279px) {
+@media (min-width: 769px) and (max-width: 1023px) {
   html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 46rem) !important;
@@ -154,7 +154,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 
 /* Desktop realmente largo: tutti gli input, compresi i dati speciali, restano
    nello stack sinistro. Pulsante e risultato occupano la colonna destra. */
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     width: min(100%, 82rem) !important;
@@ -165,7 +165,7 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: grid !important;
     position: relative !important;
-    grid-template-columns: minmax(38rem, 3fr) minmax(25rem, 2fr) !important;
+    grid-template-columns: minmax(38rem, 2fr) minmax(19rem, 1fr) !important;
     grid-auto-flow: row !important;
     justify-content: start !important;
     column-gap: 1rem !important;

@@ -221,7 +221,7 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
 
         /* Desktop largo: il pulsante parte alla stessa quota dell'ipostasi.
            Il risultato resta sotto, più alto e con più respiro attorno alla frase. */
-        @media (min-width: 1280px) {{
+        @media (min-width: 1024px) {{
             html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
             [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
             > [class*="st-key-inspection_datetime_row"],

@@ -324,6 +324,11 @@ def install_sopraciliare_click_selector():
             if electrical_pair["columns"] is None:
                 return original_columns(spec, *args, **kwargs)
             if not is_main_row:
+                # La coppia sentinella è richiesta dal renderer data/ora:
+                # la ancora sotto il rispettivo selettore della colonna destra.
+                if _columns_signature(spec) == (1000.0, 1.0):
+                    target_column = electrical_pair["columns"][1]
+                    return target_column, target_column
                 return original_columns(spec, *args, **kwargs)
 
             target_column = electrical_pair["columns"][1]

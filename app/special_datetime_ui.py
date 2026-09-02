@@ -31,11 +31,6 @@ _SPECIAL_PARAM_IDS = {
     PARAM_CHEMICAL_PUPILLARY,
 }
 
-_ELECTRICAL_PARAM_IDS = {
-    PARAM_ELECTRICAL_SUPRACILIARY,
-    PARAM_ELECTRICAL_PERIORAL,
-}
-
 _SELECTOR_KEY_TO_PARAM_ID = {
     f"{label}_selector": param_id
     for param_id, label in SPECIAL_PARAM_LABEL_IT.items()
@@ -146,15 +141,15 @@ def install_special_datetime_ui():
         <style>
         [class*="st-key-special_datetime_row_"] {
             width: 100% !important;
-            margin-top: 0.10rem !important;
-            margin-bottom: 0.20rem !important;
+            margin-top: 0.06rem !important;
+            margin-bottom: 0.08rem !important;
         }
 
         [class*="st-key-special_datetime_row_"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
-            gap: 0.35rem !important;
+            gap: 0.30rem !important;
             width: 100% !important;
         }
 
@@ -343,14 +338,12 @@ def install_special_datetime_ui():
                 context["await_datetime"] = False
                 context["datetime_labels_left"] = 2
 
-                if parametro_id in _ELECTRICAL_PARAM_IDS:
-                    # original_columns è il layout elettrico già installato:
-                    # crea l'ancora nella metà corretta della coppia.
-                    anchor, _ = original_columns([1000, 1], gap="small")
-                    with anchor:
-                        return _datetime_boxes(parametro_id)
-
-                return _datetime_boxes(parametro_id)
+                # original_columns è il layout elettrico già installato:
+                # crea l'ancora nella colonna del parametro. Questo vale anche
+                # per meccanica e pupillare, collocate sotto la peribuccale.
+                anchor, _ = original_columns([1000, 1], gap="small")
+                with anchor:
+                    return _datetime_boxes(parametro_id)
 
         return original_columns(spec, *args, **kwargs)
 

@@ -120,6 +120,13 @@ _CSS = r"""
   border-left: 0;
   border-radius: 0 6px 6px 0;
 }
+.number-control:not(.is-dense):not(.has-unit) .number-input {
+  grid-column: 2 / 4;
+  padding-right: 8px;
+}
+.number-control:not(.is-dense):not(.has-unit) .mobile-unit {
+  display: none;
+}
 .mobile-unit {
   box-sizing: border-box;
   grid-column: 3;
@@ -173,12 +180,12 @@ _CSS = r"""
 }
 .temperature-help {
   display: none;
-  flex: 0 0 22px;
-  width: 22px;
-  min-width: 22px;
+  flex: 0 0 18px;
+  width: 18px;
+  min-width: 18px;
   align-items: center;
   justify-content: center;
-  margin: 0 0 0 2px;
+  margin: 0 0 0 4px;
   z-index: 2;
   font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }

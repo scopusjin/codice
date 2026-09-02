@@ -835,6 +835,16 @@ st.markdown("""
     html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
     [class*="st-key-ta_native_help_"] {
         align-items: center !important;
+        gap: 4px !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_prudent"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_henssge"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-electrical_title_help_row_"] {
+        gap: 4px !important;
     }
 
     html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
@@ -879,6 +889,14 @@ st.markdown("""
         margin: 0 !important;
         padding: 0 !important;
         line-height: 1 !important;
+    }
+
+    /* Il riquadro di raffreddamento usa un intervallo verticale uniforme e
+       più compatto tra intestazione, toggle e righe dei parametri. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
+    > [data-testid="stVerticalBlock"] {
+        gap: 0.45rem !important;
     }
 
     /* La riga FC desktop deve restare una sola riga di controlli alti 40 px. */
@@ -928,7 +946,7 @@ st.markdown("""
 
     /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
        garantisce il layout a due colonne anche durante gli hot reload. */
-    @media (min-width: 1280px) {
+    @media (min-width: 1024px) {
         html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
         [data-testid="stMainBlockContainer"] {
             box-sizing: border-box !important;
@@ -942,7 +960,7 @@ st.markdown("""
         [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
             display: grid !important;
             position: relative !important;
-            grid-template-columns: minmax(38rem, 3fr) minmax(25rem, 2fr) !important;
+            grid-template-columns: minmax(38rem, 2fr) minmax(19rem, 1fr) !important;
             grid-auto-flow: row !important;
             justify-content: start !important;
             column-gap: 1rem !important;
