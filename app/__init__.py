@@ -199,6 +199,7 @@ def _compact_mobile_label(label, key) -> str:
 def _number_input_with_decimal_point(label, *args, **kwargs):
     key = kwargs.get("key")
     if key in _decimal_keys:
+        compact_label_override = kwargs.pop("_mortem_compact_label", None)
         if args:
             # I campi interessati nell'app usano argomenti nominati; fallback
             # prudente al widget originale se in futuro la firma cambia.
@@ -271,7 +272,10 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
 
         compact_mobile = (
             key in _full_mobile_units
-            and bool(str(label).strip())
+            and (
+                bool(str(label).strip())
+                or compact_label_override is not None
+            )
         )
         hide_group_heading = (
             compact_mobile
@@ -316,6 +320,14 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             st.session_state["toggle_fattore"] = True
             st.session_state["__full_fc_suggest_target"] = suggest_target
 
+        compact_label = ""
+        if compact_mobile:
+            compact_label = (
+                str(compact_label_override)
+                if compact_label_override is not None
+                else _compact_mobile_label(label, key)
+            )
+
         result = decimal_number_input(
             value=logical_value,
             step=kwargs.get("step", 1.0),
@@ -326,7 +338,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             sync_token=st.session_state[sync_key],
             aria_label=label or key,
             compact_mobile=compact_mobile,
-            compact_label=_compact_mobile_label(label, key) if compact_mobile else "",
+            compact_label=compact_label,
             unit=_full_mobile_units.get(key, "") if compact_mobile else "",
             hide_group_heading=hide_group_heading,
             inline_weight_toggle=inline_weight_toggle,
