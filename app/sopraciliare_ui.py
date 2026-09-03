@@ -144,7 +144,7 @@ def _install_responsive_image_css():
         [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
             align-items: center !important;
             justify-content: flex-start !important;
-            gap: 0.28rem !important;
+            gap: 4px !important;
         }
 
         [class*="st-key-electrical_title_text_"] {
@@ -160,30 +160,120 @@ def _install_responsive_image_css():
         }
 
         [class*="st-key-mortem_help_prudent_electrical_"] {
-            flex: 0 0 auto !important;
-            width: 18px !important;
-            min-width: 18px !important;
-            max-width: 18px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        [class*="st-key-mortem_help_prudent_electrical_"] button {
+            box-sizing: border-box !important;
+            flex: 0 0 18px !important;
             width: 18px !important;
             min-width: 18px !important;
             max-width: 18px !important;
             height: 18px !important;
             min-height: 18px !important;
             max-height: 18px !important;
+            margin: 0 !important;
             padding: 0 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"],
+        [class*="st-key-mortem_help_prudent_electrical_"] button {
+            box-sizing: border-box !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] button {
             border-radius: 50% !important;
             line-height: 1 !important;
         }
 
-        [class*="st-key-mortem_help_prudent_electrical_"] button p {
+        [class*="st-key-mortem_help_prudent_electrical_"] button [data-testid="stIconMaterial"] {
+            display: none !important;
+            visibility: hidden !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        [class*="st-key-mortem_help_prudent_electrical_"] button p {
+            box-sizing: border-box !important;
+            display: grid !important;
+            place-items: center !important;
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            height: 18px !important;
+            min-height: 18px !important;
+            max-height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
             font-size: 0.72rem !important;
             line-height: 1 !important;
+        }
+
+        @media (max-width: 768px) {
+          /* Il titolo deve restare nel flusso naturale. Le griglie avevano un
+             offset negativo mobile che le portava sopra il testo. */
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-eccitabilita_sopraciliare_grid"],
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-eccitabilita_peribuccale_grid"] {
+            position: relative !important;
+            top: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-electrical_title_help_row_"],
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            height: auto !important;
+            min-height: 18px !important;
+            max-height: none !important;
+            margin: 0 0 0.16rem 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            align-items: center !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-electrical_title_text_"] {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            overflow: visible !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-electrical_title_text_"] .mortem-section-title {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            line-height: 1.12 !important;
+          }
+
+          html body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-electrical_title_help_"] {
+            flex: 0 0 18px !important;
+            width: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            align-self: center !important;
+          }
         }
 
         /* Full desktop: conserva la larghezza compatta quando i dati speciali
@@ -196,6 +286,69 @@ def _install_responsive_image_css():
             max-width: 46rem !important;
             margin-left: 0 !important;
             margin-right: auto !important;
+          }
+
+          /* Tutte le barre numeriche principali hanno la stessa larghezza
+             visiva: metà della colonna di input. Il riferimento è l'intero
+             controllo azzurro, non il solo campo numerico interno. */
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-prudent_weight_value_desktop"] {
+            box-sizing: border-box !important;
+            flex: 0 0 calc(50% - 0.25rem) !important;
+            width: calc(50% - 0.25rem) !important;
+            min-width: 0 !important;
+            max-width: calc(50% - 0.25rem) !important;
+          }
+
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-mortem_decimal_fattore_correzione"] {
+            box-sizing: border-box !important;
+            width: calc(50% - 0.25rem) !important;
+            min-width: 0 !important;
+            max-width: calc(50% - 0.25rem) !important;
+          }
+
+          /* Nell'intervallo FC i due controlli mantengono la stessa larghezza
+             delle temperature/peso; il comando Consiglia resta separato e si
+             dispone sotto a destra senza accorciare le due barre. */
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-desktop_caut_fc_range_row"] {
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            gap: 0.24rem 0.40rem !important;
+            height: auto !important;
+            min-height: 40px !important;
+          }
+
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-desktop_caut_fc_range_values"] {
+            box-sizing: border-box !important;
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+          }
+
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 0.40rem !important;
+            width: 100% !important;
+            min-width: 0 !important;
+          }
+
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-desktop_caut_fc_range_action"] {
+            flex: 0 0 6.25rem !important;
+            width: 6.25rem !important;
+            min-width: 6.25rem !important;
+            max-width: 6.25rem !important;
+            margin-left: auto !important;
+            align-self: center !important;
           }
         }
 
