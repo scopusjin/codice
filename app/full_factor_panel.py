@@ -166,6 +166,7 @@ def _render_factor_panel(
         radio_kwargs["label_visibility"] = "collapsed"
 
     corr_placeholder = None
+    body_aux_placeholder = None
     full_compact_row = compact_full and not mobile
     if full_compact_row:
         row_key = "body_row_mobile" if full_mobile else "body_row_desktop"
@@ -178,7 +179,10 @@ def _render_factor_panel(
                     stato_label = st.radio("dummy", list(body_labels()), **radio_kwargs)
             with right_col:
                 with st.container(key=k(corr_slot_key)):
-                    corr_placeholder = st.empty()
+                    if full_mobile:
+                        body_aux_placeholder = st.empty()
+                    else:
+                        corr_placeholder = st.empty()
     else:
         stato_label = st.radio("" if mobile else "dummy", list(body_labels()), **radio_kwargs)
 
@@ -191,8 +195,9 @@ def _render_factor_panel(
         acqua_kwargs = dict(index=0, horizontal=True, key=k("radio_acqua"))
         if mobile:
             acqua_kwargs["label_visibility"] = "collapsed"
-        if corr_placeholder is not None:
-            with corr_placeholder.container():
+        water_placeholder = body_aux_placeholder if body_aux_placeholder is not None else corr_placeholder
+        if water_placeholder is not None:
+            with water_placeholder.container():
                 acqua_label = st.radio("dummy", list(water_labels()), **acqua_kwargs)
         else:
             acqua_label = st.radio("" if mobile else "dummy", list(water_labels()), **acqua_kwargs)
