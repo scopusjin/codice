@@ -472,25 +472,28 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
-                    fc_c1, fc_c2 = st.columns(2, gap="small")
-                    with fc_c1:
-                        fc_min_val = st.number_input(
-                            i18n.ui_text("full.fc_min_input"),
-                            None,
-                            value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                            step=0.1, format="%.2f",
-                            key="fc_min_val",
-                            label_visibility="collapsed"
-                        )
-                    with fc_c2:
-                        fc_other_val = st.number_input(
-                            i18n.ui_text("full.fc_max_input"),
-                            None,
-                            value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                            step=0.1, format="%.2f",
-                            key="fc_other_val",
-                            label_visibility="collapsed"
-                        )
+                    range_mode_before_fc = st.session_state.get("range_unico_beta", False)
+                    st.session_state["range_unico_beta"] = False
+                    try:
+                        fc_c1, fc_c2 = st.columns(2, gap="small")
+                        with fc_c1:
+                            fc_min_val = st.number_input(
+                                i18n.ui_text("full.fc_min_input"),
+                                value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                                step=0.1, format="%.2f",
+                                key="fc_min_val",
+                                label_visibility="collapsed"
+                            )
+                        with fc_c2:
+                            fc_other_val = st.number_input(
+                                i18n.ui_text("full.fc_max_input"),
+                                value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                                step=0.1, format="%.2f",
+                                key="fc_other_val",
+                                label_visibility="collapsed"
+                            )
+                    finally:
+                        st.session_state["range_unico_beta"] = range_mode_before_fc
 
                     fc_values = [
                         st.session_state.get("fc_min_val"),
