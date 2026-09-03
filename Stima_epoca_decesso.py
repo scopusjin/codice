@@ -22,6 +22,7 @@ from app.special_tanatology_states import (
 from app.native_time_picker import EMPTY_TIME_SENTINEL, native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
+from app.full_mobile_layout import _render_click_help
 from app.mobile_navigation import render_mobile_page_switch
 from app.graphing import aggiorna_grafico
 
@@ -328,9 +329,6 @@ with st.container(border=True):
         # 🔶 MASCHERA CAUTELATIVA
         # -------------------------
         if stima_cautelativa_beta:
-            label_ta = i18n.ui_text("full.ta_range_label")
-            label_fc = i18n.ui_text("full.fc_range_label")
-
             if full_mobile:
                 with st.container(gap="xsmall", key="cooling_prudent_v2_stack_mobile"):
                     rectal_label = i18n.ui_text("full.rectal_temp_label")
@@ -444,23 +442,52 @@ with st.container(border=True):
                     with weight_c2:
                         st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    ta_c1, ta_c2 = st.columns(2, gap="small")
+                    range_spec = [1.6, 1.0, 1.0, 0.72]
+                    ta_label_col, ta_c1, ta_c2, _ = st.columns(
+                        range_spec,
+                        gap="small",
+                        vertical_alignment="center",
+                    )
+                    with ta_label_col:
+                        with st.container(
+                            horizontal=True,
+                            wrap=False,
+                            vertical_alignment="center",
+                            gap="xsmall",
+                            key="desktop_caut_ta_range_label",
+                        ):
+                            st.markdown(
+                                "<div style='font-size:0.82rem; white-space:nowrap;'>Range temperatura ambientale media</div>",
+                                unsafe_allow_html=True,
+                            )
+                            _render_click_help(
+                                i18n.ui_text("full.ta_mean_help"),
+                                "mortem_help_ta_range_inline",
+                            )
                     with ta_c1:
                         ta_base_val = st.number_input(
                             i18n.ui_text("full.ta_base_input"),
                             value=sget("ta_base_val", 20.0),
                             step=0.1, format="%.1f",
                             key="ta_base_val",
-                            label_visibility="collapsed"
+                            label_visibility="collapsed",
+                            _mortem_compact_label="",
                         )
-                    with ta_c2:
-                        ta_other_val = st.number_input(
-                            i18n.ui_text("full.ta_other_input"),
-                            value=sget("ta_other_val", ta_base_val),
-                            step=0.1, format="%.1f",
-                            key="ta_other_val",
-                            label_visibility="collapsed"
-                        )
+                    range_mode_before_ta_other = st.session_state.get("range_unico_beta", False)
+                    st.session_state["range_unico_beta"] = False
+                    try:
+                        with ta_c2:
+                            ta_other_val = st.number_input(
+                                i18n.ui_text("full.ta_other_input"),
+                                value=sget("ta_other_val", ta_base_val),
+                                step=0.1, format="%.1f",
+                                key="ta_other_val",
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
+                    finally:
+                        st.session_state["range_unico_beta"] = range_mode_before_ta_other
+
                     ta_values = [
                         st.session_state.get("ta_base_val"),
                         st.session_state.get("ta_other_val"),
@@ -472,17 +499,28 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
+                    fc_label_col, fc_c1, fc_c2, fc_action_col = st.columns(
+                        range_spec,
+                        gap="small",
+                        vertical_alignment="center",
+                    )
+                    with fc_label_col:
+                        st.markdown(
+                            "<div style='font-size:0.82rem; white-space:nowrap;'>Range fattore di correzione</div>",
+                            unsafe_allow_html=True,
+                        )
+
                     range_mode_before_fc = st.session_state.get("range_unico_beta", False)
                     st.session_state["range_unico_beta"] = False
                     try:
-                        fc_c1, fc_c2 = st.columns(2, gap="small")
                         with fc_c1:
                             fc_min_val = st.number_input(
                                 i18n.ui_text("full.fc_min_input"),
                                 value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
                                 step=0.1, format="%.2f",
                                 key="fc_min_val",
-                                label_visibility="collapsed"
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
                         with fc_c2:
                             fc_other_val = st.number_input(
@@ -490,10 +528,20 @@ with st.container(border=True):
                                 value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
                                 step=0.1, format="%.2f",
                                 key="fc_other_val",
-                                label_visibility="collapsed"
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
                     finally:
                         st.session_state["range_unico_beta"] = range_mode_before_fc
+
+                    with fc_action_col:
+                        st.button(
+                            "Consiglia",
+                            key="desktop_caut_fc_structural_suggest",
+                            type="secondary",
+                            width="stretch",
+                            on_click=_toggle_desktop_range_fc_suggest,
+                        )
 
                     fc_values = [
                         st.session_state.get("fc_min_val"),
@@ -505,25 +553,6 @@ with st.container(border=True):
                     else:
                         st.session_state.pop("FC_min_beta", None)
                         st.session_state.pop("FC_max_beta", None)
-
-                    _, fc_action_col = st.columns(2, gap="small")
-                    with fc_action_col:
-                        with st.container(
-                            horizontal=True,
-                            horizontal_alignment="right",
-                            key="desktop_caut_fc_structural_action",
-                        ):
-                            active_fc_suggest = bool(
-                                st.session_state.get("toggle_fattore_inline", False)
-                                and st.session_state.get("__full_fc_suggest_target") == "range"
-                            )
-                            st.button(
-                                "Consiglia",
-                                key="desktop_caut_fc_structural_suggest",
-                                type="primary" if active_fc_suggest else "secondary",
-                                width="content",
-                                on_click=_toggle_desktop_range_fc_suggest,
-                            )
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
@@ -844,6 +873,29 @@ st.markdown("""
         padding: 0.6em 2em !important;
     }
     div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
+
+    /* Consiglia FC: azzurrino come il pannello, distinto dall'azione di stima. */
+    html body:has(.mortem-full-title)
+    [class*="st-key-desktop_caut_fc_structural_suggest"] button {
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        margin: 0 !important;
+        padding: 0.25rem 0.55rem !important;
+        border: 1px solid color-mix(in srgb, var(--st-primary-color,#168AC1) 30%, transparent) !important;
+        border-radius: 0.48rem !important;
+        background: color-mix(in srgb, var(--st-primary-color,#168AC1) 14%, transparent) !important;
+        color: var(--st-text-color,#31333F) !important;
+        font-weight: 500 !important;
+        box-shadow: none !important;
+    }
+    html body:has(.mortem-full-title)
+    [class*="st-key-desktop_caut_fc_structural_suggest"] button:hover {
+        background: color-mix(in srgb, var(--st-primary-color,#168AC1) 20%, transparent) !important;
+        border-color: color-mix(in srgb, var(--st-primary-color,#168AC1) 45%, transparent) !important;
+    }
 
     /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
        automatica di Streamlit altera centratura e larghezza del cerchio. */
