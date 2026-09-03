@@ -60,6 +60,31 @@ _FULL_DESKTOP_LAYOUT_CSS = """
   overflow: visible !important;
 }
 
+@media (max-width: 768px) {
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-electrical_title_help_row_"],
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
+    margin-bottom: 0.36rem !important;
+  }
+
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-special_right_stack_mechanical_muscle"] > [data-testid="stVerticalBlock"],
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-special_right_stack_chemical_pupillary"] > [data-testid="stVerticalBlock"] {
+    gap: 0.04rem !important;
+    row-gap: 0.04rem !important;
+  }
+
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-special_right_stack_mechanical_muscle"] [data-testid="stElementContainer"]:has(.mortem-section-title),
+  html body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-special_right_stack_chemical_pupillary"] [data-testid="stElementContainer"]:has(.mortem-section-title) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
 @media (min-width: 769px) {
   [class*="st-key-electrical_title_help_row_"],
   [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
