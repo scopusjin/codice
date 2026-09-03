@@ -183,22 +183,33 @@ _CSS = r"""
   flex: 0 0 18px;
   width: 18px;
   min-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  max-height: 18px;
   align-items: center;
   justify-content: center;
   margin: 0 0 0 4px;
+  padding: 0;
   z-index: 2;
-  font: 600 0.78rem var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font: 600 0.72rem/1 var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
 }
 .temperature-help.is-visible { display: flex; }
 .temperature-help > span {
   box-sizing: border-box;
-  display: inline-flex;
+  display: grid;
+  place-items: center;
   width: 18px;
+  min-width: 18px;
+  max-width: 18px;
   height: 18px;
-  align-items: center;
-  justify-content: center;
+  min-height: 18px;
+  max-height: 18px;
+  margin: 0;
+  padding: 0;
   border: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 58%, transparent);
   border-radius: 50%;
+  text-align: center;
+  font: inherit;
   line-height: 1;
   opacity: 0.8;
 }
