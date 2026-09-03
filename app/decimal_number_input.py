@@ -27,9 +27,14 @@ _TA_BASE_COMPONENT_KEY = "mortem_decimal_ta_base_val"
 _TA_OTHER_COMPONENT_KEY = "mortem_decimal_ta_other_val"
 _TA_STANDARD_HELP_OPEN_KEY = "__decimal_ta_standard_help_open"
 _TA_RANGE_HELP_OPEN_KEY = "__decimal_ta_range_help_open"
+_FC_RANGE_HELP_OPEN_KEY = "__decimal_fc_range_help_open"
 _TA_RANGE_MOBILE_NOTE = (
     "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
     "nel periodo tra il decesso e l’ispezione."
+)
+_FC_RANGE_NOTE = (
+    "Inserisci i due estremi plausibili del fattore di correzione. "
+    "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
 )
 _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
@@ -325,8 +330,9 @@ def decimal_number_input(
     compact_mobile = bool(compact_mobile)
     compact_label = _COMPACT_LABEL_ALIASES.get(str(compact_label or ""), str(compact_label or ""))
 
+    prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
     interval_mode = bool(
-        st.session_state.get("stima_cautelativa_beta", False)
+        prudent_mode
         and st.session_state.get("range_unico_beta", False)
     )
     is_ta_base = key == _TA_BASE_COMPONENT_KEY
@@ -334,7 +340,16 @@ def decimal_number_input(
 
     help_state_key = None
     help_text = ""
-    if is_ta_base and not interval_mode:
+    inline_range_help = False
+    if prudent_mode and compact_label == "T. ambientale":
+        help_state_key = _TA_RANGE_HELP_OPEN_KEY
+        help_text = _TA_RANGE_MOBILE_NOTE
+        inline_range_help = True
+    elif prudent_mode and compact_label == "Range FC":
+        help_state_key = _FC_RANGE_HELP_OPEN_KEY
+        help_text = _FC_RANGE_NOTE
+        inline_range_help = True
+    elif is_ta_base and not interval_mode:
         help_state_key = _TA_STANDARD_HELP_OPEN_KEY
         help_text = ui_text("full.ta_mean_help")
     elif is_ta_other and interval_mode:
@@ -347,12 +362,12 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
-    # Il popover esterno serve soltanto nel layout desktop. Su telefono deve
-    # restare l'helper interno al componente V2: segue l'etichetta corretta e
-    # non altera il posizionamento delle righe cautelative e di "Consiglia".
+    # Il popover esterno resta per il campo standard desktop. I range cautelativi
+    # usano invece il piccolo helper integrato nel componente, privo di freccia.
     native_ta_popover = bool(
         use_v2_mobile
         and help_enabled
+        and not inline_range_help
         and not st.session_state.get("__full_device_mobile", False)
     )
     if native_ta_popover and help_state_key:
@@ -447,7 +462,12 @@ def decimal_number_input(
             parsed_result = round(parsed_result, decimals)
 
     if help_enabled and not native_ta_popover and st.session_state.get(help_state_key, False):
-        note_key = "ta_range_help_note" if interval_mode else "ta_standard_help_note"
+        if compact_label == "Range FC":
+            note_key = "fc_range_help_note"
+        elif inline_range_help or interval_mode:
+            note_key = "ta_range_help_note"
+        else:
+            note_key = "ta_standard_help_note"
         with st.container(key=note_key):
             st.caption(help_text)
 
