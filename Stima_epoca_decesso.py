@@ -75,6 +75,23 @@ def _warn_box(msg: str):
     )
 
 
+def _toggle_desktop_range_fc_suggest():
+    """Apre/chiude il pannello FC dal comando strutturale desktop."""
+    same_open_target = bool(
+        st.session_state.get("toggle_fattore_inline", False)
+        and st.session_state.get("__full_fc_suggest_target") == "range"
+    )
+    if same_open_target:
+        st.session_state["toggle_fattore_inline"] = False
+        st.session_state["toggle_fattore"] = False
+        st.session_state.pop("__full_fc_suggest_target", None)
+        return
+
+    st.session_state["toggle_fattore_inline"] = True
+    st.session_state["toggle_fattore"] = True
+    st.session_state["__full_fc_suggest_target"] = "range"
+
+
 # =========================
 # Stato e costanti globali
 # =========================
@@ -417,22 +434,15 @@ with st.container(border=True):
                             key="tm_val", label_visibility="collapsed"
                         )
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="distribute",
-                        vertical_alignment="center",
-                        gap="small",
-                        key="prudent_weight_row_desktop",
-                    ):
-                        with st.container(width="stretch", key="prudent_weight_value_desktop"):
-                            st.number_input(
-                                i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed"
-                            )
-                        with st.container(width="content", key="prudent_weight_uncertainty_desktop"):
-                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+                    weight_c1, weight_c2 = st.columns(2, gap="small")
+                    with weight_c1:
+                        st.number_input(
+                            i18n.ui_text("full.weight_label"),
+                            value=sget("peso", 70.0), step=1.0, format="%.1f",
+                            key="peso", label_visibility="collapsed"
+                        )
+                    with weight_c2:
+                        st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
                     ta_c1, ta_c2 = st.columns(2, gap="small")
                     with ta_c1:
@@ -462,20 +472,26 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
-                    fc_min_val = st.number_input(
-                        i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_min_val",
-                        label_visibility="collapsed"
-                    )
-                    fc_other_val = st.number_input(
-                        i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_other_val",
-                        label_visibility="collapsed"
-                    )
+                    fc_c1, fc_c2 = st.columns(2, gap="small")
+                    with fc_c1:
+                        fc_min_val = st.number_input(
+                            i18n.ui_text("full.fc_min_input"),
+                            None,
+                            value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                            step=0.1, format="%.2f",
+                            key="fc_min_val",
+                            label_visibility="collapsed"
+                        )
+                    with fc_c2:
+                        fc_other_val = st.number_input(
+                            i18n.ui_text("full.fc_max_input"),
+                            None,
+                            value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                            step=0.1, format="%.2f",
+                            key="fc_other_val",
+                            label_visibility="collapsed"
+                        )
+
                     fc_values = [
                         st.session_state.get("fc_min_val"),
                         st.session_state.get("fc_other_val"),
@@ -486,6 +502,25 @@ with st.container(border=True):
                     else:
                         st.session_state.pop("FC_min_beta", None)
                         st.session_state.pop("FC_max_beta", None)
+
+                    _, fc_action_col = st.columns(2, gap="small")
+                    with fc_action_col:
+                        with st.container(
+                            horizontal=True,
+                            horizontal_alignment="right",
+                            key="desktop_caut_fc_structural_action",
+                        ):
+                            active_fc_suggest = bool(
+                                st.session_state.get("toggle_fattore_inline", False)
+                                and st.session_state.get("__full_fc_suggest_target") == "range"
+                            )
+                            st.button(
+                                "Consiglia",
+                                key="desktop_caut_fc_structural_suggest",
+                                type="primary" if active_fc_suggest else "secondary",
+                                width="content",
+                                on_click=_toggle_desktop_range_fc_suggest,
+                            )
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
