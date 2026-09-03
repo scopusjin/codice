@@ -2,6 +2,7 @@
 """Classificazione stabile mobile/desktop per la schermata completa di Mor-tem."""
 
 from collections.abc import Mapping
+from importlib import import_module
 
 import streamlit as st
 
@@ -10,6 +11,123 @@ from app.full_mobile_compact import install_full_mobile_compact_css
 
 
 _SESSION_KEY = "__full_device_mobile"
+_decimal_number_input = import_module("app.decimal_number_input")
+_decimal_number_input_v2 = import_module("app.decimal_number_input_v2")
+
+
+# Gli helper che in passato avevano correzioni CSS dedicate vengono montati
+# nello stesso tipo di slot già usato da "Vestiti/coperte". In questo modo
+# ricevono esattamente l'unica regola che ha una resa stabile su mobile e
+# desktop, mentre i vecchi selettori mortem_help_*/ta_native_* non li toccano.
+def _uniform_helper_container_key(key):
+    if not isinstance(key, str):
+        return key
+    if key == "mortem_help_prudent":
+        return "fcpanel_std_vest_help_slot_prudent"
+    if key == "mortem_help_henssge":
+        return "fcpanel_std_vest_help_slot_henssge"
+    if key.startswith("mortem_help_prudent_electrical_"):
+        suffix = key[len("mortem_help_prudent_electrical_"):]
+        return f"fcpanel_std_vest_help_slot_electrical_{suffix}"
+    if key.startswith("ta_native_help_button_"):
+        suffix = key[len("ta_native_help_button_"):]
+        return f"fcpanel_std_vest_help_slot_ta_{suffix}"
+    # Il contenitore esterno degli helper elettrici era fissato a 18 px.
+    # Lasciandolo width='content' prende ora naturalmente la misura del nuovo
+    # pulsante senza essere intercettato dai vecchi selettori dedicati.
+    if key.startswith("electrical_title_help_") and not key.startswith("electrical_title_help_row_"):
+        suffix = key[len("electrical_title_help_"):]
+        return f"uniform_electrical_help_outer_{suffix}"
+    return key
+
+
+def _install_uniform_helper_container_keys() -> None:
+    if getattr(st, "_uniform_helper_container_keys_installed", False):
+        return
+
+    original_container = st.container
+
+    def container_with_uniform_helper_key(*args, **kwargs):
+        key = kwargs.get("key")
+        uniform_key = _uniform_helper_container_key(key)
+        if uniform_key != key:
+            kwargs = dict(kwargs)
+            kwargs["key"] = uniform_key
+        return original_container(*args, **kwargs)
+
+    st._uniform_helper_original_container = original_container
+    st.container = container_with_uniform_helper_key
+    st._uniform_helper_container_keys_installed = True
+
+
+# Il popover della temperatura desktop è collocato sopra il componente numerico
+# con un wrapper che disabilita gli eventi. Il nuovo slot, pur usando la stessa
+# regola di Vestiti/coperte, deve quindi riabilitare esplicitamente il click.
+_TA_UNIFORM_POINTER_RULES = r'''
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_vest_help_slot_ta_"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+'''
+
+
+def _prepare_ta_uniform_pointer_css() -> None:
+    css = _decimal_number_input._TA_NATIVE_POPOVER_CSS
+    if _TA_UNIFORM_POINTER_RULES.strip() in css:
+        return
+    closing = "</style>"
+    if closing not in css:
+        return
+    _decimal_number_input._TA_NATIVE_POPOVER_CSS = css.replace(
+        closing,
+        _TA_UNIFORM_POINTER_RULES + closing,
+        1,
+    )
+
+
+# Anche gli helper integrati negli stepper V2 (range temperatura/FC) devono
+# avere la stessa misura del pulsante Vestiti/coperte. Il CSS viene derivato
+# sempre dalla copia originale, così i rerun non accumulano sostituzioni.
+_DECIMAL_V2_BASE_CSS = _decimal_number_input_v2._CSS
+
+
+def _resize_v2_help_section(css: str, start: str, end: str, size: str) -> str:
+    before, sep, remainder = css.partition(start)
+    if not sep:
+        return css
+    section, sep2, after = remainder.partition(end)
+    if not sep2:
+        return css
+    section = section.replace("18px", size).replace("0.72rem", "0.74rem")
+    return before + sep + section + sep2 + after
+
+
+def _set_v2_help_size(mobile: bool) -> None:
+    size = "1.42rem" if mobile else "1.45rem"
+    css = _DECIMAL_V2_BASE_CSS
+    css = _resize_v2_help_section(
+        css,
+        ".temperature-help {",
+        ".temperature-help.is-visible",
+        size,
+    )
+    css = _resize_v2_help_section(
+        css,
+        ".temperature-help > span {",
+        ".suggest-button {",
+        size,
+    )
+    _decimal_number_input_v2._CSS = css
+
+
+_install_uniform_helper_container_keys()
+_prepare_ta_uniform_pointer_css()
 
 
 # Sul desktop il CSS della Full deve nascere già con Henssge testuale.
@@ -357,7 +475,9 @@ def classify_mobile_headers(headers: Mapping | object) -> bool:
 def full_device_is_mobile() -> bool:
     """Restituisce una sola classificazione per tutta la sessione Streamlit."""
     if _SESSION_KEY in st.session_state:
-        return bool(st.session_state[_SESSION_KEY])
+        mobile = bool(st.session_state[_SESSION_KEY])
+        _set_v2_help_size(mobile)
+        return mobile
 
     try:
         headers = st.context.headers
@@ -366,6 +486,7 @@ def full_device_is_mobile() -> bool:
 
     mobile = classify_mobile_headers(headers)
     st.session_state[_SESSION_KEY] = mobile
+    _set_v2_help_size(mobile)
     return mobile
 
 
