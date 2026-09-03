@@ -429,7 +429,8 @@ with st.container(border=True):
                         st.number_input(
                             i18n.ui_text("full.antemortem_temp_estimated_label"),
                             value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed"
+                            key="tm_val", label_visibility="collapsed",
+                            _mortem_compact_label="T. ante-mortem",
                         )
 
                     weight_c1, weight_c2 = st.columns(2, gap="small")
@@ -442,28 +443,7 @@ with st.container(border=True):
                     with weight_c2:
                         st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    range_spec = [1.6, 1.0, 1.0, 0.72]
-                    ta_label_col, ta_c1, ta_c2, _ = st.columns(
-                        range_spec,
-                        gap="small",
-                        vertical_alignment="center",
-                    )
-                    with ta_label_col:
-                        with st.container(
-                            horizontal=True,
-                            wrap=False,
-                            vertical_alignment="center",
-                            gap="xsmall",
-                            key="desktop_caut_ta_range_label",
-                        ):
-                            st.markdown(
-                                "<div style='font-size:0.82rem; white-space:nowrap;'>Range temperatura ambientale media</div>",
-                                unsafe_allow_html=True,
-                            )
-                            _render_click_help(
-                                i18n.ui_text("full.ta_mean_help"),
-                                "mortem_help_ta_range_inline",
-                            )
+                    ta_c1, ta_c2 = st.columns(2, gap="small")
                     with ta_c1:
                         ta_base_val = st.number_input(
                             i18n.ui_text("full.ta_base_input"),
@@ -471,7 +451,7 @@ with st.container(border=True):
                             step=0.1, format="%.1f",
                             key="ta_base_val",
                             label_visibility="collapsed",
-                            _mortem_compact_label="",
+                            _mortem_compact_label="T. ambientale",
                         )
                     range_mode_before_ta_other = st.session_state.get("range_unico_beta", False)
                     st.session_state["range_unico_beta"] = False
@@ -499,18 +479,8 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
-                    fc_label_col, fc_c1, fc_c2, fc_action_col = st.columns(
-                        range_spec,
-                        gap="small",
-                        vertical_alignment="center",
-                    )
-                    with fc_label_col:
-                        st.markdown(
-                            "<div style='font-size:0.82rem; white-space:nowrap;'>Range fattore di correzione</div>",
-                            unsafe_allow_html=True,
-                        )
-
-                    range_mode_before_fc = st.session_state.get("range_unico_beta", False)
+                    fc_c1, fc_c2 = st.columns(2, gap="small")
+                    range_mode_before_fc_min = st.session_state.get("range_unico_beta", False)
                     st.session_state["range_unico_beta"] = False
                     try:
                         with fc_c1:
@@ -520,27 +490,19 @@ with st.container(border=True):
                                 step=0.1, format="%.2f",
                                 key="fc_min_val",
                                 label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
-                        with fc_c2:
-                            fc_other_val = st.number_input(
-                                i18n.ui_text("full.fc_max_input"),
-                                value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                                step=0.1, format="%.2f",
-                                key="fc_other_val",
-                                label_visibility="collapsed",
-                                _mortem_compact_label="",
+                                _mortem_compact_label="Range FC",
                             )
                     finally:
-                        st.session_state["range_unico_beta"] = range_mode_before_fc
+                        st.session_state["range_unico_beta"] = range_mode_before_fc_min
 
-                    with fc_action_col:
-                        st.button(
-                            "Consiglia",
-                            key="desktop_caut_fc_structural_suggest",
-                            type="secondary",
-                            width="stretch",
-                            on_click=_toggle_desktop_range_fc_suggest,
+                    with fc_c2:
+                        fc_other_val = st.number_input(
+                            i18n.ui_text("full.fc_max_input"),
+                            value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                            step=0.1, format="%.2f",
+                            key="fc_other_val",
+                            label_visibility="collapsed",
+                            _mortem_compact_label="",
                         )
 
                     fc_values = [
@@ -610,7 +572,8 @@ with st.container(border=True):
                         st.number_input(
                             i18n.ui_text("full.antemortem_temp_estimated_label"),
                             value=sget("tm_val", 37.2), step=0.1, format="%.1f",
-                            key="tm_val", label_visibility="collapsed"
+                            key="tm_val", label_visibility="collapsed",
+                            _mortem_compact_label="T. ante-mortem",
                         )
 
                     c1, c2 = st.columns(2, gap="small")
