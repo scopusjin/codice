@@ -221,7 +221,8 @@ _CSS = r"""
   min-width: 0;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 12%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--st-primary-color, #168AC1) 28%, transparent);
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent);
   padding: 0 4px;
   white-space: nowrap;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
@@ -241,17 +242,19 @@ _CSS = r"""
   display: none !important;
 }
 .suggest-button.is-visible.is-active {
-  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent);
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 20%, transparent);
   color: var(--st-primary-color, #168AC1);
   font-weight: 650;
 }
 .step-button:hover:not(:disabled),
-.suggest-button:hover:not(:disabled),
 .temperature-help:hover:not(:disabled),
 .step-button:active:not(:disabled),
-.suggest-button:active:not(:disabled),
 .temperature-help:active:not(:disabled) {
   background: color-mix(in srgb, var(--st-text-color, #31333F) 9%, transparent);
+}
+.suggest-button:hover:not(:disabled),
+.suggest-button:active:not(:disabled) {
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 22%, transparent);
 }
 .step-button:disabled,
 .suggest-button:disabled,
