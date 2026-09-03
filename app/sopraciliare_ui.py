@@ -288,37 +288,58 @@ def _install_responsive_image_css():
             margin-right: auto !important;
           }
 
-          /* Tutte le barre numeriche principali hanno la stessa larghezza
-             visiva: metà della colonna di input. Il riferimento è l'intero
-             controllo azzurro, non il solo campo numerico interno. */
+          /* Peso cautelativo: usa esattamente la stessa griglia a due colonne
+             delle temperature; il toggle resta all'inizio della seconda colonna. */
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-prudent_weight_row_desktop"],
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-prudent_weight_row_desktop"] > [data-testid="stHorizontalBlock"] {
+            box-sizing: border-box !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            align-items: center !important;
+          }
+
           html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
           [class*="st-key-prudent_weight_value_desktop"] {
             box-sizing: border-box !important;
-            flex: 0 0 calc(50% - 0.25rem) !important;
-            width: calc(50% - 0.25rem) !important;
+            width: 100% !important;
             min-width: 0 !important;
-            max-width: calc(50% - 0.25rem) !important;
+            max-width: 100% !important;
           }
 
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-prudent_weight_uncertainty_desktop"] {
+            justify-self: start !important;
+            width: max-content !important;
+            min-width: max-content !important;
+            max-width: max-content !important;
+          }
+
+          /* FC standard: il controllo singolo conserva la larghezza di una
+             colonna delle temperature. */
           html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
           [class*="st-key-mortem_decimal_fattore_correzione"] {
             box-sizing: border-box !important;
-            width: calc(50% - 0.25rem) !important;
+            width: calc(50% - 0.75rem) !important;
             min-width: 0 !important;
-            max-width: calc(50% - 0.25rem) !important;
+            max-width: calc(50% - 0.75rem) !important;
           }
 
-          /* Nell'intervallo FC i due controlli mantengono la stessa larghezza
-             delle temperature/peso; il comando Consiglia resta separato e si
-             dispone sotto a destra senza accorciare le due barre. */
+          /* Nell'intervallo FC i due controlli occupano una prima riga intera,
+             quindi mantengono la stessa larghezza delle due temperature. Il
+             comando Consiglia resta esterno e va sulla riga successiva. */
           html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-          [class*="st-key-desktop_caut_fc_range_row"] {
+          [class*="st-key-desktop_caut_fc_range_row"],
+          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+          [class*="st-key-desktop_caut_fc_range_row"] > [data-testid="stHorizontalBlock"] {
             box-sizing: border-box !important;
-            display: flex !important;
-            flex-wrap: wrap !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
             width: 100% !important;
             min-width: 0 !important;
-            gap: 0.24rem 0.40rem !important;
             height: auto !important;
             min-height: 40px !important;
           }
@@ -326,28 +347,17 @@ def _install_responsive_image_css():
           html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
           [class*="st-key-desktop_caut_fc_range_values"] {
             box-sizing: border-box !important;
-            flex: 0 0 100% !important;
             width: 100% !important;
             min-width: 0 !important;
             max-width: 100% !important;
           }
 
           html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-          [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-            gap: 0.40rem !important;
-            width: 100% !important;
-            min-width: 0 !important;
-          }
-
-          html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
           [class*="st-key-desktop_caut_fc_range_action"] {
-            flex: 0 0 6.25rem !important;
+            justify-self: end !important;
             width: 6.25rem !important;
             min-width: 6.25rem !important;
             max-width: 6.25rem !important;
-            margin-left: auto !important;
             align-self: center !important;
           }
         }
