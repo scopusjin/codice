@@ -175,7 +175,7 @@ _CSS = r"""
   color: var(--st-text-color, #31333F);
 }
 .number-control.desktop-external-label:not(.is-dense) {
-  width: 160px;
+  width: 190px;
   max-width: 100%;
 }
 .number-control.external-action {
@@ -570,6 +570,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
 
   const compactLabel = String(data?.compact_label || '');
   const desktopExternalLabel = Boolean(data?.desktop_external_label);
+  const desktopLabelVisible = Boolean(data?.desktop_label_visible ?? desktopExternalLabel);
   const desktopLabelText = String(data?.desktop_label ?? compactLabel);
   label.textContent = compactLabel;
   desktopLabel.textContent = desktopLabelText;
@@ -591,7 +592,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     return '';
   })();
   shell.classList.toggle('desktop-external-label', desktopExternalLabel);
-  desktopLabelRow.classList.toggle('is-visible', desktopExternalLabel);
+  desktopLabelRow.classList.toggle('is-visible', desktopLabelVisible);
   control.classList.toggle('desktop-external-label', desktopExternalLabel);
   control.classList.toggle('has-help', showHelp);
   control.classList.toggle('has-unit', Boolean(String(data?.unit || '')));
@@ -602,9 +603,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
-  desktopHelpButton.classList.toggle('is-visible', showHelp && desktopExternalLabel);
+  desktopHelpButton.classList.toggle('is-visible', showHelp && desktopLabelVisible);
   desktopHelpPopover.textContent = desktopHelpText;
-  if (!(showHelp && desktopExternalLabel && desktopHelpText)) {
+  if (!(showHelp && desktopLabelVisible && desktopHelpText)) {
     desktopHelpPopover.classList.remove('is-open');
   }
   suggestButton.classList.toggle('is-visible', showSuggest);
@@ -771,13 +772,15 @@ def render_mobile_decimal_v2(
     full_mobile = bool(st.session_state.get("__full_device_mobile", False))
     prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
     desktop_external_label = bool(not full_mobile and not dense)
-
     desktop_label = str(compact_label or "")
-    if desktop_external_label and prudent_mode:
-        if key == "mortem_decimal_ta_base_val":
-            desktop_label = "Range temperatura ambientale media"
-        elif key == "mortem_decimal_fc_min_val":
-            desktop_label = "Range fattore di correzione (FC)"
+    desktop_label_visible = bool(desktop_external_label and desktop_label.strip())
+
+    # Gli helper desktop del raffreddamento sono renderizzati nel DOM Streamlit
+    # principale: il V2 resta alto 40 px e non può più creare scrollbar o note
+    # che spostano le righe. Mobile e pannello FC denso conservano il percorso V2.
+    effective_help_enabled = bool(help_enabled and (full_mobile or desktop_label_visible))
+    if desktop_external_label and not desktop_label_visible and help_state_key:
+        st.session_state[help_state_key] = False
 
     external_fc_suggest = bool(
         not full_mobile
@@ -815,7 +818,7 @@ def render_mobile_decimal_v2(
             on_change()
 
     def _on_help_change():
-        if help_enabled and help_state_key:
+        if effective_help_enabled and help_state_key:
             st.session_state[help_state_key] = not bool(st.session_state.get(help_state_key, False))
 
     def _on_suggest_change():
@@ -835,13 +838,14 @@ def render_mobile_decimal_v2(
             "compact_label": str(compact_label or ""),
             "desktop_label": desktop_label,
             "unit": str(unit or ""),
-            "help_enabled": bool(help_enabled),
+            "help_enabled": effective_help_enabled,
             "suggest_enabled": effective_suggest_enabled,
             "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
             "suggest_active": bool(suggest_active and effective_suggest_enabled),
             "reserve_action": reserve_action,
             "external_action": external_action,
             "desktop_external_label": desktop_external_label,
+            "desktop_label_visible": desktop_label_visible,
             "dense": dense,
         },
         default={"value": value},
@@ -850,7 +854,7 @@ def render_mobile_decimal_v2(
         on_suggest_change=_on_suggest_change,
         key=internal_key,
         width="stretch",
-        height=63 if desktop_external_label else (34 if dense else 40),
+        height=63 if desktop_label_visible else (34 if dense else 40),
     )
 
     return _finite_float(_state_value(result, "value", value))
