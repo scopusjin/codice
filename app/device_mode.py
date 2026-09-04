@@ -503,6 +503,117 @@ def full_device_is_mobile() -> bool:
     return mobile
 
 
+# La pagina Full deve partire larga con sidebar chiusa. La MSIL usa un titolo
+# diverso e continua quindi a ricevere integralmente la propria configurazione.
+if not getattr(st, "_full_desktop_page_config_installed", False):
+    _full_page_config_original = st.set_page_config
+
+    def _set_page_config_with_full_desktop_shell(*args, **kwargs):
+        if kwargs.get("page_title") == "Mor-tem":
+            kwargs = dict(kwargs)
+            kwargs["layout"] = "wide"
+            kwargs["initial_sidebar_state"] = "collapsed"
+        return _full_page_config_original(*args, **kwargs)
+
+    st._full_desktop_page_config_original = _full_page_config_original
+    st.set_page_config = _set_page_config_with_full_desktop_shell
+    st._full_desktop_page_config_installed = True
+
+
+# Override finale della sola shell Full desktop. È volutamente più specifico
+# del vecchio grid CSS emesso in Stima_epoca_decesso.py, così non serve
+# duplicare o spostare la logica dei widget.
+_FULL_DESKTOP_SHELL_CSS = r'''
+<style>
+@media (min-width: 900px) {
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stMainBlockContainer"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    grid-template-columns: minmax(34rem, 42rem) minmax(0, 1fr) !important;
+    justify-content: stretch !important;
+    column-gap: clamp(0.75rem, 1.6vw, 1.5rem) !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-btn_stima"]) {
+    grid-column: 2 !important;
+    position: relative !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    align-self: center !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mortem_result_box"]),
+  html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+  > *:has([class*="st-key-mortem_no_data_box"]) {
+    grid-column: 2 !important;
+    position: relative !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    align-self: center !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-btn_stima"] button,
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_result_box"] button,
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_no_data_box"] button {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 2.5rem !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.2 !important;
+  }
+
+  html body:has(.mortem-full-title)
+  [class*="st-key-btn_stima"] button p,
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_result_box"] button p,
+  html body:has(.mortem-full-title)
+  [class*="st-key-mortem_no_data_box"] button p {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+
+  html body:has(.mortem-full-title) [data-testid="stSidebarCollapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+</style>
+'''
+
+if _FULL_DESKTOP_SHELL_CSS not in _full_mobile_compact._FULL_MOBILE_COMPACT_CSS:
+    _full_mobile_compact._FULL_MOBILE_COMPACT_CSS += _FULL_DESKTOP_SHELL_CSS
+
+
 # Il modulo viene importato molto presto dalla Full: agganciare qui il CSS
 # permette di averlo già nel primo blocco di stile, senza lampeggi post-render.
 install_full_mobile_compact_css()
