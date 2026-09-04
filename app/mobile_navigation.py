@@ -65,60 +65,8 @@ def _restore_full_navigation_state() -> None:
         st.session_state["ta_base_val"] = shared_ta
 
 
-def _ensure_desktop_sidebar_collapsed() -> None:
-    """Chiude la sidebar Full sul desktop lasciando il controllo nativo di apertura."""
-    st.iframe(
-        """
-        <style>
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: hidden !important;
-            background: transparent !important;
-          }
-        </style>
-        <script>
-          (() => {
-            const frame = window.frameElement;
-            if (frame) {
-              Object.assign(frame.style, {
-                display: "none",
-                width: "0",
-                minWidth: "0",
-                height: "0",
-                minHeight: "0",
-                border: "0",
-                margin: "0",
-                padding: "0"
-              });
-            }
-
-            if (window.parent.innerWidth < 769) return;
-
-            const doc = window.parent.document;
-            const collapseTarget = () =>
-              doc.querySelector('[data-testid="stSidebarCollapseButton"] button') ||
-              doc.querySelector('button[data-testid="stSidebarCollapseButton"]') ||
-              doc.querySelector('[data-testid="stCollapseSidebarButton"] button') ||
-              doc.querySelector('button[data-testid="stCollapseSidebarButton"]') ||
-              doc.querySelector('section[data-testid="stSidebar"] button[aria-label*="Collapse"]') ||
-              doc.querySelector('section[data-testid="stSidebar"] button[aria-label*="Close sidebar"]');
-
-            const target = collapseTarget();
-            if (target) target.click();
-          })();
-        </script>
-        """,
-        height=1,
-        width=1,
-    )
-
-
 def render_mobile_page_switch(label: str, target: str, key: str) -> None:
     """Renderizza il cambio modalità nel punto reale in cui viene chiamato."""
-    if key == "mobile_nav_footer_to_msil":
-        _ensure_desktop_sidebar_collapsed()
-
     st.markdown(
         f"""
         <style>

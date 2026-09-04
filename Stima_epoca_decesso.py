@@ -141,7 +141,7 @@ def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_
 # =========================
 # Stato e costanti globali
 # =========================
-st.set_page_config(page_title="Mor-tem", layout="centered", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -573,7 +573,7 @@ with st.container(border=True):
                         suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with suggest_col:
                             st.button(
-                                "Consiglia",
+                                "Consiglia FC",
                                 key="desktop_caut_fc_structural_suggest",
                                 type="secondary",
                                 width="stretch",
@@ -694,7 +694,7 @@ with st.container(border=True):
                         suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with suggest_col:
                             st.button(
-                                "Consiglia",
+                                "Consiglia FC",
                                 key="desktop_caut_fc_structural_suggest",
                                 type="secondary",
                                 width="stretch",
