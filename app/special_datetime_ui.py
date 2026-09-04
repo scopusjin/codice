@@ -162,8 +162,15 @@ def install_special_datetime_ui():
 
           body:has(.mortem-full-title)
           [class*="st-key-special_datetime_row_"] {
-            margin-top: 0 !important;
+            margin-top: -0.24rem !important;
             margin-bottom: 0.02rem !important;
+          }
+
+          body:has(.mortem-full-title)
+          [data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"][class*="st-key-special_datetime_row_"]),
+          body:has(.mortem-full-title)
+          [data-testid="stVerticalBlock"]:has(> [data-testid="stElementContainer"] > [class*="st-key-special_datetime_row_"]) {
+            gap: 0.18rem !important;
           }
         }
 
@@ -314,7 +321,8 @@ def install_special_datetime_ui():
         with st.container(
             horizontal=True,
             horizontal_alignment="left",
-            gap="small",
+            vertical_alignment="center",
+            gap="xsmall",
             key=f"special_datetime_row_{parametro_id}",
         ):
             date_box = st.container(

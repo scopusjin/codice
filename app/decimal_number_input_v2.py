@@ -190,6 +190,14 @@ _CSS = r"""
 .number-control.desktop-external-label.external-action {
   grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem;
 }
+.number-control:not(.desktop-external-label):not(.is-dense) {
+  grid-template-columns: fit-content(9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
+  width: max-content;
+  max-width: 100%;
+}
+.number-control:not(.desktop-external-label):not(.is-dense).external-action {
+  grid-template-columns: fit-content(9.4rem) 3rem 1.5rem 1.8rem 1.8rem;
+}
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
 }
@@ -206,6 +214,9 @@ _CSS = r"""
   align-items: center;
   padding: 0 5px 0 8px;
   overflow: hidden;
+}
+.number-control:not(.desktop-external-label):not(.is-dense) .label-help-cluster {
+  background: var(--st-background-color, #FFFFFF);
 }
 .number-control.desktop-external-label .label-help-cluster {
   display: none;
@@ -792,41 +803,13 @@ def render_mobile_decimal_v2(
     desktop_label = str(compact_label or "")
     desktop_label_visible = bool(desktop_external_label and desktop_label.strip())
 
-    mobile_help_text = ""
-    if full_mobile:
-        if key == "mortem_decimal_ta_base_val" and not prudent_mode:
-            mobile_help_text = (
-                "Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
-                "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata "
-                "al momento del rilievo, soprattutto se il cadavere si trova all’aperto."
-            )
-        elif key == "mortem_decimal_ta_other_val" and prudent_mode:
-            mobile_help_text = (
-                "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
-                "nel periodo tra il decesso e l’ispezione."
-            )
-        elif key == "mortem_decimal_fattore_correzione" and not prudent_mode:
-            mobile_help_text = (
-                "«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
-                "agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali."
-            )
-        elif key == "mortem_decimal_fc_other_val" and prudent_mode:
-            mobile_help_text = (
-                "Inserisci i due estremi plausibili del fattore di correzione. «Consiglia» aiuta a individuare "
-                "i valori in base alle condizioni del corpo."
-            )
-
     # Gli helper desktop del raffreddamento sono renderizzati nel DOM Streamlit
-    # principale: il V2 resta alto 40 px e non può più creare scrollbar o note
-    # che spostano le righe. Mobile e pannello FC denso conservano il percorso V2.
+    # principale. Anche su mobile il clic viene inoltrato a Streamlit: una nota
+    # esterna al frame alto 40 px non può essere tagliata dal componente.
     effective_help_enabled = bool(
-        (help_enabled or mobile_help_text)
+        help_enabled
         and (full_mobile or desktop_label_visible)
     )
-    if full_mobile and help_state_key:
-        # Il popover mobile è ora interno al V2: azzera l'eventuale vecchio flag
-        # che altrimenti farebbe comparire anche la caption Streamlit sotto il campo.
-        st.session_state[help_state_key] = False
     if desktop_external_label and not desktop_label_visible and help_state_key:
         st.session_state[help_state_key] = False
 
@@ -847,8 +830,7 @@ def render_mobile_decimal_v2(
         )
         or external_fc_suggest
         or (
-            not full_mobile
-            and not dense
+            not dense
             and not effective_suggest_enabled
         )
     )
@@ -887,7 +869,9 @@ def render_mobile_decimal_v2(
             "desktop_label": desktop_label,
             "unit": str(unit or ""),
             "help_enabled": effective_help_enabled,
-            "mobile_help_text": mobile_help_text,
+            # Vuoto intenzionalmente: il testo mobile viene mostrato da Streamlit
+            # subito sotto al controllo, fuori dal frame del componente.
+            "mobile_help_text": "",
             "suggest_enabled": effective_suggest_enabled,
             "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
             "suggest_active": bool(suggest_active and effective_suggest_enabled),

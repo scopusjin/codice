@@ -660,6 +660,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         f'''<style>
         [class*="st-key-{key_prefix}_fc_apply_row_mobile"] {{
           display:flex!important;
+          flex-wrap:wrap!important;
           align-items:center!important;
           gap:0.34rem!important;
           margin:0.04rem 0 0 0!important;
@@ -691,6 +692,35 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         }}
         [class*="st-key-{key_prefix}_fc_apply_action_mobile"] button p {{
           margin:0!important;
+          line-height:1!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_reset_action_mobile"] [data-testid="stButton"] {{
+          display:flex!important;
+          align-items:center!important;
+          margin:0!important;
+          padding:0!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_reset_action_mobile"] button {{
+          box-sizing:border-box!important;
+          display:flex!important;
+          align-items:center!important;
+          justify-content:center!important;
+          width:2.5rem!important;
+          min-width:2.5rem!important;
+          max-width:2.5rem!important;
+          height:2.5rem!important;
+          min-height:2.5rem!important;
+          max-height:2.5rem!important;
+          margin:0!important;
+          padding:0!important;
+          border-radius:50%!important;
+          font-size:1.12rem!important;
+          line-height:1!important;
+        }}
+        [class*="st-key-{key_prefix}_fc_reset_action_mobile"] button p {{
+          margin:0!important;
+          padding:0!important;
+          font-size:1.12rem!important;
           line-height:1!important;
         }}
         [class*="st-key-{key_prefix}_fc_apply_value_mobile"] .mortem-fc-result-stack {{
@@ -772,7 +802,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
     with st.container(border=False, key=f"{key_prefix}_fc_apply_block_mobile"):
         with st.container(
             horizontal=True,
-            wrap=False,
+            wrap=True,
             horizontal_alignment="left",
             vertical_alignment="center",
             gap="small",
@@ -796,13 +826,15 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                     on_click=apply_callback, args=apply_args,
                     key=f"{key_prefix}_btn_usa_fc{suffix}",
                 )
-        if range_mode:
-            st.button(
-                "Reset range",
-                type="secondary",
-                on_click=reset_fc_ranges_global,
-                key=f"{key_prefix}_btn_reset_fc_range",
-            )
+            if range_mode:
+                with st.container(width="content", key=f"{key_prefix}_fc_reset_action_mobile"):
+                    st.button(
+                        "↻",
+                        help="Reimposta il range FC",
+                        type="secondary",
+                        on_click=reset_fc_ranges_global,
+                        key=f"{key_prefix}_btn_reset_fc_range",
+                    )
 
 
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):

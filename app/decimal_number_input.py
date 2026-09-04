@@ -27,6 +27,7 @@ _TA_BASE_COMPONENT_KEY = "mortem_decimal_ta_base_val"
 _TA_OTHER_COMPONENT_KEY = "mortem_decimal_ta_other_val"
 _TA_STANDARD_HELP_OPEN_KEY = "__decimal_ta_standard_help_open"
 _TA_RANGE_HELP_OPEN_KEY = "__decimal_ta_range_help_open"
+_FC_STANDARD_HELP_OPEN_KEY = "__decimal_fc_standard_help_open"
 _FC_RANGE_HELP_OPEN_KEY = "__decimal_fc_range_help_open"
 _TA_RANGE_MOBILE_NOTE = (
     "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
@@ -35,6 +36,10 @@ _TA_RANGE_MOBILE_NOTE = (
 _FC_RANGE_NOTE = (
     "Inserisci i due estremi plausibili del fattore di correzione. "
     "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
+)
+_FC_STANDARD_NOTE = (
+    "«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
+    "agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali."
 )
 _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
@@ -355,6 +360,12 @@ def decimal_number_input(
     elif is_ta_other and interval_mode:
         help_state_key = _TA_RANGE_HELP_OPEN_KEY
         help_text = _TA_RANGE_MOBILE_NOTE
+    elif key == "mortem_decimal_fattore_correzione" and not prudent_mode:
+        help_state_key = _FC_STANDARD_HELP_OPEN_KEY
+        help_text = _FC_STANDARD_NOTE
+    elif key == "mortem_decimal_fc_other_val" and prudent_mode:
+        help_state_key = _FC_RANGE_HELP_OPEN_KEY
+        help_text = _FC_RANGE_NOTE
     help_enabled = help_state_key is not None
 
     use_v2_mobile = bool(
@@ -447,7 +458,7 @@ def decimal_number_input(
             parsed_result = round(parsed_result, decimals)
 
     if help_enabled and not native_ta_popover and st.session_state.get(help_state_key, False):
-        if compact_label == "Range FC":
+        if help_state_key in {_FC_STANDARD_HELP_OPEN_KEY, _FC_RANGE_HELP_OPEN_KEY}:
             note_key = "fc_range_help_note"
         elif inline_range_help or interval_mode:
             note_key = "ta_range_help_note"

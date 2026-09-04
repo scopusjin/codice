@@ -3,6 +3,7 @@ import unittest
 from streamlit.testing.v1 import AppTest
 
 from app.decimal_number_input_v2 import (
+    _CSS,
     _component_instance_key,
     is_full_mobile_v2_key,
     mobile_decimal_v2_available,
@@ -38,6 +39,11 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         component_key = _component_instance_key("mortem_decimal_rt_val")
         self.assertEqual(component_key, "mortem_decimal_rt_val-v2")
         self.assertNotIn("__", component_key)
+
+    def test_mobile_control_has_white_label_and_no_reserved_empty_action(self):
+        self.assertIn("background: var(--st-background-color, #FFFFFF);", _CSS)
+        self.assertIn("width: max-content;", _CSS)
+        self.assertIn(".external-action", _CSS)
 
     def test_v2_mounts_and_reruns_without_streamlit_exception(self):
         script = r'''

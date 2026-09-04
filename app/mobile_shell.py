@@ -27,6 +27,9 @@ _MINIMAL_MOBILE_SHELL_CSS = r"""
 
   header[data-testid="stHeader"] [data-testid="stStatusWidget"],
   header[data-testid="stHeader"] [data-testid="stAppDeployButton"],
+  header[data-testid="stHeader"] [data-testid="stToolbarActions"],
+  header[data-testid="stHeader"] .stToolbarActions,
+  header[data-testid="stHeader"] [data-testid="stToolbarActionButton"],
   header[data-testid="stHeader"] [data-testid="stMainMenu"],
   header[data-testid="stHeader"] [data-testid="viewerBadge"],
   header[data-testid="stHeader"] #MainMenu,

@@ -6,6 +6,7 @@ from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 import app.decimal_number_input_v2 as decimal_v2
+from app.mobile_shell import _MINIMAL_MOBILE_SHELL_CSS
 
 
 class FullMobileFlowTests(unittest.TestCase):
@@ -27,6 +28,15 @@ class FullMobileFlowTests(unittest.TestCase):
             "Dati tanatologici aggiuntivi",
             [toggle.label for toggle in app.toggle],
         )
+
+    def test_mobile_header_hides_actions_but_keeps_sidebar_trigger(self):
+        css = _MINIMAL_MOBILE_SHELL_CSS
+        self.assertIn('[data-testid="stToolbarActions"]', css)
+        self.assertIn('[data-testid="stExpandSidebarButton"]', css)
+        toolbar_rule = css.split(
+            'header[data-testid="stHeader"] [data-testid="stToolbar"] {', 1
+        )[1].split("}", 1)[0]
+        self.assertNotIn("display: none", toolbar_rule)
 
     def test_additional_tanatology_section_opens_cleanly(self):
         app = self._mobile_app()
@@ -59,6 +69,33 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertTrue(app.session_state["show_results"])
         self.assertTrue(app.session_state["__desc_dettagliate_html"])
         self.assertIn("Mostra grafico", [expander.label for expander in app.expander])
+
+    def test_mobile_temperature_and_fc_helpers_render_outside_component(self):
+        app = self._mobile_app()
+        app.session_state["__decimal_ta_standard_help_open"] = True
+        app.session_state["__decimal_fc_standard_help_open"] = True
+        app.run(timeout=20)
+
+        self.assertEqual([str(item) for item in app.exception], [])
+        captions = [caption.value for caption in app.caption]
+        self.assertTrue(any("temperatura ambientale media" in text for text in captions))
+        self.assertTrue(any("fattore di correzione" in text for text in captions))
+
+    def test_mobile_fc_range_reset_is_compact_and_inline(self):
+        app = self._mobile_app()
+        app.session_state["stima_cautelativa_beta"] = True
+        app.session_state["__prudent_explicit_ranges_initialized"] = True
+        app.session_state["range_unico_beta"] = True
+        app.session_state["toggle_fattore_inline"] = True
+        app.session_state["toggle_fattore"] = True
+        app.session_state["__full_fc_suggest_target"] = "range"
+        app.run(timeout=20)
+
+        self.assertEqual([str(item) for item in app.exception], [])
+        labels = [button.label for button in app.button]
+        self.assertIn("→ Usalo", labels)
+        self.assertIn("↻", labels)
+        self.assertNotIn("Reset range", labels)
 
 
 if __name__ == "__main__":
