@@ -75,11 +75,9 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
         isp_dt = datetime.datetime(2026, 8, 21, 14, 0)
         self.assertEqual(
             build_simple_sentence(0, 4, isp_dt),
-            "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-            "<b>non oltre 4 ore prima</b> "
+            "<p>EPOCA DEL DECESSO STIMATA: non oltre 4 ore prima "
             "dei rilievi effettuati nel corso dell’ispezione legale, "
-            "vale a dire all'incirca <b>successivamente alle ore 10:00 del 21.08.2026 "
-            "(ma prima delle ore 14:00 del 21.08.2026)</b>.</p>",
+            "vale a dire all'incirca tra le ore 10:00 e le 14:00 del 21.08.2026.</p>",
         )
         self.assertEqual(
             build_simple_sentence(2, np.inf, isp_dt),
@@ -98,6 +96,12 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
 
     def test_simple_sentence_with_datetime_preserves_cross_midnight_window(self):
         isp_dt = datetime.datetime(2026, 8, 21, 2, 0)
+        self.assertEqual(
+            build_simple_sentence(0, 4, isp_dt),
+            "<p>EPOCA DEL DECESSO STIMATA: non oltre 4 ore prima "
+            "dei rilievi effettuati nel corso dell’ispezione legale, "
+            "vale a dire all'incirca tra le ore 22:00 del 20.08.2026 e le 02:00 del 21.08.2026.</p>",
+        )
         self.assertEqual(
             build_simple_sentence(1, 4, isp_dt),
             "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
