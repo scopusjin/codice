@@ -65,11 +65,10 @@ def _restore_full_navigation_state() -> None:
         st.session_state["ta_base_val"] = shared_ta
 
 
-def _render_mobile_sidebar_button() -> None:
-    """Su mobile mostra Menu; su desktop mantiene la sidebar realmente aperta."""
+def _ensure_desktop_sidebar_collapsed() -> None:
+    """Chiude la sidebar Full sul desktop lasciando il controllo nativo di apertura."""
     st.iframe(
         """
-        <button id="mortem-sidebar-button" type="button" aria-label="Apri menu">☰ Menu</button>
         <style>
           html, body {
             margin: 0 !important;
@@ -77,39 +76,11 @@ def _render_mobile_sidebar_button() -> None:
             overflow: hidden !important;
             background: transparent !important;
           }
-          #mortem-sidebar-button {
-            height: 2.1rem;
-            margin: 0;
-            padding: 0.08rem 0.58rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.28rem;
-            border: 1px solid #2196F3;
-            border-radius: 8px;
-            background: white;
-            color: #2196F3;
-            box-shadow: none;
-            font: 600 0.78rem/1 Arial, sans-serif;
-            cursor: pointer;
-            white-space: nowrap;
-          }
         </style>
         <script>
           (() => {
             const frame = window.frameElement;
-            if (!frame) return;
-
-            const doc = window.parent.document;
-            const isDesktop = window.parent.innerWidth >= 769;
-            const expandTarget = () =>
-              doc.querySelector('[data-testid="stExpandSidebarButton"] button') ||
-              doc.querySelector('button[data-testid="stExpandSidebarButton"]') ||
-              doc.querySelector('[data-testid="stExpandSidebarButton"]') ||
-              doc.querySelector('[data-testid="stSidebarCollapsedControl"] button') ||
-              doc.querySelector('[data-testid="collapsedControl"] button');
-
-            if (isDesktop) {
+            if (frame) {
               Object.assign(frame.style, {
                 display: "none",
                 width: "0",
@@ -120,45 +91,34 @@ def _render_mobile_sidebar_button() -> None:
                 margin: "0",
                 padding: "0"
               });
-
-              const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
-              if (!sidebar || sidebar.getAttribute("aria-expanded") === "false") {
-                const target = expandTarget();
-                if (target) target.click();
-              }
-              return;
             }
 
-            Object.assign(frame.style, {
-              position: "static",
-              width: "6.2rem",
-              minWidth: "6.2rem",
-              height: "2.2rem",
-              minHeight: "2.2rem",
-              border: "0",
-              margin: "0.35rem 0 0.10rem 0",
-              padding: "0",
-              background: "transparent",
-              overflow: "hidden"
-            });
+            if (window.parent.innerWidth < 769) return;
 
-            const button = document.getElementById("mortem-sidebar-button");
-            if (!button) return;
+            const doc = window.parent.document;
+            const collapseTarget = () =>
+              doc.querySelector('[data-testid="stSidebarCollapseButton"] button') ||
+              doc.querySelector('button[data-testid="stSidebarCollapseButton"]') ||
+              doc.querySelector('[data-testid="stCollapseSidebarButton"] button') ||
+              doc.querySelector('button[data-testid="stCollapseSidebarButton"]') ||
+              doc.querySelector('section[data-testid="stSidebar"] button[aria-label*="Collapse"]') ||
+              doc.querySelector('section[data-testid="stSidebar"] button[aria-label*="Close sidebar"]');
 
-            button.addEventListener("click", () => {
-              const target = expandTarget();
-              if (target) target.click();
-            });
+            const target = collapseTarget();
+            if (target) target.click();
           })();
         </script>
         """,
-        height=38,
-        width=105,
+        height=0,
+        width=0,
     )
 
 
 def render_mobile_page_switch(label: str, target: str, key: str) -> None:
     """Renderizza il cambio modalità nel punto reale in cui viene chiamato."""
+    if key == "mobile_nav_footer_to_msil":
+        _ensure_desktop_sidebar_collapsed()
+
     st.markdown(
         f"""
         <style>
@@ -166,12 +126,6 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             display: none !important;
         }}
         [class*="st-key-{key}"] {{
-            display: none !important;
-        }}
-
-        /* Nasconde la toolbar Streamlit ma lascia disponibile il controllo nativo della sidebar. */
-        body:has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stToolbar"] {{
             display: none !important;
         }}
 
@@ -183,7 +137,27 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 background: transparent !important;
             }}
 
-            /* Desktop: sidebar più stretta quando viene aperta, senza forzarne lo stato. */
+            /* Mantiene disponibile il controllo nativo della sidebar anche
+               nelle versioni Streamlit che lo collocano dentro la toolbar. */
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stToolbar"] {{
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }}
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stExpandSidebarButton"],
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="stSidebarCollapsedControl"],
+            body:has([class*="st-key-stima_cautelativa_beta"])
+            [data-testid="collapsedControl"] {{
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }}
+
+            /* Desktop: sidebar più stretta quando viene aperta. */
             body:has([class*="st-key-stima_cautelativa_beta"])
             section[data-testid="stSidebar"] {{
                 width: 13rem !important;
@@ -196,11 +170,85 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 min-width: 13rem !important;
                 max-width: 13rem !important;
             }}
+
+            /* La Full non resta centrata nel viewport: parte dal margine sinistro. */
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] {{
+                box-sizing: border-box !important;
+                margin-left: 0 !important;
+                margin-right: auto !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }}
         }}
 
-        /* Desktop largo: il pulsante parte alla stessa quota dell'ipostasi.
-           Il risultato resta sotto, più alto e con più respiro attorno alla frase. */
-        @media (min-width: 1024px) {{
+        /* Tablet, laptop stretti e finestre ridotte: tutto il flusso principale
+           torna verticale. Questo override prevale sul vecchio grid >=1024 px. */
+        @media (min-width: 769px) and (max-width: 1199px) {{
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] {{
+                width: min(100%, 52rem) !important;
+                max-width: 52rem !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {{
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
+                max-width: none !important;
+                gap: 0.30rem !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {{
+                grid-column: auto !important;
+                grid-row: auto !important;
+                position: static !important;
+                top: auto !important;
+                width: 100% !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }}
+        }}
+
+        /* Desktop largo: colonna input compatta a sinistra e risultati sticky
+           nello spazio residuo a destra. */
+        @media (min-width: 1200px) {{
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] {{
+                width: 100% !important;
+                max-width: none !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {{
+                display: grid !important;
+                position: relative !important;
+                grid-template-columns: minmax(0, 52rem) minmax(18rem, 1fr) !important;
+                grid-auto-flow: row !important;
+                justify-content: stretch !important;
+                column-gap: clamp(0.75rem, 1.4vw, 1.35rem) !important;
+                row-gap: 0.30rem !important;
+                align-items: start !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {{
+                grid-column: 1 !important;
+                grid-row: auto !important;
+                min-width: 0 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+            > *:has(.mortem-full-title) {{
+                grid-column: 1 / -1 !important;
+                grid-row: 1 !important;
+            }}
+
             html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
             [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
             > [class*="st-key-inspection_datetime_row"],
@@ -238,8 +286,9 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
                 grid-row: 3 !important;
                 position: sticky !important;
                 top: 1rem !important;
-                width: 100% !important;
-                max-width: 34rem !important;
+                width: min(100%, 18rem) !important;
+                max-width: 18rem !important;
+                justify-self: center !important;
                 align-self: start !important;
                 margin: 0 !important;
                 z-index: 4 !important;
@@ -252,15 +301,16 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
             > *:has([class*="st-key-mortem_result_box"]) {{
                 grid-column: 2 !important;
-                grid-row: 4 / span 12 !important;
+                grid-row: 3 / span 12 !important;
                 position: sticky !important;
                 top: 5.2rem !important;
                 width: 100% !important;
-                max-width: 34rem !important;
-                min-height: 31rem !important;
+                max-width: none !important;
+                min-height: 0 !important;
                 padding: 0.85rem 0.85rem 1.10rem !important;
                 align-self: start !important;
-                margin: 0 !important;
+                justify-self: stretch !important;
+                margin: 4.4rem 0 0 0 !important;
                 z-index: 3 !important;
             }}
 
@@ -271,13 +321,14 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
             > *:has([class*="st-key-mortem_no_data_box"]) {{
                 grid-column: 2 !important;
-                grid-row: 4 !important;
+                grid-row: 3 / span 12 !important;
                 position: sticky !important;
                 top: 5.2rem !important;
                 width: 100% !important;
-                max-width: 34rem !important;
+                max-width: none !important;
                 align-self: start !important;
-                margin: 0 !important;
+                justify-self: stretch !important;
+                margin: 4.4rem 0 0 0 !important;
                 z-index: 3 !important;
             }}
 
@@ -291,6 +342,33 @@ def render_mobile_page_switch(label: str, target: str, key: str) -> None:
             [data-testid="stMarkdownContainer"] > div[style*="background:#E6F1EF"] {{
                 margin: 0.70rem 0 1.05rem !important;
                 padding: 1rem 1.25rem !important;
+            }}
+
+            /* I comandi della colonna risultati possono andare a capo senza
+               restringere artificialmente la colonna. */
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-btn_stima"] button,
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_result_box"] button,
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_no_data_box"] button {{
+                height: auto !important;
+                min-height: 2.5rem !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
+                line-height: 1.2 !important;
+            }}
+
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-btn_stima"] button p,
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_result_box"] button p,
+            html body:has([class*="st-key-stima_cautelativa_beta"]):has(.mortem-full-title)
+            [class*="st-key-mortem_no_data_box"] button p {{
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
+                line-height: 1.2 !important;
+                text-align: center !important;
             }}
         }}
 
