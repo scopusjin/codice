@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Renderer frameless V2 per gli input decimali della sola Full mobile."""
+"""Renderer frameless V2 per gli input decimali della Full."""
 
 import math
 
@@ -26,20 +26,107 @@ _FULL_MOBILE_COMPONENT_KEYS = {
 }
 
 _HTML = r"""
-<div class="number-control compact-mobile">
-  <span class="label-help-cluster">
-    <span class="mobile-label"></span>
-    <button class="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
-  </span>
-  <input class="number-input" type="text" inputmode="decimal" autocomplete="off" />
-  <span class="mobile-unit"></span>
-  <button class="step-button number-minus" type="button" aria-label="Diminuisci">−</button>
-  <button class="step-button number-plus" type="button" aria-label="Aumenta">+</button>
-  <button class="suggest-button suggest-action" type="button" aria-label="Suggerisci fattore di correzione"></button>
+<div class="decimal-control-shell">
+  <div class="desktop-label-row">
+    <span class="desktop-label"></span>
+    <button class="desktop-help" type="button" aria-label="Informazioni"><span>?</span></button>
+  </div>
+  <div class="number-control compact-mobile">
+    <span class="label-help-cluster">
+      <span class="mobile-label"></span>
+      <button class="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
+    </span>
+    <input class="number-input" type="text" inputmode="decimal" autocomplete="off" />
+    <span class="mobile-unit"></span>
+    <button class="step-button number-minus" type="button" aria-label="Diminuisci">−</button>
+    <button class="step-button number-plus" type="button" aria-label="Aumenta">+</button>
+    <button class="suggest-button suggest-action" type="button" aria-label="Suggerisci fattore di correzione"></button>
+  </div>
 </div>
 """
 
 _CSS = r"""
+.decimal-control-shell {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+.desktop-label-row {
+  box-sizing: border-box;
+  display: none;
+  height: 18px;
+  min-height: 18px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  margin: 0 0 0.28rem 0;
+  padding: 0;
+  overflow: visible;
+}
+.desktop-label-row.is-visible {
+  display: flex;
+}
+.desktop-label {
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.15;
+  opacity: 0.82;
+}
+.desktop-help {
+  box-sizing: border-box;
+  display: none;
+  flex: 0 0 18px;
+  width: 18px;
+  min-width: 18px;
+  max-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  max-height: 18px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font: 600 0.72rem/1 var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+.desktop-help.is-visible {
+  display: flex;
+}
+.desktop-help > span {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  min-width: 18px;
+  max-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  max-height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 58%, transparent);
+  border-radius: 50%;
+  text-align: center;
+  font: inherit;
+  line-height: 1;
+  opacity: 0.8;
+}
 .number-control {
   box-sizing: border-box;
   display: grid;
@@ -58,6 +145,12 @@ _CSS = r"""
 .number-control.external-action {
   grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem;
 }
+.number-control.desktop-external-label {
+  grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem 4.4rem;
+}
+.number-control.desktop-external-label.external-action {
+  grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem;
+}
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
 }
@@ -74,6 +167,9 @@ _CSS = r"""
   align-items: center;
   padding: 0 5px 0 8px;
   overflow: hidden;
+}
+.number-control.desktop-external-label .label-help-cluster {
+  display: none;
 }
 .mobile-label {
   box-sizing: border-box;
@@ -107,6 +203,9 @@ _CSS = r"""
   font-weight: 400;
   line-height: 1.2;
 }
+.number-control.desktop-external-label .number-input {
+  grid-column: 1;
+}
 .number-control:not(.is-dense) .number-input {
   border: 1px solid #d6ad21;
   border-radius: 6px;
@@ -123,6 +222,9 @@ _CSS = r"""
 .number-control:not(.is-dense):not(.has-unit) .number-input {
   grid-column: 2 / 4;
   padding-right: 8px;
+}
+.number-control.desktop-external-label:not(.is-dense):not(.has-unit) .number-input {
+  grid-column: 1 / 3;
 }
 .number-control:not(.is-dense):not(.has-unit) .mobile-unit {
   display: none;
@@ -143,6 +245,9 @@ _CSS = r"""
   font-weight: 400;
   line-height: 1.1;
   opacity: 0.82;
+}
+.number-control.desktop-external-label .mobile-unit {
+  grid-column: 2;
 }
 .mobile-unit:empty {
   display: flex;
@@ -166,9 +271,15 @@ _CSS = r"""
   grid-column: 4;
   grid-row: 1;
 }
+.number-control.desktop-external-label .number-minus {
+  grid-column: 3;
+}
 .number-plus {
   grid-column: 5;
   grid-row: 1;
+}
+.number-control.desktop-external-label .number-plus {
+  grid-column: 4;
 }
 .step-button {
   width: 100%;
@@ -230,6 +341,9 @@ _CSS = r"""
   font-weight: 500;
   line-height: 1;
 }
+.number-control.desktop-external-label .suggest-button {
+  grid-column: 5;
+}
 .suggest-button.is-visible,
 .number-control.reserve-action .suggest-button {
   display: flex;
@@ -248,8 +362,10 @@ _CSS = r"""
 }
 .step-button:hover:not(:disabled),
 .temperature-help:hover:not(:disabled),
+.desktop-help:hover:not(:disabled),
 .step-button:active:not(:disabled),
-.temperature-help:active:not(:disabled) {
+.temperature-help:active:not(:disabled),
+.desktop-help:active:not(:disabled) {
   background: color-mix(in srgb, var(--st-text-color, #31333F) 9%, transparent);
 }
 .suggest-button:hover:not(:disabled),
@@ -258,7 +374,8 @@ _CSS = r"""
 }
 .step-button:disabled,
 .suggest-button:disabled,
-.temperature-help:disabled {
+.temperature-help:disabled,
+.desktop-help:disabled {
   cursor: default;
   opacity: 0.32;
 }
@@ -300,6 +417,10 @@ _CSS = r"""
 
 _JS = r"""
 export default function({ parentElement, data, setStateValue, setTriggerValue }) {
+  const shell = parentElement.querySelector('.decimal-control-shell');
+  const desktopLabelRow = parentElement.querySelector('.desktop-label-row');
+  const desktopLabel = parentElement.querySelector('.desktop-label');
+  const desktopHelpButton = parentElement.querySelector('.desktop-help');
   const control = parentElement.querySelector('.number-control');
   const label = parentElement.querySelector('.mobile-label');
   const input = parentElement.querySelector('.number-input');
@@ -367,6 +488,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     minusButton.disabled = !canStep(-1);
     plusButton.disabled = !canStep(1);
     helpButton.disabled = disabled;
+    desktopHelpButton.disabled = disabled;
     suggestButton.disabled = disabled;
   };
   const setDisplayedValue = (value) => {
@@ -409,12 +531,18 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     scheduleValue(next);
   };
 
-  label.textContent = String(data?.compact_label || '');
+  const compactLabel = String(data?.compact_label || '');
+  const desktopExternalLabel = Boolean(data?.desktop_external_label);
+  label.textContent = compactLabel;
+  desktopLabel.textContent = compactLabel;
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
   const reserveAction = Boolean(data?.reserve_action);
   const externalAction = Boolean(data?.external_action);
+  shell.classList.toggle('desktop-external-label', desktopExternalLabel);
+  desktopLabelRow.classList.toggle('is-visible', desktopExternalLabel);
+  control.classList.toggle('desktop-external-label', desktopExternalLabel);
   control.classList.toggle('has-help', showHelp);
   control.classList.toggle('has-unit', Boolean(String(data?.unit || '')));
   const dense = Boolean(data?.dense);
@@ -423,7 +551,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('external-action', externalAction);
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
-  helpButton.classList.toggle('is-visible', showHelp);
+  helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
+  desktopHelpButton.classList.toggle('is-visible', showHelp && desktopExternalLabel);
   suggestButton.classList.toggle('is-visible', showSuggest);
   suggestButton.classList.toggle('is-active', showSuggest && Boolean(data?.suggest_active));
   suggestButton.textContent = String(data?.suggest_label || '');
@@ -469,6 +598,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   minusButton.onclick = () => stepBy(-1);
   plusButton.onclick = () => stepBy(1);
   helpButton.onclick = () => {
+    if (!disabled && showHelp) setTriggerValue('help', true);
+  };
+  desktopHelpButton.onclick = () => {
     if (!disabled && showHelp) setTriggerValue('help', true);
   };
   suggestButton.onclick = () => {
@@ -575,6 +707,7 @@ def render_mobile_decimal_v2(
     sync_token = int(sync_token)
     dense = bool(key and key.startswith("mortem_decimal_fcpanel_"))
     full_mobile = bool(st.session_state.get("__full_device_mobile", False))
+    desktop_external_label = bool(not full_mobile and not dense)
     external_action = bool(
         (
             key == "mortem_decimal_peso"
@@ -625,6 +758,7 @@ def render_mobile_decimal_v2(
             "suggest_active": bool(suggest_active),
             "reserve_action": reserve_action,
             "external_action": external_action,
+            "desktop_external_label": desktop_external_label,
             "dense": dense,
         },
         default={"value": value},
@@ -633,7 +767,7 @@ def render_mobile_decimal_v2(
         on_suggest_change=_on_suggest_change,
         key=internal_key,
         width="stretch",
-        height=34 if dense else 40,
+        height=63 if desktop_external_label else (34 if dense else 40),
     )
 
     return _finite_float(_state_value(result, "value", value))

@@ -362,18 +362,9 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
-    # Il popover esterno resta per il campo standard desktop. I range cautelativi
-    # usano invece il piccolo helper integrato nel componente, privo di freccia.
-    native_ta_popover = bool(
-        use_v2_mobile
-        and help_enabled
-        and not inline_range_help
-        and not st.session_state.get("__full_device_mobile", False)
-    )
-    if native_ta_popover and help_state_key:
-        # Il vecchio helper V2 espandeva una caption sotto il campo. Il nuovo
-        # popover nativo non usa quello stato e non deve lasciare residui aperti.
-        st.session_state[help_state_key] = False
+    # Gli helper della Full V2 restano nel componente sia su mobile sia su desktop:
+    # in questo modo mantengono dimensioni e centratura identiche al primo render.
+    native_ta_popover = False
 
     if use_v2_mobile:
         result = render_mobile_decimal_v2(
@@ -387,7 +378,7 @@ def decimal_number_input(
             aria_label=str(aria_label or "Valore numerico"),
             compact_label=str(compact_label or ""),
             unit=str(unit or ""),
-            help_enabled=bool(help_enabled and not native_ta_popover),
+            help_enabled=bool(help_enabled),
             help_state_key=help_state_key,
             suggest_enabled=bool(suggest_enabled),
             suggest_label=str(suggest_label or ""),
@@ -396,12 +387,6 @@ def decimal_number_input(
             on_change=on_change,
             key=key,
         )
-        if native_ta_popover:
-            _render_ta_native_popover(
-                compact_label,
-                help_text,
-                "range" if interval_mode else "standard",
-            )
     else:
         result = _component(
             value=current,
