@@ -505,13 +505,13 @@ with st.container(border=True):
                         with weight_toggle_col:
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
+                    _render_desktop_cooling_label(
+                        "Range temperatura ambientale media",
+                        _TA_RANGE_DESKTOP_HELP,
+                        "ta_range",
+                    )
                     ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with ta_left:
-                        _render_desktop_cooling_label(
-                            "Range temperatura ambientale media",
-                            _TA_RANGE_DESKTOP_HELP,
-                            "ta_range",
-                        )
                         ta_min_col, ta_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with ta_min_col:
                             ta_base_val = st.number_input(
@@ -543,13 +543,13 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
+                    _render_desktop_cooling_label(
+                        "Range fattore di correzione (FC)",
+                        _FC_RANGE_DESKTOP_HELP,
+                        "fc_range",
+                    )
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
-                        _render_desktop_cooling_label(
-                            "Range fattore di correzione (FC)",
-                            _FC_RANGE_DESKTOP_HELP,
-                            "fc_range",
-                        )
                         fc_min_col, fc_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with fc_min_col:
                             fc_min_val = st.number_input(
@@ -665,13 +665,13 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
+                    _render_desktop_cooling_label(
+                        "T. ambientale media",
+                        i18n.ui_text("full.ta_mean_help"),
+                        "ta_standard",
+                    )
                     ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with ta_left:
-                        _render_desktop_cooling_label(
-                            "T. ambientale media",
-                            i18n.ui_text("full.ta_mean_help"),
-                            "ta_standard",
-                        )
                         ta_col, _ta_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with ta_col:
                             st.number_input(
@@ -681,9 +681,9 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
+                    _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
-                        _render_desktop_cooling_label("Fattore di correzione (FC)")
                         fc_col, _fc_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with fc_col:
                             st.number_input(
@@ -1058,51 +1058,6 @@ st.markdown("""
     [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
     > [data-testid="stVerticalBlock"] {
         gap: 0.45rem !important;
-    }
-
-    /* La riga FC desktop deve restare una sola riga di controlli alti 40 px. */
-    @media (min-width: 769px) {
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_row"] {
-            align-items: center !important;
-            gap: 0.40rem !important;
-            height: auto !important;
-            min-height: 40px !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_values"] [data-testid="stHorizontalBlock"] {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-            align-items: center !important;
-            gap: 0.40rem !important;
-            width: 100% !important;
-            min-width: 0 !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_action"],
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_suggest"],
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_suggest"] [data-testid="stButton"],
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_suggest"] [data-testid="stButton"] > button {
-            box-sizing: border-box !important;
-            height: 40px !important;
-            min-height: 40px !important;
-            max-height: 40px !important;
-            margin: 0 !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-        [class*="st-key-desktop_caut_fc_range_action"] {
-            flex: 0 0 6.25rem !important;
-            width: 6.25rem !important;
-            min-width: 6.25rem !important;
-            max-width: 6.25rem !important;
-            align-self: center !important;
-        }
     }
 
     /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e

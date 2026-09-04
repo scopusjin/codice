@@ -405,5 +405,8 @@ def _selectbox_with_perioral_grid(label, options, *args, **kwargs):
 
 st.selectbox = _selectbox_with_perioral_grid
 install_full_mobile_layout()
+# Il layout desktop del raffreddamento gestisce direttamente i due estremi FC;
+# il vecchio wrapper desktop di full_mobile_layout non deve ricostruire la riga.
+st.number_input = _number_input_with_decimal_point
 install_special_heading_style()
 install_special_datetime_ui()
