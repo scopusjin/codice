@@ -147,10 +147,23 @@ def install_special_datetime_ui():
         }
 
         @media (max-width: 768px) {
-          body:has([class*="st-key-stima_cautelativa_beta"])
+          body:has(.mortem-full-title)
+          [data-testid="stMainBlockContainer"] {
+            padding-top: 0.55rem !important;
+          }
+
+          body:has(.mortem-full-title)
+          [data-testid="stElementContainer"][class*="st-key-special_datetime_row_"],
+          body:has(.mortem-full-title)
+          [data-testid="stElementContainer"]:has([class*="st-key-special_datetime_row_"]) {
+            margin-top: -1.35rem !important;
+            margin-bottom: 0 !important;
+          }
+
+          body:has(.mortem-full-title)
           [class*="st-key-special_datetime_row_"] {
-            margin-top: -0.45rem !important;
-            margin-bottom: 0.04rem !important;
+            margin-top: 0 !important;
+            margin-bottom: 0.02rem !important;
           }
         }
 
