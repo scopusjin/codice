@@ -23,7 +23,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.measurement_time": "Ora rilievo:",
             "full.measurement_time_input": "Ora rilievo (HH:MM):",
             "full.putrefactive_changes": "Alterazioni putrefattive?",
-            "full.estimate_button": "STIMA EPOCA DECESSO",
+            "full.estimate_button": "Procedi con la stima",
             "full.no_data_warning": "Nessun dato inserito per la stima",
         }
         for key, value in expected.items():
