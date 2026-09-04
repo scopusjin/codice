@@ -275,23 +275,9 @@ def _install_responsive_image_css():
             align-self: center !important;
           }
 
-          /* Meccanica e pupillare: titolo e selettore devono formare un unico
-             blocco compatto. La data/ora, se presente, resta subito sotto. */
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-special_right_stack_mechanical_muscle"] > [data-testid="stVerticalBlock"],
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-special_right_stack_chemical_pupillary"] > [data-testid="stVerticalBlock"] {
-            gap: 0.04rem !important;
-            row-gap: 0.04rem !important;
-          }
-
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-special_right_stack_mechanical_muscle"] [data-testid="stElementContainer"]:has(.mortem-section-title),
-          html body:has([class*="st-key-stima_cautelativa_beta"])
-          [class*="st-key-special_right_stack_chemical_pupillary"] [data-testid="stElementContainer"]:has(.mortem-section-title) {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
+          /* Le vecchie regole dei contenitori special_right_stack restano
+             inattive: meccanica e pupillare usano direttamente la colonna,
+             come Ipostasi e il relativo selettore. */
         }
 
         /* Full desktop: conserva la larghezza compatta quando i dati speciali
@@ -498,9 +484,9 @@ def install_sopraciliare_click_selector():
                 electrical_pair["columns"] = original_columns(2, gap="small")
 
         # Meccanica e chimica pupillare devono seguire la peribuccale nella
-        # colonna destra. Se per qualunque motivo la coppia elettrica non fosse
-        # ancora stata creata, manteniamo il layout originale invece di
-        # ricostruirla fuori ordine.
+        # colonna destra. Per avere la stessa distanza naturale di Ipostasi
+        # dal proprio selettore, titolo, selettore e data/ora vengono montati
+        # direttamente nella colonna, senza un ulteriore container con gap.
         if parametro_id in _RIGHT_STACK_PARAMS:
             if electrical_pair["columns"] is None:
                 return original_columns(spec, *args, **kwargs)
@@ -513,12 +499,7 @@ def install_sopraciliare_click_selector():
                 return original_columns(spec, *args, **kwargs)
 
             target_column = electrical_pair["columns"][1]
-            with target_column:
-                compact_stack = st.container(
-                    gap="small",
-                    key=f"special_right_stack_{parametro_id}",
-                )
-            return compact_stack, compact_stack
+            return target_column, target_column
 
         if electrical_pair["columns"] is None:
             with st.container(key="electrical_pair_layout"):
