@@ -131,6 +131,7 @@ def install_special_datetime_ui():
     # speciale e consumato soltanto dalla sequenza immediatamente successiva.
     context = {
         "parametro_id": None,
+        "param_container": None,
         "await_checkbox": False,
         "await_datetime": False,
         "datetime_labels_left": 0,
@@ -316,13 +317,35 @@ def install_special_datetime_ui():
         else:
             parametro_id = context["parametro_id"]
 
+        values = _spec_values(spec)
+
+        # Memorizza il contenitore reale restituito dalla riga principale del
+        # parametro. Su mobile questo ci permette di rendere titolo, selettore e
+        # data/ora nello stesso stack, esattamente come Ipostasi e il suo selectbox.
+        if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
+            result = original_columns(spec, *args, **kwargs)
+            try:
+                context["param_container"] = result[0]
+            except (TypeError, IndexError):
+                context["param_container"] = None
+            return result
+
+        # Meccanica e pupillare non hanno un helper nella seconda sottocolonna:
+        # su mobile la vecchia st.columns([1, 0.5]) creava solo spazio verticale.
+        # Restando nel contenitore principale il titolo precede direttamente il
+        # selectbox, con la stessa distanza naturale usata da Ipostasi.
+        if (
+            full_device_is_mobile()
+            and parametro_id in {PARAM_MECHANICAL_MUSCLE, PARAM_CHEMICAL_PUPILLARY}
+            and values == (1.0, 0.5)
+        ):
+            return _NoopContext(), _NoopContext()
+
         usa_orario_custom_globale = bool(
             st.session_state.get("usa_orario_custom", False)
         )
 
         if parametro_id in _SPECIAL_PARAM_IDS and usa_orario_custom_globale:
-            values = _spec_values(spec)
-
             # La riga legacy testo + checkbox compare solo dopo un selectbox
             # speciale valutato: la sostituiamo con due contesti vuoti e
             # aspettiamo la checkbox che il codice chiamante esegue subito dopo.
@@ -332,16 +355,15 @@ def install_special_datetime_ui():
                 return _NoopContext(), _NoopContext()
 
             # Dopo la checkbox resa implicitamente True arriva esattamente la
-            # riga Data/Ora. Il flag viene consumato subito, evitando che altre
-            # st.columns(2) dell'app possano essere intercettate per errore.
+            # riga Data/Ora. La renderizziamo nel medesimo contenitore del
+            # parametro, eliminando l'ancora separata che introduceva il vuoto.
             if spec == 2 and context["await_datetime"]:
                 context["await_datetime"] = False
                 context["datetime_labels_left"] = 2
 
-                # original_columns è il layout elettrico già installato:
-                # crea l'ancora nella colonna del parametro. Questo vale anche
-                # per meccanica e pupillare, collocate sotto la peribuccale.
-                anchor, _ = original_columns([1000, 1], gap="small")
+                anchor = context.get("param_container")
+                if anchor is None:
+                    anchor, _ = original_columns([1000, 1], gap="small")
                 with anchor:
                     return _datetime_boxes(parametro_id)
 
