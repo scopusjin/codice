@@ -49,7 +49,7 @@ components.html(
     <div id="mortem-preview-shell">
       <iframe
         id="mortem-desktop-frame"
-        src="/"
+        src="/?preview=desktop"
         title="Mor-tem desktop preview"
         scrolling="yes"
       ></iframe>
