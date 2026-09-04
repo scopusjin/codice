@@ -110,6 +110,34 @@ def _toggle_desktop_single_fc_suggest():
     st.session_state["__full_fc_suggest_target"] = "single"
 
 
+_TA_RANGE_DESKTOP_HELP = (
+    "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
+    "nel periodo tra il decesso e l’ispezione."
+)
+_FC_RANGE_DESKTOP_HELP = (
+    "Inserisci i due estremi plausibili del fattore di correzione. "
+    "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
+)
+
+
+def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_key: str | None = None):
+    """Etichetta desktop esterna al V2, con helper Streamlit sovrapposto."""
+    label_html = f"<div class='mortem-cooling-field-label'>{text}</div>"
+    if help_text and help_key:
+        with st.container(
+            horizontal=True,
+            wrap=False,
+            vertical_alignment="center",
+            gap="xsmall",
+            key=f"mortem_help_row_prudent_{help_key}",
+        ):
+            with st.container(width="content"):
+                st.markdown(label_html, unsafe_allow_html=True)
+            _render_click_help(help_text, f"mortem_help_prudent_{help_key}")
+        return
+    st.markdown(label_html, unsafe_allow_html=True)
+
+
 # =========================
 # Stato e costanti globali
 # =========================
@@ -130,6 +158,14 @@ st.markdown("""
   font-size: 0.86rem !important;
   font-weight: 600 !important;
   line-height: 1.15 !important;
+  opacity: 0.82;
+}
+.mortem-cooling-field-label {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 0.86rem !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
   opacity: 0.82;
 }
 @media (max-width: 768px) {
@@ -439,41 +475,44 @@ with st.container(border=True):
                 with st.container(gap="xsmall", key="cooling_prudent_v2_grid_desktop"):
                     top_left, top_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with top_left:
-                        rt_col, tm_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        rt_col, tm_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with rt_col:
-                            rectal_label = i18n.ui_text("full.rectal_temp_label")
+                            _render_desktop_cooling_label("T. rettale")
                             st.number_input(
-                                rectal_label,
+                                i18n.ui_text("full.rectal_temp_label"),
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                key="rt_val", label_visibility="collapsed"
+                                key="rt_val", label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
                         with tm_col:
+                            _render_desktop_cooling_label("T. ante-mortem")
                             st.number_input(
                                 i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed",
-                                _mortem_compact_label="T. ante-mortem",
+                                _mortem_compact_label="",
                             )
                     with top_right:
-                        with st.container(
-                            horizontal=True,
-                            wrap=False,
-                            vertical_alignment="bottom",
-                            gap="xsmall",
-                            key="cooling_prudent_weight_group_desktop",
-                        ):
-                            with st.container(width=190, key="cooling_prudent_weight_value_desktop"):
-                                st.number_input(
-                                    i18n.ui_text("full.weight_label"),
-                                    value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                    key="peso", label_visibility="collapsed"
-                                )
-                            with st.container(width="content", key="cooling_prudent_weight_toggle_desktop"):
-                                st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
+                        weight_col, weight_toggle_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
+                        with weight_col:
+                            _render_desktop_cooling_label("Peso")
+                            st.number_input(
+                                i18n.ui_text("full.weight_label"),
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
+                        with weight_toggle_col:
+                            st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
                     ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with ta_left:
-                        ta_min_col, ta_max_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        _render_desktop_cooling_label(
+                            "Range temperatura ambientale media",
+                            _TA_RANGE_DESKTOP_HELP,
+                            "ta_range",
+                        )
+                        ta_min_col, ta_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with ta_min_col:
                             ta_base_val = st.number_input(
                                 i18n.ui_text("full.ta_base_input"),
@@ -481,22 +520,17 @@ with st.container(border=True):
                                 step=0.1, format="%.1f",
                                 key="ta_base_val",
                                 label_visibility="collapsed",
-                                _mortem_compact_label="T. ambientale",
+                                _mortem_compact_label="",
                             )
-                        range_mode_before_ta_other = st.session_state.get("range_unico_beta", False)
-                        st.session_state["range_unico_beta"] = False
-                        try:
-                            with ta_max_col:
-                                ta_other_val = st.number_input(
-                                    i18n.ui_text("full.ta_other_input"),
-                                    value=sget("ta_other_val", ta_base_val),
-                                    step=0.1, format="%.1f",
-                                    key="ta_other_val",
-                                    label_visibility="collapsed",
-                                    _mortem_compact_label="",
-                                )
-                        finally:
-                            st.session_state["range_unico_beta"] = range_mode_before_ta_other
+                        with ta_max_col:
+                            ta_other_val = st.number_input(
+                                i18n.ui_text("full.ta_other_input"),
+                                value=sget("ta_other_val", ta_base_val),
+                                step=0.1, format="%.1f",
+                                key="ta_other_val",
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
 
                     ta_values = [
                         st.session_state.get("ta_base_val"),
@@ -511,32 +545,33 @@ with st.container(border=True):
 
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
-                        fc_min_col, fc_max_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
-                        range_mode_before_fc = st.session_state.get("range_unico_beta", False)
-                        st.session_state["range_unico_beta"] = False
-                        try:
-                            with fc_min_col:
-                                fc_min_val = st.number_input(
-                                    i18n.ui_text("full.fc_min_input"),
-                                    value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                                    step=0.1, format="%.2f",
-                                    key="fc_min_val",
-                                    label_visibility="collapsed",
-                                    _mortem_compact_label="Range FC",
-                                )
-                            with fc_max_col:
-                                fc_other_val = st.number_input(
-                                    i18n.ui_text("full.fc_max_input"),
-                                    value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                                    step=0.1, format="%.2f",
-                                    key="fc_other_val",
-                                    label_visibility="collapsed",
-                                    _mortem_compact_label="",
-                                )
-                        finally:
-                            st.session_state["range_unico_beta"] = range_mode_before_fc
+                        _render_desktop_cooling_label(
+                            "Range fattore di correzione (FC)",
+                            _FC_RANGE_DESKTOP_HELP,
+                            "fc_range",
+                        )
+                        fc_min_col, fc_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
+                        with fc_min_col:
+                            fc_min_val = st.number_input(
+                                i18n.ui_text("full.fc_min_input"),
+                                value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                                step=0.1, format="%.2f",
+                                key="fc_min_val",
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
+                        with fc_max_col:
+                            fc_other_val = st.number_input(
+                                i18n.ui_text("full.fc_max_input"),
+                                value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                                step=0.1, format="%.2f",
+                                key="fc_other_val",
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
                     with fc_right:
-                        with st.container(width=104, key="cooling_prudent_fc_suggest_desktop"):
+                        suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
+                        with suggest_col:
                             st.button(
                                 "Consiglia",
                                 key="desktop_caut_fc_structural_suggest",
@@ -602,49 +637,64 @@ with st.container(border=True):
                 with st.container(gap="xsmall", key="cooling_standard_v2_grid_desktop"):
                     top_left, top_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with top_left:
-                        rt_col, tm_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        rt_col, tm_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with rt_col:
-                            rectal_label = i18n.ui_text("full.rectal_temp_label")
+                            _render_desktop_cooling_label("T. rettale")
                             st.number_input(
-                                rectal_label,
+                                i18n.ui_text("full.rectal_temp_label"),
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
-                                key="rt_val", label_visibility="collapsed"
+                                key="rt_val", label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
                         with tm_col:
+                            _render_desktop_cooling_label("T. ante-mortem")
                             st.number_input(
                                 i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed",
-                                _mortem_compact_label="T. ante-mortem",
+                                _mortem_compact_label="",
                             )
                     with top_right:
-                        st.number_input(
-                            i18n.ui_text("full.weight_label"),
-                            value=sget("peso", 70.0), step=1.0, format="%.1f",
-                            key="peso", label_visibility="collapsed"
-                        )
+                        weight_col, _weight_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
+                        with weight_col:
+                            _render_desktop_cooling_label("Peso")
+                            st.number_input(
+                                i18n.ui_text("full.weight_label"),
+                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                key="peso", label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
 
                     ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with ta_left:
-                        ta_col, _ta_spacer = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        _render_desktop_cooling_label(
+                            "T. ambientale media",
+                            i18n.ui_text("full.ta_mean_help"),
+                            "ta_standard",
+                        )
+                        ta_col, _ta_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with ta_col:
                             st.number_input(
                                 i18n.ui_text("full.ta_input_label"),
                                 value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                                key="ta_base_val", label_visibility="collapsed"
+                                key="ta_base_val", label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
 
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
-                        fc_col, _fc_spacer = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        _render_desktop_cooling_label("Fattore di correzione (FC)")
+                        fc_col, _fc_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with fc_col:
                             st.number_input(
                                 i18n.ui_text("full.fc_input_label"),
                                 value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                                key="fattore_correzione", label_visibility="collapsed"
+                                key="fattore_correzione", label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
                     with fc_right:
-                        with st.container(width=104, key="cooling_standard_fc_suggest_desktop"):
+                        suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
+                        with suggest_col:
                             st.button(
                                 "Consiglia",
                                 key="desktop_caut_fc_structural_suggest",

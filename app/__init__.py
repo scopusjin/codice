@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import inspect
-
 import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 
@@ -9,8 +7,7 @@ import app.perioral_single_grid as _perioral_single_grid
 import app.sopraciliare_ui as _sopraciliare_ui
 from app.decimal_number_input import decimal_number_input
 from app.device_mode import full_device_is_mobile
-from app.full_mobile_layout import _render_click_help, install_full_mobile_layout
-from app.locales.it_ui import ui_text
+from app.full_mobile_layout import install_full_mobile_layout
 from app.special_datetime_ui import install_special_datetime_ui
 from app.special_heading_ui import install_special_heading_style
 from app.supra_single_grid import install_supra_single_grid
@@ -62,24 +59,6 @@ _full_mobile_units = {
     "fcpanel_caut_coperte_medie": "",
     "fcpanel_caut_coperte_pesanti": "",
 }
-_FULL_DESKTOP_COOLING_KEYS = {
-    "rt_val",
-    "tm_val",
-    "peso",
-    "ta_base_val",
-    "ta_other_val",
-    "fattore_correzione",
-    "fc_min_val",
-    "fc_other_val",
-}
-_TA_RANGE_DESKTOP_HELP = (
-    "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
-    "nel periodo tra il decesso e l’ispezione."
-)
-_FC_RANGE_DESKTOP_HELP = (
-    "Inserisci i due estremi plausibili del fattore di correzione. "
-    "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
-)
 _main_delta_generator = getattr(st, "_main", None)
 
 
@@ -96,46 +75,6 @@ def _native_main_widget(method_name, fallback):
 _number_input_original = _native_main_widget("number_input", st.number_input)
 _dg_number_input_original = DeltaGenerator.number_input
 _toggle_original = _native_main_widget("toggle", st.toggle)
-_columns_original = st.columns
-
-
-def _called_from_full_estimate_page(max_depth=8) -> bool:
-    """Limita gli override desktop alla sola Stima_epoca_decesso.py."""
-    frame = inspect.currentframe()
-    depth = 0
-    try:
-        while frame is not None and depth < max_depth:
-            filename = str(getattr(getattr(frame, "f_code", None), "co_filename", ""))
-            if filename.replace("\\", "/").endswith("/Stima_epoca_decesso.py"):
-                return True
-            frame = frame.f_back
-            depth += 1
-    finally:
-        del frame
-    return False
-
-
-def _columns_with_compact_full_cooling(spec, *args, **kwargs):
-    """Rende omogenee solo le due sottocolonne desktop del raffreddamento Full."""
-    is_target_pair = False
-    if isinstance(spec, (list, tuple)) and len(spec) == 2:
-        try:
-            is_target_pair = abs(float(spec[0]) - 1.35) < 1e-9 and abs(float(spec[1]) - 1.0) < 1e-9
-        except (TypeError, ValueError):
-            is_target_pair = False
-
-    if (
-        not full_device_is_mobile()
-        and _called_from_full_estimate_page()
-        and is_target_pair
-        and kwargs.get("vertical_alignment") == "bottom"
-    ):
-        spec = [1, 1]
-        kwargs["gap"] = "xsmall"
-    return _columns_original(spec, *args, **kwargs)
-
-
-st.columns = _columns_with_compact_full_cooling
 
 
 def _sync_full_interval_mode_state():
@@ -255,55 +194,6 @@ def _compact_mobile_label(label, key) -> str:
             text = text[:-len(suffix)]
             break
     return text
-
-
-def _desktop_cooling_label(key, prudent_mode):
-    if key == "rt_val":
-        return "T. rettale", None, None
-    if key == "tm_val":
-        return "T. ante-mortem", None, None
-    if key == "peso":
-        return "Peso", None, None
-    if key == "ta_base_val":
-        if prudent_mode:
-            return "Range temperatura ambientale media", _TA_RANGE_DESKTOP_HELP, "mortem_help_prudent_ta_range"
-        return "T. ambientale media", ui_text("full.ta_mean_help"), "mortem_help_prudent_ta_standard"
-    if key == "ta_other_val":
-        return "", None, None
-    if key == "fattore_correzione":
-        return "Fattore di correzione (FC)", None, None
-    if key == "fc_min_val":
-        if prudent_mode:
-            return "Range fattore di correzione (FC)", _FC_RANGE_DESKTOP_HELP, "mortem_help_prudent_fc_range"
-        return "Fattore minimo", None, None
-    if key == "fc_other_val":
-        return "", None, None
-    return "", None, None
-
-
-def _render_desktop_cooling_label(text, help_text=None, help_key=None):
-    if not text:
-        return
-
-    label_html = (
-        "<div style='margin:0;padding:0;overflow:visible;white-space:nowrap;"
-        "font-size:0.86rem;font-weight:400;line-height:18px;opacity:0.82;width:max-content;'>"
-        f"{text}</div>"
-    )
-    if help_text and help_key:
-        row_key = help_key.replace("mortem_help_prudent_", "desktop_label_help_row_")
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            vertical_alignment="center",
-            gap="xsmall",
-            key=row_key,
-        ):
-            with st.container(width="content"):
-                st.markdown(label_html, unsafe_allow_html=True)
-            _render_click_help(help_text, help_key)
-        return
-    st.markdown(label_html, unsafe_allow_html=True)
 
 
 def _number_input_with_decimal_point(label, *args, **kwargs):
@@ -438,53 +328,27 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 else _compact_mobile_label(label, key)
             )
 
-        desktop_cooling = bool(
-            not full_device_is_mobile()
-            and _called_from_full_estimate_page()
-            and key in _FULL_DESKTOP_COOLING_KEYS
+        result = decimal_number_input(
+            value=logical_value,
+            step=kwargs.get("step", 1.0),
+            format=kwargs.get("format", "%g"),
+            min_value=kwargs.get("min_value"),
+            max_value=kwargs.get("max_value"),
+            disabled=kwargs.get("disabled", False),
+            sync_token=st.session_state[sync_key],
+            aria_label=label or key,
+            compact_mobile=compact_mobile,
+            compact_label=compact_label,
+            unit=_full_mobile_units.get(key, "") if compact_mobile else "",
+            hide_group_heading=hide_group_heading,
+            inline_weight_toggle=inline_weight_toggle,
+            suggest_enabled=bool(suggest_target),
+            suggest_label="Consiglia" if suggest_target else "",
+            suggest_active=suggest_active,
+            on_suggest=_component_suggest if suggest_target else None,
+            on_change=_component_on_change if callable(user_on_change) else None,
+            key=component_key,
         )
-        desktop_label = ""
-        desktop_help_text = None
-        desktop_help_key = None
-        if desktop_cooling:
-            desktop_label, desktop_help_text, desktop_help_key = _desktop_cooling_label(key, prudent_mode)
-            # Sul desktop l'etichetta vive nel documento Streamlit principale:
-            # il V2 resta soltanto il controllo numerico, senza iframe più alto.
-            compact_label = ""
-
-        def _render_decimal_component():
-            return decimal_number_input(
-                value=logical_value,
-                step=kwargs.get("step", 1.0),
-                format=kwargs.get("format", "%g"),
-                min_value=kwargs.get("min_value"),
-                max_value=kwargs.get("max_value"),
-                disabled=kwargs.get("disabled", False),
-                sync_token=st.session_state[sync_key],
-                aria_label=label or key,
-                compact_mobile=compact_mobile,
-                compact_label=compact_label,
-                unit=_full_mobile_units.get(key, "") if compact_mobile else "",
-                hide_group_heading=hide_group_heading,
-                inline_weight_toggle=inline_weight_toggle,
-                suggest_enabled=bool(suggest_target),
-                suggest_label="Consiglia" if suggest_target else "",
-                suggest_active=suggest_active,
-                on_suggest=_component_suggest if suggest_target else None,
-                on_change=_component_on_change if callable(user_on_change) else None,
-                key=component_key,
-            )
-
-        if desktop_cooling:
-            with st.container(gap="xsmall", key=f"full_desktop_decimal_field_{key}"):
-                _render_desktop_cooling_label(
-                    desktop_label,
-                    desktop_help_text,
-                    desktop_help_key,
-                )
-                result = _render_decimal_component()
-        else:
-            result = _render_decimal_component()
 
         # Durante una sincronizzazione esterna il valore restituito dal
         # componente può essere quello del render precedente: in quel solo
