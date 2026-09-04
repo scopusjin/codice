@@ -191,12 +191,12 @@ _CSS = r"""
   grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem;
 }
 .number-control:not(.desktop-external-label):not(.is-dense) {
-  grid-template-columns: fit-content(9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
-  width: max-content;
+  grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
+  width: min(100%, 21.9rem);
   max-width: 100%;
 }
 .number-control:not(.desktop-external-label):not(.is-dense).external-action {
-  grid-template-columns: fit-content(9.4rem) 3rem 1.5rem 1.8rem 1.8rem;
+  grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
 }
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
