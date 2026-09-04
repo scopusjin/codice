@@ -29,6 +29,13 @@ def _uniform_helper_container_key(key):
     if key.startswith("mortem_help_prudent_electrical_"):
         suffix = key[len("mortem_help_prudent_electrical_"):]
         return f"fcpanel_std_vest_help_slot_electrical_{suffix}"
+    if key in {
+        "mortem_help_prudent_ta_standard",
+        "mortem_help_prudent_ta_range",
+        "mortem_help_prudent_fc_range",
+    }:
+        suffix = key[len("mortem_help_prudent_"):]
+        return f"fcpanel_std_vest_help_slot_cooling_{suffix}"
     if key.startswith("ta_native_help_button_"):
         suffix = key[len("ta_native_help_button_"):]
         return f"fcpanel_std_vest_help_slot_ta_{suffix}"
@@ -276,6 +283,12 @@ _DESKTOP_HENSSGE_TEXT_RULES = r'''  body:has([class*="st-key-stima_cautelativa_b
   body:has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label p::before {
     content: "Metodo di ";
+  }
+
+  /* Le etichette della modalità standard mantengono un piccolo distacco dal controllo. */
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_standard_v2_grid_desktop"] .mortem-cooling-field-label {
+    padding-bottom: 0.12rem !important;
   }
 
   /* Pannello FC desktop: stessa resa compatta della Full mobile, mantenendo
