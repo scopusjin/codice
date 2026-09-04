@@ -89,7 +89,7 @@ UI_TEXT = {
     "full.air_currents": "Correnti d'aria presenti?",
 
     # UI completa — dati tanatologici aggiuntivi / azioni
-    "full.add_special_data": "Aggiungi dati tanatologici speciali",
+    "full.add_special_data": "Dati tanatologici aggiuntivi",
     "full.special_datetime_hint": (
         "<div style='font-size:0.9rem; color:#666; padding:6px 8px; "
         "border-left:4px solid #bbb; background:#f7f7f7; margin-bottom:8px;'>"
@@ -193,6 +193,7 @@ UI_TEXT = {
     "graph.discordant_detail_html": "<ul><li><b>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</b></li></ul>",
     "graph.descriptions_popover": "📖 Descrizioni dettagliate",
     "graph.warnings_popover": "⚠️ Avvisi",
+    "graph.plot_expander": "Mostra grafico",
     "graph.parameter_livor": "Macchie ipostatiche",
     "graph.parameter_rigor": "Rigidità cadaverica",
     "graph.parameter_cooling": "raffreddamento cadaverico",

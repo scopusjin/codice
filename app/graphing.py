@@ -469,6 +469,11 @@ def aggiorna_grafico(
         })
 
     # --- grafico ---
+    # Su mobile il grafico viene conservato temporaneamente e mostrato dopo
+    # il riepilogo sintetico, dentro una sezione richiudibile. In questo modo
+    # l'esito medico-legale è la prima informazione visibile dopo il calcolo.
+    mobile_result_figure = None
+    mobile_results = bool(st.session_state.get("__full_device_mobile", False))
     num_params_grafico = 0
     if macchie_range_valido: num_params_grafico += 1
     if rigidita_range_valido: num_params_grafico += 1
@@ -535,7 +540,10 @@ def aggiorna_grafico(
                     ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
                 if not np.isnan(comune_fine) and comune_fine > 0:
                     ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
-            st.pyplot(fig)
+            if mobile_results:
+                mobile_result_figure = fig
+            else:
+                st.pyplot(fig)
 
         # La frase breve viene calcolata qui e mostrata prima dei comandi di dettaglio.
         if overlap:
@@ -814,8 +822,12 @@ def aggiorna_grafico(
     if frase_breve_html:
         render_frase_breve(frase_breve_html, key="fb_before_details")
 
-    # margine verticale prima dei link
-    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+    if mobile_result_figure is not None:
+        with st.expander(i18n.ui_text("graph.plot_expander"), expanded=False):
+            st.pyplot(mobile_result_figure, width="stretch")
+
+    # Margine contenuto prima dei comandi secondari.
+    st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
 
     # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
     if not st.session_state.get("_pop_css_row_applied"):

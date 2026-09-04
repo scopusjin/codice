@@ -8,7 +8,7 @@ from app import i18n
 from app.theme import apply_theme, warn_box
 from app.theme import fc_panel_start
 from app.full_factor_panel import pannello_suggerisci_fc_mobile
-from app.mobile_navigation import render_mobile_page_switch
+from app.mobile_shell import install_minimal_mobile_shell
 
 
 from app.graphing import aggiorna_grafico
@@ -41,16 +41,21 @@ from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
 # ------------------------------------------------------------
 # Config pagina
 # ------------------------------------------------------------
-st.set_page_config(page_title=i18n.ui_text("msil.page_title"), layout="centered")
+st.set_page_config(
+    page_title=i18n.ui_text("msil.page_title"),
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 apply_theme()
+install_minimal_mobile_shell()
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
 # ------------------------------------------------------------
 st.markdown("""
 <style>
-/* Header e padding pagina */
-header[data-testid="stHeader"]{display:none!important;}
-section.main, div.block-container{padding-top:0!important;margin-top:0!important}
+/* Padding pagina: la cornice mobile condivisa conserva soltanto il comando
+   nativo della sidebar nell'angolo superiore sinistro. */
+section.main, div.block-container{margin-top:0!important}
 
 /* Titolo reale della modalità sopralluogo */
 .mortem-msil-page-title{
@@ -489,9 +494,3 @@ st.session_state["selettore_rigidita"] = selettore_rigidita
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
-
-render_mobile_page_switch(
-    "Versione completa",
-    "Stima_epoca_decesso.py",
-    "mobile_nav_footer_to_full",
-)

@@ -1,6 +1,10 @@
 import streamlit as st
 
 from app import i18n
+from app.mobile_shell import install_minimal_mobile_shell
+
+
+install_minimal_mobile_shell()
 
 
 _MALLACH_REFERENCE = (

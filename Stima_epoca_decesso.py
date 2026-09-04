@@ -23,7 +23,7 @@ from app.native_time_picker import EMPTY_TIME_SENTINEL, native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
-from app.mobile_navigation import render_mobile_page_switch
+from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 
 import streamlit as st
@@ -134,6 +134,7 @@ def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_
 # Stato e costanti globali
 # =========================
 st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="collapsed")
+install_minimal_mobile_shell()
 
 st.markdown("""
 <style>
@@ -161,7 +162,6 @@ st.markdown("""
   opacity: 0.82;
 }
 @media (max-width: 768px) {
-  div.block-container { padding-top: 2.4rem !important; }
   .mortem-full-title {
     margin: 0 !important;
     padding: 0 !important;
@@ -173,8 +173,40 @@ st.markdown("""
   }
   [data-testid="stElementContainer"]:has(.mortem-full-title) {
     width: 100% !important;
-    margin: 0 0 -0.35rem 0 !important;
+  }
+
+  /* La sezione aggiuntiva resta chiusa finché non serve e viene separata
+     dal resto del modulo senza introdurre un'altra card pesante. */
+  [class*="st-key-mostra_parametri_aggiuntivi"] {
+    margin: 0.18rem 0 0 !important;
+    padding: 0.38rem 0 0 !important;
+    border-top: 1px solid rgba(128, 128, 128, 0.20) !important;
+  }
+  [class*="st-key-mostra_parametri_aggiuntivi"] [data-testid="stToggle"] {
+    margin: 0 !important;
     padding: 0 !important;
+  }
+
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"]) {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0.42rem 0 0 !important;
+  }
+
+  /* Sul telefono il solo riepilogo verde è la card principale. Il contenitore
+     esterno dei risultati resta neutro e non crea riquadri annidati. */
+  [class*="st-key-mortem_result_box"] {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 0.18rem !important;
+  }
+  [class*="st-key-mortem_result_box"] > [data-testid="stVerticalBlock"] {
+    gap: 0.32rem !important;
   }
 }
 </style>
@@ -708,8 +740,12 @@ with st.container(border=True):
                 key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
             )
 
-# Parametri aggiuntivi
-mostra_parametri_aggiuntivi = st.checkbox(i18n.ui_text("full.add_special_data"), key="mostra_parametri_aggiuntivi")
+# Parametri aggiuntivi: sezione compatta, chiusa all'avvio e aperta soltanto
+# quando serve. Il toggle conserva la precedente semantica di inclusione.
+mostra_parametri_aggiuntivi = st.toggle(
+    i18n.ui_text("full.add_special_data"),
+    key="mostra_parametri_aggiuntivi",
+)
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
@@ -1195,9 +1231,3 @@ if st.session_state["show_results"]:
             alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
             skip_warnings=True,
         )
-
-render_mobile_page_switch(
-    "Modalità sopralluogo",
-    "pages/App_MSIL.py",
-    "mobile_nav_footer_to_msil",
-)

@@ -1,6 +1,11 @@
 # pages/raccomandazioni.py
 import streamlit as st
 
+from app.mobile_shell import install_minimal_mobile_shell
+
+
+install_minimal_mobile_shell()
+
 st.title("Raccomandazioni")
 
 st.markdown(
@@ -41,4 +46,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-

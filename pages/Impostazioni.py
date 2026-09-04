@@ -1,7 +1,10 @@
 # pages/Impostazioni.py
 import streamlit as st
 
+from app.mobile_shell import install_minimal_mobile_shell
+
 st.set_page_config(page_title="Impostazioni", layout="centered")
+install_minimal_mobile_shell()
 
 st.markdown("## ⚙️ Impostazioni")
 

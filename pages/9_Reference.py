@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 
+from app.mobile_shell import install_minimal_mobile_shell
+
+
+install_minimal_mobile_shell()
+
 # Titolo grande e in grassetto
 st.markdown("# **Riferimenti bibliografici**")
 

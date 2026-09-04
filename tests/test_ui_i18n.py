@@ -17,7 +17,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.rigor_heading": "Rigidità cadaverica",
             "full.rigor_select_label": "Rigidità cadaverica:",
             "full.cooling_heading": "Raffreddamento cadaverico",
-            "full.add_special_data": "Aggiungi dati tanatologici speciali",
+            "full.add_special_data": "Dati tanatologici aggiuntivi",
             "full.assessed_different_time": "Valutato ad un'ora diversa?",
             "full.measurement_date": "Data rilievo:",
             "full.measurement_time": "Ora rilievo:",
@@ -25,6 +25,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.putrefactive_changes": "Alterazioni putrefattive?",
             "full.estimate_button": "Procedi con la stima",
             "full.no_data_warning": "Nessun dato inserito per la stima",
+            "graph.plot_expander": "Mostra grafico",
         }
         for key, value in expected.items():
             with self.subTest(key=key):
