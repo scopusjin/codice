@@ -196,7 +196,8 @@ _CSS = r"""
   max-width: 100%;
 }
 .number-control:not(.desktop-external-label):not(.is-dense).external-action {
-  grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
+  grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem;
+  width: min(100%, 17.5rem);
 }
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
@@ -390,6 +391,10 @@ _CSS = r"""
   font-size: 0.76rem;
   font-weight: 500;
   line-height: 1;
+}
+.number-control:not(.desktop-external-label):not(.is-dense) .suggest-button {
+  height: 32px;
+  align-self: center;
 }
 .number-control.desktop-external-label .suggest-button {
   grid-column: 5;
@@ -630,7 +635,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   }
   suggestButton.classList.toggle('is-visible', showSuggest);
   suggestButton.classList.toggle('is-active', showSuggest && Boolean(data?.suggest_active));
-  suggestButton.textContent = String(data?.suggest_label || '');
+  suggestButton.textContent = showSuggest ? 'Consiglia FC' : String(data?.suggest_label || '');
   suggestButton.setAttribute('aria-pressed', data?.suggest_active ? 'true' : 'false');
   input.disabled = disabled;
   input.setAttribute('aria-label', String(data?.aria_label || 'Valore numerico'));
