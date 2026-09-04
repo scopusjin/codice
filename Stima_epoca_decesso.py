@@ -681,17 +681,9 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        vertical_alignment="center",
-                        gap="xsmall",
-                        key="mortem_fc_standard_label_row",
-                    ):
-                        with st.container(width="content"):
-                            _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
+                        _render_desktop_cooling_label("Fattore di correzione (FC)")
                         st.number_input(
                             i18n.ui_text("full.fc_input_label"),
                             value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
