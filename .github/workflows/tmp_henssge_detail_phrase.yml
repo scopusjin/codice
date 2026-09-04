@@ -1,0 +1,38 @@
+name: Temporary Henssge detail phrase patch
+
+on:
+  push:
+    branches:
+      - refactor-tanatology-keys
+    paths:
+      - .github/tmp_henssge_detail_phrase_trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: refactor-tanatology-keys
+          fetch-depth: 0
+
+      - name: Apply phrase patch
+        run: python .github/tmp_henssge_detail_phrase_patch.py
+
+      - name: Check diff and syntax
+        run: |
+          git diff --check
+          python -m py_compile app/graphing.py
+
+      - name: Commit phrase update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/graphing.py
+          git diff --cached --quiet && { echo "No application change produced"; exit 1; }
+          git commit -m "Aggiorna frase Henssge nelle descrizioni"
+          git push origin HEAD:refactor-tanatology-keys
