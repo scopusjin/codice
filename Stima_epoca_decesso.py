@@ -684,14 +684,12 @@ with st.container(border=True):
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
-                        fc_col, _fc_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with fc_col:
-                            st.number_input(
-                                i18n.ui_text("full.fc_input_label"),
-                                value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                                key="fattore_correzione", label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
+                        st.number_input(
+                            i18n.ui_text("full.fc_input_label"),
+                            value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
+                            key="fattore_correzione", label_visibility="collapsed",
+                            _mortem_compact_label="",
+                        )
                     with fc_right:
                         suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
                         with suggest_col:
