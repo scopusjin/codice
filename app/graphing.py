@@ -618,7 +618,7 @@ def aggiorna_grafico(
             and float(Qd_val_check) <= qd_threshold
         )
         if henssge_non_applicabile_singolo:
-            _add_det("<ul><li>I parametri del caso in esame ricadono al di fuori dei range di applicabilità dell’equazione di Henssge, che fornirebbe risultati non attendibili.</li></ul>")
+            _add_det("<ul><li>Nel caso in esame, il grado di raffreddamento corporeo, calcolabile sulla base della temperatura rettale e ambientale, ricade al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>")
         else:
             par_h = paragrafo_raffreddamento_dettaglio(
                 t_min_visual=t_min_vis,
