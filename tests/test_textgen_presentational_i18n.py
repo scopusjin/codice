@@ -48,7 +48,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             "consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti "
             "con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
             "Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse "
-            "almeno <b>26 ore 30 minuti</b> (≈ 1.1 giorni) dal decesso.</li></ul>"
+            "almeno 26 ore 30 minuti (≈ 1.1 giorni) dal decesso.</li></ul>"
         )
         self.assertEqual(
             paragrafo_potente(
