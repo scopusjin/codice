@@ -681,7 +681,15 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
-                    _render_desktop_cooling_label("Fattore di correzione (FC)")
+                    with st.container(
+                        horizontal=True,
+                        wrap=False,
+                        vertical_alignment="center",
+                        gap="xsmall",
+                        key="mortem_fc_standard_label_row",
+                    ):
+                        with st.container(width="content"):
+                            _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
                     with fc_left:
                         st.number_input(
@@ -1187,21 +1195,22 @@ if st.session_state["show_results"]:
         not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
     )
 
-    aggiorna_grafico(
-        selettore_macchie=selettore_macchie,
-        selettore_rigidita=selettore_rigidita,
-        input_rt=(input_rt if considera_raffreddamento else None),
-        input_ta=(input_ta if considera_raffreddamento else None),
-        input_tm=(input_tm if considera_raffreddamento else None),
-        input_w=(input_w if considera_raffreddamento else None),
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
-        widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
-        usa_orario_custom=st.session_state.get("usa_orario_custom", False),
-        input_data_rilievo=st.session_state.get("input_data_rilievo"),
-        input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
-        alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
-        skip_warnings=True,
-    )
+    with st.container(key="mortem_result_box"):
+        aggiorna_grafico(
+            selettore_macchie=selettore_macchie,
+            selettore_rigidita=selettore_rigidita,
+            input_rt=(input_rt if considera_raffreddamento else None),
+            input_ta=(input_ta if considera_raffreddamento else None),
+            input_tm=(input_tm if considera_raffreddamento else None),
+            input_w=(input_w if considera_raffreddamento else None),
+            fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+            widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
+            usa_orario_custom=st.session_state.get("usa_orario_custom", False),
+            input_data_rilievo=st.session_state.get("input_data_rilievo"),
+            input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
+            alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
+            skip_warnings=True,
+        )
 
 render_mobile_page_switch(
     "Modalità sopralluogo",
