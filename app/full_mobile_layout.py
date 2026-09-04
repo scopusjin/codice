@@ -579,6 +579,18 @@ def _tag_full_field_heading(body):
 
 
 def _render_click_help(text: str, key: str) -> None:
+    if key in {
+        "mortem_help_prudent_ta_standard",
+        "mortem_help_prudent_ta_range",
+        "mortem_help_prudent_fc_range",
+    }:
+        st.markdown(
+            "&#8203;",
+            unsafe_allow_html=True,
+            help=str(text or ""),
+        )
+        return
+
     lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
     blocks = []
     for line in lines:
