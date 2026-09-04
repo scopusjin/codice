@@ -77,9 +77,9 @@ def qd_summary(
         )
 
     return (
-        "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
-        f"dell'equazione di Henssge (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-        f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}).</p>"
+        "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono di ottenere una stima sufficientemente attendibile mediante il metodo di Henssge "
+        f"(con {condition}, il valore di Qd dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}). "
+        "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
     )
 
 
