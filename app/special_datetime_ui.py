@@ -146,6 +146,14 @@ def install_special_datetime_ui():
             margin-bottom: 0.08rem !important;
         }
 
+        @media (max-width: 768px) {
+          body:has([class*="st-key-stima_cautelativa_beta"])
+          [class*="st-key-special_datetime_row_"] {
+            margin-top: -0.45rem !important;
+            margin-bottom: 0.04rem !important;
+          }
+        }
+
         [class*="st-key-special_datetime_row_"] div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
