@@ -422,7 +422,7 @@ def _render_factor_panel(
 
     surface_placeholder_selected = False
     superficie_display_selected = None if mobile else "/"
-    if stato_corpo == "Asciutto":
+    if stato_corpo in ("Asciutto", "Bagnato"):
         nudo_eff = ((not toggle_vestito)
                     or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
         options_display = list(surface_labels())
