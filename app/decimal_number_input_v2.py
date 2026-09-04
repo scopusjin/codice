@@ -35,7 +35,7 @@ _HTML = r"""
   <div class="number-control compact-mobile">
     <span class="label-help-cluster">
       <span class="mobile-label"></span>
-      <button class="temperature-help" type="button" aria-label="Informazioni sulla temperatura ambientale"><span>?</span></button>
+      <button class="temperature-help" type="button" aria-label="Informazioni"><span>?</span></button>
     </span>
     <input class="number-input" type="text" inputmode="decimal" autocomplete="off" />
     <span class="mobile-unit"></span>
@@ -158,6 +158,9 @@ _CSS = r"""
 }
 .desktop-help-popover.is-open {
   display: block;
+}
+.desktop-help-popover.mobile-help-popover {
+  top: 42px;
 }
 .number-control {
   box-sizing: border-box;
@@ -591,6 +594,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     }
     return '';
   })();
+  const mobileHelpText = String(data?.mobile_help_text || '');
+  const activeHelpText = desktopExternalLabel ? desktopHelpText : mobileHelpText;
   shell.classList.toggle('desktop-external-label', desktopExternalLabel);
   desktopLabelRow.classList.toggle('is-visible', desktopLabelVisible);
   control.classList.toggle('desktop-external-label', desktopExternalLabel);
@@ -604,8 +609,12 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
   desktopHelpButton.classList.toggle('is-visible', showHelp && desktopLabelVisible);
-  desktopHelpPopover.textContent = desktopHelpText;
-  if (!(showHelp && desktopLabelVisible && desktopHelpText)) {
+  desktopHelpPopover.classList.toggle(
+    'mobile-help-popover',
+    showHelp && !desktopExternalLabel && Boolean(mobileHelpText)
+  );
+  desktopHelpPopover.textContent = activeHelpText;
+  if (!(showHelp && activeHelpText)) {
     desktopHelpPopover.classList.remove('is-open');
   }
   suggestButton.classList.toggle('is-visible', showSuggest);
@@ -653,7 +662,15 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   minusButton.onclick = () => stepBy(-1);
   plusButton.onclick = () => stepBy(1);
   helpButton.onclick = () => {
-    if (!disabled && showHelp) setTriggerValue('help', true);
+    if (!disabled && showHelp) {
+      if (mobileHelpText) {
+        const willOpen = !desktopHelpPopover.classList.contains('is-open');
+        desktopHelpPopover.classList.toggle('is-open', willOpen);
+        helpButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      } else {
+        setTriggerValue('help', true);
+      }
+    }
   };
   desktopHelpButton.onclick = () => {
     if (!disabled && showHelp) {
@@ -775,10 +792,41 @@ def render_mobile_decimal_v2(
     desktop_label = str(compact_label or "")
     desktop_label_visible = bool(desktop_external_label and desktop_label.strip())
 
+    mobile_help_text = ""
+    if full_mobile:
+        if key == "mortem_decimal_ta_base_val" and not prudent_mode:
+            mobile_help_text = (
+                "Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
+                "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata "
+                "al momento del rilievo, soprattutto se il cadavere si trova all’aperto."
+            )
+        elif key == "mortem_decimal_ta_other_val" and prudent_mode:
+            mobile_help_text = (
+                "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
+                "nel periodo tra il decesso e l’ispezione."
+            )
+        elif key == "mortem_decimal_fattore_correzione" and not prudent_mode:
+            mobile_help_text = (
+                "«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
+                "agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali."
+            )
+        elif key == "mortem_decimal_fc_other_val" and prudent_mode:
+            mobile_help_text = (
+                "Inserisci i due estremi plausibili del fattore di correzione. «Consiglia» aiuta a individuare "
+                "i valori in base alle condizioni del corpo."
+            )
+
     # Gli helper desktop del raffreddamento sono renderizzati nel DOM Streamlit
     # principale: il V2 resta alto 40 px e non può più creare scrollbar o note
     # che spostano le righe. Mobile e pannello FC denso conservano il percorso V2.
-    effective_help_enabled = bool(help_enabled and (full_mobile or desktop_label_visible))
+    effective_help_enabled = bool(
+        (help_enabled or mobile_help_text)
+        and (full_mobile or desktop_label_visible)
+    )
+    if full_mobile and help_state_key:
+        # Il popover mobile è ora interno al V2: azzera l'eventuale vecchio flag
+        # che altrimenti farebbe comparire anche la caption Streamlit sotto il campo.
+        st.session_state[help_state_key] = False
     if desktop_external_label and not desktop_label_visible and help_state_key:
         st.session_state[help_state_key] = False
 
@@ -839,6 +887,7 @@ def render_mobile_decimal_v2(
             "desktop_label": desktop_label,
             "unit": str(unit or ""),
             "help_enabled": effective_help_enabled,
+            "mobile_help_text": mobile_help_text,
             "suggest_enabled": effective_suggest_enabled,
             "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
             "suggest_active": bool(suggest_active and effective_suggest_enabled),
