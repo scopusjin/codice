@@ -69,15 +69,18 @@ _CSS = r"""
 .desktop-label {
   box-sizing: border-box;
   display: block;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.15;
   opacity: 0.82;
 }
@@ -534,7 +537,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const compactLabel = String(data?.compact_label || '');
   const desktopExternalLabel = Boolean(data?.desktop_external_label);
   label.textContent = compactLabel;
-  desktopLabel.textContent = compactLabel;
+  desktopLabel.textContent = String(data?.desktop_label ?? compactLabel);
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
@@ -707,16 +710,36 @@ def render_mobile_decimal_v2(
     sync_token = int(sync_token)
     dense = bool(key and key.startswith("mortem_decimal_fcpanel_"))
     full_mobile = bool(st.session_state.get("__full_device_mobile", False))
+    prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
     desktop_external_label = bool(not full_mobile and not dense)
+
+    desktop_label = str(compact_label or "")
+    if desktop_external_label and prudent_mode:
+        if key == "mortem_decimal_ta_base_val":
+            desktop_label = "Range temperatura ambientale media"
+        elif key == "mortem_decimal_fc_min_val":
+            desktop_label = "Range fattore di correzione (FC)"
+
+    external_fc_suggest = bool(
+        not full_mobile
+        and not dense
+        and key in {
+            "mortem_decimal_fattore_correzione",
+            "mortem_decimal_fc_min_val",
+            "mortem_decimal_fc_other_val",
+        }
+    )
+    effective_suggest_enabled = bool(suggest_enabled and not external_fc_suggest)
     external_action = bool(
         (
             key == "mortem_decimal_peso"
-            and st.session_state.get("stima_cautelativa_beta", False)
+            and prudent_mode
         )
+        or external_fc_suggest
         or (
             not full_mobile
             and not dense
-            and not suggest_enabled
+            and not effective_suggest_enabled
         )
     )
     reserve_action = bool(not dense and not external_action)
@@ -737,7 +760,7 @@ def render_mobile_decimal_v2(
             st.session_state[help_state_key] = not bool(st.session_state.get(help_state_key, False))
 
     def _on_suggest_change():
-        if suggest_enabled and callable(on_suggest):
+        if effective_suggest_enabled and callable(on_suggest):
             on_suggest()
 
     result = renderer(
@@ -751,11 +774,12 @@ def render_mobile_decimal_v2(
             "sync_token": sync_token,
             "aria_label": str(aria_label or "Valore numerico"),
             "compact_label": str(compact_label or ""),
+            "desktop_label": desktop_label,
             "unit": str(unit or ""),
             "help_enabled": bool(help_enabled),
-            "suggest_enabled": bool(suggest_enabled),
-            "suggest_label": str(suggest_label or ""),
-            "suggest_active": bool(suggest_active),
+            "suggest_enabled": effective_suggest_enabled,
+            "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
+            "suggest_active": bool(suggest_active and effective_suggest_enabled),
             "reserve_action": reserve_action,
             "external_action": external_action,
             "desktop_external_label": desktop_external_label,
