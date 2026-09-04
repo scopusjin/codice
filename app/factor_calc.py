@@ -155,6 +155,18 @@ def bagnato_con_correnti(sottili: int, spessi: int) -> float:
         return 0.70
     return 0.70
 
+def bagnato_nudo_range_superficie(superficie_key: Optional[str]) -> Optional[Tuple[float, float]]:
+    """Range orientativo per nudo+bagnato+aria ferma su superfici non neutre concordate."""
+    if superficie_key == SURF_ISOL:
+        return (0.85, 0.95)
+    if superficie_key == SURF_MOLTOI:
+        return (0.95, 1.10)
+    if superficie_key == SURF_COND:
+        return (0.60, 0.75)
+    if superficie_key == SURF_MOLTOC:
+        return (0.55, 0.75)
+    return None
+
 def applica_correnti(fatt: float,
                      stato: str,
                      superficie_key: Optional[str],
@@ -337,7 +349,7 @@ def compute_factor(
 
     # Asciutto / Bagnato
     f_vest = fattore_vestiti_coperte(counts)
-    superf_key = surface_display_to_key(superficie_display) if stato == "Asciutto" else None
+    superf_key = surface_display_to_key(superficie_display) if stato in ("Asciutto", "Bagnato") else None
 
     f_tmp = float(f_vest)
     if stato == "Asciutto" and superf_key is not None:
@@ -347,6 +359,10 @@ def compute_factor(
     if np.isnan(f_corr):
         f_corr = 1.0
     f_corr = clamp(float(f_corr))
+
+    fc_range_suggerito = None
+    if stato == "Bagnato" and is_nudo(counts) and not correnti_aria:
+        fc_range_suggerito = bagnato_nudo_range_superficie(superf_key)
 
     # adatta_per_peso mantiene il suo round(..., 2)
     fatt_finale_raw = adatta_per_peso(f_corr, peso, tabella2_df)
@@ -360,10 +376,11 @@ def compute_factor(
         "spessi": int(counts.spessi),
         "cop_medie": int(counts.coperte_medie),
         "cop_pesanti": int(counts.coperte_pesanti),
-        "superficie": superficie_display if stato == "Asciutto" else "/",
+        "superficie": superficie_display if stato in ("Asciutto", "Bagnato") else "/",
         "superficie_key": superf_key,
         "correnti": ("Correnti d'aria presenti" if correnti_aria else None),
         "peso_adattato": bool(peso_adattato),
+        "fc_range_suggerito": fc_range_suggerito,
     }
     return ComputeResult(fattore_base=f_corr, fattore_finale=fatt_finale, riassunto=riass)
 
