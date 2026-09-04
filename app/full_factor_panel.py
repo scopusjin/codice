@@ -87,6 +87,71 @@ def add_fc_suggestion_global(val: float) -> None:
     _sync_fc_range_from_suggestions()
 
 
+def _state_float(key: str, default: float) -> float:
+    try:
+        value = float(st.session_state.get(key, default))
+        return value if value == value else float(default)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def apply_fc_range_suggestion_global(lo: float, hi: float) -> None:
+    lo, hi = sorted((round(float(lo), 2), round(float(hi), 2)))
+    was_prudent = bool(st.session_state.get("stima_cautelativa_beta", False))
+
+    existing = []
+    if was_prudent:
+        for key in ("fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"):
+            try:
+                value = float(st.session_state.get(key))
+                if value == value:
+                    existing.append(round(value, 2))
+            except (TypeError, ValueError):
+                pass
+        for value in st.session_state.get("fc_suggested_vals", []):
+            try:
+                value = float(value)
+                if value == value:
+                    existing.append(round(value, 2))
+            except (TypeError, ValueError):
+                pass
+    else:
+        ta_seed = _state_float("ta_base_val", 20.0)
+        st.session_state["ta_other_val"] = ta_seed
+        st.session_state["Ta_min_beta"] = ta_seed
+        st.session_state["Ta_max_beta"] = ta_seed
+
+    vals = [lo, hi, *existing]
+    final_lo, final_hi = round(min(vals), 2), round(max(vals), 2)
+    st.session_state["fc_min_val"] = final_lo
+    st.session_state["fc_other_val"] = final_hi
+    st.session_state["FC_min_beta"] = final_lo
+    st.session_state["FC_max_beta"] = final_hi
+    st.session_state["fc_suggested_vals"] = [final_lo, final_hi]
+    st.session_state["stima_cautelativa_beta"] = True
+    st.session_state["range_unico_beta"] = True
+    st.session_state["__prudent_explicit_ranges_initialized"] = True
+    st.session_state["toggle_fattore_inline"] = True
+    st.session_state["toggle_fattore_inline_std"] = False
+    st.session_state["toggle_fattore"] = True
+    st.session_state["__full_fc_suggest_target"] = "range"
+
+
+def reset_fc_ranges_global() -> None:
+    ta_seed = _state_float("ta_base_val", 20.0)
+    fc_seed = _state_float("fattore_correzione", 1.0)
+    st.session_state["ta_other_val"] = ta_seed
+    st.session_state["Ta_min_beta"] = ta_seed
+    st.session_state["Ta_max_beta"] = ta_seed
+    st.session_state["fc_min_val"] = fc_seed
+    st.session_state["fc_other_val"] = fc_seed
+    st.session_state["FC_min_beta"] = fc_seed
+    st.session_state["FC_max_beta"] = fc_seed
+    st.session_state["fc_suggested_vals"] = []
+    st.session_state["range_unico_beta"] = bool(st.session_state.get("stima_cautelativa_beta", False))
+    st.session_state["__prudent_explicit_ranges_initialized"] = True
+
+
 def _load_factor_table():
     try:
         return load_tabelle_correzione()
@@ -504,7 +569,7 @@ def _render_factor_panel(
         peso_eff = _panel_weight(peso_default, False)
     result = compute_factor(
         stato=stato_corpo, acqua=None, counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
+        superficie_display=superficie_display_selected if stato_corpo in ("Asciutto", "Bagnato") else None,
         correnti_aria=correnti_presenti,
         peso=peso_eff,
         tabella2_df=tabella2
@@ -546,8 +611,24 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
         st.session_state["toggle_fattore"] = False
         st.session_state.pop("__full_fc_suggest_target", None)
 
+    def _apply_auto_fc_range(lo: float, hi: float, riass) -> None:
+        apply_fc_range_suggestion_global(lo, hi)
+        st.session_state["fattori_condizioni_parentetica"] = None
+        st.session_state["fattori_condizioni_testo"] = None
+        st.session_state["fc_riassunto_contatori"] = riass
+
     suffix = "_imm" if immersed else ""
     range_mode = st.session_state.get("range_unico_beta", False)
+
+    suggested_range = result.riassunto.get("fc_range_suggerito")
+    auto_range = False
+    suggested_lo = suggested_hi = None
+    if isinstance(suggested_range, (tuple, list)) and len(suggested_range) == 2:
+        try:
+            suggested_lo, suggested_hi = sorted((float(suggested_range[0]), float(suggested_range[1])))
+            auto_range = suggested_hi > suggested_lo
+        except (TypeError, ValueError):
+            suggested_lo = suggested_hi = None
 
     side_text = ""
     peso_adattato = bool(result.riassunto.get("peso_adattato", False))
@@ -566,8 +647,14 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
             "full.fc_adjusted_for_weight", weight=peso_eff, base=result.fattore_base
         )
 
-    apply_callback = _apply_fc_range if range_mode else _apply_fc
-    apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+    if auto_range:
+        apply_callback = _apply_auto_fc_range
+        apply_args = (suggested_lo, suggested_hi, result.riassunto)
+        fc_display = f"{suggested_lo:.2f}–{suggested_hi:.2f}"
+    else:
+        apply_callback = _apply_fc_range if range_mode else _apply_fc
+        apply_args = (result.fattore_finale,) if range_mode else (result.fattore_finale, result.riassunto)
+        fc_display = f"{result.fattore_finale:.2f}"
 
     st.markdown(
         f'''<style>
@@ -698,7 +785,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 )
                 st.markdown(
                     f'<div class="mortem-fc-result-stack">'
-                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{result.fattore_finale:.2f}</strong></div>'
+                    f'<div class="mortem-fc-inline-result">FC suggerito:&nbsp;<strong>{fc_display}</strong></div>'
                     f'{weight_note_html}</div>',
                     unsafe_allow_html=True,
                 )
@@ -709,6 +796,13 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                     on_click=apply_callback, args=apply_args,
                     key=f"{key_prefix}_btn_usa_fc{suffix}",
                 )
+        if range_mode:
+            st.button(
+                "Reset range",
+                type="secondary",
+                on_click=reset_fc_ranges_global,
+                key=f"{key_prefix}_btn_reset_fc_range",
+            )
 
 
 def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
