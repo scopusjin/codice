@@ -142,7 +142,7 @@ def bagnato_base_senza_correnti(sottili: int, spessi: int) -> float:
         return 1.10
     if sottili == 1:
         return 1.00
-    return 0.90
+    return 0.75
 
 def bagnato_con_correnti(sottili: int, spessi: int) -> float:
     if spessi >= 2 or sottili >= 4:
