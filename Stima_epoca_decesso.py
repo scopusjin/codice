@@ -116,15 +116,18 @@ st.markdown("""
   opacity: 0.82;
 }
 @media (max-width: 768px) {
-  div.block-container { padding-top: 3rem !important; }
+  div.block-container { padding-top: 2.4rem !important; }
   .mortem-full-title {
     margin: 0 !important;
     padding: 0 !important;
-    font-size: 1.05rem !important;
+    width: 100% !important;
+    font-size: 1.15rem !important;
     font-weight: 650 !important;
     line-height: 1.05 !important;
+    text-align: center !important;
   }
   [data-testid="stElementContainer"]:has(.mortem-full-title) {
+    width: 100% !important;
     margin: 0 0 -0.35rem 0 !important;
     padding: 0 !important;
   }
