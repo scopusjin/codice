@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Anteprima di sviluppo della Full con viewport desktop da telefono."""
-
-from pathlib import Path
+"""Anteprima di sviluppo della Full con vero viewport desktop da telefono."""
 
 import streamlit as st
 import streamlit.components.v1 as components
 
 
-_DESKTOP_VIEWPORT_WIDTH = 1440
-_DEVICE_SESSION_KEY = "__full_device_mobile"
-_MAIN_SCRIPT = Path(__file__).resolve().parents[1] / "Stima_epoca_decesso.py"
-_MAIN_PAGE_CONFIG = (
-    'st.set_page_config(page_title="Mor-tem", layout="wide", '
-    'initial_sidebar_state="collapsed")'
-)
-
+_DESKTOP_WIDTH = 1440
+_PREVIEW_HEIGHT = 920
 
 st.set_page_config(
     page_title="Mor-tem · Anteprima desktop",
@@ -22,79 +14,69 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Il componente vive nella sidebar per non aggiungere un elemento alla griglia
-# principale della Full. Sul telefono imposta un layout viewport da 1440 px:
-# il browser lo riduce alla larghezza fisica dello schermo e i breakpoint CSS
-# desktop scattano come su un vero monitor. Uscendo dalla pagina il meta viewport
-# originale viene ripristinato.
-with st.sidebar:
-    components.html(
-        f"""
-        <script>
-        (() => {{
-          const doc = window.parent.document;
-          let viewport = doc.querySelector('meta[name="viewport"]');
-          if (!viewport) {{
-            viewport = doc.createElement('meta');
-            viewport.setAttribute('name', 'viewport');
-            doc.head.appendChild(viewport);
-          }}
+st.caption(
+    "Anteprima tecnica: la Full è caricata in un vero viewport da 1440 px "
+    "e ridotta in scala per essere controllata dal telefono."
+)
 
-          if (!viewport.dataset.mortemDesktopPreviewOriginal) {{
-            viewport.dataset.mortemDesktopPreviewOriginal =
-              viewport.getAttribute('content') || 'width=device-width, initial-scale=1';
-          }}
+components.html(
+    f"""
+    <style>
+      html, body {{
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+      }}
+      #mortem-preview-shell {{
+        position: relative;
+        width: 100%;
+        height: {_PREVIEW_HEIGHT}px;
+        overflow: hidden;
+        background: transparent;
+      }}
+      #mortem-desktop-frame {{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: {_DESKTOP_WIDTH}px;
+        border: 0;
+        transform-origin: top left;
+        background: white;
+      }}
+    </style>
 
-          viewport.setAttribute(
-            'content',
-            'width={_DESKTOP_VIEWPORT_WIDTH}, user-scalable=yes'
-          );
+    <div id="mortem-preview-shell">
+      <iframe
+        id="mortem-desktop-frame"
+        src="/"
+        title="Mor-tem desktop preview"
+        scrolling="yes"
+      ></iframe>
+    </div>
 
-          const restoreViewport = () => {{
-            const original = viewport.dataset.mortemDesktopPreviewOriginal;
-            if (original) viewport.setAttribute('content', original);
-            delete viewport.dataset.mortemDesktopPreviewOriginal;
-          }};
+    <script>
+      (() => {{
+        const desktopWidth = {_DESKTOP_WIDTH};
+        const previewHeight = {_PREVIEW_HEIGHT};
+        const shell = document.getElementById("mortem-preview-shell");
+        const frame = document.getElementById("mortem-desktop-frame");
 
-          window.addEventListener('pagehide', restoreViewport, {{ once: true }});
-          window.addEventListener('beforeunload', restoreViewport, {{ once: true }});
-          window.parent.dispatchEvent(new Event('resize'));
-        }})();
-        </script>
-        """,
-        height=1,
-        width=1,
-    )
+        const resizePreview = () => {{
+          const availableWidth =
+            shell.clientWidth || document.documentElement.clientWidth || window.innerWidth;
+          const scale = Math.min(1, availableWidth / desktopWidth);
+          frame.style.width = `${{desktopWidth}}px`;
+          frame.style.height = `${{Math.ceil(previewHeight / scale)}}px`;
+          frame.style.transform = `scale(${{scale}})`;
+        }};
 
-
-source = _MAIN_SCRIPT.read_text(encoding="utf-8")
-if source.count(_MAIN_PAGE_CONFIG) != 1:
-    st.error(
-        "Anteprima desktop non disponibile: la configurazione della pagina Full "
-        "è cambiata e il wrapper di sviluppo deve essere aggiornato."
-    )
-    st.stop()
-
-# La pagina di anteprima ha già eseguito set_page_config; rimuoviamo soltanto
-# quella singola chiamata dalla copia in memoria del sorgente Full.
-source = source.replace(_MAIN_PAGE_CONFIG, "", 1)
-
-_missing = object()
-_previous_device_mode = st.session_state.get(_DEVICE_SESSION_KEY, _missing)
-st.session_state[_DEVICE_SESSION_KEY] = False
-
-try:
-    exec(
-        compile(source, str(_MAIN_SCRIPT), "exec"),
-        {
-            "__name__": "__main__",
-            "__file__": str(_MAIN_SCRIPT),
-        },
-    )
-finally:
-    # La forzatura desktop vale solo durante il render di questa pagina e non
-    # contamina la Full normale quando si torna alla pagina principale.
-    if _previous_device_mode is _missing:
-        st.session_state.pop(_DEVICE_SESSION_KEY, None)
-    else:
-        st.session_state[_DEVICE_SESSION_KEY] = _previous_device_mode
+        resizePreview();
+        window.addEventListener("resize", resizePreview);
+        new ResizeObserver(resizePreview).observe(shell);
+      }})();
+    </script>
+    """,
+    height=_PREVIEW_HEIGHT,
+    scrolling=False,
+)
