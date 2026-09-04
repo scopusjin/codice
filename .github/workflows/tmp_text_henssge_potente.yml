@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - refactor-tanatology-keys
+    paths:
+      - .github/workflows/tmp_text_henssge_potente.yml
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
