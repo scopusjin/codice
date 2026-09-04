@@ -776,7 +776,7 @@ def aggiorna_grafico(
         )
         swiss_note = (
             f"{swiss_scope}secondo l’impostazione utilizzata da Swisswuff, "
-            f"il range temporale sarebbe compreso tra {swiss_min_txt} e {swiss_max_txt}; tale range è da intendersi "
+            f"il tempo trascorso dal decesso al momento dei rilievi sarebbe stimabile tra {swiss_min_txt} e {swiss_max_txt}; tale intervallo è da intendersi "
             "come del tutto approssimativo, essendo calcolato applicando una variazione di ±20% alla stima centrale "
             "e privo di uno specifico fondamento statistico."
         )
