@@ -22,7 +22,6 @@ from app.full_tanatology import (
 )
 from app.parameters import (
     opzioni_macchie,
-    opzioni_rigidita,
     dati_parametri_aggiuntivi,
 )
 from app.special_tanatology_states import (
@@ -49,20 +48,33 @@ class FullTanatologyMappingTests(unittest.TestCase):
             )
             self.assertEqual(full_livor_legacy_value(ui_label), ui_label)
 
-    def test_full_rigor_ui_matches_current_parameter_options(self):
-        current_labels = tuple(opzioni_rigidita.keys())
+    def test_full_rigor_ui_matches_current_labels_and_legacy_values(self):
+        current_labels = (
+            "Non valutata",
+            "Non ancora apprezzabile",
+            "Presente, in aumento",
+            "Presente, intensa e generalizzata",
+            "In via di risoluzione",
+            "Risolta",
+            "Non valutabile/Non attendibile",
+        )
         self.assertEqual(
             tuple(FULL_RIGOR_STATE_BY_LABEL.keys()),
             current_labels,
         )
         self.assertEqual(full_rigor_labels(), current_labels)
         self.assertEqual(full_rigor_labels("it"), current_labels)
-        for ui_label in opzioni_rigidita:
+        for ui_label in current_labels:
             self.assertEqual(
                 full_rigor_state_id(ui_label),
                 FULL_RIGOR_STATE_BY_LABEL[ui_label],
             )
-            self.assertEqual(full_rigor_legacy_value(ui_label), ui_label)
+            expected_legacy = (
+                "Presente e in via di intensificazione e generalizzazione"
+                if ui_label == "Presente, in aumento"
+                else ui_label
+            )
+            self.assertEqual(full_rigor_legacy_value(ui_label), expected_legacy)
 
     def test_full_special_parameter_ui_matches_current_order_and_legacy_values(self):
         current_ids = tuple(SPECIAL_PARAM_LABEL_IT.keys())
