@@ -618,7 +618,7 @@ def aggiorna_grafico(
             and float(Qd_val_check) <= qd_threshold
         )
         if henssge_non_applicabile_singolo:
-            _add_det("<ul><li>Nel caso in esame, l’equazione di Henssge non è applicabile.</li></ul>")
+            _add_det("<ul><li>I parametri del caso in esame ricadono al di fuori dei range di applicabilità dell’equazione di Henssge, che fornirebbe risultati non attendibili.</li></ul>")
         else:
             par_h = paragrafo_raffreddamento_dettaglio(
                 t_min_visual=t_min_vis,
@@ -769,9 +769,13 @@ def aggiorna_grafico(
     ):
         swiss_min_txt = i18n.prudent_hours_text(float(swisswuff_min_ore))
         swiss_max_txt = i18n.prudent_hours_text(float(swisswuff_max_ore))
-        swiss_scope = "Per le condizioni con Qd ≤ 0,2, " if condizioni_variabili else ""
+        swiss_scope = (
+            "Per le condizioni con Qd ≤ 0,2, a titolo esclusivamente orientativo, "
+            if condizioni_variabili
+            else "A titolo esclusivamente orientativo, "
+        )
         swiss_note = (
-            f"{swiss_scope}a titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
+            f"{swiss_scope}secondo l’impostazione utilizzata da Swisswuff, "
             f"il range temporale sarebbe compreso tra {swiss_min_txt} e {swiss_max_txt}; tale range è da intendersi "
             "come del tutto approssimativo, essendo calcolato applicando una variazione di ±20% alla stima centrale "
             "e privo di uno specifico fondamento statistico."

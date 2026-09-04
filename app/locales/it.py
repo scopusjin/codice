@@ -506,7 +506,7 @@ def parameter_summary(labels: list[str]) -> str:
 def potente_paragraph(duration: str, days: str) -> str:
     return (
         "<ul><li>Il metodo proposto da Potente et al., basato sul modello di raffreddamento di Henssge, consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
-        f"Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno <b>{duration}</b> (≈ {days} giorni) dal decesso.</li></ul>"
+        f"Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} (≈ {days} giorni) dal decesso.</li></ul>"
     )
 
 
