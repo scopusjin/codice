@@ -3,6 +3,7 @@
 import datetime
 import unittest
 
+from app import i18n
 from app.textgen import (
     avvisi_raffreddamento_henssge,
     frase_qd,
@@ -190,37 +191,107 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
         self.assertEqual(avvisi_raffreddamento_henssge(t_med_round=30.1, qd_val=0.1), [])
 
     def test_qd_summary_keeps_temperature_dependent_thresholds(self):
+        definition = (
+            "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale "
+            "e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
+        )
         self.assertIsNone(frase_qd(None, 20.0))
         self.assertEqual(
             frase_qd(0.19, 23.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
-            "(con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.190).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb ≤ 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.190). "
+            + definition,
         )
         self.assertEqual(
             frase_qd(0.2, 23.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
-            "(con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.200).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb ≤ 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.200). "
+            + definition,
         )
         self.assertEqual(
             frase_qd(0.25, 23.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
-            "dell'equazione di Henssge (con T. amb ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.250 e, essendo prossimo al limite "
-            "di applicazione del metodo, comporta un intervallo temporale di stima più ampio).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l’applicazione del metodo di Henssge, "
+            "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
+            "(con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nel caso in esame è pari a 0.250). "
+            + definition,
+        )
+        self.assertEqual(
+            frase_qd(0.35, 23.0),
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono di ottenere una stima sufficientemente attendibile "
+            "mediante il metodo di Henssge (con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nel caso in esame è pari a 0.350). "
+            + definition,
         )
         self.assertEqual(
             frase_qd(0.49, 24.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
-            "(con T. amb > 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.490).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb > 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.490). "
+            + definition,
         )
         self.assertEqual(
             frase_qd(0.5, 24.0),
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
-            "(con T. amb > 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.500).</p>",
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb > 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.500). "
+            + definition,
+        )
+
+    def test_qd_range_summary_uses_current_wording(self):
+        definition = (
+            "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale "
+            "e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
+        )
+        self.assertEqual(
+            i18n.qd_range_summary(
+                qd_min_text="0.350",
+                qd_max_text="0.480",
+                status="all_optimal",
+                single_value=False,
+            ),
+            "<p style='color:blue;font-size:small;'> Nelle condizioni considerate, i parametri consentono di ottenere una stima sufficientemente attendibile "
+            "mediante il metodo di Henssge (con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, mentre con T. amb. > 23 °C "
+            "dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd varia da 0.350 a 0.480). "
+            + definition,
+        )
+        self.assertEqual(
+            i18n.qd_range_summary(
+                qd_min_text="0.190",
+                qd_max_text="0.350",
+                status="mixed",
+                single_value=False,
+            ),
+            "<p style='color:blue;font-size:small;'> Per una parte delle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb. ≤ 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "varia da 0.190 a 0.350). "
+            + definition,
+        )
+        self.assertEqual(
+            i18n.qd_range_summary(
+                qd_min_text="0.230",
+                qd_max_text="0.280",
+                status="no_optimal_intermediate",
+                single_value=False,
+            ),
+            "<p style='color:blue;font-size:small;'> Nelle condizioni considerate, i parametri consentono l’applicazione del metodo di Henssge, "
+            "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nelle condizioni considerate il valore di Qd varia da 0.230 a 0.280). "
+            + definition,
+        )
+        self.assertEqual(
+            i18n.qd_range_summary(
+                qd_min_text="0.100",
+                qd_max_text="0.190",
+                status="all_outside",
+                single_value=False,
+            ),
+            "<p style='color:blue;font-size:small;'> Nelle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali "
+            "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb. ≤ 23 °C, il valore di Qd "
+            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "varia da 0.100 a 0.190). "
+            + definition,
         )
 
 

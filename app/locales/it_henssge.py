@@ -63,17 +63,17 @@ def qd_summary(
 
     if resolved_status == "intermediate":
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l'applicazione "
-            f"dell'equazione di Henssge (con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text} e, essendo prossimo al limite "
-            "di applicazione del metodo, comporta un intervallo temporale di stima più ampio).</p>"
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, i parametri consentono l’applicazione del metodo di Henssge, "
+            "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
+            f"(con {condition}, il valore di Qd dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}). "
+            "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
         )
 
     if resolved_status == "outside":
         return (
-            "<p style='color:blue;font-size:small;'> Nel caso in esame, l'equazione di Henssge non è applicabile "
-            f"(con {condition}, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            f"dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}).</p>"
+            "<p style='color:blue;font-size:small;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali il metodo di Henssge consente di ottenere una stima sufficientemente attendibile "
+            f"(con {condition}, il valore di Qd dovrebbe essere > {threshold}; nel caso in esame è pari a {qd_text}). "
+            "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
         )
 
     return (
@@ -98,44 +98,42 @@ def qd_range_summary(
 
     if status == "all_optimal":
         sentence = (
-            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge "
-            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            "Nelle condizioni considerate, i parametri consentono di ottenere una stima sufficientemente attendibile mediante il metodo di Henssge "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
     elif status == "mixed":
         sentence = (
-            "Per una parte delle condizioni considerate, l’equazione di Henssge non è applicabile "
-            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, "
-            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            "Per una parte delle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali il metodo di Henssge consente di ottenere una stima sufficientemente attendibile "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
     elif status == "no_optimal_intermediate":
-        if single_value:
-            qd_near_limit = (
-                f"è pari a {qd_min_text} e, essendo prossimo al limite di applicazione del metodo, "
-                "comporta un intervallo temporale di stima più ampio"
-            )
-        else:
-            qd_near_limit = (
-                f"varia da {qd_min_text} a {qd_max_text} e, comprendendo valori prossimi al limite di applicazione "
-                "del metodo, comporta un intervallo temporale di stima più ampio"
-            )
+        qd_near_limit = (
+            f"è pari a {qd_min_text}"
+            if single_value
+            else f"varia da {qd_min_text} a {qd_max_text}"
+        )
         sentence = (
-            "Nelle condizioni considerate, i parametri consentono l’applicazione dell’equazione di Henssge "
-            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2; "
-            "nelle condizioni considerate "
+            "Nelle condizioni considerate, i parametri consentono l’applicazione del metodo di Henssge, "
+            "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nelle condizioni considerate il valore di Qd "
             f"{qd_near_limit})."
         )
     else:
         sentence = (
-            "Nelle condizioni considerate, l’equazione di Henssge non è applicabile "
-            "(con T. amb. ≤ 23 °C, il parametro Qd, indicativo del grado di raffreddamento corporeo, dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate "
+            "Nelle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali il metodo di Henssge consente di ottenere una stima sufficientemente attendibile "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
 
-    return f"<p style='color:blue;font-size:small;'> {sentence}</p>"
+    return (
+        f"<p style='color:blue;font-size:small;'> {sentence} "
+        "Il parametro Qd esprime il grado di raffreddamento corporeo nel caso concreto: è pari a 1 alla temperatura corporea iniziale e tende a 0 con il progressivo avvicinamento della temperatura rettale a quella ambientale.</p>"
+    )
 
 
 def prudent_range_text(a: float, b: float, unit: str) -> str:
