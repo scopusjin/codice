@@ -121,21 +121,13 @@ _FC_RANGE_DESKTOP_HELP = (
 
 
 def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_key: str | None = None):
-    """Etichetta desktop esterna al V2, con helper Streamlit sovrapposto."""
+    """Etichetta desktop esterna al V2, con helper nativo Streamlit opzionale."""
     label_html = f"<div class='mortem-cooling-field-label'>{text}</div>"
-    if help_text and help_key:
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            vertical_alignment="center",
-            gap="xsmall",
-            key=f"mortem_help_row_prudent_{help_key}",
-        ):
-            with st.container(width="content"):
-                st.markdown(label_html, unsafe_allow_html=True)
-            _render_click_help(help_text, f"mortem_help_prudent_{help_key}")
-        return
-    st.markdown(label_html, unsafe_allow_html=True)
+    st.markdown(
+        label_html,
+        unsafe_allow_html=True,
+        help=help_text if help_text and help_key else None,
+    )
 
 
 # =========================
