@@ -109,8 +109,8 @@ def _ensure_desktop_sidebar_collapsed() -> None:
           })();
         </script>
         """,
-        height=0,
-        width=0,
+        height=1,
+        width=1,
     )
 
 
