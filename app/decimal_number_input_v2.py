@@ -31,6 +31,7 @@ _HTML = r"""
     <span class="desktop-label"></span>
     <button class="desktop-help" type="button" aria-label="Informazioni"><span>?</span></button>
   </div>
+  <div class="desktop-help-popover" role="tooltip"></div>
   <div class="number-control compact-mobile">
     <span class="label-help-cluster">
       <span class="mobile-label"></span>
@@ -48,12 +49,16 @@ _HTML = r"""
 _CSS = r"""
 .decimal-control-shell {
   box-sizing: border-box;
+  position: relative;
   width: 100%;
   min-width: 0;
+  overflow: visible;
 }
 .desktop-label-row {
   box-sizing: border-box;
   display: none;
+  position: relative;
+  z-index: 3;
   height: 18px;
   min-height: 18px;
   align-items: center;
@@ -130,6 +135,30 @@ _CSS = r"""
   line-height: 1;
   opacity: 0.8;
 }
+.desktop-help-popover {
+  box-sizing: border-box;
+  display: none;
+  position: absolute;
+  top: 21px;
+  left: 0;
+  z-index: 100;
+  width: min(20rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--st-text-color, #31333F) 18%, transparent);
+  border-radius: 0.48rem;
+  background: var(--st-background-color, #FFFFFF);
+  color: var(--st-text-color, #31333F);
+  box-shadow: 0 0.35rem 1rem rgba(0,0,0,0.14);
+  font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 0.80rem;
+  font-weight: 400;
+  line-height: 1.35;
+  white-space: normal;
+}
+.desktop-help-popover.is-open {
+  display: block;
+}
 .number-control {
   box-sizing: border-box;
   display: grid;
@@ -144,6 +173,10 @@ _CSS = r"""
   border-radius: 8px;
   background: var(--st-secondary-background-color, #F0F2F6);
   color: var(--st-text-color, #31333F);
+}
+.number-control.desktop-external-label:not(.is-dense) {
+  width: 160px;
+  max-width: 100%;
 }
 .number-control.external-action {
   grid-template-columns: minmax(0, 1fr) 3rem 1.5rem 1.8rem 1.8rem;
@@ -424,6 +457,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const desktopLabelRow = parentElement.querySelector('.desktop-label-row');
   const desktopLabel = parentElement.querySelector('.desktop-label');
   const desktopHelpButton = parentElement.querySelector('.desktop-help');
+  const desktopHelpPopover = parentElement.querySelector('.desktop-help-popover');
   const control = parentElement.querySelector('.number-control');
   const label = parentElement.querySelector('.mobile-label');
   const input = parentElement.querySelector('.number-input');
@@ -536,13 +570,26 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
 
   const compactLabel = String(data?.compact_label || '');
   const desktopExternalLabel = Boolean(data?.desktop_external_label);
+  const desktopLabelText = String(data?.desktop_label ?? compactLabel);
   label.textContent = compactLabel;
-  desktopLabel.textContent = String(data?.desktop_label ?? compactLabel);
+  desktopLabel.textContent = desktopLabelText;
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
   const reserveAction = Boolean(data?.reserve_action);
   const externalAction = Boolean(data?.external_action);
+  const desktopHelpText = (() => {
+    if (desktopLabelText === 'T. ambientale media') {
+      return 'Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.';
+    }
+    if (desktopLabelText === 'Range temperatura ambientale media') {
+      return 'Inserisci il valore minimo e massimo plausibili della temperatura ambientale media nel periodo tra il decesso e l’ispezione.';
+    }
+    if (desktopLabelText === 'Range fattore di correzione (FC)') {
+      return 'Inserisci i due estremi plausibili del fattore di correzione. «Consiglia» aiuta a individuare i valori in base alle condizioni del corpo.';
+    }
+    return '';
+  })();
   shell.classList.toggle('desktop-external-label', desktopExternalLabel);
   desktopLabelRow.classList.toggle('is-visible', desktopExternalLabel);
   control.classList.toggle('desktop-external-label', desktopExternalLabel);
@@ -556,6 +603,10 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
   desktopHelpButton.classList.toggle('is-visible', showHelp && desktopExternalLabel);
+  desktopHelpPopover.textContent = desktopHelpText;
+  if (!(showHelp && desktopExternalLabel && desktopHelpText)) {
+    desktopHelpPopover.classList.remove('is-open');
+  }
   suggestButton.classList.toggle('is-visible', showSuggest);
   suggestButton.classList.toggle('is-active', showSuggest && Boolean(data?.suggest_active));
   suggestButton.textContent = String(data?.suggest_label || '');
@@ -604,7 +655,15 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     if (!disabled && showHelp) setTriggerValue('help', true);
   };
   desktopHelpButton.onclick = () => {
-    if (!disabled && showHelp) setTriggerValue('help', true);
+    if (!disabled && showHelp) {
+      if (desktopHelpText) {
+        const willOpen = !desktopHelpPopover.classList.contains('is-open');
+        desktopHelpPopover.classList.toggle('is-open', willOpen);
+        desktopHelpButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      } else {
+        setTriggerValue('help', true);
+      }
+    }
   };
   suggestButton.onclick = () => {
     if (!disabled && showSuggest) setTriggerValue('suggest', true);

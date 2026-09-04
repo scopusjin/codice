@@ -110,19 +110,6 @@ def _toggle_desktop_single_fc_suggest():
     st.session_state["__full_fc_suggest_target"] = "single"
 
 
-def _render_fc_link_arrow():
-    """Freccia flessibile tra l'ultimo valore FC e il comando Consiglia."""
-    st.markdown(
-        """
-        <div style="height:40px;display:flex;align-items:center;width:100%;padding:0 0.15rem;box-sizing:border-box;">
-          <div style="flex:1;height:1px;background:#9aa6ad;"></div>
-          <span style="margin-left:-1px;color:#8b9aa2;font-size:1.05rem;line-height:1;">›</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
 # =========================
 # Stato e costanti globali
 # =========================
@@ -450,37 +437,32 @@ with st.container(border=True):
                     )
             else:
                 with st.container(gap="xsmall", key="cooling_prudent_v2_grid_desktop"):
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="distribute",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_prudent_top_row_desktop",
-                    ):
-                        with st.container(width=160, key="cooling_prudent_rt_desktop"):
+                    top_left, top_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with top_left:
+                        rt_col, tm_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        with rt_col:
                             rectal_label = i18n.ui_text("full.rectal_temp_label")
                             st.number_input(
                                 rectal_label,
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
                                 key="rt_val", label_visibility="collapsed"
                             )
-                        with st.container(width=160, key="cooling_prudent_tm_desktop"):
+                        with tm_col:
                             st.number_input(
                                 i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed",
                                 _mortem_compact_label="T. ante-mortem",
                             )
+                    with top_right:
                         with st.container(
                             horizontal=True,
                             wrap=False,
                             vertical_alignment="bottom",
                             gap="xsmall",
-                            width="content",
                             key="cooling_prudent_weight_group_desktop",
                         ):
-                            with st.container(width=160, key="cooling_prudent_weight_value_desktop"):
+                            with st.container(width=190, key="cooling_prudent_weight_value_desktop"):
                                 st.number_input(
                                     i18n.ui_text("full.weight_label"),
                                     value=sget("peso", 70.0), step=1.0, format="%.1f",
@@ -489,15 +471,10 @@ with st.container(border=True):
                             with st.container(width="content", key="cooling_prudent_weight_toggle_desktop"):
                                 st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="left",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_prudent_ta_row_desktop",
-                    ):
-                        with st.container(width=160, key="cooling_prudent_ta_min_desktop"):
+                    ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with ta_left:
+                        ta_min_col, ta_max_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        with ta_min_col:
                             ta_base_val = st.number_input(
                                 i18n.ui_text("full.ta_base_input"),
                                 value=sget("ta_base_val", 20.0),
@@ -509,7 +486,7 @@ with st.container(border=True):
                         range_mode_before_ta_other = st.session_state.get("range_unico_beta", False)
                         st.session_state["range_unico_beta"] = False
                         try:
-                            with st.container(width=160, key="cooling_prudent_ta_max_desktop"):
+                            with ta_max_col:
                                 ta_other_val = st.number_input(
                                     i18n.ui_text("full.ta_other_input"),
                                     value=sget("ta_other_val", ta_base_val),
@@ -532,18 +509,13 @@ with st.container(border=True):
                         st.session_state.pop("Ta_min_beta", None)
                         st.session_state.pop("Ta_max_beta", None)
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="left",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_prudent_fc_row_desktop",
-                    ):
+                    fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with fc_left:
+                        fc_min_col, fc_max_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
                         range_mode_before_fc = st.session_state.get("range_unico_beta", False)
                         st.session_state["range_unico_beta"] = False
                         try:
-                            with st.container(width=160, key="cooling_prudent_fc_min_desktop"):
+                            with fc_min_col:
                                 fc_min_val = st.number_input(
                                     i18n.ui_text("full.fc_min_input"),
                                     value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
@@ -552,7 +524,7 @@ with st.container(border=True):
                                     label_visibility="collapsed",
                                     _mortem_compact_label="Range FC",
                                 )
-                            with st.container(width=160, key="cooling_prudent_fc_max_desktop"):
+                            with fc_max_col:
                                 fc_other_val = st.number_input(
                                     i18n.ui_text("full.fc_max_input"),
                                     value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
@@ -563,9 +535,7 @@ with st.container(border=True):
                                 )
                         finally:
                             st.session_state["range_unico_beta"] = range_mode_before_fc
-
-                        with st.container(width="stretch", key="cooling_prudent_fc_arrow_desktop"):
-                            _render_fc_link_arrow()
+                    with fc_right:
                         with st.container(width=104, key="cooling_prudent_fc_suggest_desktop"):
                             st.button(
                                 "Consiglia",
@@ -630,66 +600,50 @@ with st.container(border=True):
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
             else:
                 with st.container(gap="xsmall", key="cooling_standard_v2_grid_desktop"):
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="distribute",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_standard_top_row_desktop",
-                    ):
-                        with st.container(width=160, key="cooling_standard_rt_desktop"):
+                    top_left, top_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with top_left:
+                        rt_col, tm_col = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        with rt_col:
                             rectal_label = i18n.ui_text("full.rectal_temp_label")
                             st.number_input(
                                 rectal_label,
                                 value=sget("rt_val", 35.0), step=0.1, format="%.1f",
                                 key="rt_val", label_visibility="collapsed"
                             )
-                        with st.container(width=160, key="cooling_standard_tm_desktop"):
+                        with tm_col:
                             st.number_input(
                                 i18n.ui_text("full.antemortem_temp_estimated_label"),
                                 value=sget("tm_val", 37.2), step=0.1, format="%.1f",
                                 key="tm_val", label_visibility="collapsed",
                                 _mortem_compact_label="T. ante-mortem",
                             )
-                        with st.container(width=160, key="cooling_standard_weight_desktop"):
-                            st.number_input(
-                                i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed"
-                            )
+                    with top_right:
+                        st.number_input(
+                            i18n.ui_text("full.weight_label"),
+                            value=sget("peso", 70.0), step=1.0, format="%.1f",
+                            key="peso", label_visibility="collapsed"
+                        )
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="left",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_standard_ta_row_desktop",
-                    ):
-                        with st.container(width=160, key="cooling_standard_ta_desktop"):
+                    ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with ta_left:
+                        ta_col, _ta_spacer = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        with ta_col:
                             st.number_input(
                                 i18n.ui_text("full.ta_input_label"),
                                 value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
                                 key="ta_base_val", label_visibility="collapsed"
                             )
 
-                    with st.container(
-                        horizontal=True,
-                        wrap=False,
-                        horizontal_alignment="left",
-                        vertical_alignment="bottom",
-                        gap="small",
-                        key="cooling_standard_fc_row_desktop",
-                    ):
-                        with st.container(width=160, key="cooling_standard_fc_desktop"):
+                    fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with fc_left:
+                        fc_col, _fc_spacer = st.columns([1.35, 1], gap="small", vertical_alignment="bottom")
+                        with fc_col:
                             st.number_input(
                                 i18n.ui_text("full.fc_input_label"),
                                 value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
                                 key="fattore_correzione", label_visibility="collapsed"
                             )
-                        with st.container(width="stretch", key="cooling_standard_fc_arrow_desktop"):
-                            _render_fc_link_arrow()
+                    with fc_right:
                         with st.container(width=104, key="cooling_standard_fc_suggest_desktop"):
                             st.button(
                                 "Consiglia",
