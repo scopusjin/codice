@@ -94,8 +94,9 @@ class ItalianTextRegressionTests(unittest.TestCase):
 
         self.assertIn("tra le ore 03:00 e le ore 08:00 del 23.08.2026", interval)
         self.assertIn("prima delle ore 05:00 del 23.08.2026", over)
-        self.assertIn("successivamente alle ore 04:00 del 23.08.2026", not_over)
-        self.assertIn("prima delle ore 10:00 del 23.08.2026", not_over)
+        self.assertIn("tra le ore 04:00 e le 10:00 del 23.08.2026", not_over)
+        self.assertNotIn("successivamente alle ore", not_over)
+        self.assertNotIn("<b>", not_over)
 
     def test_final_sentences_cover_all_three_range_shapes(self):
         inspection = datetime.datetime(2026, 8, 23, 10, 0)

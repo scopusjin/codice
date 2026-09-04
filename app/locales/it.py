@@ -400,12 +400,15 @@ def simple_sentence_dt_not_over(
     inspection_time: str,
     inspection_date: str,
 ) -> str:
+    if lower_date == inspection_date:
+        window = f"tra le ore {lower_time} e le {inspection_time} del {lower_date}"
+    else:
+        window = f"tra le ore {lower_time} del {lower_date} e le {inspection_time} del {inspection_date}"
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
-        f"<b>non oltre {duration} prima</b> "
+        "<p>EPOCA DEL DECESSO STIMATA: "
+        f"non oltre {duration} prima "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
-        f"vale a dire all'incirca <b>successivamente alle ore {lower_time} del {lower_date} "
-        f"(ma prima delle ore {inspection_time} del {inspection_date})</b>.</p>"
+        f"vale a dire all'incirca {window}.</p>"
     )
 
 
