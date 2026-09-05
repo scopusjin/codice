@@ -197,7 +197,7 @@ _CSS = r"""
 }
 .number-control:not(.desktop-external-label):not(.is-dense).external-action {
   grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem;
-  width: min(100%, 17.5rem);
+  width: min(calc(100% - 4.4rem), 17.5rem);
 }
 .number-control:hover {
   border-color: color-mix(in srgb, var(--st-primary-color, #168AC1) 45%, transparent);
