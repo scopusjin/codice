@@ -598,6 +598,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const showSuggest = Boolean(data?.suggest_enabled);
   const reserveAction = Boolean(data?.reserve_action);
   const externalAction = Boolean(data?.external_action);
+  const externalActionUsesParentWidth = Boolean(data?.external_action_uses_parent_width);
   const desktopHelpText = (() => {
     if (desktopLabelText === 'T. ambientale media') {
       return 'Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.';
@@ -621,6 +622,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('has-suggest', showSuggest);
   control.classList.toggle('reserve-action', reserveAction);
   control.classList.toggle('external-action', externalAction);
+  control.style.width = externalActionUsesParentWidth ? 'min(100%, 17.5rem)' : '';
   control.classList.toggle('is-dense', dense);
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
@@ -840,6 +842,11 @@ def render_mobile_decimal_v2(
         )
     )
     reserve_action = bool(not dense and not external_action)
+    external_action_uses_parent_width = bool(
+        full_mobile
+        and prudent_mode
+        and key == "mortem_decimal_peso"
+    )
 
     if st.session_state.get(sync_key) != sync_token:
         _set_state_value(st.session_state.get(internal_key), "value", value)
@@ -882,6 +889,7 @@ def render_mobile_decimal_v2(
             "suggest_active": bool(suggest_active and effective_suggest_enabled),
             "reserve_action": reserve_action,
             "external_action": external_action,
+            "external_action_uses_parent_width": external_action_uses_parent_width,
             "desktop_external_label": desktop_external_label,
             "desktop_label_visible": desktop_label_visible,
             "dense": dense,
