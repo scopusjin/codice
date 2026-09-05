@@ -211,8 +211,32 @@ def _install_compact_cooling_help_labels() -> None:
             and "mortem-cooling-field-label" in body
             and kwargs.get("help")
         ):
+            help_text = str(kwargs.pop("help") or "")
             kwargs = dict(kwargs)
-            kwargs.setdefault("width", "content")
+            kwargs.pop("width", None)
+            if "Range temperatura ambientale media" in body:
+                popover_key = "cooling_help_ta_range_desktop"
+            elif "Range fattore di correzione (FC)" in body:
+                popover_key = "cooling_help_fc_range_desktop"
+            else:
+                popover_key = "cooling_help_ta_standard_desktop"
+
+            with st.container(
+                horizontal=True,
+                vertical_alignment="center",
+                gap="xsmall",
+                width="content",
+            ):
+                result = current_markdown(body, *args, **kwargs)
+                with st.popover(
+                    "?",
+                    key=popover_key,
+                    width="content",
+                    on_change="ignore",
+                ):
+                    st.caption(help_text)
+            return result
+
         return current_markdown(body, *args, **kwargs)
 
     markdown_with_compact_cooling_help._mortem_compact_cooling_help = True
