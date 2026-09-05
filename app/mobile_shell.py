@@ -16,9 +16,10 @@ _MINIMAL_MOBILE_SHELL_CSS = r"""
     display: none !important;
   }
 
-  [data-testid="stMainBlockContainer"],
+  section.main,
   div.block-container {
-    padding-top: 0.28rem !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
   }
 
   /* Il titolo originale resta la fonte del testo, ma non occupa una seconda
