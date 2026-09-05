@@ -10,16 +10,19 @@ _MINIMAL_MOBILE_SHELL_CSS = r"""
   /* Nessuna barra Streamlit visibile: resta soltanto il comando nativo
      che apre la sidebar, fissato nell'angolo superiore sinistro. */
   header[data-testid="stHeader"] {
-    min-height: 0 !important;
-    height: 0 !important;
+    min-height: 2.35rem !important;
+    height: 2.35rem !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
   }
 
   header[data-testid="stHeader"] [data-testid="stToolbar"] {
-    min-height: 0 !important;
-    height: 0 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 2.35rem !important;
+    height: 2.35rem !important;
     background: transparent !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -27,8 +30,6 @@ _MINIMAL_MOBILE_SHELL_CSS = r"""
 
   header[data-testid="stHeader"] [data-testid="stStatusWidget"],
   header[data-testid="stHeader"] [data-testid="stAppDeployButton"],
-  header[data-testid="stHeader"] [data-testid="stToolbarActions"],
-  header[data-testid="stHeader"] .stToolbarActions,
   header[data-testid="stHeader"] [data-testid="stToolbarActionButton"],
   header[data-testid="stHeader"] [data-testid="stMainMenu"],
   header[data-testid="stHeader"] [data-testid="viewerBadge"],
