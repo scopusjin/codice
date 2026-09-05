@@ -7,29 +7,31 @@ import streamlit.components.v1 as components
 
 _MINIMAL_MOBILE_SHELL_CSS = r"""
 <style>
-/* Su mobile la barra Streamlit non partecipa al layout: il comando per la
-   sidebar viene renderizzato nella normale riga del titolo qui sotto. */
-header[data-testid="stHeader"],
-#stDecoration,
-[data-testid="stDecoration"] {
-  display: none !important;
-}
+@media (max-width: 768px) {
+  /* Su mobile la barra Streamlit non partecipa al layout: il comando per la
+     sidebar viene renderizzato nella normale riga del titolo qui sotto. */
+  header[data-testid="stHeader"],
+  #stDecoration,
+  [data-testid="stDecoration"] {
+    display: none !important;
+  }
 
-section.main,
-div.block-container {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
-}
+  section.main,
+  div.block-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
 
-/* Il titolo originale resta la fonte del testo, ma non occupa una seconda
-   riga: il componente della testata lo legge e lo mostra accanto al menu. */
-[data-testid="stElementContainer"]:has(.mortem-full-title),
-[data-testid="stElementContainer"]:has(.mortem-msil-page-title) {
-  display: none !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  /* Il titolo originale resta la fonte del testo, ma non occupa una seconda
+     riga: il componente della testata lo legge e lo mostra accanto al menu. */
+  [data-testid="stElementContainer"]:has(.mortem-full-title),
+  [data-testid="stElementContainer"]:has(.mortem-msil-page-title) {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 </style>
 """
@@ -199,7 +201,6 @@ def _request_is_mobile() -> bool:
 
 def install_minimal_mobile_shell() -> None:
     """Installa una testata mobile nel normale flusso della pagina."""
-    if not _request_is_mobile():
-        return
     st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
-    components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
+    if _request_is_mobile():
+        components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
