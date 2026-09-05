@@ -16,7 +16,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
   [class*="st-key-cooling_heading_row_mobile"] {
     width: 100% !important;
     min-width: 0 !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
     align-items: center !important;
     margin: 0 !important;
     padding: 0 !important;

@@ -348,7 +348,7 @@ with st.container(border=True):
     if full_mobile:
         with st.container(
             horizontal=True,
-            wrap=False,
+            wrap=True,
             horizontal_alignment="distribute",
             vertical_alignment="center",
             gap="small",

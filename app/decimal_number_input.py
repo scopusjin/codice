@@ -65,7 +65,10 @@ def _prepare_v2_help_portal_js() -> None:
             "const buttonRect = helpButton.getBoundingClientRect();",
             "const buttonRect = ownerButton.getBoundingClientRect();",
         ),
-        ("!helpButton.contains(event.target)", "!ownerButton.contains(event.target)"),
+        (
+            "!helpButton.contains(event.target)",
+            "!event.composedPath().includes(ownerButton)",
+        ),
         (
             "helpButton.setAttribute('aria-expanded', 'true');",
             "ownerButton.setAttribute('aria-expanded', 'true');",
