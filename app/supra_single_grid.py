@@ -12,6 +12,7 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
+from app.device_mode import full_device_is_mobile
 from app.electrical_grid_geometry import (
     ELECTRICAL_TILE_SIZE,
     neutral_electrical_tile,
@@ -28,6 +29,7 @@ from app.special_tanatology_states import (
     SUPRA_PHASE_VI,
     special_option_id,
 )
+from app.supra_mobile_carousel import render_supra_mobile_carousel
 
 
 _IMAGE_SCAN_FRACTION = 1.0
@@ -418,6 +420,15 @@ def _make_renderer(ui):
             selected = st.session_state.get(widget_key)
         if selected not in options:
             selected = options[0]
+
+        if full_device_is_mobile():
+            return render_supra_mobile_carousel(
+                ui=ui,
+                options=options,
+                selected=selected,
+                widget_key=widget_key,
+                label_for_option=_label_for_option,
+            )
 
         selected = _sync_clicks_before_render(
             ui,
