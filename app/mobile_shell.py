@@ -199,8 +199,29 @@ def _request_is_mobile() -> bool:
     )
 
 
+def _install_compact_cooling_help_labels() -> None:
+    """Mantiene il ? dei soli helper desktop aderente alla relativa etichetta."""
+    current_markdown = st.markdown
+    if getattr(current_markdown, "_mortem_compact_cooling_help", False):
+        return
+
+    def markdown_with_compact_cooling_help(body, *args, **kwargs):
+        if (
+            isinstance(body, str)
+            and "mortem-cooling-field-label" in body
+            and kwargs.get("help")
+        ):
+            kwargs = dict(kwargs)
+            kwargs.setdefault("width", "content")
+        return current_markdown(body, *args, **kwargs)
+
+    markdown_with_compact_cooling_help._mortem_compact_cooling_help = True
+    st.markdown = markdown_with_compact_cooling_help
+
+
 def install_minimal_mobile_shell() -> None:
     """Installa una testata mobile nel normale flusso della pagina."""
+    _install_compact_cooling_help_labels()
     st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
     if _request_is_mobile():
         components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
