@@ -77,15 +77,15 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 body:has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_fc_range"]) {
   box-sizing: border-box !important;
-  position: absolute !important;
-  top: 0 !important;
+  position: relative !important;
+  top: auto !important;
   left: 0 !important;
   width: max-content !important;
   min-width: 0 !important;
   height: 40px !important;
   min-height: 40px !important;
   max-height: 40px !important;
-  margin: 0 !important;
+  margin: -40px 0 0 0 !important;
   padding: 0 !important;
   overflow: visible !important;
   z-index: 30 !important;
