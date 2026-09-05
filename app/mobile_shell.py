@@ -220,11 +220,13 @@ def _install_compact_cooling_help_labels() -> None:
             kwargs = dict(kwargs)
             kwargs.pop("width", None)
             if "Range temperatura ambientale media" in body:
-                popover_key = "cooling_help_ta_range_desktop"
+                helper_suffix = "ta_range"
             elif "Range fattore di correzione (FC)" in body:
-                popover_key = "cooling_help_fc_range_desktop"
+                helper_suffix = "fc_range"
+            elif "Fattore di correzione (FC)" in body:
+                helper_suffix = "fc_standard"
             else:
-                popover_key = "cooling_help_ta_standard_desktop"
+                helper_suffix = "ta_standard"
 
             with st.container(
                 horizontal=True,
@@ -233,13 +235,17 @@ def _install_compact_cooling_help_labels() -> None:
                 width="content",
             ):
                 result = current_markdown(body, *args, **kwargs)
-                with st.popover(
-                    "?",
-                    key=popover_key,
+                with st.container(
                     width="content",
-                    on_change="ignore",
+                    key=f"fcpanel_std_vest_help_slot_cooling_{helper_suffix}",
                 ):
-                    st.caption(help_text)
+                    with st.popover(
+                        "?",
+                        key=f"cooling_help_{helper_suffix}_desktop",
+                        width="content",
+                        on_change="ignore",
+                    ):
+                        st.caption(help_text)
             return result
 
         return current_markdown(body, *args, **kwargs)
@@ -251,6 +257,7 @@ def _install_compact_cooling_help_labels() -> None:
 def install_minimal_mobile_shell() -> None:
     """Installa una testata mobile nel normale flusso della pagina."""
     _install_compact_cooling_help_labels()
-    st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
-    if _request_is_mobile():
+    is_mobile = _request_is_mobile()
+    if is_mobile:
+        st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
         components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
