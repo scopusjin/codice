@@ -8,6 +8,7 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
+import app.decimal_number_input_v2 as _decimal_v2
 from app.decimal_number_input_v2 import (
     is_full_mobile_v2_key,
     mobile_decimal_v2_available,
@@ -45,8 +46,87 @@ _COMPACT_LABEL_ALIASES = {
 }
 
 # Compatibilità d'import con device_mode: il vecchio hook CSS non viene più
-# renderizzato; gli helper mobile sono gestiti dal portal del componente V2.
+# renderizzato; gli helper sono gestiti dal portal del componente V2.
 _TA_NATIVE_POPOVER_CSS = ""
+
+
+def _prepare_v2_help_portal_js() -> None:
+    """Adatta il portal V2 allo Shadow DOM e lo usa anche sul desktop."""
+    js = _decimal_v2._JS
+    replacements = (
+        (
+            "const openMobileHelpPortal = (text) => {",
+            "const openMobileHelpPortal = (text, ownerButton = helpButton) => {",
+        ),
+        ("portal._mortemOwner === helpButton", "portal._mortemOwner === ownerButton"),
+        ("portal._mortemOwner = helpButton;", "portal._mortemOwner = ownerButton;"),
+        ("!document.body.contains(helpButton)", "!ownerButton.isConnected"),
+        (
+            "const buttonRect = helpButton.getBoundingClientRect();",
+            "const buttonRect = ownerButton.getBoundingClientRect();",
+        ),
+        ("!helpButton.contains(event.target)", "!ownerButton.contains(event.target)"),
+        (
+            "helpButton.setAttribute('aria-expanded', 'true');",
+            "ownerButton.setAttribute('aria-expanded', 'true');",
+        ),
+        (
+            "helpButton.setAttribute('data-mortem-help-open', '1');",
+            "ownerButton.setAttribute('data-mortem-help-open', '1');",
+        ),
+        (
+            "if (portal._mortemOwner && !document.body.contains(portal._mortemOwner)) {",
+            "if (portal._mortemOwner && !portal._mortemOwner.isConnected) {",
+        ),
+        (
+            "if (desktopLabelText === 'Range temperatura ambientale media') {",
+            "if (desktopLabelText === 'Range temperatura ambientale media' || desktopLabelText === 'T. ambientale media 2') {",
+        ),
+        (
+            "if (desktopLabelText === 'Range fattore di correzione (FC)') {",
+            "if (desktopLabelText === 'Range fattore di correzione (FC)' || desktopLabelText === 'Fattore massimo') {",
+        ),
+    )
+    for old, new in replacements:
+        if old in js:
+            js = js.replace(old, new, 1)
+        elif new not in js:
+            raise RuntimeError(f"Patch helper V2 non applicabile: {old}")
+
+    fc_range_marker = (
+        "    if (desktopLabelText === 'Range fattore di correzione (FC)' || "
+        "desktopLabelText === 'Fattore massimo') {\n"
+    )
+    fc_standard_branch = (
+        "    if (desktopLabelText === 'Fattore di correzione (FC)') {\n"
+        "      return '«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali.';\n"
+        "    }\n"
+    )
+    if fc_standard_branch not in js:
+        if fc_range_marker not in js:
+            raise RuntimeError("Patch helper FC desktop non applicabile")
+        js = js.replace(fc_range_marker, fc_standard_branch + fc_range_marker, 1)
+
+    desktop_handler_old = """      if (desktopHelpText) {
+        const willOpen = !desktopHelpPopover.classList.contains('is-open');
+        desktopHelpPopover.classList.toggle('is-open', willOpen);
+        desktopHelpButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      } else {
+"""
+    desktop_handler_new = """      if (desktopHelpText) {
+        desktopHelpPopover.classList.remove('is-open');
+        openMobileHelpPortal(desktopHelpText, desktopHelpButton);
+      } else {
+"""
+    if desktop_handler_old in js:
+        js = js.replace(desktop_handler_old, desktop_handler_new, 1)
+    elif desktop_handler_new not in js:
+        raise RuntimeError("Patch portal helper desktop non applicabile")
+
+    _decimal_v2._JS = js
+
+
+_prepare_v2_help_portal_js()
 
 
 def _theme_value(option, fallback):
