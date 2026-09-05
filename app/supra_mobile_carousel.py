@@ -7,6 +7,7 @@ from pathlib import Path
 
 import streamlit as st
 import streamlit.components.v1 as components
+from PIL import ImageEnhance, ImageOps
 
 from app.electrical_grid_geometry import neutral_electrical_tile, normalize_electrical_tile
 
@@ -17,6 +18,9 @@ _component = components.declare_component(
     path=str(_FRONTEND_DIR),
 )
 _IMAGE_URI_CACHE = {}
+_CONTENT_THRESHOLD = 246
+_HORIZONTAL_CONTENT_PAD = 10
+_COLOR_INTENSITY = 1.8
 
 
 def _strip_original_edges(tile):
@@ -25,6 +29,27 @@ def _strip_original_edges(tile):
     if width <= edge * 2 or height <= edge * 2:
         return tile.convert("RGB")
     return tile.crop((edge, edge, width - edge, height - edge)).convert("RGB")
+
+
+def _crop_horizontal_content(tile):
+    """Elimina il bianco laterale superfluo lasciando un piccolo margine al disegno."""
+    image = tile.convert("RGB")
+    gray = ImageOps.grayscale(image)
+    mask = gray.point(lambda pixel: 255 if pixel < _CONTENT_THRESHOLD else 0)
+    bbox = mask.getbbox()
+    if bbox is None:
+        return image
+
+    left = max(0, bbox[0] - _HORIZONTAL_CONTENT_PAD)
+    right = min(image.width, bbox[2] + _HORIZONTAL_CONTENT_PAD)
+    if right <= left:
+        return image
+    return image.crop((left, 0, right, image.height))
+
+
+def _enhance_existing_color(tile):
+    """Rende più leggibili i colori già presenti senza modificare forme o tratti neri."""
+    return ImageEnhance.Color(tile.convert("RGB")).enhance(_COLOR_INTENSITY)
 
 
 def _image_data_uri(ui, option):
@@ -36,6 +61,9 @@ def _image_data_uri(ui, option):
         tile = neutral_electrical_tile()
     else:
         tile = normalize_electrical_tile(_strip_original_edges(ui._SUPRA_TILES[option]))
+        tile = _enhance_existing_color(tile)
+
+    tile = _crop_horizontal_content(tile)
 
     buffer = BytesIO()
     tile.save(buffer, format="PNG")
