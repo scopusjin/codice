@@ -162,9 +162,10 @@ _MOBILE_HEADER_HTML = r"""
 
 
 def _request_is_mobile() -> bool:
-    """Classifica la richiesta senza importare moduli UI con effetti collaterali."""
-    if "__full_device_mobile" in st.session_state:
-        return bool(st.session_state["__full_device_mobile"])
+    """Classifica la richiesta una sola volta e conserva il risultato in sessione."""
+    session_key = "__full_device_mobile"
+    if session_key in st.session_state:
+        return bool(st.session_state[session_key])
 
     try:
         headers = st.context.headers
@@ -175,28 +176,32 @@ def _request_is_mobile() -> bool:
         ch_mobile = str(headers.get("Sec-CH-UA-Mobile") or "").strip().lower()
     except Exception:
         ch_mobile = ""
+
     if ch_mobile in {"?1", "1", "true"}:
-        return True
-    if ch_mobile in {"?0", "0", "false"}:
-        return False
+        mobile = True
+    elif ch_mobile in {"?0", "0", "false"}:
+        mobile = False
+    else:
+        try:
+            user_agent = str(headers.get("User-Agent") or "").casefold()
+        except Exception:
+            user_agent = ""
 
-    try:
-        user_agent = str(headers.get("User-Agent") or "").casefold()
-    except Exception:
-        user_agent = ""
-
-    return any(
-        token in user_agent
-        for token in (
-            "iphone",
-            "ipod",
-            "windows phone",
-            "opera mini",
-            "opera mobi",
-            "mobile",
-            "android",
+        mobile = any(
+            token in user_agent
+            for token in (
+                "iphone",
+                "ipod",
+                "windows phone",
+                "opera mini",
+                "opera mobi",
+                "mobile",
+                "android",
+            )
         )
-    )
+
+    st.session_state[session_key] = mobile
+    return mobile
 
 
 def _install_compact_cooling_help_labels() -> None:
