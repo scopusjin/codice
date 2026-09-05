@@ -55,18 +55,27 @@ _TA_NATIVE_POPOVER_CSS = r"""
   padding: 0 !important;
 }
 
-@media (min-width: 769px) {
+@media (max-width: 768px) {
 body:has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_standard"]),
 body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_range"]) {
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_range"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_fc_standard"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_fc_range"]) {
   position: relative !important;
+  overflow: visible !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_standard"]),
 body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_range"]) {
+[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_range"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_fc_standard"]),
+body:has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_fc_range"]) {
   box-sizing: border-box !important;
   position: absolute !important;
   top: 0 !important;
@@ -79,14 +88,18 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   margin: 0 !important;
   padding: 0 !important;
   overflow: visible !important;
-  z-index: 20 !important;
+  z-index: 30 !important;
   pointer-events: none !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class~="st-key-ta_native_help_standard"],
 body:has([class*="st-key-stima_cautelativa_beta"])
-[class~="st-key-ta_native_help_range"] {
+[class~="st-key-ta_native_help_range"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class~="st-key-ta_native_help_fc_standard"],
+body:has([class*="st-key-stima_cautelativa_beta"])
+[class~="st-key-ta_native_help_fc_range"] {
   box-sizing: border-box !important;
   position: static !important;
   display: flex !important;
@@ -103,6 +116,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   margin: 0 !important;
   padding: 0 !important;
   overflow: visible !important;
+  pointer-events: none !important;
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
@@ -144,6 +158,21 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-ta_native_help_button_"] button {
   box-sizing: border-box !important;
   display: inline-flex !important;
@@ -179,79 +208,10 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   font-size: 0.72rem !important;
   line-height: 1 !important;
 }
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Override emesso a ogni rerun: evita che gli stili degli helper conservati
-   da Streamlit durante un aggiornamento a caldo mantengano le vecchie misure. */
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_prudent"],
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_henssge"] {
-  flex: 0 0 18px !important;
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_prudent"] button,
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_henssge"] button {
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  line-height: 1 !important;
-}
-
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_prudent"] button p,
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-mortem_help_henssge"] button p {
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 0.72rem !important;
-  line-height: 1 !important;
-}
-
-html body:has(.mortem-full-title):has(.mortem-full-title)
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] [class~="st-key-mortem_help_row_henssge"]):has(> [data-testid="stLayoutWrapper"] > [class~="st-key-mortem_help_row_prudent"]) {
-  gap: 0.45rem !important;
-}
-
-html body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-electrical_title_help_row_"] {
-  margin-top: 0 !important;
-  margin-bottom: -0.65rem !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
 }
 </style>
 """
+
 
 def _theme_value(option, fallback):
     try:
@@ -297,7 +257,12 @@ def _render_ta_native_popover(label_text: str, help_text: str, key: str) -> None
                 unsafe_allow_html=True,
             )
         with st.container(width="content", key=f"ta_native_help_button_{key}"):
-            with st.popover("?"):
+            with st.popover(
+                "?",
+                key=f"ta_native_help_popover_{key}",
+                on_change="ignore",
+                width="content",
+            ):
                 st.caption(help_text)
 
 
@@ -329,9 +294,6 @@ def decimal_number_input(
     minimum = _finite_float(min_value)
     maximum = _finite_float(max_value)
 
-    # ``compact_mobile`` è il flag storico della resa compatta della Full.
-    # La stessa UI V2 viene ora usata sia su mobile sia su desktop; la MSIL non
-    # passa questo flag per le proprie chiavi e conserva quindi il renderer V1.
     compact_mobile = bool(compact_mobile)
     compact_label = _COMPACT_LABEL_ALIASES.get(str(compact_label or ""), str(compact_label or ""))
 
@@ -373,9 +335,14 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
-    # Gli helper della Full V2 restano nel componente sia su mobile sia su desktop:
-    # in questo modo mantengono dimensioni e centratura identiche al primo render.
-    native_ta_popover = False
+    full_mobile = bool(st.session_state.get("__full_device_mobile", False))
+    native_ta_popover = bool(
+        use_v2_mobile
+        and full_mobile
+        and help_enabled
+    )
+    if native_ta_popover and help_state_key:
+        st.session_state[help_state_key] = False
 
     if use_v2_mobile:
         result = render_mobile_decimal_v2(
@@ -389,7 +356,7 @@ def decimal_number_input(
             aria_label=str(aria_label or "Valore numerico"),
             compact_label=str(compact_label or ""),
             unit=str(unit or ""),
-            help_enabled=bool(help_enabled),
+            help_enabled=bool(help_enabled and not native_ta_popover),
             help_state_key=help_state_key,
             suggest_enabled=bool(suggest_enabled),
             suggest_label=str(suggest_label or ""),
@@ -398,6 +365,16 @@ def decimal_number_input(
             on_change=on_change,
             key=key,
         )
+        if native_ta_popover:
+            if help_state_key == _FC_STANDARD_HELP_OPEN_KEY:
+                native_key = "fc_standard"
+            elif help_state_key == _FC_RANGE_HELP_OPEN_KEY:
+                native_key = "fc_range"
+            elif help_state_key == _TA_RANGE_HELP_OPEN_KEY:
+                native_key = "range"
+            else:
+                native_key = "standard"
+            _render_ta_native_popover(compact_label, help_text, native_key)
     else:
         result = _component(
             value=current,
