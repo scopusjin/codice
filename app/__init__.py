@@ -328,27 +328,64 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 else _compact_mobile_label(label, key)
             )
 
-        result = decimal_number_input(
-            value=logical_value,
-            step=kwargs.get("step", 1.0),
-            format=kwargs.get("format", "%g"),
-            min_value=kwargs.get("min_value"),
-            max_value=kwargs.get("max_value"),
-            disabled=kwargs.get("disabled", False),
-            sync_token=st.session_state[sync_key],
-            aria_label=label or key,
-            compact_mobile=compact_mobile,
-            compact_label=compact_label,
-            unit=_full_mobile_units.get(key, "") if compact_mobile else "",
-            hide_group_heading=hide_group_heading,
-            inline_weight_toggle=inline_weight_toggle,
-            suggest_enabled=bool(suggest_target),
-            suggest_label="Consiglia" if suggest_target else "",
-            suggest_active=suggest_active,
-            on_suggest=_component_suggest if suggest_target else None,
-            on_change=_component_on_change if callable(user_on_change) else None,
-            key=component_key,
+        desktop_single_fc = bool(
+            compact_mobile
+            and key == "fattore_correzione"
+            and not prudent_mode
+            and compact_label_override is not None
+            and not full_device_is_mobile()
         )
+
+        if desktop_single_fc:
+            fc_value_col, _fc_value_spacer = st.columns(
+                2,
+                gap="xsmall",
+                vertical_alignment="bottom",
+            )
+            with fc_value_col:
+                result = decimal_number_input(
+                    value=logical_value,
+                    step=kwargs.get("step", 1.0),
+                    format=kwargs.get("format", "%g"),
+                    min_value=kwargs.get("min_value"),
+                    max_value=kwargs.get("max_value"),
+                    disabled=kwargs.get("disabled", False),
+                    sync_token=st.session_state[sync_key],
+                    aria_label=label or key,
+                    compact_mobile=compact_mobile,
+                    compact_label=compact_label,
+                    unit=_full_mobile_units.get(key, "") if compact_mobile else "",
+                    hide_group_heading=hide_group_heading,
+                    inline_weight_toggle=inline_weight_toggle,
+                    suggest_enabled=bool(suggest_target),
+                    suggest_label="Consiglia" if suggest_target else "",
+                    suggest_active=suggest_active,
+                    on_suggest=_component_suggest if suggest_target else None,
+                    on_change=_component_on_change if callable(user_on_change) else None,
+                    key=component_key,
+                )
+        else:
+            result = decimal_number_input(
+                value=logical_value,
+                step=kwargs.get("step", 1.0),
+                format=kwargs.get("format", "%g"),
+                min_value=kwargs.get("min_value"),
+                max_value=kwargs.get("max_value"),
+                disabled=kwargs.get("disabled", False),
+                sync_token=st.session_state[sync_key],
+                aria_label=label or key,
+                compact_mobile=compact_mobile,
+                compact_label=compact_label,
+                unit=_full_mobile_units.get(key, "") if compact_mobile else "",
+                hide_group_heading=hide_group_heading,
+                inline_weight_toggle=inline_weight_toggle,
+                suggest_enabled=bool(suggest_target),
+                suggest_label="Consiglia" if suggest_target else "",
+                suggest_active=suggest_active,
+                on_suggest=_component_suggest if suggest_target else None,
+                on_change=_component_on_change if callable(user_on_change) else None,
+                key=component_key,
+            )
 
         # Durante una sincronizzazione esterna il valore restituito dal
         # componente può essere quello del render precedente: in quel solo
