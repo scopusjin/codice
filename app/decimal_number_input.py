@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Input numerico decimale con punto e controlli integrati per Mor-tem."""
 
-import html
 import math
 import re
 from pathlib import Path
@@ -45,173 +44,6 @@ _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
 }
 
-_TA_NATIVE_POPOVER_CSS = r"""
-<style data-mortem-ta-popover-style>
-[data-testid="stElementContainer"]:has(style[data-mortem-ta-popover-style]) {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-@media (max-width: 768px) {
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_standard"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_range"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_fc_standard"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stVerticalBlock"]:has(> [data-testid="stLayoutWrapper"] > [class~="st-key-ta_native_help_fc_range"]) {
-  position: relative !important;
-  overflow: visible !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_standard"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_range"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_fc_standard"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
-[data-testid="stLayoutWrapper"]:has(> [class~="st-key-ta_native_help_fc_range"]) {
-  box-sizing: border-box !important;
-  position: relative !important;
-  top: auto !important;
-  left: 0 !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  margin: -40px 0 0 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  z-index: 30 !important;
-  pointer-events: none !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class~="st-key-ta_native_help_standard"],
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class~="st-key-ta_native_help_range"],
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class~="st-key-ta_native_help_fc_standard"],
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class~="st-key-ta_native_help_fc_range"] {
-  box-sizing: border-box !important;
-  position: static !important;
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 2px !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  pointer-events: none !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_label_"] {
-  flex: 0 0 auto !important;
-  width: max-content !important;
-  min-width: max-content !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  pointer-events: none !important;
-}
-
-.mortem-ta-help-label-spacer {
-  box-sizing: border-box;
-  display: inline-block;
-  visibility: hidden;
-  padding: 0 0 0 8px;
-  margin: 0;
-  white-space: nowrap;
-  font-family: var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
-  font-size: 0.82rem;
-  font-weight: 400;
-  line-height: 1.1;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] {
-  flex: 0 0 18px !important;
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: visible !important;
-  pointer-events: auto !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] button {
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  max-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  line-height: 1 !important;
-  pointer-events: auto !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] button [data-testid="stIconMaterial"] {
-  display: none !important;
-}
-
-body:has([class*="st-key-stima_cautelativa_beta"])
-[class*="st-key-ta_native_help_button_"] button p {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 0.72rem !important;
-  line-height: 1 !important;
-}
-}
-</style>
-"""
-
 
 def _theme_value(option, fallback):
     try:
@@ -240,30 +72,6 @@ def _finite_float(value):
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
-
-
-def _render_ta_native_popover(label_text: str, help_text: str, key: str) -> None:
-    st.markdown(_TA_NATIVE_POPOVER_CSS, unsafe_allow_html=True)
-    with st.container(
-        horizontal=True,
-        wrap=False,
-        vertical_alignment="center",
-        gap="xsmall",
-        key=f"ta_native_help_{key}",
-    ):
-        with st.container(width="content", key=f"ta_native_help_label_{key}"):
-            st.markdown(
-                f"<span class='mortem-ta-help-label-spacer'>{html.escape(str(label_text or ''))}</span>",
-                unsafe_allow_html=True,
-            )
-        with st.container(width="content", key=f"ta_native_help_button_{key}"):
-            with st.popover(
-                "?",
-                key=f"ta_native_help_popover_{key}",
-                on_change="ignore",
-                width="content",
-            ):
-                st.caption(help_text)
 
 
 def decimal_number_input(
@@ -335,14 +143,6 @@ def decimal_number_input(
         and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
-    full_mobile = bool(st.session_state.get("__full_device_mobile", False))
-    native_ta_popover = bool(
-        use_v2_mobile
-        and full_mobile
-        and help_enabled
-    )
-    if native_ta_popover and help_state_key:
-        st.session_state[help_state_key] = False
 
     if use_v2_mobile:
         result = render_mobile_decimal_v2(
@@ -356,8 +156,9 @@ def decimal_number_input(
             aria_label=str(aria_label or "Valore numerico"),
             compact_label=str(compact_label or ""),
             unit=str(unit or ""),
-            help_enabled=bool(help_enabled and not native_ta_popover),
+            help_enabled=bool(help_enabled),
             help_state_key=help_state_key,
+            help_text=help_text,
             suggest_enabled=bool(suggest_enabled),
             suggest_label=str(suggest_label or ""),
             suggest_active=bool(suggest_active),
@@ -365,16 +166,6 @@ def decimal_number_input(
             on_change=on_change,
             key=key,
         )
-        if native_ta_popover:
-            if help_state_key == _FC_STANDARD_HELP_OPEN_KEY:
-                native_key = "fc_standard"
-            elif help_state_key == _FC_RANGE_HELP_OPEN_KEY:
-                native_key = "fc_range"
-            elif help_state_key == _TA_RANGE_HELP_OPEN_KEY:
-                native_key = "range"
-            else:
-                native_key = "standard"
-            _render_ta_native_popover(compact_label, help_text, native_key)
     else:
         result = _component(
             value=current,
@@ -411,7 +202,7 @@ def decimal_number_input(
                 on_suggest()
 
         help_token = result.get("help_token")
-        if help_token is not None and help_enabled and not native_ta_popover:
+        if help_token is not None and help_enabled:
             event_key = f"__decimal_help_event_{key or aria_label}"
             if st.session_state.get(event_key) != help_token:
                 st.session_state[event_key] = help_token
@@ -434,7 +225,7 @@ def decimal_number_input(
         if parsed_result is not None:
             parsed_result = round(parsed_result, decimals)
 
-    if help_enabled and not native_ta_popover and st.session_state.get(help_state_key, False):
+    if help_enabled and st.session_state.get(help_state_key, False):
         if help_state_key in {_FC_STANDARD_HELP_OPEN_KEY, _FC_RANGE_HELP_OPEN_KEY}:
             note_key = "fc_range_help_note"
         elif inline_range_help or interval_mode:

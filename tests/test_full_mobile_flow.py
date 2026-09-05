@@ -70,7 +70,7 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertTrue(app.session_state["__desc_dettagliate_html"])
         self.assertIn("Mostra grafico", [expander.label for expander in app.expander])
 
-    def test_mobile_temperature_and_fc_helpers_render_outside_component(self):
+    def test_mobile_temperature_and_fc_helpers_stay_inside_v2_control(self):
         app = self._mobile_app()
         app.session_state["__decimal_ta_standard_help_open"] = True
         app.session_state["__decimal_fc_standard_help_open"] = True
@@ -78,8 +78,10 @@ class FullMobileFlowTests(unittest.TestCase):
 
         self.assertEqual([str(item) for item in app.exception], [])
         captions = [caption.value for caption in app.caption]
-        self.assertTrue(any("temperatura ambientale media" in text for text in captions))
-        self.assertTrue(any("fattore di correzione" in text for text in captions))
+        self.assertFalse(any("temperatura ambientale media" in text for text in captions))
+        self.assertFalse(any("fattore di correzione" in text for text in captions))
+        self.assertFalse(bool(app.session_state["__decimal_ta_standard_help_open"]))
+        self.assertFalse(bool(app.session_state["__decimal_fc_standard_help_open"]))
 
     def test_mobile_fc_range_reset_is_compact_and_inline(self):
         app = self._mobile_app()

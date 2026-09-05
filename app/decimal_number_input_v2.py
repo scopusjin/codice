@@ -587,6 +587,108 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     scheduleValue(next);
   };
 
+  const closeMobileHelpPortal = (portal) => {
+    if (!portal) return;
+    if (portal._mortemOutsideHandler) {
+      document.removeEventListener('pointerdown', portal._mortemOutsideHandler, true);
+    }
+    if (portal._mortemResizeHandler) {
+      window.removeEventListener('resize', portal._mortemResizeHandler);
+    }
+    const owner = portal._mortemOwner;
+    if (owner) {
+      owner.setAttribute('aria-expanded', 'false');
+      owner.removeAttribute('data-mortem-help-open');
+    }
+    if (portal.isConnected) portal.remove();
+  };
+  const closeOtherMobileHelpPortals = () => {
+    document.querySelectorAll('[data-mortem-decimal-help-portal="1"]').forEach((portal) => {
+      closeMobileHelpPortal(portal);
+    });
+  };
+  const openMobileHelpPortal = (text) => {
+    const ownPortal = Array.from(
+      document.querySelectorAll('[data-mortem-decimal-help-portal="1"]')
+    ).find((portal) => portal._mortemOwner === helpButton);
+    if (ownPortal) {
+      closeMobileHelpPortal(ownPortal);
+      return;
+    }
+
+    closeOtherMobileHelpPortals();
+
+    const portal = document.createElement('div');
+    portal.setAttribute('data-mortem-decimal-help-portal', '1');
+    portal.setAttribute('role', 'tooltip');
+    portal.textContent = text;
+    portal.style.cssText = [
+      'position:absolute',
+      'box-sizing:border-box',
+      'z-index:2147483000',
+      'width:min(20rem, calc(100vw - 24px))',
+      'max-width:calc(100vw - 24px)',
+      'padding:0.55rem 0.65rem',
+      'border:1px solid color-mix(in srgb, var(--st-text-color, #31333F) 18%, transparent)',
+      'border-radius:0.48rem',
+      'background:var(--st-background-color, #FFFFFF)',
+      'color:var(--st-text-color, #31333F)',
+      'box-shadow:0 0.35rem 1rem rgba(0,0,0,0.14)',
+      'font-family:var(--st-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)',
+      'font-size:0.80rem',
+      'font-weight:400',
+      'line-height:1.35',
+      'white-space:normal',
+      'overflow-wrap:anywhere',
+      'pointer-events:auto'
+    ].join(';');
+    portal._mortemOwner = helpButton;
+    document.body.appendChild(portal);
+
+    const positionPortal = () => {
+      if (!portal.isConnected || !document.body.contains(helpButton)) {
+        closeMobileHelpPortal(portal);
+        return;
+      }
+      const buttonRect = helpButton.getBoundingClientRect();
+      const portalRect = portal.getBoundingClientRect();
+      const margin = 12;
+      const gap = 6;
+      const minLeft = window.scrollX + margin;
+      const maxLeft = window.scrollX + window.innerWidth - margin - portalRect.width;
+      let left = window.scrollX + buttonRect.left;
+      left = Math.max(minLeft, Math.min(left, Math.max(minLeft, maxLeft)));
+
+      let topViewport = buttonRect.bottom + gap;
+      const aboveTop = buttonRect.top - gap - portalRect.height;
+      if (topViewport + portalRect.height > window.innerHeight - margin && aboveTop >= margin) {
+        topViewport = aboveTop;
+      }
+
+      portal.style.left = `${Math.round(left)}px`;
+      portal.style.top = `${Math.round(window.scrollY + topViewport)}px`;
+    };
+    const outsideHandler = (event) => {
+      if (!portal.contains(event.target) && !helpButton.contains(event.target)) {
+        closeMobileHelpPortal(portal);
+      }
+    };
+    portal._mortemOutsideHandler = outsideHandler;
+    portal._mortemResizeHandler = positionPortal;
+
+    positionPortal();
+    document.addEventListener('pointerdown', outsideHandler, true);
+    window.addEventListener('resize', positionPortal);
+    helpButton.setAttribute('aria-expanded', 'true');
+    helpButton.setAttribute('data-mortem-help-open', '1');
+  };
+
+  document.querySelectorAll('[data-mortem-decimal-help-portal="1"]').forEach((portal) => {
+    if (portal._mortemOwner && !document.body.contains(portal._mortemOwner)) {
+      closeMobileHelpPortal(portal);
+    }
+  });
+
   const compactLabel = String(data?.compact_label || '');
   const desktopExternalLabel = Boolean(data?.desktop_external_label);
   const desktopLabelVisible = Boolean(data?.desktop_label_visible ?? desktopExternalLabel);
@@ -612,7 +714,6 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     return '';
   })();
   const mobileHelpText = String(data?.mobile_help_text || '');
-  const activeHelpText = desktopExternalLabel ? desktopHelpText : mobileHelpText;
   shell.classList.toggle('desktop-external-label', desktopExternalLabel);
   desktopLabelRow.classList.toggle('is-visible', desktopLabelVisible);
   control.classList.toggle('desktop-external-label', desktopExternalLabel);
@@ -627,12 +728,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   control.classList.toggle('is-disabled', disabled);
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
   desktopHelpButton.classList.toggle('is-visible', showHelp && desktopLabelVisible);
-  desktopHelpPopover.classList.toggle(
-    'mobile-help-popover',
-    showHelp && !desktopExternalLabel && Boolean(mobileHelpText)
-  );
-  desktopHelpPopover.textContent = activeHelpText;
-  if (!(showHelp && activeHelpText)) {
+  desktopHelpPopover.classList.remove('mobile-help-popover');
+  desktopHelpPopover.textContent = desktopExternalLabel ? desktopHelpText : '';
+  if (!(showHelp && desktopExternalLabel && desktopHelpText)) {
     desktopHelpPopover.classList.remove('is-open');
   }
   suggestButton.classList.toggle('is-visible', showSuggest);
@@ -682,9 +780,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   helpButton.onclick = () => {
     if (!disabled && showHelp) {
       if (mobileHelpText) {
-        const willOpen = !desktopHelpPopover.classList.contains('is-open');
-        desktopHelpPopover.classList.toggle('is-open', willOpen);
-        helpButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        openMobileHelpPortal(mobileHelpText);
       } else {
         setTriggerValue('help', true);
       }
@@ -788,6 +884,7 @@ def render_mobile_decimal_v2(
     unit,
     help_enabled,
     help_state_key,
+    help_text,
     suggest_enabled,
     suggest_label,
     suggest_active,
@@ -810,14 +907,15 @@ def render_mobile_decimal_v2(
     desktop_label = str(compact_label or "")
     desktop_label_visible = bool(desktop_external_label and desktop_label.strip())
 
-    # Gli helper desktop del raffreddamento sono renderizzati nel DOM Streamlit
-    # principale. Anche su mobile il clic viene inoltrato a Streamlit: una nota
-    # esterna al frame alto 40 px non può essere tagliata dal componente.
+    # Su mobile il trigger resta nel controllo V2; il testo viene mostrato da
+    # JavaScript in un portal nel document.body, fuori dai 40 px del componente.
     effective_help_enabled = bool(
         help_enabled
         and (full_mobile or desktop_label_visible)
     )
-    if desktop_external_label and not desktop_label_visible and help_state_key:
+    if full_mobile and help_state_key:
+        st.session_state[help_state_key] = False
+    elif desktop_external_label and not desktop_label_visible and help_state_key:
         st.session_state[help_state_key] = False
 
     external_fc_suggest = bool(
@@ -881,9 +979,7 @@ def render_mobile_decimal_v2(
             "desktop_label": desktop_label,
             "unit": str(unit or ""),
             "help_enabled": effective_help_enabled,
-            # Vuoto intenzionalmente: il testo mobile viene mostrato da Streamlit
-            # subito sotto al controllo, fuori dal frame del componente.
-            "mobile_help_text": "",
+            "mobile_help_text": str(help_text or "") if full_mobile and effective_help_enabled else "",
             "suggest_enabled": effective_suggest_enabled,
             "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
             "suggest_active": bool(suggest_active and effective_suggest_enabled),

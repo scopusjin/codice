@@ -4,6 +4,7 @@ from streamlit.testing.v1 import AppTest
 
 from app.decimal_number_input_v2 import (
     _CSS,
+    _JS,
     _component_instance_key,
     is_full_mobile_v2_key,
     mobile_decimal_v2_available,
@@ -45,6 +46,11 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         self.assertIn("width: max-content;", _CSS)
         self.assertIn(".external-action", _CSS)
 
+    def test_mobile_help_uses_document_body_portal(self):
+        self.assertIn("document.body.appendChild(portal)", _JS)
+        self.assertIn("data-mortem-decimal-help-portal", _JS)
+        self.assertIn("openMobileHelpPortal(mobileHelpText)", _JS)
+
     def test_v2_mounts_and_reruns_without_streamlit_exception(self):
         script = r'''
 import app.decimal_number_input_v2 as v2
@@ -70,6 +76,7 @@ for key, label, value in (
         unit="°C",
         help_enabled=False,
         help_state_key=None,
+        help_text="",
         suggest_enabled=False,
         suggest_label="",
         suggest_active=False,
