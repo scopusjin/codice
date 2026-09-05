@@ -44,6 +44,10 @@ _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
 }
 
+# Compatibilità d'import con device_mode: il vecchio hook CSS non viene più
+# renderizzato; gli helper mobile sono gestiti dal portal del componente V2.
+_TA_NATIVE_POPOVER_CSS = ""
+
 
 def _theme_value(option, fallback):
     try:
