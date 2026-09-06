@@ -48,16 +48,18 @@ def native_time_picker(
     allow_empty=False,
     open_default_now=False,
 ):
-    """Restituisce un orario HH:MM; ruote touch solo sulla Full mobile.
+    """Restituisce un orario HH:MM con selettore a ghiere nella Full.
 
     Nella Full con data/ora sempre visibili il campo può restare vuoto. In quel
     caso l'apertura delle ghiere parte dall'ora locale del browser senza
-    registrarla finché l'utente non preme «Imposta».
+    registrarla finché l'utente non preme «Imposta». Su desktop restano inoltre
+    disponibili digitazione, frecce da tastiera e rotellina.
     """
     full_datetime = _full_datetime_component(key)
     main_datetime = full_datetime and key == "input_ora_rilievo_native"
     mobile = full_device_is_mobile()
-    overlay_mobile = bool(mobile)
+    picker_enabled = bool(mobile or full_datetime)
+    overlay_picker = bool(mobile or full_datetime)
     allow_empty = bool(allow_empty or full_datetime)
     open_default_now = bool(open_default_now or full_datetime)
 
@@ -85,7 +87,10 @@ def native_time_picker(
     result = _component(
         value=value,
         mobile=mobile,
-        overlay_mobile=overlay_mobile,
+        picker_enabled=picker_enabled,
+        overlay_picker=overlay_picker,
+        # Compatibilità con il frontend precedente durante un deploy progressivo.
+        overlay_mobile=overlay_picker,
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
