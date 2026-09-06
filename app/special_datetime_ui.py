@@ -132,14 +132,20 @@ class _NoopContext:
 class _MobileSpecialHelperContext:
     """Helper mobile con denominazione estesa e nota del parametro."""
 
-    def __init__(self, parametro_id):
+    def __init__(self, parametro_id, popover_factory):
         self._parametro_id = parametro_id
+        self._popover_factory = popover_factory
 
     def __enter__(self):
-        _render_click_help(
-            _HELPER_TEXTS[self._parametro_id],
-            f"mortem_help_prudent_electrical_{self._parametro_id}",
-        )
+        helper_text = _HELPER_TEXTS[self._parametro_id]
+        sentences = [
+            sentence.strip()
+            for sentence in re.split(r"(?<=\.)\s+", helper_text)
+            if sentence.strip()
+        ]
+        with self._popover_factory("?"):
+            for sentence in sentences:
+                st.markdown(sentence)
         if self._parametro_id in {
             PARAM_ELECTRICAL_SUPRACILIARY,
             PARAM_ELECTRICAL_PERIORAL,
@@ -374,7 +380,7 @@ def install_special_datetime_ui():
                 PARAM_ELECTRICAL_PERIORAL,
             }
         ):
-            return _MobileSpecialHelperContext(parametro_id)
+            return _MobileSpecialHelperContext(parametro_id, original_popover)
         return original_popover(*args, **kwargs)
 
     def markdown_without_datetime_labels(body, *args, **kwargs):
