@@ -319,26 +319,26 @@ def _render_factor_panel(
                       width: max-content !important;
                       min-width: max-content !important;
                       max-width: none !important;
-                      margin-left: auto !important;
-                      overflow: visible !important;
+                      margin-left:auto!important;
+                      overflow:visible!important;
                     }}
                     [class*="st-key-{key_prefix}_switch_row"],
                     [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"],
                     [class*="st-key-{key_prefix}_vest_group"],
                     [class*="st-key-{key_prefix}_vest_group"] [data-testid="stHorizontalBlock"] {{
-                      min-height: 2.55rem !important;
-                      height: auto !important;
-                      max-height: none !important;
-                      overflow: visible !important;
-                      scrollbar-width: none !important;
+                      min-height:2.55rem!important;
+                      height:auto!important;
+                      max-height:none!important;
+                      overflow:visible!important;
+                      scrollbar-width:none!important;
                     }}
                     [class*="st-key-{key_prefix}_switch_row"]::-webkit-scrollbar,
                     [class*="st-key-{key_prefix}_switch_row"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar,
                     [class*="st-key-{key_prefix}_vest_group"]::-webkit-scrollbar,
                     [class*="st-key-{key_prefix}_vest_group"] [data-testid="stHorizontalBlock"]::-webkit-scrollbar {{
-                      display: none !important;
-                      width: 0 !important;
-                      height: 0 !important;
+                      display:none!important;
+                      width:0!important;
+                      height:0!important;
                     }}
                   }}
                 </style>
@@ -821,8 +821,7 @@ def pannello_suggerisci_fc(peso_default: float = 70.0, key_prefix: str = "fcpane
                 )
             with st.container(width="content", key=f"{key_prefix}_fc_apply_action_mobile"):
                 st.button(
-                    "Usalo",
-                    icon=":material/arrow_forward:",
+                    "→ Usalo",
                     type="secondary",
                     width=120,
                     on_click=apply_callback, args=apply_args,
