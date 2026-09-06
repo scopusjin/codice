@@ -8,6 +8,10 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from app.device_mode import full_device_is_mobile
+from app.special_tanatology_states import (
+    PARAM_ELECTRICAL_SUPRACILIARY,
+    SPECIAL_PARAM_LABEL_IT,
+)
 
 
 _FRONTEND_DIR = (Path(__file__).resolve().parent / "native_time_picker_frontend").absolute()
@@ -17,6 +21,9 @@ _component = components.declare_component(
 )
 _TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
 EMPTY_TIME_SENTINEL = "__mortem_empty_time__"
+_SUPRA_TIME_COMPONENT_KEY = (
+    f"{SPECIAL_PARAM_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY]}_ora_native"
+)
 
 
 def _theme_value(option, fallback):
@@ -56,6 +63,8 @@ def native_time_picker(
     """
     full_datetime = _full_datetime_component(key)
     main_datetime = full_datetime and key == "input_ora_rilievo_native"
+    mobile = full_device_is_mobile()
+    overlay_mobile = bool(mobile and key == _SUPRA_TIME_COMPONENT_KEY)
     allow_empty = bool(allow_empty or full_datetime)
     open_default_now = bool(open_default_now or full_datetime)
 
@@ -82,7 +91,8 @@ def native_time_picker(
 
     result = _component(
         value=value,
-        mobile=full_device_is_mobile(),
+        mobile=mobile,
+        overlay_mobile=overlay_mobile,
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),
         text_color=_theme_value("theme.textColor", "#31333F"),
