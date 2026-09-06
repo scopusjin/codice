@@ -207,12 +207,12 @@ body {
   }
 
   #time-input {
-    font-size: 0.875rem;
-    padding: 0 6px 0 10px;
+    font-size: 0.82rem;
+    padding: 0 5px 0 8px;
   }
 
   #picker-toggle {
-    flex: 0 0 46px;
-    width: 46px;
+    flex: 0 0 38px;
+    width: 38px;
   }
 }
