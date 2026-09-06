@@ -365,7 +365,7 @@ def install_special_datetime_ui():
             ):
                 with context["param_container"]:
                     compact_stack = original_container(
-                        gap="xsmall",
+                        gap=None,
                         key="special_supra_mobile_stack",
                     )
                 context["param_container"] = compact_stack
