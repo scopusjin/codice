@@ -181,6 +181,7 @@ def install_special_datetime_ui():
         "parametro_id": None,
         "param_container": None,
         "time_container": None,
+        "special_outer_pending": False,
         "await_checkbox": False,
         "await_datetime": False,
         "datetime_labels_left": 0,
@@ -255,17 +256,27 @@ def install_special_datetime_ui():
 
     def container_without_initial_mobile_frames(*args, **kwargs):
         caller = inspect.currentframe().f_back
+        special_outer = bool(context.get("special_outer_pending"))
         if (
             kwargs.get("border") is True
             and _is_full_page_frame(caller)
             and full_device_is_mobile()
-            and "full_mobile" not in caller.f_locals
+            and ("full_mobile" not in caller.f_locals or special_outer)
         ):
             kwargs["border"] = False
+            if special_outer:
+                context["special_outer_pending"] = False
         return original_container(*args, **kwargs)
 
     def toggle_without_main_datetime_switch(label, *args, **kwargs):
         caller = inspect.currentframe().f_back
+        if kwargs.get("key") == "mostra_parametri_aggiuntivi" and _is_full_page_frame(caller):
+            result = original_toggle(label, *args, **kwargs)
+            context["special_outer_pending"] = bool(
+                result and full_device_is_mobile()
+            )
+            return result
+
         if kwargs.get("key") == "usa_orario_custom" and _is_full_page_frame(caller):
             original_markdown(
                 "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
@@ -462,7 +473,7 @@ def install_special_datetime_ui():
                     horizontal=True,
                     wrap=False,
                     vertical_alignment="center",
-                    gap="small",
+                    gap="xsmall",
                     key=f"electrical_title_help_row_{parametro_id}",
                 ):
                     title_cell = original_container(
@@ -474,7 +485,7 @@ def install_special_datetime_ui():
                         key=f"electrical_title_help_{parametro_id}",
                     )
                     time_cell = original_container(
-                        width="content",
+                        width=108,
                         key="special_supra_title_time",
                     )
             context["time_container"] = time_cell
