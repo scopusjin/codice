@@ -17,6 +17,12 @@ from app.device_mode import full_device_is_mobile
 import app.special_datetime_ui as _special_datetime
 
 
+_SIMPLE_DESKTOP_PARAMS = {
+    _special_datetime.PARAM_MECHANICAL_MUSCLE,
+    _special_datetime.PARAM_CHEMICAL_PUPILLARY,
+}
+
+
 @contextmanager
 def _reuse_compact_special_path():
     """Riusa un singolo passaggio compatto senza classificare desktop come mobile."""
@@ -39,13 +45,37 @@ def install_desktop_datetime_ui() -> None:
     current_columns = st.columns
     current_date_input = st.date_input
     current_button = st.button
+    current_container = st.container
 
     context = {
         "parametro_id": None,
         "await_datetime": False,
+        "datetime_labels_left": 0,
+        "clock_container": None,
+        "time_container": None,
     }
 
     def markdown_with_desktop_title(body, *args, **kwargs):
+        if isinstance(body, str):
+            if "<h5 class='mortem-full-title'" in body:
+                visible_title = body.replace(
+                    "class='mortem-full-title'",
+                    "class='mortem-full-title-visible'",
+                    1,
+                )
+                body = (
+                    "<span class='mortem-full-title' aria-hidden='true' "
+                    "style='display:none;'></span>"
+                    + visible_title
+                )
+                kwargs["unsafe_allow_html"] = True
+            elif (
+                context["datetime_labels_left"] > 0
+                and body.startswith(_special_datetime._DATETIME_LABEL_PREFIX)
+            ):
+                context["datetime_labels_left"] -= 1
+                return None
+
         return current_markdown(body, *args, **kwargs)
 
     def columns_with_desktop_special_time(spec, *args, **kwargs):
@@ -62,9 +92,65 @@ def install_desktop_datetime_ui() -> None:
         parametro_id = context["parametro_id"]
         values = _special_datetime._spec_values(spec)
 
-        # La prima coppia [1, 2] resta desktop e conserva la griglia/selettore
-        # esistente. Soltanto la successiva riga titolo/helper riusa il layout
-        # compatto, che predispone anche il contenitore dell'orario a destra.
+        if (
+            full_page
+            and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
+            and values == (1.0, 2.0)
+        ):
+            context["clock_container"] = None
+            context["time_container"] = None
+            context["datetime_labels_left"] = 0
+            return current_columns(spec, *args, **kwargs)
+
+        # Meccanica e pupillare mantengono la riga desktop naturale: nella
+        # seconda colonna vengono predisposti helper e orario, senza riusare
+        # il margine negativo riservato alle due eccitabilità elettriche.
+        if (
+            full_page
+            and parametro_id in _SIMPLE_DESKTOP_PARAMS
+            and values == (1.0, 0.5)
+        ):
+            result = current_columns(spec, *args, **kwargs)
+            try:
+                title_cell, action_cell = result
+            except (TypeError, ValueError):
+                return result
+
+            with action_cell:
+                with current_container(
+                    horizontal=True,
+                    wrap=False,
+                    horizontal_alignment="right",
+                    vertical_alignment="center",
+                    gap="xsmall",
+                    width="stretch",
+                    key=f"special_desktop_title_actions_{parametro_id}",
+                ):
+                    help_cell = current_container(
+                        width="content",
+                        key=f"special_desktop_title_help_{parametro_id}",
+                    )
+                    clock_cell = current_container(
+                        width="content",
+                        key=f"special_desktop_title_clock_{parametro_id}",
+                    )
+                    time_cell = current_container(
+                        width=108,
+                        key=f"special_desktop_title_time_{parametro_id}",
+                    )
+
+            with help_cell:
+                _special_datetime._render_click_help(
+                    _special_datetime._HELPER_TEXTS[parametro_id],
+                    f"mortem_help_prudent_electrical_{parametro_id}",
+                )
+
+            context["clock_container"] = clock_cell
+            context["time_container"] = time_cell
+            return title_cell, action_cell
+
+        # Le due eccitabilità elettriche continuano a riusare il percorso già
+        # collaudato, che mantiene titolo/helper e orario nella stessa riga.
         if (
             full_page
             and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
@@ -81,9 +167,8 @@ def install_desktop_datetime_ui() -> None:
             context["await_datetime"] = True
             return current_columns(spec, *args, **kwargs)
 
-        # Dopo la checkbox legacy soppressa, il renderer compatto instrada il
-        # picker nel contenitore già creato accanto al titolo e sopprime le due
-        # etichette Data/Ora sottostanti.
+        # Dopo la checkbox legacy soppressa, il picker dei due parametri
+        # semplici viene instradato nella cella predisposta nella riga titolo.
         if (
             full_page
             and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
@@ -91,6 +176,22 @@ def install_desktop_datetime_ui() -> None:
             and context["await_datetime"]
         ):
             context["await_datetime"] = False
+
+            if (
+                parametro_id in _SIMPLE_DESKTOP_PARAMS
+                and context.get("time_container") is not None
+            ):
+                context["datetime_labels_left"] = 2
+                clock_cell = context.get("clock_container")
+                if clock_cell is not None:
+                    with clock_cell:
+                        current_markdown(
+                            "<span title='Orario del rilievo' "
+                            "style='font-size:0.76rem; line-height:1;'>🕒</span>",
+                            unsafe_allow_html=True,
+                        )
+                return _special_datetime._NoopContext(), context["time_container"]
+
             with _reuse_compact_special_path():
                 return current_columns(spec, *args, **kwargs)
 
