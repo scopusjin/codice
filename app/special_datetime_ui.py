@@ -347,24 +347,64 @@ def install_special_datetime_ui():
             parametro_id = context["parametro_id"]
 
         values = _spec_values(spec)
+        mobile = full_device_is_mobile()
 
-        # Memorizza il contenitore reale restituito dalla riga principale del
-        # parametro. Su mobile questo ci permette di rendere titolo, selettore e
-        # data/ora nello stesso stack, esattamente come Ipostasi e il suo selectbox.
+        # Solo la sopraciliare mobile usa uno stack compatto dedicato. Gli altri
+        # parametri mantengono esattamente il layout stabile già collaudato.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
             result = original_columns(spec, *args, **kwargs)
             try:
                 context["param_container"] = result[0]
             except (TypeError, IndexError):
                 context["param_container"] = None
+
+            if (
+                mobile
+                and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
+                and context["param_container"] is not None
+            ):
+                with context["param_container"]:
+                    compact_stack = original_container(
+                        gap="xsmall",
+                        key="special_supra_mobile_stack",
+                    )
+                context["param_container"] = compact_stack
+                return compact_stack, compact_stack
             return result
+
+        # La riga titolo/helper sopraciliare viene creata direttamente nello
+        # stesso stack del carousel e dell'orario, evitando che il renderer
+        # elettrico la rimandi nella colonna esterna.
+        if (
+            mobile
+            and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
+            and values == (1.0, 0.5)
+            and context.get("param_container") is not None
+        ):
+            with context["param_container"]:
+                with original_container(
+                    horizontal=True,
+                    wrap=False,
+                    vertical_alignment="center",
+                    gap="small",
+                    key=f"electrical_title_help_row_{parametro_id}",
+                ):
+                    title_cell = original_container(
+                        width="content",
+                        key=f"electrical_title_text_{parametro_id}",
+                    )
+                    help_cell = original_container(
+                        width="content",
+                        key=f"electrical_title_help_{parametro_id}",
+                    )
+            return title_cell, help_cell
 
         # Meccanica e pupillare non hanno un helper nella seconda sottocolonna:
         # su mobile la vecchia st.columns([1, 0.5]) creava solo spazio verticale.
         # Restando nel contenitore principale il titolo precede direttamente il
         # selectbox, con la stessa distanza naturale usata da Ipostasi.
         if (
-            full_device_is_mobile()
+            mobile
             and parametro_id in {PARAM_MECHANICAL_MUSCLE, PARAM_CHEMICAL_PUPILLARY}
             and values == (1.0, 0.5)
         ):
