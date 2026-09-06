@@ -14,6 +14,7 @@ import re
 import streamlit as st
 
 from app.device_mode import full_device_is_mobile
+from app.full_mobile_layout import _render_click_help
 from app.native_time_picker import EMPTY_TIME_SENTINEL
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
@@ -45,6 +46,13 @@ _ORANGE_PROMPT_PREFIX = (
 )
 _DATETIME_LABEL_PREFIX = "<div style='font-size: 0.88rem; padding-top: 0.4rem;'>"
 _TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+_SUPRA_FULL_LABEL = SPECIAL_PARAM_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY]
+_SUPRA_SHORT_LABEL = "Ecc. elettrica sopraciliare"
+_SUPRA_HELPER_TEXT = (
+    "Eccitabilità elettrica sopraciliare. "
+    "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
+    "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+)
 
 _FULL_INITIAL_FRAMELESS_CSS = r"""
 <style>
@@ -92,6 +100,22 @@ class _NoopContext:
         return False
 
 
+class _MobileSupraHelperContext:
+    """Helper sopraciliare mobile con denominazione estesa e nota tecnica."""
+
+    def __enter__(self):
+        _render_click_help(
+            _SUPRA_HELPER_TEXT,
+            f"mortem_help_prudent_electrical_{PARAM_ELECTRICAL_SUPRACILIARY}",
+        )
+        st._suppress_legacy_electrical_image = True
+        return None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        st._suppress_legacy_electrical_image = False
+        return False
+
+
 def _spec_values(spec):
     if isinstance(spec, int):
         return None
@@ -113,6 +137,29 @@ def _main_time_is_valid() -> bool:
     return isinstance(value, str) and bool(_TIME_RE.fullmatch(value.strip()))
 
 
+def _infer_measurement_date(main_date, main_time, measurement_time):
+    """Deduce il giorno più vicino al rilievo principale, gestendo la mezzanotte."""
+    if not isinstance(main_date, datetime.date):
+        main_date = datetime.date.today()
+    if not (
+        isinstance(main_time, str)
+        and _TIME_RE.fullmatch(main_time.strip())
+        and isinstance(measurement_time, str)
+        and _TIME_RE.fullmatch(measurement_time.strip())
+    ):
+        return main_date
+
+    main_hour, main_minute = (int(part) for part in main_time.split(":"))
+    measure_hour, measure_minute = (int(part) for part in measurement_time.split(":"))
+    delta_minutes = (measure_hour * 60 + measure_minute) - (main_hour * 60 + main_minute)
+
+    if delta_minutes < -12 * 60:
+        return main_date + datetime.timedelta(days=1)
+    if delta_minutes > 12 * 60:
+        return main_date - datetime.timedelta(days=1)
+    return main_date
+
+
 def install_special_datetime_ui():
     """Installa data/ora sempre visibili nella Full e UI speciale compatta."""
     if getattr(st, "_special_datetime_ui_installed", False):
@@ -126,12 +173,14 @@ def install_special_datetime_ui():
     original_date_input = st.date_input
     original_button = st.button
     original_container = st.container
+    original_popover = st.popover
 
     # Stato locale del renderer: viene impostato dal selectbox del parametro
     # speciale e consumato soltanto dalla sequenza immediatamente successiva.
     context = {
         "parametro_id": None,
         "param_container": None,
+        "time_container": None,
         "await_checkbox": False,
         "await_datetime": False,
         "datetime_labels_left": 0,
@@ -263,11 +312,25 @@ def install_special_datetime_ui():
 
         return original_checkbox(label, *args, **kwargs)
 
+    def popover_with_mobile_supra_helper(*args, **kwargs):
+        caller = inspect.currentframe().f_back
+        parametro_id = caller.f_locals.get("parametro_id") if caller else None
+        if full_device_is_mobile() and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
+            return _MobileSupraHelperContext()
+        return original_popover(*args, **kwargs)
+
     def markdown_without_datetime_labels(body, *args, **kwargs):
         if isinstance(body, str):
             if ".final-text{" in body:
                 body = _FULL_INITIAL_FRAMELESS_CSS + body
                 kwargs["unsafe_allow_html"] = True
+
+            if (
+                full_device_is_mobile()
+                and context["parametro_id"] == PARAM_ELECTRICAL_SUPRACILIARY
+                and f"{_SUPRA_FULL_LABEL}:" in body
+            ):
+                body = body.replace(f"{_SUPRA_FULL_LABEL}:", f"{_SUPRA_SHORT_LABEL}:")
 
             if context["await_checkbox"] and body.startswith(_ORANGE_PROMPT_PREFIX):
                 return None
@@ -298,6 +361,19 @@ def install_special_datetime_ui():
         main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
         manual_key = f"{key}__manual"
         last_main_key = f"{key}__last_main"
+
+        if full_device_is_mobile() and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
+            ora_key = f"{_SUPRA_FULL_LABEL}_ora"
+            result = _infer_measurement_date(
+                main_date,
+                st.session_state.get("input_ora_rilievo"),
+                st.session_state.get(ora_key),
+            )
+            st.session_state[key] = result
+            st.session_state.pop(manual_key, None)
+            st.session_state.pop(last_main_key, None)
+            return result
+
         manual = bool(st.session_state.get(manual_key, False))
         last_main = st.session_state.get(last_main_key)
         current = st.session_state.get(key)
@@ -343,6 +419,7 @@ def install_special_datetime_ui():
         caller_parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if caller_parametro_id in _SPECIAL_PARAM_IDS:
             parametro_id = caller_parametro_id
+            context["parametro_id"] = parametro_id
         else:
             parametro_id = context["parametro_id"]
 
@@ -352,6 +429,7 @@ def install_special_datetime_ui():
         # Solo la sopraciliare mobile usa uno stack compatto dedicato. Gli altri
         # parametri mantengono esattamente il layout stabile già collaudato.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
+            context["time_container"] = None
             result = original_columns(spec, *args, **kwargs)
             try:
                 context["param_container"] = result[0]
@@ -372,9 +450,7 @@ def install_special_datetime_ui():
                 return compact_stack, compact_stack
             return result
 
-        # La riga titolo/helper sopraciliare viene creata direttamente nello
-        # stesso stack del carousel e dell'orario, evitando che il renderer
-        # elettrico la rimandi nella colonna esterna.
+        # La riga sopraciliare mobile contiene titolo breve, helper e orario.
         if (
             mobile
             and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
@@ -397,6 +473,11 @@ def install_special_datetime_ui():
                         width="content",
                         key=f"electrical_title_help_{parametro_id}",
                     )
+                    time_cell = original_container(
+                        width="content",
+                        key="special_supra_title_time",
+                    )
+            context["time_container"] = time_cell
             return title_cell, help_cell
 
         # Meccanica e pupillare non hanno un helper nella seconda sottocolonna:
@@ -423,12 +504,18 @@ def install_special_datetime_ui():
                 context["await_datetime"] = False
                 return _NoopContext(), _NoopContext()
 
-            # Dopo la checkbox resa implicitamente True arriva esattamente la
-            # riga Data/Ora. La renderizziamo nel medesimo contenitore del
-            # parametro, eliminando l'ancora separata che introduceva il vuoto.
+            # Sulla sola sopraciliare mobile la data è dedotta e l'orario viene
+            # renderizzato nel contenitore già predisposto accanto al titolo.
             if spec == 2 and context["await_datetime"]:
                 context["await_datetime"] = False
                 context["datetime_labels_left"] = 2
+
+                if (
+                    mobile
+                    and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
+                    and context.get("time_container") is not None
+                ):
+                    return _NoopContext(), context["time_container"]
 
                 anchor = context.get("param_container")
                 if anchor is None:
@@ -443,17 +530,28 @@ def install_special_datetime_ui():
         if kwargs.get("key") == "btn_stima" and _is_full_page_frame(caller):
             main_time_valid = _main_time_is_valid()
             st.session_state["usa_orario_custom"] = main_time_valid
+            widgets = caller.f_locals.get("widgets_parametri_aggiuntivi")
+
+            if main_time_valid and full_device_is_mobile() and isinstance(widgets, dict):
+                supra_values = widgets.get(_SUPRA_FULL_LABEL)
+                if isinstance(supra_values, dict):
+                    inferred_date = _infer_measurement_date(
+                        st.session_state.get("input_data_rilievo") or datetime.date.today(),
+                        st.session_state.get("input_ora_rilievo"),
+                        supra_values.get("ora_rilievo")
+                        or st.session_state.get(f"{_SUPRA_FULL_LABEL}_ora"),
+                    )
+                    supra_values["data_rilievo"] = inferred_date
+                    st.session_state[f"{_SUPRA_FULL_LABEL}_data"] = inferred_date
 
             # Se l'ora principale è vuota, la data/ora resta solo informativa:
             # anche eventuali modifiche ai singoli parametri non devono traslare
             # i range, esattamente come nel precedente stato toggle OFF.
-            if not main_time_valid:
-                widgets = caller.f_locals.get("widgets_parametri_aggiuntivi")
-                if isinstance(widgets, dict):
-                    for values in widgets.values():
-                        if isinstance(values, dict):
-                            values["data_rilievo"] = None
-                            values["ora_rilievo"] = None
+            if not main_time_valid and isinstance(widgets, dict):
+                for values in widgets.values():
+                    if isinstance(values, dict):
+                        values["data_rilievo"] = None
+                        values["ora_rilievo"] = None
 
         return original_button(label, *args, **kwargs)
 
@@ -461,6 +559,7 @@ def install_special_datetime_ui():
     st.toggle = toggle_without_main_datetime_switch
     st.selectbox = selectbox_with_special_context
     st.checkbox = checkbox_without_different_time
+    st.popover = popover_with_mobile_supra_helper
     st.markdown = markdown_without_datetime_labels
     st.date_input = date_input_with_main_inheritance
     st.columns = columns_with_compact_datetime
