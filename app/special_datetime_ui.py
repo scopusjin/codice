@@ -46,13 +46,32 @@ _ORANGE_PROMPT_PREFIX = (
 )
 _DATETIME_LABEL_PREFIX = "<div style='font-size: 0.88rem; padding-top: 0.4rem;'>"
 _TIME_RE = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
-_SUPRA_FULL_LABEL = SPECIAL_PARAM_LABEL_IT[PARAM_ELECTRICAL_SUPRACILIARY]
-_SUPRA_SHORT_LABEL = "Ecc. elettrica sopraciliare"
-_SUPRA_HELPER_TEXT = (
-    "Eccitabilità elettrica sopraciliare. "
-    "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
-    "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
-)
+_SHORT_LABELS = {
+    PARAM_ELECTRICAL_SUPRACILIARY: "Ecc. elettrica sopraciliare",
+    PARAM_ELECTRICAL_PERIORAL: "Ecc. elettrica peribuccale",
+    PARAM_MECHANICAL_MUSCLE: "Ecc. muscolare meccanica",
+    PARAM_CHEMICAL_PUPILLARY: "Ecc. chimica pupillare",
+}
+_HELPER_TEXTS = {
+    PARAM_ELECTRICAL_SUPRACILIARY: (
+        "Eccitabilità elettrica sopraciliare. "
+        "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
+        "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+    ),
+    PARAM_ELECTRICAL_PERIORAL: (
+        "Eccitabilità elettrica peribuccale. "
+        "Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità di circa "
+        "0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+    ),
+    PARAM_MECHANICAL_MUSCLE: (
+        "Eccitabilità muscolare meccanica. "
+        "Selezionare la risposta muscolare osservata dopo la stimolazione meccanica."
+    ),
+    PARAM_CHEMICAL_PUPILLARY: (
+        "Eccitabilità chimica pupillare. "
+        "Selezionare la variazione pupillare osservata dopo l’instillazione della sostanza utilizzata."
+    ),
+}
 
 _FULL_INITIAL_FRAMELESS_CSS = r"""
 <style>
@@ -100,19 +119,30 @@ class _NoopContext:
         return False
 
 
-class _MobileSupraHelperContext:
-    """Helper sopraciliare mobile con denominazione estesa e nota tecnica."""
+class _MobileSpecialHelperContext:
+    """Helper mobile con denominazione estesa e nota del parametro."""
+
+    def __init__(self, parametro_id):
+        self._parametro_id = parametro_id
 
     def __enter__(self):
         _render_click_help(
-            _SUPRA_HELPER_TEXT,
-            f"mortem_help_prudent_electrical_{PARAM_ELECTRICAL_SUPRACILIARY}",
+            _HELPER_TEXTS[self._parametro_id],
+            f"mortem_help_prudent_electrical_{self._parametro_id}",
         )
-        st._suppress_legacy_electrical_image = True
+        if self._parametro_id in {
+            PARAM_ELECTRICAL_SUPRACILIARY,
+            PARAM_ELECTRICAL_PERIORAL,
+        }:
+            st._suppress_legacy_electrical_image = True
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        st._suppress_legacy_electrical_image = False
+        if self._parametro_id in {
+            PARAM_ELECTRICAL_SUPRACILIARY,
+            PARAM_ELECTRICAL_PERIORAL,
+        }:
+            st._suppress_legacy_electrical_image = False
         return False
 
 
@@ -180,6 +210,7 @@ def install_special_datetime_ui():
     context = {
         "parametro_id": None,
         "param_container": None,
+        "clock_container": None,
         "time_container": None,
         "special_outer_pending": False,
         "await_checkbox": False,
@@ -323,11 +354,17 @@ def install_special_datetime_ui():
 
         return original_checkbox(label, *args, **kwargs)
 
-    def popover_with_mobile_supra_helper(*args, **kwargs):
+    def popover_with_mobile_special_helper(*args, **kwargs):
         caller = inspect.currentframe().f_back
         parametro_id = caller.f_locals.get("parametro_id") if caller else None
-        if full_device_is_mobile() and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
-            return _MobileSupraHelperContext()
+        if (
+            full_device_is_mobile()
+            and parametro_id in {
+                PARAM_ELECTRICAL_SUPRACILIARY,
+                PARAM_ELECTRICAL_PERIORAL,
+            }
+        ):
+            return _MobileSpecialHelperContext(parametro_id)
         return original_popover(*args, **kwargs)
 
     def markdown_without_datetime_labels(body, *args, **kwargs):
@@ -336,12 +373,13 @@ def install_special_datetime_ui():
                 body = _FULL_INITIAL_FRAMELESS_CSS + body
                 kwargs["unsafe_allow_html"] = True
 
-            if (
-                full_device_is_mobile()
-                and context["parametro_id"] == PARAM_ELECTRICAL_SUPRACILIARY
-                and f"{_SUPRA_FULL_LABEL}:" in body
-            ):
-                body = body.replace(f"{_SUPRA_FULL_LABEL}:", f"{_SUPRA_SHORT_LABEL}:")
+            parametro_id = context["parametro_id"]
+            if full_device_is_mobile() and parametro_id in _SHORT_LABELS:
+                full_label = SPECIAL_PARAM_LABEL_IT[parametro_id]
+                body = body.replace(
+                    f"{full_label}:",
+                    f"{_SHORT_LABELS[parametro_id]}:",
+                )
 
             if context["await_checkbox"] and body.startswith(_ORANGE_PROMPT_PREFIX):
                 return None
@@ -373,8 +411,9 @@ def install_special_datetime_ui():
         manual_key = f"{key}__manual"
         last_main_key = f"{key}__last_main"
 
-        if full_device_is_mobile() and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY:
-            ora_key = f"{_SUPRA_FULL_LABEL}_ora"
+        if full_device_is_mobile():
+            full_label = SPECIAL_PARAM_LABEL_IT[parametro_id]
+            ora_key = f"{full_label}_ora"
             result = _infer_measurement_date(
                 main_date,
                 st.session_state.get("input_ora_rilievo"),
@@ -437,9 +476,11 @@ def install_special_datetime_ui():
         values = _spec_values(spec)
         mobile = full_device_is_mobile()
 
-        # Solo la sopraciliare mobile usa uno stack compatto dedicato. Gli altri
-        # parametri mantengono esattamente il layout stabile già collaudato.
+        # La sopraciliare conserva il suo stack compatto già collaudato. Gli
+        # altri parametri restano nelle colonne esistenti e cambiano solo la
+        # riga titolo/helper/orario.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
+            context["clock_container"] = None
             context["time_container"] = None
             result = original_columns(spec, *args, **kwargs)
             try:
@@ -461,10 +502,11 @@ def install_special_datetime_ui():
                 return compact_stack, compact_stack
             return result
 
-        # La riga sopraciliare mobile contiene titolo breve, helper e orario.
+        # Su mobile ogni parametro speciale usa una sola riga: titolo breve e
+        # helper a sinistra, simbolo orologio e picker ancorati a destra.
         if (
             mobile
-            and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
+            and parametro_id in _SPECIAL_PARAM_IDS
             and values == (1.0, 0.5)
             and context.get("param_container") is not None
         ):
@@ -472,10 +514,29 @@ def install_special_datetime_ui():
                 with original_container(
                     horizontal=True,
                     wrap=False,
+                    horizontal_alignment="distribute",
                     vertical_alignment="center",
                     gap="xsmall",
                     key=f"electrical_title_help_row_{parametro_id}",
                 ):
+                    left_group = original_container(
+                        horizontal=True,
+                        wrap=False,
+                        vertical_alignment="center",
+                        gap="xsmall",
+                        width="stretch",
+                        key=f"special_title_left_{parametro_id}",
+                    )
+                    time_group = original_container(
+                        horizontal=True,
+                        wrap=False,
+                        vertical_alignment="center",
+                        gap="xsmall",
+                        width="content",
+                        key=f"special_title_time_group_{parametro_id}",
+                    )
+
+                with left_group:
                     title_cell = original_container(
                         width="content",
                         key=f"electrical_title_text_{parametro_id}",
@@ -484,23 +545,34 @@ def install_special_datetime_ui():
                         width="content",
                         key=f"electrical_title_help_{parametro_id}",
                     )
+
+                with time_group:
+                    clock_cell = original_container(
+                        width="content",
+                        key=f"special_title_clock_{parametro_id}",
+                    )
                     time_cell = original_container(
                         width=108,
-                        key="special_supra_title_time",
+                        key=f"special_datetime_time_title_{parametro_id}",
                     )
-            context["time_container"] = time_cell
-            return title_cell, help_cell
 
-        # Meccanica e pupillare non hanno un helper nella seconda sottocolonna:
-        # su mobile la vecchia st.columns([1, 0.5]) creava solo spazio verticale.
-        # Restando nel contenitore principale il titolo precede direttamente il
-        # selectbox, con la stessa distanza naturale usata da Ipostasi.
-        if (
-            mobile
-            and parametro_id in {PARAM_MECHANICAL_MUSCLE, PARAM_CHEMICAL_PUPILLARY}
-            and values == (1.0, 0.5)
-        ):
-            return _NoopContext(), _NoopContext()
+            context["clock_container"] = clock_cell
+            context["time_container"] = time_cell
+
+            # Per i due parametri senza vecchio popover l'helper va inserito
+            # direttamente nella cella predisposta; gli elettrici lo ricevono
+            # dal popover legacy intercettato subito dopo dal chiamante.
+            if parametro_id in {
+                PARAM_MECHANICAL_MUSCLE,
+                PARAM_CHEMICAL_PUPILLARY,
+            }:
+                with help_cell:
+                    _render_click_help(
+                        _HELPER_TEXTS[parametro_id],
+                        f"mortem_help_prudent_electrical_{parametro_id}",
+                    )
+
+            return title_cell, help_cell
 
         usa_orario_custom_globale = bool(
             st.session_state.get("usa_orario_custom", False)
@@ -515,17 +587,24 @@ def install_special_datetime_ui():
                 context["await_datetime"] = False
                 return _NoopContext(), _NoopContext()
 
-            # Sulla sola sopraciliare mobile la data è dedotta e l'orario viene
-            # renderizzato nel contenitore già predisposto accanto al titolo.
+            # Su mobile la data è dedotta e il solo orario viene renderizzato
+            # nel contenitore predisposto all'estrema destra del titolo.
             if spec == 2 and context["await_datetime"]:
                 context["await_datetime"] = False
                 context["datetime_labels_left"] = 2
 
                 if (
                     mobile
-                    and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
+                    and parametro_id in _SPECIAL_PARAM_IDS
                     and context.get("time_container") is not None
                 ):
+                    clock_cell = context.get("clock_container")
+                    if clock_cell is not None:
+                        with clock_cell:
+                            original_markdown(
+                                "<span title='Orario del rilievo' style='font-size:0.76rem; line-height:1;'>🕒</span>",
+                                unsafe_allow_html=True,
+                            )
                     return _NoopContext(), context["time_container"]
 
                 anchor = context.get("param_container")
@@ -544,16 +623,22 @@ def install_special_datetime_ui():
             widgets = caller.f_locals.get("widgets_parametri_aggiuntivi")
 
             if main_time_valid and full_device_is_mobile() and isinstance(widgets, dict):
-                supra_values = widgets.get(_SUPRA_FULL_LABEL)
-                if isinstance(supra_values, dict):
+                main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
+                main_time = st.session_state.get("input_ora_rilievo")
+                for parametro_id, full_label in SPECIAL_PARAM_LABEL_IT.items():
+                    if parametro_id not in _SPECIAL_PARAM_IDS:
+                        continue
+                    values = widgets.get(full_label)
+                    if not isinstance(values, dict):
+                        continue
                     inferred_date = _infer_measurement_date(
-                        st.session_state.get("input_data_rilievo") or datetime.date.today(),
-                        st.session_state.get("input_ora_rilievo"),
-                        supra_values.get("ora_rilievo")
-                        or st.session_state.get(f"{_SUPRA_FULL_LABEL}_ora"),
+                        main_date,
+                        main_time,
+                        values.get("ora_rilievo")
+                        or st.session_state.get(f"{full_label}_ora"),
                     )
-                    supra_values["data_rilievo"] = inferred_date
-                    st.session_state[f"{_SUPRA_FULL_LABEL}_data"] = inferred_date
+                    values["data_rilievo"] = inferred_date
+                    st.session_state[f"{full_label}_data"] = inferred_date
 
             # Se l'ora principale è vuota, la data/ora resta solo informativa:
             # anche eventuali modifiche ai singoli parametri non devono traslare
@@ -570,7 +655,7 @@ def install_special_datetime_ui():
     st.toggle = toggle_without_main_datetime_switch
     st.selectbox = selectbox_with_special_context
     st.checkbox = checkbox_without_different_time
-    st.popover = popover_with_mobile_supra_helper
+    st.popover = popover_with_mobile_special_helper
     st.markdown = markdown_without_datetime_labels
     st.date_input = date_input_with_main_inheritance
     st.columns = columns_with_compact_datetime
