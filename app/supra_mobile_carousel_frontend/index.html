@@ -37,25 +37,26 @@
     .track {
       display: flex;
       align-items: center;
-      gap: 0.32rem;
-      padding-inline: 14%;
+      gap: 0.22rem;
+      padding-inline: 18%;
       min-width: 100%;
     }
     .card {
-      flex: 0 0 72%;
-      height: 118px;
+      position: relative;
+      flex: 0 0 64%;
+      height: 104px;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
       border: 1px solid transparent;
-      border-radius: 0.55rem;
+      border-radius: 0.50rem;
       background: #FFFFFF;
       scroll-snap-align: center;
       scroll-snap-stop: normal;
-      opacity: 0.58;
-      transform: scale(0.90);
-      transition: transform 120ms ease, opacity 120ms ease, border-color 120ms ease;
+      opacity: 0.68;
+      transform: scale(0.94);
+      transition: transform 110ms ease, opacity 110ms ease, border-color 110ms ease;
       cursor: pointer;
       user-select: none;
       overflow: hidden;
@@ -73,24 +74,37 @@
       background: #FFFFFF;
       pointer-events: none;
     }
+    .card-counter {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      z-index: 2;
+      padding: 1px 4px;
+      border-radius: 0.55rem;
+      background: rgba(255, 255, 255, 0.88);
+      font-size: 0.56rem;
+      line-height: 1.15;
+      font-weight: 650;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .card.active .card-counter {
+      opacity: 0.72;
+    }
     .meta {
-      min-height: 42px;
-      padding: 0.18rem 0.35rem 0;
+      min-height: 22px;
+      padding: 0.08rem 0.20rem 0;
       text-align: center;
     }
     .label {
-      min-height: 28px;
+      min-height: 18px;
       margin: 0;
-      white-space: pre-line;
-      line-height: 1.08;
-      font-size: 0.74rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.05;
+      font-size: clamp(0.60rem, 2.65vw, 0.70rem);
       font-weight: 650;
-    }
-    .counter {
-      margin-top: 0.08rem;
-      font-size: 0.62rem;
-      line-height: 1;
-      opacity: 0.62;
     }
   </style>
 </head>
@@ -101,7 +115,6 @@
     </div>
     <div class="meta">
       <div id="label" class="label"></div>
-      <div id="counter" class="counter"></div>
     </div>
   </div>
 
@@ -134,13 +147,14 @@
       }
     };
 
+    const FRAME_HEIGHT = 132;
     const viewport = document.getElementById("viewport");
     const track = document.getElementById("track");
     const label = document.getElementById("label");
-    const counter = document.getElementById("counter");
 
     let items = [];
     let activeIndex = 0;
+    let activePhysicalIndex = 0;
     let committedValue = null;
     let pendingValue = null;
     let initialized = false;
@@ -153,35 +167,45 @@
       return Array.from(track.querySelectorAll(".card"));
     }
 
+    function logicalFromPhysical(index) {
+      if (!items.length) return 0;
+      return ((index % items.length) + items.length) % items.length;
+    }
+
+    function middlePhysicalIndex(logicalIndex) {
+      return items.length + logicalIndex;
+    }
+
     function updateMeta() {
       const item = items[activeIndex];
       label.textContent = item ? item.label || "" : "";
-      counter.textContent = item ? `${activeIndex + 1} / ${items.length}` : "";
     }
 
     function paintActive() {
       cards().forEach((card, index) => {
-        const active = index === activeIndex;
+        const active = index === activePhysicalIndex;
         card.classList.toggle("active", active);
         card.setAttribute("aria-selected", active ? "true" : "false");
       });
       updateMeta();
     }
 
-    function scrollToIndex(index, behavior = "smooth") {
+    function scrollToPhysical(index, behavior = "smooth") {
       const card = cards()[index];
       if (!card) return;
       const left = card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
       viewport.scrollTo({ left, behavior });
     }
 
-    function setActive(index) {
-      if (!items.length) return;
-      activeIndex = Math.max(0, Math.min(items.length - 1, index));
+    function setActivePhysical(index) {
+      const list = cards();
+      if (!list.length || !items.length) return;
+      activePhysicalIndex = Math.max(0, Math.min(list.length - 1, index));
+      activeIndex = logicalFromPhysical(activePhysicalIndex);
       paintActive();
     }
 
-    function nearestIndex() {
+    function nearestPhysicalIndex() {
       const list = cards();
       if (!list.length) return 0;
       const center = viewport.scrollLeft + viewport.clientWidth / 2;
@@ -198,35 +222,49 @@
       return bestIndex;
     }
 
-    function commitIndex(index) {
-      if (!items.length) return;
-      setActive(index);
-      const item = items[activeIndex];
+    function commitLogical(index) {
+      const item = items[index];
       if (!item || item.value === committedValue) return;
       committedValue = item.value;
       pendingValue = item.value;
       Streamlit.setComponentValue(item.value);
     }
 
+    function recenterIfNeeded(physicalIndex) {
+      if (!items.length) return;
+      const n = items.length;
+      if (physicalIndex >= n && physicalIndex < n * 2) return;
+
+      const logicalIndex = logicalFromPhysical(physicalIndex);
+      const target = middlePhysicalIndex(logicalIndex);
+      activePhysicalIndex = target;
+      activeIndex = logicalIndex;
+      paintActive();
+      ignoreScrollUntil = performance.now() + 100;
+      requestAnimationFrame(() => scrollToPhysical(target, "auto"));
+    }
+
     function settleCurrentPosition() {
       window.clearTimeout(settleTimer);
       settleTimer = null;
-      if (performance.now() < ignoreScrollUntil) return;
+      if (performance.now() < ignoreScrollUntil || !items.length) return;
 
-      const index = nearestIndex();
-      setActive(index);
-      scrollToIndex(index, "auto");
-      commitIndex(index);
+      const physicalIndex = nearestPhysicalIndex();
+      setActivePhysical(physicalIndex);
+      const logicalIndex = activeIndex;
+      recenterIfNeeded(physicalIndex);
+      commitLogical(logicalIndex);
     }
 
     function scheduleFallbackSettle() {
       if (supportsScrollEnd || performance.now() < ignoreScrollUntil) return;
       window.clearTimeout(settleTimer);
-      settleTimer = window.setTimeout(settleCurrentPosition, 180);
+      settleTimer = window.setTimeout(settleCurrentPosition, 170);
     }
 
     viewport.addEventListener("scroll", () => {
-      setActive(nearestIndex());
+      if (performance.now() < ignoreScrollUntil) return;
+      setActivePhysical(nearestPhysicalIndex());
       scheduleFallbackSettle();
     }, { passive: true });
 
@@ -236,45 +274,58 @@
 
     function rebuildCards() {
       track.replaceChildren();
-      items.forEach((item, index) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.setAttribute("role", "option");
-        card.dataset.index = String(index);
-        card.setAttribute("aria-label", item.label || item.value || "");
+      if (!items.length) return;
 
-        const image = document.createElement("img");
-        image.src = item.image;
-        image.alt = "";
-        image.draggable = false;
-        card.appendChild(image);
+      for (let cycle = 0; cycle < 3; cycle += 1) {
+        items.forEach((item, logicalIndex) => {
+          const physicalIndex = cycle * items.length + logicalIndex;
+          const card = document.createElement("div");
+          card.className = "card";
+          card.setAttribute("role", "option");
+          card.dataset.logical = String(logicalIndex);
+          card.dataset.physical = String(physicalIndex);
+          card.setAttribute("aria-label", item.label || item.value || "");
 
-        card.addEventListener("click", () => {
-          window.clearTimeout(settleTimer);
-          setActive(index);
-          if (index === nearestIndex()) {
-            commitIndex(index);
-            return;
-          }
-          scrollToIndex(index, "smooth");
-          if (!supportsScrollEnd) {
-            settleTimer = window.setTimeout(settleCurrentPosition, 220);
-          }
+          const image = document.createElement("img");
+          image.src = item.image;
+          image.alt = "";
+          image.draggable = false;
+          card.appendChild(image);
+
+          const cardCounter = document.createElement("span");
+          cardCounter.className = "card-counter";
+          cardCounter.textContent = `${logicalIndex + 1}/${items.length}`;
+          card.appendChild(cardCounter);
+
+          card.addEventListener("click", () => {
+            window.clearTimeout(settleTimer);
+            setActivePhysical(physicalIndex);
+            scrollToPhysical(physicalIndex, "smooth");
+            if (!supportsScrollEnd) {
+              settleTimer = window.setTimeout(settleCurrentPosition, 210);
+            }
+          });
+          track.appendChild(card);
         });
-        track.appendChild(card);
-      });
+      }
+    }
+
+    function moveToLogical(logicalIndex, shouldScroll) {
+      if (!items.length) return;
+      activeIndex = Math.max(0, Math.min(items.length - 1, logicalIndex));
+      activePhysicalIndex = middlePhysicalIndex(activeIndex);
+      paintActive();
+      if (shouldScroll) {
+        ignoreScrollUntil = performance.now() + 220;
+        requestAnimationFrame(() => scrollToPhysical(activePhysicalIndex, "auto"));
+      }
     }
 
     function applyIncomingValue(incoming, shouldScroll) {
       const incomingIndex = items.findIndex((item) => item.value === incoming);
       if (incomingIndex < 0) return false;
-      activeIndex = incomingIndex;
       committedValue = incoming;
-      paintActive();
-      if (shouldScroll) {
-        ignoreScrollUntil = performance.now() + 220;
-        requestAnimationFrame(() => scrollToIndex(activeIndex, "auto"));
-      }
+      moveToLogical(incomingIndex, shouldScroll);
       return true;
     }
 
@@ -299,11 +350,8 @@
       if (!initialized) {
         initialized = true;
         if (!applyIncomingValue(incoming, true)) {
-          activeIndex = 0;
           committedValue = items[0] ? items[0].value : null;
-          paintActive();
-          ignoreScrollUntil = performance.now() + 220;
-          requestAnimationFrame(() => scrollToIndex(activeIndex, "auto"));
+          moveToLogical(0, true);
         }
       } else if (pendingValue !== null) {
         if (incoming === pendingValue) {
@@ -312,25 +360,23 @@
         }
         paintActive();
         if (rebuilt) {
-          ignoreScrollUntil = performance.now() + 220;
-          requestAnimationFrame(() => scrollToIndex(activeIndex, "auto"));
+          moveToLogical(activeIndex, true);
         }
       } else if (incoming !== null && incoming !== committedValue) {
         applyIncomingValue(incoming, true);
       } else {
         paintActive();
         if (rebuilt) {
-          ignoreScrollUntil = performance.now() + 220;
-          requestAnimationFrame(() => scrollToIndex(activeIndex, "auto"));
+          moveToLogical(activeIndex, true);
         }
       }
 
-      Streamlit.setFrameHeight(168);
+      Streamlit.setFrameHeight(FRAME_HEIGHT);
     }
 
     Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender);
     Streamlit.setComponentReady();
-    Streamlit.setFrameHeight(168);
+    Streamlit.setFrameHeight(FRAME_HEIGHT);
   </script>
 </body>
 </html>
