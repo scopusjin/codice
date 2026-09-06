@@ -93,23 +93,24 @@
     }
     .meta {
       min-height: 17px;
-      padding: 0.02rem 0.18rem 0;
+      padding: 0.04rem 0.18rem 0;
       text-align: center;
     }
     .label {
-      min-height: 15px;
+      min-height: 16px;
       margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1;
-      font-size: clamp(0.58rem, 2.55vw, 0.68rem);
+      white-space: normal;
+      overflow: visible;
+      overflow-wrap: normal;
+      text-overflow: clip;
+      line-height: 1.05;
+      font-size: clamp(0.68rem, 3vw, 0.78rem);
       font-weight: 650;
     }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <div id="shell" class="shell">
     <div id="viewport" class="viewport" role="listbox" aria-label="Eccitabilità elettrica sopraciliare">
       <div id="track" class="track"></div>
     </div>
@@ -147,7 +148,8 @@
       }
     };
 
-    const FRAME_HEIGHT = 124;
+    const MIN_FRAME_HEIGHT = 124;
+    const shell = document.getElementById("shell");
     const viewport = document.getElementById("viewport");
     const track = document.getElementById("track");
     const label = document.getElementById("label");
@@ -162,6 +164,13 @@
     let settleTimer = null;
     let ignoreScrollUntil = 0;
     const supportsScrollEnd = "onscrollend" in viewport;
+
+    function syncFrameHeight() {
+      requestAnimationFrame(() => {
+        const height = Math.max(MIN_FRAME_HEIGHT, Math.ceil(shell.scrollHeight));
+        Streamlit.setFrameHeight(height);
+      });
+    }
 
     function cards() {
       return Array.from(track.querySelectorAll(".card"));
@@ -179,6 +188,7 @@
     function updateMeta() {
       const item = items[activeIndex];
       label.textContent = item ? item.label || "" : "";
+      syncFrameHeight();
     }
 
     function paintActive() {
@@ -371,12 +381,12 @@
         }
       }
 
-      Streamlit.setFrameHeight(FRAME_HEIGHT);
+      syncFrameHeight();
     }
 
     Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender);
     Streamlit.setComponentReady();
-    Streamlit.setFrameHeight(FRAME_HEIGHT);
+    Streamlit.setFrameHeight(MIN_FRAME_HEIGHT);
   </script>
 </body>
 </html>
