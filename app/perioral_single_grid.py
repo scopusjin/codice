@@ -12,12 +12,14 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageOps
 
 from app.clickable_image import responsive_image_coordinates
+from app.device_mode import full_device_is_mobile
 from app.electrical_grid_geometry import (
     ELECTRICAL_TILE_SIZE,
     neutral_electrical_tile,
     normalize_electrical_tile,
 )
 from app.i18n import normalize_language, special_option_label
+from app.perioral_mobile_carousel import render_perioral_mobile_carousel
 from app.special_tanatology_states import (
     OPTION_NOT_ASSESSED,
     PARAM_ELECTRICAL_PERIORAL,
@@ -155,6 +157,7 @@ def _compose_row(tiles, row):
         draw.line((x, 0, x, tile_height - 1), fill=frame, width=1)
 
     return row_image
+
 
 def _option_from_row_click(row, click):
     """Converte il clic nella corrispondente cella della riga."""
@@ -386,6 +389,7 @@ def _install_label_css():
         unsafe_allow_html=True,
     )
 
+
 def _render_segmented_labels(*, row, selected, widget_key, options, language=None):
     row_options = [
         option
@@ -424,6 +428,16 @@ def _make_renderer(ui):
             selected = st.session_state.get(widget_key)
         if selected not in options:
             selected = options[0]
+
+        if full_device_is_mobile():
+            return render_perioral_mobile_carousel(
+                tiles=tiles,
+                ordered_options=_PERIORAL_TILE_OPTIONS,
+                options=options,
+                selected=selected,
+                widget_key=widget_key,
+                label_for_option=_label_for_option,
+            )
 
         selected = _sync_clicks_before_render(
             ui,
