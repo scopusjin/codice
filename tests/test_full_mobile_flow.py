@@ -6,7 +6,7 @@ from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 import app.decimal_number_input_v2 as decimal_v2
-from app.mobile_shell import _MINIMAL_MOBILE_SHELL_CSS
+from app.mobile_shell import _MINIMAL_MOBILE_SHELL_CSS, _MOBILE_HEADER_HTML
 
 
 class FullMobileFlowTests(unittest.TestCase):
@@ -29,14 +29,20 @@ class FullMobileFlowTests(unittest.TestCase):
             [toggle.label for toggle in app.toggle],
         )
 
-    def test_mobile_header_hides_actions_but_keeps_sidebar_trigger(self):
+    def test_mobile_header_hides_native_header_but_keeps_sidebar_trigger(self):
         css = _MINIMAL_MOBILE_SHELL_CSS
-        self.assertIn('[data-testid="stToolbarActions"]', css)
-        self.assertIn('[data-testid="stExpandSidebarButton"]', css)
-        toolbar_rule = css.split(
-            'header[data-testid="stHeader"] [data-testid="stToolbar"] {', 1
+        html = _MOBILE_HEADER_HTML
+
+        self.assertIn('header[data-testid="stHeader"]', css)
+        native_header_rule = css.split(
+            'header[data-testid="stHeader"],', 1
         )[1].split("}", 1)[0]
-        self.assertNotIn("display: none", toolbar_rule)
+        self.assertIn("display: none", native_header_rule)
+
+        self.assertIn('class="menu-button"', html)
+        self.assertIn("function openSidebar()", html)
+        self.assertIn('[data-testid="stExpandSidebarButton"]', html)
+        self.assertIn('[data-testid="stSidebarCollapsedControl"]', html)
 
     def test_additional_tanatology_section_opens_cleanly(self):
         app = self._mobile_app()
