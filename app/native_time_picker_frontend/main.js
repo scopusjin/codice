@@ -20,7 +20,8 @@ let committedValue = "";
 let pendingCommittedValue = null;
 let initialized = false;
 let isMobile = false;
-let overlayMobile = false;
+let pickerEnabled = false;
+let overlayPicker = false;
 let allowEmpty = false;
 let openDefaultNow = false;
 let draftHour = 0;
@@ -360,7 +361,7 @@ function openOverlay() {
 }
 
 function openPicker() {
-  if (!isMobile) {
+  if (!pickerEnabled) {
     return;
   }
 
@@ -372,7 +373,7 @@ function openPicker() {
   picker.hidden = false;
   pickerToggle.setAttribute("aria-expanded", "true");
 
-  const overlaid = overlayMobile && openOverlay();
+  const overlaid = overlayPicker && openOverlay();
   Streamlit.setFrameHeight(overlaid ? 40 : OPEN_HEIGHT);
 
   requestAnimationFrame(() => {
@@ -407,13 +408,18 @@ function onRender(event) {
   setInheritedState(args.inherited);
 
   isMobile = Boolean(args.mobile);
-  overlayMobile = Boolean(args.overlay_mobile);
+  pickerEnabled = args.picker_enabled === undefined
+    ? isMobile
+    : Boolean(args.picker_enabled);
+  overlayPicker = args.overlay_picker === undefined
+    ? Boolean(args.overlay_mobile)
+    : Boolean(args.overlay_picker);
   allowEmpty = Boolean(args.allow_empty);
   openDefaultNow = Boolean(args.open_default_now);
-  pickerToggle.hidden = !isMobile;
-  if ((!isMobile || !overlayMobile) && overlayHost) {
+  pickerToggle.hidden = !pickerEnabled;
+  if ((!pickerEnabled || !overlayPicker) && overlayHost) {
     closePicker();
-  } else if (!isMobile && !picker.hidden) {
+  } else if (!pickerEnabled && !picker.hidden) {
     closePicker();
   }
 
@@ -443,7 +449,7 @@ function onRender(event) {
     }
   }
 
-  Streamlit.setFrameHeight(isMobile && !picker.hidden && !overlayHost ? OPEN_HEIGHT : 40);
+  Streamlit.setFrameHeight(pickerEnabled && !picker.hidden && !overlayHost ? OPEN_HEIGHT : 40);
 }
 
 makeWheel(hoursWheel, 24);
@@ -500,7 +506,7 @@ timeInput.addEventListener("wheel", (event) => {
 }, { passive: false });
 
 pickerToggle.addEventListener("click", () => {
-  if (!isMobile) {
+  if (!pickerEnabled) {
     return;
   }
   timeInput.blur();
