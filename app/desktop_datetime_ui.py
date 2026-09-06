@@ -8,6 +8,7 @@ accanto al titolo e la data viene dedotta rispetto al rilievo principale.
 """
 
 from contextlib import contextmanager
+import datetime
 import inspect
 
 import streamlit as st
@@ -112,21 +113,59 @@ def install_desktop_datetime_ui() -> None:
         caller = inspect.currentframe().f_back
         parametro_id = _special_datetime._DATE_KEY_TO_PARAM_ID.get(kwargs.get("key"))
         if (
-            parametro_id in _special_datetime._SPECIAL_PARAM_IDS
-            and _special_datetime._is_full_page_frame(caller)
+            parametro_id not in _special_datetime._SPECIAL_PARAM_IDS
+            or not _special_datetime._is_full_page_frame(caller)
         ):
-            with _reuse_compact_special_path():
-                return current_date_input(label, *args, **kwargs)
-        return current_date_input(label, *args, **kwargs)
+            return current_date_input(label, *args, **kwargs)
+
+        key = kwargs.get("key")
+        main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
+        full_label = _special_datetime.SPECIAL_PARAM_LABEL_IT[parametro_id]
+        inferred = _special_datetime._infer_measurement_date(
+            main_date,
+            st.session_state.get("input_ora_rilievo"),
+            st.session_state.get(f"{full_label}_ora"),
+        )
+        st.session_state[key] = inferred
+        st.session_state.pop(f"{key}__manual", None)
+        st.session_state.pop(f"{key}__last_main", None)
+        return inferred
 
     def button_with_desktop_inferred_dates(label, *args, **kwargs):
         caller = inspect.currentframe().f_back
         if (
-            kwargs.get("key") == "btn_stima"
-            and _special_datetime._is_full_page_frame(caller)
+            kwargs.get("key") != "btn_stima"
+            or not _special_datetime._is_full_page_frame(caller)
         ):
-            with _reuse_compact_special_path():
-                return current_button(label, *args, **kwargs)
+            return current_button(label, *args, **kwargs)
+
+        main_time_valid = _special_datetime._main_time_is_valid()
+        st.session_state["usa_orario_custom"] = main_time_valid
+        widgets = caller.f_locals.get("widgets_parametri_aggiuntivi")
+
+        if main_time_valid and isinstance(widgets, dict):
+            main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
+            main_time = st.session_state.get("input_ora_rilievo")
+            for parametro_id, full_label in _special_datetime.SPECIAL_PARAM_LABEL_IT.items():
+                if parametro_id not in _special_datetime._SPECIAL_PARAM_IDS:
+                    continue
+                values = widgets.get(full_label)
+                if not isinstance(values, dict):
+                    continue
+                inferred = _special_datetime._infer_measurement_date(
+                    main_date,
+                    main_time,
+                    values.get("ora_rilievo")
+                    or st.session_state.get(f"{full_label}_ora"),
+                )
+                values["data_rilievo"] = inferred
+                st.session_state[f"{full_label}_data"] = inferred
+        elif isinstance(widgets, dict):
+            for values in widgets.values():
+                if isinstance(values, dict):
+                    values["data_rilievo"] = None
+                    values["ora_rilievo"] = None
+
         return current_button(label, *args, **kwargs)
 
     st.markdown = markdown_with_desktop_title
