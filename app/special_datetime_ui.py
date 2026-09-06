@@ -132,9 +132,10 @@ class _NoopContext:
 class _MobileSpecialHelperContext:
     """Helper mobile con denominazione estesa e nota del parametro."""
 
-    def __init__(self, parametro_id, popover_factory):
+    def __init__(self, parametro_id, popover_factory, container_factory):
         self._parametro_id = parametro_id
         self._popover_factory = popover_factory
+        self._container_factory = container_factory
 
     def __enter__(self):
         helper_text = _HELPER_TEXTS[self._parametro_id]
@@ -143,12 +144,13 @@ class _MobileSpecialHelperContext:
             for sentence in re.split(r"(?<=\.)\s+", helper_text)
             if sentence.strip()
         ]
-        with self._popover_factory(
-            "?",
+        with self._container_factory(
+            width="content",
             key=f"mortem_help_prudent_electrical_{self._parametro_id}",
         ):
-            for sentence in sentences:
-                st.markdown(sentence)
+            with self._popover_factory("?"):
+                for sentence in sentences:
+                    st.markdown(sentence)
         if self._parametro_id in {
             PARAM_ELECTRICAL_SUPRACILIARY,
             PARAM_ELECTRICAL_PERIORAL,
@@ -383,7 +385,11 @@ def install_special_datetime_ui():
                 PARAM_ELECTRICAL_PERIORAL,
             }
         ):
-            return _MobileSpecialHelperContext(parametro_id, original_popover)
+            return _MobileSpecialHelperContext(
+                parametro_id,
+                original_popover,
+                original_container,
+            )
         return original_popover(*args, **kwargs)
 
     def markdown_without_datetime_labels(body, *args, **kwargs):
@@ -432,6 +438,7 @@ def install_special_datetime_ui():
         main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
         manual_key = f"{key}__manual"
         last_main_key = f"{key}__last_main"
+        current = st.session_state.get(key)
 
         if full_device_is_mobile():
             full_label = SPECIAL_PARAM_LABEL_IT[parametro_id]
@@ -498,10 +505,8 @@ def install_special_datetime_ui():
         values = _spec_values(spec)
         mobile = full_device_is_mobile()
 
-        # La sopraciliare conserva il suo stack compatto già collaudato. Anche
-        # meccanica e pupillare usano uno stack locale senza gap per avvicinare
-        # esclusivamente la riga titolo al proprio selettore. La peribuccale
-        # mantiene invece il layout della griglia già collaudato.
+        # I due carousel elettrici e i due parametri semplici usano su mobile
+        # uno stack locale senza gap; il desktop mantiene il layout esistente.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
             context["clock_container"] = None
             context["time_container"] = None
@@ -513,6 +518,7 @@ def install_special_datetime_ui():
 
             compact_mobile_params = {
                 PARAM_ELECTRICAL_SUPRACILIARY: "special_supra_mobile_stack",
+                PARAM_ELECTRICAL_PERIORAL: "special_perioral_mobile_stack",
                 PARAM_MECHANICAL_MUSCLE: "special_mechanical_mobile_stack",
                 PARAM_CHEMICAL_PUPILLARY: "special_pupillary_mobile_stack",
             }
