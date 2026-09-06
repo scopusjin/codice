@@ -35,12 +35,20 @@ _RIGHT_STACK_PARAMS = {
 }
 _ELECTRICAL_HELPER_TEXT = {
     PARAM_ELECTRICAL_SUPRACILIARY: (
-        "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
-        "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+        "Eccitabilità elettrica sopraciliare. "
+        "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
+        "stimolazione elettrica della regione sopraciliare e classificazione dell’estensione della "
+        "risposta muscolare. Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale "
+        "del sopracciglio, a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di "
+        "30 mA · 10 ms · 50 Hz."
     ),
     PARAM_ELECTRICAL_PERIORAL: (
-        "Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità di circa "
-        "0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+        "Eccitabilità elettrica peribuccale. "
+        "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
+        "stimolazione elettrica della regione peribuccale e classificazione della risposta come "
+        "contrazione dei muscoli facciali, dei muscoli peribuccali, reazione focale o assenza di "
+        "reazione. Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità "
+        "di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
     ),
 }
 
