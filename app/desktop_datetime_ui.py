@@ -1,41 +1,46 @@
 # -*- coding: utf-8 -*-
-"""Adatta al desktop il sistema data/ora compatto della schermata Full.
+"""Adatta al desktop data/ora e titoli della schermata Full.
 
-Il renderer mobile già collaudato resta invariato. Sul desktop vengono riusati
-soltanto i passaggi relativi ai parametri tanatologici speciali: titolo/helper
-restano nella colonna desktop esistente, mentre il solo orario viene collocato
-accanto al titolo e la data viene dedotta rispetto al rilievo principale.
+Il desktop mantiene il proprio layout: i quattro parametri tanatologici speciali
+usano una riga nativa e stabile per titolo, helper e orario; la data del singolo
+rilievo viene dedotta rispetto al rilievo principale. Il renderer mobile resta
+separato e invariato.
 """
 
-from contextlib import contextmanager
 import datetime
 import inspect
 
 import streamlit as st
 
 from app.device_mode import full_device_is_mobile
+import app.full_mobile_compact as _full_mobile_compact
+import app.full_mobile_layout as _full_mobile_layout
 import app.special_datetime_ui as _special_datetime
 
 
-_SIMPLE_DESKTOP_PARAMS = {
-    _special_datetime.PARAM_MECHANICAL_MUSCLE,
-    _special_datetime.PARAM_CHEMICAL_PUPILLARY,
+_ELECTRICAL_DESKTOP_PARAMS = {
+    _special_datetime.PARAM_ELECTRICAL_SUPRACILIARY,
+    _special_datetime.PARAM_ELECTRICAL_PERIORAL,
 }
 
 
-@contextmanager
-def _reuse_compact_special_path():
-    """Riusa un singolo passaggio compatto senza classificare desktop come mobile."""
-    original = _special_datetime.full_device_is_mobile
-    _special_datetime.full_device_is_mobile = lambda: True
-    try:
-        yield
-    finally:
-        _special_datetime.full_device_is_mobile = original
+def _desktop_initial_style_bundle(body: str) -> str:
+    """Raccoglie il CSS iniziale in un solo blocco senza creare righe di layout."""
+    responsive_css = _full_mobile_layout._FULL_MOBILE_CSS.replace(
+        "padding-top: 2rem !important;",
+        "padding-top: 0.55rem !important;",
+        1,
+    )
+    return (
+        _special_datetime._FULL_INITIAL_FRAMELESS_CSS
+        + responsive_css
+        + body
+        + _full_mobile_compact._FULL_MOBILE_COMPACT_CSS
+    )
 
 
 def install_desktop_datetime_ui() -> None:
-    """Installa titolo desktop e orari speciali compatti nella sola Full desktop."""
+    """Installa gli adattamenti dedicati alla sola Full desktop."""
     if getattr(st, "_desktop_datetime_ui_installed", False):
         return
     if full_device_is_mobile():
@@ -46,6 +51,7 @@ def install_desktop_datetime_ui() -> None:
     current_date_input = st.date_input
     current_button = st.button
     current_container = st.container
+    current_number_input = st.number_input
 
     context = {
         "parametro_id": None,
@@ -57,6 +63,12 @@ def install_desktop_datetime_ui() -> None:
 
     def markdown_with_desktop_title(body, *args, **kwargs):
         if isinstance(body, str):
+            # Il blocco iniziale contiene esclusivamente CSS. Su desktop viene
+            # inviato tramite st.html: Streamlit lo colloca nell'event container
+            # e non crea righe vuote nella griglia principale.
+            if ".final-text{" in body and body.lstrip().startswith("<style>"):
+                return st.html(_desktop_initial_style_bundle(body))
+
             if "<h5 class='mortem-full-title'" in body:
                 visible_title = body.replace(
                     "class='mortem-full-title'",
@@ -77,6 +89,21 @@ def install_desktop_datetime_ui() -> None:
                 return None
 
         return current_markdown(body, *args, **kwargs)
+
+    def number_input_without_legacy_fc_split(label, *args, **kwargs):
+        """Il FC standard usa direttamente la larghezza assegnata dal layout desktop."""
+        if (
+            kwargs.get("key") == "fattore_correzione"
+            and not st.session_state.get("stima_cautelativa_beta", False)
+            and kwargs.get("_mortem_compact_label") == ""
+        ):
+            clean_kwargs = dict(kwargs)
+            clean_kwargs.pop("_mortem_compact_label", None)
+            # L'etichetta desktop è già renderizzata subito sopra il controllo.
+            # Passare label vuota evita sia l'etichetta interna sia il vecchio
+            # secondo st.columns che dimezzava il campo al primo render.
+            return current_number_input("", *args, **clean_kwargs)
+        return current_number_input(label, *args, **kwargs)
 
     def columns_with_desktop_special_time(spec, *args, **kwargs):
         caller = inspect.currentframe().f_back
@@ -102,12 +129,11 @@ def install_desktop_datetime_ui() -> None:
             context["datetime_labels_left"] = 0
             return current_columns(spec, *args, **kwargs)
 
-        # Meccanica e pupillare mantengono la riga desktop naturale: nella
-        # seconda colonna vengono predisposti helper e orario, senza riusare
-        # il margine negativo riservato alle due eccitabilità elettriche.
+        # Tutti e quattro i parametri usano ora la stessa struttura desktop.
+        # Nessun passaggio viene più fatto fingendo che il desktop sia mobile.
         if (
             full_page
-            and parametro_id in _SIMPLE_DESKTOP_PARAMS
+            and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
             and values == (1.0, 0.5)
         ):
             result = current_columns(spec, *args, **kwargs)
@@ -139,25 +165,19 @@ def install_desktop_datetime_ui() -> None:
                         key=f"special_desktop_title_time_{parametro_id}",
                     )
 
-            with help_cell:
-                _special_datetime._render_click_help(
-                    _special_datetime._HELPER_TEXTS[parametro_id],
-                    f"mortem_help_prudent_electrical_{parametro_id}",
-                )
+            # Le due eccitabilità elettriche conservano il proprio popover
+            # legacy, che il renderer elettrico trasforma nell'helper uniforme.
+            # Per meccanica e pupillare l'helper viene montato qui direttamente.
+            if parametro_id not in _ELECTRICAL_DESKTOP_PARAMS:
+                with help_cell:
+                    _special_datetime._render_click_help(
+                        _special_datetime._HELPER_TEXTS[parametro_id],
+                        f"mortem_help_prudent_electrical_{parametro_id}",
+                    )
 
             context["clock_container"] = clock_cell
             context["time_container"] = time_cell
-            return title_cell, action_cell
-
-        # Le due eccitabilità elettriche continuano a riusare il percorso già
-        # collaudato, che mantiene titolo/helper e orario nella stessa riga.
-        if (
-            full_page
-            and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
-            and values == (1.0, 0.5)
-        ):
-            with _reuse_compact_special_path():
-                return current_columns(spec, *args, **kwargs)
+            return title_cell, help_cell
 
         if (
             full_page
@@ -167,8 +187,6 @@ def install_desktop_datetime_ui() -> None:
             context["await_datetime"] = True
             return current_columns(spec, *args, **kwargs)
 
-        # Dopo la checkbox legacy soppressa, il picker dei due parametri
-        # semplici viene instradato nella cella predisposta nella riga titolo.
         if (
             full_page
             and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
@@ -176,11 +194,7 @@ def install_desktop_datetime_ui() -> None:
             and context["await_datetime"]
         ):
             context["await_datetime"] = False
-
-            if (
-                parametro_id in _SIMPLE_DESKTOP_PARAMS
-                and context.get("time_container") is not None
-            ):
+            if context.get("time_container") is not None:
                 context["datetime_labels_left"] = 2
                 clock_cell = context.get("clock_container")
                 if clock_cell is not None:
@@ -191,9 +205,6 @@ def install_desktop_datetime_ui() -> None:
                             unsafe_allow_html=True,
                         )
                 return _special_datetime._NoopContext(), context["time_container"]
-
-            with _reuse_compact_special_path():
-                return current_columns(spec, *args, **kwargs)
 
         return current_columns(spec, *args, **kwargs)
 
@@ -257,6 +268,7 @@ def install_desktop_datetime_ui() -> None:
         return current_button(label, *args, **kwargs)
 
     st.markdown = markdown_with_desktop_title
+    st.number_input = number_input_without_legacy_fc_split
     st.columns = columns_with_desktop_special_time
     st.date_input = date_input_with_inferred_special_date
     st.button = button_with_desktop_inferred_dates
