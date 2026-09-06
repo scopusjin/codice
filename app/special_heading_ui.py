@@ -86,11 +86,6 @@ _FULL_DESKTOP_LAYOUT_CSS = """
 }
 
 @media (min-width: 769px) {
-  [class*="st-key-electrical_title_help_row_"],
-  [class*="st-key-electrical_title_help_row_"] [data-testid="stHorizontalBlock"] {
-    margin-bottom: -0.65rem !important;
-  }
-
   html body:has(.mortem-full-title):has(.mortem-full-title)
   [data-testid="stMainBlockContainer"] {
     box-sizing: border-box !important;
@@ -318,9 +313,10 @@ def install_special_heading_style():
         return
 
     original_markdown = st.markdown
+    original_html = st.html
     original_set_page_config = st.set_page_config
 
-    original_markdown(
+    original_html(
         """
         <style>
         .final-text,
@@ -399,11 +395,6 @@ def install_special_heading_style():
         }
 
         @media (min-width: 769px) {
-          body:has([class*="st-key-mostra_parametri_aggiuntivi"])
-          [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-electrical_pair_layout"])
-          [data-testid="stElementContainer"]:has(.mortem-section-title--supra) {
-            margin-bottom: -1.18rem !important;
-          }
           /* Desktop: titolo + comando Henssge nella stessa riga, senza overflow.
              Le regole hanno specificità volutamente maggiore delle vecchie
              rifiniture che trasformavano il checkbox nel solo simbolo ⦸. */
@@ -551,14 +542,13 @@ def install_special_heading_style():
           }
         }
         </style>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     def set_page_config_with_full_layout(*args, **kwargs):
         result = original_set_page_config(*args, **kwargs)
         if kwargs.get("page_title") == "Mor-tem":
-            original_markdown(_FULL_DESKTOP_LAYOUT_CSS, unsafe_allow_html=True)
+            original_html(_FULL_DESKTOP_LAYOUT_CSS)
         return result
 
     def markdown_with_special_heading(body, *args, **kwargs):
