@@ -55,21 +55,31 @@ _SHORT_LABELS = {
 _HELPER_TEXTS = {
     PARAM_ELECTRICAL_SUPRACILIARY: (
         "Eccitabilità elettrica sopraciliare. "
-        "Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale del sopracciglio, "
-        "a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+        "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
+        "stimolazione elettrica della regione sopraciliare e classificazione dell’estensione della "
+        "risposta muscolare. Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale "
+        "del sopracciglio, a una profondità di circa 0.5 - 0.7 cm, e applicare uno stimolo di "
+        "30 mA · 10 ms · 50 Hz."
     ),
     PARAM_ELECTRICAL_PERIORAL: (
         "Eccitabilità elettrica peribuccale. "
-        "Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità di circa "
-        "0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
+        "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
+        "stimolazione elettrica della regione peribuccale e classificazione della risposta come "
+        "contrazione dei muscoli facciali, dei muscoli peribuccali, reazione focale o assenza di "
+        "reazione. Posizionare gli elettrodi a circa 1 cm dagli angoli della bocca, a una profondità "
+        "di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
     ),
     PARAM_MECHANICAL_MUSCLE: (
         "Eccitabilità muscolare meccanica. "
-        "Selezionare la risposta muscolare osservata dopo la stimolazione meccanica."
+        "Il metodo valuta la persistenza dell’eccitabilità muscolare meccanica residua mediante "
+        "percussione del muscolo bicipite del braccio, osservando la risposta: contrazione dell’intero "
+        "muscolo, tumefazione reversibile, piccola tumefazione persistente o nessuna reazione."
     ),
     PARAM_CHEMICAL_PUPILLARY: (
         "Eccitabilità chimica pupillare. "
-        "Selezionare la variazione pupillare osservata dopo l’instillazione della sostanza utilizzata."
+        "Il metodo valuta la persistenza dell’eccitabilità chimica dell’iride mediante instillazione "
+        "di atropina, tropicamide o acetilcolina e osservazione del diametro pupillare: dilatazione, "
+        "riduzione o assenza di variazione."
     ),
 }
 
@@ -376,10 +386,13 @@ def install_special_datetime_ui():
             parametro_id = context["parametro_id"]
             if full_device_is_mobile() and parametro_id in _SHORT_LABELS:
                 full_label = SPECIAL_PARAM_LABEL_IT[parametro_id]
-                body = body.replace(
-                    f"{full_label}:",
-                    f"{_SHORT_LABELS[parametro_id]}:",
-                )
+                if f"{full_label}:" in body:
+                    body = (
+                        "<div class='mortem-section-title'>"
+                        f"{_SHORT_LABELS[parametro_id]}"
+                        "</div>"
+                    )
+                    kwargs["unsafe_allow_html"] = True
 
             if context["await_checkbox"] and body.startswith(_ORANGE_PROMPT_PREFIX):
                 return None
@@ -476,9 +489,10 @@ def install_special_datetime_ui():
         values = _spec_values(spec)
         mobile = full_device_is_mobile()
 
-        # La sopraciliare conserva il suo stack compatto già collaudato. Gli
-        # altri parametri restano nelle colonne esistenti e cambiano solo la
-        # riga titolo/helper/orario.
+        # La sopraciliare conserva il suo stack compatto già collaudato. Anche
+        # meccanica e pupillare usano uno stack locale senza gap per avvicinare
+        # esclusivamente la riga titolo al proprio selettore. La peribuccale
+        # mantiene invece il layout della griglia già collaudato.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
             context["clock_container"] = None
             context["time_container"] = None
@@ -488,15 +502,17 @@ def install_special_datetime_ui():
             except (TypeError, IndexError):
                 context["param_container"] = None
 
-            if (
-                mobile
-                and parametro_id == PARAM_ELECTRICAL_SUPRACILIARY
-                and context["param_container"] is not None
-            ):
+            compact_mobile_params = {
+                PARAM_ELECTRICAL_SUPRACILIARY: "special_supra_mobile_stack",
+                PARAM_MECHANICAL_MUSCLE: "special_mechanical_mobile_stack",
+                PARAM_CHEMICAL_PUPILLARY: "special_pupillary_mobile_stack",
+            }
+            compact_key = compact_mobile_params.get(parametro_id)
+            if mobile and compact_key and context["param_container"] is not None:
                 with context["param_container"]:
                     compact_stack = original_container(
                         gap=None,
-                        key="special_supra_mobile_stack",
+                        key=compact_key,
                     )
                 context["param_container"] = compact_stack
                 return compact_stack, compact_stack
