@@ -11,11 +11,16 @@ const ITEM_HEIGHT = 36;
 const WHEEL_CYCLES = 7;
 const CENTER_CYCLE = Math.floor(WHEEL_CYCLES / 2);
 const OPEN_HEIGHT = 224;
+const OVERLAY_WIDTH = 232;
+
+const pickerHome = picker.parentNode;
+const pickerNextSibling = picker.nextSibling;
 
 let committedValue = "";
 let pendingCommittedValue = null;
 let initialized = false;
 let isMobile = false;
+let overlayMobile = false;
 let allowEmpty = false;
 let openDefaultNow = false;
 let draftHour = 0;
@@ -23,6 +28,12 @@ let draftMinute = 0;
 let hourScrollTimer = null;
 let minuteScrollTimer = null;
 let desktopWheelCommitTimer = null;
+let overlayHost = null;
+let overlayParentWindow = null;
+let overlayParentDocument = null;
+let overlayFrame = null;
+let overlayOutsideHandler = null;
+let overlayPositionHandler = null;
 
 function setTheme(args) {
   document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
@@ -207,6 +218,147 @@ function settleWheel(wheel, count, setter) {
   }, 120);
 }
 
+function componentCssText() {
+  try {
+    return Array.from(document.styleSheets)
+      .flatMap((sheet) => Array.from(sheet.cssRules || []))
+      .map((rule) => rule.cssText)
+      .join("\n");
+  } catch (error) {
+    return "";
+  }
+}
+
+function overlayContext() {
+  try {
+    if (window.parent === window || !window.frameElement) {
+      return null;
+    }
+    const parentDocument = window.parent.document;
+    if (!parentDocument || !parentDocument.body) {
+      return null;
+    }
+    return {
+      parentWindow: window.parent,
+      parentDocument,
+      frame: window.frameElement,
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function positionOverlay() {
+  if (!overlayHost || !overlayParentWindow || !overlayFrame) {
+    return;
+  }
+
+  const frameRect = overlayFrame.getBoundingClientRect();
+  const viewportWidth = overlayParentWindow.innerWidth;
+  const viewportHeight = overlayParentWindow.innerHeight;
+  const width = Math.min(OVERLAY_WIDTH, Math.max(180, viewportWidth - 16));
+
+  overlayHost.style.width = `${width}px`;
+
+  let left = frameRect.right - width;
+  left = Math.max(8, Math.min(left, viewportWidth - width - 8));
+  overlayHost.style.left = `${left}px`;
+
+  const popupHeight = overlayHost.getBoundingClientRect().height || 184;
+  let top = frameRect.bottom + 6;
+  if (top + popupHeight > viewportHeight - 8 && frameRect.top - popupHeight - 6 >= 8) {
+    top = frameRect.top - popupHeight - 6;
+  }
+  overlayHost.style.top = `${Math.max(8, top)}px`;
+}
+
+function destroyOverlay() {
+  if (!overlayHost) {
+    return;
+  }
+
+  if (overlayOutsideHandler && overlayParentDocument) {
+    overlayParentDocument.removeEventListener("pointerdown", overlayOutsideHandler, true);
+  }
+  if (overlayPositionHandler && overlayParentWindow) {
+    overlayParentWindow.removeEventListener("resize", overlayPositionHandler);
+    overlayParentWindow.removeEventListener("scroll", overlayPositionHandler, true);
+  }
+
+  if (picker.parentNode !== pickerHome) {
+    if (pickerNextSibling && pickerNextSibling.parentNode === pickerHome) {
+      pickerHome.insertBefore(picker, pickerNextSibling);
+    } else {
+      pickerHome.appendChild(picker);
+    }
+  }
+
+  overlayHost.remove();
+  overlayHost = null;
+  overlayParentWindow = null;
+  overlayParentDocument = null;
+  overlayFrame = null;
+  overlayOutsideHandler = null;
+  overlayPositionHandler = null;
+}
+
+function openOverlay() {
+  const context = overlayContext();
+  if (!context) {
+    return false;
+  }
+
+  try {
+    const host = context.parentDocument.createElement("div");
+    host.setAttribute("data-mortem-time-picker-portal", "1");
+    host.style.position = "fixed";
+    host.style.zIndex = "2147483000";
+    host.style.margin = "0";
+    host.style.padding = "0";
+    host.style.boxSizing = "border-box";
+    host.style.setProperty("--primary", getComputedStyle(document.documentElement).getPropertyValue("--primary"));
+    host.style.setProperty("--field-bg", getComputedStyle(document.documentElement).getPropertyValue("--field-bg"));
+    host.style.setProperty("--text", getComputedStyle(document.documentElement).getPropertyValue("--text"));
+    host.style.setProperty("--inherited-bg", getComputedStyle(document.documentElement).getPropertyValue("--inherited-bg"));
+    host.style.fontFamily = getComputedStyle(document.body).fontFamily;
+    host.style.color = getComputedStyle(document.body).color;
+
+    const shadow = host.attachShadow({ mode: "open" });
+    const style = context.parentDocument.createElement("style");
+    style.textContent = componentCssText();
+    shadow.appendChild(style);
+
+    const surface = context.parentDocument.createElement("div");
+    surface.style.width = "100%";
+    surface.style.boxSizing = "border-box";
+    shadow.appendChild(surface);
+    surface.appendChild(picker);
+
+    context.parentDocument.body.appendChild(host);
+    overlayHost = host;
+    overlayParentWindow = context.parentWindow;
+    overlayParentDocument = context.parentDocument;
+    overlayFrame = context.frame;
+
+    overlayOutsideHandler = (event) => {
+      if (overlayHost && !overlayHost.contains(event.target)) {
+        closePicker();
+      }
+    };
+    overlayPositionHandler = () => positionOverlay();
+    overlayParentDocument.addEventListener("pointerdown", overlayOutsideHandler, true);
+    overlayParentWindow.addEventListener("resize", overlayPositionHandler, { passive: true });
+    overlayParentWindow.addEventListener("scroll", overlayPositionHandler, true);
+
+    positionOverlay();
+    requestAnimationFrame(positionOverlay);
+    return true;
+  } catch (error) {
+    destroyOverlay();
+    return false;
+  }
+}
+
 function openPicker() {
   if (!isMobile) {
     return;
@@ -219,15 +371,21 @@ function openPicker() {
   draftMinute = parsed.minute;
   picker.hidden = false;
   pickerToggle.setAttribute("aria-expanded", "true");
-  Streamlit.setFrameHeight(OPEN_HEIGHT);
+
+  const overlaid = overlayMobile && openOverlay();
+  Streamlit.setFrameHeight(overlaid ? 40 : OPEN_HEIGHT);
 
   requestAnimationFrame(() => {
     setWheelValue(hoursWheel, 24, draftHour);
     setWheelValue(minutesWheel, 60, draftMinute);
+    if (overlaid) {
+      positionOverlay();
+    }
   });
 }
 
 function closePicker() {
+  destroyOverlay();
   picker.hidden = true;
   pickerToggle.setAttribute("aria-expanded", "false");
   Streamlit.setFrameHeight(40);
@@ -249,10 +407,13 @@ function onRender(event) {
   setInheritedState(args.inherited);
 
   isMobile = Boolean(args.mobile);
+  overlayMobile = Boolean(args.overlay_mobile);
   allowEmpty = Boolean(args.allow_empty);
   openDefaultNow = Boolean(args.open_default_now);
   pickerToggle.hidden = !isMobile;
-  if (!isMobile && !picker.hidden) {
+  if ((!isMobile || !overlayMobile) && overlayHost) {
+    closePicker();
+  } else if (!isMobile && !picker.hidden) {
     closePicker();
   }
 
@@ -282,7 +443,7 @@ function onRender(event) {
     }
   }
 
-  Streamlit.setFrameHeight(isMobile && !picker.hidden ? OPEN_HEIGHT : 40);
+  Streamlit.setFrameHeight(isMobile && !picker.hidden && !overlayHost ? OPEN_HEIGHT : 40);
 }
 
 makeWheel(hoursWheel, 24);
