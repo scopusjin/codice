@@ -4,6 +4,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app.desktop_datetime_ui import install_desktop_datetime_ui
+
 
 _MINIMAL_MOBILE_SHELL_CSS = r"""
 <style>
@@ -255,9 +257,11 @@ def _install_compact_cooling_help_labels() -> None:
 
 
 def install_minimal_mobile_shell() -> None:
-    """Installa una testata mobile nel normale flusso della pagina."""
+    """Installa la testata mobile o gli adattamenti dedicati al desktop."""
     _install_compact_cooling_help_labels()
     is_mobile = _request_is_mobile()
     if is_mobile:
         st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
         components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
+    else:
+        install_desktop_datetime_ui()
