@@ -143,7 +143,10 @@ class _MobileSpecialHelperContext:
             for sentence in re.split(r"(?<=\.)\s+", helper_text)
             if sentence.strip()
         ]
-        with self._popover_factory("?"):
+        with self._popover_factory(
+            "?",
+            key=f"mortem_help_prudent_electrical_{self._parametro_id}",
+        ):
             for sentence in sentences:
                 st.markdown(sentence)
         if self._parametro_id in {
@@ -221,8 +224,6 @@ def install_special_datetime_ui():
     original_container = st.container
     original_popover = st.popover
 
-    # Stato locale del renderer: viene impostato dal selectbox del parametro
-    # speciale e consumato soltanto dalla sequenza immediatamente successiva.
     context = {
         "parametro_id": None,
         "param_container": None,
@@ -329,14 +330,9 @@ def install_special_datetime_ui():
                 "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
                 unsafe_allow_html=True,
             )
-            # Il codice della pagina continua a percorrere il ramo legacy ON,
-            # così i campi restano montati. L'effettiva applicazione della data/ora
-            # viene decisa in fondo alla pagina in base alla presenza di un'ora valida.
             st.session_state["__full_datetime_always_visible"] = True
             st.session_state["usa_orario_custom"] = True
             if not st.session_state.get("input_ora_rilievo"):
-                # Sentinella truthy: impedisce al codice legacy di sostituire il
-                # campo vuoto con 00:00 prima che il picker venga renderizzato.
                 st.session_state["input_ora_rilievo"] = EMPTY_TIME_SENTINEL
             return True
         return original_toggle(label, *args, **kwargs)
@@ -481,9 +477,6 @@ def install_special_datetime_ui():
         return date_box, time_box
 
     def columns_with_compact_datetime(spec, *args, **kwargs):
-        # Il ciclo dei parametri conosce parametro_id già prima del selectbox.
-        # Recuperarlo anche dal chiamante permette al layout elettrico sottostante
-        # di creare subito la coppia sopraciliare/peribuccale nel punto corretto.
         caller = inspect.currentframe().f_back
         caller_parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if caller_parametro_id in _SPECIAL_PARAM_IDS:
@@ -495,10 +488,6 @@ def install_special_datetime_ui():
         values = _spec_values(spec)
         mobile = full_device_is_mobile()
 
-        # La sopraciliare conserva il suo stack compatto già collaudato. Anche
-        # meccanica e pupillare usano uno stack locale senza gap per avvicinare
-        # esclusivamente la riga titolo al proprio selettore. La peribuccale
-        # mantiene invece il layout della griglia già collaudato.
         if parametro_id in _SPECIAL_PARAM_IDS and values == (1.0, 2.0):
             context["clock_container"] = None
             context["time_container"] = None
@@ -524,8 +513,6 @@ def install_special_datetime_ui():
                 return compact_stack, compact_stack
             return result
 
-        # Su mobile ogni parametro speciale usa una sola riga: titolo breve e
-        # helper a sinistra, simbolo orologio e picker ancorati a destra.
         if (
             mobile
             and parametro_id in _SPECIAL_PARAM_IDS
@@ -581,9 +568,6 @@ def install_special_datetime_ui():
             context["clock_container"] = clock_cell
             context["time_container"] = time_cell
 
-            # Per i due parametri senza vecchio popover l'helper va inserito
-            # direttamente nella cella predisposta; gli elettrici lo ricevono
-            # dal popover legacy intercettato subito dopo dal chiamante.
             if parametro_id in {
                 PARAM_MECHANICAL_MUSCLE,
                 PARAM_CHEMICAL_PUPILLARY,
@@ -601,16 +585,11 @@ def install_special_datetime_ui():
         )
 
         if parametro_id in _SPECIAL_PARAM_IDS and usa_orario_custom_globale:
-            # La riga legacy testo + checkbox compare solo dopo un selectbox
-            # speciale valutato: la sostituiamo con due contesti vuoti e
-            # aspettiamo la checkbox che il codice chiamante esegue subito dopo.
             if values == (0.75, 0.25):
                 context["await_checkbox"] = True
                 context["await_datetime"] = False
                 return _NoopContext(), _NoopContext()
 
-            # Su mobile la data è dedotta e il solo orario viene renderizzato
-            # nel contenitore predisposto all'estrema destra del titolo.
             if spec == 2 and context["await_datetime"]:
                 context["await_datetime"] = False
                 context["datetime_labels_left"] = 2
@@ -662,9 +641,6 @@ def install_special_datetime_ui():
                     values["data_rilievo"] = inferred_date
                     st.session_state[f"{full_label}_data"] = inferred_date
 
-            # Se l'ora principale è vuota, la data/ora resta solo informativa:
-            # anche eventuali modifiche ai singoli parametri non devono traslare
-            # i range, esattamente come nel precedente stato toggle OFF.
             if not main_time_valid and isinstance(widgets, dict):
                 for values in widgets.values():
                     if isinstance(values, dict):
