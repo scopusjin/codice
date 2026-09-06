@@ -45,12 +45,19 @@ def install_desktop_datetime_ui() -> None:
     }
 
     def markdown_with_desktop_title(body, *args, **kwargs):
-        if isinstance(body, str) and "mortem-full-title" in body:
-            body = body.replace(
-                "mortem-full-title",
-                "mortem-full-title-desktop",
-                1,
-            )
+        if isinstance(body, str):
+            if "<h5 class='mortem-full-title'" in body:
+                body = body.replace(
+                    "<h5 class='mortem-full-title'",
+                    "<h5 class='mortem-full-title-desktop'",
+                    1,
+                )
+            elif '<h5 class="mortem-full-title"' in body:
+                body = body.replace(
+                    '<h5 class="mortem-full-title"',
+                    '<h5 class="mortem-full-title-desktop"',
+                    1,
+                )
         return current_markdown(body, *args, **kwargs)
 
     def columns_with_desktop_special_time(spec, *args, **kwargs):
