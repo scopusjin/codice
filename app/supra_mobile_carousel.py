@@ -25,10 +25,10 @@ _COLOR_INTENSITY = 2.3
 _MOBILE_REACTION_LABELS = {
     "Fase VI": "Reagiscono fronte, orbita e guancia",
     "Fase V": "Reagiscono fronte e orbita",
-    "Fase IV": "Reagiscono gli orbicolari superiore e inferiore",
-    "Fase III": "Reagisce: palpebra superiore intera",
-    "Fase II": "Reagisce: < 2/3 palpebra superiore",
-    "Fase I": "Reagisce: < 1/3 palpebra superiore",
+    "Fase IV": "Reagiscono gli orbicolari sup. e inf.",
+    "Fase III": "Reagisce: palpebra sup. intera",
+    "Fase II": "Reagisce: < 2/3 palpebra sup.",
+    "Fase I": "Reagisce: < 1/3 palpebra sup.",
 }
 
 
