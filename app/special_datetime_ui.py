@@ -438,7 +438,6 @@ def install_special_datetime_ui():
         main_date = st.session_state.get("input_data_rilievo") or datetime.date.today()
         manual_key = f"{key}__manual"
         last_main_key = f"{key}__last_main"
-        current = st.session_state.get(key)
 
         if full_device_is_mobile():
             full_label = SPECIAL_PARAM_LABEL_IT[parametro_id]
