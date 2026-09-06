@@ -73,6 +73,16 @@ def _image_data_uri(ui, option):
     return uri
 
 
+def _single_line_label(label):
+    """Compatta l'etichetta mobile mettendo l'intervallo temporale tra parentesi."""
+    parts = [part.strip() for part in str(label or "").splitlines() if part.strip()]
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return parts[0]
+    return f"{' '.join(parts[:-1])} ({parts[-1]})"
+
+
 def _theme_value(option, fallback):
     try:
         value = st.get_option(option)
@@ -93,7 +103,7 @@ def render_supra_mobile_carousel(*, ui, options, selected, widget_key, label_for
     items = [
         {
             "value": option,
-            "label": label_for_option(option),
+            "label": _single_line_label(label_for_option(option)),
             "image": _image_data_uri(ui, option),
         }
         for option in ordered_options
