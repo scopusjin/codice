@@ -20,7 +20,7 @@ _component = components.declare_component(
 _IMAGE_URI_CACHE = {}
 _CONTENT_THRESHOLD = 246
 _HORIZONTAL_CONTENT_PAD = 10
-_COLOR_INTENSITY = 1.8
+_COLOR_INTENSITY = 2.3
 
 
 def _strip_original_edges(tile):
