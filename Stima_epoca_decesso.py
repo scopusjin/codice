@@ -180,7 +180,6 @@ st.markdown("""
   [class*="st-key-mostra_parametri_aggiuntivi"] {
     margin: 0.18rem 0 0 !important;
     padding: 0.38rem 0 0 !important;
-    border-top: 1px solid rgba(128, 128, 128, 0.20) !important;
   }
   [class*="st-key-mostra_parametri_aggiuntivi"] [data-testid="stToggle"] {
     margin: 0 !important;
