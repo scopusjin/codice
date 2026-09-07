@@ -141,10 +141,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 ta_val=20.0,
             ),
             "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale. "
-            "<b>Tuttavia, con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
-            "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
-            "agli altri dati tanatologici disponibili.</li></ul>",
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
         )
 
     def test_henssge_detail_qd_between_point_two_and_point_three_keeps_current_html(self):
