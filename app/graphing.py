@@ -829,7 +829,7 @@ def aggiorna_grafico(
     # Margine contenuto prima dei comandi secondari.
     st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
 
-    # --- ROW: Descrizioni dettagliate + Avvisi affiancati (descrizioni a sinistra) ---
+    # --- ROW: Descrizioni dettagliate + Avvisi, con ritorno a capo se necessario ---
     if not st.session_state.get("_pop_css_row_applied"):
         st.markdown(
             textwrap.dedent("""
@@ -866,20 +866,24 @@ def aggiorna_grafico(
 
     row_has_any = bool(avvisi) or bool(st.session_state.get("__desc_dettagliate_html"))
     if row_has_any:
-        c1, c2 = st.columns(2, gap="small")
-
-        # Prima: descrizioni
-        with c1:
+        with st.container(
+            horizontal=True,
+            wrap=True,
+            horizontal_alignment="left",
+            vertical_alignment="center",
+            gap="small",
+            key="result_secondary_actions",
+        ):
             if st.session_state.get("__desc_dettagliate_html"):
-                with st.popover(i18n.ui_text("graph.descriptions_popover")):
-                    st.markdown(
-                        st.session_state["__desc_dettagliate_html"],
-                        unsafe_allow_html=True
-                    )
+                with st.container(width="content", key="result_descriptions_action"):
+                    with st.popover(i18n.ui_text("graph.descriptions_popover")):
+                        st.markdown(
+                            st.session_state["__desc_dettagliate_html"],
+                            unsafe_allow_html=True
+                        )
 
-        # Poi: avvisi
-        with c2:
             if avvisi:
-                with st.popover(i18n.ui_text("graph.warnings_popover")):
-                    for m in avvisi:
-                        warn_box(m)  # usa l'helper locale
+                with st.container(width="content", key="result_warnings_action"):
+                    with st.popover(i18n.ui_text("graph.warnings_popover")):
+                        for m in avvisi:
+                            warn_box(m)  # usa l'helper locale
