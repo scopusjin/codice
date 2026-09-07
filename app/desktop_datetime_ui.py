@@ -119,6 +119,20 @@ def install_desktop_datetime_ui() -> None:
         parametro_id = context["parametro_id"]
         values = _special_datetime._spec_values(spec)
 
+        # La riga [1, 2, 1] della Full contiene esclusivamente il comando
+        # "Procedi con la stima". Su desktop lo si lascia occupare tutta la
+        # larghezza disponibile, così non resta compresso su finestre strette.
+        if full_page and values == (1.0, 2.0, 1.0):
+            estimate_cell = current_container(
+                width="stretch",
+                key="estimate_action_full_width",
+            )
+            return (
+                _special_datetime._NoopContext(),
+                estimate_cell,
+                _special_datetime._NoopContext(),
+            )
+
         if (
             full_page
             and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
@@ -237,6 +251,11 @@ def install_desktop_datetime_ui() -> None:
             or not _special_datetime._is_full_page_frame(caller)
         ):
             return current_button(label, *args, **kwargs)
+
+        # Nel desktop stretto il comando usa tutta la cella disponibile invece
+        # di restare vincolato alla larghezza naturale del testo.
+        kwargs = dict(kwargs)
+        kwargs["width"] = "stretch"
 
         main_time_valid = _special_datetime._main_time_is_valid()
         st.session_state["usa_orario_custom"] = main_time_valid
