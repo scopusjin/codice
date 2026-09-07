@@ -18,11 +18,7 @@ def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
 
 
 def henssge_qd_outside_warning() -> str:
-    return (
-        " <b>Tuttavia, con i dati inseriti, la stima mediante l'equazione di Henssge non è affidabile.</b> "
-        "Ai fini della valutazione dell'epoca del decesso, è opportuno fare riferimento soprattutto "
-        "agli altri dati tanatologici disponibili."
-    )
+    return ""
 
 
 def henssge_qd_partial_warning() -> str:
@@ -30,11 +26,7 @@ def henssge_qd_partial_warning() -> str:
 
 
 def henssge_qd_range_mixed_warning() -> str:
-    return (
-        " Il range sopra riportato si riferisce esclusivamente alle condizioni considerate nelle quali "
-        "l’equazione di Henssge è applicabile. Per una parte delle restanti condizioni, "
-        "l’equazione di Henssge non è applicabile."
-    )
+    return ""
 
 
 def henssge_qd_range_intermediate_warning() -> str:
