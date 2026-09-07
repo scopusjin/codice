@@ -41,6 +41,15 @@ _msil_widget_state_keys = {
     "ta_base_val_widget": "ta_base_val",
     "peso_widget": "peso",
 }
+# Nella Full desktop questi campi compaiono in due rami strutturali diversi
+# (standard/intervalli). Manteniamo distinta soltanto l'identità interna del
+# componente, mentre il valore logico continua a usare la stessa chiave.
+_full_desktop_mode_scoped_keys = {
+    "rt_val",
+    "tm_val",
+    "peso",
+    "ta_base_val",
+}
 _full_mobile_units = {
     "rt_val": "°C",
     "tm_val": "°C",
@@ -207,12 +216,19 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
 
         prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
         range_mode = bool(st.session_state.get("range_unico_beta", False))
+        component_scope = ""
+        if (
+            key in _full_desktop_mode_scoped_keys
+            and not full_device_is_mobile()
+        ):
+            component_scope = "_range" if prudent_mode and range_mode else "_single"
+
         state_key = _msil_widget_state_keys.get(key, key)
         logical_value = st.session_state.get(state_key, kwargs.get("value"))
-        mirror_key = f"__decimal_component_mirror_{key}"
-        sync_key = f"__decimal_component_sync_{key}"
-        expected_sync_key = f"__decimal_component_expected_sync_{key}"
-        component_key = f"mortem_decimal_{key}"
+        mirror_key = f"__decimal_component_mirror_{key}{component_scope}"
+        sync_key = f"__decimal_component_sync_{key}{component_scope}"
+        expected_sync_key = f"__decimal_component_expected_sync_{key}{component_scope}"
+        component_key = f"mortem_decimal_{key}{component_scope}"
 
         if mirror_key not in st.session_state:
             st.session_state[mirror_key] = logical_value
