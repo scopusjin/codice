@@ -557,6 +557,13 @@ def _render_factor_panel(
             mostra_correnti = False
         if mostra_correnti:
             toggle_kwargs = dict(key=k("toggle_correnti_fc"), disabled=False)
+            if compact_full:
+                toggle_kwargs["help"] = (
+                    "Considerare presente solo una corrente d’aria significativa e prolungata, "
+                    "che interessi effettivamente il cadavere all’altezza del corpo. "
+                    "Non sono sufficienti una lieve corrente occasionale, una finestra aperta "
+                    "o il semplice movimento dell’aria nell’ambiente."
+                )
             if mobile:
                 toggle_kwargs["value"] = st.session_state.get(k("toggle_correnti_fc"), False)
             correnti_presenti = st.toggle(
