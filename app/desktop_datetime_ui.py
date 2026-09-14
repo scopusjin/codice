@@ -15,12 +15,18 @@ import streamlit as st
 from app.device_mode import full_device_is_mobile
 import app.full_mobile_compact as _full_mobile_compact
 import app.full_mobile_layout as _full_mobile_layout
+import app.perioral_mobile_carousel as _perioral_mobile_carousel
 import app.special_datetime_ui as _special_datetime
+import app.supra_mobile_carousel as _supra_mobile_carousel
 
 
 _ELECTRICAL_DESKTOP_PARAMS = {
     _special_datetime.PARAM_ELECTRICAL_SUPRACILIARY,
     _special_datetime.PARAM_ELECTRICAL_PERIORAL,
+}
+_COMPACT_DESKTOP_STACK_PARAMS = {
+    _special_datetime.PARAM_MECHANICAL_MUSCLE,
+    _special_datetime.PARAM_CHEMICAL_PUPILLARY,
 }
 
 
@@ -52,6 +58,7 @@ def install_desktop_datetime_ui() -> None:
     current_button = st.button
     current_container = st.container
     current_number_input = st.number_input
+    current_segmented_control = st.segmented_control
 
     context = {
         "parametro_id": None,
@@ -69,19 +76,26 @@ def install_desktop_datetime_ui() -> None:
             if ".final-text{" in body and body.lstrip().startswith("<style>"):
                 return st.html(_desktop_initial_style_bundle(body))
 
-            if "<h5 class='mortem-full-title'" in body:
-                visible_title = body.replace(
-                    "class='mortem-full-title'",
-                    "class='mortem-full-title-visible'",
-                    1,
-                )
-                body = (
-                    "<span class='mortem-full-title' aria-hidden='true' "
-                    "style='display:none;'></span>"
-                    + visible_title
-                )
-                kwargs["unsafe_allow_html"] = True
-            elif (
+            # Il titolo della pagina resta un unico elemento reale. La stessa
+            # classe serve sia per mostrarlo sia come ancora del layout desktop.
+            # Non viene più creato un marker nascosto separato.
+
+            parametro_id = context.get("parametro_id")
+            if parametro_id in _ELECTRICAL_DESKTOP_PARAMS:
+                full_label = _special_datetime.SPECIAL_PARAM_LABEL_IT[parametro_id]
+                if (
+                    full_label in body
+                    and "font-size: 0.88rem" in body
+                    and "padding-top: 0.4rem" in body
+                ):
+                    body = (
+                        "<div class='mortem-section-title'>"
+                        f"{_special_datetime._SHORT_LABELS[parametro_id]}"
+                        "</div>"
+                    )
+                    kwargs["unsafe_allow_html"] = True
+
+            if (
                 context["datetime_labels_left"] > 0
                 and body.startswith(_special_datetime._DATETIME_LABEL_PREFIX)
             ):
@@ -104,6 +118,37 @@ def install_desktop_datetime_ui() -> None:
             # secondo st.columns che dimezzava il campo al primo render.
             return current_number_input("", *args, **clean_kwargs)
         return current_number_input(label, *args, **kwargs)
+
+    def container_without_mobile_fc_button_style(*args, **kwargs):
+        """Sul desktop il bottone 'Usalo' usa altezza e tipografia native."""
+        key = kwargs.get("key")
+        if isinstance(key, str) and key.endswith("_fc_apply_action_mobile"):
+            kwargs = dict(kwargs)
+            kwargs["key"] = key[:-len("mobile")] + "desktop"
+        return current_container(*args, **kwargs)
+
+    def segmented_control_with_mobile_electrical_captions(label, options=None, *args, **kwargs):
+        """Usa sul desktop le stesse didascalie cliniche dei carousel mobili."""
+        key = str(kwargs.get("key") or "")
+        formatter = kwargs.get("format_func")
+        if callable(formatter):
+            if key.startswith("eccitabilita_sopraciliare_segment_"):
+                kwargs = dict(kwargs)
+                kwargs["format_func"] = (
+                    lambda option, base=formatter: _supra_mobile_carousel._single_line_label(
+                        option,
+                        base(option),
+                    )
+                )
+            elif key.startswith("eccitabilita_peribuccale_segment_"):
+                kwargs = dict(kwargs)
+                kwargs["format_func"] = (
+                    lambda option, base=formatter: _perioral_mobile_carousel._single_line_label(
+                        option,
+                        base(option),
+                    )
+                )
+        return current_segmented_control(label, options, *args, **kwargs)
 
     def columns_with_desktop_special_time(spec, *args, **kwargs):
         caller = inspect.currentframe().f_back
@@ -132,6 +177,22 @@ def install_desktop_datetime_ui() -> None:
                 estimate_cell,
                 _special_datetime._NoopContext(),
             )
+
+        if (
+            full_page
+            and parametro_id in _COMPACT_DESKTOP_STACK_PARAMS
+            and values == (1.0, 2.0)
+        ):
+            left_cell, _right_cell = current_columns(spec, *args, **kwargs)
+            with left_cell:
+                compact_stack = current_container(
+                    gap="xxsmall",
+                    key=f"special_desktop_stack_{parametro_id}",
+                )
+            context["clock_container"] = None
+            context["time_container"] = None
+            context["datetime_labels_left"] = 0
+            return compact_stack, compact_stack
 
         if (
             full_page
@@ -288,6 +349,8 @@ def install_desktop_datetime_ui() -> None:
 
     st.markdown = markdown_with_desktop_title
     st.number_input = number_input_without_legacy_fc_split
+    st.container = container_without_mobile_fc_button_style
+    st.segmented_control = segmented_control_with_mobile_electrical_captions
     st.columns = columns_with_desktop_special_time
     st.date_input = date_input_with_inferred_special_date
     st.button = button_with_desktop_inferred_dates
