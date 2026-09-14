@@ -190,7 +190,7 @@ def install_desktop_datetime_ui() -> None:
             left_cell, _right_cell = current_columns(spec, *args, **kwargs)
             with left_cell:
                 compact_stack = current_container(
-                    gap="xxsmall",
+                    gap=None,
                     key=f"special_desktop_stack_{parametro_id}",
                 )
             context["clock_container"] = None
