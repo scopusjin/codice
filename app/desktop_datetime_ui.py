@@ -25,8 +25,6 @@ _ELECTRICAL_DESKTOP_PARAMS = {
     _special_datetime.PARAM_ELECTRICAL_PERIORAL,
 }
 _COMPACT_DESKTOP_STACK_PARAMS = {
-    _special_datetime.PARAM_ELECTRICAL_SUPRACILIARY,
-    _special_datetime.PARAM_ELECTRICAL_PERIORAL,
     _special_datetime.PARAM_MECHANICAL_MUSCLE,
     _special_datetime.PARAM_CHEMICAL_PUPILLARY,
 }
@@ -45,19 +43,6 @@ def _desktop_initial_style_bundle(body: str) -> str:
         + body
         + _full_mobile_compact._FULL_MOBILE_COMPACT_CSS
     )
-
-
-def _is_fc_suggest_columns_call(caller, spec, kwargs) -> bool:
-    """Riconosce la sola sottoriga che contiene il pulsante Consiglia FC."""
-    if caller is None or spec != 2:
-        return False
-    if kwargs.get("gap") != "xsmall" or kwargs.get("vertical_alignment") != "bottom":
-        return False
-    try:
-        code_context = inspect.getframeinfo(caller, context=1).code_context or ()
-    except Exception:
-        return False
-    return any("_suggest_spacer" in line for line in code_context)
 
 
 def install_desktop_datetime_ui() -> None:
@@ -91,21 +76,24 @@ def install_desktop_datetime_ui() -> None:
             if ".final-text{" in body and body.lstrip().startswith("<style>"):
                 return st.html(_desktop_initial_style_bundle(body))
 
-            # Manteniamo il marker storico usato dalla griglia desktop, ma il
-            # titolo visibile usa una classe distinta. È la soluzione già
-            # risultata stabile nel commit 7913a7c9.
-            if "<h5 class='mortem-full-title'" in body:
-                visible_title = body.replace(
-                    "class='mortem-full-title'",
-                    "class='mortem-full-title-visible'",
-                    1,
-                )
-                body = (
-                    "<span class='mortem-full-title' aria-hidden='true' "
-                    "style='display:none;'></span>"
-                    + visible_title
-                )
-                kwargs["unsafe_allow_html"] = True
+            # Il titolo della pagina resta un unico elemento reale. La stessa
+            # classe serve sia per mostrarlo sia come ancora del layout desktop.
+            # Non viene più creato un marker nascosto separato.
+
+            parametro_id = context.get("parametro_id")
+            if parametro_id in _ELECTRICAL_DESKTOP_PARAMS:
+                full_label = _special_datetime.SPECIAL_PARAM_LABEL_IT[parametro_id]
+                if (
+                    full_label in body
+                    and "font-size: 0.88rem" in body
+                    and "padding-top: 0.4rem" in body
+                ):
+                    body = (
+                        "<div class='mortem-section-title'>"
+                        f"{_special_datetime._SHORT_LABELS[parametro_id]}"
+                        "</div>"
+                    )
+                    kwargs["unsafe_allow_html"] = True
 
             if (
                 context["datetime_labels_left"] > 0
@@ -169,16 +157,6 @@ def install_desktop_datetime_ui() -> None:
     def columns_with_desktop_special_time(spec, *args, **kwargs):
         caller = inspect.currentframe().f_back
         full_page = _special_datetime._is_full_page_frame(caller)
-
-        # La sottoriga del solo pulsante Consiglia FC non ha bisogno di una
-        # seconda st.columns: un contenitore nativo elimina il disallineamento
-        # verticale senza introdurre margini CSS.
-        if full_page and _is_fc_suggest_columns_call(caller, spec, kwargs):
-            return (
-                current_container(width=174, key="desktop_fc_suggest_slot"),
-                _special_datetime._NoopContext(),
-            )
-
         caller_parametro_id = (
             caller.f_locals.get("parametro_id")
             if full_page and caller is not None
@@ -212,7 +190,7 @@ def install_desktop_datetime_ui() -> None:
             left_cell, _right_cell = current_columns(spec, *args, **kwargs)
             with left_cell:
                 compact_stack = current_container(
-                    gap=None,
+                    gap="xxsmall",
                     key=f"special_desktop_stack_{parametro_id}",
                 )
             context["clock_container"] = None
@@ -220,7 +198,18 @@ def install_desktop_datetime_ui() -> None:
             context["datetime_labels_left"] = 0
             return compact_stack, compact_stack
 
-        # Tutti e quattro i parametri usano la stessa struttura desktop.
+        if (
+            full_page
+            and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
+            and values == (1.0, 2.0)
+        ):
+            context["clock_container"] = None
+            context["time_container"] = None
+            context["datetime_labels_left"] = 0
+            return current_columns(spec, *args, **kwargs)
+
+        # Tutti e quattro i parametri usano ora la stessa struttura desktop.
+        # Nessun passaggio viene più fatto fingendo che il desktop sia mobile.
         if (
             full_page
             and parametro_id in _special_datetime._SPECIAL_PARAM_IDS
@@ -238,7 +227,7 @@ def install_desktop_datetime_ui() -> None:
                     wrap=False,
                     horizontal_alignment="right",
                     vertical_alignment="center",
-                    gap="xxsmall",
+                    gap="xsmall",
                     width="stretch",
                     key=f"special_desktop_title_actions_{parametro_id}",
                 ):
