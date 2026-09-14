@@ -248,10 +248,19 @@ if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
 
 # Titolo
-st.markdown(
-    f"<h5 class='mortem-full-title' style='margin-top:0; margin-bottom:0;'>{i18n.ui_text('full.title')}</h5>",
-    unsafe_allow_html=True,
-)
+page_title = i18n.ui_text("full.title")
+if full_device_is_mobile():
+    st.markdown(
+        f"<h5 class='mortem-full-title' style='margin-top:0; margin-bottom:0;'>{page_title}</h5>",
+        unsafe_allow_html=True,
+    )
+else:
+    with st.container(gap=None, key="full_page_title_desktop"):
+        st.html(
+            "<span class='mortem-full-title' aria-hidden='true' "
+            "style='display:none;'></span>"
+        )
+        st.markdown(f"##### {page_title}")
 
 # --- Definizione Widget (Streamlit) ---
 
@@ -571,37 +580,37 @@ with st.container(border=True):
                         _FC_RANGE_DESKTOP_HELP,
                         "fc_range",
                     )
-                    fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
-                    with fc_left:
-                        fc_min_col, fc_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with fc_min_col:
-                            fc_min_val = st.number_input(
-                                i18n.ui_text("full.fc_min_input"),
-                                value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                                step=0.1, format="%.2f",
-                                key="fc_min_val",
-                                label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
-                        with fc_max_col:
-                            fc_other_val = st.number_input(
-                                i18n.ui_text("full.fc_max_input"),
-                                value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                                step=0.1, format="%.2f",
-                                key="fc_other_val",
-                                label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
-                    with fc_right:
-                        suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with suggest_col:
-                            st.button(
-                                "Consiglia FC",
-                                key="desktop_caut_fc_structural_suggest",
-                                type="secondary",
-                                width="stretch",
-                                on_click=_toggle_desktop_range_fc_suggest,
-                            )
+                    fc_min_col, fc_max_col, suggest_col, _suggest_spacer = st.columns(
+                        [1, 1, 1, 1],
+                        gap="xsmall",
+                        vertical_alignment="top",
+                    )
+                    with fc_min_col:
+                        fc_min_val = st.number_input(
+                            i18n.ui_text("full.fc_min_input"),
+                            value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                            step=0.1, format="%.2f",
+                            key="fc_min_val",
+                            label_visibility="collapsed",
+                            _mortem_compact_label="",
+                        )
+                    with fc_max_col:
+                        fc_other_val = st.number_input(
+                            i18n.ui_text("full.fc_max_input"),
+                            value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                            step=0.1, format="%.2f",
+                            key="fc_other_val",
+                            label_visibility="collapsed",
+                            _mortem_compact_label="",
+                        )
+                    with suggest_col:
+                        st.button(
+                            "Consiglia FC",
+                            key="desktop_caut_fc_structural_suggest",
+                            type="secondary",
+                            width="stretch",
+                            on_click=_toggle_desktop_range_fc_suggest,
+                        )
 
                     fc_values = [
                         st.session_state.get("fc_min_val"),
@@ -704,25 +713,27 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
-                    fc_left, fc_right = st.columns(2, gap="small", vertical_alignment="bottom")
-                    with fc_left:
-                        _render_desktop_cooling_label("Fattore di correzione (FC)")
+                    _render_desktop_cooling_label("Fattore di correzione (FC)")
+                    fc_input_col, suggest_col, _suggest_spacer = st.columns(
+                        [2, 1, 1],
+                        gap="xsmall",
+                        vertical_alignment="top",
+                    )
+                    with fc_input_col:
                         st.number_input(
                             i18n.ui_text("full.fc_input_label"),
                             value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
                             key="fattore_correzione", label_visibility="collapsed",
                             _mortem_compact_label="",
                         )
-                    with fc_right:
-                        suggest_col, _suggest_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with suggest_col:
-                            st.button(
-                                "Consiglia FC",
-                                key="desktop_caut_fc_structural_suggest",
-                                type="secondary",
-                                width="stretch",
-                                on_click=_toggle_desktop_single_fc_suggest,
-                            )
+                    with suggest_col:
+                        st.button(
+                            "Consiglia FC",
+                            key="desktop_caut_fc_structural_suggest",
+                            type="secondary",
+                            width="stretch",
+                            on_click=_toggle_desktop_single_fc_suggest,
+                        )
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline_std", False)
