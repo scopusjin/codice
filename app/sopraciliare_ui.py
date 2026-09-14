@@ -16,6 +16,7 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image
 
+from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
@@ -471,7 +472,28 @@ def install_sopraciliare_click_selector():
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
-    electrical_pair = {"columns": None}
+    electrical_pair = {"columns": None, "stacks": None}
+
+    def create_electrical_pair():
+        with st.container(key="electrical_pair_layout"):
+            columns = original_columns(2, gap="small")
+
+        if full_device_is_mobile():
+            stacks = columns
+        else:
+            stacks = []
+            stack_keys = ("supra", "perioral")
+            for column, stack_key in zip(columns, stack_keys):
+                with column:
+                    stacks.append(
+                        original_container(
+                            gap=None,
+                            key=f"electrical_pair_stack_{stack_key}",
+                        )
+                    )
+
+        electrical_pair["columns"] = columns
+        electrical_pair["stacks"] = stacks
 
     def columns_with_electrical_pair(spec, *args, **kwargs):
         caller = inspect.currentframe().f_back
@@ -488,8 +510,7 @@ def install_sopraciliare_click_selector():
         is_main_row = _is_main_special_row(spec)
 
         if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY and is_main_row:
-            with st.container(key="electrical_pair_layout"):
-                electrical_pair["columns"] = original_columns(2, gap="small")
+            create_electrical_pair()
 
         # Meccanica e chimica pupillare devono seguire la peribuccale nella
         # colonna destra. Per avere la stessa distanza naturale di Ipostasi
@@ -510,11 +531,10 @@ def install_sopraciliare_click_selector():
             return target_column, target_column
 
         if electrical_pair["columns"] is None:
-            with st.container(key="electrical_pair_layout"):
-                electrical_pair["columns"] = original_columns(2, gap="small")
+            create_electrical_pair()
 
         target_index = 0 if parametro_id == PARAM_ELECTRICAL_SUPRACILIARY else 1
-        target_column = electrical_pair["columns"][target_index]
+        target_column = electrical_pair["stacks"][target_index]
 
         if is_main_row:
             return target_column, target_column
