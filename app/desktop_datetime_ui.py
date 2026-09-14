@@ -120,9 +120,13 @@ def install_desktop_datetime_ui() -> None:
         return current_number_input(label, *args, **kwargs)
 
     def container_without_mobile_fc_button_style(*args, **kwargs):
-        """Sul desktop il bottone 'Usalo' usa altezza e tipografia native."""
+        """Sul desktop il gruppo FC suggerito usa solo chiavi desktop native."""
         key = kwargs.get("key")
-        if isinstance(key, str) and key.endswith("_fc_apply_action_mobile"):
+        if (
+            isinstance(key, str)
+            and key.endswith("_mobile")
+            and ("_fc_apply_" in key or "_fc_reset_action_" in key)
+        ):
             kwargs = dict(kwargs)
             kwargs["key"] = key[:-len("mobile")] + "desktop"
         return current_container(*args, **kwargs)
