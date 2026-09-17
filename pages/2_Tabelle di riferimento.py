@@ -681,6 +681,12 @@ def _render_henssge_weight_table(language: str) -> None:
 
 
 st.title("Tabelle di riferimento")
+if st.session_state.get("__fc_tables_return"):
+    if st.button("← Indietro al FC", key="back_to_fc_top"):
+        from app.fc_page import FULL_PAGE
+        st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
+    from app.fc_reference_cases import render_fc_cases
+    render_fc_cases()
 
 st.markdown(
     """
@@ -974,7 +980,13 @@ henssge_weight_language = st.radio(
 )
 _render_henssge_weight_table("it" if henssge_weight_language == "Italiano" else "en")
 
-if st.button("⬅️ Torna alla pagina principale", key="back_home"):
+if not st.session_state.get("__fc_tables_return"):
+    from app.fc_reference_cases import render_fc_cases
+    render_fc_cases()
+
+if st.button("← Indietro al FC" if st.session_state.get("__fc_tables_return") else "⬅️ Torna alla pagina principale", key="back_home"):
+    if st.session_state.get("__fc_tables_return"):
+        st.switch_page(st.session_state.get("__fc_home", "Stima_epoca_decesso.py"))
     st.switch_page("Stima_epoca_decesso.py")
 
 st.markdown(
