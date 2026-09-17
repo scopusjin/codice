@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from pathlib import Path
 
@@ -7,6 +8,37 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FCPageTests(unittest.TestCase):
+    def test_special_helpers_across_desktop_and_mobile_sessions(self):
+        # Streamlit wrappers are process-global, while device mode is per session.
+        # Exercise both orders, including a mobile session after desktop setup.
+        for mobile in (True, False, True, False):
+            with self.subTest(mobile=mobile):
+                app = self.start(mobile)
+                app.session_state["input_data_rilievo"] = datetime.date(2026, 9, 17)
+                app.session_state["input_ora_rilievo"] = "00:15"
+                app.toggle(key="mostra_parametri_aggiuntivi").set_value(True).run()
+                self.assertEqual(list(app.exception), [])
+                self.assertEqual(
+                    [selectbox.label for selectbox in app.selectbox[-2:]],
+                    ["Eccitabilità muscolare meccanica", "Eccitabilità chimica pupillare"],
+                )
+                help_count = len(app.get("popover"))
+                mechanical = app.selectbox[-2]
+                mechanical.select(mechanical.options[1]).run()
+                app.session_state[mechanical.label + "_ora"] = "23:45"
+                app.session_state[mechanical.label + "_ora__manual"] = True
+                app.session_state[mechanical.label + "_ora_native"] = "23:45"
+                app.run()
+                self.assertEqual(list(app.exception), [])
+                self.assertEqual(
+                    app.session_state[mechanical.label + "_data"],
+                    datetime.date(2026, 9, 16),
+                )
+                self.open(app)
+                self.event(app, "back", weight=70.0)
+                self.assertTrue(app.session_state["mostra_parametri_aggiuntivi"])
+                self.assertEqual(len(app.get("popover")), help_count)
+
     def start(self, mobile=False, msil=False):
         import app.decimal_number_input_v2 as decimal_v2
         decimal_v2._renderer = None

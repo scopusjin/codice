@@ -69,6 +69,10 @@ def install_desktop_datetime_ui() -> None:
     }
 
     def markdown_with_desktop_title(body, *args, **kwargs):
+        # I wrapper Streamlit sono globali al processo, il dispositivo no:
+        # una successiva sessione mobile deve usare solo i renderer mobili.
+        if full_device_is_mobile():
+            return current_markdown(body, *args, **kwargs)
         if isinstance(body, str):
             # Il blocco iniziale contiene esclusivamente CSS. Su desktop viene
             # inviato tramite st.html: Streamlit lo colloca nell'event container
@@ -106,6 +110,8 @@ def install_desktop_datetime_ui() -> None:
 
     def number_input_without_legacy_fc_split(label, *args, **kwargs):
         """Il FC standard usa direttamente la larghezza assegnata dal layout desktop."""
+        if full_device_is_mobile():
+            return current_number_input(label, *args, **kwargs)
         if (
             kwargs.get("key") == "fattore_correzione"
             and not st.session_state.get("stima_cautelativa_beta", False)
@@ -121,6 +127,8 @@ def install_desktop_datetime_ui() -> None:
 
     def container_without_mobile_fc_button_style(*args, **kwargs):
         """Sul desktop il gruppo FC suggerito usa solo chiavi desktop native."""
+        if full_device_is_mobile():
+            return current_container(*args, **kwargs)
         key = kwargs.get("key")
         if (
             isinstance(key, str)
@@ -133,6 +141,8 @@ def install_desktop_datetime_ui() -> None:
 
     def segmented_control_with_mobile_electrical_captions(label, options=None, *args, **kwargs):
         """Usa sul desktop le stesse didascalie cliniche dei carousel mobili."""
+        if full_device_is_mobile():
+            return current_segmented_control(label, options, *args, **kwargs)
         key = str(kwargs.get("key") or "")
         formatter = kwargs.get("format_func")
         if callable(formatter):
@@ -155,6 +165,8 @@ def install_desktop_datetime_ui() -> None:
         return current_segmented_control(label, options, *args, **kwargs)
 
     def columns_with_desktop_special_time(spec, *args, **kwargs):
+        if full_device_is_mobile():
+            return current_columns(spec, *args, **kwargs)
         caller = inspect.currentframe().f_back
         full_page = _special_datetime._is_full_page_frame(caller)
         caller_parametro_id = (
@@ -288,6 +300,8 @@ def install_desktop_datetime_ui() -> None:
         return current_columns(spec, *args, **kwargs)
 
     def date_input_with_inferred_special_date(label, *args, **kwargs):
+        if full_device_is_mobile():
+            return current_date_input(label, *args, **kwargs)
         caller = inspect.currentframe().f_back
         parametro_id = _special_datetime._DATE_KEY_TO_PARAM_ID.get(kwargs.get("key"))
         if (
@@ -310,6 +324,8 @@ def install_desktop_datetime_ui() -> None:
         return inferred
 
     def button_with_desktop_inferred_dates(label, *args, **kwargs):
+        if full_device_is_mobile():
+            return current_button(label, *args, **kwargs)
         caller = inspect.currentframe().f_back
         if (
             kwargs.get("key") != "btn_stima"
