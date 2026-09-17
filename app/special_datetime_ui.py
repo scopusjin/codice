@@ -183,6 +183,13 @@ def _is_full_page_frame(frame) -> bool:
     return filename.endswith("/Stima_epoca_decesso.py") or filename == "Stima_epoca_decesso.py"
 
 
+def _layout_caller_frame(frame):
+    """Ignora i wrapper desktop quando delegano al layout della sessione."""
+    while frame is not None and frame.f_globals.get("__name__") == "app.desktop_datetime_ui":
+        frame = frame.f_back
+    return frame
+
+
 def _main_time_is_valid() -> bool:
     value = st.session_state.get("input_ora_rilievo")
     return isinstance(value, str) and bool(_TIME_RE.fullmatch(value.strip()))
@@ -307,7 +314,7 @@ def install_special_datetime_ui():
     )
 
     def container_without_initial_mobile_frames(*args, **kwargs):
-        caller = inspect.currentframe().f_back
+        caller = _layout_caller_frame(inspect.currentframe().f_back)
         special_outer = bool(context.get("special_outer_pending"))
         if (
             kwargs.get("border") is True
@@ -427,7 +434,7 @@ def install_special_datetime_ui():
             kwargs.pop("value", None)
 
         parametro_id = _DATE_KEY_TO_PARAM_ID.get(key)
-        caller = inspect.currentframe().f_back
+        caller = _layout_caller_frame(inspect.currentframe().f_back)
         if (
             parametro_id not in _SPECIAL_PARAM_IDS
             or not _is_full_page_frame(caller)
@@ -493,7 +500,7 @@ def install_special_datetime_ui():
         # Il ciclo dei parametri conosce parametro_id già prima del selectbox.
         # Recuperarlo anche dal chiamante permette al layout elettrico sottostante
         # di creare subito la coppia sopraciliare/peribuccale nel punto corretto.
-        caller = inspect.currentframe().f_back
+        caller = _layout_caller_frame(inspect.currentframe().f_back)
         caller_parametro_id = caller.f_locals.get("parametro_id") if caller else None
         if caller_parametro_id in _SPECIAL_PARAM_IDS:
             parametro_id = caller_parametro_id
@@ -646,7 +653,7 @@ def install_special_datetime_ui():
         return original_columns(spec, *args, **kwargs)
 
     def button_with_effective_main_datetime(label, *args, **kwargs):
-        caller = inspect.currentframe().f_back
+        caller = _layout_caller_frame(inspect.currentframe().f_back)
         if kwargs.get("key") == "btn_stima" and _is_full_page_frame(caller):
             main_time_valid = _main_time_is_valid()
             st.session_state["usa_orario_custom"] = main_time_valid

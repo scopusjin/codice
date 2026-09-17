@@ -136,6 +136,9 @@ def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_
 st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="collapsed")
 install_minimal_mobile_shell()
 
+from app.fc_page import render_fc_route_if_requested, FULL_PAGE
+render_fc_route_if_requested(FULL_PAGE)
+
 st.markdown("""
 <style>
 .final-text{

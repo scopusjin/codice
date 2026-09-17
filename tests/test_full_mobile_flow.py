@@ -89,7 +89,7 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertFalse(bool(app.session_state["__decimal_ta_standard_help_open"]))
         self.assertFalse(bool(app.session_state["__decimal_fc_standard_help_open"]))
 
-    def test_mobile_fc_range_reset_is_compact_and_inline(self):
+    def test_mobile_fc_suggestion_opens_dedicated_component(self):
         app = self._mobile_app()
         app.session_state["stima_cautelativa_beta"] = True
         app.session_state["__prudent_explicit_ranges_initialized"] = True
@@ -100,10 +100,12 @@ class FullMobileFlowTests(unittest.TestCase):
         app.run(timeout=20)
 
         self.assertEqual([str(item) for item in app.exception], [])
-        labels = [button.label for button in app.button]
-        self.assertIn("→ Usalo", labels)
-        self.assertIn("↻", labels)
-        self.assertNotIn("Reset range", labels)
+        self.assertTrue(app.session_state["__fc_active"])
+        self.assertEqual(len(app.get("component_instance")), 1)
+        self.assertNotIn("Procedi con la stima", [button.label for button in app.button])
+        html = (Path(__file__).resolve().parents[1] / "app/fc_panel_frontend/index.html").read_text()
+        self.assertIn('id="use"', html)
+        self.assertIn('id="restore"', html)
 
 
 if __name__ == "__main__":

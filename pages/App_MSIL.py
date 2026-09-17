@@ -48,6 +48,9 @@ st.set_page_config(
 )
 apply_theme()
 install_minimal_mobile_shell()
+
+from app.fc_page import render_fc_route_if_requested, MSIL_PAGE
+render_fc_route_if_requested(MSIL_PAGE)
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
 # ------------------------------------------------------------
@@ -381,6 +384,7 @@ if "__next_fc" in st.session_state:
 
 # Callback per normalizzare l'input FC su step 0,05 e chiudere il pannello "Suggerisci FC"
 def _normalize_fc_callback():
+    st.session_state.pop("__msil_fc_chosen_range", None)
     try:
         v = float(st.session_state.get("fattore_correzione", 1.0))
         st.session_state["fattore_correzione"] = floor_to_step(v)  # arrotonda per difetto a 0,05
@@ -397,10 +401,14 @@ def _normalize_fc_callback():
 with c_fc:
     fc_placeholder.number_input(
         "", step=0.05, format="%.2f",
-        min_value=0.30, max_value=3.00,
+        min_value=0.30,
         key="fattore_correzione", label_visibility="collapsed",
         on_change=_normalize_fc_callback
     )
+
+if st.session_state.get("__msil_fc_chosen_range"):
+    lo_fc, hi_fc = st.session_state["__msil_fc_chosen_range"]
+    st.caption(f"FC scelto: {lo_fc:.2f} – {hi_fc:.2f}")
 
 # ------------------------------------------------------------
 # 3) Pulsante finale
@@ -421,6 +429,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         _sig_val(st.session_state.get("ta_base_val")),
         _sig_val(st.session_state.get("peso")),
         _sig_val(st.session_state.get("fattore_correzione")),
+        tuple(st.session_state.get("__msil_fc_chosen_range", [])),
         37.2,
     )
 
@@ -440,8 +449,12 @@ else:
     st.session_state.pop("Ta_min_beta", None)
     st.session_state.pop("Ta_max_beta", None)
 
-st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
-st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+chosen_fc = st.session_state.get("__msil_fc_chosen_range")
+if chosen_fc:
+    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = chosen_fc
+else:
+    st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
+    st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
 
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:

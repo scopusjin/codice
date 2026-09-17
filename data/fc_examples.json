@@ -1,0 +1,156 @@
+[
+  {
+    "id": "wet-51-44",
+    "type": "Esperimenti",
+    "title": "Casi 51 e 44",
+    "conditions": "Mutanda contenitiva, pantaloni e tre camici bagnati, senza correnti d’aria.",
+    "observations": "FC 1.10 a 69.5 kg; FC 1.30 a 65 kg.",
+    "source": "wet",
+    "sourceText": "Henssge e Brinkmann, Arch Kriminol. 1984;174:96–112."
+  },
+  {
+    "id": "wet-case-15",
+    "type": "Caso operativo",
+    "title": "Caso 15",
+    "conditions": "Sul fianco, su strada; pantaloni da tuta e slip fradici, pioggia e aria mobile.",
+    "weight": 76,
+    "fc": "0.60 - 0.80",
+    "source": "casework",
+    "url": "https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html",
+    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023."
+  },
+  {
+    "id": "wet-41",
+    "type": "Esperimento",
+    "title": "Caso 41",
+    "conditions": "Un camice completamente bagnato, aria ferma.",
+    "weight": 84.5,
+    "fc": "1.00",
+    "source": "wet",
+    "sourceText": "Henssge e Brinkmann, Arch Kriminol. 1984;174:96–112."
+  },
+  {
+    "id": "wet-52",
+    "type": "Esperimento",
+    "title": "Caso 52",
+    "conditions": "Superficie corporea bagnata; ambiente chiuso, aria ferma.",
+    "weight": 65,
+    "fc": "0.75",
+    "source": "wet",
+    "sourceText": "Henssge e Brinkmann, Arch Kriminol. 1984;174:96–112."
+  },
+  {
+    "id": "wet-50",
+    "type": "Esperimento",
+    "title": "Caso 50",
+    "conditions": "Superficie corporea bagnata; ambiente chiuso, aria ferma.",
+    "weight": 45,
+    "fc": "0.77",
+    "source": "wet",
+    "sourceText": "Henssge e Brinkmann, Arch Kriminol. 1984;174:96–112."
+  },
+  {
+    "id": "still-B63",
+    "type": "Esperimento",
+    "title": "Caso B63",
+    "conditions": "Slip sul tronco inferiore; aria ferma, appoggio termicamente neutro.",
+    "weight": 110,
+    "fc": "1.10",
+    "source": "clothesStill",
+    "sourceText": "Henssge e Madea, 1988; Stipanits e Henssge, 1985, Beitr Gerichtl Med. 43:323–329."
+  },
+  {
+    "id": "still-B58",
+    "type": "Esperimento",
+    "title": "Caso B58",
+    "conditions": "Pantaloni e mutande corte sul tronco inferiore; aria ferma, appoggio neutro.",
+    "weight": 68,
+    "fc": "1.10",
+    "source": "clothesStill",
+    "sourceText": "Henssge e Madea, 1988; Stipanits e Henssge, 1985, Beitr Gerichtl Med. 43:323–329."
+  },
+  {
+    "id": "still-H6",
+    "type": "Esperimento",
+    "title": "Caso H6",
+    "conditions": "Pantaloni e due paia di mutande lunghe sul tronco inferiore; aria ferma, appoggio neutro.",
+    "weight": 68,
+    "fc": "1.07",
+    "source": "clothesStill",
+    "sourceText": "Henssge e Madea, 1988; Stipanits e Henssge, 1985, Beitr Gerichtl Med. 43:323–329."
+  },
+  {
+    "id": "still-B54",
+    "type": "Esperimento",
+    "title": "Caso B54",
+    "conditions": "Cardigan lungo, pantaloni e mutande lunghe spesse sul tronco inferiore; aria ferma, appoggio neutro.",
+    "weight": 63.5,
+    "fc": "1.44",
+    "source": "clothesStill",
+    "sourceText": "Henssge e Madea, 1988; Stipanits e Henssge, 1985, Beitr Gerichtl Med. 43:323–329."
+  },
+  {
+    "id": "wind-H15",
+    "type": "Esperimento",
+    "title": "Caso H15",
+    "conditions": "Slip sul tronco inferiore; aria in movimento permanente.",
+    "weight": 67.5,
+    "fc": "0.90",
+    "source": "clothesWind",
+    "sourceText": "Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988."
+  },
+  {
+    "id": "wind-H14",
+    "type": "Esperimento",
+    "title": "Caso H14",
+    "conditions": "Pantaloni e mutande lunghe; aria in movimento permanente.",
+    "weight": 78,
+    "fc": "0.97",
+    "source": "clothesWind",
+    "sourceText": "Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988."
+  },
+  {
+    "id": "blanket-B33",
+    "type": "Esperimento",
+    "title": "Caso B33",
+    "conditions": "Slip, coperta spessa e materasso.",
+    "weight": 73,
+    "fc": "2.16",
+    "source": "blankets",
+    "sourceText": "Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988."
+  },
+  {
+    "id": "case-33",
+    "type": "Caso operativo",
+    "title": "Caso 33",
+    "conditions": "Supino sul letto, coperta spessa, pantaloni, boxer e slip.",
+    "weight": 62,
+    "fc": "2.00 - 2.40",
+    "source": "casework",
+    "url": "https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html",
+    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023."
+  },
+  {
+    "id": "case-6",
+    "type": "Caso operativo",
+    "title": "Caso 6",
+    "conditions": "Supino sul letto, camicia da notte e slip; due coperte molto spesse, circa 30 cm complessivi.",
+    "weight": 89,
+    "fc": "2.00 - 2.80",
+    "weightNote": "Range iniziale; nella fonte adattato a 1.80 - 2.50 per 89 kg.",
+    "source": "casework",
+    "url": "https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html",
+    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023."
+  },
+  {
+    "id": "case-55",
+    "type": "Caso operativo",
+    "title": "Caso 55",
+    "conditions": "Sul fianco, su asfalto; jeans e slip, aria in movimento.",
+    "weight": 80,
+    "fc": "0.80 - 1.00",
+    "source": "casework",
+    "url": "https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html",
+    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023."
+  }
+]
