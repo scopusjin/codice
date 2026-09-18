@@ -12,6 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 
 from app.graphing import aggiorna_grafico
+from app.cooling_inputs import finite_number
 from app.data_sources import load_tabelle_correzione
 from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
 from app.msil_tanatology import (
@@ -435,7 +436,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
 
 # Range TA e FC
 ta_center = st.session_state.get("ta_base_val")
-fc_center = float(st.session_state.get("fattore_correzione", 1.0))
+fc_center = st.session_state.get("fattore_correzione", 1.0)
 
 if ta_center is not None:
     try:
@@ -452,9 +453,13 @@ else:
 chosen_fc = st.session_state.get("__msil_fc_chosen_range")
 if chosen_fc:
     st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = chosen_fc
-else:
+elif finite_number(fc_center):
+    fc_center = float(fc_center)
     st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
     st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+else:
+    st.session_state.pop("FC_min_beta", None)
+    st.session_state.pop("FC_max_beta", None)
 
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
@@ -481,9 +486,7 @@ if st.session_state.get("run_stima_mobile"):
 
     
     considera_raffreddamento = (
-        input_rt is not None and
-        input_ta is not None and
-        input_w is not None and input_w > 0
+        input_rt is not None
     )
 
     aggiorna_grafico(
@@ -500,6 +503,17 @@ if st.session_state.get("run_stima_mobile"):
         input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=False,
         skip_warnings=True,
+        # Sopralluogo always uses its documented intervals, independently of
+        # the Full page's toggles. Do not overwrite those user preferences.
+        cooling_options={
+            "stima_cautelativa_beta": True,
+            "peso_stimato_beta": True,
+            "Ta_min_beta": st.session_state.get("Ta_min_beta"),
+            "Ta_max_beta": st.session_state.get("Ta_max_beta"),
+            "FC_min_beta": st.session_state.get("FC_min_beta"),
+            "FC_max_beta": st.session_state.get("FC_max_beta"),
+            "henssge_round_minutes": st.session_state.get("henssge_round_minutes", 30),
+        },
     )
 
 st.session_state["selettore_macchie"] = selettore_macchie

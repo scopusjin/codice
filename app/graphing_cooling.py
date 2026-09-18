@@ -20,10 +20,11 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento
 from app.parameters import INF_HOURS
 from app.utils_time import round_quarter_hour
+from app.cooling_inputs import checked_interval, checked_weight, finite_number
 
 
 def _is_num(x):
-    return x is not None and not (isinstance(x, float) and np.isnan(x))
+    return finite_number(x)
 
 
 def _classify_qd_for_ta(ta, qd) -> str | None:
@@ -61,7 +62,7 @@ def _aggregate_qd_status(counts: dict[str, int]) -> str | None:
 
 def _potente_limit_for_combination(ta, cf, peso) -> float | None:
     """Limite minimo di Potente per una singola combinazione cautelativa."""
-    if not all(_is_num(v) for v in (ta, cf, peso)):
+    if not all(_is_num(v) for v in (ta, cf, peso)) or float(cf) <= 0 or float(peso) <= 0:
         return None
     B = -1.2815 * (float(cf) * float(peso)) ** (-5 / 8) + 0.0284
     ln_term = np.log(0.16) if float(ta) <= 23.0 else np.log(0.45)
@@ -95,6 +96,7 @@ class CoolingState:
     qd_threshold: float
     gate_fail: bool
     detail_blocks: tuple[str, ...]
+    validation_error: str | None = None
 
 
 def compute_cooling_state(
@@ -106,9 +108,13 @@ def compute_cooling_state(
     fattore_correzione,
     data_ora_ispezione: datetime.datetime,
     skip_warnings: bool,
+    cooling_options=None,
 ) -> CoolingState:
     # --- normalizza locali; modalità silenziosa disattiva Henssge se mancano input ---
     Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
+    options = st.session_state if cooling_options is None else cooling_options
+    prudent = bool(options.get("stima_cautelativa_beta", False))
+    estimated_weight = prudent and bool(options.get("peso_stimato_beta", False))
 
     # placeholder valori calcolati
     t_min_raff_henssge = np.nan
@@ -126,17 +132,41 @@ def compute_cooling_state(
     raffreddamento_calcolabile = True
     detail_blocks: list[str] = []
 
-    if skip_warnings and (
-        W_val is None or W_val <= 0 or any(v is None for v in [Tr_val, Ta_val, T0_val])
-    ):
+    validation_error = None
+    Ta_range = CF_range = None
+    requested = any(v is not None for v in (Tr_val, Ta_val, T0_val, W_val))
+    try:
+        if requested:
+            if prudent:
+                # Both UI modes supply explicit bounds. An incomplete form is
+                # not permission to reuse old suggestions or invent +/- deltas.
+                Ta_range = checked_interval(
+                    (options.get("Ta_min_beta"), options.get("Ta_max_beta")),
+                    "temperatura ambientale")
+                CF_range = checked_interval(
+                    (options.get("FC_min_beta"), options.get("FC_max_beta")),
+                    "FC", positive=True)
+                # Canonical values also keep downstream warnings and Potente
+                # independent of the order of the two input fields.
+                Ta_val = Ta_range[0]
+                CF_val = sum(CF_range) / 2
+            elif not finite_number(CF_val) or float(CF_val) <= 0:
+                raise ValueError("Inserire un FC valido, maggiore di zero.")
+            W_val = checked_weight(W_val, estimated=estimated_weight)
+            if not all(finite_number(v) for v in (Tr_val, Ta_val, T0_val)):
+                raise ValueError("Completare le temperature per calcolare il raffreddamento.")
+            Tr_val, Ta_val, T0_val, CF_val = map(float, (Tr_val, Ta_val, T0_val, CF_val))
+    except ValueError as exc:
+        validation_error = str(exc)
+        detail_blocks.append("<ul><li>Raffreddamento non calcolato: " + validation_error + "</li></ul>")
+    if not requested or validation_error:
         Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
         raffreddamento_calcolabile = False
 
     #
     # Ta di riferimento e soglia Qd (prudente → usa Ta_max)
     if _is_num(Ta_val):
-        Ta_for_pot = float(st.session_state.get("Ta_max_beta", Ta_val)) \
-                     if st.session_state.get("stima_cautelativa_beta", False) else float(Ta_val)
+        Ta_for_pot = Ta_range[1] if prudent else float(Ta_val)
     else:
         Ta_for_pot = np.nan
 
@@ -159,37 +189,8 @@ def compute_cooling_state(
     # =========================
     # Henssge standard / Cautelativa
     # =========================
-    if st.session_state.get("stima_cautelativa_beta", False):
+    if prudent:
         if raffreddamento_calcolabile:
-            # --- TA range ---
-            Ta_range = None
-            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-                a, b = float(st.session_state["Ta_min_beta"]), float(st.session_state["Ta_max_beta"])
-                if a > b:
-                    a, b = b, a
-                Ta_range = (a, b)
-
-            # --- FC range: priorità al manuale se presente, poi suggerito, poi ±0.10 ---
-            CF_range = None
-            min_k = st.session_state.get("FC_min_beta", None)
-            max_k = st.session_state.get("FC_max_beta", None)
-
-            if min_k is not None and max_k is not None:
-                a, b = float(min_k), float(max_k)
-                if a > b:
-                    a, b = b, a
-                CF_range = (max(a, 0.01), max(b, 0.01))
-            else:
-                vals = st.session_state.get("fc_suggested_vals", [])
-                if len(vals) == 2:
-                    a, b = sorted([float(vals[0]), float(vals[1])])
-                    CF_range = (max(a, 0.01), max(b, 0.01))
-                elif len(vals) == 1:
-                    v = float(vals[0])
-                    CF_range = (max(v - 0.10, 0.01), max(v + 0.10, 0.01))
-                else:
-                    CF_range = None  # il core userà ±0.10 su CF_value
-
             # --- calcolo cautelativo ---
             res = compute_raffreddamento_cautelativo(
                 dt_ispezione=data_ora_ispezione,
@@ -198,12 +199,12 @@ def compute_cooling_state(
                 peso_kg=float(W_val),
                 Ta_range=Ta_range,
                 CF_range=CF_range,
-                peso_stimato=bool(st.session_state.get("peso_stimato_beta", False)),
+                peso_stimato=estimated_weight,
                 mostra_tabella=True,
                 solver_kwargs={
                     "Tr": float(Tr_val),
                     "T0": float(T0_val),
-                    "round_minutes": int(st.session_state.get("henssge_round_minutes", 30)),
+                    "round_minutes": int(options.get("henssge_round_minutes", 30)),
                 },
             )
 
@@ -256,34 +257,15 @@ def compute_cooling_state(
             raffreddamento_calcolabile = True
 
             # --- Range Ta/FC per riepilogo ---
-            if "Ta_min_beta" in st.session_state and "Ta_max_beta" in st.session_state:
-                ta_lo = float(st.session_state["Ta_min_beta"])
-                ta_hi = float(st.session_state["Ta_max_beta"])
-            else:
-                ta_lo = float(Ta_val) - 1.0
-                ta_hi = float(Ta_val) + 1.0
+            ta_lo, ta_hi = Ta_range
             ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
-            if st.session_state.get("FC_min_beta") is not None and st.session_state.get("FC_max_beta") is not None:
-                cf_lo = float(st.session_state["FC_min_beta"])
-                cf_hi = float(st.session_state["FC_max_beta"])
-            else:
-                vals = st.session_state.get("fc_suggested_vals", [])
-                if len(vals) == 2:
-                    cf_lo, cf_hi = sorted([float(vals[0]), float(vals[1])])
-                elif len(vals) == 1:
-                    v = float(vals[0])
-                    cf_lo, cf_hi = v - 0.10, v + 0.10
-                else:
-                    v = float(CF_val)
-                    cf_lo, cf_hi = v - 0.10, v + 0.10
-            cf_lo = max(cf_lo, 0.01)
-            cf_hi = max(cf_hi, 0.01)
+            cf_lo, cf_hi = CF_range
             cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
 
             p_txt = (
                 f"{max(W_val - 3, 1):.0f}–{(W_val + 3):.0f} kg"
-                if st.session_state.get("peso_stimato_beta", False)
+                if estimated_weight
                 else f"{W_val:.0f} kg"
             )
 
@@ -309,7 +291,7 @@ def compute_cooling_state(
             pass
     else:
         if raffreddamento_calcolabile:
-            round_minutes = int(st.session_state.get("henssge_round_minutes", 30))
+            round_minutes = int(options.get("henssge_round_minutes", 30))
             (
                 t_med_raff_henssge_rounded,
                 t_min_raff_henssge,
@@ -353,6 +335,7 @@ def compute_cooling_state(
         qd_threshold=qd_threshold,
         gate_fail=gate_fail,
         detail_blocks=tuple(detail_blocks),
+        validation_error=validation_error,
     )
 
 

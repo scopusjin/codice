@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Tuple
 import numpy as np
 from scipy.optimize import root_scalar
+from app.cooling_inputs import finite_number
 
 INF_HOURS = 200.0  # opzionale
 
@@ -26,7 +27,10 @@ def calcola_raffreddamento(
     t_min/max/med sono arrotondati allo step scelto.
     """
     # Validazioni base
-    if Tr is None or Ta is None or T0 is None or W is None or CF is None:
+    if not all(finite_number(v) for v in (Tr, Ta, T0, W, CF)):
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+    Tr, Ta, T0, W, CF = map(float, (Tr, Ta, T0, W, CF))
+    if W <= 0 or CF <= 0:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     temp_tolerance = 1e-6

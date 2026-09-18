@@ -15,6 +15,7 @@ from app import i18n
 from app.henssge import calcola_raffreddamento
 from app.utils_time import arrotonda_quarto_dora   # <-- SOLO questa
 from app.parameters import INF_HOURS
+from app.cooling_inputs import checked_interval, checked_weight, finite_number
 
 # ------------------------
 # Costanti e default range
@@ -56,9 +57,10 @@ def _expand_range(value: float,
                   rng: Optional[Tuple[float, float]],
                   delta_if_none: float) -> Tuple[float, float]:
     if rng is None:
-        return value - delta_if_none, value + delta_if_none
-    a, b = rng
-    return (min(a, b), max(a, b))
+        if not finite_number(value):
+            raise ValueError("Inserire un valore numerico valido per costruire l’intervallo.")
+        return float(value) - delta_if_none, float(value) + delta_if_none
+    return rng
 
 
 def _discretize(lo: float, hi: float, step: float,
@@ -150,8 +152,11 @@ def compute_raffreddamento_cautelativo(
     solver_kwargs = solver_kwargs or {}
 
     # 1) Costruisci i range effettivi
-    Ta_lo, Ta_hi = _expand_range(Ta_value, Ta_range, DEFAULT_TA_DELTA)
-    CF_lo, CF_hi = _expand_range(CF_value, CF_range, DEFAULT_CF_DELTA)
+    Ta_lo, Ta_hi = checked_interval(
+        _expand_range(Ta_value, Ta_range, DEFAULT_TA_DELTA), "temperatura ambientale")
+    CF_lo, CF_hi = checked_interval(
+        _expand_range(CF_value, CF_range, DEFAULT_CF_DELTA), "FC", positive=True)
+    peso_kg = checked_weight(peso_kg, estimated=peso_stimato)
 
     if peso_stimato:
         p_lo, p_hi = _expand_range(peso_kg, None, DEFAULT_PESO_DELTA)

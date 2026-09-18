@@ -35,25 +35,6 @@ def _is_num(x):
     except Exception:
         return False
 
-def _build_ta_values_from_ui():
-    vals = []
-    if st.session_state.get("stima_cautelativa_beta", False) and st.session_state.get("range_unico_beta", False):
-        vals.extend([st.session_state.get("Ta_min_beta"), st.session_state.get("Ta_max_beta")])
-    else:
-        vals.append(st.session_state.get("ta_base_val"))
-    vals = [float(v) for v in vals if _is_num(v)]
-    return sorted(set(vals))
-
-def _prudente_any_combination_possible(Tr_val, ta_vals):
-    """True se esiste almeno una combinazione fisicamente calcolabile (Tr > Ta)."""
-    if not _is_num(Tr_val):
-        return False
-    tv = [float(t) for t in ta_vals if _is_num(t)]
-    if not tv:
-        return False
-    tr = float(Tr_val)
-    return any(tr > ta for ta in tv)
-
 # ---------------------------
 # Palette / UI helpers
 # ---------------------------
@@ -1207,25 +1188,11 @@ if st.session_state["show_results"]:
             st.warning(i18n.ui_text("full.no_data_warning"))
         st.stop()
 
-    base_ok = (
+    # The cooling layer validates incomplete/invalid inputs and reports the
+    # specific field. Other tanatological parameters remain usable.
+    considera_raffreddamento = (
         not st.session_state.get("henssge_non_applicabile", False) and
-        not no_rt and
-        input_ta is not None and
-        input_tm is not None and
-        input_w  is not None and input_w > 0
-    )
-
-    prudente_ok = True
-    if base_ok and st.session_state.get("stima_cautelativa_beta", False):
-        ta_vals = _build_ta_values_from_ui()
-        if not ta_vals and _is_num(input_ta):
-            ta_vals = [float(input_ta)]
-        prudente_ok = _prudente_any_combination_possible(input_rt, ta_vals)
-        if not prudente_ok:
-            _warn_box(i18n.ui_text("full.henssge_incoherent_warning"))
-
-    considera_raffreddamento = base_ok and (
-        not st.session_state.get("stima_cautelativa_beta", False) or prudente_ok
+        input_rt is not None
     )
 
     with st.container(key="mortem_result_box"):
