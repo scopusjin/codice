@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 import datetime
 import textwrap
-import pandas as pd
 import streamlit as st
 from app import i18n
-from app.theme import apply_theme, warn_box
+from app.theme import apply_theme
 from app.theme import fc_panel_start
 from app.full_factor_panel import pannello_suggerisci_fc_mobile
 from app.mobile_shell import install_minimal_mobile_shell
@@ -13,33 +12,13 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
-from app.data_sources import load_tabelle_correzione
 from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_needs_review
-from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte)
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
     msil_livor_legacy_value,
     msil_rigor_legacy_value,
 )
-from app.factor_ui_states import (
-    LAYER_THIN,
-    LAYER_THICK,
-    BLANKET_MEDIUM,
-    BLANKET_HEAVY,
-)
-from app.msil_factor_ui import (
-    msil_body_labels,
-    msil_body_legacy_value,
-    msil_water_labels,
-    msil_water_legacy_value,
-    msil_clothing_label,
-    msil_surface_labels,
-    msil_surface_label,
-    msil_surface_legacy_value,
-)
-from app.surface_ui_states import SURFACE_THICK_METAL_OUTDOOR
-
 # ------------------------------------------------------------
 # Config pagina
 # ------------------------------------------------------------

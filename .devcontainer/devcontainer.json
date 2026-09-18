@@ -1,33 +1,20 @@
 {
-  "name": "Python 3",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
+  "name": "Mortem · Python 3.12",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
   "customizations": {
     "codespaces": {
-      "openFiles": [
-        "README.md",
-        "app.py"
-      ]
+      "openFiles": ["docs/sviluppo.md", "Stima_epoca_decesso.py"]
     },
     "vscode": {
-      "settings": {},
-      "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance"
-      ]
+      "extensions": ["ms-python.python", "ms-python.vscode-pylance"]
     }
   },
-  "updateContentCommand": "[ -f packages.txt ] && sudo apt update && sudo apt upgrade -y && sudo xargs apt install -y <packages.txt; [ -f requirements.txt ] && pip3 install --user -r requirements.txt; pip3 install --user streamlit; echo '✅ Packages installed and Requirements met'",
+  "postCreateCommand": "python -m pip install -r requirements.txt && python -m pip check",
   "postAttachCommand": {
-    "server": "streamlit run app.py --server.enableCORS false --server.enableXsrfProtection false"
+    "server": "python -m streamlit run Stima_epoca_decesso.py"
   },
   "portsAttributes": {
-    "8501": {
-      "label": "Application",
-      "onAutoForward": "openPreview"
-    }
+    "8501": {"label": "Mortem", "onAutoForward": "openPreview"}
   },
-  "forwardPorts": [
-    8501
-  ]
+  "forwardPorts": [8501]
 }

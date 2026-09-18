@@ -13,6 +13,8 @@ import re
 
 import streamlit as st
 
+from app.render_context import RenderContext, serialized_installation, electrical_images
+
 from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.native_time_picker import EMPTY_TIME_SENTINEL
@@ -155,7 +157,8 @@ class _MobileSpecialHelperContext:
             PARAM_ELECTRICAL_SUPRACILIARY,
             PARAM_ELECTRICAL_PERIORAL,
         }:
-            st._suppress_legacy_electrical_image = True
+            self._previous_suppression = electrical_images["suppressed"]
+            electrical_images["suppressed"] = True
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -163,7 +166,7 @@ class _MobileSpecialHelperContext:
             PARAM_ELECTRICAL_SUPRACILIARY,
             PARAM_ELECTRICAL_PERIORAL,
         }:
-            st._suppress_legacy_electrical_image = False
+            electrical_images["suppressed"] = self._previous_suppression
         return False
 
 
@@ -218,6 +221,7 @@ def _infer_measurement_date(main_date, main_time, measurement_time):
     return main_date
 
 
+@serialized_installation
 def install_special_datetime_ui():
     """Installa data/ora sempre visibili nella Full e UI speciale compatta."""
     if getattr(st, "_special_datetime_ui_installed", False):
@@ -233,9 +237,9 @@ def install_special_datetime_ui():
     original_container = st.container
     original_popover = st.popover
 
-    # Stato locale del renderer: viene impostato dal selectbox del parametro
-    # speciale e consumato soltanto dalla sequenza immediatamente successiva.
-    context = {
+    # Stato della sola esecuzione corrente, separato tra utenti e azzerato
+    # a ogni rerun prima di creare i contenitori della pagina.
+    context = RenderContext("special_datetime", {
         "parametro_id": None,
         "param_container": None,
         "clock_container": None,
@@ -244,7 +248,7 @@ def install_special_datetime_ui():
         "await_checkbox": False,
         "await_datetime": False,
         "datetime_labels_left": 0,
-    }
+    })
 
     original_markdown(
         """
