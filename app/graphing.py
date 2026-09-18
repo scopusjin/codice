@@ -22,8 +22,8 @@ from app.graphing_tanatology import (
     resolve_special_tanatology_value,
 )
 from app.special_tanatology_states import PARAM_ELECTRICAL_PERIORAL
-from app.graphing_cooling import compute_cooling_state
-from app.utils_time import arrotonda_quarto_dora, round_quarter_hour
+from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combination
+from app.utils_time import round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
     build_final_sentence, paragrafo_raffreddamento_dettaglio, paragrafo_potente,
@@ -100,7 +100,7 @@ def aggiorna_grafico(
             st.markdown(i18n.ui_text("graph.invalid_inspection_time_html"), unsafe_allow_html=True)
             return
         data_ora_ispezione_raw = datetime.datetime.combine(input_data_rilievo, ora_isp_obj.time())
-        data_ora_ispezione = arrotonda_quarto_dora(data_ora_ispezione_raw)
+        data_ora_ispezione = data_ora_ispezione_raw
     else:
         data_ora_ispezione_raw = datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0))
         data_ora_ispezione = data_ora_ispezione_raw
@@ -344,9 +344,6 @@ def aggiorna_grafico(
         FAMILY_RIGOR,
     )
 
-    def _round_half_hour(x: float) -> float:
-        return float(np.round(x * 2.0) / 2.0)
-
     # Potente minimo
     mt_ore = None
     mt_giorni = None
@@ -359,11 +356,9 @@ def aggiorna_grafico(
     elif all(_is_num(v) for v in [Tr_val, Ta_val, Ta_for_pot, CF_val, W_val]) and (
         (Tr_val - Ta_val) >= (0.1 - 1e-9) or temperatures_equal
     ):
-        B = -1.2815 * (CF_val * W_val) ** (-5/8) + 0.0284
-        ln_term = np.log(0.16) if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else np.log(0.45)
-        mt_ore_raw = ln_term / B
-        mt_ore = _round_half_hour(float(mt_ore_raw))
-        mt_giorni = round(mt_ore / 24.0, 1)
+        mt_ore = _potente_limit_for_combination(Ta_for_pot, CF_val, W_val)
+        if mt_ore is not None:
+            mt_giorni = round(mt_ore / 24.0, 1)
 
     if condizioni_variabili and raffreddamento_calcolabile:
         usa_potente = _is_num(potente_min_ore)

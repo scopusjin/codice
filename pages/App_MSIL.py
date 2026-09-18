@@ -14,7 +14,8 @@ from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
 from app.data_sources import load_tabelle_correzione
-from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
+from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_needs_review
+from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte)
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
@@ -381,16 +382,12 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
 # ------------------------------------------------------------
 if "__next_fc" in st.session_state:
     v = float(st.session_state.pop("__next_fc"))
-    st.session_state["fattore_correzione"] = floor_to_step(v)
+    st.session_state["fattore_correzione"] = rounded_fc(v)
 
 # Callback per normalizzare l'input FC su step 0,05 e chiudere il pannello "Suggerisci FC"
 def _normalize_fc_callback():
     st.session_state.pop("__msil_fc_chosen_range", None)
-    try:
-        v = float(st.session_state.get("fattore_correzione", 1.0))
-        st.session_state["fattore_correzione"] = floor_to_step(v)  # arrotonda per difetto a 0,05
-    except Exception:
-        return
+    normalize_fc_input(st.session_state, "fattore_correzione")
     # chiudi eventuali pannelli "Suggerisci FC" aperti
     st.session_state["toggle_fattore_inline_mobile"] = False  # toggle del pannello mobile
     st.session_state["toggle_fattore"] = False                # flag usato per mostrare il pannello
@@ -402,7 +399,7 @@ def _normalize_fc_callback():
 with c_fc:
     fc_placeholder.number_input(
         "", step=0.05, format="%.2f",
-        min_value=0.30,
+        min_value=0.35,
         key="fattore_correzione", label_visibility="collapsed",
         on_change=_normalize_fc_callback
     )
@@ -414,6 +411,9 @@ if st.session_state.get("__msil_fc_chosen_range"):
 # ------------------------------------------------------------
 # 3) Pulsante finale
 # ------------------------------------------------------------
+if fc_weight_needs_review(st.session_state):
+    st.warning("Peso modificato: ricontrollare il FC.")
+
 clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ------------------------------------------------------------
@@ -421,6 +421,7 @@ clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile"
 # ------------------------------------------------------------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
+        int(st.session_state.get("henssge_round_minutes", 30)),
         bool(st.session_state.get("usa_orario_custom", False)),
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
