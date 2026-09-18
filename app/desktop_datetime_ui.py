@@ -12,6 +12,8 @@ import inspect
 
 import streamlit as st
 
+from app.render_context import RenderContext, serialized_installation
+
 from app.device_mode import full_device_is_mobile
 import app.full_mobile_compact as _full_mobile_compact
 import app.full_mobile_layout as _full_mobile_layout
@@ -45,6 +47,7 @@ def _desktop_initial_style_bundle(body: str) -> str:
     )
 
 
+@serialized_installation
 def install_desktop_datetime_ui() -> None:
     """Installa gli adattamenti dedicati alla sola Full desktop."""
     if getattr(st, "_desktop_datetime_ui_installed", False):
@@ -60,13 +63,13 @@ def install_desktop_datetime_ui() -> None:
     current_number_input = st.number_input
     current_segmented_control = st.segmented_control
 
-    context = {
+    context = RenderContext("desktop_datetime", {
         "parametro_id": None,
         "await_datetime": False,
         "datetime_labels_left": 0,
         "clock_container": None,
         "time_container": None,
-    }
+    })
 
     def markdown_with_desktop_title(body, *args, **kwargs):
         # I wrapper Streamlit sono globali al processo, il dispositivo no:

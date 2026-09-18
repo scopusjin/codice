@@ -14,6 +14,8 @@ from io import BytesIO
 from pathlib import Path
 
 import streamlit as st
+
+from app.render_context import RenderContext, serialized_installation, electrical_images
 from PIL import Image
 
 from app.device_mode import full_device_is_mobile
@@ -129,11 +131,12 @@ class _ElectricalHelperPopover:
 
     def __enter__(self):
         _render_click_help(self._helper_text, self._key)
-        st._suppress_legacy_electrical_image = True
+        self._previous_suppression = electrical_images["suppressed"]
+        electrical_images["suppressed"] = True
         return None
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        st._suppress_legacy_electrical_image = False
+        electrical_images["suppressed"] = self._previous_suppression
         return False
 
 
@@ -456,6 +459,7 @@ def _is_electrical_title_row(spec):
     return _columns_signature(spec) == (1.0, 0.5)
 
 
+@serialized_installation
 def install_sopraciliare_click_selector():
     """Installa layout elettrico, helper testuali e renderer correnti."""
     if getattr(st, "_sopraciliare_click_selector_installed", False):
@@ -472,7 +476,7 @@ def install_sopraciliare_click_selector():
 
     # La coppia viene ricreata a ogni esecuzione quando compare la riga
     # principale sopraciliare; non conserviamo DeltaGenerator di rerun precedenti.
-    electrical_pair = {"columns": None, "stacks": None}
+    electrical_pair = RenderContext("electrical_pair", {"columns": None, "stacks": None})
 
     def create_electrical_pair():
         with st.container(key="electrical_pair_layout"):
@@ -570,7 +574,7 @@ def install_sopraciliare_click_selector():
         return original_popover(*args, **kwargs)
 
     def image_without_legacy_electrical_images(image, *args, **kwargs):
-        if getattr(st, "_suppress_legacy_electrical_image", False):
+        if electrical_images["suppressed"]:
             return None
         return original_image(image, *args, **kwargs)
 

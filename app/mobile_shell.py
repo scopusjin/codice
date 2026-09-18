@@ -5,6 +5,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from app.desktop_datetime_ui import install_desktop_datetime_ui
+from app.render_context import reset_render_contexts, serialized_installation
 
 
 _MINIMAL_MOBILE_SHELL_CSS = r"""
@@ -206,6 +207,7 @@ def _request_is_mobile() -> bool:
     return mobile
 
 
+@serialized_installation
 def _install_compact_cooling_help_labels() -> None:
     """Mantiene il ? dei soli helper desktop aderente alla relativa etichetta."""
     current_markdown = st.markdown
@@ -258,6 +260,7 @@ def _install_compact_cooling_help_labels() -> None:
 
 def install_minimal_mobile_shell() -> None:
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
+    reset_render_contexts()
     _install_compact_cooling_help_labels()
     is_mobile = _request_is_mobile()
     if is_mobile:
