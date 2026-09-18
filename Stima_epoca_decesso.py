@@ -25,9 +25,14 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
+from app.fc_selection import normalize_fc_input, fc_weight_needs_review
 
 import streamlit as st
 import datetime
+
+def _normalize_fc_field(key):
+    normalize_fc_input(st.session_state, key)
+
 
 def _is_num(x):
     try:
@@ -460,15 +465,15 @@ with st.container(border=True):
                     fc_min_val = st.number_input(
                         i18n.ui_text("full.fc_min_input"),
                         value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_min_val",
+                        step=0.05, format="%.2f",
+                        key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
                         label_visibility="collapsed"
                     )
                     fc_other_val = st.number_input(
                         i18n.ui_text("full.fc_max_input"),
                         value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                        step=0.1, format="%.2f",
-                        key="fc_other_val",
+                        step=0.05, format="%.2f",
+                        key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                         label_visibility="collapsed"
                     )
                     fc_values = [
@@ -573,8 +578,8 @@ with st.container(border=True):
                         fc_min_val = st.number_input(
                             i18n.ui_text("full.fc_min_input"),
                             value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                            step=0.1, format="%.2f",
-                            key="fc_min_val",
+                            step=0.05, format="%.2f",
+                            key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
                             label_visibility="collapsed",
                             _mortem_compact_label="",
                         )
@@ -582,8 +587,8 @@ with st.container(border=True):
                         fc_other_val = st.number_input(
                             i18n.ui_text("full.fc_max_input"),
                             value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                            step=0.1, format="%.2f",
-                            key="fc_other_val",
+                            step=0.05, format="%.2f",
+                            key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                             label_visibility="collapsed",
                             _mortem_compact_label="",
                         )
@@ -642,8 +647,8 @@ with st.container(border=True):
                     )
                     st.number_input(
                         i18n.ui_text("full.fc_input_label"),
-                        value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                        key="fattore_correzione", label_visibility="collapsed"
+                        value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
+                        key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed"
                     )
                     # Resta montato per conservare lo stesso stato; il CSS mobile
                     # lo nasconde perché il comando Consiglia è integrato nel V2.
@@ -706,8 +711,8 @@ with st.container(border=True):
                     with fc_input_col:
                         st.number_input(
                             i18n.ui_text("full.fc_input_label"),
-                            value=sget("fattore_correzione", 1.0), step=0.1, format="%.2f",
-                            key="fattore_correzione", label_visibility="collapsed",
+                            value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
+                            key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
                             _mortem_compact_label="",
                         )
                     with suggest_col:
@@ -733,6 +738,9 @@ with st.container(border=True):
                 peso_default=st.session_state.get("peso", 70.0),
                 key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
             )
+
+if fc_weight_needs_review(st.session_state):
+    st.warning("Peso modificato: ricontrollare il FC.")
 
 # Parametri aggiuntivi: sezione compatta, chiusa all'avvio e aperta soltanto
 # quando serve. Il toggle conserva la precedente semantica di inclusione.
@@ -902,6 +910,7 @@ def _inputs_signature():
         return str(v)
 
     base = [
+        int(st.session_state.get("henssge_round_minutes", 30)),
         bool(st.session_state.get("usa_orario_custom", False)),
         bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
         bool(st.session_state.get("henssge_non_applicabile", False)),

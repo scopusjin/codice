@@ -12,8 +12,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from app import i18n
-from app.henssge import calcola_raffreddamento
-from app.utils_time import arrotonda_quarto_dora   # <-- SOLO questa
+from app.henssge import calcola_raffreddamento, cooling_coefficient
 from app.parameters import INF_HOURS
 from app.cooling_inputs import checked_interval, checked_weight, finite_number
 
@@ -92,8 +91,8 @@ def _to_datetimes(ore_min: float,
     def _is_inf(h: Optional[float]) -> bool:
         return (h is None) or (not math.isfinite(h)) or (h >= INF_HOURS - 1e-9)
 
-    dt_min = None if _is_inf(ore_max) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max)))
-    dt_max = None if _is_inf(ore_min) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min)))
+    dt_min = None if _is_inf(ore_max) else dt_ispezione - timedelta(hours=float(ore_max))
+    dt_max = None if _is_inf(ore_min) else dt_ispezione - timedelta(hours=float(ore_min))
     return dt_min, dt_max
 
 
@@ -162,6 +161,9 @@ def compute_raffreddamento_cautelativo(
         p_lo, p_hi = _expand_range(peso_kg, None, DEFAULT_PESO_DELTA)
     else:
         p_lo, p_hi = peso_kg, peso_kg
+
+    # Do not silently drop an invalid part of the requested interval.
+    cooling_coefficient(p_hi, CF_hi)
 
     # 2) Discretizza
     Ta_vals = _discretize(Ta_lo, Ta_hi, Ta_step, max_points_per_dim)

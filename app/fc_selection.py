@@ -55,6 +55,7 @@ def apply_choice(state, payload, *, msil=False):
         state["__full_interval_ta_base_val"] = state.get("ta_base_val", 20.0)
         state["__full_interval_ta_other_val"] = state.get("ta_other_val", state.get("ta_base_val", 20.0))
     state["__fc_applied_choice"] = payload
+    state["__fc_reviewed_weight"] = weight
     state["fc_riassunto_contatori"] = None
     state["fattori_condizioni_parentetica"] = None
     state["fattori_condizioni_testo"] = payload.get("description") or None
@@ -63,3 +64,27 @@ def apply_choice(state, payload, *, msil=False):
     # Both views share the same selected FC; a later switch to MSIL must not
     # resurrect its previous range or replace this choice with +/- 0.10.
     state["__msil_fc_chosen_range"] = [lo, hi]
+
+
+def normalize_fc_input(state, key):
+    """Round a manual edit to the same nearest 0.05 used by the FC panel."""
+    try:
+        value = rounded_fc(state.get(key))
+    except (TypeError, ValueError):
+        return
+    state[key] = value
+    if value > 0:
+        state["__fc_reviewed_weight"] = state.get("peso")
+
+
+def fc_weight_needs_review(state):
+    """A changed weight never silently recalculates an operator's chosen FC."""
+    choice = state.get("__fc_applied_choice")
+    if not choice:
+        return False
+    try:
+        previous = float(state.get("__fc_reviewed_weight", choice.get("weight")))
+        current = float(state.get("peso"))
+    except (TypeError, ValueError):
+        return False
+    return isfinite(previous) and isfinite(current) and abs(previous - current) > 1e-8
