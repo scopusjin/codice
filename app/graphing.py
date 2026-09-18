@@ -69,6 +69,7 @@ def aggiorna_grafico(
     input_ora_rilievo: str | None,
     alterazioni_putrefattive: bool,
     skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
+    cooling_options=None,
     **kwargs,
 ):
     # Back-compat: accetta skip_warnings anche via **kwargs
@@ -128,6 +129,7 @@ def aggiorna_grafico(
         fattore_correzione=fattore_correzione,
         data_ora_ispezione=data_ora_ispezione,
         skip_warnings=skip_warnings,
+        cooling_options=cooling_options,
     )
     Tr_val = cooling.Tr_val
     Ta_val = cooling.Ta_val
@@ -149,7 +151,10 @@ def aggiorna_grafico(
     Ta_for_pot = cooling.Ta_for_pot
     qd_threshold = cooling.qd_threshold
     gate_fail = cooling.gate_fail
-    condizioni_variabili = bool(st.session_state.get("stima_cautelativa_beta", False))
+    options = st.session_state if cooling_options is None else cooling_options
+    condizioni_variabili = bool(options.get("stima_cautelativa_beta", False))
+    if cooling.validation_error:
+        st.warning("Raffreddamento non calcolato: " + cooling.validation_error)
     for blocco in cooling.detail_blocks:
         _add_det(blocco)
 
@@ -422,7 +427,7 @@ def aggiorna_grafico(
         comune_inizio = max(starts_clean)
         superiori_finiti = [v for v in fine if _is_num(v) and v < INF_HOURS]
         comune_fine = min(superiori_finiti) if superiori_finiti else np.nan
-        if st.session_state.get("stima_cautelativa_beta", False) and np.isnan(t_max_raff_henssge) and not superiori_finiti:
+        if condizioni_variabili and np.isnan(t_max_raff_henssge) and not superiori_finiti:
             comune_fine = np.nan
         if usa_potente and not superiori_finiti:
             comune_fine = np.nan
@@ -574,7 +579,7 @@ def aggiorna_grafico(
         not _is_num(W_val) or not _is_num(CF_val) or
         (_is_num(W_val) and W_val <= 0) or (_is_num(CF_val) and CF_val <= 0)
     )
-    if raffreddamento_richiesto and not raffreddamento_calcolabile:
+    if raffreddamento_richiesto and not raffreddamento_calcolabile and not cooling.validation_error:
         if missing_or_invalid:
             avvisi.append(i18n.ui_text("graph.henssge_missing_invalid"))
         elif temperatures_equal:
@@ -599,7 +604,7 @@ def aggiorna_grafico(
             avvisi.append(i18n.ui_text("graph.plateau_warning"))
 
         avvisi.extend(avvisi_raffreddamento_henssge(t_med_round=t_med_raff_henssge_rounded, qd_val=Qd_val_check))
-        if not st.session_state.get("stima_cautelativa_beta", False):
+        if not condizioni_variabili:
             cf_descr = build_cf_description(
                 cf_value=st.session_state.get("fattore_correzione", 1.0),
                 riassunto=st.session_state.get("fc_riassunto_contatori"),
