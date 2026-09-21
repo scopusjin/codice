@@ -108,14 +108,21 @@ _FC_RANGE_DESKTOP_HELP = (
 
 
 def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_key: str | None = None):
-    """Etichetta desktop esterna al V2, con helper nativo Streamlit opzionale."""
+    """Etichetta e spiegazione allineate nella stessa riga desktop."""
+    from app.full_mobile_layout import _render_click_help
+
     fc_class = " mortem-fc-field-label" if "(FC)" in text else ""
-    label_html = f"<div class='mortem-cooling-field-label{fc_class}'>{text}</div>"
-    st.markdown(
-        label_html,
-        unsafe_allow_html=True,
-        help=help_text if help_text and help_key else None,
-    )
+    with st.container(
+        horizontal=True, wrap=False, vertical_alignment="center", gap="xsmall",
+        key=f"desktop_cooling_label_{help_key or text}",
+    ):
+        st.markdown(
+            f"<div class='mortem-cooling-field-label{fc_class}'>{text}</div>",
+            unsafe_allow_html=True,
+            width="content",
+        )
+        if help_text and help_key:
+            _render_click_help(help_text, f"fcpanel_std_vest_help_slot_cooling_{help_key}")
 
 
 # =========================
@@ -378,7 +385,10 @@ with st.container(border=True):
                 help=i18n.ui_text("full.henssge_not_applicable_help"),
             )
 
-    st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+    if full_mobile or henssge_non_app:
+        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+    # Widget events update session_state before this run, even when the toggle
+    # is rendered below the temperature fields on desktop.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
 
     # La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
@@ -555,6 +565,9 @@ with st.container(border=True):
                                 _mortem_compact_label="",
                             )
 
+                    with _ta_right:
+                        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+
                     ta_values = [
                         st.session_state.get("ta_base_val"),
                         st.session_state.get("ta_other_val"),
@@ -703,6 +716,9 @@ with st.container(border=True):
                                 key="ta_base_val", label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
+
+                    with _ta_right:
+                        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
 
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_input_col, suggest_col, _suggest_spacer = st.columns(

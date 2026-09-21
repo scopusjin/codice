@@ -9,6 +9,22 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FCPageTests(unittest.TestCase):
+    def test_desktop_relocated_conditions_toggle_updates_mode_in_same_run(self):
+        app = self.start(False)
+        for enabled in (True, False, True):
+            app.toggle(key="stima_cautelativa_beta").set_value(enabled).run()
+            self.assertEqual(list(app.exception), [])
+            self.assertEqual(app.session_state["range_unico_beta"], enabled)
+            self.assertEqual(
+                sum(toggle.key == "stima_cautelativa_beta" for toggle in app.toggle), 1,
+            )
+            labels = [e.value for e in app.markdown]
+            self.assertEqual(any("Range fattore di correzione (FC)" in s for s in labels), enabled)
+        for excluded in (True, False):
+            app.checkbox(key="henssge_non_applicabile").set_value(excluded).run()
+            self.assertEqual(list(app.exception), [])
+            self.assertTrue(app.toggle(key="stima_cautelativa_beta").value)
+
     def test_special_helpers_across_desktop_and_mobile_sessions(self):
         # Streamlit wrappers are process-global, while device mode is per session.
         # Exercise both orders, including a mobile session after desktop setup.
