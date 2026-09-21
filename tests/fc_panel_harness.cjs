@@ -17,8 +17,9 @@ for(const m of html.matchAll(/id="([^"]+)"/g)){assert(!nodes[m[1]],'Duplicate ID
 const markup=html.slice(0,html.indexOf('<script>'));parseInputs(markup);parseButtons(markup);
 nodes['weight-data'].textContent=html.match(/id="weight-data">(.*?)<\/script>/s)[1];
 nodes.surface.value='0';nodes.water.value='stagnante';nodes.air.value='still';
-const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,SOURCES,table};})();');
+const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table};})();');
 const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,window:{}};vm.runInNewContext(code,ctx);
+ctx.window.FCPanel.setExamples(JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_examples.json'),'utf8')));
 const api=ctx.api,base={state:'Asciutto',s:0,p:0,m:0,h:0,surf:0,air:'still',wind:false,strongWind:false,isolation:'',volume:'',water:'stagnante',feather:'no',leaf:'wet'};
 const run=c=>JSON.parse(JSON.stringify(api.evaluateFC({...base,...c}))),eq=(c,expected)=>assert.deepEqual(run(c).range,expected,JSON.stringify(c));
 

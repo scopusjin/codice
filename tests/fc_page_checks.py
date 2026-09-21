@@ -1,4 +1,5 @@
 import datetime
+import json
 import unittest
 from pathlib import Path
 
@@ -47,6 +48,13 @@ class FCPageTests(unittest.TestCase):
         app.session_state["__full_device_mobile"] = mobile
         app.run()
         self.assertEqual(list(app.exception), [])
+        if not msil:
+            titles = [e.proto.body for e in app.get("html")
+                      if "id='mortem-page-title'" in e.proto.body]
+            self.assertEqual(len(titles), 0 if mobile else 1)
+            if titles:
+                self.assertIn("STIMA EPOCA DECESSO", titles[0])
+                self.assertNotIn("display:none", titles[0])
         return app
 
     def open(self, app, msil=False):
@@ -55,6 +63,10 @@ class FCPageTests(unittest.TestCase):
         app.run()
         self.assertEqual(list(app.exception), [])
         self.assertTrue(app.session_state["__fc_active"])
+        from app.fc_catalog import load_examples
+        components = app.get("component_instance")
+        fc_component = next(c for c in components if c.proto.component_name.endswith("mortem_fc_panel"))
+        self.assertEqual(json.loads(fc_component.proto.json_args)["examples"], load_examples())
 
     def event(self, app, action, **values):
         instance = app.session_state["__fc_instance"]

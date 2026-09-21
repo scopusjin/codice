@@ -30,6 +30,7 @@
     document.documentElement.style.colorScheme = args.theme_base === 'dark' ? 'dark' : 'light';
     if (!initialized || instance !== args.instance) {
       instance = args.instance;
+      window.FCPanel.setExamples(args.examples);
       window.FCPanel.restore(args.draft, typeof args.weight === 'number' ? args.weight : NaN);
       initialized = true; navigating = false;
     }

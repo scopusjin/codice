@@ -357,37 +357,32 @@ function bounds(a,b,w){
 }
 // Documentary examples are independent of the calculation engine.
 // Original experimental FCs remain at the reported body weight, not normalized to 70 kg.
-const BOOK_URL='https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html';
-const EXAMPLE_SOURCES={
-  clothesStill:'Henssge e Madea, 1988; Stipanits e Henssge, 1985, Beitr Gerichtl Med. 43:323–329.',
-  clothesWind:'Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988.',
-  blankets:'Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988.',
-  wet:'Henssge e Brinkmann, Arch Kriminol. 1984;174:96–112.',
-  casework:'Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023.'
+// Documentary values and sources are supplied from data/fc_examples.json.
+// Only the matching criteria belong to the panel.
+const EXAMPLE_MATCHERS={
+  'wet-51-44':c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.p>=3,
+  'wet-case-15':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true,
+  'wet-41':c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.s===1&&c.p===0,
+  'wet-52':c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1,
+  'wet-50':c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1,
+  'still-B63':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
+  'still-B58':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf<=1,
+  'still-H6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===3&&c.surf<=1,
+  'still-B54':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6&&c.surf<=1,
+  'wind-H15':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
+  'wind-H14':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0,
+  'blanket-B33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p<=1&&c.surf<=2,
+  'case-33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2,
+  'case-6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2,
+  'case-55':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===1,
 };
-const EXAMPLES=[
-  {id:'wet-51-44',type:'Esperimenti',title:'Casi 51 e 44',conditions:'Mutanda contenitiva, pantaloni e tre camici bagnati, senza correnti d’aria.',observations:'FC 1.10 a 69.5 kg; FC 1.30 a 65 kg.',source:'wet',match:c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.p>=3},
-  {id:'wet-case-15',type:'Caso operativo',title:'Caso 15',conditions:'Sul fianco, su strada; pantaloni da tuta e slip fradici, pioggia e aria mobile.',weight:76,fc:'0.60 - 0.80',source:'casework',url:BOOK_URL,difference:'FC centrale 0.70; l’appoggio è già compreso. Confrontare anche il caso 22 su terreno.',match:c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true},
-  {id:'wet-41',type:'Esperimento',title:'Caso 41',conditions:'Un camice completamente bagnato, aria ferma.',weight:84.5,fc:'1.00',source:'wet',difference:'Il camice è l’ancora sperimentale del range 0.90–1.00 proposto per un leggero. Non verifica la combinazione con l’appoggio selezionato.',match:c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.s===1&&c.p===0},
-  {id:'wet-52',type:'Esperimento',title:'Caso 52',conditions:'Superficie corporea bagnata; ambiente chiuso, aria ferma.',weight:65,fc:'0.75',source:'wet',difference:'Dato individuale; l’appoggio non è precisato in questa riga della tabella.',match:c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1},
-  {id:'wet-50',type:'Esperimento',title:'Caso 50',conditions:'Superficie corporea bagnata; ambiente chiuso, aria ferma.',weight:45,fc:'0.77',source:'wet',difference:'Altro peso corporeo; l’appoggio non è precisato nella riga.',match:c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1},
-  {id:'still-B63',type:'Esperimento',title:'Caso B63',conditions:'Slip sul tronco inferiore; aria ferma, appoggio termicamente neutro.',weight:110,fc:'1.10',source:'clothesStill',difference:'Il contatore non identifica il capo effettivo; valore al peso dello studio.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1},
-  {id:'still-B58',type:'Esperimento',title:'Caso B58',conditions:'Pantaloni e mutande corte sul tronco inferiore; aria ferma, appoggio neutro.',weight:68,fc:'1.10',source:'clothesStill',difference:'Spessore e materiale dei capi non equivalgono automaticamente ai contatori.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf<=1},
-  {id:'still-H6',type:'Esperimento',title:'Caso H6',conditions:'Pantaloni e due paia di mutande lunghe sul tronco inferiore; aria ferma, appoggio neutro.',weight:68,fc:'1.07',source:'clothesStill',difference:'Tre capi descritti: il loro isolamento non è determinato dal solo numero.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===3&&c.surf<=1},
-  {id:'still-B54',type:'Esperimento',title:'Caso B54',conditions:'Cardigan lungo, pantaloni e mutande lunghe spesse sul tronco inferiore; aria ferma, appoggio neutro.',weight:63.5,fc:'1.44',source:'clothesStill',difference:'La selezione non conferma questi capi né il loro isolamento effettivo.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6&&c.surf<=1},
-  {id:'wind-H15',type:'Esperimento',title:'Caso H15',conditions:'Slip sul tronco inferiore; aria in movimento permanente.',weight:67.5,fc:'0.90',source:'clothesWind',difference:'Il movimento deve essere effettivo vicino al corpo; appoggio non precisato nella riga.',match:c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1},
-  {id:'wind-H14',type:'Esperimento',title:'Caso H14',conditions:'Pantaloni e mutande lunghe; aria in movimento permanente.',weight:78,fc:'0.97',source:'clothesWind',difference:'Indumenti non identificati dai contatori; continuità dell’aria e appoggio da confrontare.',match:c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0},
-  {id:'blanket-B33',type:'Esperimento',title:'Caso B33',conditions:'Slip, coperta spessa e materasso.',weight:73,fc:'2.16',source:'blankets',difference:c=>'Il riferimento include già il materasso; '+(c.surf===2?'verificare che l’appoggio sia un materasso e non un tappeto.':'l’appoggio selezionato è diverso.')+' Copertura e indumento da confrontare.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p<=1&&c.surf<=2},
-  {id:'case-33',type:'Caso operativo',title:'Caso 33',conditions:'Supino sul letto, coperta spessa, pantaloni, boxer e slip.',weight:62,fc:'2.00 - 2.40',source:'casework',url:BOOK_URL,difference:c=>'Il range comprende l’intera configurazione, letto incluso. '+(c.surf===2?'Verificare il materasso e i capi effettivi.':'L’appoggio selezionato è diverso.')+' Aria non precisata nella descrizione.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2},
-  {id:'case-6',type:'Caso operativo',title:'Caso 6',conditions:'Supino sul letto, camicia da notte e slip; due coperte molto spesse, circa 30 cm complessivi.',weight:89,fc:'2.00 - 2.80',weightNote:'Range iniziale; nella fonte adattato a 1.80 - 2.50 per 89 kg.',source:'casework',url:BOOK_URL,difference:'Lo spessore complessivo non è noto dai contatori; letto incluso, aria non precisata. Non equivale a qualsiasi coppia di coperte.',match:c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2},
-  {id:'case-55',type:'Caso operativo',title:'Caso 55',conditions:'Sul fianco, su asfalto; jeans e slip, aria in movimento.',weight:80,fc:'0.80 - 1.00',source:'casework',url:BOOK_URL,difference:'Confronto valido per asfalto; la stessa voce dell’app comprende anche terreno e prato. Jeans e slip non sono identificati dai contatori.',match:c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===1}
-];
+const EXAMPLES=[];
 function exampleFCText(e){
   const observations=e.observations?.replace(/ a ([0-9.]+) kg/g,(text,weight)=>Number(weight)>=60&&Number(weight)<=80?'':text);
-  return observations|| (e.weightNote?'FC iniziale: '+e.fc+'; a '+e.weight.toFixed(1)+' kg: 1.80 - 2.50.':'FC: '+e.fc+(e.weight<60||e.weight>80?' · '+e.weight.toFixed(1)+' kg':''));
+  return observations|| (e.weightNote?'FC iniziale: '+e.fc+'; a '+e.weight.toFixed(1)+' kg: '+e.adjustedFc+'.':'FC: '+e.fc+(e.weight<60||e.weight>80?' · '+e.weight.toFixed(1)+' kg':''));
 }
 function exampleConditions(e){return e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria');}
-function exampleMatches(c){if(['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>e.match(c));}
+function exampleMatches(c){if(['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
   if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
@@ -432,7 +427,7 @@ function showSource(){
     paragraph(item,(e.type==='Caso operativo'?'Esempio dai casi operativi riportati da Henssge':'Esempio dai casi sperimentali riportati da Henssge')+' · '+e.title);
     paragraph(item,exampleConditions(e));
     paragraph(item,exampleFCText(e));
-    sourceLink(citations,EXAMPLE_SOURCES[e.source],e.url);list.append(item);
+    sourceLink(citations,e.sourceText,e.url);list.append(item);
   }
 }
 function update(){
@@ -511,6 +506,9 @@ q('#open-tables').addEventListener('click',event=>{event.preventDefault();window
 recalc();
 const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
+  setExamples(examples){
+    EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
+  },
   snapshot(){
     return {state, fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:q('#water-near-zero').checked,wetCase:q('#wet-case').checked,

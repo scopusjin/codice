@@ -33,6 +33,14 @@ Non salvare contenitori Streamlit in variabili globali o in `session_state`: que
 
 I test di isolamento esercitano accessi concorrenti al contesto e il suo azzeramento, oltre ai percorsi applicativi desktop/mobile. Non equivalgono a una prova di carico del sito o a una verifica visiva su tutti i browser. La futura sostituzione dei wrapper globali con renderer espliciti resta un intervento separato.
 
-## Motore FC precedente
+## Motore FC e catalogo esempi
 
-Il nuovo pannello usa `app/fc_panel_frontend/`. Gli import inutilizzati del vecchio motore sono rimossi dalla pagina sopralluogo. `app/factor_calc.py` resta disponibile per descrizioni e compatibilità; non è stato eliminato né modificato nelle formule durante questa manutenzione.
+Il motore attivo resta in `app/fc_panel_frontend/index.html`. I dati dei 15 esempi documentari sono definiti una sola volta in `data/fc_examples.json`: `app/fc_catalog.py` li fornisce sia al componente FC, tramite gli argomenti Streamlit, sia alla pagina Tabelle. Il pannello mantiene soltanto i criteri di abbinamento per identificativo. Non occorrono richieste esterne per caricare gli esempi.
+
+Per aggiungere un esempio, aggiornare il JSON e il criterio in `EXAMPLE_MATCHERS`; i test verificano la corrispondenza degli identificativi e il trasferimento al componente. I valori FC negli esempi restano quelli documentari, senza arrotondamenti o adattamenti aggiuntivi. La casistica inclusa non rappresenta l'intera casistica pubblicata.
+
+Le descrizioni dei risultati sono in `app/fc_description.py`. `app/factor_calc.py` conserva il vecchio motore esclusivamente per compatibilità storica e riesporta la descrizione: nessun modulo applicativo lo importa. Le vecchie formule non sono usate per i suggerimenti attuali. I test storici in `tests/test_wet_naked_surface_ranges.py` riguardano solo quel modulo; le regole attive sono verificate dai test JavaScript.
+
+## Spazi desktop
+
+`app/desktop_layout.py` gestisce il layout Full desktop attraverso il titolo reale `#mortem-page-title`. Il margine superiore riserva spazio alla barra Streamlit; il contenuto resta largo al massimo 100 rem. La griglia usa la larghezza disponibile del contenitore (anche con sidebar aperta): sotto 70 rem, una colonna; da 70 rem, campi a sinistra e calcolo/risultati a destra. I risultati scorrono normalmente per evitare sovrapposizioni nei notebook con poca altezza. Il CSS mobile resta separato.

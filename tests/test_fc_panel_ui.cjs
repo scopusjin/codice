@@ -24,16 +24,17 @@ console.log('FC controls: manual bounds, weight, draft, immersion and tables han
 // Exercise the actual component bridge: rerenders retain drafts, navigation is
 // emitted once and cannot be overwritten by a delayed draft event.
 const fs=require('fs'),vm=require('vm'),path=require('path');
+const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/fc_examples.json'),'utf8'));
 const messages=[],events={},rootEvents={};let restored=0,callback=null;
 const parent={postMessage:m=>messages.push(m)};
-const win={parent,FCPanel:{restore(){restored++;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
+const win={parent,FCPanel:{setExamples(examples){assert.deepEqual(examples,catalog);},restore(){restored++;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
 const root={getBoundingClientRect:()=>({height:600}),addEventListener:(name,cb)=>rootEvents[name]=cb};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend/bridge.js'),'utf8'),{
  window:win,document:{getElementById:id=>id==='fc-full'?root:{disabled:false},documentElement:{style:{}}},
  ResizeObserver:class{observe(){}},crypto:{randomUUID:()=>String(messages.length)},
  setTimeout:cb=>{callback=cb;return 1;},clearTimeout:()=>{callback=null;},
 });
-const render={source:parent,data:{type:'streamlit:render',args:{instance:'test',weight:70,draft:null}}};
+const render={source:parent,data:{type:'streamlit:render',args:{instance:'test',weight:70,draft:null,examples:catalog}}};
 events.message(render);events.message(render);assert.equal(restored,1);
 rootEvents.input();callback();assert.equal(messages.at(-1).value.action,'draft');
 rootEvents.input();win.FCBridge.send('tables');rootEvents.click();

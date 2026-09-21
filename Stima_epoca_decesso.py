@@ -244,12 +244,12 @@ if full_device_is_mobile():
         unsafe_allow_html=True,
     )
 else:
+    from app.desktop_layout import DESKTOP_LAYOUT_CSS
+    st.html(DESKTOP_LAYOUT_CSS)
     with st.container(gap=None, key="full_page_title_desktop"):
         st.html(
-            "<span class='mortem-full-title' aria-hidden='true' "
-            "style='display:none;'></span>"
+            f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
         )
-        st.markdown(f"##### {page_title}")
 
 # --- Definizione Widget (Streamlit) ---
 
