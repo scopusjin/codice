@@ -6,6 +6,8 @@ from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app.mobile_shell import install_minimal_app_chrome
+
 
 _DESKTOP_WIDTH = 1440
 _PREVIEW_HEIGHT = 920
@@ -46,6 +48,8 @@ if _frame_mode:
         },
     )
     st.stop()
+
+install_minimal_app_chrome()
 
 _DESKTOP_WIDTH = st.selectbox(
     "Larghezza finestra (px)",

@@ -17,10 +17,6 @@
     pointer-events: auto !important;
     z-index: 100 !important;
   }
-  /* Keep navigation available without the hosting/developer actions. */
-  html body:has(#mortem-page-title) :is([data-testid="stToolbarActions"], [data-testid="stMainMenu"]) {
-    display: none !important;
-  }
   html body:has(#mortem-page-title) [data-testid="stSidebar"],
   html body:has(#mortem-page-title) [data-testid="stSidebarContent"] {
     width: max-content !important;
