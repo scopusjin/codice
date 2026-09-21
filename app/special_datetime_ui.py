@@ -56,7 +56,6 @@ _SHORT_LABELS = {
 }
 _HELPER_TEXTS = {
     PARAM_ELECTRICAL_SUPRACILIARY: (
-        "Eccitabilità elettrica sopraciliare. "
         "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
         "stimolazione elettrica della regione sopraciliare e classificazione dell’estensione della "
         "risposta muscolare. Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale "
@@ -64,7 +63,6 @@ _HELPER_TEXTS = {
         "30 mA · 10 ms · 50 Hz."
     ),
     PARAM_ELECTRICAL_PERIORAL: (
-        "Eccitabilità elettrica peribuccale. "
         "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
         "stimolazione elettrica della regione peribuccale e classificazione della risposta come "
         "contrazione dei muscoli facciali, dei muscoli peribuccali, reazione focale o assenza di "
@@ -72,13 +70,11 @@ _HELPER_TEXTS = {
         "di circa 0.5 - 0.7 cm, e applicare uno stimolo di 30 mA · 10 ms · 50 Hz."
     ),
     PARAM_MECHANICAL_MUSCLE: (
-        "Eccitabilità muscolare meccanica. "
         "Il metodo valuta la persistenza dell’eccitabilità muscolare meccanica residua mediante "
         "percussione del muscolo bicipite del braccio, osservando la risposta: contrazione dell’intero "
         "muscolo, tumefazione reversibile, piccola tumefazione persistente o nessuna reazione."
     ),
     PARAM_CHEMICAL_PUPILLARY: (
-        "Eccitabilità chimica pupillare. "
         "Il metodo valuta la persistenza dell’eccitabilità chimica dell’iride mediante instillazione "
         "di atropina, tropicamide o acetilcolina e osservazione del diametro pupillare: dilatazione, "
         "riduzione o assenza di variazione."
