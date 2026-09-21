@@ -16,7 +16,7 @@ import streamlit as st
 from app.render_context import RenderContext, serialized_installation, electrical_images
 
 from app.device_mode import full_device_is_mobile
-from app.full_mobile_layout import _render_click_help
+from app.full_mobile_layout import _render_click_help, _render_help_copy
 from app.native_time_picker import EMPTY_TIME_SENTINEL
 from app.special_tanatology_states import (
     PARAM_CHEMICAL_PUPILLARY,
@@ -128,7 +128,7 @@ class _NoopContext:
 
 
 class _MobileSpecialHelperContext:
-    """Helper mobile con denominazione estesa e nota del parametro."""
+    """Helper mobile con lo stesso stile degli altri aiuti."""
 
     def __init__(self, parametro_id, popover_factory, container_factory):
         self._parametro_id = parametro_id
@@ -137,18 +137,12 @@ class _MobileSpecialHelperContext:
 
     def __enter__(self):
         helper_text = _HELPER_TEXTS[self._parametro_id]
-        sentences = [
-            sentence.strip()
-            for sentence in re.split(r"(?<=\.)\s+", helper_text)
-            if sentence.strip()
-        ]
         with self._container_factory(
             width="content",
             key=f"mortem_help_prudent_electrical_{self._parametro_id}",
         ):
             with self._popover_factory("?"):
-                for sentence in sentences:
-                    st.markdown(sentence)
+                _render_help_copy(helper_text)
         if self._parametro_id in {
             PARAM_ELECTRICAL_SUPRACILIARY,
             PARAM_ELECTRICAL_PERIORAL,

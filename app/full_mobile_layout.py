@@ -578,6 +578,18 @@ def _tag_full_field_heading(body):
     return body
 
 
+def _render_help_copy(text: str) -> None:
+    """Contenuto uniforme per gli helper desktop e mobile."""
+    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    blocks = []
+    for line in lines:
+        escaped = html.escape(line)
+        css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
+        blocks.append(f'<div class="{css_class}">{escaped}</div>')
+    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
+    st.markdown(content, unsafe_allow_html=True)
+
+
 def _render_click_help(text: str, key: str) -> None:
     if key in {
         "mortem_help_prudent_ta_standard",
@@ -591,17 +603,9 @@ def _render_click_help(text: str, key: str) -> None:
         )
         return
 
-    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
-    blocks = []
-    for line in lines:
-        escaped = html.escape(line)
-        css_class = "mortem-help-copy-bullet" if line.startswith("•") else "mortem-help-copy-intro"
-        blocks.append(f'<div class="{css_class}">{escaped}</div>')
-    content = f'<div class="mortem-help-copy">{"".join(blocks)}</div>'
-
     with st.container(width="content", key=key):
         with st.popover("?"):
-            st.markdown(content, unsafe_allow_html=True)
+            _render_help_copy(text)
 
 
 def install_full_mobile_layout():
