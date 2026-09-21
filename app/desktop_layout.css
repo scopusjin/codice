@@ -121,6 +121,10 @@
     margin-bottom: 0.25rem !important;
   }
   /* Same label line and field gap for temperature, weight and correction factor. */
+  /* Remove the inline iframe baseline gap beside the 40px V2 controls. */
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) iframe[data-testid="stCustomComponentV1"] {
+    display: block !important;
+  }
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop),
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stVerticalBlock"] {
     gap: 4px !important;

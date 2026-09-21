@@ -134,6 +134,21 @@ body {
   display: none;
 }
 
+/* Desktop reminder: verify these values for the current case. */
+.number-control.review-required #number-input {
+  border: 1px solid #d6ad21;
+  border-radius: 6px;
+}
+.number-control.review-required.has-unit #number-input {
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+}
+.number-control.review-required.has-unit .mobile-unit {
+  border: 1px solid #d6ad21;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+}
+
 .number-control.compact-mobile .step-button {
   flex-basis: 34px;
   width: 34px;
