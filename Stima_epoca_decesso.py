@@ -108,7 +108,8 @@ _FC_RANGE_DESKTOP_HELP = (
 
 def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_key: str | None = None):
     """Etichetta desktop esterna al V2, con helper nativo Streamlit opzionale."""
-    label_html = f"<div class='mortem-cooling-field-label'>{text}</div>"
+    fc_class = " mortem-fc-field-label" if "(FC)" in text else ""
+    label_html = f"<div class='mortem-cooling-field-label{fc_class}'>{text}</div>"
     st.markdown(
         label_html,
         unsafe_allow_html=True,
