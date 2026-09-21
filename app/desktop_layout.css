@@ -13,6 +13,9 @@
     width: max-content !important;
     padding-inline: 0.65rem !important;
   }
+  html body:has(#mortem-page-title) [data-testid="stSidebarContent"] {
+    padding-inline: 0 !important;
+  }
   html body:has(#mortem-page-title) [data-testid="stSidebarNavLink"] span {
     width: max-content !important;
     white-space: nowrap !important;
@@ -61,6 +64,7 @@
     font-size: clamp(1.2rem, 1.25vw, 1.5rem) !important;
     font-weight: 650 !important;
     line-height: 1.25 !important;
+    text-align: left !important;
   }
   /* In one column the action follows the form and remains near the bottom. */
   html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
@@ -223,9 +227,26 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"],
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+  }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label > * {
+    position: static !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label::after {
+    display: none !important;
+  }
   @container mortem-desktop (max-width: 45rem) {
     html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"]) {
       flex-wrap: wrap !important;
+      flex-direction: row !important;
       gap: 0.5rem !important;
     }
     html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"] {
