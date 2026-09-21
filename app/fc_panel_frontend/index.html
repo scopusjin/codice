@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Suggerisci FC</title><style>body{margin:0;background:transparent;color:light-dark(#24332c,#e8eee9)}#fc-full .case-table-scroll{overflow-x:auto;max-width:100%}
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consiglia FC</title><style>body{margin:0;background:transparent;color:light-dark(#24332c,#e8eee9)}#fc-full .case-table-scroll{overflow-x:auto;max-width:100%}
 #fc-full .case-table{border-collapse:collapse;width:100%;min-width:620px;font-size:12px;text-align:left}
 #fc-full .case-table th,#fc-full .case-table td{padding:6px;border:1px solid var(--fc-line);vertical-align:top;overflow-wrap:anywhere}
 #fc-full .case-table th{background:var(--fc-soft);font-weight:500}
@@ -74,7 +74,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 @media(pointer:coarse){#fc-full #suggest-weight-slot #shared-weight input{font-size:16px;min-height:44px}}
 </style>
 <section id="suggest-page">
-<div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3>Suggerisci FC</h3></div>
+<div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3>Consiglia FC</h3></div>
 <div class="row states" role="group" aria-label="Stato del corpo"><button data-state="Asciutto" aria-pressed="true">Asciutto</button><button data-state="Bagnato" aria-pressed="false">Bagnato</button><button data-state="Immerso" aria-pressed="false">Immerso</button></div>
 <div id="air-fields">
 <div class="grid" id="counts"></div>
@@ -101,12 +101,12 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="hint" id="origin"></div>
 <div id="error" class="error" role="alert"></div>
 <div id="detail" hidden></div>
-<details id="source-panel"><summary>Spiegazione e fonte</summary>
+<details id="source-panel"><summary>Come viene consigliato il FC</summary>
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><div id="example-list"></div></div>
-<details id="source-details"><summary>Fonti</summary><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
-</details>
+<div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
+</div>
 <a id="open-tables" href="#tables-page">Apri le tabelle →</a>
 </details>
 </div>
@@ -482,7 +482,6 @@ function recalc(){
     el.setAttribute('aria-required',String(required));
   }
   q('#wet-case-row').hidden=state!=='Bagnato'||c.air!=='continuous'||c.surf!==1||c.m+c.h>0||c.s+c.p!==2;
-  q('#source-details').open=false;
   result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});
   const w=num(q('#weight'));
   const adapted=result.range&&Number.isFinite(w)&&w>=4&&w<=150?bounds(...result.range,w):null;
