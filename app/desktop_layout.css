@@ -2,7 +2,7 @@
   /* The native sidebar command shares the compact title line. */
   html body:has(#mortem-page-title) [data-testid="stHeader"],
   html body:has(#mortem-page-title) [data-testid="stToolbar"] {
-    height: 0 !important;
+    height: 2.5rem !important;
     min-height: 0 !important;
     background: transparent !important;
     pointer-events: none !important;
