@@ -230,6 +230,7 @@ function onRender(event) {
   input.disabled = disabled;
   control.classList.toggle("is-disabled", disabled);
   control.classList.toggle("review-required", Boolean(args.review_required));
+  control.classList.toggle("desktop-external-label", Boolean(args.desktop_external_label));
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
   helpButton.title = helpEnabled ? "Informazioni sulla temperatura ambientale" : "";
   suggestButton.title = suggestLabelText ? `${suggestLabelText} fattore di correzione` : "";

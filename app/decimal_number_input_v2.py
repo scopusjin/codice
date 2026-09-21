@@ -178,7 +178,7 @@ _CSS = r"""
   color: var(--st-text-color, #31333F);
 }
 .number-control.desktop-external-label:not(.is-dense) {
-  width: 190px;
+  width: 100%;
   max-width: 100%;
 }
 .number-control.external-action {
@@ -188,7 +188,7 @@ _CSS = r"""
   grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem 4.4rem;
 }
 .number-control.desktop-external-label.external-action {
-  grid-template-columns: minmax(0, 1fr) 1.5rem 1.8rem 1.8rem;
+  grid-template-columns: minmax(0, 1fr) max-content 30px 30px;
 }
 .number-control:not(.desktop-external-label):not(.is-dense) {
   grid-template-columns: minmax(0, 9.4rem) 3rem 1.5rem 1.8rem 1.8rem 4.4rem;
@@ -256,6 +256,9 @@ _CSS = r"""
 }
 .number-control.desktop-external-label .number-input {
   grid-column: 1;
+  padding: 0 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 16px;
 }
 .number-control:not(.is-dense) .number-input {
   border: 1px solid #d6ad21;
@@ -299,6 +302,9 @@ _CSS = r"""
 }
 .number-control.desktop-external-label .mobile-unit {
   grid-column: 2;
+  padding: 0 6px 0 1px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
 }
 .mobile-unit:empty {
   display: flex;

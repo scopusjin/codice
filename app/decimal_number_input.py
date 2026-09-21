@@ -272,6 +272,11 @@ def decimal_number_input(
             sync_token=int(sync_token),
             aria_label=str(aria_label or "Valore numerico"),
             compact_mobile=compact_mobile,
+            desktop_external_label=(
+                compact_mobile
+                and not st.session_state.get("__full_device_mobile", False)
+                and not compact_label
+            ),
             review_required=(
                 not st.session_state.get("__full_device_mobile", False)
                 and key in _DESKTOP_REVIEW_KEYS

@@ -47,9 +47,13 @@ if _frame_mode:
     )
     st.stop()
 
+_DESKTOP_WIDTH = st.selectbox(
+    "Larghezza finestra (px)",
+    (1440, 1280, 1024, 768, 540, 390),
+    key="desktop_preview_width",
+)
 st.caption(
-    "Anteprima tecnica: la Full è caricata in un vero viewport da 1440 px "
-    "e ridotta in scala per essere controllata dal telefono."
+    "Anteprima tecnica della finestra desktop, ridotta in scala quando necessario."
 )
 
 components.html(
