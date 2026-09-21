@@ -331,7 +331,7 @@ function evaluateFC(c){
   const sources=[...new Set([...still.sources,...moving.sources])];
   if(!still.range||!moving.range)return pending('Almeno uno scenario di ventilazione non è definito: adattare il range.',sources);
   const limits=[Math.min(still.range[0],moving.range[0]),Math.max(still.range[1],moving.range[1])];
-  const r=decision('air-scenarios',limits,'Ragionamento dell’app',air==='intermittent'?'Intervallo proposto confrontando aria ferma e movimento continuo.':'Intervallo fra gli scenari di ventilazione possibili.',sources,'Il movimento dell’aria non è ricostruibile con continuità. L’app propone l’intervallo che comprende la stessa configurazione in aria ferma ('+rangeText(still.range)+') e in aria mobile ('+rangeText(moving.range)+'). Il confronto rappresenta l’incertezza sulle condizioni; non ricostruisce un raffreddamento avvenuto in fasi diverse.');
+  const r=decision('air-scenarios',limits,'Ragionamento dell’app',air==='intermittent'?'Intervallo proposto confrontando aria ferma e movimento continuo.':'Intervallo fra gli scenari di ventilazione possibili.',sources,'Il movimento dell’aria non è ricostruibile con continuità. L’app propone l’intervallo che comprende la stessa configurazione in aria ferma ('+rangeText(still.range)+') e in aria mobile ('+rangeText(moving.range)+').');
   r.scenarios={still,moving};return r;
 }
 
@@ -416,10 +416,9 @@ function showSource(){
   for(const id of ['wetMixed','wetBlankets','wetSupport','wetNakedAccelerating','soakedMattress'])sourceIds.delete(id);
   for(const id of sourceIds)sourceLink(citations,SOURCES[id].short,SOURCES[id].url);
   const w=num(q('#weight'));
-  const active=result.range&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
-  let weightText=active?'Adattamento al peso mediante formula di Henssge.':'Nessun adattamento al peso previsto per questi valori.';
-  if(result.range&&crossesWeightThreshold(...result.range,w))weightText+=' Ragionamento dell’app: il range comprende i valori invariati sotto 1.40 e quelli adattati da 1.40.';
-  q('#weight-source').textContent=weightText+' Arrotondamento finale al multiplo di 0.05 più vicino.';
+  const active=result.range&&suggestion&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
+  q('#weight-source').hidden=!active;
+  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+w.toFixed(1)+' kg = '+rangeText(suggestion)+').':'';
   if(active&&!result.sources.includes('weight'))sourceLink(citations,SOURCES.weight.short,SOURCES.weight.url);
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
