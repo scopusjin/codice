@@ -302,50 +302,6 @@ with st.container(border=True, key="full_inspection_card"):
 input_data_rilievo = st.session_state.get("input_data_rilievo")
 input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 
-# 📌 2. Ipostasi e rigidità — RIQUADRO
-full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
-with st.container(border=True, key="full_signs_card"):
-    col1, col2 = st.columns(2, gap="small")
-
-    livor_labels = list(FULL_LIVOR_STATE_BY_LABEL.keys())
-    rigor_labels = list(FULL_RIGOR_STATE_BY_LABEL.keys())
-
-    with col1:
-        livor_heading = i18n.ui_text("full.livor_heading")
-        st.markdown(f"<div class='mortem-section-title'>{livor_heading}</div>", unsafe_allow_html=True)
-        prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
-        if prev_livor not in livor_labels:
-            prev_livor = livor_labels[0]
-        scelta_macchie_lbl = st.selectbox(
-            i18n.ui_text("full.livor_select_label"),
-            options=livor_labels,
-            index=livor_labels.index(prev_livor),
-            key="selettore_macchie_ui",
-            label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
-        )
-        st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
-        selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
-        st.session_state["selettore_macchie"] = selettore_macchie
-
-    with col2:
-        rigor_heading = i18n.ui_text("full.rigor_heading")
-        st.markdown(f"<div class='mortem-section-title'>{rigor_heading}</div>", unsafe_allow_html=True)
-        prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
-        if prev_rigor not in rigor_labels:
-            prev_rigor = rigor_labels[0]
-        scelta_rigidita_lbl = st.selectbox(
-            i18n.ui_text("full.rigor_select_label"),
-            options=rigor_labels,
-            index=rigor_labels.index(prev_rigor),
-            key="selettore_rigidita_ui",
-            label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
-        )
-        st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
-        selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
-        st.session_state["selettore_rigidita"] = selettore_rigidita
-
 # ================================
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
@@ -759,6 +715,50 @@ with st.container(border=True, key="full_cooling_card"):
 
 if fc_weight_needs_review(st.session_state):
     st.warning("Peso modificato: ricontrollare il FC.")
+
+# Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
+full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
+with st.container(border=True, key="full_signs_card"):
+    col1, col2 = st.columns(2, gap="small")
+
+    livor_labels = list(FULL_LIVOR_STATE_BY_LABEL.keys())
+    rigor_labels = list(FULL_RIGOR_STATE_BY_LABEL.keys())
+
+    with col1:
+        livor_heading = i18n.ui_text("full.livor_heading")
+        st.markdown(f"<div class='mortem-section-title'>{livor_heading}</div>", unsafe_allow_html=True)
+        prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
+        if prev_livor not in livor_labels:
+            prev_livor = livor_labels[0]
+        scelta_macchie_lbl = st.selectbox(
+            i18n.ui_text("full.livor_select_label"),
+            options=livor_labels,
+            index=livor_labels.index(prev_livor),
+            key="selettore_macchie_ui",
+            label_visibility="collapsed",
+            filter_mode=full_select_filter_mode,
+        )
+        st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
+        selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
+        st.session_state["selettore_macchie"] = selettore_macchie
+
+    with col2:
+        rigor_heading = i18n.ui_text("full.rigor_heading")
+        st.markdown(f"<div class='mortem-section-title'>{rigor_heading}</div>", unsafe_allow_html=True)
+        prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
+        if prev_rigor not in rigor_labels:
+            prev_rigor = rigor_labels[0]
+        scelta_rigidita_lbl = st.selectbox(
+            i18n.ui_text("full.rigor_select_label"),
+            options=rigor_labels,
+            index=rigor_labels.index(prev_rigor),
+            key="selettore_rigidita_ui",
+            label_visibility="collapsed",
+            filter_mode=full_select_filter_mode,
+        )
+        st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
+        selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
+        st.session_state["selettore_rigidita"] = selettore_rigidita
 
 # Parametri aggiuntivi: sezione compatta, chiusa all'avvio e aperta soltanto
 # quando serve. Il toggle conserva la precedente semantica di inclusione.
