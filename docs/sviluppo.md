@@ -43,4 +43,6 @@ Le descrizioni dei risultati sono in `app/fc_description.py`. `app/factor_calc.p
 
 ## Spazi desktop
 
-`app/desktop_layout.py` gestisce il layout Full desktop attraverso il titolo reale `#mortem-page-title`. Il margine superiore riserva spazio alla barra Streamlit; il contenuto resta largo al massimo 100 rem. La griglia usa la larghezza disponibile del contenitore (anche con sidebar aperta): sotto 70 rem, una colonna; da 70 rem, campi a sinistra e calcolo/risultati a destra. I risultati scorrono normalmente per evitare sovrapposizioni nei notebook con poca altezza. Il CSS mobile resta separato.
+`app/desktop_layout.css`, letto da `st.html` a ogni esecuzione, gestisce il layout Full desktop attraverso il titolo reale `#mortem-page-title`. Il margine superiore riserva spazio alla barra Streamlit; il contenuto resta largo al massimo 100 rem. La griglia usa la larghezza disponibile del contenitore (anche con sidebar aperta): sotto 70 rem, una colonna; da 70 rem, campi a sinistra e calcolo/risultati a destra. I risultati scorrono normalmente per evitare sovrapposizioni nei notebook con poca altezza. Il CSS mobile resta separato.
+
+Il foglio di stile desktop non viene importato come costante Python: durante un aggiornamento il processo Streamlit può conservare i moduli importati e continuare a usare il CSS precedente. La lettura del file evita questo ritardo.

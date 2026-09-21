@@ -1,7 +1,3 @@
-"""Desktop page layout based on available content width, including the sidebar."""
-
-DESKTOP_LAYOUT_CSS = """
-<style>
 @media (min-width: 769px) {
   /* The ID scopes this layout to Full desktop, above older widget-level CSS. */
   html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] {
@@ -110,5 +106,3 @@ DESKTOP_LAYOUT_CSS = """
     }
   }
 }
-</style>
-"""
