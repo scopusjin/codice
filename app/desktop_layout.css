@@ -190,6 +190,9 @@
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stVerticalBlock"] {
     gap: 4px !important;
   }
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"] {
+    margin-block: 0 !important;
+  }
   html body:has(#mortem-page-title) [class*="st-key-desktop_cooling_label_"] {
     min-height: 1.45rem !important;
     gap: 4px !important;
@@ -253,6 +256,13 @@
       flex: 1 1 11rem !important;
       width: auto !important;
       min-width: 0 !important;
+    }
+    /* Keep nested groups on their own row; their fields may still sit side by side. */
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]) {
+      flex-basis: 100% !important;
+    }
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"]:empty) {
+      display: none !important;
     }
   }
   @container mortem-desktop (min-width: 70rem) {
