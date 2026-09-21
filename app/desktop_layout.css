@@ -27,6 +27,9 @@
     min-width: 0 !important;
     max-width: min(85vw, 20rem) !important;
   }
+  html body:has(#mortem-page-title) [data-testid="stSidebar"][aria-expanded="false"] {
+    display: none !important;
+  }
   html body:has(#mortem-page-title) [data-testid="stSidebarNavItems"] {
     width: max-content !important;
     padding-inline: 0.65rem !important;
