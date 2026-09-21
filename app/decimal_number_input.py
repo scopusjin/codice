@@ -25,6 +25,14 @@ _component = components.declare_component(
 _FORMAT_RE = re.compile(r"^%\.(\d+)f$")
 _TA_BASE_COMPONENT_KEY = "mortem_decimal_ta_base_val"
 _TA_OTHER_COMPONENT_KEY = "mortem_decimal_ta_other_val"
+_DESKTOP_REVIEW_KEYS = {
+    f"mortem_decimal_{field}{suffix}"
+    for field in (
+        "rt_val", "peso", "ta_base_val", "ta_other_val",
+        "fattore_correzione", "fc_min_val", "fc_other_val",
+    )
+    for suffix in ("", "_single", "_range")
+}
 _TA_STANDARD_HELP_OPEN_KEY = "__decimal_ta_standard_help_open"
 _TA_RANGE_HELP_OPEN_KEY = "__decimal_ta_range_help_open"
 _FC_STANDARD_HELP_OPEN_KEY = "__decimal_fc_standard_help_open"
@@ -264,6 +272,10 @@ def decimal_number_input(
             sync_token=int(sync_token),
             aria_label=str(aria_label or "Valore numerico"),
             compact_mobile=compact_mobile,
+            review_required=(
+                not st.session_state.get("__full_device_mobile", False)
+                and key in _DESKTOP_REVIEW_KEYS
+            ),
             compact_label=str(compact_label or ""),
             unit=str(unit or ""),
             help_enabled=help_enabled,

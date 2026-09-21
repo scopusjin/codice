@@ -137,6 +137,7 @@ function updateCompactLayout() {
   control.classList.toggle("compact-mobile", compact);
   control.classList.toggle("has-help", showHelp);
   control.classList.toggle("has-suggest", showSuggest);
+  control.classList.toggle("has-unit", Boolean(unitText));
   mobileLabel.textContent = compactLabelText;
   mobileUnit.textContent = unitText;
   helpButton.classList.toggle("is-visible", showHelp);
@@ -228,6 +229,7 @@ function onRender(event) {
   suggestActive = Boolean(args.suggest_active);
   input.disabled = disabled;
   control.classList.toggle("is-disabled", disabled);
+  control.classList.toggle("review-required", Boolean(args.review_required));
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
   helpButton.title = helpEnabled ? "Informazioni sulla temperatura ambientale" : "";
   suggestButton.title = suggestLabelText ? `${suggestLabelText} fattore di correzione` : "";
