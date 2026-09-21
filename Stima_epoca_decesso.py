@@ -29,6 +29,7 @@ from app.fc_selection import normalize_fc_input, fc_weight_needs_review
 
 import streamlit as st
 import datetime
+from pathlib import Path
 
 def _normalize_fc_field(key):
     normalize_fc_input(st.session_state, key)
@@ -245,8 +246,8 @@ if full_device_is_mobile():
         unsafe_allow_html=True,
     )
 else:
-    from app.desktop_layout import DESKTOP_LAYOUT_CSS
-    st.html(DESKTOP_LAYOUT_CSS)
+    # Read the stylesheet each run: imported constants can stay stale after deployment.
+    st.html(Path(__file__).resolve().parent / "app" / "desktop_layout.css")
     with st.container(gap=None, key="full_page_title_desktop"):
         st.html(
             f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
