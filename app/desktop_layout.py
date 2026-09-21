@@ -40,6 +40,56 @@ DESKTOP_LAYOUT_CSS = """
     font-weight: 650 !important;
     line-height: 1.25 !important;
   }
+  /* Streamlit's markdown margin must not pull the FC input over its label. */
+  html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-fc-field-label) {
+    margin-bottom: 0 !important;
+  }
+  /* A help button occupies only its own line, without the default arrow or
+     vertical spacing inherited from generic FC helper containers. */
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_actions_"] {
+    align-items: center !important;
+    gap: 0.25rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stVerticalBlock"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stLayoutWrapper"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stPopover"] {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button {
+    box-sizing: border-box !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button [data-testid="stIconMaterial"] {
+    display: none !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button p {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) {
+    align-items: center !important;
+    margin: 0 0 0.25rem !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_stack_"] [data-testid="stMarkdownContainer"]:has(> .mortem-section-title) {
+    margin: 0 !important;
+  }
   @container mortem-desktop (min-width: 70rem) {
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
       max-width: none !important;
