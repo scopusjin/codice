@@ -36,6 +36,36 @@
     font-weight: 650 !important;
     line-height: 1.25 !important;
   }
+  /* Keep the main action in view below Streamlit's header while entering data. */
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
+    grid-row: 2 !important;
+    position: sticky !important;
+    top: 4.5rem !important;
+    align-self: start !important;
+    z-index: 20 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button {
+    width: 100% !important;
+    min-height: 3rem !important;
+    padding: 0.65rem 1rem !important;
+    background: #0876a5 !important;
+    border: 1px solid #0876a5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 10px rgb(8 118 165 / 22%) !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button p {
+    color: inherit !important;
+    font-size: 1.05rem !important;
+    font-weight: 650 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button:hover {
+    background: #065f86 !important;
+    border-color: #065f86 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button:focus-visible {
+    outline: 3px solid #0876a5 !important;
+    outline-offset: 3px !important;
+  }
   /* Streamlit's markdown margin must not pull the FC input over its label. */
   html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-fc-field-label) {
     margin-bottom: 0 !important;
