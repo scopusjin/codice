@@ -41,7 +41,7 @@ _HTML = r"""
     <span class="mobile-unit"></span>
     <button class="step-button number-minus" type="button" aria-label="Diminuisci">−</button>
     <button class="step-button number-plus" type="button" aria-label="Aumenta">+</button>
-    <button class="suggest-button suggest-action" type="button" aria-label="Suggerisci fattore di correzione"></button>
+    <button class="suggest-button suggest-action" type="button" aria-label="Consiglia fattore di correzione"></button>
   </div>
 </div>
 """
