@@ -38,7 +38,6 @@ _RIGHT_STACK_PARAMS = {
 }
 _ELECTRICAL_HELPER_TEXT = {
     PARAM_ELECTRICAL_SUPRACILIARY: (
-        "Eccitabilità elettrica sopraciliare. "
         "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
         "stimolazione elettrica della regione sopraciliare e classificazione dell’estensione della "
         "risposta muscolare. Posizionare gli elettrodi distanziati di circa 2 cm nella parte nasale "
@@ -46,7 +45,6 @@ _ELECTRICAL_HELPER_TEXT = {
         "30 mA · 10 ms · 50 Hz."
     ),
     PARAM_ELECTRICAL_PERIORAL: (
-        "Eccitabilità elettrica peribuccale. "
         "Il metodo valuta la persistenza dell’eccitabilità muscolare elettrica residua mediante "
         "stimolazione elettrica della regione peribuccale e classificazione della risposta come "
         "contrazione dei muscoli facciali, dei muscoli peribuccali, reazione focale o assenza di "
