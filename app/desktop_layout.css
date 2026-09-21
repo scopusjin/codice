@@ -49,6 +49,8 @@
     padding: 0 !important;
     min-height: 0 !important;
     height: auto !important;
+    /* A scrollable flex row reserves scrollbar height even for a tiny helper. */
+    overflow: visible !important;
   }
   html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"],
   html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stVerticalBlock"],
@@ -72,6 +74,13 @@
     margin: 0 !important;
     line-height: 1 !important;
   }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stPopover"] > div {
+    display: flex !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button [aria-hidden="true"] {
+    display: none !important;
+  }
   html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button [data-testid="stIconMaterial"] {
     display: none !important;
   }
@@ -83,7 +92,8 @@
     align-items: center !important;
     margin: 0 0 0.25rem !important;
   }
-  html body:has(#mortem-page-title) [class*="st-key-special_desktop_stack_"] [data-testid="stMarkdownContainer"]:has(> .mortem-section-title) {
+  html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-section-title),
+  html body:has(#mortem-page-title) .mortem-section-title {
     margin: 0 !important;
   }
   @container mortem-desktop (min-width: 70rem) {
