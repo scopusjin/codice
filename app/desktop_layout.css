@@ -92,9 +92,23 @@
     align-items: center !important;
     margin: 0 0 0.25rem !important;
   }
+  /* Reserve the actual width of help/time controls; let long titles wrap. */
+  html body:has(#mortem-page-title) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) > [data-testid="stColumn"]:first-child {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: 22px !important;
+  }
   html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-section-title),
   html body:has(#mortem-page-title) .mortem-section-title {
     margin: 0 !important;
+  }
+  html body:has(#mortem-page-title) .mortem-section-title {
+    white-space: normal !important;
+    max-width: 100% !important;
   }
   @container mortem-desktop (min-width: 70rem) {
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
