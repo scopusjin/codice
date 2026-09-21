@@ -8,6 +8,66 @@ from app.desktop_datetime_ui import install_desktop_datetime_ui
 from app.render_context import reset_render_contexts, serialized_installation
 
 
+# Applied on every page/rerun, before the FC route can stop the script.
+# Keep the header/toolbar themselves: they also contain sidebar navigation.
+_MINIMAL_APP_CHROME_CSS = """
+<style>
+html body [data-testid="stToolbarActions"],
+html body [data-testid="stMainMenu"],
+html body [data-testid="stAppDeployButton"],
+html body #MainMenu,
+html body #stDecoration,
+html body [data-testid="stDecoration"],
+html body [data-testid="stStatusWidget"],
+html body .stApp > footer,
+html body [class^="viewerBadge_container"],
+html body [class*=" viewerBadge_container"],
+html body [data-testid="manage-app-button"],
+html body .st-key-mortem_host_chrome {
+  display: none !important;
+}
+</style>
+"""
+
+
+# Streamlit Cloud puts its badge outside the app iframe. Apply this visual
+# rule only to same-origin ancestors; a cross-origin host is left untouched.
+_HOST_CHROME_HTML = r"""
+<script>
+(() => {
+  let host = window.parent;
+  for (let level = 0; level < 3; level += 1) {
+    try {
+      const doc = host.document;
+      if (!doc.getElementById('mortem-host-chrome')) {
+        const style = doc.createElement('style');
+        style.id = 'mortem-host-chrome';
+        style.textContent = `
+          iframe[title="streamlitApp"] ~ a[href="https://streamlit.io/cloud"],
+          iframe[title="streamlitApp"] ~ div:has([data-testid="appCreatorAvatar"]) {
+            display: none !important;
+          }
+        `;
+        doc.head.appendChild(style);
+      }
+      if (host === host.parent) break;
+      host = host.parent;
+    } catch (_) {
+      break;
+    }
+  }
+})();
+</script>
+"""
+
+
+def install_minimal_app_chrome() -> None:
+    """Hide hosting/developer controls without hiding sidebar navigation."""
+    st.html(_MINIMAL_APP_CHROME_CSS)
+    with st.container(key="mortem_host_chrome"):
+        components.html(_HOST_CHROME_HTML, height=0, scrolling=False)
+
+
 _MINIMAL_MOBILE_SHELL_CSS = r"""
 <style>
 @media (max-width: 768px) {
@@ -260,6 +320,7 @@ def _install_compact_cooling_help_labels() -> None:
 
 def install_minimal_mobile_shell() -> None:
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
+    install_minimal_app_chrome()
     reset_render_contexts()
     _install_compact_cooling_help_labels()
     is_mobile = _request_is_mobile()
