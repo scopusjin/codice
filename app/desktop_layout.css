@@ -110,6 +110,14 @@
     white-space: normal !important;
     max-width: 100% !important;
   }
+  /* The image grids no longer need the legacy upward offset beneath titles. */
+  html body:has(#mortem-page-title) :is(.st-key-eccitabilita_sopraciliare_grid, .st-key-eccitabilita_peribuccale_grid) {
+    top: 0 !important;
+    margin-block: 0 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-electrical_title_help_row_"] {
+    margin-bottom: 0.25rem !important;
+  }
   @container mortem-desktop (min-width: 70rem) {
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
       max-width: none !important;
