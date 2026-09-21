@@ -1,4 +1,22 @@
 @media all {
+  /* The native sidebar command shares the compact title line. */
+  html body:has(#mortem-page-title) [data-testid="stHeader"],
+  html body:has(#mortem-page-title) [data-testid="stToolbar"] {
+    height: 0 !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stExpandSidebarButton"] {
+    position: fixed !important;
+    top: 0.5rem !important;
+    left: max(clamp(1rem, 2vw, 2.5rem), calc((100vw - 100rem) / 2 + 2.5rem)) !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    pointer-events: auto !important;
+    z-index: 100 !important;
+  }
   /* Keep navigation available without the hosting/developer actions. */
   html body:has(#mortem-page-title) :is([data-testid="stToolbarActions"], [data-testid="stMainMenu"]) {
     display: none !important;
@@ -35,7 +53,7 @@
     width: 100% !important;
     max-width: 100rem !important;
     margin-inline: auto !important;
-    padding: 4.5rem clamp(1rem, 2vw, 2.5rem) 2rem !important;
+    padding: 0.5rem clamp(1rem, 2vw, 2.5rem) 1rem !important;
   }
   html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
     display: grid !important;
@@ -59,12 +77,36 @@
     z-index: auto !important;
   }
   #mortem-page-title {
-    margin: 0 0 0.35rem !important;
-    padding: 0 !important;
+    margin: 0 !important;
+    padding: 0 0 0 2.5rem !important;
+    min-height: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
     font-size: clamp(1.2rem, 1.25vw, 1.5rem) !important;
     font-weight: 650 !important;
     line-height: 1.25 !important;
     text-align: left !important;
+  }
+  html body:has(#mortem-page-title):has([data-testid="stSidebar"][aria-expanded="true"]) #mortem-page-title {
+    padding-left: 0 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has(#mortem-page-title) {
+    position: sticky !important;
+    top: 0.5rem !important;
+    z-index: 30 !important;
+    background: var(--background-color, #ffffff) !important;
+  }
+  /* Tight card edges; labels belong visually to the control immediately below. */
+  html body:has(#mortem-page-title) :is(.st-key-full_inspection_card, .st-key-full_signs_card, .st-key-full_cooling_card, .st-key-full_special_card) {
+    padding: 0.5rem 0.7rem !important;
+    gap: 0.5rem !important;
+  }
+  html body:has(#mortem-page-title) .st-key-full_inspection_card,
+  html body:has(#mortem-page-title) .st-key-full_signs_card [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {
+    gap: 2px !important;
+  }
+  html body:has(#mortem-page-title) .st-key-full_inspection_card iframe {
+    display: block !important;
   }
   /* In one column the action follows the form and remains near the bottom. */
   html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
@@ -188,13 +230,16 @@
   }
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop),
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stVerticalBlock"] {
-    gap: 4px !important;
+    gap: 2px !important;
+  }
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-desktop_cooling_label_"]) {
+    margin-top: 8px !important;
   }
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"] {
     margin-block: 0 !important;
   }
   html body:has(#mortem-page-title) [class*="st-key-desktop_cooling_label_"] {
-    min-height: 1.45rem !important;
+    min-height: 1.125rem !important;
     gap: 4px !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -250,7 +295,7 @@
     html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"]) {
       flex-wrap: wrap !important;
       flex-direction: row !important;
-      gap: 0.5rem !important;
+      gap: 0.75rem 0.5rem !important;
     }
     html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"] {
       flex: 1 1 11rem !important;
@@ -278,7 +323,7 @@
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
       grid-column: 2 !important;
       grid-row: 2 !important;
-      top: 4.5rem !important;
+      top: 3rem !important;
       bottom: auto !important;
     }
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-mortem_result_box, *:has(.st-key-mortem_result_box), .st-key-mortem_no_data_box, *:has(.st-key-mortem_no_data_box)) {

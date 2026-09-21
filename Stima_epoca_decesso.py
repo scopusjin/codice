@@ -263,7 +263,7 @@ else:
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
-with st.container(border=True):
+with st.container(border=True, key="full_inspection_card"):
     st.markdown(
         "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
         unsafe_allow_html=True,
@@ -304,7 +304,7 @@ input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 
 # 📌 2. Ipostasi e rigidità — RIQUADRO
 full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
-with st.container(border=True):
+with st.container(border=True, key="full_signs_card"):
     col1, col2 = st.columns(2, gap="small")
 
     livor_labels = list(FULL_LIVOR_STATE_BY_LABEL.keys())
@@ -350,7 +350,7 @@ with st.container(border=True):
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 full_mobile = full_device_is_mobile()
-with st.container(border=True):
+with st.container(border=True, key="full_cooling_card"):
     if full_mobile:
         with st.container(
             horizontal=True,
@@ -769,7 +769,7 @@ mostra_parametri_aggiuntivi = st.toggle(
 widgets_parametri_aggiuntivi = {}
 
 if mostra_parametri_aggiuntivi:
-    with st.container(border=True):
+    with st.container(border=True, key="full_special_card"):
         usa_orario_custom_globale = st.session_state.get("usa_orario_custom", False)
 
         if not usa_orario_custom_globale:
