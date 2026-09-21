@@ -7,12 +7,12 @@ import streamlit as st
 _FULL_MOBILE_COMPACT_CSS = r"""
 <style>
 @media (max-width: 768px) {
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
     padding: 0.42rem 0.34rem !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_row_mobile"] {
     width: 100% !important;
     min-width: 0 !important;
@@ -22,7 +22,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_title_mobile"] {
     flex: 1 1 auto !important;
     min-width: 0 !important;
@@ -30,7 +30,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-cooling_heading_actions_mobile"] {
     flex: 0 0 auto !important;
     width: max-content !important;
@@ -39,7 +39,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] {
     width: max-content !important;
     min-width: max-content !important;
@@ -49,7 +49,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     justify-content: flex-end !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
     width: 1.55rem !important;
     min-width: 1.55rem !important;
@@ -58,7 +58,7 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
     position: relative !important;
     display: flex !important;
@@ -73,14 +73,14 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     cursor: pointer !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
     position: absolute !important;
     opacity: 0 !important;
     pointer-events: none !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
     content: "⦸";
     position: static !important;
@@ -91,14 +91,14 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     opacity: 0.58;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label:has(input:checked)::after {
     opacity: 1 !important;
     color: #c62828 !important;
     font-weight: 700 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] {
     width: 100% !important;
     min-width: 0 !important;
@@ -112,16 +112,16 @@ _FULL_MOBILE_COMPACT_CSS = r"""
 
   /* Il pannello FC mobile usa meno spazio verticale tra stato del corpo,
      switch e superficie di appoggio. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"][data-testid="stVerticalBlock"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
     gap: 0.16rem !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
     margin-top: 0.12rem !important;
     margin-bottom: -0.08rem !important;
@@ -130,13 +130,13 @@ _FULL_MOBILE_COMPACT_CSS = r"""
   }
 
   /* I quattro stepper vestiti sono volutamente più bassi degli altri V2. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_decimal_fcpanel_"] {
     height: 34px !important;
     min-height: 34px !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_decimal_fcpanel_"] iframe {
     display: block !important;
     height: 34px !important;
@@ -144,9 +144,9 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     max-height: 34px !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_std_vest_help_slot"] button,
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_caut_vest_help_slot"] button {
     width: 1.42rem !important;
     min-width: 1.42rem !important;
@@ -156,9 +156,9 @@ _FULL_MOBILE_COMPACT_CSS = r"""
     border-radius: 50% !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_std_vest_help_slot"] button p,
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_caut_vest_help_slot"] button p {
     margin: 0 !important;
     font-size: 0.74rem !important;
@@ -166,9 +166,9 @@ _FULL_MOBILE_COMPACT_CSS = r"""
   }
 
   /* La superficie resta un controllo distinto dal conteggio degli strati. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
     background: color-mix(in srgb, var(--st-secondary-background-color) 86%, var(--st-primary-color) 14%) !important;
     border-color: color-mix(in srgb, var(--st-primary-color) 38%, transparent) !important;
@@ -176,17 +176,17 @@ _FULL_MOBILE_COMPACT_CSS = r"""
 
 
 /* Rifiniture finali pannello FC Full mobile. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_switch_row"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_switch_row"] {
   width: 100% !important;
   min-width: 0 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_corr_slot"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_corr_slot"] {
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -196,9 +196,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   overflow: visible !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_corr_slot"] [data-testid="stToggle"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_corr_slot"] [data-testid="stToggle"] {
   width: max-content !important;
   min-width: max-content !important;
@@ -206,9 +206,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   margin-left: 0 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_vest_group"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_vest_group"] {
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -218,9 +218,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 /* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]),
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_decimal_"] {
   width: 100% !important;
   max-width: none !important;
@@ -228,27 +228,27 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   align-self: stretch !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_decimal_"] iframe {
   width: 100% !important;
   max-width: none !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_"]) {
   width: 100% !important;
   max-width: none !important;
 }
 
 /* Modalità Condizioni variabili: V2 a piena larghezza. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-cooling_prudent_v2_stack_mobile"] {
   width: 100% !important;
   min-width: 0 !important;
   gap: 0.18rem !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_row_mobile"] {
   width: 100% !important;
   min-width: 0 !important;
@@ -257,14 +257,14 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   gap: 0.28rem !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_value_mobile"] {
   flex: 1 1 auto !important;
   width: auto !important;
   min-width: 0 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-prudent_weight_uncertainty_mobile"] {
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -272,7 +272,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 /* Risultato FC standard mobile: valore, azione e nota peso in un solo blocco. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_block_mobile"] {
   box-sizing: border-box !important;
   width: 100% !important;
@@ -285,12 +285,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   overflow: hidden !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_block_mobile"] > [data-testid="stVerticalBlock"] {
   gap: 0.02rem !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_row_mobile"] {
   box-sizing: border-box !important;
   width: 100% !important;
@@ -307,7 +307,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   background: transparent !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_value_mobile"] {
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -331,7 +331,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   white-space: nowrap;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] {
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -340,7 +340,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   padding: 0 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button {
   display: inline-flex !important;
   align-items: center !important;
@@ -359,21 +359,21 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   white-space: nowrap !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button p,
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] button span {
   color: var(--st-text-color, #31333F) !important;
   font-weight: 700 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] > [data-testid="stVerticalBlock"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="fc_apply_action_mobile"] [data-testid="stButton"] {
   height: 1.90rem !important;
   min-height: 1.90rem !important;
@@ -397,7 +397,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   color: var(--st-text-color);
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [data-testid="stElementContainer"]:has(.mortem-fc-weight-note-mobile) {
   width: 100% !important;
   overflow: visible !important;
@@ -406,9 +406,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 /* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_surface_select_mobile"],
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_surface_select_mobile"] {
   padding: 0.07rem !important;
   border: 1px solid color-mix(in srgb, #d79a00 72%, transparent) !important;
@@ -416,9 +416,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   background: color-mix(in srgb, var(--st-secondary-background-color) 78%, #ffc107 22%) !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
-body:has([class*="st-key-stima_cautelativa_beta"])
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
   background: color-mix(in srgb, var(--st-secondary-background-color) 82%, #ffc107 18%) !important;
   border-color: transparent !important;

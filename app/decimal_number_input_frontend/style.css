@@ -149,6 +149,26 @@ body {
   border-radius: 0 6px 6px 0;
 }
 
+.number-control.desktop-external-label .mobile-label {
+  display: none;
+}
+.number-control.desktop-external-label #number-input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  padding: 0 8px;
+  text-align: right;
+  font-size: 16px;
+}
+.number-control.desktop-external-label .mobile-unit {
+  padding: 0 6px 0 1px;
+  font-size: 13px;
+}
+.number-control.compact-mobile.desktop-external-label .step-button {
+  flex-basis: 30px;
+  width: 30px;
+}
+
 .number-control.compact-mobile .step-button {
   flex-basis: 34px;
   width: 34px;

@@ -150,11 +150,11 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 @media (max-width: 768px) {
   /* Le regole principali sono limitate alla schermata completa: la MSIL non
      possiede il toggle stima_cautelativa_beta. */
-  body:has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"]) .mortem-full-field-heading {
     display: none !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stElementContainer"]:has(.mortem-full-field-heading) {
     display: none !important;
     margin: 0 !important;
@@ -163,23 +163,23 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
   /* Compatta solo i blocchi iniziali della Full mobile. I selettori usati per
      riconoscere i riquadri non esistono insieme nella MSIL. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
     padding: 0.55rem 0.70rem !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-usa_orario_custom"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-selettore_macchie_ui"]) {
     margin-bottom: -0.32rem !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_help_row_prudent"] {
     margin-top: -0.20rem !important;
     margin-bottom: -0.20rem !important;
@@ -188,12 +188,12 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   /* Riserva subito l'altezza dei componenti numerici custom: l'iframe nasce
      già a 40 px e il layout non deve riassestarsi quando il JS del controllo
      termina l'inizializzazione. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_decimal_"] {
     min-height: 40px !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-mortem_decimal_"] iframe {
     display: block !important;
     height: 40px !important;
@@ -203,22 +203,22 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
   /* Le note aperte dai ? della temperatura restano aderenti al controllo
      senza introdurre il grande spazio verticale del caption predefinito. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_standard_help_note"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_range_help_note"] {
     margin-top: -0.90rem !important;
     margin-bottom: -0.18rem !important;
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_standard_help_note"] [data-testid="stCaptionContainer"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_range_help_note"] [data-testid="stCaptionContainer"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_standard_help_note"] p,
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-ta_range_help_note"] p {
     margin: 0 !important;
     padding: 0 !important;
@@ -228,13 +228,13 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 
   /* Le righe Streamlit dei parametri diventano una pila di controlli a
      tutta larghezza già al primo render. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_rt_val"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"]),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
     display: flex !important;
     flex-direction: column !important;
@@ -244,16 +244,16 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     margin: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_rt_val"])
   > [data-testid="column"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"])
   > [data-testid="column"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"])
   > [data-testid="column"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"])
   > [data-testid="column"] {
     flex: 0 0 auto !important;
@@ -264,16 +264,16 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_rt_val"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fattore_correzione"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"])
   > [data-testid="column"] > [data-testid="stVerticalBlock"] {
     gap: 0 !important;
@@ -282,7 +282,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   /* Su mobile il comando Consiglia è integrato nel controllo FC. Il vecchio
      toggle Streamlit resta montato per conservare lo stato del pannello, ma
      non occupa più una colonna visibile. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="column"]:has([class*="st-key-toggle_fattore_inline"]) {
     display: none !important;
     width: 0 !important;
@@ -292,29 +292,29 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-toggle_fattore_inline"] {
     display: none !important;
   }
 
   /* Nella modalità con intervalli le righe separate hanno la stessa distanza
      delle righe interne della pila, senza dipendere dal gap di Streamlit. */
-  body:has([class*="st-key-mortem_decimal_ta_other_val"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-mortem_decimal_ta_other_val"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]),
-  body:has([class*="st-key-mortem_decimal_fc_other_val"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-mortem_decimal_fc_other_val"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_fc_min_val"]) {
     margin-top: -0.55rem !important;
   }
 
   /* In modalità standard uniforma lo spazio Peso → T. amb. media alle altre righe. */
-  body:has([class*="st-key-stima_cautelativa_beta"]):not(:has([class*="st-key-mortem_decimal_ta_other_val"]))
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"]):not(:has([class*="st-key-mortem_decimal_ta_other_val"]))
   [data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_ta_base_val"]) {
     margin-top: -0.55rem !important;
   }
 
   /* Riga Peso: il controllo prende tutto lo spazio residuo; ±3 kg occupa
      esattamente il proprio contenuto e non può spezzarsi. */
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"])) {
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) max-content !important;
@@ -326,7 +326,7 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     margin: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"]))
   > [data-testid="column"] {
     width: auto !important;
@@ -336,19 +336,19 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     padding: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"]:has([class*="st-key-peso_stimato_beta"]):not(:has([class*="st-key-mortem_decimal_rt_val"]))
   > [data-testid="column"]:nth-child(2),
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"],
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"] [data-testid="stToggle"] {
     width: max-content !important;
     max-width: max-content !important;
     min-width: max-content !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"] label {
     display: flex !important;
     flex-wrap: nowrap !important;
@@ -360,9 +360,9 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     white-space: nowrap !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"] label p,
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [class*="st-key-peso_stimato_beta"] label span {
     width: max-content !important;
     min-width: max-content !important;
@@ -371,13 +371,13 @@ body:has([class*="st-key-stima_cautelativa_beta"])
     word-break: keep-all !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stHorizontalBlock"].mortem-decimal-compact-row {
     gap: clamp(0.22rem, 1vw, 0.36rem) !important;
     row-gap: 0 !important;
   }
 
-  body:has([class*="st-key-stima_cautelativa_beta"])
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
   [data-testid="stVerticalBlock"].mortem-decimal-compact-stack {
     gap: clamp(0.22rem, 1vw, 0.36rem) !important;
   }
