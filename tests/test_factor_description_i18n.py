@@ -2,10 +2,9 @@
 
 import unittest
 
-from app.factor_calc import (
-    SURF_COND,
-    build_cf_description,
-)
+from app.fc_description import build_cf_description
+
+SURF_COND = "CONDUTTIVO"  # Historical saved-summary identifier.
 
 
 class FactorDescriptionItalianCompatibilityTests(unittest.TestCase):

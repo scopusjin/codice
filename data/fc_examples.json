@@ -140,7 +140,8 @@
     "weightNote": "Range iniziale; nella fonte adattato a 1.80 - 2.50 per 89 kg.",
     "source": "casework",
     "url": "https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html",
-    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023."
+    "sourceText": "Henssge et al., Experiences with a compound method for estimating the time since death. I., 1999; ripreso in Madea 2023.",
+    "adjustedFc": "1.80 - 2.50"
   },
   {
     "id": "case-55",

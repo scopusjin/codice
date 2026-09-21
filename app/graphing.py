@@ -10,7 +10,7 @@ import numpy as np
 import streamlit as st
 
 from app import i18n
-from app.factor_calc import build_cf_description
+from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
 from app.graphing_tanatology import (

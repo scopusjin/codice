@@ -1,20 +1,20 @@
 """Documentary cases displayed on the app's existing reference page."""
 
-import json
 import re
-from pathlib import Path
 
 import streamlit as st
 
+from app.fc_catalog import load_examples
+
 
 def case_rows():
-    examples = json.loads((Path(__file__).resolve().parents[1] / "data/fc_examples.json").read_text())
+    examples = load_examples()
     rows = []
     for example in examples:
         if example.get("observations"):
             fc = re.sub(r" a ([0-9.]+) kg", lambda m: "" if 60 <= float(m[1]) <= 80 else m[0], example["observations"])
         elif example.get("weightNote"):
-            fc = f"FC iniziale: {example['fc']}; a {example['weight']:.1f} kg: 1.80 - 2.50."
+            fc = f"FC iniziale: {example['fc']}; a {example['weight']:.1f} kg: {example['adjustedFc']}."
         else:
             fc = example["fc"]
             if not 60 <= example["weight"] <= 80:

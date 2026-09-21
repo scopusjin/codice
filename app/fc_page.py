@@ -8,6 +8,7 @@ from uuid import uuid4
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app.fc_catalog import load_examples
 from app.fc_selection import apply_choice, validate_choice
 
 TABLES_PAGE = "pages/2_Tabelle di riferimento.py"
@@ -105,6 +106,7 @@ def render_fc_route_if_requested(home=FULL_PAGE):
     # A stable component key retains the browser controls across draft reruns.
     component = components.declare_component("mortem_fc_panel", path=str(_FRONTEND))
     event = component(
+        examples=load_examples(),
         weight=st.session_state.get("peso"),
         draft=st.session_state.get("__fc_draft"),
         instance=st.session_state["__fc_instance"],
