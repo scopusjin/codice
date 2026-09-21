@@ -102,36 +102,9 @@ dati_parametri_aggiuntivi = {
             "Muscoli peribuccali (++)": (0, 11),
             "Reazione focale (+)": (0, 11),
         },
-        "descrizioni": {
-            "Muscoli facciali (+++)": (
-                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione "
-                "generalizzata della muscolatura facciale. Tale reazione di eccitabilità muscolare elettrica residua "
-                "suggerisce che il decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico "
-                "(secondo un metodo meno recente, una simile reazione si osserva indicativamente entro circa 2 ore e "
-                "30 minuti dal decesso)."
-            ),
-            "Muscoli peribuccali (++)": (
-                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione limitata "
-                "alla muscolatura peribuccale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che "
-                "il decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un "
-                "metodo meno recente, una simile reazione si osserva indicativamente tra 1 e 5 ore dal decesso)."
-            ),
-            "Reazione focale (+)": (
-                "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una reazione focale in "
-                "prossimità degli elettrodi. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-                "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
-                "meno recente, una simile reazione si osserva indicativamente tra 2 e 6 ore dal decesso)."
-            ),
-            "Nessuna reazione": (
-                "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari "
-                "apprezzabili. L’assenza di eccitabilità muscolare elettrica residua suggerisce che fossero trascorse "
-                "almeno 3 ore dal decesso al momento della valutazione del dato tanatologico."
-            ),
-            "Non valutabile/non attendibile": (
-                "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non "
-                "sono attendibili per la stima dell'epoca della morte."
-            ),
-        },
+        "descrizioni": dict(
+            SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL["Eccitabilità elettrica peribuccale"]
+        ),
     },
 
     "Eccitabilità muscolare meccanica": {

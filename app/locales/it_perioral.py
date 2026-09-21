@@ -16,9 +16,9 @@ from app.special_tanatology_states import (
 
 
 PERIORAL_GRID_INTERVAL_BY_ID = {
-    PERIORAL_MARKED: "< 2½ h",
-    PERIORAL_MODERATE: "1–5 h",
-    PERIORAL_SLIGHT: "2–6 h",
+    PERIORAL_MARKED: "< 11 h",
+    PERIORAL_MODERATE: "< 11 h",
+    PERIORAL_SLIGHT: "< 11 h",
     OPTION_NO_REACTION: "> 3 h",
     OPTION_UNRELIABLE: "",
     OPTION_NOT_ASSESSED: "",
