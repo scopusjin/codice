@@ -185,27 +185,31 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
     PARAM_ELECTRICAL_PERIORAL: {
         OPTION_NOT_ASSESSED: None,
         PERIORAL_MARKED: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione marcata dei muscoli "
-            "peribuccali e dei muscoli facciali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-            "decesso fosse avvenuto meno di 2 ore e mezzo prima della valutazione del dato tanatologico."
+            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione generalizzata "
+            "della muscolatura facciale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
+            "meno recente, una simile reazione si osserva indicativamente entro circa 2 ore e 30 minuti dal decesso)."
         ),
         PERIORAL_MODERATE: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione discreta dei muscoli "
-            "peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto "
-            "tra 1 e 5 ore prima della valutazione del dato tanatologico."
+            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione limitata alla "
+            "muscolatura peribuccale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
+            "meno recente, una simile reazione si osserva indicativamente tra 1 e 5 ore dal decesso)."
         ),
         PERIORAL_SLIGHT: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione solo accennata dei muscoli "
-            "peribuccali. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il decesso fosse avvenuto tra le 2 "
-            "e le 6 ore prima della valutazione del dato tanatologico."
+            "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una reazione focale in "
+            "prossimità degli elettrodi. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
+            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
+            "meno recente, una simile reazione si osserva indicativamente tra 2 e 6 ore dal decesso)."
         ),
         OPTION_NO_REACTION: (
-            "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari. Tale risultato "
-            "consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse più di 3 ore dal decesso."
+            "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari "
+            "apprezzabili. L’assenza di eccitabilità muscolare elettrica residua suggerisce che fossero trascorse "
+            "almeno 3 ore dal decesso al momento della valutazione del dato tanatologico."
         ),
         OPTION_UNRELIABLE: (
-            "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non sono attendibili "
-            "per la stima dell'epoca della morte."
+            "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non "
+            "sono attendibili per la stima dell'epoca della morte."
         ),
     },
     PARAM_MECHANICAL_MUSCLE: {
