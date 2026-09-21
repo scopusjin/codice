@@ -59,6 +59,11 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 #fc-full #use:hover:not(:disabled){background:#065f86;border-color:#065f86}
 #fc-full #use:focus-visible{outline:2px solid light-dark(#065f86,#8bd9fa);outline-offset:2px}
 #fc-full #use:disabled{box-shadow:none}
+#fc-full #air-help-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.45rem;min-width:1.45rem;height:1.45rem;min-height:1.45rem;padding:0;border:0;background:transparent}
+#fc-full #air-help-button span{display:grid;place-items:center;box-sizing:border-box;width:1.45rem;height:1.45rem;border:1px solid light-dark(rgba(31,41,55,.2),rgba(232,238,233,.3));border-radius:50%;background:var(--fc-bg);color:var(--fc-ink);font:400 14px/1 sans-serif}
+#fc-full #air-help-button:focus-visible{outline:2px solid #0876a5;outline-offset:2px;border-radius:50%}
+@media(pointer:coarse){#fc-full #air-help-button{width:44px;min-width:44px;height:44px;min-height:44px}}
+
 
 @media(max-width:430px){#fc-full #counts{grid-template-columns:minmax(0,1fr) 112px}#fc-full .selected-row{padding-left:6px;padding-right:6px}}
 #fc-full details{margin:4px 0}
@@ -92,7 +97,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="conditional" id="leaf-row" hidden><label for="leaf">Condizione delle foglie</label><select id="leaf"><option value="">Da precisare</option><option value="wet">Bagnate</option><option value="humid">Umide</option><option value="dry">Secche</option></select></div>
 <div class="conditional" id="metal-type-row" hidden><label for="metal-type">Tipo di superficie metallica</label><select id="metal-type"><option value="">Da precisare</option><option value="6">Lamiera/piano metallico sottile o leggero</option><option value="7">Piano metallico molto spesso</option></select></div>
 <div class="conditional" id="support-soaked-row" hidden><label for="support-soaked">Appoggio abbondantemente impregnato di liquidi?</label><select id="support-soaked"><option value="unknown">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
-<div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Ferma</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown">Non ricostruibile</option></select><button type="button" id="air-help-button" aria-label="Quando considerare le correnti d’aria" aria-expanded="false" aria-controls="air-help">ⓘ</button></div>
+<div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Ferma</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown">Non ricostruibile</option></select><button type="button" id="air-help-button" aria-label="Quando considerare le correnti d’aria" aria-expanded="false" aria-controls="air-help"><span aria-hidden="true">?</span></button></div>
 <p class="hint" id="air-help" hidden>Considerare le correnti d’aria se interessano effettivamente il corpo per un periodo rilevante. Una finestra aperta o una corrente occasionale nell’ambiente non bastano.</p>
 <label class="check" id="wet-case-row" hidden><input type="checkbox" id="wet-case">Pantaloni e slip fradici, pioggia, su strada o terreno</label>
 </div>
