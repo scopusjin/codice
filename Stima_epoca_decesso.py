@@ -25,6 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
+from app.cpd_panel import render_cpd_panel
 from app.fc_selection import normalize_fc_input, fc_weight_needs_review
 
 import streamlit as st
@@ -1238,3 +1239,17 @@ if st.session_state["show_results"]:
             alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
             skip_warnings=True,
         )
+
+        if considera_raffreddamento:
+            render_cpd_panel(
+                input_rt=input_rt,
+                input_ta=input_ta,
+                input_tm=input_tm,
+                input_w=input_w,
+                fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+                usa_orario_custom=st.session_state.get("usa_orario_custom", False),
+                input_data_rilievo=st.session_state.get("input_data_rilievo"),
+                input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
+                prudent_mode=st.session_state.get("stima_cautelativa_beta", False),
+                round_minutes=int(st.session_state.get("henssge_round_minutes", 30)),
+            )
