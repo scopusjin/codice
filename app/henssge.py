@@ -32,6 +32,27 @@ def cooling_coefficient(weight: float, fc: float) -> float:
     return coefficient
 
 
+def henssge_uncertainty_halfwidth(t_med_raw: float, Qd: float, CF: float) -> float:
+    """Restituisce la semiampiezza grezza dell'intervallo Henssge (±2 SD).
+
+    Centralizza le regole già usate da calcola_raffreddamento senza
+    modificare il comportamento del calcolo esistente. Per la CPD,
+    la deviazione standard della distribuzione gaussiana sottostante è
+    pari a halfwidth / 2.
+    """
+    if not all(finite_number(v) for v in (t_med_raw, Qd, CF)):
+        return np.nan
+    t_med_raw, Qd, CF = map(float, (t_med_raw, Qd, CF))
+    if t_med_raw < 0 or Qd <= 0 or CF <= 0:
+        return np.nan
+
+    if Qd <= 0.2:
+        return t_med_raw * 0.20
+    if CF == 1:
+        return 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
+    return 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7.0
+
+
 def calcola_raffreddamento(
     Tr: float, Ta: float, T0: float, W: float, CF: float, *,
     round_minutes: int = 30   # default 30 min
@@ -91,12 +112,9 @@ def calcola_raffreddamento(
     except Exception:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
-    if Qd <= 0.2:
-        Dt_raw = t_med_raw * 0.20
-    elif CF == 1:
-        Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
-    else:
-        Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7.0
+    Dt_raw = henssge_uncertainty_halfwidth(t_med_raw, Qd, CF)
+    if np.isnan(Dt_raw):
+        return np.nan, np.nan, np.nan, np.nan, np.nan
 
     # Arrotondamento configurabile
     t_med = round_to_step_minutes(t_med_raw, round_minutes)
@@ -122,5 +140,6 @@ __all__ = [
     "round_to_step_minutes",
     "calcola_raffreddamento",
     "cooling_coefficient",
+    "henssge_uncertainty_halfwidth",
     "ranges_in_disaccordo_completa",
 ]
