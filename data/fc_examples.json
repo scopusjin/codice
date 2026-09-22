@@ -120,6 +120,16 @@
     "sourceText": "Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988."
   },
   {
+    "id": "blanket-H08",
+    "type": "Esperimento",
+    "title": "Caso H08",
+    "conditions": "Corpo nudo, due coperte spesse e materasso.",
+    "weight": 77,
+    "fc": "1.44",
+    "source": "blankets",
+    "sourceText": "Henssge e Madea, Methoden zur Bestimmung der Todeszeit an der Leiche, 1988."
+  },
+  {
     "id": "case-33",
     "type": "Caso operativo",
     "title": "Caso 33",
