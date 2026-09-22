@@ -369,6 +369,9 @@ function bounds(a,b,w){
 // Original experimental FCs remain at the reported body weight, not normalized to 70 kg.
 // Documentary values and sources are supplied from data/fc_examples.json.
 // Only the matching criteria belong to the panel.
+function matchesBlanketExperiments(c){
+  return c.state==='Asciutto'&&!c.wind&&c.m+c.h>=1&&c.m+c.h<=2&&c.s+c.p<=1&&c.surf<=2&&c.feather!=='yes';
+}
 const EXAMPLE_MATCHERS={
   'wet-51-44':c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.p>=3,
   'wet-case-15':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true,
@@ -381,7 +384,8 @@ const EXAMPLE_MATCHERS={
   'still-B54':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6&&c.surf<=1,
   'wind-H15':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
   'wind-H14':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0,
-  'blanket-B33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p<=1&&c.surf<=2,
+  'blanket-B33':matchesBlanketExperiments,
+  'blanket-H08':matchesBlanketExperiments,
   'case-33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2,
   'case-6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2,
   'case-55':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===1,
@@ -418,6 +422,7 @@ function showSource(){
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
+  if(examples.some(e=>e.id==='blanket-H08'))q('#source-extra').textContent='Gli esempi riportati mostrano che l’effetto delle coperture può variare sensibilmente. Il valore 1.80 non è un limite minimo assoluto: gli estremi possono essere adattati alla condizione osservata. Nei due esperimenti il materasso è già compreso nel FC.';
   q('#rule-source').textContent=result.detail;
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
