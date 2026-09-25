@@ -108,7 +108,7 @@ RIGOR_DESCRIPTION_IT_BY_ID = {
     RIGOR_ABSENT: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, non fosse ancora comparsa. "
         "Secondo i limiti massimi segnalati in letteratura scientifica, questo indica che fossero trascorse meno di 7 ore "
-        "dal decesso (in genere la rigidità compare entro 2 - 3 ore dal decesso)."
+        "dal decesso (in media la rigidità compare entro 2 - 3 ore dal decesso)."
     ),
     RIGOR_DEVELOPING: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di formazione, "
@@ -119,18 +119,18 @@ RIGOR_DESCRIPTION_IT_BY_ID = {
     RIGOR_FULL: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse presente e generalizzata. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 2 ore "
-        "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in genere la rigidità inizia a risolversi dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo)."
+        "dal decesso ma meno di 96 ore da esso, cioè meno di 4 giorni (in media la rigidità inizia a risolversi dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo)."
     ),
     RIGOR_RESOLVING: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse in via di risoluzione. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
-        "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in genere la rigidità cadaverica inizia a risolversi "
+        "dal decesso ma meno di 192 ore da esso, cioè meno di 8 giorni (in media la rigidità cadaverica inizia a risolversi "
         "dopo 57 ore dal decesso, cioè dopo 2 giorni e mezzo, e scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni)."
     ),
     RIGOR_RESOLVED: (
         "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, fosse ormai risolta. "
         "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse almeno 24 ore "
-        "dal decesso (in genere la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni)."
+        "dal decesso (in media la rigidità scompare entro 76 ore dal decesso, cioè dopo poco più di 3 giorni)."
     ),
     RIGOR_UNRELIABLE: (
         "La rigidità cadaverica non è stata valutata o i rilievi non sono considerati attendibili "
