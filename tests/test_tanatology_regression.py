@@ -15,6 +15,9 @@ from app.special_tanatology_states import (
     PARAM_ELECTRICAL_PERIORAL,
     PARAM_ELECTRICAL_SUPRACILIARY,
     PARAM_MECHANICAL_MUSCLE,
+    MECH_WHOLE_MUSCLE,
+    MECH_REVERSIBLE_SWELLING,
+    MECH_SMALL_PERSISTENT_SWELLING,
     PUPILLARY_NEGATIVE,
     SUPRA_PHASE_I,
     SUPRA_PHASE_II,
@@ -67,7 +70,7 @@ class ScientificRangeRegressionTests(unittest.TestCase):
         mechanical = dati_parametri_aggiuntivi["Eccitabilità muscolare meccanica"]["range"]
         self.assertEqual(mechanical["Contrazione dell’intero muscolo"], (0, 2.5))
         self.assertEqual(mechanical["Tumefazione reversibile"], (0, 5))
-        self.assertEqual(mechanical["Piccola tumefazione persistente"], (0, 12))
+        self.assertEqual(mechanical["Piccola tumefazione persistente"], (0, 13))
         self.assertEqual(mechanical["Nessuna reazione"], (1.5, INF_HOURS))
 
         pupillary = dati_parametri_aggiuntivi["Eccitabilità chimica pupillare"]["range"]
@@ -91,6 +94,17 @@ class ItalianTextRegressionTests(unittest.TestCase):
     def test_supraciliary_no_reaction_ends_with_period(self):
         text = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_ELECTRICAL_SUPRACILIARY][OPTION_NO_REACTION]
         self.assertTrue(text.endswith("."))
+
+    def test_mechanical_descriptions_match_operational_limits(self):
+        whole = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_WHOLE_MUSCLE]
+        reversible = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_REVERSIBLE_SWELLING]
+        persistent = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_SMALL_PERSISTENT_SWELLING]
+
+        self.assertIn("non superiore a 2 ore e 30 minuti", whole)
+        self.assertIn("non superiore a 5 ore", reversible)
+        self.assertIn("limite superiore di 13 ore", persistent)
+        self.assertIn("8–12 ore", persistent)
+        self.assertIn("fino a 24 ore", persistent)
 
     def test_short_sentences_cover_all_three_range_shapes(self):
         not_over = build_simple_sentence_no_dt(0, 6)

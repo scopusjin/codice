@@ -120,7 +120,7 @@ dati_parametri_aggiuntivi = {
             "Non valutata": None,
             "Nessuna reazione": (1.5, INF_HOURS),
             "Non valutabile/non attendibile": None,
-            "Piccola tumefazione persistente": (0, 12),
+            "Piccola tumefazione persistente": (0, 13),
             "Tumefazione reversibile": (0, 5),
             "Contrazione dell’intero muscolo": (0, 2.5),
         },

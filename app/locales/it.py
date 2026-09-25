@@ -216,18 +216,19 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         OPTION_NOT_ASSESSED: None,
         MECH_WHOLE_MUSCLE: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione "
-            "reversibile dell’intero muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce che il decesso "
-            "fosse avvenuto meno di 2 ore prima della valutazione del dato tanatologico."
+            "dell’intero muscolo bicipite del braccio, in risposta alla percussione. Ai fini della stima dell’epoca del decesso, "
+            "tale reazione viene considerata compatibile con un intervallo non superiore a 2 ore e 30 minuti."
         ),
         MECH_REVERSIBLE_SWELLING: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
-            "di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione suggerisce "
-            "che il decesso fosse avvenuto tra le 2 e le 5 ore prima della valutazione del dato tanatologico."
+            "di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Ai fini della stima "
+            "dell’epoca del decesso, tale reazione viene considerata compatibile con un intervallo non superiore a 5 ore."
         ),
         MECH_SMALL_PERSISTENT_SWELLING: (
             "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
-            "di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Tale reazione "
-            "suggerisce che il decesso fosse avvenuto meno di 12 ore prima della valutazione del dato tanatologico."
+            "di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Nel metodo "
+            "integrato viene adottato un limite superiore di 13 ore per la presenza della contrazione idiomuscolare; la fase debole "
+            "è descritta generalmente entro circa 8–12 ore, con persistenze occasionali riportate fino a 24 ore."
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. "
