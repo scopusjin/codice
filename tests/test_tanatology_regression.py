@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 
 from app.locales.it import RIGOR_DESCRIPTION_IT_BY_ID, SPECIAL_DESCRIPTION_IT_BY_ID
+from app.locales.it_supra import SUPRA_GRID_DETAIL_BY_ID
 from app.parameters import INF_HOURS, dati_parametri_aggiuntivi
 from app.special_tanatology_states import (
     OPTION_NO_REACTION,
@@ -15,6 +16,12 @@ from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     PARAM_MECHANICAL_MUSCLE,
     PUPILLARY_NEGATIVE,
+    SUPRA_PHASE_I,
+    SUPRA_PHASE_II,
+    SUPRA_PHASE_III,
+    SUPRA_PHASE_IV,
+    SUPRA_PHASE_V,
+    SUPRA_PHASE_VI,
 )
 from app.tanatology_states import RIGOR_ABSENT
 from app.textgen import (
@@ -26,15 +33,28 @@ from app.textgen import (
 
 
 class ScientificRangeRegressionTests(unittest.TestCase):
-    def test_supraciliary_ranges_are_unchanged(self):
+    def test_supraciliary_ranges_match_integrated_limits(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica sopraciliare"]["range"]
-        self.assertEqual(ranges["Fase VI"], (1, 6))
-        self.assertEqual(ranges["Fase V"], (2, 7))
-        self.assertEqual(ranges["Fase IV"], (3, 8))
-        self.assertEqual(ranges["Fase III"], (3.5, 13))
-        self.assertEqual(ranges["Fase II"], (5, 16))
+        self.assertEqual(ranges["Fase VI"], (0, 6))
+        self.assertEqual(ranges["Fase V"], (1, 7))
+        self.assertEqual(ranges["Fase IV"], (2, 8))
+        self.assertEqual(ranges["Fase III"], (3, 13))
+        self.assertEqual(ranges["Fase II"], (3.5, 16))
         self.assertEqual(ranges["Fase I"], (5, 22))
         self.assertEqual(ranges["Nessuna reazione"], (5, INF_HOURS))
+
+    def test_supraciliary_image_captions_match_integrated_limits(self):
+        expected = {
+            SUPRA_PHASE_VI: "<6 h",
+            SUPRA_PHASE_V: ">1 h; <7 h",
+            SUPRA_PHASE_IV: ">2 h; <8 h",
+            SUPRA_PHASE_III: ">3 h; <13 h",
+            SUPRA_PHASE_II: ">3½ h; <16 h",
+            SUPRA_PHASE_I: ">5 h; <22 h",
+        }
+        for option_id, interval in expected.items():
+            self.assertEqual(SUPRA_GRID_DETAIL_BY_ID[option_id][1], interval)
+
 
     def test_perioral_ranges_are_unchanged(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica peribuccale"]["range"]

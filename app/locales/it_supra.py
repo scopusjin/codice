@@ -19,12 +19,12 @@ from app.special_tanatology_states import (
 
 
 SUPRA_GRID_DETAIL_BY_ID = {
-    SUPRA_PHASE_VI: ("Fronte + orbita + guancia", "1–6 h"),
-    SUPRA_PHASE_V: ("Fronte + orbita", "2–7 h"),
-    SUPRA_PHASE_IV: ("Orbicolari sup. + inf.", "3–8 h"),
-    SUPRA_PHASE_III: ("Palpebra sup. intera", "3½–13 h"),
-    SUPRA_PHASE_II: ("< 2/3 palpebra sup.", "5–16 h"),
-    SUPRA_PHASE_I: ("< 1/3 palpebra sup.", "5–22 h"),
+    SUPRA_PHASE_VI: ("Fronte + orbita + guancia", "<6 h"),
+    SUPRA_PHASE_V: ("Fronte + orbita", ">1 h; <7 h"),
+    SUPRA_PHASE_IV: ("Orbicolari sup. + inf.", ">2 h; <8 h"),
+    SUPRA_PHASE_III: ("Palpebra sup. intera", ">3 h; <13 h"),
+    SUPRA_PHASE_II: ("< 2/3 palpebra sup.", ">3½ h; <16 h"),
+    SUPRA_PHASE_I: ("< 1/3 palpebra sup.", ">5 h; <22 h"),
     OPTION_NO_REACTION: ("", "> 5 h"),
     OPTION_UNRELIABLE: ("", ""),
     OPTION_NOT_ASSESSED: ("", ""),
