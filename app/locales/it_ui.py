@@ -187,6 +187,8 @@ UI_TEXT = {
     ),
     "graph.high_ambient_factor_warning": "Per temperature ambientali &gt; 25 °C, variazioni del fattore di correzione possono influenzare notevolmente i risultati.",
     "graph.low_ambient_factor_warning": "Per temperature ambientali &lt; 18 °C, la scelta di un fattore di correzione diverso da 1 potrebbe influenzare notevolmente i risultati.",
+    "graph.rigor_low_temperature_warning": "La bassa temperatura ambientale può rallentare il decorso della rigidità cadaverica e prolungarne la persistenza.",
+    "graph.rigor_high_temperature_warning": "L'elevata temperatura ambientale può accelerare la comparsa e la successiva risoluzione della rigidità cadaverica.",
     "graph.thermal_equilibrium_warning": "Essendo minima la differenza tra temperatura rettale e ambientale, è possibile che il cadavere fosse ormai in equilibrio termico con l'ambiente. La stima ottenuta dal raffreddamento cadaverico va interpretata con attenzione.",
     "graph.plateau_warning": "Considerato che la T rettale è molto simile alla T ante-mortem stimata, è verosimile che il raffreddamento corporeo non fosse ancora iniziato e/o si trovasse nella fase di plateau. In tale fase, la precisione del metodo è ridotta.",
     "graph.discordant_html": "<p style='color:red;font-weight:bold;'>⚠️ Le stime basate sui singoli dati tanatologici sono tra loro discordanti.</p>",

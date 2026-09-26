@@ -44,6 +44,36 @@ def _wrap_final(s: str | None) -> str | None:
         if s else s
     )
 
+def _rigor_temperature_warning_keys(rigor_range, input_ta, options):
+    """Restituisce gli avvisi termici del rigor senza modificare i range."""
+    if not isinstance(rigor_range, tuple):
+        return []
+
+    if bool(options.get("stima_cautelativa_beta", False)):
+        candidates = [options.get("Ta_min_beta"), options.get("Ta_max_beta")]
+    else:
+        candidates = [input_ta]
+
+    values = []
+    for value in candidates:
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            continue
+        if np.isfinite(numeric):
+            values.append(numeric)
+
+    if not values:
+        return []
+
+    keys = []
+    if min(values) <= 10.0:
+        keys.append("graph.rigor_low_temperature_warning")
+    if max(values) >= 30.0:
+        keys.append("graph.rigor_high_temperature_warning")
+    return keys
+
+
 def render_frase_breve(html: str, key: str = "fb_top"):
     contenuto = html.strip()
     if contenuto.startswith("<p>") and contenuto.endswith("</p>"):
