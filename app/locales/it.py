@@ -186,26 +186,25 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         OPTION_NOT_ASSESSED: None,
         PERIORAL_MARKED: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione generalizzata "
-            "della muscolatura facciale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
-            "meno recente, una simile reazione si osserva indicativamente entro circa 2 ore e 30 minuti dal decesso)."
+            "della muscolatura facciale. Ai fini della stima dell’epoca del decesso, il metodo integrato di Henssge considera "
+            "la presenza di una reazione peribuccale indipendentemente dalla sua estensione; tale dato suggerisce che non fossero "
+            "trascorse più di 11 ore dal decesso."
         ),
         PERIORAL_MODERATE: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una contrazione limitata alla "
-            "muscolatura peribuccale. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
-            "meno recente, una simile reazione si osserva indicativamente tra 1 e 5 ore dal decesso)."
+            "muscolatura peribuccale. Ai fini della stima dell’epoca del decesso, il metodo integrato di Henssge considera "
+            "la presenza di una reazione peribuccale indipendentemente dalla sua estensione; tale dato suggerisce che non fossero "
+            "trascorse più di 11 ore dal decesso."
         ),
         PERIORAL_SLIGHT: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale ha prodotto una reazione focale in "
-            "prossimità degli elettrodi. Tale reazione di eccitabilità muscolare elettrica residua suggerisce che il "
-            "decesso fosse avvenuto non oltre 11 ore prima della valutazione del dato tanatologico (secondo un metodo "
-            "meno recente, una simile reazione si osserva indicativamente tra 2 e 6 ore dal decesso)."
+            "prossimità degli elettrodi. Ai fini della stima dell’epoca del decesso, il metodo integrato di Henssge considera "
+            "la presenza di una reazione peribuccale indipendentemente dalla sua estensione; tale dato suggerisce che non fossero "
+            "trascorse più di 11 ore dal decesso."
         ),
         OPTION_NO_REACTION: (
             "L’applicazione di uno stimolo elettrico in regione peribuccale non ha prodotto contrazioni muscolari "
-            "apprezzabili. L’assenza di eccitabilità muscolare elettrica residua suggerisce che fossero trascorse "
-            "almeno 3 ore dal decesso al momento della valutazione del dato tanatologico."
+            "apprezzabili. Secondo il metodo integrato di Henssge, tale dato suggerisce che fossero trascorse più di 3 ore dal decesso."
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare elettrica residua peribuccale o i rilievi non "

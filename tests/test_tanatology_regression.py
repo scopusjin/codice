@@ -95,6 +95,17 @@ class ItalianTextRegressionTests(unittest.TestCase):
         text = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_ELECTRICAL_SUPRACILIARY][OPTION_NO_REACTION]
         self.assertTrue(text.endswith("."))
 
+    def test_perioral_descriptions_explain_henssge_binary_choice(self):
+        perioral = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_ELECTRICAL_PERIORAL]
+        for option in (PERIORAL_MARKED, PERIORAL_MODERATE, PERIORAL_SLIGHT):
+            text = perioral[option]
+            self.assertIn("metodo integrato di Henssge", text)
+            self.assertIn("indipendentemente dalla sua estensione", text)
+            self.assertIn("non fossero trascorse più di 11 ore", text)
+            self.assertNotIn("metodo meno recente", text)
+        self.assertIn("metodo integrato di Henssge", perioral[OPTION_NO_REACTION])
+        self.assertIn("fossero trascorse più di 3 ore", perioral[OPTION_NO_REACTION])
+
     def test_mechanical_descriptions_match_operational_limits(self):
         whole = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_WHOLE_MUSCLE]
         reversible = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_REVERSIBLE_SWELLING]
