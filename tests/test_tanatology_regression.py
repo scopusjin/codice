@@ -100,11 +100,10 @@ class ItalianTextRegressionTests(unittest.TestCase):
         reversible = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_REVERSIBLE_SWELLING]
         persistent = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_MECHANICAL_MUSCLE][MECH_SMALL_PERSISTENT_SWELLING]
 
-        self.assertIn("non superiore a 2 ore e 30 minuti", whole)
-        self.assertIn("non superiore a 5 ore", reversible)
-        self.assertIn("limite superiore di 13 ore", persistent)
-        self.assertIn("8–12 ore", persistent)
-        self.assertIn("fino a 24 ore", persistent)
+        self.assertIn("non fossero trascorse più di 2 ore e 30 minuti", whole)
+        self.assertIn("non fossero trascorse più di 5 ore", reversible)
+        self.assertIn("non fossero trascorse più di 13 ore", persistent)
+        self.assertNotIn("24 ore", persistent)
 
     def test_short_sentences_cover_all_three_range_shapes(self):
         not_over = build_simple_sentence_no_dt(0, 6)

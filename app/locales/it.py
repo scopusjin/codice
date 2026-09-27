@@ -215,25 +215,23 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
     PARAM_MECHANICAL_MUSCLE: {
         OPTION_NOT_ASSESSED: None,
         MECH_WHOLE_MUSCLE: (
-            "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla contrazione "
-            "dell’intero muscolo bicipite del braccio, in risposta alla percussione. Ai fini della stima dell’epoca del decesso, "
-            "tale reazione viene considerata compatibile con un intervallo non superiore a 2 ore e 30 minuti."
+            "L’eccitabilità muscolare meccanica residua, al momento dell’ispezione legale, era caratterizzata dalla contrazione "
+            "dell’intero muscolo bicipite del braccio in risposta alla percussione. Tale dato suggerisce che non fossero trascorse "
+            "più di 2 ore e 30 minuti dal decesso."
         ),
         MECH_REVERSIBLE_SWELLING: (
-            "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
-            "di una tumefazione reversibile del muscolo bicipite del braccio, in risposta alla percussione. Ai fini della stima "
-            "dell’epoca del decesso, tale reazione viene considerata compatibile con un intervallo non superiore a 5 ore."
+            "L’eccitabilità muscolare meccanica residua, al momento dell’ispezione legale, era caratterizzata dalla formazione "
+            "di una tumefazione reversibile del muscolo bicipite del braccio in risposta alla percussione. Tale dato suggerisce "
+            "che non fossero trascorse più di 5 ore dal decesso."
         ),
         MECH_SMALL_PERSISTENT_SWELLING: (
-            "L’eccitabilità muscolare meccanica residua, nel momento dell’ispezione legale, era caratterizzata dalla formazione "
-            "di una piccola tumefazione persistente del muscolo bicipite del braccio, in risposta alla percussione. Nel metodo "
-            "integrato viene adottato un limite superiore di 13 ore per la presenza della contrazione idiomuscolare; la fase debole "
-            "è descritta generalmente entro circa 8–12 ore, con persistenze occasionali riportate fino a 24 ore."
+            "L’eccitabilità muscolare meccanica residua, al momento dell’ispezione legale, era caratterizzata dalla formazione "
+            "di una piccola tumefazione persistente del muscolo bicipite del braccio in risposta alla percussione. Tale dato suggerisce "
+            "che non fossero trascorse più di 13 ore dal decesso."
         ),
         OPTION_NO_REACTION: (
-            "L’applicazione di uno stimolo meccanico al muscolo del braccio non ha prodotto contrazioni muscolari evidenti. "
-            "Tale risultato consente soltanto di stimare che, al momento della valutazione del dato tanatologico, fossero trascorse "
-            "più di 1 ora e 30 minuti dal decesso."
+            "La percussione del muscolo del braccio non ha prodotto una reazione muscolare apprezzabile. "
+            "Tale dato suggerisce che fossero trascorse più di 1 ora e 30 minuti dal decesso."
         ),
         OPTION_UNRELIABLE: (
             "Non è stato possibile valutare l'eccitabilità muscolare meccanica o i rilievi non sono attendibili per la stima "
