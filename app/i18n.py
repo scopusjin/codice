@@ -342,10 +342,11 @@ def parameter_summary(labels: list[str], language: Optional[str] = None) -> str:
 def potente_paragraph(
     duration: str,
     days: str,
+    high_temperature: bool = False,
     language: Optional[str] = None,
 ) -> str:
     """Paragrafo localizzato relativo alla stima secondo Potente et al."""
-    return get_locale(language).potente_paragraph(duration, days)
+    return get_locale(language).potente_paragraph(duration, days, high_temperature)
 
 
 def cooling_input_paragraph(
