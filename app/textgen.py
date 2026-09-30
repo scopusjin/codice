@@ -304,7 +304,11 @@ def paragrafo_potente(
         return None
 
     h, m = _hm_from_hours(mt_ore)
-    return i18n.potente_paragraph(_fmt_hm_full(h, m), f"{mt_giorni:.1f}")
+    return i18n.potente_paragraph(
+        _fmt_hm_full(h, m),
+        f"{mt_giorni:.1f}",
+        high_temperature=qd_threshold >= 0.5,
+    )
 
 def paragrafo_raffreddamento_input(
     *,
