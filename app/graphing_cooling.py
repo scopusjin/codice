@@ -93,6 +93,7 @@ class CoolingState:
     potente_min_ore: float
     swisswuff_min_ore: float
     swisswuff_max_ore: float
+    swisswuff_mode: str | None
     raffreddamento_calcolabile: bool
     Ta_for_pot: float
     qd_threshold: float
@@ -131,6 +132,7 @@ def compute_cooling_state(
     potente_min_ore = np.nan
     swisswuff_min_ore = np.nan
     swisswuff_max_ore = np.nan
+    swisswuff_mode = None
     raffreddamento_calcolabile = True
     detail_blocks: list[str] = []
 
@@ -233,6 +235,8 @@ def compute_cooling_state(
             potente_candidates: list[float] = []
             swisswuff_mins: list[float] = []
             swisswuff_maxs: list[float] = []
+            swisswuff_has_q_le_02 = False
+            swisswuff_has_high_temp = False
             if res.df_combinazioni is not None:
                 for row in res.df_combinazioni.itertuples(index=False):
                     status = _classify_qd_for_ta(row.Ta, row.Qd)
@@ -242,18 +246,36 @@ def compute_cooling_state(
                         mt_candidate = _potente_limit_for_combination(row.Ta, row.CF, row.peso_kg)
                         if mt_candidate is not None:
                             potente_candidates.append(mt_candidate)
-                        # La regola Swisswuff ±20% già presente nel motore Henssge
-                        # viene applicata soltanto quando Qd <= 0,20.
-                        if _is_num(row.Qd) and float(row.Qd) <= 0.2:
-                            if _is_num(row.ore_min):
-                                swisswuff_mins.append(float(row.ore_min))
-                            if _is_num(row.ore_max):
-                                swisswuff_maxs.append(float(row.ore_max))
+                        # Swisswuff viene riportato solo a titolo orientativo:
+                        # - per Qd <= 0,20 usa la regola storica ±20%;
+                        # - per Ta > 23 °C e 0,20 < Qd <= 0,50 conserva il normale
+                        #   intervallo Henssge, che Potente considera però non adeguatamente validato.
+                        if _is_num(row.Qd):
+                            qd_row = float(row.Qd)
+                            ta_row = float(row.Ta) if _is_num(row.Ta) else np.nan
+                            include_swisswuff = False
+                            if qd_row <= 0.2:
+                                swisswuff_has_q_le_02 = True
+                                include_swisswuff = True
+                            elif _is_num(ta_row) and ta_row > 23 and qd_row <= 0.5:
+                                swisswuff_has_high_temp = True
+                                include_swisswuff = True
+                            if include_swisswuff:
+                                if _is_num(row.ore_min):
+                                    swisswuff_mins.append(float(row.ore_min))
+                                if _is_num(row.ore_max):
+                                    swisswuff_maxs.append(float(row.ore_max))
             if potente_candidates:
                 potente_min_ore = float(min(potente_candidates))
             if swisswuff_mins and swisswuff_maxs:
                 swisswuff_min_ore = float(min(swisswuff_mins))
                 swisswuff_max_ore = float(max(swisswuff_maxs))
+                if swisswuff_has_q_le_02 and swisswuff_has_high_temp:
+                    swisswuff_mode = "mixed"
+                elif swisswuff_has_high_temp:
+                    swisswuff_mode = "high_temp"
+                else:
+                    swisswuff_mode = "q_le_02"
             qd_range_status = _aggregate_qd_status(qd_counts)
             qd_status_counts = tuple(
                 (status, qd_counts[status])
@@ -308,9 +330,16 @@ def compute_cooling_state(
             )
             Qd_min = Qd_val_check
             Qd_max = Qd_val_check
-            if _is_num(Qd_val_check) and float(Qd_val_check) <= 0.2:
-                swisswuff_min_ore = float(t_min_raff_henssge)
-                swisswuff_max_ore = float(t_max_raff_henssge)
+            if _is_num(Qd_val_check):
+                qd_single = float(Qd_val_check)
+                if qd_single <= 0.2:
+                    swisswuff_min_ore = float(t_min_raff_henssge)
+                    swisswuff_max_ore = float(t_max_raff_henssge)
+                    swisswuff_mode = "q_le_02"
+                elif _is_num(Ta_val) and float(Ta_val) > 23 and qd_single <= 0.5:
+                    swisswuff_min_ore = float(t_min_raff_henssge)
+                    swisswuff_max_ore = float(t_max_raff_henssge)
+                    swisswuff_mode = "high_temp"
             raffreddamento_calcolabile = (
                 not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
             )
@@ -335,6 +364,7 @@ def compute_cooling_state(
         potente_min_ore=potente_min_ore,
         swisswuff_min_ore=swisswuff_min_ore,
         swisswuff_max_ore=swisswuff_max_ore,
+        swisswuff_mode=swisswuff_mode,
         raffreddamento_calcolabile=raffreddamento_calcolabile,
         Ta_for_pot=Ta_for_pot,
         qd_threshold=qd_threshold,
