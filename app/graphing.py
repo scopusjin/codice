@@ -177,6 +177,7 @@ def aggiorna_grafico(
     potente_min_ore = cooling.potente_min_ore
     swisswuff_min_ore = cooling.swisswuff_min_ore
     swisswuff_max_ore = cooling.swisswuff_max_ore
+    swisswuff_mode = cooling.swisswuff_mode
     raffreddamento_calcolabile = cooling.raffreddamento_calcolabile
     Ta_for_pot = cooling.Ta_for_pot
     qd_threshold = cooling.qd_threshold
@@ -807,17 +808,37 @@ def aggiorna_grafico(
     ):
         swiss_min_txt = i18n.prudent_hours_text(float(swisswuff_min_ore))
         swiss_max_txt = i18n.prudent_hours_text(float(swisswuff_max_ore))
-        swiss_scope = (
-            "Per le condizioni con Qd ≤ 0,2, a titolo esclusivamente orientativo, "
-            if condizioni_variabili
-            else "A titolo esclusivamente orientativo, "
-        )
-        swiss_note = (
-            f"{swiss_scope}secondo l’impostazione utilizzata da Swisswuff, "
-            f"il tempo trascorso dal decesso al momento dei rilievi sarebbe stimabile tra {swiss_min_txt} e {swiss_max_txt}; tale intervallo è da intendersi "
-            "come del tutto approssimativo, essendo calcolato applicando una variazione di ±20% alla stima centrale "
-            "e privo di uno specifico fondamento statistico."
-        )
+
+        if swisswuff_mode == "high_temp":
+            swiss_note = (
+                "A titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
+                f"il tempo trascorso dal decesso al momento dei rilievi sarebbe stimabile tra {swiss_min_txt} e {swiss_max_txt}. "
+                "Tale risultato non viene utilizzato nella stima principale poiché, per temperature ambientali &gt;23 °C e Q ≤0,5, "
+                "Potente et al. considerano non adeguatamente validati i limiti di confidenza dell’intervallo calcolato mediante il metodo di Henssge "
+                "e propongono, in via prudenziale, di fare riferimento al solo tempo minimo trascorso dal decesso."
+            )
+        elif swisswuff_mode == "mixed":
+            swiss_note = (
+                "A titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
+                f"il tempo trascorso dal decesso al momento dei rilievi ricadrebbe complessivamente tra {swiss_min_txt} e {swiss_max_txt}. "
+                "Tale risultato non viene utilizzato nella stima principale: per le condizioni con temperatura ambientale &gt;23 °C e Q ≤0,5 "
+                "Potente et al. considerano non adeguatamente validati i limiti di confidenza dell’intervallo calcolato mediante il metodo di Henssge; "
+                "per le condizioni con Q ≤0,2, l’intervallo Swisswuff è inoltre ottenuto applicando una variazione di ±20% alla stima centrale "
+                "ed è privo di uno specifico fondamento statistico."
+            )
+        else:
+            swiss_scope = (
+                "Per le condizioni con Qd ≤ 0,2, a titolo esclusivamente orientativo, "
+                if condizioni_variabili
+                else "A titolo esclusivamente orientativo, "
+            )
+            swiss_note = (
+                f"{swiss_scope}secondo l’impostazione utilizzata da Swisswuff, "
+                f"il tempo trascorso dal decesso al momento dei rilievi sarebbe stimabile tra {swiss_min_txt} e {swiss_max_txt}; tale intervallo è da intendersi "
+                "come del tutto approssimativo, essendo calcolato applicando una variazione di ±20% alla stima centrale "
+                "e privo di uno specifico fondamento statistico."
+            )
+
         frase_qd_html = frase_qd_html.replace("</p>", f" {swiss_note}</p>")
 
     # 2) stima complessiva / eventuale discordanza
