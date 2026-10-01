@@ -95,6 +95,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 
 <div class="wide"><label for="surface">Appoggio</label><select id="surface"><option value="0">Normale pavimento interno / piano in legno</option><option value="1">Asfalto / terreno / prato</option><option value="2">Materasso / tappeto spesso</option><option value="3">Supporto molto imbottito e avvolgente (es. divano, cuscini)</option><option value="4">Cemento / pietra</option><option value="5">Pavimento molto freddo (es. cantina)</option><option value="10">Pavimento rivestito in PVC</option><option value="metal">Piano/lastra metallica</option><option value="8">Foglie</option></select></div>
 <div class="conditional" id="leaf-row" hidden><label for="leaf">Condizione delle foglie</label><select id="leaf"><option value="">Da precisare</option><option value="wet">Bagnate</option><option value="humid">Umide</option><option value="dry">Secche</option></select></div>
+<div class="conditional" id="leaf-cover-row" hidden><label for="leaf-cover">Il corpo era anche coperto dalle foglie?</label><select id="leaf-cover"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="metal-type-row" hidden><label for="metal-type">Tipo di superficie metallica</label><select id="metal-type"><option value="">Da precisare</option><option value="6">Lamiera/piano metallico sottile o leggero</option><option value="7">Piano metallico molto spesso</option></select></div>
 <div class="conditional" id="support-soaked-row" hidden><label for="support-soaked">Appoggio abbondantemente impregnato di liquidi?</label><select id="support-soaked"><option value="unknown">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Ferma</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown">Non ricostruibile</option></select><button type="button" id="air-help-button" aria-label="Quando considerare le correnti d’aria" aria-expanded="false" aria-controls="air-help"><span aria-hidden="true">?</span></button></div>
@@ -137,7 +138,7 @@ function step(id,label,value,delta,group){const wrap=document.createElement('div
 specs.forEach(([id,l,v])=>step(id,l,v,1,'#counts'));step('lo','Minimo','1.80',.05,'#range-fields');step('hi','Massimo','2.00',.05,'#range-fields');
 q('label[for="lo"]').textContent='Min';q('#lo').setAttribute('aria-label','FC minimo');
 q('label[for="hi"]').textContent='Max';q('#hi').setAttribute('aria-label','FC massimo');
-function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):Number(surface),waterNearZero:q('#water-near-zero').checked===true,air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
+function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):Number(surface),waterNearZero:q('#water-near-zero').checked===true,air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
   duvet: {short:'Henssge in Madea, 2023 · coperture di piume.',full:'La tabella di adattamento al peso riporta i riferimenti 2.80 e 3.00 a 70 kg per le condizioni più isolanti con coperture di piume. Il loro uso come intervallo per la domanda dell’app è un’interpretazione operativa.',url:'https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html'},
@@ -155,7 +156,7 @@ const SOURCES = {
   support: {short:'Henssge in Madea, 2023 · superfici di appoggio.', full:'Henssge, Post-mortem Body Cooling and Temperature-Based Methods, in Madea, Estimation of the Time Since Death, 4ª ed., 2023, tab. 6.19. Le categorie raggruppate nell’app richiedono corrispondenza con il supporto effettivo.'},
   wet: {short:'Henssge e Brinkmann, 1984 · casi 50 e 52.', full:'Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174:96–112. Tab. 6.8 allegata: ambiente chiuso, aria ferma, superficie corporea bagnata; caso 52: 65 kg, FC 0.75; caso 50: 45 kg, FC 0.77.'},
   clothes: {short:'Henssge e Madea, 1988 · esperimenti con indumenti e coperture.', full:'Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Tab. 6.4–6.6 allegate: i casi individuali servono al confronto, non a convertire ogni indumento in un incremento fisso.'},
-  leaves: {short:'Althaus et al., 2007 · studio su simulatori.', full:'Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. Supporto di foglie spesso 2 cm: FC 1.0 con foglie bagnate; 1.3 e 1.5 con foglie più asciutte. Copertura superiore aggiuntiva: condizioni diverse.', url:'https://pubmed.ncbi.nlm.nih.gov/16944186/'},
+  leaves: {short:'Althaus et al., 2007 · studio su simulatori.', full:'Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. Supporto di foglie spesso 2 cm: FC 1.0 con foglie bagnate; 1.3 e 1.5 con foglie più asciutte. Per un corpo adagiato e anche coperto da foglie secche è riportato un FC di 2.70. Questo valore va adattato dall’operatore se umidità, quantità delle foglie o altre condizioni differiscono dal caso sperimentale.', url:'https://pubmed.ncbi.nlm.nih.gov/16944186/'},
   metal: {short:'Esperimenti su piano metallico · fonte bibliografica da completare.', full:'Tab. 6.10 allegata: acciaio su calcestruzzo, esperimenti 290–292, FC 0.55, 0.54, 0.53. Non sono valori trasferibili a ogni piano metallico. La voce [90] non è contenuta nelle fotografie.'},
   casework: {short:'Henssge et al., 1999 · casi operativi.',full:'Henssge et al. Experiences with a compound method for estimating the time since death. I. Rectal temperature nomogram for time since death. 1999. Ripreso in Madea, 2023, tab. 6.17 e 6.21. Caso 6: due coperte molto spesse, circa 30 cm, persona vestita sul letto; FC centrale 2.40, range iniziale 2.00–2.80.',url:'https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html'},
   weight: {short:'Henssge, 1992 · adattamento al peso.', full:'Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors on the body weight under stronger thermic insulation conditions. Forensic Sci Int. 1992;54:51–66. Formula ripresa in Henssge, in Madea, 3ª ed., p. 81, eq. 6.10. Applicata da FC 1.40 per peso inferiore a 60 o superiore a 80 kg. Sotto 1.40, incluso 1.35, nessun adattamento. Arrotondamento finale al multiplo di 0.05 più vicino; a metà passo si arrotonda in aumento. La verifica visiva del coefficiente 3.24596 nell’originale resta aperta.',url:'https://pubmed.ncbi.nlm.nih.gov/1618454/'}
@@ -272,6 +273,18 @@ function blanketDecision(c){
 }
 function leavesDecision(c){
   if(!['wet','humid','dry'].includes(c.leaf))return pending('Precisare la condizione delle foglie.',['leaves','support']);
+  if(!['no','yes'].includes(c.leafCover))return pending('Precisare se il corpo era anche coperto dalle foglie.',['leaves','support']);
+  if(c.leafCover==='yes'){
+    const exactDry=c.leaf==='dry'&&c.state==='Asciutto'&&!c.wind;
+    return decision(
+      'covered-by-leaves',
+      [2.7,2.7],
+      exactDry?'Dati sperimentali':'Riferimento sperimentale da adattare',
+      'Corpo adagiato e coperto da foglie.',
+      ['leaves','support'],
+      'FC 2.70 riportato per un corpo adagiato e anche coperto da foglie secche. Il valore è proposto come riferimento e va adattato dall’operatore se le foglie sono umide o bagnate, se quantità e spessore differiscono o se sono presenti altre condizioni che modificano il raffreddamento.'
+    );
+  }
   const base=evaluateFixedAir({...c,surf:0});
   if(!base.range)return base;
   const naked=c.s+c.p+c.m+c.h===0;
@@ -489,8 +502,9 @@ function recalc(){
   q('#blanket-volume-row').hidden=state!=='Asciutto'||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
   q('#feather-row').hidden=state!=='Asciutto'||c.h===0;
   q('#leaf-row').hidden=state==='Immerso'||c.surf!==8;
+  q('#leaf-cover-row').hidden=state==='Immerso'||c.surf!==8;
   q('#support-soaked-row').hidden=state!=='Bagnato'||![2,3].includes(c.surf);
-  for(const [id,row] of [['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
+  for(const [id,row] of [['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
     const el=q('#'+id),required=state!=='Immerso'&&!q('#'+row).hidden,missing=required&&(el.value===''||el.value==='unknown');
     el.setAttribute('data-needs-value',String(missing));
     el.setAttribute('aria-invalid',String(missing));
@@ -510,14 +524,14 @@ function recalc(){
 function onWeightChange(){weightChanged=true;applied=null;recalc();}
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){manual=true;update();}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{manual=true;update();}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)q('#weight').value=v.toFixed(1);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(1):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id))update();}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){manual=true;update();}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{manual=true;update();}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)q('#weight').value=v.toFixed(1);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(1):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id))update();}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#use').addEventListener('click',()=>{
   normalizeChoice();update();if(q('#use').disabled)return;
   window.FCBridge.send('use');
 });
 q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
 recalc();
-const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','feather','air','water','isolation','blanket-volume','support-soaked'];
+const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
   setExamples(examples){
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
