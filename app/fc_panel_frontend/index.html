@@ -275,7 +275,7 @@ function leavesDecision(c){
   if(!['wet','humid','dry'].includes(c.leaf))return pending('Precisare la condizione delle foglie.',['leaves','support']);
   if(!['no','yes'].includes(c.leafCover))return pending('Precisare se il corpo era anche coperto dalle foglie.',['leaves','support']);
   if(c.leafCover==='yes'){
-    const exactDry=c.leaf==='dry'&&c.state==='Asciutto'&&!c.wind;
+    const exactDry=c.leaf==='dry'&&c.state==='Asciutto'&&!c.wind&&c.s+c.p+c.m+c.h===0;
     return decision(
       'covered-by-leaves',
       [2.7,2.7],
