@@ -567,7 +567,10 @@ window.FCPanel={
     }
     let support=q('#surface').selectedOptions[0].textContent;
     if(q('#surface').value==='metal')support=q('#metal-type').selectedOptions[0].textContent;
-    if(c.surf===8)support+=' '+q('#leaf').selectedOptions[0].textContent.toLowerCase();
+    if(c.surf===8){
+      support+=' '+q('#leaf').selectedOptions[0].textContent.toLowerCase();
+      if(c.leafCover==='yes')support+=', con copertura di foglie';
+    }
     if(c.supportSoaked==='yes')support+=' impregnato di liquidi';
     const description=state==='Immerso'?'corpo immerso in acqua '+c.water:
       'corpo '+state.toLowerCase()+', '+(garments.length?garments.join(', '):'senza indumenti o coperture')+
