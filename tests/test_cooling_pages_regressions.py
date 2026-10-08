@@ -61,6 +61,58 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                             app.session_state['__desc_dettagliate_html']))
         self.assertEqual(results[0], results[1])
 
+    def test_explicit_intervals_and_results_match_on_desktop_and_mobile(self):
+        results = []
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(__full_device_mobile=mobile,
+                                 stima_cautelativa_beta=True,
+                                 __prudent_explicit_ranges_initialized=True,
+                                 ta_base_val=20., ta_other_val=18.,
+                                 fc_min_val=1.3, fc_other_val=1.1)
+                app.button(key='btn_stima').click().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(
+                    tuple(app.session_state[key] for key in
+                          ('Ta_min_beta', 'Ta_max_beta', 'FC_min_beta', 'FC_max_beta')),
+                    (18., 20., 1.1, 1.3),
+                )
+                # Ordering the calculation bounds must not reorder the inputs.
+                self.assertEqual(
+                    tuple(app.session_state[key] for key in
+                          ('ta_base_val', 'ta_other_val', 'fc_min_val', 'fc_other_val')),
+                    (20., 18., 1.3, 1.1),
+                )
+                results.append((app.session_state['frase_breve'],
+                                app.session_state['__desc_dettagliate_html']))
+                self.assertIsNotNone(results[-1][0])
+        self.assertEqual(results[0], results[1])
+
+    def test_cleared_interval_endpoint_removes_old_bounds_in_both_layouts(self):
+        fields = {'ta_base_val': 20., 'ta_other_val': 18.,
+                  'fc_min_val': 1.3, 'fc_other_val': 1.1}
+        for mobile in (False, True):
+            app = self.start(__full_device_mobile=mobile,
+                             stima_cautelativa_beta=True,
+                             __prudent_explicit_ranges_initialized=True, **fields)
+            for field, value in fields.items():
+                with self.subTest(mobile=mobile, field=field):
+                    output_keys = (('Ta_min_beta', 'Ta_max_beta')
+                                   if field.startswith('ta_')
+                                   else ('FC_min_beta', 'FC_max_beta'))
+                    app.session_state[field] = None
+                    app.run()
+                    self.assertFalse(app.exception)
+                    for key in output_keys:
+                        self.assertNotIn(key, app.session_state)
+                    app.session_state[field] = value
+                    app.run()
+                    self.assertFalse(app.exception)
+                    self.assertEqual(
+                        tuple(app.session_state[key] for key in output_keys),
+                        (18., 20.) if field.startswith('ta_') else (1.1, 1.3),
+                    )
+
     def test_estimated_weight_containing_zero_shows_warning(self):
         app = self.start(peso=2., stima_cautelativa_beta=True, peso_stimato_beta=True)
         app.button(key='btn_stima').click().run()

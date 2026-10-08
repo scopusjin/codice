@@ -41,6 +41,17 @@ def _is_num(x):
     except Exception:
         return False
 
+
+def _sync_interval_state(first_key, second_key, min_key, max_key):
+    """Aggiorna gli estremi di calcolo senza modificare i campi inseriti."""
+    values = [st.session_state.get(first_key), st.session_state.get(second_key)]
+    if all(_is_num(value) for value in values):
+        lo, hi = sorted(float(value) for value in values)
+        st.session_state[min_key], st.session_state[max_key] = lo, hi
+    else:
+        st.session_state.pop(min_key, None)
+        st.session_state.pop(max_key, None)
+
 # ---------------------------
 # Palette / UI helpers
 # ---------------------------
@@ -419,16 +430,9 @@ with st.container(border=True, key="full_cooling_card"):
                         key="ta_other_val",
                         label_visibility="collapsed"
                     )
-                    ta_values = [
-                        st.session_state.get("ta_base_val"),
-                        st.session_state.get("ta_other_val"),
-                    ]
-                    if all(_is_num(v) for v in ta_values):
-                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
-                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                    else:
-                        st.session_state.pop("Ta_min_beta", None)
-                        st.session_state.pop("Ta_max_beta", None)
+                    _sync_interval_state(
+                        "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
+                    )
 
                     fc_min_val = st.number_input(
                         i18n.ui_text("full.fc_min_input"),
@@ -444,16 +448,9 @@ with st.container(border=True, key="full_cooling_card"):
                         key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                         label_visibility="collapsed"
                     )
-                    fc_values = [
-                        st.session_state.get("fc_min_val"),
-                        st.session_state.get("fc_other_val"),
-                    ]
-                    if all(_is_num(v) for v in fc_values):
-                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
-                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                    else:
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
+                    _sync_interval_state(
+                        "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
+                    )
 
                     # In mobile il solo V2 "FC max" ospita il comando Consiglia.
                     # Il pannello suggerisce l'intero intervallo, non un estremo specifico.
@@ -524,16 +521,9 @@ with st.container(border=True, key="full_cooling_card"):
                     with _ta_right:
                         st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
 
-                    ta_values = [
-                        st.session_state.get("ta_base_val"),
-                        st.session_state.get("ta_other_val"),
-                    ]
-                    if all(_is_num(v) for v in ta_values):
-                        lo_ta, hi_ta = sorted(float(v) for v in ta_values)
-                        st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = lo_ta, hi_ta
-                    else:
-                        st.session_state.pop("Ta_min_beta", None)
-                        st.session_state.pop("Ta_max_beta", None)
+                    _sync_interval_state(
+                        "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
+                    )
 
                     _render_desktop_cooling_label(
                         "Range fattore di correzione (FC)",
@@ -572,16 +562,9 @@ with st.container(border=True, key="full_cooling_card"):
                             on_click=_toggle_desktop_range_fc_suggest,
                         )
 
-                    fc_values = [
-                        st.session_state.get("fc_min_val"),
-                        st.session_state.get("fc_other_val"),
-                    ]
-                    if all(_is_num(v) for v in fc_values):
-                        lo_fc, hi_fc = sorted(float(v) for v in fc_values)
-                        st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = lo_fc, hi_fc
-                    else:
-                        st.session_state.pop("FC_min_beta", None)
-                        st.session_state.pop("FC_max_beta", None)
+                    _sync_interval_state(
+                        "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
+                    )
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
