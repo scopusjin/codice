@@ -612,14 +612,11 @@ def install_full_mobile_layout():
     """Installa il layout senza eseguire comandi Streamlit all'import."""
     already_installed = getattr(st, "_full_mobile_layout_installed", False)
 
-    # ``app.__init__`` ripristina a ogni hot reload i wrapper di toggle e input
-    # numerico. Vanno quindi riagganciati anche quando gli stili e il wrapper
-    # markdown sono già installati; in caso contrario il desktop torna alla
-    # pila verticale fino al successivo riavvio completo di Streamlit.
+    # ``app.__init__`` ripristina a ogni hot reload il wrapper di toggle.
+    # Riagganciamo quindi l'helper anche quando gli altri wrapper sono installati.
     original_markdown = getattr(st, "_full_mobile_layout_original_markdown", st.markdown)
     original_toggle = st.toggle
     original_checkbox = getattr(st, "_full_mobile_layout_original_checkbox", st.checkbox)
-    original_number_input = st.number_input
 
     if not already_installed:
         st._full_mobile_layout_original_markdown = original_markdown
@@ -662,92 +659,8 @@ def install_full_mobile_layout():
             _render_click_help(help_text, "mortem_help_henssge")
         return result
 
-    def _toggle_desktop_range_fc_suggest() -> None:
-        same_open_target = bool(
-            st.session_state.get("toggle_fattore_inline", False)
-            and st.session_state.get("__full_fc_suggest_target") == "range"
-        )
-        if same_open_target:
-            st.session_state["toggle_fattore_inline"] = False
-            st.session_state["toggle_fattore"] = False
-            st.session_state.pop("__full_fc_suggest_target", None)
-            return
-
-        st.session_state["toggle_fattore_inline"] = True
-        st.session_state["toggle_fattore"] = True
-        st.session_state["__full_fc_suggest_target"] = "range"
-
-    def number_input_with_desktop_range_action(label, *args, **kwargs):
-        key = kwargs.get("key")
-        desktop_range = bool(
-            not st.session_state.get("__full_device_mobile", False)
-            and st.session_state.get("stima_cautelativa_beta", False)
-            and st.session_state.get("range_unico_beta", False)
-            and key in {"fc_min_val", "fc_other_val"}
-        )
-        if not desktop_range or args:
-            return original_number_input(label, *args, **kwargs)
-
-        if key == "fc_other_val":
-            if st.session_state.pop("__desktop_caut_fc_max_pre_rendered", False):
-                return st.session_state.pop(
-                    "__desktop_caut_fc_max_rendered_value",
-                    st.session_state.get("fc_other_val", kwargs.get("value")),
-                )
-            return original_number_input(label, *args, **kwargs)
-
-        range_mode = st.session_state.get("range_unico_beta", False)
-        max_kwargs = dict(kwargs)
-        max_kwargs["key"] = "fc_other_val"
-        max_kwargs["value"] = st.session_state.get("fc_other_val", kwargs.get("value"))
-
-        with st.container(
-            horizontal=True,
-            wrap=False,
-            vertical_alignment="top",
-            gap="small",
-            key="desktop_caut_fc_range_row",
-        ):
-            with st.container(
-                horizontal=True,
-                wrap=False,
-                vertical_alignment="center",
-                width="stretch",
-                gap="small",
-                key="desktop_caut_fc_range_values",
-            ):
-                st.session_state["range_unico_beta"] = False
-                try:
-                    with st.container(width="stretch", key="desktop_caut_fc_range_min"):
-                        min_value = original_number_input(label, **kwargs)
-                    with st.container(width="stretch", key="desktop_caut_fc_range_max"):
-                        max_value = original_number_input(
-                            ui_text("full.fc_max_input"),
-                            **max_kwargs,
-                        )
-                finally:
-                    st.session_state["range_unico_beta"] = range_mode
-
-            with st.container(width="content", key="desktop_caut_fc_range_action"):
-                active = bool(
-                    st.session_state.get("toggle_fattore_inline", False)
-                    and st.session_state.get("__full_fc_suggest_target") == "range"
-                )
-                st.button(
-                    "Consiglia",
-                    key="desktop_caut_fc_range_suggest",
-                    type="primary" if active else "secondary",
-                    width="stretch",
-                    on_click=_toggle_desktop_range_fc_suggest,
-                )
-
-        st.session_state["__desktop_caut_fc_max_pre_rendered"] = True
-        st.session_state["__desktop_caut_fc_max_rendered_value"] = max_value
-        return min_value
-
     if not already_installed:
         st.markdown = markdown_with_full_mobile_layout
         st.checkbox = checkbox_with_full_mobile_help
     st.toggle = toggle_with_full_mobile_help
-    st.number_input = number_input_with_desktop_range_action
     st._full_mobile_layout_installed = True
