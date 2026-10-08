@@ -21,6 +21,30 @@ nodes['open-tables'].events.click({preventDefault(){}});assert.equal(sent.action
 panel.restore(null,NaN);assert.equal(nodes.use.disabled,true);
 console.log('FC controls: manual bounds, weight, draft, immersion and tables handoff passed.');
 
+// The new leaf-cover answer must survive a draft and reach the applied choice.
+panel.restore({state:'Asciutto',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'8',leaf:'dry','leaf-cover':'',air:'still'}},70);
+nodes.surface.selectedOptions=[{textContent:'Foglie'}];
+nodes.leaf.selectedOptions=[{textContent:'Secche'}];
+assert.equal(nodes['leaf-cover-row'].hidden,false);
+assert.equal(nodes.use.disabled,true);
+assert.match(nodes.error.textContent,/Precisare se il corpo era anche coperto dalle foglie/);
+nodes['leaf-cover'].value='no';nodes['leaf-cover'].events.change();
+assert.equal(nodes.lo.value,'1.50');assert.equal(nodes.hi.value,'1.50');
+assert.equal(nodes.use.disabled,false);
+nodes['leaf-cover'].value='yes';nodes['leaf-cover'].events.change();
+assert.equal(nodes.lo.value,'2.70');assert.equal(nodes.hi.value,'2.70');
+const leafDraft=panel.snapshot();
+nodes['leaf-cover'].value='';nodes['leaf-cover'].events.change();
+assert.equal(nodes.use.disabled,true);
+panel.restore(leafDraft,70);
+assert.equal(nodes['leaf-cover'].value,'yes');
+assert.equal(nodes.use.disabled,false);
+nodes.use.events.click();
+assert.deepEqual([...sent.range],[2.7,2.7]);
+assert.equal(sent.conditions.leafCover,'yes');
+assert.match(sent.description,/con copertura di foglie/);
+console.log('FC leaves: required answer, support-only range, covering, draft and applied description passed.');
+
 // Exercise the actual component bridge: rerenders retain drafts, navigation is
 // emitted once and cannot be overwritten by a delayed draft event.
 const fs=require('fs'),vm=require('vm'),path=require('path');

@@ -20,7 +20,18 @@ c({surf:7},[.55,.55]);c({surf:7,p:1},[.55,1.2]);
 c({state:'Bagnato',surf:7,p:3},[.55,1.3]);
 for(const surf of [2,3]){c({state:'Bagnato',p:3,surf,supportSoaked:'yes'},[1.2,1.3]);c({state:'Bagnato',p:3,surf,supportSoaked:'no'},[1.3,1.4]);}
 const leaves=[ [{},[1.3,1.3],[1.5,1.5]], [{s:1},[1.3,1.4],[1.5,1.6]], [{s:2},[1.3,1.5],[1.5,1.7]], [{s:3},[1.3,1.6],[1.5,1.8]], [{s:4},[1.3,1.6],[1.5,1.8]], [{p:1},[1.3,1.5],[1.5,1.7]], [{p:2,s:2},[1.3,1.7],[1.5,1.9]], [{p:3,isolation:'none'},[1.4,1.7],[1.5,1.9]] ];
-for(const [config,humid,dry] of leaves){c({...config,surf:8,leaf:'humid'},humid);c({...config,surf:8,leaf:'dry'},dry);}
+for(const [config,humid,dry] of leaves){c({...config,surf:8,leaf:'humid',leafCover:'no'},humid);c({...config,surf:8,leaf:'dry',leafCover:'no'},dry);}
+// Leaf support and leaf covering are distinct selections. An unanswered
+// covering question must not silently reuse the support-only suggestion.
+for(const leaf of ['wet','humid','dry']){
+ for(const leafCover of [undefined,'']){
+  const result=run({surf:8,leaf,leafCover});
+  assert.equal(result.range,null);checks++;
+  assert.match(result.summary,/Precisare se il corpo era anche coperto dalle foglie/);checks++;
+ }
+ c({surf:8,leaf,leafCover:'yes'},[2.7,2.7]);
+}
+c({surf:8,leaf:'wet',leafCover:'no'},[1,1]);
 c({state:'Immerso',water:'stagnante'},[.5,.5]);c({state:'Immerso',water:'corrente',h:20,s:20},[.35,.35]);c({state:'Immerso',water:'stagnante',waterNearZero:true},[.5,1]);
 // Formula checkpoints independently calculated from the published expression.
 point(api.adjust(2,10),3.171869,'Formula 2 / 10 kg');
@@ -42,7 +53,7 @@ for(const w of [4,20,59.99,60,80,80.01,100,150])for(const [a,b] of [[1.3,1.4],[1
 // Finite/ordered ranges and documented missing selections across all branches.
 let combinations=0,pending=0;
 for(const state of ['Asciutto','Bagnato'])for(const s of [0,1,2,3,4,5,20])for(const p of [0,1,2,3,20])for(const m of [0,1,2,3])for(const h of [0,1,2])for(const surf of [0,1,2,3,4,5,6,7,8,10])for(const air of ['still','continuous','intermittent','unknown']){
- const config={state,s,p,m,h,surf,air,isolation:'none',feather:'no',volume:'no',leaf:'dry',supportSoaked:'no'};
+ const config={state,s,p,m,h,surf,air,isolation:'none',feather:'no',volume:'no',leaf:'dry',leafCover:'no',supportSoaked:'no'};
  const r=run(config);combinations++;
  if(!r.range){pending++;continue;}
  assert(r.range.every(Number.isFinite));assert(r.range[0]>0&&r.range[1]>=r.range[0]-1e-8);
