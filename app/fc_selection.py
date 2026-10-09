@@ -28,6 +28,13 @@ def validate_choice(payload):
     return round(lo, 2), round(hi, 2), weight
 
 
+def sync_fc_weight(state, weight):
+    """Synchronize the existing weight fields after caller validation."""
+    state["peso"] = weight
+    state["peso_widget"] = weight
+    state["peso_str"] = f"{weight:.1f}"
+
+
 def apply_choice(state, payload, *, msil=False):
     """Apply exactly the chosen bounds, without accumulating older suggestions."""
     lo, hi, weight = validate_choice(payload)
@@ -39,9 +46,7 @@ def apply_choice(state, payload, *, msil=False):
         state["__full_standard_fattore_correzione"] = state.get("fattore_correzione", 1.0)
         for key in ("ta_other_val", "Ta_min_beta", "Ta_max_beta"):
             state[key] = ta
-    state["peso"] = weight
-    state["peso_widget"] = weight
-    state["peso_str"] = f"{weight:.1f}"
+    sync_fc_weight(state, weight)
     state["fattore_correzione"] = rounded_fc((lo + hi) / 2)
     for key in ("fc_min_val", "FC_min_beta", "__full_interval_fc_min_val"):
         state[key] = lo

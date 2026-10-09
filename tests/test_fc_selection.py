@@ -13,6 +13,8 @@ class FCSelectionTests(unittest.TestCase):
         self.assertEqual(state["fc_suggested_vals"], [1.25, 1.45])
         self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (17.5, 21.0))
         self.assertEqual(state["peso"], 91)
+        self.assertEqual(state["peso_widget"], 91.0)
+        self.assertEqual(state["peso_str"], "91.0")
 
     def test_range_from_single_mode_sets_equal_ambient_bounds(self):
         state = {"stima_cautelativa_beta": False, "ta_base_val": 19.5}

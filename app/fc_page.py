@@ -9,7 +9,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from app.fc_catalog import load_examples
-from app.fc_selection import apply_choice, validate_choice
+from app.fc_selection import apply_choice, sync_fc_weight, validate_choice
 
 TABLES_PAGE = "pages/2_Tabelle di riferimento.py"
 FULL_PAGE = "Stima_epoca_decesso.py"
@@ -75,10 +75,10 @@ def _consume_event(event):
             if saved.get("peso") != weight:
                 saved["show_results"] = False
                 saved["run_stima_mobile"] = False
-            for values in (saved, st.session_state):
-                values["peso"] = weight
-                values["peso_widget"] = weight
-                values["peso_str"] = f"{weight:.1f}"
+            # A chosen FC updates the saved form through apply_choice below.
+            if action != "use":
+                sync_fc_weight(saved, weight)
+            sync_fc_weight(st.session_state, weight)
     except (TypeError, ValueError, OverflowError):
         pass
     if action == "use":
