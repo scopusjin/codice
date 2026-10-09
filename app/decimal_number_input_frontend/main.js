@@ -12,6 +12,7 @@ let decimals = 0;
 let minimum = null;
 let maximum = null;
 let disabled = false;
+let editOnClick = false;
 let currentSyncToken = null;
 let sendTimer = null;
 let lastSentValue = undefined;
@@ -72,6 +73,7 @@ function parsedInput() {
 
 function canStep(direction) {
   if (disabled) return false;
+  if (editOnClick) return true;
   const current = parsedInput();
   if (current === null) return false;
   if (direction < 0 && minimum !== null && current <= minimum + 1e-12) return false;
@@ -107,6 +109,7 @@ function scheduleValue(value) {
 }
 
 function commitInput() {
+  if (editOnClick) return;
   const parsed = parsedInput();
   if (parsed === null) {
     if (input.value.trim() === "") {
@@ -123,6 +126,7 @@ function commitInput() {
 }
 
 function stepBy(direction) {
+  if (editOnClick) { sendEditAction(); return; }
   if (!canStep(direction)) return;
   const current = parsedInput();
   const next = clampValue(current + direction * step);
@@ -168,7 +172,18 @@ function sendSuggestAction() {
   });
 }
 
+function sendEditAction() {
+  if (disabled || !editOnClick) return;
+  Streamlit.setComponentValue({
+    value: lastSentValue ?? null,
+    edit_token: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  });
+}
+
+input.addEventListener("click", sendEditAction);
+
 input.addEventListener("input", () => {
+  if (editOnClick) { setDisplayedValue(lastSentValue); return; }
   const raw = input.value;
   const start = input.selectionStart;
   const normalized = canonicalize(raw);
@@ -184,6 +199,12 @@ input.addEventListener("input", () => {
 
 input.addEventListener("blur", commitInput);
 input.addEventListener("keydown", (event) => {
+  if (editOnClick) {
+    if (['Enter', ' ', 'ArrowUp', 'ArrowDown', 'Backspace', 'Delete'].includes(event.key) || /^[0-9.,]$/.test(event.key)) {
+      event.preventDefault();sendEditAction();
+    }
+    return;
+  }
   if (event.key === "Enter") {
     event.preventDefault();
     commitInput();
@@ -220,6 +241,7 @@ function onRender(event) {
   minimum = finiteNumber(args.min_value);
   maximum = finiteNumber(args.max_value);
   disabled = Boolean(args.disabled);
+  editOnClick = Boolean(args.edit_on_click);
   compactMobileEnabled = Boolean(args.compact_mobile);
   compactLabelText = String(args.compact_label || "");
   unitText = String(args.unit || "");
@@ -228,6 +250,10 @@ function onRender(event) {
   suggestLabelText = String(args.suggest_label || "");
   suggestActive = Boolean(args.suggest_active);
   input.disabled = disabled;
+  input.readOnly = editOnClick;
+  input.setAttribute("inputmode", editOnClick ? "none" : "decimal");
+  input.title = editOnClick ? "Modifica FC nel pannello" : "";
+  input.style.cursor = editOnClick ? "pointer" : "";
   control.classList.toggle("is-disabled", disabled);
   control.classList.toggle("review-required", Boolean(args.review_required));
   control.classList.toggle("desktop-external-label", Boolean(args.desktop_external_label));

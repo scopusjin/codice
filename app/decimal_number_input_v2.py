@@ -502,6 +502,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const minimum = finiteNumber(data?.min_value);
   const maximum = finiteNumber(data?.max_value);
   const disabled = Boolean(data?.disabled);
+  const editOnClick = Boolean(data?.edit_on_click);
+  const openEditor = () => { if (!disabled && editOnClick) setTriggerValue('edit', true); };
 
   const sameValue = (a, b) => {
     if (a === null || b === null) return a === b;
@@ -540,6 +542,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   };
   const canStep = (direction) => {
     if (disabled) return false;
+    if (editOnClick) return true;
     const current = parsedInput();
     if (current === null) return false;
     if (direction < 0 && minimum !== null && current <= minimum + 1e-12) return false;
@@ -747,6 +750,10 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   suggestButton.textContent = showSuggest ? 'Consiglia FC' : String(data?.suggest_label || '');
   suggestButton.setAttribute('aria-pressed', data?.suggest_active ? 'true' : 'false');
   input.disabled = disabled;
+  input.readOnly = editOnClick;
+  input.setAttribute('inputmode', editOnClick ? 'none' : 'decimal');
+  input.title = editOnClick ? 'Modifica FC nel pannello' : '';
+  input.style.cursor = editOnClick ? 'pointer' : '';
   input.setAttribute('aria-label', String(data?.aria_label || 'Valore numerico'));
 
   const syncToken = String(data?.sync_token ?? 0);
@@ -759,6 +766,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   }
 
   input.oninput = () => {
+    if (editOnClick) { setDisplayedValue(data?.value); return; }
     const raw = input.value;
     const start = input.selectionStart;
     const normalized = canonicalize(raw);
@@ -770,8 +778,15 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     }
     updateButtons();
   };
-  input.onblur = commitInput;
+  input.onclick = openEditor;
+  input.onblur = editOnClick ? () => {} : commitInput;
   input.onkeydown = (event) => {
+    if (editOnClick) {
+      if (['Enter', ' ', 'ArrowUp', 'ArrowDown', 'Backspace', 'Delete'].includes(event.key) || /^[0-9.,]$/.test(event.key)) {
+        event.preventDefault();openEditor();
+      }
+      return;
+    }
     if (event.key === 'Enter') {
       event.preventDefault();
       commitInput();
@@ -784,8 +799,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
       stepBy(1);
     }
   };
-  minusButton.onclick = () => stepBy(-1);
-  plusButton.onclick = () => stepBy(1);
+  minusButton.onclick = editOnClick ? openEditor : () => stepBy(-1);
+  plusButton.onclick = editOnClick ? openEditor : () => stepBy(1);
   helpButton.onclick = () => {
     if (!disabled && showHelp) {
       if (mobileHelpText) {
@@ -899,6 +914,7 @@ def render_mobile_decimal_v2(
     on_suggest,
     on_change,
     key,
+    on_edit=None,
 ):
     """Renderizza il controllo V2 mantenendo compatibile lo stato V1 esterno."""
     renderer = _get_renderer()
@@ -959,6 +975,8 @@ def render_mobile_decimal_v2(
         st.session_state[sync_key] = sync_token
 
     def _on_value_change():
+        if callable(on_edit):
+            return
         incoming = _finite_float(_state_value(st.session_state.get(internal_key), "value", value))
         if key:
             st.session_state[key] = incoming
@@ -973,6 +991,10 @@ def render_mobile_decimal_v2(
         if effective_suggest_enabled and callable(on_suggest):
             on_suggest()
 
+    def _on_edit_change():
+        if not disabled and callable(on_edit):
+            on_edit()
+
     result = renderer(
         data={
             "value": value,
@@ -981,6 +1003,7 @@ def render_mobile_decimal_v2(
             "min_value": min_value,
             "max_value": max_value,
             "disabled": bool(disabled),
+            "edit_on_click": callable(on_edit),
             "sync_token": sync_token,
             "aria_label": str(aria_label or "Valore numerico"),
             "compact_label": str(compact_label or ""),
@@ -1002,6 +1025,7 @@ def render_mobile_decimal_v2(
         on_value_change=_on_value_change,
         on_help_change=_on_help_change,
         on_suggest_change=_on_suggest_change,
+        on_edit_change=_on_edit_change,
         key=internal_key,
         width="stretch",
         height=63 if desktop_label_visible else (34 if dense else 40),

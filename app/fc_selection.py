@@ -81,7 +81,7 @@ def normalize_fc_input(state, key, *, msil=False):
     choice = state.get("__fc_applied_choice")
     # An incomplete manual edit must never restore an older, valid selection.
     choice = {**(choice or {}), "manual": True, "base_range": None,
-              "manual_weight_adjusted": False, "manual_center": msil}
+              "manual_weight_adjusted": False, "weight_adjusted": False, "manual_center": msil}
     state["__fc_applied_choice"] = choice
     try:
         value = rounded_fc(state.get(key))
@@ -128,11 +128,10 @@ def refresh_fc_for_weight(state, *, msil=False):
             return False
         weight = float(state.get("peso"))
         bounds = adapt_fc_range(base, weight)
-        updated = {**choice, "range": bounds, "weight": weight}
+        updated = {**choice, "range": bounds, "weight": weight,
+                   "weight_adjusted": bounds != [lo, hi]}
         if choice.get("manual") is True:
-            updated["manual_weight_adjusted"] = (
-                choice.get("manual_weight_adjusted", False) or bounds != [lo, hi]
-            )
+            updated["manual_weight_adjusted"] = bounds != [lo, hi]
         validate_choice(updated)
     except (TypeError, ValueError, OverflowError):
         return False
@@ -162,7 +161,6 @@ def fc_weight_warning(state):
     if fc_weight_needs_review(state):
         return "Peso modificato: ricontrollare il FC."
     choice = state.get("__fc_applied_choice") or {}
-    if choice.get("manual") and choice.get("manual_weight_adjusted"):
-        return ("Il FC inserito manualmente è stato adattato al nuovo peso. "
-                "Se desideri valori diversi, reinseriscili manualmente.")
+    if choice.get("weight_adjusted", choice.get("manual_weight_adjusted", False)):
+        return "FC adattato per il peso."
     return None

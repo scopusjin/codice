@@ -101,7 +101,7 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             self.assertTrue(refresh_fc_for_weight(state))
             self.assertEqual(state['fc_suggested_vals'], adapt_fc_range([2., 2.], weight))
             self.assertEqual(state['__fc_applied_choice']['base_range'], [2., 2.])
-            self.assertIn('reinseriscili manualmente', fc_weight_warning(state))
+            self.assertIn('FC adattato per il peso', fc_weight_warning(state))
             self.assertFalse(refresh_fc_for_weight(state))
 
     def test_reentering_manual_fc_resets_base_and_notice(self):
@@ -127,7 +127,7 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             state['peso'] = 100
             self.assertTrue(refresh_fc_for_weight(state))
             self.assertEqual(state['fc_suggested_vals'], adapt_fc_range(base, 100))
-            self.assertIn('adattato al nuovo peso', fc_weight_warning(state))
+            self.assertIn('FC adattato per il peso', fc_weight_warning(state))
 
     def test_manual_panel_choice_and_nonstandard_initial_weight(self):
         for weight in (70, 100):
@@ -146,6 +146,18 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
         self.assertEqual(state['fattore_correzione'], 1.3)
         self.assertIsNone(fc_weight_warning(state))
 
+    def test_notice_describes_only_an_actual_change_at_the_latest_weight(self):
+        for manual in (False, True):
+            state = {}
+            choice = self.automatic_choice(base=[2., 2.])
+            if manual:
+                choice.update(manual=True, manual_weight_adjusted=False)
+            apply_choice(state, choice)
+            for weight, notice in ((100., True), (70., True), (75., False)):
+                state['peso'] = weight
+                self.assertTrue(refresh_fc_for_weight(state))
+                self.assertEqual(fc_weight_warning(state), 'FC adattato per il peso.' if notice else None)
+
     def test_manual_fc_entered_before_weight_is_retained_until_weight_is_valid(self):
         state = {'peso': None, 'fattore_correzione': 2.}
         normalize_fc_input(state, 'fattore_correzione', msil=True)
@@ -157,7 +169,7 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
         self.assertTrue(refresh_fc_for_weight(state, msil=True))
         self.assertEqual(state['fattore_correzione'], 1.75)
         self.assertNotIn('__msil_fc_chosen_range', state)
-        self.assertIn('reinseriscili manualmente', fc_weight_warning(state))
+        self.assertIn('FC adattato per il peso', fc_weight_warning(state))
 
     def test_invalid_weight_preserves_the_last_valid_choice(self):
         state = {}

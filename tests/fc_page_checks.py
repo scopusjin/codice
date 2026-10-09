@@ -1,6 +1,7 @@
 import datetime
 import json
 import unittest
+from uuid import uuid4
 from pathlib import Path
 
 from streamlit.testing.v1 import AppTest
@@ -153,6 +154,54 @@ class FCPageTests(unittest.TestCase):
         self.change_decimal(app, key, weight)
         self.assertEqual(app.session_state["peso"], weight)
 
+    def open_from_fc(self, app, key="fattore_correzione"):
+        widgets = app._tree.get_widget_states()
+        component_key = "mortem_decimal_" + key
+        candidates = [(e, {"edit_token": uuid4().hex})
+                      for e in app.get("component_instance") if e.proto.id.endswith("-" + component_key)]
+        candidates += [(e, {"edit": True}) for e in app.get("bidi_component")
+                       if e.proto.id.endswith("-" + component_key + "-v2")]
+        self.assertEqual(len(candidates), 1)
+        element, payload = candidates[0]
+        widget = widgets.widgets.add()
+        widget.id = element.proto.id
+        widget.json_value = json.dumps(payload)
+        app._run(widgets)
+        self.assertEqual(list(app.exception), [])
+        self.assertTrue(app.session_state["__fc_active"])
+
+    def choose_manual(self, app, bounds, key="fattore_correzione"):
+        self.open_from_fc(app, key)
+        weight = app.session_state["peso"] or 70.
+        draft = {**app.session_state["__fc_draft"], "lo": str(bounds[0]), "hi": str(bounds[1]),
+                 "manual": True, "manualBase": bounds, "selectedBase": None,
+                 "manualWeightAdjusted": False, "weight": weight}
+        self.event(app, "use", range=bounds, base_range=bounds, weight=weight,
+                   manual=True, manual_weight_adjusted=False, draft=draft)
+
+    def test_fc_fields_only_open_panel_and_do_not_accept_inline_changes(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            for interval in ((False,) if msil else (False, True)):
+                with self.subTest(mobile=mobile, msil=msil, interval=interval):
+                    app = self.start(mobile, msil)
+                    if interval:
+                        app.toggle(key="stima_cautelativa_beta").set_value(True).run()
+                    keys = ("fc_min_val", "fc_other_val") if interval else ("fattore_correzione",)
+                    for key in keys:
+                        before = app.session_state[key]
+                        self.change_decimal(app, "mortem_decimal_" + key, 2.)
+                        self.assertEqual(app.session_state[key], before)
+                        self.open_from_fc(app, key)
+                        draft = app.session_state["__fc_draft"]
+                        if msil:
+                            self.assertEqual([draft["lo"], draft["hi"]], ["0.90", "1.10"])
+                        else:
+                            self.assertEqual(float(draft["lo" if key != "fc_other_val" else "hi"]), before)
+                        self.event(app, "back", weight=app.session_state["peso"])
+                        self.assertEqual(app.session_state[key], before)
+                        app.run()
+                        self.assertFalse(app.session_state["__fc_active"])
+
     def test_main_weight_refreshes_point_and_range_in_every_view(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             for base, adjusted in (([1.4, 1.4], [1.3, 1.3]), ([2.8, 3.1], [2.3, 2.45])):
@@ -181,38 +230,45 @@ class FCPageTests(unittest.TestCase):
                             from app.fc_selection import rounded_fc
                             self.assertEqual(app.session_state["fattore_correzione"], rounded_fc(sum(expected) / 2))
 
-    def test_manual_main_fc_adapts_its_own_values_after_helper_selection(self):
+    def test_manual_panel_fc_adapts_its_own_values_after_helper_selection(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 self.open(app, msil)
                 self.event(app, "use", range=[2.8, 3.1], base_range=[2.8, 3.1], weight=70., manual=False)
                 key = "fattore_correzione" if msil else "fc_min_val"
-                self.change_decimal(app, "mortem_decimal_" + key, 2.5)
+                self.choose_manual(app, [2.5, 2.5] if msil else [2.5, 3.1], key)
                 self.assertTrue(app.session_state["__fc_applied_choice"]["manual"])
                 self.change_weight(app, 100., mobile, msil)
                 self.assertEqual(app.session_state[key], 2.1)
-                expected = [2., 2.2] if msil else [2.1, 2.45]
+                expected = [2.1, 2.1] if msil else [2.1, 2.45]
                 self.assertEqual([app.session_state["FC_min_beta"], app.session_state["FC_max_beta"]], expected)
-                self.assertTrue(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.warning))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state[key], 2.5)
 
-    def test_direct_manual_fc_refreshes_without_opening_helper_in_every_view(self):
+    def test_manual_fc_entered_through_fc_field_refreshes_in_every_view(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
-                self.change_decimal(app, "mortem_decimal_fattore_correzione", 2.)
-                for weight, expected in ((75., 2.), (100., 1.75), (70., 2.), (100., 1.75)):
+                self.choose_manual(app, [2., 2.])
+                for weight, expected, notice in ((75., 2., False), (100., 1.75, True),
+                                                 (70., 2., True), (75., 2., False), (100., 1.75, True)):
                     self.change_weight(app, weight, mobile, msil)
                     self.assertEqual(app.session_state["fattore_correzione"], expected)
-                    notices = [w.value for w in app.warning if "reinseriscili manualmente" in w.value]
-                    self.assertEqual(bool(notices), weight != 75.)
+                    notices = [w.value for w in app.warning if "FC adattato per il peso" in w.value]
+                    self.assertEqual(bool(notices), notice)
+                    self.assertFalse(app.session_state["__fc_active"])
                     app.run()
                     self.assertEqual(list(app.exception), [])
                     self.assertEqual(app.session_state["fattore_correzione"], expected)
-                self.change_decimal(app, "mortem_decimal_fattore_correzione", 2.5)
-                self.assertFalse(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.open_from_fc(app)
+                self.assertEqual(app.session_state["__fc_draft"]["lo"], "1.75")
+                self.assertEqual(app.session_state["__fc_draft"]["manualBase"], [2., 2.])
+                self.assertTrue(app.session_state["__fc_draft"]["manualWeightAdjusted"])
+                self.event(app, "use", range=[2.5, 2.5], base_range=[2.5, 2.5], weight=100.,
+                           manual=True, manual_weight_adjusted=False)
+                self.assertFalse(any("FC adattato per il peso" in w.value for w in app.warning))
                 self.change_weight(app, 110., mobile, msil)
                 self.assertEqual(app.session_state["fattore_correzione"], 2.)
 
@@ -223,7 +279,7 @@ class FCPageTests(unittest.TestCase):
                 self.open(app, msil)
                 self.event(app, "use", range=[1.75, 1.75], base_range=[2., 2.],
                            weight=100., manual=True, manual_weight_adjusted=True)
-                self.assertTrue(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.warning))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state["fc_suggested_vals"], [2., 2.])
 

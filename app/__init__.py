@@ -224,6 +224,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             component_scope = "_range" if prudent_mode and range_mode else "_single"
 
         state_key = _msil_widget_state_keys.get(key, key)
+        fc_panel_only = key in {"fattore_correzione", "fc_min_val", "fc_other_val"}
         logical_value = st.session_state.get(state_key, kwargs.get("value"))
         mirror_key = f"__decimal_component_mirror_{key}{component_scope}"
         sync_key = f"__decimal_component_sync_{key}{component_scope}"
@@ -265,6 +266,8 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
         callback_kwargs = kwargs.get("kwargs") or {}
 
         def _component_on_change():
+            if fc_panel_only:
+                return
             incoming = st.session_state.get(component_key)
             expected_present = expected_sync_key in st.session_state
             expected_value = (
@@ -336,6 +339,10 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             st.session_state["toggle_fattore"] = True
             st.session_state["__full_fc_suggest_target"] = suggest_target
 
+        def _component_edit_fc():
+            st.session_state["__full_fc_suggest_target"] = "edit"
+            st.session_state["toggle_fattore"] = True
+
         compact_label = ""
         if compact_mobile:
             compact_label = (
@@ -377,6 +384,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                     suggest_label="Consiglia" if suggest_target else "",
                     suggest_active=suggest_active,
                     on_suggest=_component_suggest if suggest_target else None,
+                    on_edit=_component_edit_fc if fc_panel_only else None,
                     on_change=_component_on_change if callable(user_on_change) else None,
                     key=component_key,
                 )
@@ -399,6 +407,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 suggest_label="Consiglia" if suggest_target else "",
                 suggest_active=suggest_active,
                 on_suggest=_component_suggest if suggest_target else None,
+                on_edit=_component_edit_fc if fc_panel_only else None,
                 on_change=_component_on_change if callable(user_on_change) else None,
                 key=component_key,
             )
@@ -406,7 +415,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
         # Durante una sincronizzazione esterna il valore restituito dal
         # componente può essere quello del render precedente: in quel solo
         # passaggio prevale il valore logico appena aggiornato.
-        if external_change:
+        if external_change or fc_panel_only:
             return logical_value
 
         st.session_state[state_key] = result

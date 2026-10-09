@@ -87,6 +87,26 @@ assert.equal(panel.payload().manual,false);
 assert.equal(panel.payload().manual_weight_adjusted,false);
 console.log('Manual FC: original bounds, repeated weights, drafts, new edits and invalid inputs passed.');
 
+// Opening a main-page FC must preserve its current value and original base.
+panel.restore({lo:'1.75',hi:'1.75',weight:100,manual:true,manualBase:[2,2],
+  manualWeightAdjusted:true,weightAdjusted:true},100);
+assert.equal(nodes.lo.value,'1.75');assert.deepEqual([...panel.payload().base_range],[2,2]);
+nodes.weight.value='70';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,true);
+nodes.weight.value='75';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,false);
+assert.equal(panel.payload().manual_weight_adjusted,false);
+panel.restore({lo:'1.75',hi:'1.75',weight:100,manual:false,selectedBase:[2,2]},100);
+assert.equal(panel.payload().manual,false);assert.deepEqual([...panel.payload().base_range],[2,2]);
+nodes.weight.value='70';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,true);
+nodes.weight.value='75';nodes.weight.events.input();
+assert.equal(panel.payload().weight_adjusted,false);
+assert.equal(panel.payload().manual,false);
+console.log('FC editor: current manual/automatic selection and change-only notice survive reopening.');
+
+require('./test_fc_field_controls.cjs');
+
 // Exercise the actual component bridge: rerenders retain drafts, navigation is
 // emitted once and cannot be overwritten by a delayed draft event.
 const fs=require('fs'),vm=require('vm'),path=require('path');

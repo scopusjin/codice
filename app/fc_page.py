@@ -33,12 +33,39 @@ def _close_flags(values):
 
 
 def open_fc_page(home=FULL_PAGE):
+    if st.session_state.get("__full_fc_suggest_target") == "edit":
+        st.session_state["__fc_draft"] = _current_fc_draft(st.session_state, home)
     st.session_state["__fc_form"] = _form_snapshot()
     st.session_state["__fc_home"] = home
     st.session_state["__fc_active"] = True
     st.session_state["__fc_instance"] = uuid4().hex
     st.session_state.pop("__fc_last_event", None)
     st.rerun()
+
+
+def _current_fc_draft(state, home):
+    """Open the active FC values, retaining their original weight-adaptation base."""
+    if home == MSIL_PAGE:
+        values = [state.get("FC_min_beta"), state.get("FC_max_beta")]
+    elif state.get("stima_cautelativa_beta") and state.get("range_unico_beta"):
+        values = [state.get("fc_min_val"), state.get("fc_other_val")]
+    else:
+        values = [state.get("fattore_correzione")] * 2
+    choice = state.get("__fc_applied_choice") or {}
+    matches = choice.get("range") == values and choice.get("weight") == state.get("peso")
+    base = choice.get("base_range") if matches else None
+    manual = choice.get("manual", True) if base is not None else True
+    draft = deepcopy(choice.get("draft") or state.get("__fc_draft") or {})
+    draft.update(
+        lo="" if values[0] is None else f"{values[0]:.2f}",
+        hi="" if values[1] is None else f"{values[1]:.2f}",
+        weight=state.get("peso"), manual=manual,
+        manualBase=(base if base is not None else values) if manual else None,
+        selectedBase=base if not manual else None,
+        manualWeightAdjusted=bool(matches and choice.get("manual_weight_adjusted")),
+        weightAdjusted=bool(matches and choice.get("weight_adjusted", choice.get("manual_weight_adjusted", False))),
+    )
+    return draft
 
 
 def _return_to_form():

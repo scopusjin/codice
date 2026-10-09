@@ -105,6 +105,7 @@ def decimal_number_input(
     suggest_label="",
     suggest_active=False,
     on_suggest=None,
+    on_edit=None,
     on_change=None,
     key=None,
 ):
@@ -175,6 +176,7 @@ def decimal_number_input(
             suggest_label=str(suggest_label or ""),
             suggest_active=bool(suggest_active),
             on_suggest=on_suggest,
+            on_edit=on_edit,
             on_change=on_change,
             key=key,
         )
@@ -186,6 +188,7 @@ def decimal_number_input(
             min_value=minimum,
             max_value=maximum,
             disabled=bool(disabled),
+            edit_on_click=callable(on_edit),
             sync_token=int(sync_token),
             aria_label=str(aria_label or "Valore numerico"),
             compact_mobile=compact_mobile,
@@ -215,6 +218,13 @@ def decimal_number_input(
         )
 
     if isinstance(result, dict):
+        edit_token = result.get("edit_token")
+        if edit_token is not None and callable(on_edit):
+            event_key = f"__decimal_edit_event_{key or aria_label}"
+            if st.session_state.get(event_key) != edit_token:
+                st.session_state[event_key] = edit_token
+                on_edit()
+                st.rerun()
         suggest_token = result.get("suggest_token")
         if suggest_token is not None and callable(on_suggest):
             event_key = f"__decimal_suggest_event_{key or aria_label}"
