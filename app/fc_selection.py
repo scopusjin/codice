@@ -40,6 +40,8 @@ def sync_fc_weight(state, weight):
 def apply_choice(state, payload, *, msil=False, sync_weight=True):
     """Apply exactly the chosen bounds, without accumulating older suggestions."""
     lo, hi, weight = validate_choice(payload)
+    if payload.get("manual") is True and payload.get("base_range") is None:
+        payload = {**payload, "base_range": [lo, hi], "manual_weight_adjusted": False}
     was_prudent = bool(state.get("stima_cautelativa_beta", False))
     interval = was_prudent or hi > lo or msil
     if interval and not was_prudent:
@@ -74,42 +76,71 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     state["__msil_fc_chosen_range"] = [lo, hi]
 
 
-def normalize_fc_input(state, key):
+def normalize_fc_input(state, key, *, msil=False):
     """Round a manual edit to the same nearest 0.05 used by the FC panel."""
     choice = state.get("__fc_applied_choice")
-    if isinstance(choice, dict):
-        # Even clearing a field is an operator choice: do not restore it later.
-        state["__fc_applied_choice"] = {**choice, "manual": True}
+    # An incomplete manual edit must never restore an older, valid selection.
+    choice = {**(choice or {}), "manual": True, "base_range": None,
+              "manual_weight_adjusted": False, "manual_center": msil}
+    state["__fc_applied_choice"] = choice
     try:
         value = rounded_fc(state.get(key))
     except (TypeError, ValueError):
         return
     state[key] = value
-    if value > 0:
-        state["__fc_reviewed_weight"] = state.get("peso")
+    values = ([value, value] if key == "fattore_correzione" else
+              [state.get("fc_min_val"), state.get("fc_other_val")])
+    try:
+        # FC may be entered before weight in Sopralluogo. Validate its bounds
+        # independently and retain them until a valid weight is available.
+        lo, hi, _ = validate_choice({"range": values, "weight": 70})
+    except (TypeError, ValueError, OverflowError):
+        return
+    try:
+        _, _, weight = validate_choice({"range": [lo, hi], "weight": state.get("peso")})
+    except (TypeError, ValueError, OverflowError):
+        weight = None
+    state["__fc_applied_choice"] = {
+        **choice, "range": [lo, hi], "base_range": [lo, hi], "weight": weight,
+    }
+    state["__fc_reviewed_weight"] = weight
 
 
 def refresh_fc_for_weight(state, *, msil=False):
-    """Refresh an automatic choice before rendering FC widgets; preserve edits."""
+    """Adapt the original selected bounds, never the last adapted result."""
     choice = state.get("__fc_applied_choice")
-    if not isinstance(choice, dict) or choice.get("manual") is not False:
+    if not isinstance(choice, dict) or choice.get("manual") not in (True, False):
         return False
-    if not fc_weight_needs_review(state):
+    # Old manual edits retained the helper's bounds, not the operator's values.
+    if choice.get("manual") is True and "manual_weight_adjusted" not in choice:
+        return False
+    pending_weight = choice.get("manual") is True and choice.get("weight") is None
+    if not pending_weight and not fc_weight_needs_review(state):
         return False
     try:
-        lo, hi, previous_weight = validate_choice(choice)
+        lo, hi, previous_weight = validate_choice(
+            {**choice, "weight": state.get("peso")} if pending_weight else choice
+        )
         base = choice.get("base_range")
         # Older sessions have no base range. Never infer it from rounded bounds.
-        if adapt_fc_range(base, previous_weight) != [lo, hi]:
+        original_manual = choice.get("manual") is True and base == [lo, hi]
+        if not original_manual and adapt_fc_range(base, previous_weight) != [lo, hi]:
             return False
         weight = float(state.get("peso"))
         bounds = adapt_fc_range(base, weight)
         updated = {**choice, "range": bounds, "weight": weight}
+        if choice.get("manual") is True:
+            updated["manual_weight_adjusted"] = (
+                choice.get("manual_weight_adjusted", False) or bounds != [lo, hi]
+            )
         validate_choice(updated)
     except (TypeError, ValueError, OverflowError):
         return False
     # In MSIL the weight widget has already been rendered. Only the FC changes.
     apply_choice(state, updated, msil=msil, sync_weight=False)
+    if msil and choice.get("manual_center"):
+        # Sopralluogo retains its documented +/- 0.10 around the entered FC.
+        state.pop("__msil_fc_chosen_range", None)
     state["__full_standard_fattore_correzione"] = state["fattore_correzione"]
     return True
 
@@ -125,3 +156,13 @@ def fc_weight_needs_review(state):
     except (TypeError, ValueError):
         return False
     return isfinite(previous) and isfinite(current) and abs(previous - current) > 1e-8
+
+
+def fc_weight_warning(state):
+    if fc_weight_needs_review(state):
+        return "Peso modificato: ricontrollare il FC."
+    choice = state.get("__fc_applied_choice") or {}
+    if choice.get("manual") and choice.get("manual_weight_adjusted"):
+        return ("Il FC inserito manualmente è stato adattato al nuovo peso. "
+                "Se desideri valori diversi, reinseriscili manualmente.")
+    return None

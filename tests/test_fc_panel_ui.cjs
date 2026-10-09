@@ -12,10 +12,10 @@ const draft=panel.snapshot();panel.restore(draft,70);
 assert.equal(nodes.lo.value,'1.25');
 nodes.use.events.click();
 assert.equal(sent.action,'use');assert.deepEqual([...sent.range],[1.25,1.3]);
-assert.equal(sent.manual,true);assert.equal(sent.base_range,null);
+assert.equal(sent.manual,true);assert.deepEqual([...sent.base_range],[1.25,1.3]);
 assert(sent.description.includes('3 strati leggeri'));
 panel.restore(draft,100);
-assert.equal(nodes.lo.value,'1.20');assert.equal(nodes.hi.value,'1.30');
+assert.equal(nodes.lo.value,'1.25');assert.equal(nodes.hi.value,'1.30');
 buttons.find(x=>x.dataset.state==='Immerso').events.click();nodes.use.events.click();
 assert.equal(sent.conditions.s,undefined);assert.equal(sent.conditions.surf,undefined);
 nodes['open-tables'].events.click({preventDefault(){}});assert.equal(sent.action,'tables');
@@ -53,6 +53,39 @@ nodes.use.events.click();
 assert.notDeepEqual([...sent.range],[2.7,2.7]);
 assert.deepEqual([...sent.base_range],[2.7,2.7]);
 assert.equal(sent.manual,false);
+
+// Manual values are the anchor for every later weight, including restored drafts.
+nodes.lo.value='2';nodes.lo.events.input();
+nodes.hi.value='2';nodes.hi.events.input();
+assert.equal(nodes['manual-state'].textContent.includes('adattato al nuovo peso'),false);
+nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2');assert.equal(nodes.hi.value,'2');
+for(const [weight,expected] of [[70,'2.00'],[100,'1.75'],[110,'1.70'],[70,'2.00']]){
+  nodes.weight.value=String(weight);nodes.weight.events.input();
+  assert.equal(nodes.lo.value,expected);assert.equal(nodes.hi.value,expected);
+  nodes.use.events.click();
+  assert.equal(sent.manual,true);assert.deepEqual([...sent.base_range],[2,2]);
+}
+assert.match(nodes['manual-state'].textContent,/reinseriscili manualmente/);
+const manualDraft=panel.snapshot();panel.restore(manualDraft,100);
+assert.equal(nodes.lo.value,'1.75');assert.equal(nodes.hi.value,'1.75');
+assert.match(nodes['manual-state'].textContent,/adattato al nuovo peso/);
+nodes.hi.value='2.5';nodes.hi.events.input();
+nodes.lo.value='2.5';nodes.lo.events.input();
+assert.equal(nodes['manual-state'].textContent.includes('adattato al nuovo peso'),false);
+nodes.weight.value='110';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.00');assert.equal(nodes.hi.value,'2.00');
+nodes.weight.value='';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.00');assert.equal(nodes.use.disabled,true);
+nodes.weight.value='100';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'2.10');assert.equal(nodes.hi.value,'2.10');
+nodes.lo.value='';nodes.lo.events.input();
+nodes.weight.value='70';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'');assert.equal(nodes.use.disabled,true);
+nodes.restore.events.click();
+assert.equal(panel.payload().manual,false);
+assert.equal(panel.payload().manual_weight_adjusted,false);
+console.log('Manual FC: original bounds, repeated weights, drafts, new edits and invalid inputs passed.');
 
 // Exercise the actual component bridge: rerenders retain drafts, navigation is
 // emitted once and cannot be overwritten by a delayed draft event.

@@ -125,7 +125,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <script type="application/json" id="weight-data">{"columns":["4","6","8","10","20","30","40","50","60","70","80","90","100","110","120","130","140","150"],"index":[0,1,2,3,4,5,6,7,8],"data":[[1.6,1.6,1.6,1.6,1.5,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.3,1.2,1.2,1.2],[2.1,2.1,2.0,2.0,1.9,1.8,1.6,1.6,1.6,1.6,1.6,1.6,1.6,1.4,1.4,1.4,1.3,1.3],[2.7,2.7,2.6,2.5,2.3,2.2,2.1,2.0,1.8,1.8,1.8,1.8,1.6,1.6,1.6,1.5,1.4,1.4],[3.5,3.4,3.3,3.2,2.8,2.6,2.4,2.3,2.0,2.0,2.0,1.8,1.8,1.7,1.6,1.6,1.5,1.5],[4.5,4.3,4.1,3.9,3.4,3.0,2.8,2.6,2.4,2.2,2.1,2.0,1.9,1.8,1.7,1.7,1.6,1.6],[5.7,5.3,5.0,4.8,4.0,3.5,3.2,2.9,2.7,2.4,2.3,2.2,2.1,1.9,1.9,1.8,1.7,1.6],[7.1,6.6,6.2,5.8,4.7,4.0,3.6,3.2,2.9,2.6,2.5,2.3,2.2,2.1,2.0,1.9,1.8,1.7],[8.8,8.1,7.5,7.0,5.5,4.6,3.9,3.5,3.2,2.8,2.7,2.5,2.3,2.2,2.0,1.9,1.8,1.7],[10.9,9.8,8.9,8.3,6.2,5.1,4.3,3.8,3.4,3.0,2.8,2.6,2.4,2.3,2.1,2.0,1.9,1.8]]}</script>
 <script>
 (()=>{
-const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,weightChanged=false;
+const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,weightChanged=false,manualBase=null,manualWeightAdjusted=false,lastWeight=null;
 const fmt=n=>n.toFixed(2);
 // Quantization is an app output convention, never a change to source values.
 function roundFC(v){return Number((Math.round(v*20+1e-10)/20).toFixed(2));}
@@ -468,7 +468,7 @@ function update(){
   q('#error').textContent=error;
   q('#use').disabled=!!error;
   
-  q('#manual-state').textContent=weightChanged?'Peso aggiornato: rivedere il FC e premere Usalo.':'';
+  q('#manual-state').textContent=manualWeightAdjusted?'Il FC inserito manualmente è stato adattato al nuovo peso. Se desideri valori diversi, reinseriscili manualmente.':weightChanged?'Peso aggiornato: rivedere il FC e premere Usalo.':'';
   q('#editable-note').textContent=manual?'(adattato dall’operatore)':'(adattabile dall’operatore)';
   q('#origin').textContent=result.range&&suggestion?'':result.summary;
   q('#restore').disabled=!suggestion&&!manual;
@@ -513,18 +513,43 @@ function recalc(){
   q('#wet-case-row').hidden=state!=='Bagnato'||c.air!=='continuous'||c.surf!==1||c.m+c.h>0||c.s+c.p!==2;
   result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});
   const w=num(q('#weight'));
+  lastWeight=w;
   const adapted=result.range&&Number.isFinite(w)&&w>=4&&w<=150?bounds(...result.range,w):null;
   suggestion=adapted&&adapted.every(Number.isFinite)?roundRange(adapted):null;
   if(result.range&&!suggestion&&Number.isFinite(w)&&w>=4&&w<=150)result={...result,summary:'Adattamento al peso non calcolabile: verificare i valori.',detail:result.detail+' Il calcolo non restituisce valori validi.'};
-  manual=false;
+  manual=false;manualBase=null;manualWeightAdjusted=false;
   q('#lo').value=suggestion?fmt(suggestion[0]):'';
   q('#hi').value=suggestion?fmt(suggestion[1]):'';
   update();
 }
-function onWeightChange(){weightChanged=true;applied=null;recalc();}
+function recordManualEdit(){
+  manual=true;manualWeightAdjusted=false;
+  const values=[num(q('#lo')),num(q('#hi'))];
+  manualBase=values.every(Number.isFinite)&&values[0]>=.35&&values[1]>=values[0]?roundRange(values):null;
+  update();
+}
+function adaptManualToWeight(){
+  const w=num(q('#weight'));
+  if(!manualBase||!Number.isFinite(w)||w<4||w>150)return;
+  const adapted=bounds(...manualBase,w);
+  if(!adapted.every(Number.isFinite))return;
+  const values=roundRange(adapted),previous=[num(q('#lo')),num(q('#hi'))];
+  manualWeightAdjusted=manualWeightAdjusted||values.some((v,i)=>v!==previous[i]);
+  q('#lo').value=fmt(values[0]);q('#hi').value=fmt(values[1]);
+}
+function onWeightChange(){
+  if(num(q('#weight'))===lastWeight)return;
+  const saved=window.FCPanel.snapshot();
+  weightChanged=true;applied=null;recalc();
+  if(saved.manual){
+    manual=true;manualBase=saved.manualBase;manualWeightAdjusted=saved.manualWeightAdjusted;
+    q('#lo').value=saved.lo;q('#hi').value=saved.hi;
+    adaptManualToWeight();update();
+  }
+}
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){manual=true;update();}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{manual=true;update();}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)q('#weight').value=v.toFixed(1);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(1):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id))update();}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit();}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit();}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)q('#weight').value=v.toFixed(1);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(1):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id))update();}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;manualBase=null;manualWeightAdjusted=false;update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#use').addEventListener('click',()=>{
   normalizeChoice();update();if(q('#use').disabled)return;
   window.FCBridge.send('use');
@@ -539,7 +564,7 @@ window.FCPanel={
   snapshot(){
     return {state, fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:q('#water-near-zero').checked,wetCase:q('#wet-case').checked,
-      lo:q('#lo').value,hi:q('#hi').value,weight:q('#weight').value,manual,
+      lo:q('#lo').value,hi:q('#hi').value,weight:q('#weight').value,manual,manualBase,manualWeightAdjusted,
       sourceOpen:q('#source-panel').open};
   },
   restore(draft,weight){
@@ -551,8 +576,15 @@ window.FCPanel={
     }
     q('#weight').value=Number.isFinite(weight)?weight.toFixed(1):'';
     recalc();
-    if(draft&&Number(draft.weight)===weight){
-      q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;update();
+    if(draft&&(draft.manual||Number(draft.weight)===weight)){
+      q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;
+      if(manual){
+        recordManualEdit();
+        if('manualBase' in draft)manualBase=draft.manualBase;
+        manualWeightAdjusted=!!draft.manualWeightAdjusted;
+        if(Number(draft.weight)!==weight)adaptManualToWeight();
+      }
+      update();
     }
     if(draft)q('#source-panel').open=!!draft.sourceOpen;
   },
@@ -576,7 +608,7 @@ window.FCPanel={
       'corpo '+state.toLowerCase()+', '+(garments.length?garments.join(', '):'senza indumenti o coperture')+
       ', su '+support.toLowerCase()+(c.wind?', con correnti d’aria':'');
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
-      base_range:manual?null:result.range,
+      base_range:manual?manualBase:result.range,manual_weight_adjusted:manualWeightAdjusted,
       conditions:c,manual,description,rule:result.id,explanation:result.detail,sources:result.sources};
   }
 };

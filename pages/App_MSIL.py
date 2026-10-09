@@ -12,7 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
-from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_needs_review, refresh_fc_for_weight
+from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, refresh_fc_for_weight
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
@@ -367,7 +367,7 @@ if "__next_fc" in st.session_state:
 # Callback per normalizzare l'input FC su step 0,05 e chiudere il pannello "Suggerisci FC"
 def _normalize_fc_callback():
     st.session_state.pop("__msil_fc_chosen_range", None)
-    normalize_fc_input(st.session_state, "fattore_correzione")
+    normalize_fc_input(st.session_state, "fattore_correzione", msil=True)
     # chiudi eventuali pannelli "Suggerisci FC" aperti
     st.session_state["toggle_fattore_inline_mobile"] = False  # toggle del pannello mobile
     st.session_state["toggle_fattore"] = False                # flag usato per mostrare il pannello
@@ -391,8 +391,8 @@ if st.session_state.get("__msil_fc_chosen_range"):
 # ------------------------------------------------------------
 # 3) Pulsante finale
 # ------------------------------------------------------------
-if fc_weight_needs_review(st.session_state):
-    st.warning("Peso modificato: ricontrollare il FC.")
+if warning := fc_weight_warning(st.session_state):
+    st.warning(warning)
 
 clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile", use_container_width=True, type="primary")
 

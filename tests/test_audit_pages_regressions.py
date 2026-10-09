@@ -72,16 +72,24 @@ class AuditPagesRegressionTests(unittest.TestCase):
         self.assertEqual((app.session_state['FC_min_beta'], app.session_state['FC_max_beta']),
                          (1.25, 1.45))
 
-    def test_weight_notice_clears_after_manual_fc_review(self):
+    def test_weight_notice_tracks_manual_adaptation_and_clears_on_new_input(self):
         app = self.start(__fc_applied_choice={'range': [1., 1.], 'weight': 60.})
         self.assertTrue(any('Peso modificato' in w.value for w in app.warning))
         self.edit_fc(app, 'fattore_correzione', 1.23)
         self.assertFalse(any('Peso modificato' in w.value for w in app.warning))
         app.session_state['peso'] = 80.
         app.run()
-        self.assertTrue(any('Peso modificato' in w.value for w in app.warning))
+        self.assertFalse(any('Peso modificato' in w.value for w in app.warning))
+        self.assertEqual(app.session_state['fattore_correzione'], 1.25)
+        self.edit_fc(app, 'fattore_correzione', 2.)
+        app.session_state['peso'] = 100.
+        app.run()
+        self.assertEqual(app.session_state['fattore_correzione'], 1.75)
+        self.assertTrue(any('reinseriscili manualmente' in w.value for w in app.warning))
         app.switch_page('pages/App_MSIL.py').run()
-        self.assertTrue(any('Peso modificato' in w.value for w in app.warning))
+        self.assertTrue(any('reinseriscili manualmente' in w.value for w in app.warning))
+        self.edit_fc(app, 'fattore_correzione', 2.)
+        self.assertFalse(any('reinseriscili manualmente' in w.value for w in app.warning))
 
     def test_result_uses_actual_inspection_minute_and_settings_invalidate_it(self):
         app = self.start(input_data_rilievo=dt.date(2026, 1, 2), input_ora_rilievo='12:07',

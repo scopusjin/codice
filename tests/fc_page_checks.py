@@ -181,7 +181,7 @@ class FCPageTests(unittest.TestCase):
                             from app.fc_selection import rounded_fc
                             self.assertEqual(app.session_state["fattore_correzione"], rounded_fc(sum(expected) / 2))
 
-    def test_manual_main_fc_is_preserved_on_later_weight_change(self):
+    def test_manual_main_fc_adapts_its_own_values_after_helper_selection(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
@@ -191,8 +191,41 @@ class FCPageTests(unittest.TestCase):
                 self.change_decimal(app, "mortem_decimal_" + key, 2.5)
                 self.assertTrue(app.session_state["__fc_applied_choice"]["manual"])
                 self.change_weight(app, 100., mobile, msil)
+                self.assertEqual(app.session_state[key], 2.1)
+                expected = [2., 2.2] if msil else [2.1, 2.45]
+                self.assertEqual([app.session_state["FC_min_beta"], app.session_state["FC_max_beta"]], expected)
+                self.assertTrue(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state[key], 2.5)
-                self.assertTrue(any("ricontrollare il FC" in w.value for w in app.warning))
+
+    def test_direct_manual_fc_refreshes_without_opening_helper_in_every_view(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil)
+                self.change_decimal(app, "mortem_decimal_fattore_correzione", 2.)
+                for weight, expected in ((75., 2.), (100., 1.75), (70., 2.), (100., 1.75)):
+                    self.change_weight(app, weight, mobile, msil)
+                    self.assertEqual(app.session_state["fattore_correzione"], expected)
+                    notices = [w.value for w in app.warning if "reinseriscili manualmente" in w.value]
+                    self.assertEqual(bool(notices), weight != 75.)
+                    app.run()
+                    self.assertEqual(list(app.exception), [])
+                    self.assertEqual(app.session_state["fattore_correzione"], expected)
+                self.change_decimal(app, "mortem_decimal_fattore_correzione", 2.5)
+                self.assertFalse(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.change_weight(app, 110., mobile, msil)
+                self.assertEqual(app.session_state["fattore_correzione"], 2.)
+
+    def test_manual_panel_choice_keeps_adjustment_notice_on_return(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil)
+                self.open(app, msil)
+                self.event(app, "use", range=[1.75, 1.75], base_range=[2., 2.],
+                           weight=100., manual=True, manual_weight_adjusted=True)
+                self.assertTrue(any("reinseriscili manualmente" in w.value for w in app.warning))
+                self.change_weight(app, 70., mobile, msil)
+                self.assertEqual(app.session_state["fc_suggested_vals"], [2., 2.])
 
     def test_draft_syncs_weight_and_invalidates_saved_results_only_on_change(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):

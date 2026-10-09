@@ -5,7 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 
 from app.fc_selection import (
-    apply_choice, fc_weight_needs_review, normalize_fc_input, refresh_fc_for_weight,
+    apply_choice, fc_weight_needs_review, fc_weight_warning, normalize_fc_input, refresh_fc_for_weight,
 )
 from app.fc_weight import adapt_fc_range
 
@@ -59,9 +59,9 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
         self.assertTrue(refresh_fc_for_weight(state))
         self.assertEqual(state['fc_suggested_vals'], [2.8, 3.1])
 
-    def test_manual_edits_including_clearing_a_field_disable_refresh(self):
+    def test_incomplete_manual_edits_disable_refresh(self):
         for key in ('fattore_correzione', 'fc_min_val', 'fc_other_val'):
-            for value in (1.75, None):
+            for value in (None, float('nan'), 0):
                 with self.subTest(key=key, value=value):
                     state = {}
                     apply_choice(state, self.automatic_choice())
@@ -73,7 +73,7 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
                     self.assertEqual(state, unchanged)
                     self.assertTrue(fc_weight_needs_review(state))
 
-    def test_manual_legacy_and_inconsistent_choices_are_not_reinterpreted(self):
+    def test_legacy_and_inconsistent_choices_are_not_reinterpreted(self):
         choices = [
             {**self.automatic_choice(), 'manual': True},
             {'range': [2.8, 3.1], 'weight': 70},
@@ -87,6 +87,77 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             unchanged = deepcopy(state)
             self.assertFalse(refresh_fc_for_weight(state))
             self.assertEqual(state, unchanged)
+
+    def test_direct_manual_point_changes_only_when_required_and_keeps_its_base(self):
+        state = {'peso': 70, 'fattore_correzione': 2.0}
+        normalize_fc_input(state, 'fattore_correzione')
+        self.assertIsNone(fc_weight_warning(state))
+        state['peso'] = 75
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(state['fattore_correzione'], 2.)
+        self.assertIsNone(fc_weight_warning(state))
+        for weight in (100, 110, 70, 100):
+            state['peso'] = weight
+            self.assertTrue(refresh_fc_for_weight(state))
+            self.assertEqual(state['fc_suggested_vals'], adapt_fc_range([2., 2.], weight))
+            self.assertEqual(state['__fc_applied_choice']['base_range'], [2., 2.])
+            self.assertIn('reinseriscili manualmente', fc_weight_warning(state))
+            self.assertFalse(refresh_fc_for_weight(state))
+
+    def test_reentering_manual_fc_resets_base_and_notice(self):
+        state = {'peso': 70, 'fattore_correzione': 2.0}
+        normalize_fc_input(state, 'fattore_correzione')
+        state['peso'] = 100
+        refresh_fc_for_weight(state)
+        state['fattore_correzione'] = 2.5
+        normalize_fc_input(state, 'fattore_correzione')
+        self.assertIsNone(fc_weight_warning(state))
+        self.assertEqual(state['fattore_correzione'], 2.5)
+        state['peso'] = 110
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(state['fc_suggested_vals'], adapt_fc_range([2.5, 2.5], 110))
+
+    def test_manual_range_edit_replaces_the_helper_base(self):
+        for key, value, base in (('fc_min_val', 2.5, [2.5, 3.1]),
+                                 ('fc_other_val', 3.5, [2.8, 3.5])):
+            state = {}
+            apply_choice(state, self.automatic_choice())
+            state[key] = value
+            normalize_fc_input(state, key)
+            state['peso'] = 100
+            self.assertTrue(refresh_fc_for_weight(state))
+            self.assertEqual(state['fc_suggested_vals'], adapt_fc_range(base, 100))
+            self.assertIn('adattato al nuovo peso', fc_weight_warning(state))
+
+    def test_manual_panel_choice_and_nonstandard_initial_weight(self):
+        for weight in (70, 100):
+            state = {}
+            apply_choice(state, {'range': [2., 2.], 'weight': weight, 'manual': True})
+            self.assertEqual(state['fattore_correzione'], 2.)
+            state['peso'] = 110
+            self.assertTrue(refresh_fc_for_weight(state))
+            self.assertEqual(state['fc_suggested_vals'], adapt_fc_range([2., 2.], 110))
+
+    def test_fc_below_threshold_does_not_show_an_adjustment_notice(self):
+        state = {'peso': 70, 'fattore_correzione': 1.3}
+        normalize_fc_input(state, 'fattore_correzione')
+        state['peso'] = 100
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(state['fattore_correzione'], 1.3)
+        self.assertIsNone(fc_weight_warning(state))
+
+    def test_manual_fc_entered_before_weight_is_retained_until_weight_is_valid(self):
+        state = {'peso': None, 'fattore_correzione': 2.}
+        normalize_fc_input(state, 'fattore_correzione', msil=True)
+        for weight in (None, 0., 200.):
+            state['peso'] = weight
+            self.assertFalse(refresh_fc_for_weight(state, msil=True))
+            self.assertEqual(state['fattore_correzione'], 2.)
+        state['peso'] = 100.
+        self.assertTrue(refresh_fc_for_weight(state, msil=True))
+        self.assertEqual(state['fattore_correzione'], 1.75)
+        self.assertNotIn('__msil_fc_chosen_range', state)
+        self.assertIn('reinseriscili manualmente', fc_weight_warning(state))
 
     def test_invalid_weight_preserves_the_last_valid_choice(self):
         state = {}

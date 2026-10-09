@@ -25,7 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
-from app.fc_selection import normalize_fc_input, fc_weight_needs_review, refresh_fc_for_weight
+from app.fc_selection import normalize_fc_input, fc_weight_warning, refresh_fc_for_weight
 
 import streamlit as st
 import datetime
@@ -702,8 +702,8 @@ with st.container(border=True, key="full_cooling_card"):
                 key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
             )
 
-if fc_weight_needs_review(st.session_state):
-    st.warning("Peso modificato: ricontrollare il FC.")
+if warning := fc_weight_warning(st.session_state):
+    st.warning(warning)
 
 # Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
 full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
