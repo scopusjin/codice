@@ -613,10 +613,10 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
       closeMobileHelpPortal(portal);
     });
   };
-  const openMobileHelpPortal = (text) => {
+  const openMobileHelpPortal = (text, ownerButton = helpButton) => {
     const ownPortal = Array.from(
       document.querySelectorAll('[data-mortem-decimal-help-portal="1"]')
-    ).find((portal) => portal._mortemOwner === helpButton);
+    ).find((portal) => portal._mortemOwner === ownerButton);
     if (ownPortal) {
       closeMobileHelpPortal(ownPortal);
       return;
@@ -648,15 +648,15 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
       'overflow-wrap:anywhere',
       'pointer-events:auto'
     ].join(';');
-    portal._mortemOwner = helpButton;
+    portal._mortemOwner = ownerButton;
     document.body.appendChild(portal);
 
     const positionPortal = () => {
-      if (!portal.isConnected || !document.body.contains(helpButton)) {
+      if (!portal.isConnected || !ownerButton.isConnected) {
         closeMobileHelpPortal(portal);
         return;
       }
-      const buttonRect = helpButton.getBoundingClientRect();
+      const buttonRect = ownerButton.getBoundingClientRect();
       const portalRect = portal.getBoundingClientRect();
       const margin = 12;
       const gap = 6;
@@ -675,7 +675,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
       portal.style.top = `${Math.round(window.scrollY + topViewport)}px`;
     };
     const outsideHandler = (event) => {
-      if (!portal.contains(event.target) && !helpButton.contains(event.target)) {
+      if (!portal.contains(event.target) && !event.composedPath().includes(ownerButton)) {
         closeMobileHelpPortal(portal);
       }
     };
@@ -685,12 +685,12 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     positionPortal();
     document.addEventListener('pointerdown', outsideHandler, true);
     window.addEventListener('resize', positionPortal);
-    helpButton.setAttribute('aria-expanded', 'true');
-    helpButton.setAttribute('data-mortem-help-open', '1');
+    ownerButton.setAttribute('aria-expanded', 'true');
+    ownerButton.setAttribute('data-mortem-help-open', '1');
   };
 
   document.querySelectorAll('[data-mortem-decimal-help-portal="1"]').forEach((portal) => {
-    if (portal._mortemOwner && !document.body.contains(portal._mortemOwner)) {
+    if (portal._mortemOwner && !portal._mortemOwner.isConnected) {
       closeMobileHelpPortal(portal);
     }
   });
@@ -711,10 +711,13 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     if (desktopLabelText === 'T. ambientale media') {
       return 'Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.';
     }
-    if (desktopLabelText === 'Range temperatura ambientale media') {
+    if (desktopLabelText === 'Range temperatura ambientale media' || desktopLabelText === 'T. ambientale media 2') {
       return 'Inserisci il valore minimo e massimo plausibili della temperatura ambientale media nel periodo tra il decesso e l’ispezione.';
     }
-    if (desktopLabelText === 'Range fattore di correzione (FC)') {
+    if (desktopLabelText === 'Fattore di correzione (FC)') {
+      return '«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali.';
+    }
+    if (desktopLabelText === 'Range fattore di correzione (FC)' || desktopLabelText === 'Fattore massimo') {
       return 'Inserisci i due estremi plausibili del fattore di correzione. «Consiglia» aiuta a individuare i valori in base alle condizioni del corpo.';
     }
     return '';
@@ -795,9 +798,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   desktopHelpButton.onclick = () => {
     if (!disabled && showHelp) {
       if (desktopHelpText) {
-        const willOpen = !desktopHelpPopover.classList.contains('is-open');
-        desktopHelpPopover.classList.toggle('is-open', willOpen);
-        desktopHelpButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        desktopHelpPopover.classList.remove('is-open');
+        openMobileHelpPortal(desktopHelpText, desktopHelpButton);
       } else {
         setTriggerValue('help', true);
       }
