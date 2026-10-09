@@ -100,11 +100,11 @@ class AuditPagesRegressionTests(unittest.TestCase):
         app.session_state['peso'] = 100.
         app.run()
         self.assertEqual(app.session_state['fattore_correzione'], 1.75)
-        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.warning))
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.caption))
         app.switch_page('pages/App_MSIL.py').run()
-        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.warning))
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.caption))
         self.edit_fc(app, 'fattore_correzione', 2.)
-        self.assertFalse(any('FC adattato per il peso' in w.value for w in app.warning))
+        self.assertFalse(any('FC adattato per il peso' in w.value for w in app.caption))
 
     def test_result_uses_actual_inspection_minute_and_settings_invalidate_it(self):
         app = self.start(input_data_rilievo=dt.date(2026, 1, 2), input_ora_rilievo='12:07',

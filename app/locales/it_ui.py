@@ -41,7 +41,7 @@ UI_TEXT = {
         "Usa questa modalità quando la temperatura ambientale media e il fattore di correzione "
         "potrebbero essere cambiati nel tempo o sono incerti. Per ciascun parametro, inserisci "
         "i due estremi plausibili dell’intervallo, cioè il valore minimo e il valore massimo da "
-        "considerare nel calcolo. Per il fattore di correzione, «Consiglia» aiuta a individuare "
+        "considerare nel calcolo. Per il fattore di correzione, il pannello FC aiuta a individuare "
         "il valore da associare a ciascun estremo."
         "</div>"
     ),

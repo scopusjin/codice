@@ -307,38 +307,6 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             and key == "peso"
         )
 
-        suggest_target = None
-        if compact_mobile and full_device_is_mobile():
-            if key == "fattore_correzione" and (not prudent_mode or not range_mode):
-                suggest_target = "single"
-            elif prudent_mode and range_mode and key == "fc_other_val":
-                suggest_target = "range"
-
-        suggest_toggle_key = "toggle_fattore_inline" if prudent_mode else "toggle_fattore_inline_std"
-        suggest_active = bool(
-            suggest_target
-            and st.session_state.get(suggest_toggle_key, False)
-            and st.session_state.get("__full_fc_suggest_target") == suggest_target
-        )
-
-        def _component_suggest():
-            if suggest_target is None:
-                return
-
-            same_open_target = bool(
-                st.session_state.get(suggest_toggle_key, False)
-                and st.session_state.get("__full_fc_suggest_target") == suggest_target
-            )
-            if same_open_target:
-                st.session_state[suggest_toggle_key] = False
-                st.session_state["toggle_fattore"] = False
-                st.session_state.pop("__full_fc_suggest_target", None)
-                return
-
-            st.session_state[suggest_toggle_key] = True
-            st.session_state["toggle_fattore"] = True
-            st.session_state["__full_fc_suggest_target"] = suggest_target
-
         def _component_edit_fc():
             st.session_state["__full_fc_suggest_target"] = "edit"
             st.session_state["toggle_fattore"] = True
@@ -380,10 +348,6 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                     unit=_full_mobile_units.get(key, "") if compact_mobile else "",
                     hide_group_heading=hide_group_heading,
                     inline_weight_toggle=inline_weight_toggle,
-                    suggest_enabled=bool(suggest_target),
-                    suggest_label="Consiglia" if suggest_target else "",
-                    suggest_active=suggest_active,
-                    on_suggest=_component_suggest if suggest_target else None,
                     on_edit=_component_edit_fc if fc_panel_only else None,
                     on_change=_component_on_change if callable(user_on_change) else None,
                     key=component_key,
@@ -403,10 +367,6 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
                 unit=_full_mobile_units.get(key, "") if compact_mobile else "",
                 hide_group_heading=hide_group_heading,
                 inline_weight_toggle=inline_weight_toggle,
-                suggest_enabled=bool(suggest_target),
-                suggest_label="Consiglia" if suggest_target else "",
-                suggest_active=suggest_active,
-                on_suggest=_component_suggest if suggest_target else None,
                 on_edit=_component_edit_fc if fc_panel_only else None,
                 on_change=_component_on_change if callable(user_on_change) else None,
                 key=component_key,

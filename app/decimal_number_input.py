@@ -42,10 +42,10 @@ _TA_RANGE_MOBILE_NOTE = (
 )
 _FC_RANGE_NOTE = (
     "Inserisci i due estremi plausibili del fattore di correzione. "
-    "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
+    "Il pannello FC aiuta a individuare i valori in base alle condizioni del corpo."
 )
 _FC_STANDARD_NOTE = (
-    "«Consiglia» aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
+    "Il pannello FC aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
     "agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali."
 )
 _COMPACT_LABEL_ALIASES = {

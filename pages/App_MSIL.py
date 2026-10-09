@@ -12,7 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
-from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, refresh_fc_for_weight
+from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
@@ -339,12 +339,6 @@ st.session_state["ta_base_val"] = ta_val_parsed
 st.session_state["peso"] = peso_parsed
 refresh_fc_for_weight(st.session_state, msil=True)
 
-# ------------------------------------------------------------
-# 2) Toggle “Suggerisci FC”
-# ------------------------------------------------------------
-st.toggle(i18n.ui_text("msil.suggest_fc"),
-          value=st.session_state.get("toggle_fattore_inline_mobile", False),
-          key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 # ------------------------------------------------------------
@@ -392,7 +386,10 @@ if st.session_state.get("__msil_fc_chosen_range"):
 # 3) Pulsante finale
 # ------------------------------------------------------------
 if warning := fc_weight_warning(st.session_state):
-    st.warning(warning)
+    if fc_weight_needs_review(st.session_state):
+        st.warning(warning)
+    else:
+        st.caption(warning)
 
 clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile", use_container_width=True, type="primary")
 

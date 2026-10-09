@@ -186,6 +186,11 @@ class FCPageTests(unittest.TestCase):
                     app = self.start(mobile, msil)
                     if interval:
                         app.toggle(key="stima_cautelativa_beta").set_value(True).run()
+                    self.assertNotIn("Consiglia FC", [e.label for e in app.button] + [e.label for e in app.toggle])
+                    for component in app.get("bidi_component"):
+                        self.assertFalse(json.loads(component.proto.json).get("suggest_enabled", False))
+                    for component in app.get("component_instance"):
+                        self.assertFalse(json.loads(component.proto.json_args).get("suggest_enabled", False))
                     keys = ("fc_min_val", "fc_other_val") if interval else ("fattore_correzione",)
                     for key in keys:
                         before = app.session_state[key]
@@ -243,7 +248,7 @@ class FCPageTests(unittest.TestCase):
                 self.assertEqual(app.session_state[key], 2.1)
                 expected = [2.1, 2.1] if msil else [2.1, 2.45]
                 self.assertEqual([app.session_state["FC_min_beta"], app.session_state["FC_max_beta"]], expected)
-                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.warning))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.caption))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state[key], 2.5)
 
@@ -256,7 +261,7 @@ class FCPageTests(unittest.TestCase):
                                                  (70., 2., True), (75., 2., False), (100., 1.75, True)):
                     self.change_weight(app, weight, mobile, msil)
                     self.assertEqual(app.session_state["fattore_correzione"], expected)
-                    notices = [w.value for w in app.warning if "FC adattato per il peso" in w.value]
+                    notices = [w.value for w in app.caption if "FC adattato per il peso" in w.value]
                     self.assertEqual(bool(notices), notice)
                     self.assertFalse(app.session_state["__fc_active"])
                     app.run()
@@ -268,7 +273,7 @@ class FCPageTests(unittest.TestCase):
                 self.assertTrue(app.session_state["__fc_draft"]["manualWeightAdjusted"])
                 self.event(app, "use", range=[2.5, 2.5], base_range=[2.5, 2.5], weight=100.,
                            manual=True, manual_weight_adjusted=False)
-                self.assertFalse(any("FC adattato per il peso" in w.value for w in app.warning))
+                self.assertFalse(any("FC adattato per il peso" in w.value for w in app.caption))
                 self.change_weight(app, 110., mobile, msil)
                 self.assertEqual(app.session_state["fattore_correzione"], 2.)
 
@@ -279,7 +284,7 @@ class FCPageTests(unittest.TestCase):
                 self.open(app, msil)
                 self.event(app, "use", range=[1.75, 1.75], base_range=[2., 2.],
                            weight=100., manual=True, manual_weight_adjusted=True)
-                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.warning))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.caption))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state["fc_suggested_vals"], [2., 2.])
 

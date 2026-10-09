@@ -25,7 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
-from app.fc_selection import normalize_fc_input, fc_weight_warning, refresh_fc_for_weight
+from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 
 import streamlit as st
 import datetime
@@ -78,47 +78,13 @@ def _warn_box(msg: str):
     )
 
 
-def _toggle_desktop_range_fc_suggest():
-    """Apre/chiude il pannello FC dal comando strutturale desktop."""
-    same_open_target = bool(
-        st.session_state.get("toggle_fattore_inline", False)
-        and st.session_state.get("__full_fc_suggest_target") == "range"
-    )
-    if same_open_target:
-        st.session_state["toggle_fattore_inline"] = False
-        st.session_state["toggle_fattore"] = False
-        st.session_state.pop("__full_fc_suggest_target", None)
-        return
-
-    st.session_state["toggle_fattore_inline"] = True
-    st.session_state["toggle_fattore"] = True
-    st.session_state["__full_fc_suggest_target"] = "range"
-
-
-def _toggle_desktop_single_fc_suggest():
-    """Apre/chiude il pannello FC standard dal comando desktop esterno."""
-    same_open_target = bool(
-        st.session_state.get("toggle_fattore_inline_std", False)
-        and st.session_state.get("__full_fc_suggest_target") == "single"
-    )
-    if same_open_target:
-        st.session_state["toggle_fattore_inline_std"] = False
-        st.session_state["toggle_fattore"] = False
-        st.session_state.pop("__full_fc_suggest_target", None)
-        return
-
-    st.session_state["toggle_fattore_inline_std"] = True
-    st.session_state["toggle_fattore"] = True
-    st.session_state["__full_fc_suggest_target"] = "single"
-
-
 _TA_RANGE_DESKTOP_HELP = (
     "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
     "nel periodo tra il decesso e l’ispezione."
 )
 _FC_RANGE_DESKTOP_HELP = (
     "Inserisci i due estremi plausibili del fattore di correzione. "
-    "«Consiglia» aiuta a individuare i valori in base alle condizioni del corpo."
+    "Il pannello FC aiuta a individuare i valori in base alle condizioni del corpo."
 )
 
 
@@ -458,8 +424,6 @@ with st.container(border=True, key="full_cooling_card"):
                         "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
                     )
 
-                    # In mobile il solo V2 "FC max" ospita il comando Consiglia.
-                    # Il pannello suggerisce l'intero intervallo, non un estremo specifico.
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
                     )
@@ -536,8 +500,8 @@ with st.container(border=True, key="full_cooling_card"):
                         _FC_RANGE_DESKTOP_HELP,
                         "fc_range",
                     )
-                    fc_min_col, fc_max_col, suggest_col, _suggest_spacer = st.columns(
-                        [1, 1, 1, 1],
+                    fc_min_col, fc_max_col, _fc_spacer = st.columns(
+                        [1, 1, 2],
                         gap="xsmall",
                         vertical_alignment="top",
                     )
@@ -558,14 +522,6 @@ with st.container(border=True, key="full_cooling_card"):
                             key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                             label_visibility="collapsed",
                             _mortem_compact_label="",
-                        )
-                    with suggest_col:
-                        st.button(
-                            "Consiglia FC",
-                            key="desktop_caut_fc_structural_suggest",
-                            type="secondary",
-                            width="stretch",
-                            on_click=_toggle_desktop_range_fc_suggest,
                         )
 
                     _sync_interval_state(
@@ -610,9 +566,6 @@ with st.container(border=True, key="full_cooling_card"):
                         value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
                         key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed"
                     )
-                    # Resta montato per conservare lo stesso stato; il CSS mobile
-                    # lo nasconde perché il comando Consiglia è integrato nel V2.
-                    st.toggle(i18n.ui_text("full.suggest_fc"), key="toggle_fattore_inline_std")
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
             else:
                 with st.container(gap="xsmall", key="cooling_standard_v2_grid_desktop"):
@@ -666,8 +619,8 @@ with st.container(border=True, key="full_cooling_card"):
                         st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
 
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
-                    fc_input_col, suggest_col, _suggest_spacer = st.columns(
-                        [2, 1, 1],
+                    fc_input_col, _fc_spacer = st.columns(
+                        [1, 1],
                         gap="xsmall",
                         vertical_alignment="top",
                     )
@@ -677,14 +630,6 @@ with st.container(border=True, key="full_cooling_card"):
                             value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
                             key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
                             _mortem_compact_label="",
-                        )
-                    with suggest_col:
-                        st.button(
-                            "Consiglia FC",
-                            key="desktop_caut_fc_structural_suggest",
-                            type="secondary",
-                            width="stretch",
-                            on_click=_toggle_desktop_single_fc_suggest,
                         )
 
                     st.session_state["toggle_fattore"] = bool(
@@ -703,7 +648,10 @@ with st.container(border=True, key="full_cooling_card"):
             )
 
 if warning := fc_weight_warning(st.session_state):
-    st.warning(warning)
+    if fc_weight_needs_review(st.session_state):
+        st.warning(warning)
+    else:
+        st.caption(warning)
 
 # Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
 full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
@@ -980,29 +928,6 @@ st.markdown("""
         padding: 0.6em 2em !important;
     }
     div.stButton > button:hover { background-color: #E3F2FD !important; cursor: pointer; }
-
-    /* Consiglia FC: azzurrino come il pannello, distinto dall'azione di stima. */
-    html body:has(.mortem-full-title)
-    [class*="st-key-desktop_caut_fc_structural_suggest"] button {
-        box-sizing: border-box !important;
-        width: 100% !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
-        margin: 0 !important;
-        padding: 0.25rem 0.55rem !important;
-        border: 1px solid color-mix(in srgb, var(--st-primary-color,#168AC1) 30%, transparent) !important;
-        border-radius: 0.48rem !important;
-        background: color-mix(in srgb, var(--st-primary-color,#168AC1) 14%, transparent) !important;
-        color: var(--st-text-color,#31333F) !important;
-        font-weight: 500 !important;
-        box-shadow: none !important;
-    }
-    html body:has(.mortem-full-title)
-    [class*="st-key-desktop_caut_fc_structural_suggest"] button:hover {
-        background: color-mix(in srgb, var(--st-primary-color,#168AC1) 20%, transparent) !important;
-        border-color: color-mix(in srgb, var(--st-primary-color,#168AC1) 45%, transparent) !important;
-    }
 
     /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
        automatica di Streamlit altera centratura e larghezza del cerchio. */
