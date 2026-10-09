@@ -23,6 +23,7 @@ html body .stApp > footer,
 html body [class^="viewerBadge_container"],
 html body [class*=" viewerBadge_container"],
 html body [data-testid="manage-app-button"],
+html body [data-testid="stLayoutWrapper"]:has(> .st-key-mortem_host_chrome),
 html body .st-key-mortem_host_chrome {
   display: none !important;
 }
