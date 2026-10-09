@@ -1,0 +1,55 @@
+{
+  "source": "Henssge 1981, Z Rechtsmed 87:147-178, table 3 p.157; equation III pp.159-162",
+  "doi": "10.1007/BF00204763",
+  "reference_commit": "ed1780de025d6ac8eb887d97ec10cb61e64f1263",
+  "reference_source_sha256": {
+    "app/cooling_inputs.py": "358e3adfd725cff73c83c50da537cda70a4bcfe97344ed24c822f4e1144dacfd",
+    "app/henssge.py": "2c3345d9be60df8a2fe6ae90b55685bf72ad93322ae143d75fc56b0769b6f284"
+  },
+  "source_data_sha256": "f76024e0adeba59d1f344ecf2a43eab67b0eb61bc152d5120fb7545e49612012",
+  "independent_bodies": 1,
+  "replayed_rows": 19,
+  "reproduced_printed_rows": 19,
+  "fast_term_gate": 0.01,
+  "minimum_rectal_ambient_difference_c": 2,
+  "comparison": {
+    "two_phase_extension": {
+      "n_measurements": 16,
+      "mean_error_hours": -1.4282495296685909,
+      "mean_absolute_error_hours": 1.4282495296685909,
+      "min_error_hours": -2.2114950542033966,
+      "max_error_hours": -0.9380099048673856
+    },
+    "constant_fc_before": {
+      "n_measurements": 16,
+      "mean_error_hours": 0.9787322512565026,
+      "mean_absolute_error_hours": 1.3009031537748967,
+      "min_error_hours": -0.8363905680710104,
+      "max_error_hours": 3.5722018282497174
+    },
+    "constant_fc_after": {
+      "n_measurements": 16,
+      "mean_error_hours": -5.942368196604974,
+      "mean_absolute_error_hours": 5.942368196604974,
+      "min_error_hours": -6.549648599958573,
+      "max_error_hours": -5.566188989989087
+    }
+  },
+  "suppressed_rows": [
+    {
+      "hours_since_death": 40.0,
+      "reason": "near_ambient"
+    },
+    {
+      "hours_since_death": 44.0,
+      "reason": "near_ambient"
+    }
+  ],
+  "limitations": [
+    "Repeated measurements on one body, not independent validation cases.",
+    "The inverse transition-temperature reconstruction is our extension, not the paper's validated casework procedure.",
+    "The 1% fast-term gate is a selected numerical screen, not a published clinical threshold.",
+    "No confidence interval and no equivalent FC to apply in the app.",
+    "The prototype remains completely disconnected from Streamlit."
+  ]
+}
