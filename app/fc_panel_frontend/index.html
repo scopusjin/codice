@@ -74,6 +74,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 #fc-full #reference-row{gap:7px;align-items:baseline;margin-top:5px}
 #fc-full #fc-heading{font-size:24px;line-height:1.15;font-weight:500;letter-spacing:.02em}
 #fc-full #editable-note{font-size:12px;color:var(--fc-muted);margin:0}
+#fc-full #manual-state{font-size:12px;line-height:1.35}
 #fc-full #suggest-weight-slot{margin:0 0 4px;display:flex;justify-content:flex-end}
 #fc-full #suggest-weight-slot #shared-weight{font-size:12px;gap:3px;flex-wrap:nowrap}
 #fc-full #suggest-weight-slot #shared-weight .step{width:56px;flex:0 0 56px;min-height:26px;background:transparent}
@@ -127,7 +128,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <script type="application/json" id="weight-data">{"columns":["4","6","8","10","20","30","40","50","60","70","80","90","100","110","120","130","140","150"],"index":[0,1,2,3,4,5,6,7,8],"data":[[1.6,1.6,1.6,1.6,1.5,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.3,1.2,1.2,1.2],[2.1,2.1,2.0,2.0,1.9,1.8,1.6,1.6,1.6,1.6,1.6,1.6,1.6,1.4,1.4,1.4,1.3,1.3],[2.7,2.7,2.6,2.5,2.3,2.2,2.1,2.0,1.8,1.8,1.8,1.8,1.6,1.6,1.6,1.5,1.4,1.4],[3.5,3.4,3.3,3.2,2.8,2.6,2.4,2.3,2.0,2.0,2.0,1.8,1.8,1.7,1.6,1.6,1.5,1.5],[4.5,4.3,4.1,3.9,3.4,3.0,2.8,2.6,2.4,2.2,2.1,2.0,1.9,1.8,1.7,1.7,1.6,1.6],[5.7,5.3,5.0,4.8,4.0,3.5,3.2,2.9,2.7,2.4,2.3,2.2,2.1,1.9,1.9,1.8,1.7,1.6],[7.1,6.6,6.2,5.8,4.7,4.0,3.6,3.2,2.9,2.6,2.5,2.3,2.2,2.1,2.0,1.9,1.8,1.7],[8.8,8.1,7.5,7.0,5.5,4.6,3.9,3.5,3.2,2.8,2.7,2.5,2.3,2.2,2.0,1.9,1.8,1.7],[10.9,9.8,8.9,8.3,6.2,5.1,4.3,3.8,3.4,3.0,2.8,2.6,2.4,2.3,2.1,2.0,1.9,1.8]]}</script>
 <script>
 (()=>{
-const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,weightChanged=false,manualBase=null,manualWeightAdjusted=false,lastWeight=null,selectedBase=null,weightAdjusted=false;
+const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,manualBase=null,manualWeightAdjusted=false,lastWeight=null,selectedBase=null,weightAdjusted=false;
 const fmt=n=>n.toFixed(2);
 // Quantization is an app output convention, never a change to source values.
 function roundFC(v){return Number((Math.round(v*20+1e-10)/20).toFixed(2));}
@@ -470,7 +471,7 @@ function update(){
   q('#error').textContent=error;
   q('#use').disabled=!!error;
   
-  q('#manual-state').textContent=manualWeightAdjusted?'Il FC inserito manualmente è stato adattato al nuovo peso. Se desideri valori diversi, reinseriscili manualmente.':weightChanged?'Peso aggiornato: rivedere il FC e premere Usalo.':'';
+  q('#manual-state').textContent=manualWeightAdjusted?'Il FC inserito manualmente è stato adattato al nuovo peso. Se desideri valori diversi, reinseriscili manualmente.':weightAdjusted?'FC adattato per il peso.':'';
   q('#editable-note').textContent=manual?'(adattato dall’operatore)':'(adattabile dall’operatore)';
   q('#origin').textContent=result.range&&suggestion?'':result.summary;
   q('#restore').disabled=!suggestion&&!manual;
@@ -544,7 +545,7 @@ function adaptSelectedToWeight(){
 function onWeightChange(){
   if(num(q('#weight'))===lastWeight)return;
   const saved=window.FCPanel.snapshot();
-  weightChanged=true;applied=null;recalc();
+  applied=null;recalc();
   if(saved.manual||saved.selectedBase){
     manual=saved.manual;manualBase=saved.manualBase;manualWeightAdjusted=saved.manualWeightAdjusted;selectedBase=saved.selectedBase;
     q('#lo').value=saved.lo;q('#hi').value=saved.hi;
@@ -552,6 +553,7 @@ function onWeightChange(){
   }
   const previous=[Number(saved.lo),Number(saved.hi)],current=[num(q('#lo')),num(q('#hi'))];
   weightAdjusted=saved.lo!==''&&saved.hi!==''&&previous.every(Number.isFinite)&&current.every(Number.isFinite)&&current.some((v,i)=>v!==previous[i]);
+  update();
 }
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});

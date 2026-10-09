@@ -5,6 +5,11 @@ let sent;
 context.window.FCBridge={send:action=>{sent={action,...panel.payload()};}};
 panel.restore(null,70);
 assert.equal(nodes.lo.value,'1.00');
+assert.equal(nodes['manual-state'].textContent,'');
+nodes.weight.value='100';nodes.weight.events.input();
+assert.equal(nodes.lo.value,'1.00');
+assert.equal(nodes['manual-state'].textContent,'');
+nodes.weight.value='70';nodes.weight.events.input();
 nodes.thin.value='3';nodes.thin.events.input();
 assert.equal(nodes.lo.value,'1.20');assert.equal(nodes.hi.value,'1.30');
 nodes.lo.value='1.25';nodes.lo.events.input();
@@ -49,10 +54,15 @@ console.log('FC leaves: required answer, support-only range, covering, draft and
 
 // The applied payload retains the unadapted range even at a different weight.
 nodes.weight.value='100.0';nodes.weight.events.input();
+assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
+const adjustedSuggestion=panel.snapshot();panel.restore(adjustedSuggestion,100);
+assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
 nodes.use.events.click();
 assert.notDeepEqual([...sent.range],[2.7,2.7]);
 assert.deepEqual([...sent.base_range],[2.7,2.7]);
 assert.equal(sent.manual,false);
+nodes.restore.events.click();
+assert.equal(nodes['manual-state'].textContent,'');
 
 // Manual values are the anchor for every later weight, including restored drafts.
 nodes.lo.value='2';nodes.lo.events.input();
@@ -96,13 +106,16 @@ assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted
 nodes.weight.value='75';nodes.weight.events.input();
 assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,false);
 assert.equal(panel.payload().manual_weight_adjusted,false);
+assert.equal(nodes['manual-state'].textContent,'');
 panel.restore({lo:'1.75',hi:'1.75',weight:100,manual:false,selectedBase:[2,2]},100);
 assert.equal(panel.payload().manual,false);assert.deepEqual([...panel.payload().base_range],[2,2]);
 nodes.weight.value='70';nodes.weight.events.input();
 assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,true);
+assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
 nodes.weight.value='75';nodes.weight.events.input();
 assert.equal(panel.payload().weight_adjusted,false);
 assert.equal(panel.payload().manual,false);
+assert.equal(nodes['manual-state'].textContent,'');
 console.log('FC editor: current manual/automatic selection and change-only notice survive reopening.');
 
 require('./test_fc_field_controls.cjs');
