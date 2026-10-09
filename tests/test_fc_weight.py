@@ -107,4 +107,3 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             state['peso'] = 100
             self.assertTrue(refresh_fc_for_weight(state))
             self.assertEqual(state['fc_suggested_vals'], expected)
-
