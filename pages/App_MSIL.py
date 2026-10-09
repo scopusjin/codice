@@ -12,7 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
-from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_needs_review
+from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_needs_review, refresh_fc_for_weight
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
     MSIL_RIGOR_STATE_BY_LABEL,
@@ -337,6 +337,7 @@ with c_fc:
 st.session_state["rt_val"] = rt_val_parsed
 st.session_state["ta_base_val"] = ta_val_parsed
 st.session_state["peso"] = peso_parsed
+refresh_fc_for_weight(st.session_state, msil=True)
 
 # ------------------------------------------------------------
 # 2) Toggle “Suggerisci FC”

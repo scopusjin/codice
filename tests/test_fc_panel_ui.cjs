@@ -12,6 +12,7 @@ const draft=panel.snapshot();panel.restore(draft,70);
 assert.equal(nodes.lo.value,'1.25');
 nodes.use.events.click();
 assert.equal(sent.action,'use');assert.deepEqual([...sent.range],[1.25,1.3]);
+assert.equal(sent.manual,true);assert.equal(sent.base_range,null);
 assert(sent.description.includes('3 strati leggeri'));
 panel.restore(draft,100);
 assert.equal(nodes.lo.value,'1.20');assert.equal(nodes.hi.value,'1.30');
@@ -41,9 +42,17 @@ assert.equal(nodes['leaf-cover'].value,'yes');
 assert.equal(nodes.use.disabled,false);
 nodes.use.events.click();
 assert.deepEqual([...sent.range],[2.7,2.7]);
+assert.equal(sent.manual,false);assert.deepEqual([...sent.base_range],[2.7,2.7]);
 assert.equal(sent.conditions.leafCover,'yes');
 assert.match(sent.description,/con copertura di foglie/);
 console.log('FC leaves: required answer, support-only range, covering, draft and applied description passed.');
+
+// The applied payload retains the unadapted range even at a different weight.
+nodes.weight.value='100.0';nodes.weight.events.input();
+nodes.use.events.click();
+assert.notDeepEqual([...sent.range],[2.7,2.7]);
+assert.deepEqual([...sent.base_range],[2.7,2.7]);
+assert.equal(sent.manual,false);
 
 // Exercise the actual component bridge: rerenders retain drafts, navigation is
 // emitted once and cannot be overwritten by a delayed draft event.

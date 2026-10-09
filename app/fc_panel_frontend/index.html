@@ -576,6 +576,7 @@ window.FCPanel={
       'corpo '+state.toLowerCase()+', '+(garments.length?garments.join(', '):'senza indumenti o coperture')+
       ', su '+support.toLowerCase()+(c.wind?', con correnti d’aria':'');
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
+      base_range:manual?null:result.range,
       conditions:c,manual,description,rule:result.id,explanation:result.detail,sources:result.sources};
   }
 };

@@ -25,7 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
-from app.fc_selection import normalize_fc_input, fc_weight_needs_review
+from app.fc_selection import normalize_fc_input, fc_weight_needs_review, refresh_fc_for_weight
 
 import streamlit as st
 import datetime
@@ -33,6 +33,10 @@ from pathlib import Path
 
 def _normalize_fc_field(key):
     normalize_fc_input(st.session_state, key)
+
+
+def _refresh_weight_fc():
+    refresh_fc_for_weight(st.session_state)
 
 
 def _is_num(x):
@@ -249,6 +253,8 @@ _defaults = {
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
 
+_refresh_weight_fc()
+
 if "show_results" not in st.session_state:
     st.session_state["show_results"] = False
 if "show_img_sopraciliare" not in st.session_state:
@@ -411,7 +417,7 @@ with st.container(border=True, key="full_cooling_card"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
                                 value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed"
+                                key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                             )
                         with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
@@ -485,7 +491,7 @@ with st.container(border=True, key="full_cooling_card"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
                                 value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed",
+                                key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
                         with weight_toggle_col:
@@ -592,7 +598,7 @@ with st.container(border=True, key="full_cooling_card"):
                     st.number_input(
                         i18n.ui_text("full.weight_label"),
                         value=sget("peso", 70.0), step=1.0, format="%.1f",
-                        key="peso", label_visibility="collapsed"
+                        key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                     )
                     st.number_input(
                         i18n.ui_text("full.ta_input_label"),
@@ -636,7 +642,7 @@ with st.container(border=True, key="full_cooling_card"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
                                 value=sget("peso", 70.0), step=1.0, format="%.1f",
-                                key="peso", label_visibility="collapsed",
+                                key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
 

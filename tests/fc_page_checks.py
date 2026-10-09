@@ -131,6 +131,69 @@ class FCPageTests(unittest.TestCase):
                 self.open(app, msil)
                 self.assertEqual(app.session_state["__fc_draft"]["state"], "Bagnato")
 
+    def change_decimal(self, app, key, value):
+        # AppTest has no custom-component setter. Send the real widget payload
+        # so Streamlit runs V1/V2 callbacks, rather than editing logical state.
+        widgets = app._tree.get_widget_states()
+        candidates = [(e, value) for e in app.get("component_instance")
+                      if e.proto.id.endswith("-" + key)]
+        candidates += [(e, {"value": value}) for e in app.get("bidi_component")
+                       if e.proto.id.endswith("-" + key + "-v2")]
+        self.assertEqual(len(candidates), 1, key)
+        element, payload = candidates[0]
+        widget = widgets.widgets.add()
+        widget.id = element.proto.id
+        widget.json_value = json.dumps(payload)
+        app._run(widgets)
+        self.assertEqual(list(app.exception), [])
+
+    def change_weight(self, app, weight, mobile, msil):
+        scope = "" if mobile else ("_range" if app.session_state["stima_cautelativa_beta"] else "_single")
+        key = "mortem_decimal_peso_widget" if msil else "mortem_decimal_peso" + scope
+        self.change_decimal(app, key, weight)
+        self.assertEqual(app.session_state["peso"], weight)
+
+    def test_main_weight_refreshes_point_and_range_in_every_view(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            for base, adjusted in (([1.4, 1.4], [1.3, 1.3]), ([2.8, 3.1], [2.3, 2.45])):
+                with self.subTest(mobile=mobile, msil=msil, base=base):
+                    app = self.start(mobile, msil)
+                    self.open(app, msil)
+                    self.event(app, "use", range=base, base_range=base, weight=70., manual=False)
+                    for weight, expected in ((100., adjusted), (70., base)):
+                        self.change_weight(app, weight, mobile, msil)
+                        self.assertEqual(app.session_state["fc_suggested_vals"], expected)
+                        self.assertEqual(app.session_state["__msil_fc_chosen_range"], expected)
+                        self.assertFalse(any("ricontrollare il FC" in w.value for w in app.warning))
+                        app.run()
+                        self.assertEqual(list(app.exception), [])
+                        self.assertEqual(app.session_state["fc_suggested_vals"], expected)
+                        self.assertEqual(
+                            [app.session_state["FC_min_beta"], app.session_state["FC_max_beta"]],
+                            expected,
+                        )
+                        if not msil and app.session_state["stima_cautelativa_beta"]:
+                            self.assertEqual(
+                                [app.session_state["fc_min_val"], app.session_state["fc_other_val"]],
+                                expected,
+                            )
+                        else:
+                            from app.fc_selection import rounded_fc
+                            self.assertEqual(app.session_state["fattore_correzione"], rounded_fc(sum(expected) / 2))
+
+    def test_manual_main_fc_is_preserved_on_later_weight_change(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil)
+                self.open(app, msil)
+                self.event(app, "use", range=[2.8, 3.1], base_range=[2.8, 3.1], weight=70., manual=False)
+                key = "fattore_correzione" if msil else "fc_min_val"
+                self.change_decimal(app, "mortem_decimal_" + key, 2.5)
+                self.assertTrue(app.session_state["__fc_applied_choice"]["manual"])
+                self.change_weight(app, 100., mobile, msil)
+                self.assertEqual(app.session_state[key], 2.5)
+                self.assertTrue(any("ricontrollare il FC" in w.value for w in app.warning))
+
     def test_draft_syncs_weight_and_invalidates_saved_results_only_on_change(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):

@@ -3,6 +3,8 @@
 from decimal import Decimal, ROUND_HALF_UP
 from math import isfinite
 
+from app.fc_weight import adapt_fc_range
+
 
 def rounded_fc(value):
     value = float(value)
@@ -35,7 +37,7 @@ def sync_fc_weight(state, weight):
     state["peso_str"] = f"{weight:.1f}"
 
 
-def apply_choice(state, payload, *, msil=False):
+def apply_choice(state, payload, *, msil=False, sync_weight=True):
     """Apply exactly the chosen bounds, without accumulating older suggestions."""
     lo, hi, weight = validate_choice(payload)
     was_prudent = bool(state.get("stima_cautelativa_beta", False))
@@ -46,7 +48,8 @@ def apply_choice(state, payload, *, msil=False):
         state["__full_standard_fattore_correzione"] = state.get("fattore_correzione", 1.0)
         for key in ("ta_other_val", "Ta_min_beta", "Ta_max_beta"):
             state[key] = ta
-    sync_fc_weight(state, weight)
+    if sync_weight:
+        sync_fc_weight(state, weight)
     state["fattore_correzione"] = rounded_fc((lo + hi) / 2)
     for key in ("fc_min_val", "FC_min_beta", "__full_interval_fc_min_val"):
         state[key] = lo
@@ -73,6 +76,10 @@ def apply_choice(state, payload, *, msil=False):
 
 def normalize_fc_input(state, key):
     """Round a manual edit to the same nearest 0.05 used by the FC panel."""
+    choice = state.get("__fc_applied_choice")
+    if isinstance(choice, dict):
+        # Even clearing a field is an operator choice: do not restore it later.
+        state["__fc_applied_choice"] = {**choice, "manual": True}
     try:
         value = rounded_fc(state.get(key))
     except (TypeError, ValueError):
@@ -82,8 +89,33 @@ def normalize_fc_input(state, key):
         state["__fc_reviewed_weight"] = state.get("peso")
 
 
+def refresh_fc_for_weight(state, *, msil=False):
+    """Refresh an automatic choice before rendering FC widgets; preserve edits."""
+    choice = state.get("__fc_applied_choice")
+    if not isinstance(choice, dict) or choice.get("manual") is not False:
+        return False
+    if not fc_weight_needs_review(state):
+        return False
+    try:
+        lo, hi, previous_weight = validate_choice(choice)
+        base = choice.get("base_range")
+        # Older sessions have no base range. Never infer it from rounded bounds.
+        if adapt_fc_range(base, previous_weight) != [lo, hi]:
+            return False
+        weight = float(state.get("peso"))
+        bounds = adapt_fc_range(base, weight)
+        updated = {**choice, "range": bounds, "weight": weight}
+        validate_choice(updated)
+    except (TypeError, ValueError, OverflowError):
+        return False
+    # In MSIL the weight widget has already been rendered. Only the FC changes.
+    apply_choice(state, updated, msil=msil, sync_weight=False)
+    state["__full_standard_fattore_correzione"] = state["fattore_correzione"]
+    return True
+
+
 def fc_weight_needs_review(state):
-    """A changed weight never silently recalculates an operator's chosen FC."""
+    """Flag a changed weight when the FC has not been refreshed or reviewed."""
     choice = state.get("__fc_applied_choice")
     if not choice:
         return False
