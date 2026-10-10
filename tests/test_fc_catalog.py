@@ -46,6 +46,22 @@ assert 'numpy' not in sys.modules
 assert 'pandas' not in sys.modules
 """], cwd=ROOT, check=True)
 
+    def test_documentary_weights_and_case_limits_are_retained(self):
+        rows = {row['Caso']: row for row in case_rows()}
+        self.assertEqual(rows['Casi 51 e 44']['Peso (kg)'], '69,5 / 65')
+        self.assertIn('69.5 kg', rows['Casi 51 e 44']['FC'])
+        self.assertEqual(rows['Caso H15']['Peso (kg)'], '67,5')
+        self.assertEqual(rows['Caso B54']['Peso (kg)'], '63,5')
+        self.assertEqual(rows['Caso 33']['Peso (kg)'], '62')
+        self.assertIn('41,6', rows['Caso 33']['Condizioni'])
+        self.assertIn('mancato utilizzo', rows['Caso 33']['Significato e limiti'])
+        self.assertIn('non poté verificare', rows['Caso 6']['Significato e limiti'])
+        self.assertEqual(len(case_rows(('Caso operativo',))), 4)
+        self.assertEqual(len(case_rows(('Esperimento', 'Esperimenti'))), 12)
+        for row in rows.values():
+            self.assertTrue(row['Peso (kg)'])
+            self.assertTrue(row['Significato e limiti'])
+
     def test_application_has_no_import_of_old_engine(self):
         paths = [ROOT / 'Stima_epoca_decesso.py', *ROOT.glob('app/**/*.py'), *ROOT.glob('pages/*.py')]
         for path in paths:

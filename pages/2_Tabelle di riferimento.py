@@ -14,8 +14,8 @@ _MALLACH_REFERENCE = (
 )
 
 _RIGOR_REFERENCE = (
-    "Henßge C, Madea B. Estimation of the time since death. "
-    "Forensic Sci Int. 2004;144:167–175. doi:10.1016/j.forsciint.2004.04.051, Table 1; "
+    "Henssge C, Madea B. Estimation of the time since death in the early post-mortem period. "
+    "Forensic Sci Int. 2004;144(2–3):167–175. doi:10.1016/j.forsciint.2004.04.051, Table 1; "
     "dati da Mallach H. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
 )
 
@@ -29,11 +29,13 @@ _COMBINED_REFERENCE = (
 _HENSSGE_BASE_REFERENCE = (
     "Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. "
     "Forensic Sci Int. 1988;38(3–4):209–236. doi:10.1016/0379-0738(88)90168-5."
+    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.18."
 )
 
 _HENSSGE_SPECIAL_REFERENCE = (
     "Henßge C. Todeszeitbestimmung an Leichen. "
     "Rechtsmedizin. 2002;12(2):112–131. doi:10.1007/s00194-002-0136-8."
+    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.19."
 )
 
 _HENSSGE_WEIGHT_REFERENCE = (
@@ -42,6 +44,7 @@ _HENSSGE_WEIGHT_REFERENCE = (
     "Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G; "
     "Madea B. Methods for determining time of death. "
     "Forensic Sci Med Pathol. 2016;12(4):451–485. doi:10.1007/s12024-016-9776-y, Table 10."
+    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.20."
 )
 
 _MALLACH_TABLE_TEXT = {
@@ -103,7 +106,7 @@ _MALLACH_TABLE_TEXT = {
 
 _RIGOR_TABLE_TEXT = {
     "it": {
-        "caption": "Tabella 1 — Decorso temporale della rigidità cadaverica",
+        "caption": "Decorso temporale della rigidità cadaverica",
         "phase": "Fase della rigidità",
         "mean": "Media con deviazione standard",
         "hours": "Ore post-mortem",
@@ -120,12 +123,12 @@ _RIGOR_TABLE_TEXT = {
         "resolution": "Risoluzione",
         "note": (
             "Media e deviazione standard calcolate sui dati della letteratura di 150 anni "
-            "(1811–1960) da Mallach 1964 [43] (Schleyer [44], leggermente modificata)."
+            "(1811–1960) da Mallach (1964), nella versione riportata da Henssge e Madea (2004)."
         ),
         "adapted": "Adattato da",
     },
     "en": {
-        "caption": "Table 1 — Time course of cadavric rigidity",
+        "caption": "Time course of cadaveric rigidity",
         "phase": "Rigor phase",
         "mean": "Mean with standard deviation(s)",
         "hours": "Hours postmortem",
@@ -142,7 +145,7 @@ _RIGOR_TABLE_TEXT = {
         "resolution": "Resolution",
         "note": (
             "Mean and standard deviation calculated from the literature data of 150 years "
-            "(1811–1960) by Mallach 1964 [43] (Schleyer [44] slightly modified)."
+            "(1811–1960) by Mallach (1964), as reported by Henssge and Madea (2004)."
         ),
         "adapted": "Adapted from",
     },
@@ -150,7 +153,7 @@ _RIGOR_TABLE_TEXT = {
 
 _COMBINED_TABLE_TEXT = {
     "it": {
-        "caption": "Tabella 1 — Limiti temporali dei metodi/criteri non basati sulla temperatura",
+        "caption": "Limiti temporali dei metodi/criteri non basati sulla temperatura",
         "method": "Metodo/criterio",
         "result": "Risultato dell'esame",
         "minimum": "Limite minimo del periodo dalla morte (ore post-mortem)",
@@ -184,7 +187,7 @@ _COMBINED_TABLE_TEXT = {
         "adapted": "Adattato da",
     },
     "en": {
-        "caption": "Table 1 — Time limits used of the non-temperature-based methods/criteria",
+        "caption": "Time limits of non-temperature-based methods/criteria",
         "method": "Method/criterion",
         "result": "Result of examination",
         "minimum": "Minimum limit of the period since death (hours postmortem)",
@@ -291,7 +294,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
 
 _HENSSGE_SPECIAL_TABLE_TEXT = {
     "it": {
-        "caption": "Adattamento dei fattori di correzione (f, vedi Tabella 1) alla superficie di appoggio",
+        "caption": "Adattamento dei fattori di correzione (f, vedi Fattori di correzione base) alla superficie di appoggio",
         "ground": "Superficie di appoggio",
         "clothing": "Abbigliamento",
         "factor": "Fattore di correzione f",
@@ -307,11 +310,11 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Spesso",
         "thin": "Sottile",
         "very_thin": "Molto sottile",
-        "see_table_1": "vedi Tabella 1",
+        "see_table_1": "vedi Fattori di correzione base",
         "adapted": "Adattato da",
     },
     "en": {
-        "caption": "Adaptation of corrective factors (f, see Table 1) to ground under body",
+        "caption": "Adaptation of corrective factors (f, see Basic correction factors) to ground under body",
         "ground": "Ground under body",
         "clothing": "Clothing",
         "factor": "Corrective factor f",
@@ -327,7 +330,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Thick",
         "thin": "Thin",
         "very_thin": "Very thin",
-        "see_table_1": "see Table 1",
+        "see_table_1": "see Basic correction factors",
         "adapted": "Adapted from",
     },
 }
@@ -345,7 +348,7 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
             "Per un peso corporeo diverso, il fattore scelto per 70 kg va adattato leggendo "
             "il valore sulla stessa riga. Per fattori inferiori a 1.4 (fino a 0.75), "
             "la dipendenza dal peso corporeo può essere trascurata. "
-            "Le celle vuote corrispondono a valori non riportati nella tabella originale."
+            "I valori delle aree accorpate nell’originale sono ripetuti nelle colonne corrispondenti."
         ),
         "adapted": "Adattato da",
     },
@@ -361,7 +364,7 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
             "(values in bold). For a different body weight, the factor selected for 70 kg "
             "is adjusted by reading the value on the same row. For corrective factors below "
             "1.4 (down to 0.75), dependence on body weight may be neglected. "
-            "Blank cells correspond to values not reported in the original table."
+            "Values spanning merged areas in the original are repeated in the corresponding columns."
         ),
         "adapted": "Adapted from",
     },
@@ -516,6 +519,7 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(f"{text['adapted']}: {_COMBINED_REFERENCE}")
+    st.caption("I numeri tra parentesi quadre rinviano alla bibliografia dell’articolo originale." if language == "it" else "Numbers in square brackets refer to the original article’s bibliography.")
 
 
 def _render_henssge_base_table(language: str) -> None:
@@ -606,7 +610,6 @@ def _render_henssge_special_table(language: str) -> None:
 
 def _render_henssge_weight_table(language: str) -> None:
     text = _HENSSGE_WEIGHT_TABLE_TEXT[language]
-    blank = "<td></td>"
     st.markdown(
         f"""
         <div class="mallach-table-wrap">
@@ -625,50 +628,34 @@ def _render_henssge_weight_table(language: str) -> None:
             <tbody>
               <tr>
                 <td rowspan="2">{text['clothing']}</td>
-                <td>1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td>
-                <td>1.3</td><td>1.2</td><td>1.2</td><td class="weight-reference">1.2</td>{blank * 8}
+                <td>1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td><td>1.4</td><td>1.4</td><td>1.4</td><td class="weight-reference">1.4</td><td>1.4</td><td>1.4</td><td>1.4</td><td>1.4</td><td>1.3</td><td>1.2</td><td>1.2</td><td>1.2</td>
               </tr>
               <tr>
-                <td>2.1</td><td>2.1</td><td>2.0</td><td>2.0</td><td>1.9</td><td>1.8</td>
-                <td>1.6</td><td>1.4</td><td>1.4</td><td class="weight-reference">1.4</td><td>1.3</td><td>1.3</td>{blank * 6}
+                <td>2.1</td><td>2.1</td><td>2.0</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.6</td><td>1.6</td><td>1.6</td><td class="weight-reference">1.6</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.4</td><td>1.4</td><td>1.4</td><td>1.3</td><td>1.3</td>
               </tr>
               <tr>
                 <td rowspan="3">{text['bedspread']}</td>
-                <td>2.7</td><td>2.7</td><td>2.6</td><td>2.5</td><td>2.3</td><td>2.2</td>
-                <td>2.1</td><td>2.0</td><td>1.8</td><td class="weight-reference">1.6</td><td>1.6</td><td>1.6</td>
-                <td>1.5</td><td>1.4</td><td>1.4</td>{blank * 3}
+                <td>2.7</td><td>2.7</td><td>2.6</td><td>2.5</td><td>2.3</td><td>2.2</td><td>2.1</td><td>2.0</td><td>1.8</td><td class="weight-reference">1.8</td><td>1.8</td><td>1.8</td><td>1.6</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.4</td><td>1.4</td>
               </tr>
               <tr>
-                <td>3.5</td><td>3.4</td><td>3.3</td><td>3.2</td><td>2.8</td><td>2.6</td>
-                <td>2.4</td><td>2.3</td><td>2.0</td><td class="weight-reference">1.8</td><td>1.8</td><td>1.7</td>
-                <td>1.6</td><td>1.6</td><td>1.5</td><td>1.5</td>{blank * 2}
+                <td>3.5</td><td>3.4</td><td>3.3</td><td>3.2</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.3</td><td>2.0</td><td class="weight-reference">2.0</td><td>2.0</td><td>1.8</td><td>1.8</td><td>1.7</td><td>1.6</td><td>1.6</td><td>1.5</td><td>1.5</td>
               </tr>
               <tr>
-                <td>4.5</td><td>4.3</td><td>4.1</td><td>3.9</td><td>3.4</td><td>3.0</td>
-                <td>2.8</td><td>2.6</td><td>2.4</td><td class="weight-reference">2.2</td><td>2.1</td><td>2.0</td>
-                <td>1.9</td><td>1.8</td><td>1.7</td><td>1.7</td><td>1.6</td><td>1.6</td>
+                <td>4.5</td><td>4.3</td><td>4.1</td><td>3.9</td><td>3.4</td><td>3.0</td><td>2.8</td><td>2.6</td><td>2.4</td><td class="weight-reference">2.2</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td><td>1.7</td><td>1.6</td><td>1.6</td>
               </tr>
               <tr>
                 <td rowspan="2">{text['clothing_bedspread']}</td>
-                <td>5.7</td><td>5.3</td><td>5.0</td><td>4.8</td><td>4.0</td><td>3.5</td>
-                <td>3.2</td><td>2.9</td><td>2.7</td><td class="weight-reference">2.4</td><td>2.3</td><td>2.2</td>
-                <td>2.1</td><td>1.9</td><td>1.9</td><td>1.8</td><td>1.7</td><td>1.6</td>
+                <td>5.7</td><td>5.3</td><td>5.0</td><td>4.8</td><td>4.0</td><td>3.5</td><td>3.2</td><td>2.9</td><td>2.7</td><td class="weight-reference">2.4</td><td>2.3</td><td>2.2</td><td>2.1</td><td>1.9</td><td>1.9</td><td>1.8</td><td>1.7</td><td>1.6</td>
               </tr>
               <tr>
-                <td>7.1</td><td>6.6</td><td>6.2</td><td>5.8</td><td>4.7</td><td>4.0</td>
-                <td>3.6</td><td>3.2</td><td>2.9</td><td class="weight-reference">2.6</td><td>2.5</td><td>2.3</td>
-                <td>2.2</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
+                <td>7.1</td><td>6.6</td><td>6.2</td><td>5.8</td><td>4.7</td><td>4.0</td><td>3.6</td><td>3.2</td><td>2.9</td><td class="weight-reference">2.6</td><td>2.5</td><td>2.3</td><td>2.2</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
               </tr>
               <tr>
                 <td rowspan="2">{text['feather_bed']}</td>
-                <td>8.8</td><td>8.1</td><td>7.5</td><td>7.0</td><td>5.5</td><td>4.6</td>
-                <td>3.9</td><td>3.5</td><td>3.2</td><td class="weight-reference">2.8</td><td>2.7</td><td>2.5</td>
-                <td>2.3</td><td>2.2</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
+                <td>8.8</td><td>8.1</td><td>7.5</td><td>7.0</td><td>5.5</td><td>4.6</td><td>3.9</td><td>3.5</td><td>3.2</td><td class="weight-reference">2.8</td><td>2.7</td><td>2.5</td><td>2.3</td><td>2.2</td><td>2.0</td><td>1.9</td><td>1.8</td><td>1.7</td>
               </tr>
               <tr>
-                <td>10.9</td><td>9.8</td><td>8.9</td><td>8.3</td><td>6.2</td><td>5.1</td>
-                <td>4.3</td><td>3.8</td><td>3.4</td><td class="weight-reference">3.0</td><td>2.8</td><td>2.6</td>
-                <td>2.4</td><td>2.3</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td>
+                <td>10.9</td><td>9.8</td><td>8.9</td><td>8.3</td><td>6.2</td><td>5.1</td><td>4.3</td><td>3.8</td><td>3.4</td><td class="weight-reference">3.0</td><td>2.8</td><td>2.6</td><td>2.4</td><td>2.3</td><td>2.1</td><td>2.0</td><td>1.9</td><td>1.8</td>
               </tr>
             </tbody>
           </table>
@@ -924,9 +911,9 @@ _base_language_before = st.session_state.get("henssge_base_table_language", "Ita
 st.markdown(
     "<div class='henssge-table-title'>"
     + (
-        "Tabella 1 — Fattori di correzione base"
+        "Fattori di correzione base"
         if _base_language_before == "Italiano"
-        else "Table 1 — Basic correction factors"
+        else "Basic correction factors"
     )
     + "</div>",
     unsafe_allow_html=True,
@@ -944,9 +931,9 @@ _special_language_before = st.session_state.get("henssge_special_table_language"
 st.markdown(
     "<div class='henssge-table-title'>"
     + (
-        "Tabella 2 — Situazioni speciali"
+        "Situazioni speciali"
         if _special_language_before == "Italiano"
-        else "Table 2 — Special situations"
+        else "Special situations"
     )
     + "</div>",
     unsafe_allow_html=True,
@@ -964,9 +951,9 @@ _weight_language_before = st.session_state.get("henssge_weight_table_language", 
 st.markdown(
     "<div class='henssge-table-title'>"
     + (
-        "Tabella 3 — Adattamento per peso corporeo"
+        "Adattamento per peso corporeo"
         if _weight_language_before == "Italiano"
-        else "Table 3 — Body-weight adjustment"
+        else "Body-weight adjustment"
     )
     + "</div>",
     unsafe_allow_html=True,
