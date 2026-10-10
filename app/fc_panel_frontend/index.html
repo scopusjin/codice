@@ -27,7 +27,6 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="row states" role="group" aria-label="Stato del corpo"><button data-state="Asciutto" aria-pressed="true">Asciutto</button><button data-state="Bagnato" aria-pressed="false">Bagnato</button><button data-state="Immerso" aria-pressed="false">Immerso</button></div>
 <div id="environment-row"><div id="water-fields" hidden><label for="water">Acqua</label><select id="water"><option value="stagnante">Ferma</option><option value="corrente">Corrente</option></select></div>
 <div id="scenario-temperature-row" hidden><label id="scenario-temperature-label" for="scenario-temperature">Temperatura ambientale</label><div class="temperature-control"><div class="step"><input id="scenario-temperature" type="text" inputmode="decimal" aria-describedby="scenario-temperature-unit"><button data-temperature="-0.1" aria-label="Riduci temperatura">−</button><button data-temperature="0.1" aria-label="Aumenta temperatura">+</button></div><span id="scenario-temperature-unit">°C</span></div></div></div>
-<label class="check" id="water-near-zero-row" hidden><input type="checkbox" id="water-near-zero">Acqua prossima a 0 °C</label>
 <div id="air-fields">
 <div id="counts" role="group" aria-label="Vestiti e coperture"></div>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti elementi particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="one">Sì, uno</option><option value="several">Sì, più di uno</option></select></div>
@@ -82,12 +81,14 @@ const separator=document.createElement('span');separator.id='range-separator';se
 step('hi','FC massimo','2.00',.05,'#range-fields');
 q('label[for="lo"]').textContent='Min';q('#lo').setAttribute('aria-label','FC minimo');
 q('label[for="hi"]').textContent='Max';q('#hi').setAttribute('aria-label','FC massimo');
-function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:q('#water-near-zero').checked===true,air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
+function temperatureValue(){const raw=q('#scenario-temperature').value.trim().replace(',','.');return /^-?\d+(\.\d{1,2})?$/.test(raw)?Number(raw):NaN;}
+function waterNearZero(){const temperature=temperatureValue();return state==='Immerso'&&q('#water').value==='stagnante'&&Number.isFinite(temperature)&&temperature<=1;}
+function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
   duvet: {short:'Henssge in Madea, 2023 · coperture di piume.',full:'La tabella di adattamento al peso riporta i riferimenti 2.80 e 3.00 a 70 kg per le condizioni più isolanti con coperture di piume. Il loro uso come intervallo per la domanda dell’app è un’interpretazione operativa.',url:'https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html'},
   wetNakedAccelerating: {short:'App · nudo bagnato su appoggio disperdente.',full:'Intervallo convenzionale dell’app: 0.60–0.75 per il nudo bagnato su cemento/pietra, pavimento molto freddo o PVC, sia in aria ferma sia mobile. Nelle fonti consultate non sono state individuate indicazioni specifiche sufficienti per quantificare separatamente queste combinazioni. Il minimo 0.60 non è un limite sperimentale né deriva dai valori dell’immersione.'},
-  coldWater: {short:'Henssge/Madea · esperimenti in acqua.',full:'Henssge, in Madea, Estimation of the Time Since Death, 4ª ed., 2023: esperimenti di raffreddamento in acqua, tab. 6.7. Il range 0.50–1.00 per acqua stagnante prossima a 0 °C è la proposta operativa dell’app basata sulla variabilità sperimentale; non è una nuova categoria della tabella operativa.',url:'https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html'},
+  coldWater: {short:'Henssge/Madea · esperimenti in acqua.',full:'Henssge, in Madea, Estimation of the Time Since Death, 4ª ed., 2023: esperimenti di raffreddamento in acqua, tab. 6.7. Il range 0.50–1.00 per acqua stagnante prossima a 0 °C è la proposta operativa dell’app basata sulla variabilità sperimentale; non è una nuova categoria della tabella operativa. L’attivazione automatica a temperatura ≤ 1 °C è una soglia operativa scelta per l’app.',url:'https://dokumen.pub/estimation-of-the-time-since-death-4nbsped-1032135530-9781032135533.html'},
   soakedMattress: {short:'App · imbottiture impregnate, analogia con Althaus et al., 2007.',full:'Per analogia con le foglie bagnate, nessuna maggiorazione isolante per materasso o divano impregnati. L’assimilazione non è stata verificata sperimentalmente sulle imbottiture.'},
   wetMixed: {short:'App · classificazione degli strati bagnati.',full:'Classificazione proposta dall’app: due strati leggeri sono considerati simili a uno pesante. Non è una relazione di Henssge. Riferimenti: tab. 6.8, un camice bagnato 1.00; tab. 6.18, due strati pesanti bagnati 1.10 e più di due 1.20 in aria ferma, almeno due 0.90 in aria mobile. I range intermedi sono ipotesi dell’app, non intervalli pubblicati.'},
   wetBlankets: {short:'App · coperture completamente bagnate.',full:'Nelle fonti consultate non sono state individuate indicazioni specifiche per tutte le combinazioni di coperture selezionabili. L’app le assimila alle classi di isolamento bagnato. Un piumone è assimilato a più di due strati pesanti; una coperta singola ha un intervallo più ampio. L’assimilazione non è dimostrata sperimentalmente. Non vengono sommati incrementi per ciascuna coperta.'},
@@ -447,7 +448,6 @@ function recalc(){
   if(!showAir)c={...c,air:'still',wind:false};
   q('#air-fields').hidden=state==='Immerso';
   q('#water-fields').hidden=state!=='Immerso';
-  q('#water-near-zero-row').hidden=state!=='Immerso'||q('#water').value!=='stagnante';
   q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
   q('#isolation-row').hidden=state!=='Asciutto'||c.m+c.h>0||!isMany(c);
   q('#blanket-volume-row').hidden=state!=='Asciutto'||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
@@ -508,7 +508,7 @@ function onWeightChange(){
 }
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#expand-range').addEventListener('click',()=>{rangeExpanded=true;update();q('#hi').focus();});
 q('#use').addEventListener('click',()=>{
   normalizeChoice();update();if(q('#use').disabled)return;
@@ -518,12 +518,18 @@ q('#open-tables').addEventListener('click',event=>{event.preventDefault();window
 recalc();
 const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
+  temperatureValue,
+  temperatureChanged(){
+    // Incomplete typing must not discard a manual choice. A valid change of
+    // cooling category behaves like any other change of the body conditions.
+    if(Number.isFinite(temperatureValue())&&waterNearZero()!==(result.id==='water-cold-still'))recalc();
+  },
   setExamples(examples){
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
   },
   snapshot(){
     return {state, fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
-      waterNearZero:q('#water-near-zero').checked,wetCase:q('#wet-case').checked,
+      waterNearZero:waterNearZero(),wetCase:q('#wet-case').checked,
       lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
       sourceOpen:q('#source-panel').open};
   },
@@ -531,12 +537,13 @@ window.FCPanel={
     if(draft){
       if(['Asciutto','Bagnato','Immerso'].includes(draft.state))state=draft.state;
       for(const id of savedFields)if(draft.fields&&id in draft.fields)q('#'+id).value=draft.fields[id];
-      q('#water-near-zero').checked=!!draft.waterNearZero;q('#wet-case').checked=!!draft.wetCase;
+      q('#wet-case').checked=!!draft.wetCase;
       root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
     }
     setWeight(weight);
     recalc();
-    if(draft&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight)){
+    const waterCategoryChanged=state==='Immerso'&&q('#water').value==='stagnante'&&(!Number.isFinite(temperatureValue())||!!draft?.waterNearZero!==waterNearZero());
+    if(draft&&!waterCategoryChanged&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight)){
       q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;
       if(manual){
         recordManualEdit();

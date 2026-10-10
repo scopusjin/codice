@@ -16,8 +16,8 @@
   function capture() {
     const item = single.payload.call(single);
     item.draft = editorSnapshot();
-    const raw = q('scenario-temperature').value.trim().replace(',','.');
-    item.temperature = /^-?\d+(\.\d{1,2})?$/.test(raw) ? Number(raw) : null;
+    const temperature = temperatureValue();
+    item.temperature = Number.isFinite(temperature) ? temperature : null;
     item.error = q('error').textContent;
     if (item.temperature === null || !Number.isFinite(item.temperature)) item.error ||= 'Specificare la temperatura.';
     item.description = window.FCDescriptions.conditions(item.conditions,item.draft.fields);
@@ -62,7 +62,7 @@
     if (!enabled) {
       const item=single.payload.call(single);
       renderConditions([item],item.range);
-      q('scenario-error').textContent=temperatureEdited&&!Number.isFinite(temperatureValue())?'Specificare la temperatura.':'';
+      q('scenario-error').textContent=(temperatureEdited||item.conditions.state==='Immerso')&&!Number.isFinite(temperatureValue())?'Specificare la temperatura.':'';
       q('use').disabled=!!q('error').textContent||!!q('scenario-error').textContent;
       return;
     }
@@ -88,8 +88,7 @@
     q('use').disabled = q('use-scenarios').disabled = !group;
   }
   function temperatureValue() {
-    const raw=q('scenario-temperature').value.trim().replace(',','.');
-    return /^-?\d+(\.\d{1,2})?$/.test(raw)?Number(raw):NaN;
+    return single.temperatureValue();
   }
   function refresh() {
     if (paused) return;
@@ -162,10 +161,10 @@
     items.splice(active,1); active = Math.min(active,items.length-1); load(active,items[active].weight); render();
   });
   q('use-scenarios').addEventListener('click',()=>q('use').click());
-  function temperatureChange() {temperatureEdited=true;refresh();}
+  function temperatureChange() {temperatureEdited=true;single.temperatureChanged();refresh();}
   q('scenario-temperature').addEventListener('input',temperatureChange);
   q('scenario-temperature').addEventListener('blur',()=>{
-    const value=temperatureValue();if(Number.isFinite(value))q('scenario-temperature').value=value.toFixed(1);
+    const value=temperatureValue();if(Number.isFinite(value))q('scenario-temperature').value=value.toFixed(Number.isInteger(value*10)?1:2);
     refresh();
   });
   document.getElementById('fc-full').querySelectorAll('[data-temperature]').forEach(button=>button.addEventListener('click',()=>{
