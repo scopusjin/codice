@@ -88,6 +88,11 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <section id="suggest-page">
 <div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3>Consiglia FC</h3></div>
 <p class="intro">Inserisci le condizioni per un FC suggerito in base ai dati di letteratura.</p>
+<label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Considera più scenari</label>
+<div id="scenario-controls" hidden>
+<div class="scenario-tools"><select id="scenario-select" aria-label="Scenario da modificare"></select><button id="add-scenario">Aggiungi scenario</button><button id="remove-scenario" aria-label="Rimuovi lo scenario selezionato">×</button></div>
+<p class="intro">Modifica uno scenario alla volta. Il range comprende tutti gli scenari.</p>
+</div>
 <div class="row states" role="group" aria-label="Stato del corpo"><button data-state="Asciutto" aria-pressed="true">Asciutto</button><button data-state="Bagnato" aria-pressed="false">Bagnato</button><button data-state="Immerso" aria-pressed="false">Immerso</button></div>
 <div id="air-fields">
 <div class="grid" id="counts"></div>
@@ -113,6 +118,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div id="suggest-weight-slot"><div class="weight" id="shared-weight" data-session-key="peso"><label for="weight">Peso</label><div class="step"><input id="weight" type="text" inputmode="decimal" value="70.0"><button data-weight="-1" aria-label="Diminuisci peso">−</button><button data-weight="1" aria-label="Aumenta peso">+</button></div><span>kg</span></div><div class="status" id="manual-state" aria-live="polite"></div></div>
 <div class="hint" id="origin"></div>
 <div id="error" class="error" role="alert"></div>
+<div id="scenario-result" hidden><p id="scenario-summary" aria-live="polite"></p><div class="scenario-apply"><span id="scenario-error" class="error" role="alert"></span><button id="use-scenarios" class="primary">Usa range</button></div></div>
 <div id="detail" hidden></div>
 <details id="source-panel"><summary>Come viene consigliato il FC</summary>
 <strong id="source-kind"></strong>
@@ -480,6 +486,7 @@ function update(){
     else btn.disabled=!Number.isInteger(v)||v<0||v>20;
   });
   showSource();
+  window.FCScenarios?.refresh();
 }
 function airChangesSuggestion(c){
   if(c.state==='Immerso')return false;
@@ -543,6 +550,7 @@ function adaptSelectedToWeight(){
 }
 function onWeightChange(){
   if(num(q('#weight'))===lastWeight)return;
+  if(window.FCScenarios?.weightChanged())return;
   const saved=window.FCPanel.snapshot();
   applied=null;recalc();
   if(saved.manual||saved.selectedBase){
@@ -625,5 +633,7 @@ window.FCPanel={
 </script>
 </div>
 
+<link rel="stylesheet" href="scenarios.css">
+<script src="scenarios.js"></script>
 <script src="bridge.js"></script>
 </body></html>

@@ -8,6 +8,7 @@ class El{
   append(...els){for(const e of els){e.parent=this;this.children.push(e);}}
   replaceChildren(...els){this.children=[];this.append(...els);}
   addEventListener(e,f){this.events[e]=f;}setAttribute(k,v){this[k]=v;}focus(){}
+  click(){if(!this.disabled)this.events.click?.();}
   querySelector(s){if(s.startsWith('label['))return new El();assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
   querySelectorAll(s){if(s==='input')return inputs;const map={'[data-input]':'input','[data-state]':'state','[data-weight]':'weight'};assert(map[s],'Unexpected selector '+s);return buttons.filter(b=>b.dataset[map[s]]!==undefined);}
 }
@@ -21,6 +22,7 @@ const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis
 const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,window:{}};vm.runInNewContext(code,ctx);
 ctx.window.FCPanel.setExamples(JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_examples.json'),'utf8')));
 const api=ctx.api,base={state:'Asciutto',s:0,p:0,m:0,h:0,surf:0,air:'still',wind:false,strongWind:false,isolation:'',volume:'',water:'stagnante',feather:'no',leaf:'wet'};
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/scenarios.js'),'utf8'),ctx);
 const run=c=>JSON.parse(JSON.stringify(api.evaluateFC({...base,...c}))),eq=(c,expected)=>assert.deepEqual(run(c).range,expected,JSON.stringify(c));
 
 

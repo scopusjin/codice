@@ -140,3 +140,4 @@ rootEvents.input();win.FCBridge.send('tables');rootEvents.click();
 assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'tables');
 win.FCBridge.send('use');assert.equal(messages.at(-1).value.action,'tables');
 console.log('Streamlit bridge: draft preservation and single navigation delivery passed.');
+require('./test_fc_scenarios.cjs');

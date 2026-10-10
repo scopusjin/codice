@@ -341,6 +341,33 @@ class FCPageTests(unittest.TestCase):
         self.assertEqual(app.session_state["__fc_form"]["fattore_correzione"], 1)
         self.assertTrue(app.error)
 
+    def test_scenarios_survive_apply_weight_change_and_reopening_in_all_views(self):
+        from test_fc_scenarios import scenario_payload
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil)
+                app.session_state["rt_val"] = 31.8
+                self.open(app, msil)
+                self.event(app, "use", **scenario_payload())
+                self.assertFalse(app.session_state["__fc_active"])
+                self.assertEqual(app.session_state["fc_suggested_vals"], [1.35, 1.4])
+                self.change_weight(app, 100., mobile, msil)
+                self.assertEqual(app.session_state["fc_suggested_vals"], [1.3, 1.35])
+                self.assertFalse(app.session_state["__fc_active"])
+                self.assertEqual(app.session_state["rt_val"], 31.8)
+                self.open_from_fc(app, "fattore_correzione" if msil else "fc_min_val")
+                draft = app.session_state["__fc_draft"]
+                self.assertTrue(draft["multiple"])
+                self.assertEqual(len(draft["scenarios"]), 2)
+                self.assertEqual([draft["lo"], draft["hi"]], ["1.30", "1.30"])
+                self.event(app, "back", weight=100., draft=draft)
+                self.assertEqual(len(app.session_state["__fc_applied_choice"]["scenarios"]), 2)
+                self.open_from_fc(app, "fattore_correzione" if msil else "fc_min_val")
+                self.event(app, "use", range=[1., 1.], base_range=[1., 1.], weight=100.,
+                           manual=False, draft={"multiple": False})
+                self.assertNotIn("scenarios", app.session_state["__fc_applied_choice"])
+                self.assertIsNone(app.session_state["fattori_condizioni_testo"])
+
     def test_tables_returns_to_fc_with_draft_and_form_intact(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):

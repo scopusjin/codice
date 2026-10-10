@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from math import isfinite
 
 from app.fc_weight import adapt_fc_range
+from app.fc_scenarios import adapt_scenarios, summarize_scenarios
 
 
 def rounded_fc(value):
@@ -27,6 +28,20 @@ def validate_choice(payload):
         raise ValueError("Verificare FC e peso.")
     if any(abs(v - rounded_fc(v)) > 1e-8 for v in (lo, hi)):
         raise ValueError("Il FC deve essere espresso in passi di 0.05.")
+    if "scenarios" in payload:
+        scenarios = payload["scenarios"]
+        if not isinstance(scenarios, list) or len(scenarios) < 2 or payload.get("manual") is not False:
+            raise ValueError("Specificare almeno due scenari completi.")
+        for item in scenarios:
+            if (not isinstance(item, dict) or "scenarios" in item
+                    or not isinstance(item.get("description"), str) or not item["description"].strip()
+                    or not isinstance(item.get("draft"), dict)):
+                raise ValueError("Scenario incompleto.")
+            _, _, scenario_weight = validate_choice(item)
+            if scenario_weight != weight:
+                raise ValueError("Gli scenari devono usare lo stesso peso.")
+        if summarize_scenarios(scenarios)[0] != [lo, hi]:
+            raise ValueError("Il range deve comprendere tutti gli scenari.")
     return round(lo, 2), round(hi, 2), weight
 
 
@@ -40,10 +55,12 @@ def sync_fc_weight(state, weight):
 def apply_choice(state, payload, *, msil=False, sync_weight=True):
     """Apply exactly the chosen bounds, without accumulating older suggestions."""
     lo, hi, weight = validate_choice(payload)
+    if payload.get("scenarios"):
+        payload = {**payload, "description": summarize_scenarios(payload["scenarios"])[1]}
     if payload.get("manual") is True and payload.get("base_range") is None:
         payload = {**payload, "base_range": [lo, hi], "manual_weight_adjusted": False}
     was_prudent = bool(state.get("stima_cautelativa_beta", False))
-    interval = was_prudent or hi > lo or msil
+    interval = was_prudent or hi > lo or msil or bool(payload.get("scenarios"))
     if interval and not was_prudent:
         ta = state.get("ta_base_val", 20.0)
         state["__full_standard_ta_base_val"] = ta
@@ -68,7 +85,7 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     state["__fc_reviewed_weight"] = weight
     state["fc_riassunto_contatori"] = None
     state["fattori_condizioni_parentetica"] = None
-    state["fattori_condizioni_testo"] = payload.get("description") or None
+    state["fattori_condizioni_testo"] = None if payload.get("scenarios") else payload.get("description") or None
     state["show_results"] = False
     state["run_stima_mobile"] = False
     # Both views share the same selected FC; a later switch to MSIL must not
@@ -82,6 +99,7 @@ def normalize_fc_input(state, key, *, msil=False):
     # An incomplete manual edit must never restore an older, valid selection.
     choice = {**(choice or {}), "manual": True, "base_range": None,
               "manual_weight_adjusted": False, "weight_adjusted": False, "manual_center": msil}
+    choice.pop("scenarios", None)
     state["__fc_applied_choice"] = choice
     try:
         value = rounded_fc(state.get(key))
@@ -117,6 +135,16 @@ def refresh_fc_for_weight(state, *, msil=False):
     pending_weight = choice.get("manual") is True and choice.get("weight") is None
     if not pending_weight and not fc_weight_needs_review(state):
         return False
+    if choice.get("scenarios"):
+        try:
+            validate_choice(choice)
+            updated = adapt_scenarios(choice, float(state.get("peso")))
+            validate_choice(updated)
+        except (TypeError, ValueError, OverflowError):
+            return False
+        apply_choice(state, updated, msil=msil, sync_weight=False)
+        state["__full_standard_fattore_correzione"] = state["fattore_correzione"]
+        return True
     try:
         lo, hi, previous_weight = validate_choice(
             {**choice, "weight": state.get("peso")} if pending_weight else choice

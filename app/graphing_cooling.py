@@ -20,6 +20,7 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
 from app.parameters import INF_HOURS
 from app.cooling_inputs import checked_interval, checked_weight, finite_number
+from app.fc_scenarios import matching_scenario_description
 
 
 def _is_num(x):
@@ -301,6 +302,7 @@ def compute_cooling_state(
                 ta_text=ta_txt,
                 cf_text=cf_txt,
                 weight_text=p_txt,
+                scenario_description=matching_scenario_description(options, CF_range, W_val),
             )
             detail_blocks.append(elenco_html)
 

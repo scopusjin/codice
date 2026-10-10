@@ -1,0 +1,12 @@
+#fc-full .scenario-toggle{font-size:13px;min-height:32px}
+#fc-full .scenario-tools{display:flex;align-items:center;gap:5px;margin:3px 0}
+#fc-full .scenario-tools select{flex:1;min-width:0;font-size:13px}
+#fc-full .scenario-tools button{font-size:12px;white-space:nowrap;padding:4px 7px}
+#fc-full #remove-scenario{font-size:20px;padding:0;min-width:32px}
+#fc-full #scenario-result{border-top:1px solid var(--fc-line);margin:6px 0;padding-top:6px}
+#fc-full #scenario-summary{font-size:13px;line-height:1.4;margin:0;overflow-wrap:anywhere}
+#fc-full .scenario-apply{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px}
+#fc-full #scenario-error{font-size:12px}
+#fc-full #use-scenarios{flex:0 0 auto;min-height:34px;background:#0876a5;color:#fff;border-color:#0876a5}
+#fc-full #scenario-controls .intro{margin:3px 0 5px}
+@media(pointer:coarse){#fc-full .scenario-toggle,#fc-full #use-scenarios{min-height:44px}#fc-full #remove-scenario{min-width:44px}#fc-full .scenario-tools select{font-size:16px}}

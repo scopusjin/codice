@@ -10,6 +10,7 @@ import streamlit.components.v1 as components
 
 from app.fc_catalog import load_examples
 from app.fc_selection import apply_choice, sync_fc_weight, validate_choice
+from app.fc_scenarios import scenario_draft
 
 TABLES_PAGE = "pages/2_Tabelle di riferimento.py"
 FULL_PAGE = "Stima_epoca_decesso.py"
@@ -53,9 +54,14 @@ def _current_fc_draft(state, home):
         values = [state.get("fattore_correzione")] * 2
     choice = state.get("__fc_applied_choice") or {}
     matches = choice.get("range") == values and choice.get("weight") == state.get("peso")
+    if matches and choice.get("scenarios"):
+        return scenario_draft(choice)
     base = choice.get("base_range") if matches else None
     manual = choice.get("manual", True) if base is not None else True
     draft = deepcopy(choice.get("draft") or state.get("__fc_draft") or {})
+    if choice.get("scenarios"):
+        draft.pop("multiple", None)
+        draft.pop("scenarios", None)
     draft.update(
         lo="" if values[0] is None else f"{values[0]:.2f}",
         hi="" if values[1] is None else f"{values[1]:.2f}",
