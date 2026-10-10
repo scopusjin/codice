@@ -7,12 +7,12 @@ from app.cooling_inputs import finite_number
 
 
 def scenario_conditions(item):
-    # Also clean descriptions saved before manual provenance moved to the notes.
+    # Keep previously saved drafts consistent with the compact summary.
     text = item["description"].replace(", FC impostato manualmente", "")
-    if finite_number(item.get("temperature")):
-        medium = "acqua" if item.get("conditions", {}).get("state") == "Immerso" else "ambiente"
-        text += f", {medium} {float(item['temperature']):g} °C"
-    return text
+    text = text.replace(", aria ferma", "").replace(", movimento dell’aria non ricostruibile", "")
+    text = text.replace(", prossima a 0 °C", "")
+    return text.replace(", su pavimento interno", ", adagiato su pavimento").replace(
+        ", su normale pavimento interno", ", adagiato su pavimento")
 
 
 def scenario_temperature_bounds(choice):
@@ -33,8 +33,8 @@ def summarize_scenarios(scenarios):
         texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
-    text = (f"FC degli scenari considerati: {bounds[0]:.2f} [{descriptions[0]}]"
-            f" — {bounds[1]:.2f} [{descriptions[1]}]")
+    text = (f"FC degli scenari considerati: {bounds[0]:.2f} ({descriptions[0]})"
+            f" — {bounds[1]:.2f} ({descriptions[1]})")
     return bounds, text
 
 

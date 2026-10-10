@@ -103,7 +103,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato complessivamente molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 
 
-<div class="wide"><label for="surface">Appoggio</label><select id="surface"><option value="0">Normale pavimento interno</option><option value="wood">Piano di legno</option><option value="1">Asfalto / terreno / prato</option><option value="2">Materasso / tappeto spesso</option><option value="3">Supporto molto imbottito e avvolgente (es. divano, cuscini)</option><option value="4">Cemento / pietra</option><option value="5">Pavimento molto freddo (es. cantina)</option><option value="10">Pavimento rivestito in PVC</option><option value="metal">Piano/lastra metallica</option><option value="8">Foglie</option></select></div>
+<div class="wide"><label for="surface">Appoggio</label><select id="surface"><option value="0">Pavimento</option><option value="wood">Piano di legno</option><option value="1">Asfalto / terreno / prato</option><option value="2">Materasso / tappeto spesso</option><option value="3">Supporto molto imbottito e avvolgente (es. divano, cuscini)</option><option value="4">Cemento / pietra</option><option value="5">Pavimento molto freddo (es. cantina)</option><option value="10">Pavimento rivestito in PVC</option><option value="metal">Piano/lastra metallica</option><option value="8">Foglie</option></select></div>
 <div class="conditional" id="leaf-row" hidden><label for="leaf">Condizione delle foglie</label><select id="leaf"><option value="">Da precisare</option><option value="wet">Bagnate</option><option value="humid">Umide</option><option value="dry">Secche</option></select></div>
 <div class="conditional" id="leaf-cover-row" hidden><label for="leaf-cover">Il corpo era anche coperto dalle foglie?</label><select id="leaf-cover"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="metal-type-row" hidden><label for="metal-type">Tipo di superficie metallica</label><select id="metal-type"><option value="">Da precisare</option><option value="6">Lamiera/piano metallico sottile o leggero</option><option value="7">Piano metallico molto spesso</option></select></div>
@@ -624,7 +624,7 @@ window.FCPanel={
     if(c.supportSoaked==='yes')support+=' impregnato di liquidi';
     const description=state==='Immerso'?'corpo immerso in acqua '+c.water:
       'corpo '+state.toLowerCase()+', '+(garments.length?garments.join(', '):'senza indumenti o coperture')+
-      ', su '+support.toLowerCase()+(c.wind?', con correnti d’aria':'');
+      ', adagiato su '+support.toLowerCase()+(c.wind?', con correnti d’aria':'');
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
       base_range:manual?manualBase:selectedBase||result.range,manual_weight_adjusted:manualWeightAdjusted,weight_adjusted:weightAdjusted,
       conditions:c,manual,description,rule:result.id,explanation:result.detail,sources:result.sources};

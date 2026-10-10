@@ -528,11 +528,13 @@ def prudent_graphing_result_range(start: str, end: str, language: Optional[str] 
 def prudent_graphing_detail_list(
     *, header: str, ta_text: str, cf_text: str, weight_text: str,
     scenario_description: Optional[str] = None,
+    scenario_temperatures: Optional[str] = None,
     language: Optional[str] = None,
 ) -> str:
     return _get_henssge_locale(language).prudent_graphing_detail_list(
         header=header, ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
         scenario_description=scenario_description,
+        scenario_temperatures=scenario_temperatures,
     )
 
 

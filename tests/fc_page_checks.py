@@ -37,21 +37,23 @@ class FCPageTests(unittest.TestCase):
                     self.assertIn("color:blue;font-size:small;'>FC impostato manualmente negli scenari 1, 2.", text)
                     self.assertIn("acqua 8 °C", text)
 
-    def test_desktop_relocated_conditions_toggle_updates_mode_in_same_run(self):
-        app = self.start(False)
-        for enabled in (True, False, True):
-            app.toggle(key="stima_cautelativa_beta").set_value(enabled).run()
-            self.assertEqual(list(app.exception), [])
-            self.assertEqual(app.session_state["range_unico_beta"], enabled)
-            self.assertEqual(
-                sum(toggle.key == "stima_cautelativa_beta" for toggle in app.toggle), 1,
-            )
-            labels = [e.value for e in app.markdown]
-            self.assertEqual(any("Range fattore di correzione (FC)" in s for s in labels), enabled)
-        for excluded in (True, False):
-            app.checkbox(key="henssge_non_applicabile").set_value(excluded).run()
-            self.assertEqual(list(app.exception), [])
-            self.assertTrue(app.toggle(key="stima_cautelativa_beta").value)
+    def test_conditions_helper_replaces_toggle_and_panel_activates_ranges(self):
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(mobile)
+                self.assertFalse(app.session_state["stima_cautelativa_beta"])
+                self.assertNotIn("Condizioni variabili?", [e.label for e in app.toggle])
+                self.assertTrue(any("Usa Più scenari" in e.value for e in app.markdown))
+                self.choose_manual(app, [1., 1.5])
+                for excluded in (True, False):
+                    app.checkbox(key="henssge_non_applicabile").set_value(excluded).run()
+                    self.assertEqual(list(app.exception), [])
+                    self.assertTrue(app.session_state["range_unico_beta"])
+                    self.assertTrue(app.session_state["stima_cautelativa_beta"])
+                    self.assertNotIn("stima_cautelativa_beta", [e.key for e in app.toggle])
+                    self.assertTrue(any("Usa Più scenari" in e.value for e in app.markdown))
+                self.assertEqual(app.session_state["fc_min_val"], 1.)
+                self.assertEqual(app.session_state["fc_other_val"], 1.5)
 
     def test_special_helpers_across_desktop_and_mobile_sessions(self):
         # Streamlit wrappers are process-global, while device mode is per session.
@@ -212,7 +214,7 @@ class FCPageTests(unittest.TestCase):
                 with self.subTest(mobile=mobile, msil=msil, interval=interval):
                     app = self.start(mobile, msil)
                     if interval:
-                        app.toggle(key="stima_cautelativa_beta").set_value(True).run()
+                        self.choose_manual(app, [1., 1.5])
                     self.assertNotIn("Consiglia FC", [e.label for e in app.button] + [e.label for e in app.toggle])
                     for component in app.get("bidi_component"):
                         self.assertFalse(json.loads(component.proto.json).get("suggest_enabled", False))

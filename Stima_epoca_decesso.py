@@ -22,7 +22,7 @@ from app.special_tanatology_states import (
 from app.native_time_picker import EMPTY_TIME_SENTINEL, native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
-from app.full_mobile_layout import _render_click_help
+from app.full_mobile_layout import _render_click_help, render_conditions_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
@@ -325,10 +325,11 @@ with st.container(border=True, key="full_cooling_card"):
             )
 
     if full_mobile or henssge_non_app:
-        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
-    # Widget events update session_state before this run, even when the toggle
-    # is rendered below the temperature fields on desktop.
+        render_conditions_help()
+    # The FC panel activates intervals when a range or multiple scenarios is applied.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
+    # Detach the former widget value from Streamlit's widget cleanup on deployment.
+    st.session_state["stima_cautelativa_beta"] = stima_cautelativa_beta
 
     # La modalità con intervalli usa sempre range espliciti. Alla prima attivazione
     # i due estremi coincidono con i valori correnti; nei rerun successivi si
@@ -489,7 +490,7 @@ with st.container(border=True, key="full_cooling_card"):
                             )
 
                     with _ta_right:
-                        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+                        render_conditions_help()
 
                     _sync_interval_state(
                         "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
@@ -616,7 +617,7 @@ with st.container(border=True, key="full_cooling_card"):
                             )
 
                     with _ta_right:
-                        st.toggle(i18n.ui_text("full.prudent_toggle"), key="stima_cautelativa_beta")
+                        render_conditions_help()
 
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_input_col, _fc_spacer = st.columns(

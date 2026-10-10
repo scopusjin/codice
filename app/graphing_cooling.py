@@ -302,12 +302,21 @@ def compute_cooling_state(
                 else f"{W_val:.0f} kg"
             )
 
+            scenario_temperatures = None
+            if temperature_scenarios is not None:
+                scenario_temperatures = "; ".join(
+                    f"scenario {i}: "
+                    f"{'acqua' if item.get('conditions', {}).get('state') == 'Immerso' else 'ambiente'} "
+                    f"{float(item['temperature']):g} °C"
+                    for i, item in enumerate(options["__fc_applied_choice"]["scenarios"], 1)
+                )
             elenco_html = i18n.prudent_graphing_detail_list(
                 header=i18n.prudent_header(),
                 ta_text=ta_txt,
                 cf_text=cf_txt,
                 weight_text=p_txt,
                 scenario_description=matching_scenario_description(options, CF_range, W_val),
+                scenario_temperatures=scenario_temperatures,
             )
             detail_blocks.append(elenco_html)
 

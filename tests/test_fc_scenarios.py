@@ -39,7 +39,7 @@ class FCScenarioTests(unittest.TestCase):
         apply_choice(state, temperature_payload())
         self.assertEqual((state["Ta_min_beta"], state["Ta_max_beta"]), (8., 20.))
         self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (8., 20.))
-        self.assertIn("acqua 8 °C", state["__fc_applied_choice"]["description"])
+        self.assertNotIn("°C", state["__fc_applied_choice"]["description"])
         self.assertEqual(matching_temperature_scenarios(state, [1.35, 1.4], 70., (8., 20.)),
                          [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
         state["peso"] = 100.
@@ -91,6 +91,10 @@ class FCScenarioTests(unittest.TestCase):
             self.assertEqual(solver.call_args.kwargs["temperature_scenarios"],
                              [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
             self.assertEqual(sum(dict(cooling.qd_status_counts).values()), 2)
+            details = "".join(cooling.detail_blocks)
+            self.assertIn("Temperature degli scenari: scenario 1: ambiente 20 °C; scenario 2: acqua 8 °C", details)
+            self.assertIn("1.35 (corpo asciutto)", details)
+            self.assertNotIn("corpo asciutto, ambiente", details)
             state["Ta_min_beta"] = 9.
             solver.reset_mock()
             cooling = compute_cooling_state(**args)
@@ -104,8 +108,18 @@ class FCScenarioTests(unittest.TestCase):
         apply_choice(state, payload)
         self.assertEqual(state["fc_suggested_vals"], [1.35, 1.4])
         self.assertEqual(state["__fc_applied_choice"]["description"],
-                         "FC degli scenari considerati: 1.35 [corpo asciutto, aria ferma]"
-                         " — 1.40 [corpo bagnato, aria in movimento]")
+                         "FC degli scenari considerati: 1.35 (corpo asciutto)"
+                         " — 1.40 (corpo bagnato, aria in movimento)")
+
+    def test_saved_condition_descriptions_use_compact_wording(self):
+        payload = temperature_payload()
+        payload["scenarios"][0]["description"] = "corpo asciutto, aria ferma, su pavimento interno"
+        payload["scenarios"][1]["description"] = "corpo immerso in acqua stagnante, prossima a 0 °C"
+        state = {}
+        apply_choice(state, payload)
+        self.assertEqual(state["__fc_applied_choice"]["description"],
+                         "FC degli scenari considerati: 1.35 (corpo asciutto, adagiato su pavimento)"
+                         " — 1.40 (corpo immerso in acqua stagnante)")
 
     def test_weight_can_exchange_the_scenarios_defining_the_extremes(self):
         state = {}
@@ -117,7 +131,7 @@ class FCScenarioTests(unittest.TestCase):
             self.assertEqual(choice["range"], expected)
             self.assertEqual([item["base_range"] for item in choice["scenarios"]], [[1.35, 1.35], [1.4, 1.4]])
             first_condition = "corpo bagnato" if weight == 100 else "corpo asciutto"
-            self.assertIn(f"{expected[0]:.2f} [{first_condition}", choice["description"])
+            self.assertIn(f"{expected[0]:.2f} ({first_condition}", choice["description"])
             self.assertEqual(fc_weight_warning(state), "FC adattato per il peso.")
         state["peso"] = 75.
         self.assertTrue(refresh_fc_for_weight(state))
@@ -180,7 +194,7 @@ class FCScenarioTests(unittest.TestCase):
         apply_choice(state, payload)
         self.assertTrue(state["stima_cautelativa_beta"])
         text = state["__fc_applied_choice"]["description"]
-        self.assertIn("corpo asciutto, aria ferma / corpo bagnato, aria in movimento", text)
+        self.assertIn("corpo asciutto / corpo bagnato, aria in movimento", text)
 
     def test_report_conditions_are_escaped_and_only_match_the_applied_calculation(self):
         state = {}
@@ -210,8 +224,8 @@ class FCScenarioTests(unittest.TestCase):
         without_scenarios = compute_cooling_state(**args, cooling_options=state)
         for field in ("t_min_raff_henssge", "t_max_raff_henssge", "Qd_min", "Qd_max"):
             self.assertEqual(getattr(with_scenarios, field), getattr(without_scenarios, field))
-        self.assertIn("FC degli scenari considerati: 1.35 [corpo asciutto, aria ferma]", "".join(with_scenarios.detail_blocks))
-        self.assertIn("1.40 [corpo bagnato, aria in movimento]", "".join(with_scenarios.detail_blocks))
+        self.assertIn("FC degli scenari considerati: 1.35 (corpo asciutto)", "".join(with_scenarios.detail_blocks))
+        self.assertIn("1.40 (corpo bagnato, aria in movimento)", "".join(with_scenarios.detail_blocks))
         self.assertNotIn("FC degli scenari", "".join(without_scenarios.detail_blocks))
 
 

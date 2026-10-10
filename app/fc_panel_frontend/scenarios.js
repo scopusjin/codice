@@ -12,15 +12,9 @@
   function editorSnapshot() {
     return {...single.snapshot(), temperature:q('scenario-temperature').value};
   }
-  function withTemperature(item) {
-    const medium = item.conditions.state === 'Immerso' ? 'acqua' : 'ambiente';
-    return item.description + ', ' + medium + ' ' + item.temperature + ' °C';
-  }
-
   function describe(item) {
     const c = item.conditions, fields = item.draft.fields;
-    if (c.state === 'Immerso') return 'corpo immerso in acqua ' + c.water +
-      (c.water === 'stagnante' && c.waterNearZero ? ', prossima a 0 °C' : '');
+    if (c.state === 'Immerso') return 'corpo immerso in acqua ' + c.water;
     const parts = ['corpo ' + c.state.toLowerCase()], clothes = [];
     for (const [key, one, many] of [['s','strato leggero','strati leggeri'],
       ['p','strato pesante','strati pesanti'], ['m','coperta spessa','coperte spesse'],
@@ -34,13 +28,13 @@
       if (c.h && c.feather === 'yes') parts.push('piumone di piume voluminoso e avvolgente');
       if (c.m + c.h > 1 && (!c.h || c.feather === 'no') && c.volume === 'yes') parts.push('coperture molto voluminose');
     }
-    parts.push(({still:'aria ferma',continuous:'aria in movimento continuo',
-      intermittent:'aria in movimento intermittente',unknown:'movimento dell’aria non ricostruibile'})[fields.air] || '');
-    const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento interno',1:'asfalto / terreno / prato',
+    parts.push(({continuous:'con correnti d’aria continue',
+      intermittent:'con correnti d’aria intermittenti'})[c.air] || '');
+    const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento',1:'asfalto / terreno / prato',
       2:'materasso / tappeto spesso',3:'supporto molto imbottito e avvolgente',4:'cemento / pietra',
       5:'pavimento molto freddo',6:'piano metallico sottile o leggero',7:'piano metallico molto spesso',
       8:'foglie ' + ({dry:'secche',humid:'umide',wet:'bagnate'}[c.leaf] || ''),10:'pavimento in PVC'};
-    if (surfaces[c.surf]) parts.push('su ' + surfaces[c.surf]);
+    if (surfaces[c.surf]) parts.push('adagiato su ' + surfaces[c.surf]);
     if (c.surf === 8 && c.leafCover === 'yes') parts.push('con copertura di foglie');
     if (c.state === 'Bagnato' && [2,3].includes(c.surf) && c.supportSoaked === 'yes') parts.push('appoggio impregnato di liquidi');
     if (c.state === 'Bagnato' && c.surf === 1 && c.air === 'continuous' && c.wetCase && c.s+c.p === 2 && !c.m && !c.h) parts.push('pantaloni e slip fradici, pioggia');
@@ -59,9 +53,9 @@
   function combined() {
     if (!items.length || items.some(item => item.error || !item.range.every(Number.isFinite))) return null;
     const range = [Math.min(...items.map(item => item.range[0])), Math.max(...items.map(item => item.range[1]))];
-    const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(withTemperature))].join(' / ');
+    const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(item=>item.description))].join(' / ');
     return {range, description:'FC degli scenari considerati: ' + range[0].toFixed(2) +
-      ' [' + conditions(0) + '] — ' + range[1].toFixed(2) + ' [' + conditions(1) + ']'};
+      ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};
   }
   function render() {
     q('multiple-scenarios').checked = enabled;

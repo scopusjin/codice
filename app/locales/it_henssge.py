@@ -238,15 +238,19 @@ def prudent_graphing_result_range(start: str, end: str) -> str:
 
 
 def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, weight_text: str,
-                                scenario_description: str | None = None) -> str:
+                                scenario_description: str | None = None,
+                                scenario_temperatures: str | None = None) -> str:
     from html import escape
     fc_item = (f"<li>{escape(scenario_description)}.</li>" if scenario_description else
                f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_text}</b>.</li>")
+    temperatures_item = (f"<li>Temperature degli scenari: {escape(scenario_temperatures)}.</li>"
+                         if scenario_temperatures else "")
     return (
         "<ul>"
         f"<li>{header}"
         "<ul style='list-style-type: circle; margin-left: 20px;'>"
         f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_text}</b>.</li>"
+        f"{temperatures_item}"
         f"{fc_item}"
         f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
         "</ul></li>"
