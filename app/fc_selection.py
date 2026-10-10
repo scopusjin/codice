@@ -5,6 +5,7 @@ from math import isfinite
 
 from app.fc_weight import adapt_fc_range
 from app.fc_scenarios import adapt_scenarios, summarize_scenarios, scenario_temperature_bounds
+from app.cooling_inputs import finite_number
 
 
 def rounded_fc(value):
@@ -28,6 +29,8 @@ def validate_choice(payload):
         raise ValueError("Verificare FC e peso.")
     if any(abs(v - rounded_fc(v)) > 1e-8 for v in (lo, hi)):
         raise ValueError("Il FC deve essere espresso in passi di 0.05.")
+    if "temperature" in payload and not finite_number(payload["temperature"]):
+        raise ValueError("Specificare la temperatura.")
     if "scenarios" in payload:
         scenarios = payload["scenarios"]
         if not isinstance(scenarios, list) or len(scenarios) < 2 or payload.get("manual") is not False:
@@ -50,7 +53,7 @@ def sync_fc_weight(state, weight):
     """Synchronize the existing weight fields after caller validation."""
     state["peso"] = weight
     state["peso_widget"] = weight
-    state["peso_str"] = f"{weight:.1f}"
+    state["peso_str"] = f"{weight:.0f}"
 
 
 def apply_choice(state, payload, *, msil=False, sync_weight=True):
@@ -80,6 +83,8 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     state["range_unico_beta"] = interval
     state["__prudent_explicit_ranges_initialized"] = True
     temperatures = scenario_temperature_bounds(payload)
+    if temperatures is None and "temperature" in payload:
+        temperatures = (float(payload["temperature"]),) * 2
     if temperatures is not None and sync_weight:
         for key in ("ta_base_val", "Ta_min_beta"):
             state[key] = temperatures[0]

@@ -4,6 +4,21 @@ from app.fc_selection import apply_choice, rounded_fc, validate_choice
 
 
 class FCSelectionTests(unittest.TestCase):
+    def test_single_temperature_applies_only_an_explicit_panel_edit(self):
+        state = {"ta_base_val": 18., "ta_other_val": 22., "stima_cautelativa_beta": True}
+        payload = {"range": [.5, .5], "weight": 70., "temperature": 8.5}
+        apply_choice(state, payload)
+        self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (8.5, 8.5))
+        self.assertEqual(state["ta_base_val_widget"], 8.5)
+        state["ta_base_val"], state["ta_other_val"] = 19., 21.
+        apply_choice(state, payload, sync_weight=False)
+        self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (19., 21.))
+        for missing in (None, float("nan"), ""):
+            original = dict(state)
+            with self.assertRaises(ValueError):
+                apply_choice(state, {**payload, "temperature": missing})
+            self.assertEqual(state, original)
+
     def test_exact_range_replaces_old_suggestions_and_keeps_temperature(self):
         state = {"peso": 70, "stima_cautelativa_beta": True,
                  "ta_base_val": 17.5, "ta_other_val": 21.0,
@@ -14,7 +29,7 @@ class FCSelectionTests(unittest.TestCase):
         self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (17.5, 21.0))
         self.assertEqual(state["peso"], 91)
         self.assertEqual(state["peso_widget"], 91.0)
-        self.assertEqual(state["peso_str"], "91.0")
+        self.assertEqual(state["peso_str"], "91")
 
     def test_range_from_single_mode_sets_equal_ambient_bounds(self):
         state = {"stima_cautelativa_beta": False, "ta_base_val": 19.5}

@@ -119,7 +119,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
         )
         self.assertEqual(
             i18n.ui_text("full.fc_adjusted_for_weight", weight=82.4, base=1.10),
-            "Adattato per 82.4 kg (valore per 70 kg: 1.10)",
+            "Adattato per 82 kg (valore per 70 kg: 1.10)",
         )
 
 

@@ -326,7 +326,7 @@ with c_w:
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
-        step=1.0, fmt="%.1f",
+        step=1.0, fmt="%.0f",
         min_value=3.0, max_value=160.0
     )
 

@@ -10,6 +10,22 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FCPageTests(unittest.TestCase):
+    def test_single_panel_temperature_and_integer_weight_format_in_all_views(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil=msil)
+                self.open(app, msil=msil)
+                self.event(app, "use", range=[.5, .5], base_range=[.5, .5],
+                           weight=70., temperature=8.5, manual=False,
+                           description="corpo immerso in acqua ferma")
+                self.assertEqual(app.session_state["ta_base_val"], 8.5)
+                self.assertEqual(app.session_state["peso_str"], "70")
+                weights = [json.loads(c.proto.json_args) for c in app.get("component_instance")
+                           if "peso" in c.proto.id]
+                for args in weights:
+                    if "decimals" in args:
+                        self.assertEqual(args["decimals"], 0)
+
     def test_home_scenario_button_temperature_application_and_blue_note(self):
         from test_fc_scenarios import temperature_payload
         for mobile, msil in ((False, False), (True, False), (True, True)):
@@ -126,7 +142,7 @@ class FCPageTests(unittest.TestCase):
     def assert_weight(self, state, weight):
         self.assertEqual(state["peso"], weight)
         self.assertEqual(state["peso_widget"], weight)
-        self.assertEqual(state["peso_str"], f"{weight:.1f}")
+        self.assertEqual(state["peso_str"], f"{weight:.0f}")
 
     def test_use_transfers_bounds_weight_and_preserves_form_on_desktop_and_mobile(self):
         for mobile in (False, True):

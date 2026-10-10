@@ -14,90 +14,22 @@ Formula peso: Henssge, in Madea, 3a ed., eq. 6.10, trascrizione consultata.
 Coefficiente 3.24596: verifica visiva della pagina originale ancora aperta.
 FC >= 1.40 e peso < 60 oppure > 80 kg; arrotondamento finale al più vicino 0.05.
 Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. -->
-<style>
-#fc-full{position:relative;font-family:Arial,sans-serif;--fc-bg:light-dark(#fff,#202724);--fc-ink:light-dark(#24332c,#e8eee9);--fc-soft:light-dark(#f0f3f1,#343e38);--fc-muted:light-dark(#58665e,#b7c6bd);--fc-line:light-dark(#d0dad4,#54685c);color:var(--fc-ink);background:var(--fc-bg);padding:10px;max-width:650px;margin:auto;box-sizing:border-box}
-#fc-full *{box-sizing:border-box}#fc-full [hidden]{display:none!important}#fc-full h3{font-weight:500;margin:0}#fc-full button{font:inherit;color:inherit;cursor:pointer;min-height:44px;min-width:44px;padding:6px 9px;border:1px solid var(--fc-line);border-radius:6px;background:var(--fc-bg)}#fc-full button:disabled{opacity:.4;cursor:default}#fc-full .back{border:0;padding-left:0;background:transparent}#fc-full .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}#fc-full .states{margin:6px 0}#fc-full .states button{flex:1}#fc-full .states button[aria-pressed="true"]{background:light-dark(#e3f0e9,#315240)}#fc-full #counts{display:block;margin:4px 0}#fc-full #counts>div{display:flex;justify-content:space-between;min-height:32px;border-bottom:1px solid var(--fc-line)}#fc-full #counts input{width:64px;flex:0 0 64px;background:var(--fc-soft);padding:3px 6px;text-align:center}#fc-full details{margin:6px 0}#fc-full summary{cursor:pointer;padding:6px 0}#fc-full .conditional{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,150px);align-items:center;gap:8px;margin:4px 0}#fc-full .conditional label{font-size:13px}#fc-full #source-panel p{margin:4px 0;overflow-wrap:anywhere}#fc-full #source-citation{font-size:12px;color:var(--fc-muted)}#fc-full .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:4px 12px}#fc-full .grid>div{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0}#fc-full label{margin:0}#fc-full .step{display:flex;background:var(--fc-soft);border-radius:6px;width:148px;flex:0 0 148px}#fc-full .step button{border:0;padding:4px;background:transparent;flex:0 0 44px}#fc-full input{font:inherit;min-width:0;width:100%;padding:5px;border:0;color:inherit;background:transparent;font-variant-numeric:tabular-nums}#fc-full select{font:inherit;color:inherit;background:var(--fc-soft);width:100%;padding:6px;border:0;border-radius:6px;min-height:44px}#fc-full .wide{display:flex;align-items:center;gap:8px;margin:4px 0}#fc-full .wide label{flex:0 0 76px}#fc-full .wide select{flex:1;min-width:0}#fc-full .hint,#fc-full .status{color:var(--fc-muted);margin:4px 0}#fc-full .check{display:flex;align-items:center;gap:8px;min-height:44px}#fc-full .check input{width:18px;height:18px;margin:0}#fc-full .weight{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0;color:var(--fc-muted)}#fc-full .summary{border-top:1px solid var(--fc-line);padding-top:4px}#fc-full .reference{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:36px;font-variant-numeric:tabular-nums}#fc-full .reference span{font-weight:500}#fc-full .result{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:8px;border-radius:6px;background:light-dark(#e7f4ed,#294438);margin:6px 0;font-variant-numeric:tabular-nums}#fc-full strong{font-weight:500}#fc-full .primary{background:light-dark(#e0f0e6,#30513e)}#fc-full .error{color:light-dark(#9a3025,#ffb1a6)}#fc-full .status:empty,#fc-full .error:empty{display:none}#fc-full .source-example{margin:4px 0}#fc-full .source-example p{font-size:12px}#fc-full #source-examples{margin-top:4px}#fc-full #source-extra:empty{display:none}#fc-full a{color:light-dark(#236c50,#a0dbbd)}#fc-full .top{display:flex;align-items:center;justify-content:space-between;gap:8px}#fc-full #range-label{display:block;margin:4px 0}#fc-full #origin{display:none}@media(pointer:coarse){#fc-full #counts>div,#fc-full #counts input{min-height:44px}#fc-full input,#fc-full select{font-size:16px}}
-</style>
-<style>
-#fc-full #counts{display:grid;grid-template-columns:minmax(0,220px) 112px;gap:0 6px;margin:2px 0}
-#fc-full #counts>div{display:contents}#fc-full #counts label{align-self:center;min-width:0;padding:4px 0}
-#fc-full #counts .step{width:112px;min-height:28px;flex-basis:112px}
-#fc-full #counts .step button{min-width:30px;min-height:28px;height:28px;padding:0;flex-basis:30px}
-#fc-full #counts .step input{width:46px;flex-basis:46px;background:transparent;padding:2px 4px;text-align:center}
-#fc-full #counts label{font-size:13px}
-#fc-full #suggest-weight-slot{display:block;margin-left:auto}
-#fc-full #shared-weight{margin:0 0 0 auto;font-size:11px;gap:3px;color:var(--fc-muted)}
-#fc-full #shared-weight .step{width:92px;min-height:27px;flex-basis:92px}
-#fc-full #shared-weight .step button{min-width:27px;min-height:27px;height:27px;flex-basis:27px;padding:0}
-#fc-full #shared-weight input{font-size:13px;padding:2px 3px}
-#fc-full #reference-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:32px}
-#fc-full #reference-row .reference-text{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:0}
-#fc-full #suggested-caption{font-weight:400;color:var(--fc-muted)}
-#fc-full #range-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:3px 0}
-#fc-full #range-head small{font-size:11px;color:var(--fc-muted);white-space:nowrap}
-#fc-full #range-head{align-items:center;gap:4px 8px}
-#fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:276px;max-width:100%;flex:0 1 276px}
-#fc-full #range-fields>div{justify-content:flex-start;gap:4px;flex-wrap:nowrap}
-#fc-full #range-fields label{font-size:12px;white-space:nowrap}
-#fc-full #range-fields .step{width:98px;flex:0 1 98px;min-width:0}
-#fc-full #range-fields .step input{width:46px;flex:1 1 46px;text-align:center;padding:4px 2px}
-#fc-full #range-fields .step button{min-width:26px;flex:0 0 26px;min-height:32px;padding:0}
-#fc-full #range-head small{margin-left:auto}
-#fc-full #choice-row{flex-wrap:nowrap;gap:8px;padding:6px;align-items:flex-end}
-#fc-full #choice-row #range-fields{flex:1 1 auto;width:auto;gap:8px}
-#fc-full #choice-row #range-fields>div{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
-#fc-full #choice-row #range-fields .step{width:100%;flex:0 0 auto;min-width:0;max-width:144px}
-#fc-full #choice-row #range-fields .step button{min-width:22px;flex-basis:22px}
-#fc-full #choice-row #range-fields input{flex:1 1 44px;width:44px;font-size:16px}
-#fc-full #choice-row .selected-actions{flex:0 0 auto;gap:3px}
-#fc-full #choice-row .selected-actions button{min-width:30px;padding:4px 6px}
-#fc-full #editable-note{font-size:12px;margin:2px 0}
-#fc-full .intro{font-size:12px;line-height:1.35;color:var(--fc-muted);margin:0 0 6px}
-#fc-full .selected-row{align-items:center;justify-content:space-between;gap:6px;padding:6px 8px}
-#fc-full .selected-actions{display:flex;align-items:center;gap:4px;margin:0}
-#fc-full .selected-actions button{min-height:34px;height:34px;padding:4px 8px}
-#fc-full #use{background:#0876a5;color:#fff;border-color:#0876a5;font-weight:650;box-shadow:0 2px 5px rgb(8 118 165 / 20%)}
-#fc-full #use:hover:not(:disabled){background:#065f86;border-color:#065f86}
-#fc-full #use:focus-visible{outline:2px solid light-dark(#065f86,#8bd9fa);outline-offset:2px}
-#fc-full #use:disabled{box-shadow:none}
-#fc-full #air-help-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1.45rem;min-width:1.45rem;height:1.45rem;min-height:1.45rem;padding:0;border:0;background:transparent}
-#fc-full #air-help-button span{display:grid;place-items:center;box-sizing:border-box;width:1.45rem;height:1.45rem;border:1px solid light-dark(rgba(31,41,55,.2),rgba(232,238,233,.3));border-radius:50%;background:var(--fc-bg);color:var(--fc-ink);font:400 14px/1 sans-serif}
-#fc-full #air-help-button:focus-visible{outline:2px solid #0876a5;outline-offset:2px;border-radius:50%}
-@media(pointer:coarse){#fc-full #air-help-button{width:44px;min-width:44px;height:44px;min-height:44px}}
-
-
-@media(max-width:430px){#fc-full #counts{grid-template-columns:minmax(0,1fr) 112px}#fc-full .selected-row{padding-left:6px;padding-right:6px}}
-#fc-full details{margin:4px 0}
-@media(pointer:coarse){#fc-full #counts{grid-template-columns:minmax(0,220px) 132px}#fc-full #counts .step{width:132px;min-height:44px}#fc-full #counts .step button{min-width:44px;min-height:44px;flex-basis:44px;height:44px}#fc-full #counts .step input{width:44px;flex-basis:44px}#fc-full #shared-weight .step{width:148px;flex-basis:148px}#fc-full #shared-weight .step button{min-width:44px;min-height:44px;flex-basis:44px;height:44px}#fc-full .selected-actions button{min-height:44px;height:44px}#fc-full #shared-weight input{font-size:16px}}
-</style>
-<style>
-#fc-full #reference-row{gap:7px;align-items:baseline;margin-top:5px}
-#fc-full #fc-heading{font-size:24px;line-height:1.15;font-weight:500;letter-spacing:.02em}
-#fc-full #editable-note{font-size:12px;color:var(--fc-muted);margin:0}
-#fc-full #manual-state{font-size:12px;line-height:1.35;margin:0;flex:1;min-width:0;text-align:right}
-#fc-full #suggest-weight-slot{margin:0 0 4px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-#fc-full #suggest-weight-slot #shared-weight{font-size:12px;gap:3px;flex-wrap:nowrap;flex:0 0 auto;margin:0}
-#fc-full #suggest-weight-slot #shared-weight .step{width:56px;flex:0 0 56px;min-height:26px;background:transparent}
-#fc-full #suggest-weight-slot #shared-weight input{font-size:13px;text-align:right;padding:2px 3px;border-bottom:1px solid var(--fc-line);border-radius:0}
-#fc-full #suggest-weight-slot #shared-weight .step button{display:none}
-#fc-full select[data-needs-value="true"]{color:light-dark(#a32822,#ffb4ab);background:light-dark(#fff0ee,#492c2b);border:1px solid light-dark(#b33b32,#dc877d);font-weight:500}
-#fc-full select option{color:var(--fc-ink);background:var(--fc-bg);font-weight:400}
-#fc-full select option[value=""],#fc-full #support-soaked option[value="unknown"]{color:light-dark(#a32822,#ffb4ab);font-weight:500}
-@media(pointer:coarse){#fc-full #suggest-weight-slot #shared-weight input{font-size:16px;min-height:44px}}
-</style>
+<link rel="stylesheet" href="panel.css">
+<script src="descriptions.js"></script>
 <section id="suggest-page">
 <div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3>Consiglia FC</h3></div>
-<p class="intro">Inserisci le condizioni per un FC suggerito in base ai dati di letteratura.</p>
-<label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Considera più scenari</label>
-<div id="scenario-controls" hidden>
-<div class="scenario-tools"><select id="scenario-select" aria-label="Scenario da modificare"></select><button id="add-scenario">Aggiungi scenario</button><button id="remove-scenario" aria-label="Rimuovi lo scenario selezionato">×</button></div>
-<p class="intro">Ogni scenario usa la propria temperatura e il proprio FC, a condizioni costanti. Nessuna ponderazione temporale.</p>
-<p id="scenario-duration-note">Esposizioni brevi: rilevanza da valutare caso per caso; 30–60 minuti non sono una soglia generale di esclusione.</p>
-</div>
+<div id="suggest-weight-slot"><div class="weight" id="shared-weight" data-session-key="peso"><label for="weight">Peso</label><div class="step"><input id="weight" type="text" inputmode="numeric" value="70"><button data-weight="-1" aria-label="Diminuisci peso di un chilogrammo">−</button><button data-weight="1" aria-label="Aumenta peso di un chilogrammo">+</button></div><span>kg</span></div></div>
+<div id="scenario-result" hidden><div><strong>FC complessivo</strong><output id="scenario-output" aria-live="polite"></output></div><button id="use-scenarios">Usa</button></div>
+<label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Più scenari</label>
+<div id="scenario-controls" hidden><div class="scenario-tools"><span id="scenario-label">Scenari</span><div id="scenario-tabs" role="group" aria-labelledby="scenario-label"></div><button id="add-scenario" aria-label="Aggiungi scenario">+</button><button id="remove-scenario" aria-label="Rimuovi lo scenario selezionato">×</button></div></div>
+<div id="choice-row"><strong id="fc-heading">FC</strong><div id="range-fields"></div><button id="expand-range" aria-label="Crea intervallo FC">Intervallo</button><span class="selected-actions"><button id="use">Usa</button><button id="restore" aria-label="Ripristina il suggerimento per queste condizioni">↺</button></span></div>
+<div id="manual-state" class="status" aria-live="polite"></div><div id="error" class="error" role="alert"></div><div id="scenario-error" class="error" role="alert"></div>
 <div class="row states" role="group" aria-label="Stato del corpo"><button data-state="Asciutto" aria-pressed="true">Asciutto</button><button data-state="Bagnato" aria-pressed="false">Bagnato</button><button data-state="Immerso" aria-pressed="false">Immerso</button></div>
-<div id="scenario-temperature-row" hidden><label id="scenario-temperature-label" for="scenario-temperature">Temperatura ambientale</label><input id="scenario-temperature" type="text" inputmode="decimal" aria-describedby="scenario-temperature-unit"><span id="scenario-temperature-unit">°C</span></div>
+<div id="environment-row"><div id="water-fields" hidden><label for="water">Acqua</label><select id="water"><option value="stagnante">Ferma</option><option value="corrente">Corrente</option></select></div>
+<div id="scenario-temperature-row" hidden><label id="scenario-temperature-label" for="scenario-temperature">Temperatura ambientale</label><div class="temperature-control"><div class="step"><input id="scenario-temperature" type="text" inputmode="decimal" aria-describedby="scenario-temperature-unit"><button data-temperature="-0.1" aria-label="Riduci temperatura">−</button><button data-temperature="0.1" aria-label="Aumenta temperatura">+</button></div><span id="scenario-temperature-unit">°C</span></div></div></div>
+<label class="check" id="water-near-zero-row" hidden><input type="checkbox" id="water-near-zero">Acqua prossima a 0 °C</label>
 <div id="air-fields">
-<div class="grid" id="counts"></div>
+<div id="counts" role="group" aria-label="Vestiti e coperture"></div>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti elementi particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="one">Sì, uno</option><option value="several">Sì, più di uno</option></select></div>
 <div class="conditional" id="feather-row" hidden><label for="feather">Piumone di piume molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato complessivamente molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
@@ -108,21 +40,16 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="conditional" id="leaf-cover-row" hidden><label for="leaf-cover">Il corpo era anche coperto dalle foglie?</label><select id="leaf-cover"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="metal-type-row" hidden><label for="metal-type">Tipo di superficie metallica</label><select id="metal-type"><option value="">Da precisare</option><option value="6">Lamiera/piano metallico sottile o leggero</option><option value="7">Piano metallico molto spesso</option></select></div>
 <div class="conditional" id="support-soaked-row" hidden><label for="support-soaked">Appoggio abbondantemente impregnato di liquidi?</label><select id="support-soaked"><option value="unknown">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
-<div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Ferma</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown">Non ricostruibile</option></select><button type="button" id="air-help-button" aria-label="Quando considerare le correnti d’aria" aria-expanded="false" aria-controls="air-help"><span aria-hidden="true">?</span></button></div>
+<div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Ferma</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown" hidden disabled>Da precisare</option></select><button type="button" id="air-help-button" aria-label="Quando considerare le correnti d’aria" aria-expanded="false" aria-controls="air-help"><span aria-hidden="true">?</span></button></div>
 <p class="hint" id="air-help" hidden>Considerare le correnti d’aria se interessano effettivamente il corpo per un periodo rilevante. Una finestra aperta o una corrente occasionale nell’ambiente non bastano.</p>
 <label class="check" id="wet-case-row" hidden><input type="checkbox" id="wet-case">Pantaloni e slip fradici, pioggia, su strada o terreno</label>
 </div>
-<div id="water-fields" class="wide" hidden><label for="water">Acqua</label><select id="water"><option value="stagnante">Stagnante</option><option value="corrente">Corrente</option></select></div>
-<label class="check" id="water-near-zero-row" hidden><input type="checkbox" id="water-near-zero">Acqua prossima a 0 °C</label>
 <div class="summary">
-<div id="reference-row"><strong id="fc-heading">FC</strong><span id="editable-note">(adattabile dall’operatore)</span></div>
-<div class="result selected-row" id="choice-row"><div class="grid" id="range-fields"></div><span class="selected-actions"><button id="use" class="primary">Usalo</button><button id="restore" aria-label="Ripristina il suggerimento per queste condizioni" data-tooltip="Ripristina il suggerimento">↺</button></span></div>
-<div id="suggest-weight-slot"><div class="weight" id="shared-weight" data-session-key="peso"><label for="weight">Peso</label><div class="step"><input id="weight" type="text" inputmode="decimal" value="70.0"><button data-weight="-1" aria-label="Diminuisci peso">−</button><button data-weight="1" aria-label="Aumenta peso">+</button></div><span>kg</span></div><div class="status" id="manual-state" aria-live="polite"></div></div>
-<div class="hint" id="origin"></div>
-<div id="error" class="error" role="alert"></div>
-<div id="scenario-result" hidden><p id="scenario-summary" aria-live="polite"></p><div class="scenario-apply"><span id="scenario-error" class="error" role="alert"></span><button id="use-scenarios" class="primary">Usa range</button></div></div>
+<div id="conditions-summary"><strong>Condizioni considerate</strong><div id="scenario-summary" aria-live="polite"></div></div>
+<div id="editable-note" hidden></div><div class="hint" id="origin"></div>
 <div id="detail" hidden></div>
 <details id="source-panel"><summary>Come viene consigliato il FC</summary>
+<p id="scenario-duration-note" hidden>Esposizioni brevi: rilevanza da valutare caso per caso; 30–60 minuti non sono una soglia generale di esclusione.</p>
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><div id="example-list"></div></div>
@@ -135,17 +62,24 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <script type="application/json" id="weight-data">{"columns":["4","6","8","10","20","30","40","50","60","70","80","90","100","110","120","130","140","150"],"index":[0,1,2,3,4,5,6,7,8],"data":[[1.6,1.6,1.6,1.6,1.5,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.3,1.2,1.2,1.2],[2.1,2.1,2.0,2.0,1.9,1.8,1.6,1.6,1.6,1.6,1.6,1.6,1.6,1.4,1.4,1.4,1.3,1.3],[2.7,2.7,2.6,2.5,2.3,2.2,2.1,2.0,1.8,1.8,1.8,1.8,1.6,1.6,1.6,1.5,1.4,1.4],[3.5,3.4,3.3,3.2,2.8,2.6,2.4,2.3,2.0,2.0,2.0,1.8,1.8,1.7,1.6,1.6,1.5,1.5],[4.5,4.3,4.1,3.9,3.4,3.0,2.8,2.6,2.4,2.2,2.1,2.0,1.9,1.8,1.7,1.7,1.6,1.6],[5.7,5.3,5.0,4.8,4.0,3.5,3.2,2.9,2.7,2.4,2.3,2.2,2.1,1.9,1.9,1.8,1.7,1.6],[7.1,6.6,6.2,5.8,4.7,4.0,3.6,3.2,2.9,2.6,2.5,2.3,2.2,2.1,2.0,1.9,1.8,1.7],[8.8,8.1,7.5,7.0,5.5,4.6,3.9,3.5,3.2,2.8,2.7,2.5,2.3,2.2,2.0,1.9,1.8,1.7],[10.9,9.8,8.9,8.3,6.2,5.1,4.3,3.8,3.4,3.0,2.8,2.6,2.4,2.3,2.1,2.0,1.9,1.8]]}</script>
 <script>
 (()=>{
-const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,manualBase=null,manualWeightAdjusted=false,lastWeight=null,selectedBase=null,weightAdjusted=false;
+const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='Asciutto',suggestion=null,result=null,manual=false,applied=null,manualBase=null,manualWeightAdjusted=false,lastWeight=null,selectedBase=null,weightAdjusted=false,rangeExpanded=false,weightValue=NaN,weightDisplay=null;
 const fmt=n=>n.toFixed(2);
 // Quantization is an app output convention, never a change to source values.
 function roundFC(v){return Number((Math.round(v*20+1e-10)/20).toFixed(2));}
 function roundRange(r){return r.map(v=>roundFC(v));}
 function onFCGrid(v){return Math.abs(v*20-Math.round(v*20))<1e-8;}
 function normalizeChoice(){for(const id of ['lo','hi']){const el=q('#'+id),v=num(el);if(Number.isFinite(v))el.value=fmt(roundFC(v));}}
-const num=el=>{const s=el.value.trim().replace(',','.');return /^\d+(\.\d{1,2})?$/.test(s)?Number(s):NaN;};
-const specs=[['thin','Vestiti/teli leggeri',0],['thick','Vestiti/teli pesanti',0],['medium','Coperta spessa',0],['heavy','Piumone/coperta molto pesante',0]];
-function step(id,label,value,delta,group){const wrap=document.createElement('div');wrap.innerHTML='<label for="'+id+'">'+label+'</label><div class="step"><input id="'+id+'" type="text" inputmode="decimal" value="'+value+'"><button data-input="'+id+'" data-step="-'+delta+'" aria-label="Diminuisci '+label+'">−</button><button data-input="'+id+'" data-step="'+delta+'" aria-label="Aumenta '+label+'">+</button></div>';q(group).append(wrap);}
-specs.forEach(([id,l,v])=>step(id,l,v,1,'#counts'));step('lo','Minimo','1.80',.05,'#range-fields');step('hi','Massimo','2.00',.05,'#range-fields');
+function setWeight(value){weightValue=value;weightDisplay=Number.isFinite(value)?value.toFixed(0):'';q('#weight').value=weightDisplay;}
+const num=el=>{if(el.id==='weight'&&el.value===weightDisplay)return weightValue;const s=el.value.trim().replace(',','.');return /^\d+(\.\d{1,2})?$/.test(s)?Number(s):NaN;};
+const specs=[['thin','Leggeri',0],['thick','Pesanti',0],['medium','Spesse',0],['heavy','Molto pesanti / piumoni',0]];
+function step(id,label,value,delta,group){const wrap=document.createElement('div');wrap.id=id+'-control';wrap.className='counter';wrap.innerHTML='<label for="'+id+'">'+label+'</label><div class="step"><input id="'+id+'" type="text" inputmode="decimal" value="'+value+'"><button data-input="'+id+'" data-step="-'+delta+'" aria-label="Diminuisci '+label+'">−</button><button data-input="'+id+'" data-step="'+delta+'" aria-label="Aumenta '+label+'">+</button></div>';q(group).append(wrap);}
+specs.forEach(([id,l,v],i)=>{
+  if(i%2===0){const label=document.createElement('div');label.className='category';label.textContent=i===0?'Vestiti/teli':'Coperte';q('#counts').append(label);}
+  step(id,l,v,1,'#counts');q('#'+id).setAttribute('inputmode','numeric');
+});
+step('lo','FC minimo','1.80',.05,'#range-fields');
+const separator=document.createElement('span');separator.id='range-separator';separator.textContent='–';separator.setAttribute('aria-hidden','true');q('#range-fields').append(separator);
+step('hi','FC massimo','2.00',.05,'#range-fields');
 q('label[for="lo"]').textContent='Min';q('#lo').setAttribute('aria-label','FC minimo');
 q('label[for="hi"]').textContent='Max';q('#hi').setAttribute('aria-label','FC massimo');
 function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:q('#water-near-zero').checked===true,air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
@@ -456,7 +390,7 @@ function showSource(){
   const w=num(q('#weight'));
   const active=result.range&&suggestion&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
   q('#weight-source').hidden=!active;
-  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+w.toFixed(1)+' kg = '+rangeText(suggestion)+').':'';
+  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+w.toFixed(0)+' kg = '+rangeText(suggestion)+').':'';
   if(active&&!result.sources.includes('weight'))sourceLink(citations,SOURCES.weight.short,SOURCES.weight.url);
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
@@ -479,14 +413,20 @@ function update(){
   q('#use').disabled=!!error;
   
   q('#manual-state').textContent=manualWeightAdjusted?'Il FC inserito manualmente è stato adattato al nuovo peso. Se desideri valori diversi, reinseriscili manualmente.':weightAdjusted?'FC adattato per il peso.':'';
-  q('#editable-note').textContent=manual?'(adattato dall’operatore)':'(adattabile dall’operatore)';
+  q('#editable-note').hidden=!manual;
+  q('#editable-note').textContent=manual?'FC impostato manualmente.':'';
   q('#origin').textContent=result.range&&suggestion?'':result.summary;
   q('#restore').disabled=!suggestion&&!manual;
   root.querySelectorAll('[data-input]').forEach(btn=>{
     const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);
-    if(['lo','hi'].includes(el.id))btn.disabled=!Number.isFinite(v)||v<.35||(el.id==='lo'&&Number.isFinite(b)&&v>b)||(el.id==='hi'&&Number.isFinite(a)&&v<a);
+    if(['lo','hi'].includes(el.id))btn.disabled=!Number.isFinite(v)||v<.35||(rangeExpanded&&el.id==='lo'&&Number.isFinite(b)&&v>b)||(el.id==='hi'&&Number.isFinite(a)&&v<a);
     else btn.disabled=!Number.isInteger(v)||v<0||v>20;
   });
+  const expanded=rangeExpanded||(Number.isFinite(a)&&Number.isFinite(b)&&a!==b);
+  q('#choice-row').dataset.range=String(expanded);
+  q('#hi-control').hidden=q('#range-separator').hidden=!expanded;
+  q('#expand-range').hidden=expanded;
+  q('#lo').setAttribute('aria-label',expanded?'FC minimo':'FC');
   showSource();
   window.FCScenarios?.refresh();
 }
@@ -531,9 +471,11 @@ function recalc(){
   manual=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;
   q('#lo').value=suggestion?fmt(suggestion[0]):'';
   q('#hi').value=suggestion?fmt(suggestion[1]):'';
+  rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];
   update();
 }
-function recordManualEdit(){
+function recordManualEdit(id){
+  if(id==='lo'&&!rangeExpanded)q('#hi').value=q('#lo').value;
   manual=true;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;
   const values=[num(q('#lo')),num(q('#hi'))];
   manualBase=values.every(Number.isFinite)&&values[0]>=.35&&values[1]>=values[0]?roundRange(values):null;
@@ -558,7 +500,7 @@ function onWeightChange(){
   if(saved.manual||saved.selectedBase){
     manual=saved.manual;manualBase=saved.manualBase;manualWeightAdjusted=saved.manualWeightAdjusted;selectedBase=saved.selectedBase;
     q('#lo').value=saved.lo;q('#hi').value=saved.hi;
-    adaptSelectedToWeight();update();
+    adaptSelectedToWeight();rangeExpanded=!!saved.rangeExpanded||num(q('#lo'))!==num(q('#hi'));update();
   }
   const previous=[Number(saved.lo),Number(saved.hi)],current=[num(q('#lo')),num(q('#hi'))];
   weightAdjusted=saved.lo!==''&&saved.hi!==''&&previous.every(Number.isFinite)&&current.every(Number.isFinite)&&current.some((v,i)=>v!==previous[i]);
@@ -566,7 +508,8 @@ function onWeightChange(){
 }
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit();}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit();}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)q('#weight').value=v.toFixed(1);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(1):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id))update();}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','water-near-zero','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+q('#expand-range').addEventListener('click',()=>{rangeExpanded=true;update();q('#hi').focus();});
 q('#use').addEventListener('click',()=>{
   normalizeChoice();update();if(q('#use').disabled)return;
   window.FCBridge.send('use');
@@ -581,7 +524,7 @@ window.FCPanel={
   snapshot(){
     return {state, fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:q('#water-near-zero').checked,wetCase:q('#wet-case').checked,
-      lo:q('#lo').value,hi:q('#hi').value,weight:q('#weight').value,manual,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,
+      lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
       sourceOpen:q('#source-panel').open};
   },
   restore(draft,weight){
@@ -591,7 +534,7 @@ window.FCPanel={
       q('#water-near-zero').checked=!!draft.waterNearZero;q('#wet-case').checked=!!draft.wetCase;
       root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
     }
-    q('#weight').value=Number.isFinite(weight)?weight.toFixed(1):'';
+    setWeight(weight);
     recalc();
     if(draft&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight)){
       q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;
@@ -602,6 +545,7 @@ window.FCPanel={
       }
       selectedBase=draft.selectedBase||null;weightAdjusted=!!draft.weightAdjusted;
       if(Number(draft.weight)!==weight)adaptSelectedToWeight();
+      rangeExpanded=draft.rangeExpanded===true||num(q('#lo'))!==num(q('#hi'));
       update();
     }
     if(draft)q('#source-panel').open=!!draft.sourceOpen;
@@ -611,20 +555,7 @@ window.FCPanel={
     // Hidden air/clothing controls must not leak into the recorded conditions.
     if(q('#air-row').hidden)c={...c,air:'still',wind:false};
     if(state==='Immerso')c={state,water:c.water,waterNearZero:c.waterNearZero};
-    const garments=[];
-    for(const [key,label] of [['s','strati leggeri'],['p','strati pesanti'],['m','coperte spesse'],['h','piumoni/coperte molto pesanti']]){
-      if(c[key]>0)garments.push(c[key]+' '+label);
-    }
-    let support=q('#surface').selectedOptions[0].textContent;
-    if(q('#surface').value==='metal')support=q('#metal-type').selectedOptions[0].textContent;
-    if(c.surf===8){
-      support+=' '+q('#leaf').selectedOptions[0].textContent.toLowerCase();
-      if(c.leafCover==='yes')support+=', con copertura di foglie';
-    }
-    if(c.supportSoaked==='yes')support+=' impregnato di liquidi';
-    const description=state==='Immerso'?'corpo immerso in acqua '+c.water:
-      'corpo '+state.toLowerCase()+', '+(garments.length?garments.join(', '):'senza indumenti o coperture')+
-      ', adagiato su '+support.toLowerCase()+(c.wind?', con correnti d’aria':'');
+    const description=window.FCDescriptions.conditions(c,this.snapshot().fields);
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
       base_range:manual?manualBase:selectedBase||result.range,manual_weight_adjusted:manualWeightAdjusted,weight_adjusted:weightAdjusted,
       conditions:c,manual,description,rule:result.id,explanation:result.detail,sources:result.sources};

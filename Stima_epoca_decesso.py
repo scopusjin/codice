@@ -394,7 +394,7 @@ with st.container(border=True, key="full_cooling_card"):
                         with st.container(width="stretch", key="prudent_weight_value_mobile"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                value=sget("peso", 70.0), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                             )
                         with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
@@ -466,7 +466,7 @@ with st.container(border=True, key="full_cooling_card"):
                             _render_desktop_cooling_label("Peso")
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                value=sget("peso", 70.0), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
@@ -565,7 +565,7 @@ with st.container(border=True, key="full_cooling_card"):
                     )
                     st.number_input(
                         i18n.ui_text("full.weight_label"),
-                        value=sget("peso", 70.0), step=1.0, format="%.1f",
+                        value=sget("peso", 70.0), step=1.0, format="%.0f",
                         key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                     )
                     st.number_input(
@@ -606,7 +606,7 @@ with st.container(border=True, key="full_cooling_card"):
                             _render_desktop_cooling_label("Peso")
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.1f",
+                                value=sget("peso", 70.0), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )

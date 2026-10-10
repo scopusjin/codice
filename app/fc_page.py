@@ -84,6 +84,10 @@ def _current_fc_draft(state, home):
         manualWeightAdjusted=bool(matches and choice.get("manual_weight_adjusted")),
         weightAdjusted=bool(matches and choice.get("weight_adjusted", choice.get("manual_weight_adjusted", False))),
     )
+    # A single editor starts from the current home temperature, including a
+    # previously unknown range; an old draft must not replace a newer home value.
+    draft["temperature"] = _scenario_temperature_seed(state)
+    draft["temperatureEdited"] = False
     return draft
 
 

@@ -33,8 +33,9 @@ def summarize_scenarios(scenarios):
         texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
-    text = (f"FC degli scenari considerati: {bounds[0]:.2f} ({descriptions[0]})"
-            f" — {bounds[1]:.2f} ({descriptions[1]})")
+    text = f"FC degli scenari considerati: {bounds[0]:.2f} ({descriptions[0]})"
+    if bounds[0] != bounds[1]:
+        text += f" — {bounds[1]:.2f} ({descriptions[1]})"
     return bounds, text
 
 

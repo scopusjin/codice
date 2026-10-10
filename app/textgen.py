@@ -330,7 +330,7 @@ def paragrafo_raffreddamento_input(
 
     ta_txt = f"{ta_val:.1f}" if ta_val is not None else "—"
     tr_txt = f"{tr_val:.1f}" if tr_val is not None else "—"
-    w_txt  = f"{w_val:.1f}"  if w_val  is not None else "—"
+    w_txt  = f"{w_val:.0f}"  if w_val  is not None else "—"
     t0_txt = f"{t0_val:.1f}" if t0_val is not None else "—"
 
     return i18n.cooling_input_paragraph(

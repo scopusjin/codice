@@ -17,6 +17,17 @@ Origine: prova `fc-scelta-diretta.html`, versione 19.
 
 ## Controlli eseguiti
 
+### Pannello compatto e scenari (10 ottobre 2026)
+
+- Peso in alto a destra, senza decimali; stessa precisione di visualizzazione negli input Full/MSIL e nei riepiloghi del caso. I valori già registrati e i pesi documentari delle fonti non vengono arrotondati nei calcoli.
+- FC complessivo sopra i pulsanti numerati degli scenari; editor FC a due decimali e passi di 0.05 su una riga. Un suggerimento puntuale mostra un solo campo; «Intervallo» apre il secondo, che compare automaticamente per i suggerimenti con estremi diversi.
+- Vestiti/teli e coperte raggruppati. `descriptions.js` produce le descrizioni qualitative condivise da pannello, payload e riepilogo; le descrizioni legacy Python restano compatibili con i dati storici.
+- Temperatura del singolo scenario visibile: una modifica esplicita viene trasferita con «Usa». Senza modifica resta invariata la temperatura/intervallo già presente nella schermata principale. Nei gruppi restano conservate le coppie temperatura–FC, senza ponderazione temporale.
+- Acqua e temperatura condividono la riga quando possibile. «Acqua prossima a 0 °C» resta una scelta esplicita: non è stata concordata una soglia numerica per l'automatismo. Nessuna modifica alle regole scientifiche.
+- L'opzione aria «Non ricostruibile» non è più selezionabile; le bozze precedenti mantengono il valore e il calcolo originari fino alla scelta dell'operatore, mostrando «Da precisare».
+
+Verifica grafica e interazioni del componente a 320, 360, 393, 560 e 1024 px; test dei passaggi valore singolo/intervallo, range delle coperture, cambio scenario, peso, temperatura, ripristino delle bozze e descrizioni finali.
+
 - Suite Python dell’app e test di integrazione Streamlit: passati.
 - 3.369 verifiche del motore e 33.600 configurazioni complete: passate.
 - Messaggi del componente, intervalli manuali, ripristino della bozza, modifica del peso, immersione e navigazione alle tabelle: verificati con un simulatore DOM.

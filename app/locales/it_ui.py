@@ -80,7 +80,7 @@ UI_TEXT = {
     "full.fc_input": "FC",
     "full.suggest_fc": "Consiglia FC",
     "full.fc_suggested": "Fattore di correzione suggerito: {value:.2f}",
-    "full.fc_adjusted_for_weight": "Adattato per {weight:.1f} kg (valore per 70 kg: {base:.2f})",
+    "full.fc_adjusted_for_weight": "Adattato per {weight:.0f} kg (valore per 70 kg: {base:.2f})",
     "full.use_this_factor": "✅ Usa questo fattore",
     "full.add_to_fc_range": "➕ Aggiungi a range FC",
     "full.clothed_covered": "Vestito/coperto?",

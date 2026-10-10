@@ -285,7 +285,7 @@ def build_parentetica_cautelativa(
 ) -> str:
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
-    p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+    p_txt  = _fmt_range(round(p_lo), round(p_hi), "kg")
     return i18n.prudent_parenthetical(
         ta_text=ta_txt,
         cf_text=cf_txt,
@@ -327,10 +327,10 @@ def build_summary_html(
     # Peso
     if peso_stimato:
         p_txt = i18n.prudent_estimated_weight(
-            _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+            _fmt_range(round(p_lo), round(p_hi), "kg")
         )
     else:
-        p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+        p_txt = f"{p_lo:.0f} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo), round(p_hi), "kg")
 
     # Frase risultato (criteri invariati)
     if ore_max >= INF_HOURS - 1e-9:
