@@ -124,6 +124,8 @@ st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="c
 install_minimal_mobile_shell()
 
 from app.fc_page import render_fc_route_if_requested, render_scenarios_button, FULL_PAGE
+from app.case_ui import prepare_case_import, render_case_menu
+prepare_case_import(FULL_PAGE)
 render_fc_route_if_requested(FULL_PAGE)
 
 st.markdown("""
@@ -253,6 +255,8 @@ else:
         st.html(
             f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
         )
+
+case_menu_slot = st.empty()
 
 # --- Definizione Widget (Streamlit) ---
 
@@ -921,6 +925,8 @@ def _inputs_signature():
     ]
 
     return tuple(_freeze(base + extra + caut))
+
+render_case_menu(FULL_PAGE, case_menu_slot)
 
 # --- Firma degli input che influenzano la stima ---
 curr_sig = _inputs_signature()

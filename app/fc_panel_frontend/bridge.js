@@ -11,6 +11,7 @@
   function send(action) {
     if (!initialized || navigating) return;
     clearTimeout(timer);
+    timer = null;
     const payload = window.FCPanel.payload();
     // A pending incomplete input is a draft, never a chosen FC.
     if (action === 'use' && document.getElementById('use').disabled) return;
@@ -37,6 +38,8 @@
     resize();
   });
   for (const name of ['input','change','click']) root.addEventListener(name, schedule);
+  // Flush pending edits before the operator leaves the iframe to save the case.
+  window.addEventListener('blur', () => { if (timer !== null) send('draft'); });
   new ResizeObserver(resize).observe(root);
   post('streamlit:componentReady', {apiVersion:1});
   resize();

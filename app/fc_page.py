@@ -24,7 +24,8 @@ def _form_snapshot():
     # Trigger/component return values must not be replayed when the form returns.
     # Logical fields and native selectors (including their dates) are retained.
     return deepcopy({key: value for key, value in st.session_state.items()
-        if not key.startswith(("__fc_", "mortem_", "btn_", "desktop_caut_fc_"))
+        if not key.startswith(("__fc_", "mortem_", "btn_", "desktop_caut_fc_", "__case_",
+                               "case_upload", "case_download", "case_open", "case_menu"))
         and not key.endswith("_button") and key not in {"back_home", "__next_fc"}})
 
 
@@ -154,6 +155,7 @@ def render_fc_route_if_requested(home=FULL_PAGE):
             open_fc_page(home)
         return
     # A stable component key retains the browser controls across draft reruns.
+    case_menu_slot = st.empty()
     component = components.declare_component("mortem_fc_panel", path=str(_FRONTEND))
     event = component(
         examples=load_examples(),
@@ -166,6 +168,8 @@ def render_fc_route_if_requested(home=FULL_PAGE):
         default=None,
     )
     _consume_event(event)
+    from app.case_ui import render_case_menu
+    render_case_menu(home, case_menu_slot)
     st.stop()
 
 

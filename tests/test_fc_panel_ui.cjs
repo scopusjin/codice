@@ -136,6 +136,8 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend
 const render={source:parent,data:{type:'streamlit:render',args:{instance:'test',weight:70,draft:null,examples:catalog}}};
 events.message(render);events.message(render);assert.equal(restored,1);
 rootEvents.input();callback();assert.equal(messages.at(-1).value.action,'draft');
+rootEvents.input();events.blur();
+assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'draft');
 rootEvents.input();win.FCBridge.send('tables');rootEvents.click();
 assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'tables');
 win.FCBridge.send('use');assert.equal(messages.at(-1).value.action,'tables');

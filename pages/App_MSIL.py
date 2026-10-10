@@ -32,6 +32,8 @@ apply_theme()
 install_minimal_mobile_shell()
 
 from app.fc_page import render_fc_route_if_requested, render_scenarios_button, MSIL_PAGE
+from app.case_ui import prepare_case_import, render_case_menu
+prepare_case_import(MSIL_PAGE)
 render_fc_route_if_requested(MSIL_PAGE)
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
@@ -115,6 +117,8 @@ st.markdown(
     '<div class="mortem-msil-page-title">Stima epoca decesso durante ispezione legale</div>',
     unsafe_allow_html=True,
 )
+
+case_menu_slot = st.empty()
 
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
@@ -503,6 +507,7 @@ if st.session_state.get("run_stima_mobile"):
 
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
+render_case_menu(MSIL_PAGE, case_menu_slot)
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
