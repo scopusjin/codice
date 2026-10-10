@@ -303,6 +303,9 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "isolating": "Isolante",
         "heavy_padding": "Forte imbottitura",
         "mattress": "Materasso, tappeto spesso",
+        "leaves": "Foglie (circa 2 cm, solo appoggio)",
+        "leaves_factors": "1.3 (umide)<br>1.5 (secche)",
+        "leaves_reference": "Althaus et al., 2007 · prove su simulatori con foglie.",
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
         "yes": "Sì",
@@ -323,6 +326,9 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "isolating": "Isolating",
         "heavy_padding": "Heavy padding",
         "mattress": "Mattress, thick carpet",
+        "leaves": "Leaves (about 2 cm, underneath only)",
+        "leaves_factors": "1.3 (partly dry)<br>1.5 (dry)",
+        "leaves_reference": "Althaus et al., 2007 · cooling experiments using dummies and leaves.",
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
         "yes": "Yes",
@@ -594,6 +600,9 @@ def _render_henssge_special_table(language: str) -> None:
               </tr>
               <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
               <tr>
+                <td>{text['leaves']}</td><td>{text['no']}</td><td>{text['leaves_factors']}</td>
+              </tr>
+              <tr>
                 <td rowspan="3"><strong>{text['conducting']}</strong><br>{text['concrete']}</td>
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
@@ -606,6 +615,7 @@ def _render_henssge_special_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(f"{text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
+    st.caption(f"{text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
 
 
 def _render_henssge_weight_table(language: str) -> None:
