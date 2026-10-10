@@ -11,6 +11,7 @@ import streamlit.components.v1 as components
 from app.fc_catalog import load_examples
 from app.fc_selection import apply_choice, sync_fc_weight, validate_choice
 from app.fc_scenarios import scenario_draft
+from app.cooling_inputs import finite_number
 
 TABLES_PAGE = "pages/2_Tabelle di riferimento.py"
 FULL_PAGE = "Stima_epoca_decesso.py"
@@ -33,15 +34,27 @@ def _close_flags(values):
     values.pop("__full_fc_suggest_target", None)
 
 
-def open_fc_page(home=FULL_PAGE):
-    if st.session_state.get("__full_fc_suggest_target") == "edit":
+def open_fc_page(home=FULL_PAGE, *, multiple=False):
+    if multiple or st.session_state.get("__full_fc_suggest_target") == "edit":
         st.session_state["__fc_draft"] = _current_fc_draft(st.session_state, home)
+    if multiple:
+        draft = st.session_state["__fc_draft"]
+        if not draft.get("multiple"):
+            draft = {**draft, "multiple": True, "activeScenario": 1,
+                     "scenarios": [deepcopy(draft), deepcopy(draft)]}
+        st.session_state["__fc_draft"] = draft
     st.session_state["__fc_form"] = _form_snapshot()
     st.session_state["__fc_home"] = home
     st.session_state["__fc_active"] = True
     st.session_state["__fc_instance"] = uuid4().hex
     st.session_state.pop("__fc_last_event", None)
     st.rerun()
+
+
+def render_scenarios_button(home=FULL_PAGE):
+    if st.button("Più scenari", key="btn_fc_scenarios",
+                 help="Confronta condizioni e temperature di più scenari."):
+        open_fc_page(home, multiple=True)
 
 
 def _current_fc_draft(state, home):
@@ -141,6 +154,7 @@ def render_fc_route_if_requested(home=FULL_PAGE):
     event = component(
         examples=load_examples(),
         weight=st.session_state.get("peso"),
+        temperature=_scenario_temperature_seed(st.session_state),
         draft=st.session_state.get("__fc_draft"),
         instance=st.session_state["__fc_instance"],
         theme_base=st.get_option("theme.base") or "light",
@@ -149,4 +163,11 @@ def render_fc_route_if_requested(home=FULL_PAGE):
     )
     _consume_event(event)
     st.stop()
+
+
+def _scenario_temperature_seed(state):
+    value = state.get("ta_base_val")
+    if state.get("stima_cautelativa_beta") and state.get("ta_other_val", value) != value:
+        return None  # Do not choose one end of a previous interval for the operator.
+    return float(value) if finite_number(value) else None
 

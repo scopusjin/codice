@@ -31,7 +31,7 @@
     if (!initialized || instance !== args.instance) {
       instance = args.instance;
       window.FCPanel.setExamples(args.examples);
-      window.FCPanel.restore(args.draft, typeof args.weight === 'number' ? args.weight : NaN);
+      window.FCPanel.restore(args.draft, typeof args.weight === 'number' ? args.weight : NaN, args.temperature);
       initialized = true; navigating = false;
     }
     resize();

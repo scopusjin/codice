@@ -20,7 +20,7 @@ from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
 from app.parameters import INF_HOURS
 from app.cooling_inputs import checked_interval, checked_weight, finite_number
-from app.fc_scenarios import matching_scenario_description
+from app.fc_scenarios import matching_scenario_description, matching_temperature_scenarios
 
 
 def _is_num(x):
@@ -139,6 +139,7 @@ def compute_cooling_state(
 
     validation_error = None
     Ta_range = CF_range = None
+    temperature_scenarios = None
     requested = any(v is not None for v in (Tr_val, Ta_val, T0_val, W_val))
     try:
         if requested:
@@ -151,6 +152,8 @@ def compute_cooling_state(
                 CF_range = checked_interval(
                     (options.get("FC_min_beta"), options.get("FC_max_beta")),
                     "FC", positive=True)
+                temperature_scenarios = matching_temperature_scenarios(
+                    options, CF_range, W_val, Ta_range)
                 # Canonical values also keep downstream warnings and Potente
                 # independent of the order of the two input fields.
                 Ta_val = Ta_range[0]
@@ -213,6 +216,8 @@ def compute_cooling_state(
                     "T0": float(T0_val),
                     "round_minutes": int(options.get("henssge_round_minutes", 30)),
                 },
+                **({"temperature_scenarios": temperature_scenarios}
+                   if temperature_scenarios is not None else {}),
             )
 
             # --- mappa output cautelativa ---

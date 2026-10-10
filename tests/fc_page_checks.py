@@ -10,6 +10,33 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FCPageTests(unittest.TestCase):
+    def test_home_scenario_button_temperature_application_and_blue_note(self):
+        from test_fc_scenarios import temperature_payload
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil=msil)
+                app.session_state["rt_val"] = 30.
+                app.session_state["tm_val"] = 37.2
+                app.button(key="btn_fc_scenarios").click().run()
+                self.assertEqual(list(app.exception), [])
+                self.assertTrue(app.session_state["__fc_draft"]["multiple"])
+                self.assertEqual(len(app.session_state["__fc_draft"]["scenarios"]), 2)
+                self.event(app, "use", **temperature_payload())
+                self.assertEqual((app.session_state["Ta_min_beta"], app.session_state["Ta_max_beta"]), (8., 20.))
+                app.button(key="btn_fc_scenarios").click().run()
+                draft = app.session_state["__fc_draft"]
+                self.assertEqual([s["temperature"] for s in draft["scenarios"]], ["20.0", "8.0"])
+                self.event(app, "back", weight=100.)
+                self.assertEqual(list(app.exception), [])
+                self.assertEqual(app.session_state["__fc_applied_choice"]["range"], [1.3, 1.35])
+                self.assertEqual((app.session_state["Ta_min_beta"], app.session_state["Ta_max_beta"]), (8., 20.))
+                if not msil:
+                    app.button(key="btn_stima").click().run()
+                    self.assertEqual(list(app.exception), [])
+                    text = app.session_state["__desc_dettagliate_html"]
+                    self.assertIn("color:blue;font-size:small;'>FC impostato manualmente negli scenari 1, 2.", text)
+                    self.assertIn("acqua 8 °C", text)
+
     def test_desktop_relocated_conditions_toggle_updates_mode_in_same_run(self):
         app = self.start(False)
         for enabled in (True, False, True):

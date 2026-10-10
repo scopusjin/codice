@@ -9,4 +9,11 @@
 #fc-full #scenario-error{font-size:12px}
 #fc-full #use-scenarios{flex:0 0 auto;min-height:34px;background:#0876a5;color:#fff;border-color:#0876a5}
 #fc-full #scenario-controls .intro{margin:3px 0 5px}
+#fc-full .wide,#fc-full .conditional{margin:2px 0}
+#fc-full .wide select,#fc-full .conditional select{min-height:32px;padding:4px 6px;font-size:13px}
+#fc-full #scenario-duration-note{font-size:11px;line-height:1.3;margin:4px 0;color:var(--fc-muted)}
+#fc-full #scenario-temperature-row{display:flex;align-items:center;gap:6px;margin:3px 0 5px;font-size:13px}
+#fc-full #scenario-temperature{width:72px;background:var(--fc-soft);border-radius:6px;text-align:right}
+#fc-full #scenario-temperature-row[hidden]{display:none}
 @media(pointer:coarse){#fc-full .scenario-toggle,#fc-full #use-scenarios{min-height:44px}#fc-full #remove-scenario{min-width:44px}#fc-full .scenario-tools select{font-size:16px}}
+@media(pointer:coarse){#fc-full .wide select,#fc-full .conditional select{min-height:44px;font-size:16px}}

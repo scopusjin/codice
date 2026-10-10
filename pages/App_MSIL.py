@@ -12,6 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import finite_number
+from app.fc_scenarios import scenario_temperature_bounds
 from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 from app.msil_tanatology import (
     MSIL_LIVOR_STATE_BY_LABEL,
@@ -30,7 +31,7 @@ st.set_page_config(
 apply_theme()
 install_minimal_mobile_shell()
 
-from app.fc_page import render_fc_route_if_requested, MSIL_PAGE
+from app.fc_page import render_fc_route_if_requested, render_scenarios_button, MSIL_PAGE
 render_fc_route_if_requested(MSIL_PAGE)
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
@@ -382,6 +383,8 @@ if st.session_state.get("__msil_fc_chosen_range"):
     lo_fc, hi_fc = st.session_state["__msil_fc_chosen_range"]
     st.caption(f"FC scelto: {lo_fc:.2f} – {hi_fc:.2f}")
 
+render_scenarios_button(MSIL_PAGE)
+
 # ------------------------------------------------------------
 # 3) Pulsante finale
 # ------------------------------------------------------------
@@ -416,7 +419,10 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
 ta_center = st.session_state.get("ta_base_val")
 fc_center = st.session_state.get("fattore_correzione", 1.0)
 
-if ta_center is not None:
+scenario_temperatures = scenario_temperature_bounds(st.session_state.get("__fc_applied_choice") or {})
+if scenario_temperatures is not None and ta_center == scenario_temperatures[0]:
+    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = scenario_temperatures
+elif ta_center is not None:
     try:
         ta_center = float(ta_center)
         st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
@@ -491,6 +497,7 @@ if st.session_state.get("run_stima_mobile"):
             "FC_min_beta": st.session_state.get("FC_min_beta"),
             "FC_max_beta": st.session_state.get("FC_max_beta"),
             "henssge_round_minutes": st.session_state.get("henssge_round_minutes", 30),
+            "__fc_applied_choice": st.session_state.get("__fc_applied_choice"),
         },
     )
 

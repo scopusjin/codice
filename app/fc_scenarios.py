@@ -3,6 +3,26 @@
 from copy import deepcopy
 
 from app.fc_weight import adapt_fc_range
+from app.cooling_inputs import finite_number
+
+
+def scenario_conditions(item):
+    # Also clean descriptions saved before manual provenance moved to the notes.
+    text = item["description"].replace(", FC impostato manualmente", "")
+    if finite_number(item.get("temperature")):
+        medium = "acqua" if item.get("conditions", {}).get("state") == "Immerso" else "ambiente"
+        text += f", {medium} {float(item['temperature']):g} °C"
+    return text
+
+
+def scenario_temperature_bounds(choice):
+    scenarios = choice.get("scenarios") or []
+    if not scenarios or not any("temperature" in item for item in scenarios):
+        return None  # Previously saved FC-only scenarios keep their former behavior.
+    if not all(finite_number(item.get("temperature")) for item in scenarios):
+        raise ValueError("Specificare la temperatura di ogni scenario.")
+    values = [float(item["temperature"]) for item in scenarios]
+    return min(values), max(values)
 
 
 def summarize_scenarios(scenarios):
@@ -10,7 +30,7 @@ def summarize_scenarios(scenarios):
               max(item["range"][1] for item in scenarios)]
     descriptions = []
     for index, value in enumerate(bounds):
-        texts = dict.fromkeys(item["description"] for item in scenarios
+        texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
     text = (f"FC degli scenari considerati: {bounds[0]:.2f} [{descriptions[0]}]"
@@ -65,3 +85,30 @@ def matching_scenario_description(state, bounds, weight):
             or choice.get("weight") != weight):
         return None
     return summarize_scenarios(choice["scenarios"])[1]
+
+
+def matching_temperature_scenarios(state, bounds, weight, temperatures):
+    """Reject stale temperatures instead of silently crossing unrelated inputs."""
+    if matching_scenario_description(state, bounds, weight) is None:
+        return None
+    choice = state["__fc_applied_choice"]
+    expected = scenario_temperature_bounds(choice)
+    if expected is None:
+        return None
+    if tuple(temperatures) != expected:
+        raise ValueError("Temperature modificate: aggiornare le temperature nel pannello Più scenari.")
+    return [(float(item["temperature"]), item["range"]) for item in choice["scenarios"]]
+
+
+def manual_fc_note(state, bounds, weight):
+    choice = state.get("__fc_applied_choice") or {}
+    if choice.get("range") != list(bounds) or choice.get("weight") != weight:
+        return None
+    if choice.get("scenarios"):
+        indices = [str(i) for i, item in enumerate(choice["scenarios"], 1) if item.get("manual")]
+        if indices:
+            label = "nello scenario " if len(indices) == 1 else "negli scenari "
+            return "FC impostato manualmente " + label + ", ".join(indices) + "."
+    elif choice.get("manual"):
+        return "FC impostato manualmente dall’operatore."
+    return None

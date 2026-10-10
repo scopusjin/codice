@@ -4,7 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from math import isfinite
 
 from app.fc_weight import adapt_fc_range
-from app.fc_scenarios import adapt_scenarios, summarize_scenarios
+from app.fc_scenarios import adapt_scenarios, summarize_scenarios, scenario_temperature_bounds
 
 
 def rounded_fc(value):
@@ -42,6 +42,7 @@ def validate_choice(payload):
                 raise ValueError("Gli scenari devono usare lo stesso peso.")
         if summarize_scenarios(scenarios)[0] != [lo, hi]:
             raise ValueError("Il range deve comprendere tutti gli scenari.")
+        scenario_temperature_bounds(payload)
     return round(lo, 2), round(hi, 2), weight
 
 
@@ -78,6 +79,14 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     state["stima_cautelativa_beta"] = interval
     state["range_unico_beta"] = interval
     state["__prudent_explicit_ranges_initialized"] = True
+    temperatures = scenario_temperature_bounds(payload)
+    if temperatures is not None and sync_weight:
+        for key in ("ta_base_val", "Ta_min_beta"):
+            state[key] = temperatures[0]
+        for key in ("ta_other_val", "Ta_max_beta"):
+            state[key] = temperatures[1]
+        state["ta_base_val_widget"] = temperatures[0]
+        state["ta_base_val_str"] = f"{temperatures[0]:.1f}"
     if interval:
         state["__full_interval_ta_base_val"] = state.get("ta_base_val", 20.0)
         state["__full_interval_ta_other_val"] = state.get("ta_other_val", state.get("ta_base_val", 20.0))

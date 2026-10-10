@@ -4,7 +4,8 @@ import unittest
 from app import i18n
 from app.fc_page import _current_fc_draft, FULL_PAGE, MSIL_PAGE
 from app.fc_selection import apply_choice, refresh_fc_for_weight, fc_weight_warning, validate_choice
-from app.fc_scenarios import matching_scenario_description, summarize_scenarios
+from app.fc_scenarios import (matching_scenario_description, summarize_scenarios,
+                             matching_temperature_scenarios, manual_fc_note)
 
 
 def scenario_payload():
@@ -23,7 +24,80 @@ def scenario_payload():
             "draft": {"multiple": True, "activeScenario": 1}}
 
 
+def temperature_payload():
+    payload = scenario_payload()
+    for item, temperature in zip(payload["scenarios"], (20., 8.)):
+        item["temperature"] = temperature
+        item["draft"]["temperature"] = str(temperature)
+    payload["scenarios"][1]["conditions"] = {"state": "Immerso"}
+    return payload
+
+
 class FCScenarioTests(unittest.TestCase):
+    def test_temperatures_transfer_and_preserve_pairing_after_weight_change(self):
+        state = {}
+        apply_choice(state, temperature_payload())
+        self.assertEqual((state["Ta_min_beta"], state["Ta_max_beta"]), (8., 20.))
+        self.assertEqual((state["ta_base_val"], state["ta_other_val"]), (8., 20.))
+        self.assertIn("acqua 8 °C", state["__fc_applied_choice"]["description"])
+        self.assertEqual(matching_temperature_scenarios(state, [1.35, 1.4], 70., (8., 20.)),
+                         [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
+        state["peso"] = 100.
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(matching_temperature_scenarios(state, [1.3, 1.35], 100., (8., 20.)),
+                         [(20., [1.35, 1.35]), (8., [1.3, 1.3])])
+        state["ta_base_val"] = 6.  # Weight changes must not overwrite a home edit.
+        state["peso"] = 70.
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(state["ta_base_val"], 6.)
+
+    def test_incomplete_temperature_group_is_rejected_without_partial_updates(self):
+        for bad in (None, float("nan"), float("inf"), ""):
+            payload = temperature_payload()
+            payload["scenarios"][1]["temperature"] = bad
+            state = {"peso": 70.}
+            with self.assertRaises(ValueError):
+                apply_choice(state, payload)
+            self.assertEqual(state, {"peso": 70.})
+        payload = temperature_payload()
+        del payload["scenarios"][1]["temperature"]
+        with self.assertRaises(ValueError):
+            validate_choice(payload)
+
+    def test_manual_provenance_moves_out_of_condition_summary(self):
+        payload = temperature_payload()
+        payload["scenarios"][0]["description"] += ", FC impostato manualmente"
+        state = {}
+        apply_choice(state, payload)
+        self.assertNotIn("manualmente", state["__fc_applied_choice"]["description"])
+        self.assertEqual(manual_fc_note(state, payload["range"], 70.),
+                         "FC impostato manualmente negli scenari 1, 2.")
+        self.assertIsNone(manual_fc_note(state, [1., 1.], 70.))
+
+    def test_cooling_uses_only_paired_temperatures_and_blocks_stale_home_values(self):
+        import datetime
+        from unittest.mock import patch
+        from app.graphing_cooling import compute_cooling_state
+        from app.cautelativa import compute_raffreddamento_cautelativo
+        state = {}
+        apply_choice(state, temperature_payload())
+        args = dict(input_rt=30., input_ta=8., input_tm=37.2, input_w=70.,
+                    fattore_correzione=1.35, data_ora_ispezione=datetime.datetime(2026, 10, 10, 9),
+                    skip_warnings=False, cooling_options=state)
+        with patch('app.graphing_cooling.compute_raffreddamento_cautelativo',
+                   wraps=compute_raffreddamento_cautelativo) as solver:
+            cooling = compute_cooling_state(**args)
+            self.assertTrue(cooling.raffreddamento_calcolabile)
+            self.assertEqual(solver.call_args.kwargs["temperature_scenarios"],
+                             [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
+            self.assertEqual(sum(dict(cooling.qd_status_counts).values()), 2)
+            state["Ta_min_beta"] = 9.
+            solver.reset_mock()
+            cooling = compute_cooling_state(**args)
+            solver.assert_not_called()
+            self.assertFalse(cooling.raffreddamento_calcolabile)
+            self.assertIn("Temperature modificate", cooling.validation_error)
+
     def test_exact_extremes_and_conditions(self):
         payload = scenario_payload()
         state = {}

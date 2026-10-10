@@ -5,6 +5,7 @@ import textwrap
 from typing import Dict, List, Any
 from numbers import Real
 from app.theme import warn_box
+from app.fc_scenarios import manual_fc_note
 from app.theme import frase_breve_box
 import numpy as np
 import streamlit as st
@@ -860,6 +861,12 @@ def aggiorna_grafico(
         small_html = frase_riepilogo_parametri_usati(nomi_finali)
         if small_html:
             chunks.append(_wrap_final(small_html))
+
+    if raffreddamento_calcolabile:
+        note_bounds = ([options.get("FC_min_beta"), options.get("FC_max_beta")]
+                       if condizioni_variabili else [CF_val, CF_val])
+        if fc_note := manual_fc_note(options, note_bounds, W_val):
+            chunks.append(_wrap_final("<p style='color:blue;font-size:small;'>" + fc_note + "</p>"))
 
     # 4) frase blu Qd sempre in fondo alle descrizioni dettagliate.
     if frase_qd_html:

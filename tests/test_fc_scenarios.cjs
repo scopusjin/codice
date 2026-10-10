@@ -7,7 +7,7 @@ const choose=i=>change('scenario-select',String(i));
 const toggle=value=>{nodes['multiple-scenarios'].checked=value;nodes['multiple-scenarios'].events.change();};
 const manual=(lo,hi)=>{change('lo',String(lo),'input');change('hi',String(hi),'input');};
 const weight=value=>change('weight',String(value),'input');
-const start={state:'Asciutto',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',
+const start={state:'Asciutto',temperature:'20',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',
   'metal-type':'',leaf:'','leaf-cover':'',feather:'',air:'still',water:'stagnante',isolation:'',
   'blanket-volume':'','support-soaked':'unknown'}};
 nodes.surface.selectedOptions=[{textContent:'Piano neutro'}];
@@ -61,3 +61,26 @@ assert.match(panel.payload().description,/corpo asciutto.* \/ corpo bagnato/);
 nodes['add-scenario'].click();
 assert.equal((panel.payload().description.match(/corpo bagnato/g)||[]).length,2);
 console.log('FC scenarios: independent conditions, aggregate bounds, manual bases, weights, drafts, incomplete inputs and ties passed.');
+
+// Temperatures are individual, accept negatives, and survive draft/weight changes.
+choose(0);change('scenario-temperature','-2,5','input');
+change('surface','wood');
+assert.equal(panel.payload().scenarios[0].temperature,-2.5);
+assert.equal(panel.payload().scenarios[0].conditions.surf,0);
+assert.match(panel.payload().scenarios[0].description,/su piano di legno/);
+choose(1);state('Immerso');change('scenario-temperature','8','input');
+assert.equal(nodes['scenario-temperature-label'].textContent,'Temperatura dell’acqua');
+assert.doesNotMatch(panel.payload().description,/manuale/);
+assert.match(panel.payload().description,/acqua 8 °C/);
+weight(90);panel.restore(plain(panel.snapshot()),90,30);
+choose(0);assert.equal(nodes['scenario-temperature'].value,'-2,5');
+change('scenario-temperature','','input');choose(1);
+assert.equal(nodes['use-scenarios'].disabled,true);
+choose(0);change('scenario-temperature','0','input');
+assert.equal(nodes['use-scenarios'].disabled,false);
+// The current home temperature seeds new scenarios; unknown temperatures stay blank.
+panel.restore({...start,temperature:undefined},70,19.5);toggle(true);
+assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[19.5,19.5]);
+panel.restore({...start,temperature:undefined},70,null);toggle(true);
+assert.equal(nodes['use-scenarios'].disabled,true);
+console.log('FC temperatures: paired values, negative/zero/missing input, water label, restoration and neutral wood passed.');

@@ -142,11 +142,13 @@ def compute_raffreddamento_cautelativo(
     solver_kwargs: Optional[Dict[str, Any]] = None,
     # Opzioni
     mostra_tabella: bool = True,
+    temperature_scenarios: Optional[List[Tuple[float, Tuple[float, float]]]] = None,
 ) -> CautelativaResult:
     """
     Esegue il prodotto cartesiano delle combinazioni (Ta, CF, peso) e aggrega il range.
     Se Ta_range/CF_range non sono specificati, usa ±1 °C e ±0.1.
     Se peso_stimato=True, usa ±3 kg. Altrimenti peso fisso.
+    Con temperature_scenarios valuta solo i FC associati a ciascuna temperatura.
     """
     solver_kwargs = solver_kwargs or {}
 
@@ -169,6 +171,21 @@ def compute_raffreddamento_cautelativo(
     Ta_vals = _discretize(Ta_lo, Ta_hi, Ta_step, max_points_per_dim)
     CF_vals = _discretize(CF_lo, CF_hi, CF_step, max_points_per_dim)
     P_vals = _discretize(p_lo, p_hi, peso_step, max_points_per_dim)
+    pairs = list(itertools.product(Ta_vals, CF_vals))
+    if temperature_scenarios is not None:
+        if not temperature_scenarios:
+            raise ValueError("Specificare almeno uno scenario completo.")
+        pairs = []
+        for temperature, bounds in temperature_scenarios:
+            if not finite_number(temperature):
+                raise ValueError("Specificare la temperatura di ogni scenario.")
+            temperature = float(temperature)
+            lo, hi = checked_interval(bounds, "FC dello scenario", positive=True)
+            if not (Ta_lo <= temperature <= Ta_hi and CF_lo <= lo <= hi <= CF_hi):
+                raise ValueError("Scenario non coerente con gli intervalli selezionati.")
+            pairs.extend((temperature, cf) for cf in
+                         _discretize(lo, hi, CF_step, max_points_per_dim))
+        pairs = list(dict.fromkeys(pairs))
 
     # 3) Itera combinazioni
     recs: List[Dict[str, Any]] = []
@@ -178,7 +195,7 @@ def compute_raffreddamento_cautelativo(
     ore_maxs_henssge: List[float] = []
     qds: List[float] = []
 
-    for Ta, CF, P in itertools.product(Ta_vals, CF_vals, P_vals):
+    for (Ta, CF), P in itertools.product(pairs, P_vals):
         ore_min, ore_max, qd = solver(Ta=Ta, CF=CF, peso_kg=P, **solver_kwargs)
 
         # Normalizzazione
@@ -253,7 +270,7 @@ def compute_raffreddamento_cautelativo(
         dt_max=dt_max if math.isfinite(agg_max) else None,
         qd_min=qd_min,
         qd_max=qd_max,
-        n_combinazioni=len(recs) if recs else (len(Ta_vals)*len(CF_vals)*len(P_vals)),
+        n_combinazioni=len(pairs) * len(P_vals),
         df_combinazioni=df,
         summary_html=summary,
         parentetica=paren,

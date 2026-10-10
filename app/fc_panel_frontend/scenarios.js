@@ -4,6 +4,18 @@
   const single = {...window.FCPanel}, q = id => document.getElementById(id);
   const copy = value => JSON.parse(JSON.stringify(value));
   let enabled = false, items = [], active = 0, paused = false, weightAdjusted = false;
+  let defaultTemperature = '';
+
+  function restoreTemperature(draft) {
+    q('scenario-temperature').value = draft?.temperature ?? defaultTemperature;
+  }
+  function editorSnapshot() {
+    return {...single.snapshot(), temperature:q('scenario-temperature').value};
+  }
+  function withTemperature(item) {
+    const medium = item.conditions.state === 'Immerso' ? 'acqua' : 'ambiente';
+    return item.description + ', ' + medium + ' ' + item.temperature + ' °C';
+  }
 
   function describe(item) {
     const c = item.conditions, fields = item.draft.fields;
@@ -24,7 +36,7 @@
     }
     parts.push(({still:'aria ferma',continuous:'aria in movimento continuo',
       intermittent:'aria in movimento intermittente',unknown:'movimento dell’aria non ricostruibile'})[fields.air] || '');
-    const surfaces = {0:'pavimento interno / piano in legno',1:'asfalto / terreno / prato',
+    const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento interno',1:'asfalto / terreno / prato',
       2:'materasso / tappeto spesso',3:'supporto molto imbottito e avvolgente',4:'cemento / pietra',
       5:'pavimento molto freddo',6:'piano metallico sottile o leggero',7:'piano metallico molto spesso',
       8:'foglie ' + ({dry:'secche',humid:'umide',wet:'bagnate'}[c.leaf] || ''),10:'pavimento in PVC'};
@@ -32,25 +44,30 @@
     if (c.surf === 8 && c.leafCover === 'yes') parts.push('con copertura di foglie');
     if (c.state === 'Bagnato' && [2,3].includes(c.surf) && c.supportSoaked === 'yes') parts.push('appoggio impregnato di liquidi');
     if (c.state === 'Bagnato' && c.surf === 1 && c.air === 'continuous' && c.wetCase && c.s+c.p === 2 && !c.m && !c.h) parts.push('pantaloni e slip fradici, pioggia');
-    if (item.manual) parts.push('FC impostato manualmente');
     return parts.filter(Boolean).join(', ');
   }
   function capture() {
     const item = single.payload.call(single);
+    item.draft = editorSnapshot();
+    const raw = q('scenario-temperature').value.trim().replace(',','.');
+    item.temperature = /^-?\d+(\.\d{1,2})?$/.test(raw) ? Number(raw) : null;
     item.error = q('error').textContent;
+    if (item.temperature === null || !Number.isFinite(item.temperature)) item.error ||= 'Specificare la temperatura.';
     item.description = describe(item);
     return item;
   }
   function combined() {
     if (!items.length || items.some(item => item.error || !item.range.every(Number.isFinite))) return null;
     const range = [Math.min(...items.map(item => item.range[0])), Math.max(...items.map(item => item.range[1]))];
-    const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(item => item.description))].join(' / ');
+    const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(withTemperature))].join(' / ');
     return {range, description:'FC degli scenari considerati: ' + range[0].toFixed(2) +
       ' [' + conditions(0) + '] — ' + range[1].toFixed(2) + ' [' + conditions(1) + ']'};
   }
   function render() {
     q('multiple-scenarios').checked = enabled;
     q('scenario-controls').hidden = q('scenario-result').hidden = !enabled;
+    q('scenario-temperature-row').hidden = !enabled;
+    q('scenario-temperature-label').textContent = single.snapshot().state === 'Immerso' ? 'Temperatura dell’acqua' : 'Temperatura ambientale';
     q('use').hidden = enabled;
     q('fc-heading').textContent = enabled ? 'FC scenario ' + (active+1) : 'FC';
     if (!enabled) return;
@@ -77,7 +94,7 @@
   }
   function load(index, weight) {
     paused = true;
-    try { single.restore(items[index].draft, weight); items[index] = capture(); }
+    try { restoreTemperature(items[index].draft); single.restore(items[index].draft, weight); items[index] = capture(); }
     finally { paused = false; }
   }
   function normalizeAll(weight) {
@@ -94,10 +111,12 @@
   }};
   window.FCPanel = {...single,
     snapshot() {
-      return {...single.snapshot(), multiple:enabled, activeScenario:active,
+      return {...editorSnapshot(), multiple:enabled, activeScenario:active,
         scenarios:items.map(item=>copy(item.draft)), scenarioWeightAdjusted:weightAdjusted};
     },
-    restore(draft, weight) {
+    restore(draft, weight, temperature) {
+      if (temperature !== undefined) defaultTemperature = Number.isFinite(temperature) ? String(temperature) : '';
+      restoreTemperature(draft);
       paused = true; enabled = !!draft?.multiple;
       try { single.restore(draft,weight); } finally { paused = false; }
       items = Array.isArray(draft?.scenarios) ? draft.scenarios.map(d=>({draft:copy(d)})) : [];
@@ -137,5 +156,6 @@
     items.splice(active,1); active = Math.min(active,items.length-1); load(active,items[active].weight); render();
   });
   q('use-scenarios').addEventListener('click',()=>q('use').click());
+  q('scenario-temperature').addEventListener('input',refresh);
   render();
 })();
