@@ -24,11 +24,6 @@ UI_TEXT = {
     # UI completa — raffreddamento / fattore di correzione
     "full.cooling_heading": "Raffreddamento cadaverico",
     "full.prudent_toggle": "Condizioni variabili?",
-    "full.scenarios_help": (
-        "Usa Più scenari per confrontare condizioni e temperature diverse. "
-        "Ogni scenario associa la propria temperatura al proprio FC; non viene pesato per la durata. "
-        "Per modificare il FC, tocca il suo valore e usa il pannello."
-    ),
     "full.henssge_not_applicable": "Henssge non applicabile",
     "full.henssge_not_applicable_help": (
         "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"

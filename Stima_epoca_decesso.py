@@ -22,7 +22,7 @@ from app.special_tanatology_states import (
 from app.native_time_picker import EMPTY_TIME_SENTINEL, native_time_picker
 from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
-from app.full_mobile_layout import _render_click_help, render_conditions_help
+from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
@@ -44,6 +44,17 @@ def _is_num(x):
         return x is not None and float(x) == float(x)
     except Exception:
         return False
+
+
+def _render_conditions_help():
+    # Keep the page's CSS marker without binding the mode to a widget.
+    with st.container(width="content", key="stima_cautelativa_beta"):
+        _render_click_help(
+            "Usa Più scenari per confrontare condizioni e temperature diverse. "
+            "Ogni scenario associa la propria temperatura al proprio FC; non viene pesato per la durata. "
+            "Per modificare il FC, tocca il suo valore e usa il pannello.",
+            "mortem_help_prudent",
+        )
 
 
 def _sync_interval_state(first_key, second_key, min_key, max_key):
@@ -325,7 +336,7 @@ with st.container(border=True, key="full_cooling_card"):
             )
 
     if full_mobile or henssge_non_app:
-        render_conditions_help()
+        _render_conditions_help()
     # The FC panel activates intervals when a range or multiple scenarios is applied.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
     # Detach the former widget value from Streamlit's widget cleanup on deployment.
@@ -490,7 +501,7 @@ with st.container(border=True, key="full_cooling_card"):
                             )
 
                     with _ta_right:
-                        render_conditions_help()
+                        _render_conditions_help()
 
                     _sync_interval_state(
                         "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
@@ -617,7 +628,7 @@ with st.container(border=True, key="full_cooling_card"):
                             )
 
                     with _ta_right:
-                        render_conditions_help()
+                        _render_conditions_help()
 
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_input_col, _fc_spacer = st.columns(

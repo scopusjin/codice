@@ -18,12 +18,6 @@ from app.locales.it_ui import ui_text
 _PRUDENT_HELP_TEXT = re.sub(r"<[^>]+>", "", ui_text("full.prudent_default_note")).strip()
 
 
-def render_conditions_help():
-    """Keep the page's CSS marker while replacing the old mode toggle."""
-    with st.container(width="content", key="stima_cautelativa_beta"):
-        _render_click_help(ui_text("full.scenarios_help"), "mortem_help_prudent")
-
-
 _FULL_MOBILE_CSS = r"""
 <style>
 body:has([class*="st-key-stima_cautelativa_beta"])
