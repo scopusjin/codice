@@ -241,10 +241,10 @@ _COMBINED_TABLE_TEXT = {
 
 _HENSSGE_BASE_TABLE_TEXT = {
     "it": {
-        "caption": "Fattori di correzione empirici del peso corporeo",
+        "caption": "FC empirico del peso corporeo",
         "dry": "Vestiti/teli e coperte asciutti",
         "in_air": "Correnti d’aria",
-        "factor": "Fattore di correzione",
+        "factor": "FC",
         "wet": "Vestiti/teli e coperte bagnati o corpo bagnato",
         "in_water": "In acqua",
         "naked": "Nudo",
@@ -253,13 +253,13 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "flowing": "Corrente",
         "water_still": "Ferma",
         "thin_1_2": "1–2 strati leggeri",
-        "thicker_2_plus": "2 o più strati pesanti",
-        "more_than_2_thicker": "Più di 2 strati pesanti",
-        "thicker_2": "2 strati pesanti",
+        "thicker_2_plus": "2 o più strati spessi",
+        "more_than_2_thicker": "Più di 2 strati spessi",
+        "thicker_2": "2 strati spessi",
         "thin_2_3": "2–3 strati leggeri",
-        "thicker_1_2": "1–2 strati pesanti",
+        "thicker_1_2": "1–2 strati spessi",
         "thin_3_4": "3–4 strati leggeri",
-        "more_layers": "Più strati leggeri/pesanti",
+        "more_layers": "Più strati leggeri/spessi",
         "moving_or_still": "Indifferente",
         "without_influence": "Indifferente",
         "thick_bedspread": "Coperte spesse",
@@ -269,16 +269,16 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "in posizione distesa su una base termicamente indifferente."
         ),
         "lower_trunk": (
-            "Per la scelta del fattore di correzione contano solo i vestiti/teli "
+            "Per la scelta del FC contano solo i vestiti/teli "
             "e le coperte sul tronco inferiore. Indifferente = stesso FC con o senza correnti d’aria."
         ),
         "adapted": "Adattato da",
     },
     "en": {
-        "caption": "Empiric corrective factors of the body weight",
+        "caption": "Empirical body-weight FC",
         "dry": "Dry clothes/sheets and blankets",
         "in_air": "Air currents",
-        "factor": "Corrective factor",
+        "factor": "FC",
         "wet": "Wet clothes/sheets and blankets or wet body",
         "in_water": "In water",
         "naked": "Naked",
@@ -287,13 +287,13 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "flowing": "Flowing",
         "water_still": "Still",
         "thin_1_2": "1–2 thin layers",
-        "thicker_2_plus": "2 or more thicker layers",
-        "more_than_2_thicker": "More than 2 thicker layers",
-        "thicker_2": "2 thicker layers",
+        "thicker_2_plus": "2 or more thick layers",
+        "more_than_2_thicker": "More than 2 thick layers",
+        "thicker_2": "2 thick layers",
         "thin_2_3": "2–3 thin layers",
-        "thicker_1_2": "1–2 thicker layers",
+        "thicker_1_2": "1–2 thick layers",
         "thin_3_4": "3–4 thin layers",
-        "more_layers": "More thin/thicker layers",
+        "more_layers": "More thin/thick layers",
         "moving_or_still": "No influence",
         "without_influence": "No influence",
         "thick_bedspread": "Thick blankets",
@@ -303,8 +303,8 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "in an extended position on a thermally indifferent base."
         ),
         "lower_trunk": (
-            "For the selection of the corrective factor of any case, only the clothing "
-            "or covering of the lower trunk is relevant. No influence = same factor with or without air currents."
+            "For the selection of the FC, only the clothing "
+            "or covering of the lower trunk is relevant. No influence = same FC with or without air currents."
         ),
         "adapted": "Adapted from",
     },
@@ -313,10 +313,10 @@ _HENSSGE_BASE_TABLE_TEXT = {
 
 _HENSSGE_SPECIAL_TABLE_TEXT = {
     "it": {
-        "caption": "Adattamento dei fattori di correzione (f, vedi Fattori di correzione base) alla superficie di appoggio",
+        "caption": "Adattamento del FC alla superficie di appoggio",
         "ground": "Superficie di appoggio",
         "clothing": "Abbigliamento",
-        "factor": "Fattore di correzione f",
+        "factor": "FC",
         "indifferent": "Termicamente indifferente",
         "indifferent_ground": "Pavimento di casa, prato, terreno asciutto, asfalto",
         "isolating": "Isolante",
@@ -333,14 +333,14 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Spesso",
         "thin": "Sottile",
         "very_thin": "Molto sottile",
-        "see_table_1": "vedi Fattori di correzione base",
+        "see_table_1": "vedi FC di base",
         "adapted": "Adattato da",
     },
     "en": {
-        "caption": "Adaptation of corrective factors (f, see Basic correction factors) to ground under body",
+        "caption": "Adaptation of the FC to the supporting surface",
         "ground": "Ground under body",
         "clothing": "Clothing",
-        "factor": "Corrective factor f",
+        "factor": "FC",
         "indifferent": "Indifferent",
         "indifferent_ground": "House flooring, lawn, dry earth, asphalt",
         "isolating": "Isolating",
@@ -349,7 +349,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "leaves": "Leaves (about 2 cm underneath)",
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
         "leaves_reference": "Althaus et al., 2007 · cooling experiments using dummies and leaves.",
-        "naked_note": "* For naked bodies, values marked +/− in the original are interpreted as overall correction factors, not increases or decreases, consistently with Henssge’s examples.",
+        "naked_note": "* For naked bodies, values marked +/− in the original are interpreted as the overall FC, not increases or decreases, consistently with Henssge’s examples.",
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
         "yes": "Yes",
@@ -357,7 +357,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Thick",
         "thin": "Thin",
         "very_thin": "Very thin",
-        "see_table_1": "see Basic correction factors",
+        "see_table_1": "see Basic FC",
         "adapted": "Adapted from",
     },
 }
@@ -371,9 +371,9 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "clothing_bedspread": "Vestiti/teli + coperte spesse",
         "feather_bed": "Coperte molto pesanti/piumone",
         "note": (
-            "Il riferimento dei fattori empirici è 70 kg (valori in grassetto). "
-            "Per un peso corporeo diverso, il fattore scelto per 70 kg va adattato leggendo "
-            "il valore sulla stessa riga. Per fattori inferiori a 1.4 (fino a 0.75), "
+            "Il FC empirico si riferisce a 70 kg (valori in grassetto). "
+            "Per un peso corporeo diverso, il FC scelto per 70 kg va adattato leggendo "
+            "il valore sulla stessa riga. Per un FC inferiore a 1.4 (fino a 0.75), "
             "la dipendenza dal peso corporeo può essere trascurata. "
             "I valori delle aree accorpate nell’originale sono ripetuti nelle colonne corrispondenti."
         ),
@@ -387,9 +387,9 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "clothing_bedspread": "Clothes/sheets + thick blankets",
         "feather_bed": "Very heavy blankets/duvet",
         "note": (
-            "The empirical corrective factors use 70 kg as the reference body weight "
-            "(values in bold). For a different body weight, the factor selected for 70 kg "
-            "is adjusted by reading the value on the same row. For corrective factors below "
+            "The empirical FC uses 70 kg as the reference body weight "
+            "(values in bold). For a different body weight, the FC selected for 70 kg "
+            "is adjusted by reading the value on the same row. For an FC below "
             "1.4 (down to 0.75), dependence on body weight may be neglected. "
             "Values spanning merged areas in the original are repeated in the corresponding columns."
         ),
@@ -940,21 +940,21 @@ combined_language = st.radio(
 _render_combined_table("it" if combined_language == "Italiano" else "en")
 
 # --- Sezione 2: Tabelle Henssge ---
-st.markdown("## Fattori di correzione")
-
 _base_language_before = st.session_state.get("henssge_base_table_language", "Italiano")
+st.markdown("## Fattore di correzione (FC)" if _base_language_before == "Italiano" else "## Correction factor (FC)")
+
 st.markdown(
     "<div class='henssge-table-title'>"
     + (
-        "Fattori di correzione base"
+        "FC di base"
         if _base_language_before == "Italiano"
-        else "Basic correction factors"
+        else "Basic FC"
     )
     + "</div>",
     unsafe_allow_html=True,
 )
 henssge_base_language = st.radio(
-    "Lingua tabella fattori di correzione base",
+    "Lingua tabella FC di base",
     ["Italiano", "English"],
     horizontal=True,
     key="henssge_base_table_language",
