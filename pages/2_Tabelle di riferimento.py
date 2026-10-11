@@ -78,8 +78,8 @@ _MALLACH_TABLE_TEXT = {
         "thumb": "1. Completa alla pressione con il pollice",
         "point": "2. Incompleta alla pressione focale e intensa (pinza)",
         "shifting": "Migrabilità dopo aver spostato il corpo",
-        "complete": "1. Completo",
-        "incomplete": "2. Incompleto",
+        "complete": "1. Completa",
+        "incomplete": "2. Incompleta",
         "slight": "3. Solo lieve impallidimento",
         "note": (
             "* I calcoli statistici non sono basati su studi trasversali o longitudinali, "
@@ -242,48 +242,50 @@ _COMBINED_TABLE_TEXT = {
 _HENSSGE_BASE_TABLE_TEXT = {
     "it": {
         "caption": "Fattori di correzione empirici del peso corporeo",
-        "dry": "Abbigliamento/copertura asciutti",
-        "in_air": "In aria",
+        "dry": "Vestiti/teli e coperte asciutti",
+        "in_air": "Correnti d’aria",
         "factor": "Fattore di correzione",
-        "wet": "Abbigliamento/copertura bagnati, superficie corporea bagnata",
+        "wet": "Vestiti/teli e coperte bagnati o corpo bagnato",
         "in_water": "In acqua",
         "naked": "Nudo",
-        "moving": "In movimento",
-        "still": "Ferma",
+        "moving": "Sì",
+        "still": "No",
         "flowing": "Corrente",
-        "thin_1_2": "1–2 strati sottili",
-        "thicker_2_plus": "2 o più strati più spessi",
-        "more_than_2_thicker": "Più di 2 strati più spessi",
-        "thicker_2": "2 strati più spessi",
-        "thin_2_3": "2–3 strati sottili",
-        "thicker_1_2": "1–2 strati più spessi",
-        "thin_3_4": "3–4 strati sottili",
-        "more_layers": "Più strati sottili/spessi",
-        "moving_or_still": "In movimento o ferma",
-        "without_influence": "Senza influenza",
-        "thick_bedspread": "Coperta spessa",
-        "clothing_combined": "+ abbigliamento combinato",
+        "water_still": "Ferma",
+        "thin_1_2": "1–2 strati leggeri",
+        "thicker_2_plus": "2 o più strati pesanti",
+        "more_than_2_thicker": "Più di 2 strati pesanti",
+        "thicker_2": "2 strati pesanti",
+        "thin_2_3": "2–3 strati leggeri",
+        "thicker_1_2": "1–2 strati pesanti",
+        "thin_3_4": "3–4 strati leggeri",
+        "more_layers": "Più strati leggeri/pesanti",
+        "moving_or_still": "No/Sì",
+        "without_influence": "No/Sì",
+        "thick_bedspread": "Coperte spesse",
+        "clothing_combined": "+ vestiti/teli",
         "note": (
             "* I valori indicati si riferiscono a corpi di peso medio (riferimento: 70 kg), "
             "in posizione distesa su una base termicamente indifferente."
         ),
         "lower_trunk": (
-            "Per la scelta del fattore di correzione è rilevante solo l'abbigliamento "
-            "o la copertura del tronco inferiore."
+            "Per la scelta del fattore di correzione contano solo i vestiti/teli "
+            "e le coperte sul tronco inferiore. No/Sì = stesso FC con o senza correnti d’aria."
         ),
         "adapted": "Adattato da",
     },
     "en": {
         "caption": "Empiric corrective factors of the body weight",
-        "dry": "Dry clothing/covering",
-        "in_air": "In air",
+        "dry": "Dry clothes/sheets and blankets",
+        "in_air": "Air currents",
         "factor": "Corrective factor",
-        "wet": "Wet-through clothing/covering, wet body surface",
+        "wet": "Wet clothes/sheets and blankets or wet body",
         "in_water": "In water",
         "naked": "Naked",
-        "moving": "Moving",
-        "still": "Still",
+        "moving": "Yes",
+        "still": "No",
         "flowing": "Flowing",
+        "water_still": "Still",
         "thin_1_2": "1–2 thin layers",
         "thicker_2_plus": "2 or more thicker layers",
         "more_than_2_thicker": "More than 2 thicker layers",
@@ -292,17 +294,17 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thicker_1_2": "1–2 thicker layers",
         "thin_3_4": "3–4 thin layers",
         "more_layers": "More thin/thicker layers",
-        "moving_or_still": "Moving or still",
-        "without_influence": "Without influence",
-        "thick_bedspread": "Thick bedspread",
-        "clothing_combined": "+ clothing combined",
+        "moving_or_still": "No/Yes",
+        "without_influence": "No/Yes",
+        "thick_bedspread": "Thick blankets",
+        "clothing_combined": "+ clothes/sheets",
         "note": (
             "* The listed values apply to bodies of average weight (reference: 70 kg), "
             "in an extended position on a thermally indifferent base."
         ),
         "lower_trunk": (
             "For the selection of the corrective factor of any case, only the clothing "
-            "or covering of the lower trunk is relevant."
+            "or covering of the lower trunk is relevant. No/Yes = same factor with or without air currents."
         ),
         "adapted": "Adapted from",
     },
@@ -568,19 +570,19 @@ def _render_henssge_base_table(language: str) -> None:
             </thead>
             <tbody>
               <tr><td></td><td></td><td>0.35</td><td>{text['naked']}</td><td></td><td>{text['flowing']}</td></tr>
-              <tr><td></td><td></td><td>0.50</td><td>{text['naked']}</td><td></td><td>{text['still']}</td></tr>
+              <tr><td></td><td></td><td>0.50</td><td>{text['naked']}</td><td></td><td>{text['water_still']}</td></tr>
               <tr><td></td><td></td><td>0.70</td><td>{text['naked']}</td><td>{text['moving']}</td><td></td></tr>
               <tr><td></td><td></td><td>0.70</td><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td></td></tr>
               <tr><td>{text['naked']}</td><td>{text['moving']}</td><td>0.75</td><td></td><td></td><td></td></tr>
               <tr><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td>0.90</td><td>{text['thicker_2_plus']}</td><td>{text['moving']}</td><td></td></tr>
               <tr><td>{text['naked']}</td><td>{text['still']}</td><td>1.00</td><td></td><td></td><td></td></tr>
               <tr><td>{text['thin_1_2']}</td><td>{text['still']}</td><td>1.10</td><td>{text['thicker_2']}</td><td>{text['still']}</td><td></td></tr>
-              <tr><td>{text['thin_2_3']}</td><td></td><td>1.20</td><td>{text['more_than_2_thicker']}</td><td>{text['still']}</td><td></td></tr>
+              <tr><td>{text['thin_2_3']}</td><td>{text['still']}</td><td>1.20</td><td>{text['more_than_2_thicker']}</td><td>{text['still']}</td><td></td></tr>
               <tr><td>{text['thicker_1_2']}</td><td>{text['moving_or_still']}</td><td>1.20</td><td></td><td></td><td></td></tr>
-              <tr><td>{text['thin_3_4']}</td><td></td><td>1.30</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thin_3_4']}</td><td>{text['moving_or_still']}</td><td>1.30</td><td></td><td></td><td></td></tr>
               <tr><td>{text['more_layers']}</td><td>{text['without_influence']}</td><td>1.40</td><td></td><td></td><td></td></tr>
-              <tr><td>{text['thick_bedspread']}</td><td></td><td>1.80</td><td></td><td></td><td></td></tr>
-              <tr><td>{text['clothing_combined']}</td><td></td><td>2.40</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['thick_bedspread']}</td><td>{text['without_influence']}</td><td>1.80</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['clothing_combined']}</td><td>{text['without_influence']}</td><td>2.40</td><td></td><td></td><td></td></tr>
             </tbody>
           </table>
         </div>
