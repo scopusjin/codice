@@ -260,8 +260,8 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thicker_1_2": "1–2 strati pesanti",
         "thin_3_4": "3–4 strati leggeri",
         "more_layers": "Più strati leggeri/pesanti",
-        "moving_or_still": "No/Sì",
-        "without_influence": "No/Sì",
+        "moving_or_still": "Indifferente",
+        "without_influence": "Indifferente",
         "thick_bedspread": "Coperte spesse",
         "clothing_combined": "+ vestiti/teli",
         "note": (
@@ -270,7 +270,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         ),
         "lower_trunk": (
             "Per la scelta del fattore di correzione contano solo i vestiti/teli "
-            "e le coperte sul tronco inferiore. No/Sì = stesso FC con o senza correnti d’aria."
+            "e le coperte sul tronco inferiore. Indifferente = stesso FC con o senza correnti d’aria."
         ),
         "adapted": "Adattato da",
     },
@@ -294,8 +294,8 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thicker_1_2": "1–2 thicker layers",
         "thin_3_4": "3–4 thin layers",
         "more_layers": "More thin/thicker layers",
-        "moving_or_still": "No/Yes",
-        "without_influence": "No/Yes",
+        "moving_or_still": "No influence",
+        "without_influence": "No influence",
         "thick_bedspread": "Thick blankets",
         "clothing_combined": "+ clothes/sheets",
         "note": (
@@ -304,7 +304,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         ),
         "lower_trunk": (
             "For the selection of the corrective factor of any case, only the clothing "
-            "or covering of the lower trunk is relevant. No/Yes = same factor with or without air currents."
+            "or covering of the lower trunk is relevant. No influence = same factor with or without air currents."
         ),
         "adapted": "Adapted from",
     },
