@@ -26,19 +26,12 @@ _COMBINED_REFERENCE = (
     "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
 )
 
-# Numbering retained from Henssge et al. (2000), part II, Table 1.
+# Local numbering for the scientific synthesis, independent of the source bibliography.
 _COMBINED_BIBLIOGRAPHY = (
-    "[4] Klein A, Klein S. Die Todeszeitbestimmung am menschlichen Auge. "
-    "MD thesis, Medizinische Akademie Dresden; 1978.",
-    "[7] Henssge C. Methoden zur Bestimmung der Todeszeit. "
-    "MD thesis, Humboldt-Universität Berlin; 1982.",
-    "[8] Mallach HJ. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582.",
-    "[9] Prokop O. Supravitale Erscheinungen. In: Prokop O, Göhler W, eds. "
-    "Forensische Medizin. Berlin: Volk und Gesundheit; 1975:16–27.",
-    "[10] Powassilew J, Palm W. Über die Todeszeitbestimmung in den ersten 10 Stunden. "
-    "Z Arztl Fortbild (Jena). 1960;54:734–737.",
-    "[11] Dotzauer G. Idiomuskulärer Wulst und postmortale Blutung. "
-    "Dtsch Z Gerichtl Med. 1958;46:761–771.",
+    f"[1] {_COMBINED_REFERENCE}",
+    "[2] Henssge C, Madea B. Estimation of the time since death in the early post-mortem period. "
+    "Forensic Sci Int. 2004;144(2–3):167–175. doi:10.1016/j.forsciint.2004.04.051, "
+    "Fig. 4; Tables 1–2.",
 )
 
 _HENSSGE_BASE_REFERENCE = (
@@ -168,74 +161,96 @@ _RIGOR_TABLE_TEXT = {
 
 _COMBINED_TABLE_TEXT = {
     "it": {
-        "caption": "Limiti temporali dei metodi/criteri non basati sulla temperatura",
-        "method": "Metodo/criterio",
-        "result": "Risultato dell'esame",
-        "minimum": "Limite minimo del periodo dalla morte (ore post-mortem)",
-        "maximum": "Limite massimo del periodo dalla morte (ore post-mortem)",
-        "statistics": "Statistica (limiti)",
-        "reference": "Riferimento",
+        "caption": "Criteri tanatologici non termici",
+        "intro": (
+            "Sintesi riorganizzata dei limiti temporali impiegati nel metodo combinato proposto "
+            "da Henssge et al. [1], con riferimento alla successiva trattazione di Henssge e Madea [2]. "
+            "Tutti i tempi sono espressi in ore post-mortem."
+        ),
+        "parameter": "Parametro",
+        "criterion": "Criterio",
+        "present": "Presente",
+        "absent": "Assente",
         "lividity": "Ipostasi",
-        "beginning": "Inizio",
+        "beginning": "Comparsa",
         "confluence": "Confluenza",
-        "thumb_pressure": "Pressione con il pollice",
-        "complete_shifting": "Spostamento completo",
-        "maximum_row": "Massimo",
-        "incomplete_shifting": "Spostamento incompleto",
+        "thumb_pressure": "Scomparsa alla pressione del pollice",
+        "complete_shifting": "Migrabilità completa",
+        "maximum_row": "Massima estensione e intensità",
+        "incomplete_shifting": "Migrabilità almeno parziale",
         "rigor": "Rigidità",
-        "reestablishment": "Ripristino",
-        "mechanical": "Eccitabilità meccanica muscolare",
-        "tendon": "Reazione tendinea",
+        "rigor_complete": "Completa instaurazione",
+        "reestablishment": "Ricomparsa dopo essere stata vinta",
+        "mechanical": "Eccitabilità meccanica",
+        "tendon": "Reazione alla percussione tendinea",
         "idiomuscular": "Contrazione idiomuscolare",
-        "electrical": "Eccitabilità elettrica muscolare",
-        "eyebrow": "Elettrodi nel sopracciglio",
+        "eyebrow": "Eccitabilità elettrica sopraciliare",
         "grade": "Grado",
-        "mouth": "Elettrodi all'angolo della bocca",
-        "mouth_note": "* Henssge usa 11 ore per qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione (2000, rif. [4]).",
-        "chemical": "Eccitabilità chimica dell'iride",
-        "atropin": "Atropina",
-        "tropicamide": "Tropicamide",
-        "acetylcholine": "Acetilcolina",
-        "positive": "Positivo",
-        "negative": "Negativo",
-        "variation": "Variazione",
-        "confidence": "Confidenza 95%",
-        "adapted": "Adattato da",
+        "interval": "Intervallo (h)",
+        "no_response": "Nessuna reazione: ≥ 5 h [1].",
+        "mouth": "Eccitabilità elettrica peribuccale",
+        "muscle_response": "Risposta muscolare",
+        "mouth_note": "* Il limite di 11 ore riguarda qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione.",
+        "chemical": "Eccitabilità chimica pupillare",
+        "atropin": "Dilatazione con atropina",
+        "tropicamide": "Dilatazione con tropicamide",
+        "acetylcholine": "Costrizione con acetilcolina",
+        "variation_note": (
+            "Limiti di variazione: estremi temporali riportati in letteratura e adottati da Henssge "
+            "per la stima combinata; non corrispondono automaticamente a intervalli statistici al 95% "
+            "né a soglie biologiche assolute."
+        ),
+        "confidence_note": "Gli intervalli dei gradi sopraciliari sono indicati dalla fonte [2] come limiti di confidenza al 95%.",
+        "reading_note": (
+            "«—» indica che il criterio non fornisce un limite temporale utile. Per comparsa e completo "
+            "sviluppo, «assente» significa non ancora raggiunto; per la migrabilità significa non più conservata."
+        ),
     },
     "en": {
-        "caption": "Time limits of non-temperature-based methods/criteria",
-        "method": "Method/criterion",
-        "result": "Result of examination",
-        "minimum": "Minimum limit of the period since death (hours postmortem)",
-        "maximum": "Maximum limit of the period since death (hours postmortem)",
-        "statistics": "Statistics (limits)",
-        "reference": "Reference",
+        "caption": "Non-temperature-based postmortem criteria",
+        "intro": (
+            "Reorganized synthesis of the time limits used in the compound method proposed by "
+            "Henssge et al. [1], with reference to the subsequent account by Henssge and Madea [2]. "
+            "All times are expressed in hours postmortem."
+        ),
+        "parameter": "Parameter",
+        "criterion": "Criterion",
+        "present": "Present",
+        "absent": "Absent",
         "lividity": "Lividity",
-        "beginning": "Beginning",
+        "beginning": "Onset",
         "confluence": "Confluence",
-        "thumb_pressure": "Thumb pressure",
+        "thumb_pressure": "Disappearance under thumb pressure",
         "complete_shifting": "Complete shifting",
-        "maximum_row": "Maximum",
-        "incomplete_shifting": "Incomplete shifting",
+        "maximum_row": "Maximum extent and intensity",
+        "incomplete_shifting": "At least partial shifting",
         "rigor": "Rigor",
-        "reestablishment": "Re-establishment",
-        "mechanical": "Mechanical excitability muscle",
-        "tendon": "Tendon reaction",
+        "rigor_complete": "Full development",
+        "reestablishment": "Re-establishment after breaking",
+        "mechanical": "Mechanical excitability",
+        "tendon": "Reaction to tendon percussion",
         "idiomuscular": "Idiomuscular contraction",
-        "electrical": "Electrical excitability muscle",
-        "eyebrow": "Electrodes in eyebrow",
+        "eyebrow": "Supraciliary electrical excitability",
         "grade": "Grade",
-        "mouth": "Electrodes in corner of mouth",
-        "mouth_note": "* Henssge uses 11 hours for any positive perioral response, regardless of its extent (2000, ref. [4]).",
-        "chemical": "Chemical excitability iris",
-        "atropin": "Atropin",
-        "tropicamide": "Tropicamide",
-        "acetylcholine": "Acetylcholine",
-        "positive": "Positive",
-        "negative": "Negative",
-        "variation": "Variation",
-        "confidence": "95% confidence",
-        "adapted": "Adapted from",
+        "interval": "Interval (h)",
+        "no_response": "No response: ≥ 5 h [1].",
+        "mouth": "Perioral electrical excitability",
+        "muscle_response": "Muscular response",
+        "mouth_note": "* The 11-hour limit applies to any positive perioral response, regardless of its extent.",
+        "chemical": "Chemical excitability of the pupil",
+        "atropin": "Dilatation with atropine",
+        "tropicamide": "Dilatation with tropicamide",
+        "acetylcholine": "Constriction with acetylcholine",
+        "variation_note": (
+            "Limits of variation: extreme time limits reported in the literature and adopted by Henssge "
+            "for the compound estimate; they do not automatically represent 95% statistical intervals "
+            "or absolute biological thresholds."
+        ),
+        "confidence_note": "The source [2] describes the intervals for the supraciliary grades as 95% confidence limits.",
+        "reading_note": (
+            "“—” means that the criterion provides no useful time limit. For onset and full development, "
+            "“absent” means not yet reached; for shifting, it means no longer possible."
+        ),
     },
 }
 
@@ -489,65 +504,88 @@ def _render_rigor_table(language: str) -> None:
 
 def _render_combined_table(language: str) -> None:
     text = _COMBINED_TABLE_TEXT[language]
-    p = text["positive"]
-    n = text["negative"]
-    v = text["variation"]
-    c = text["confidence"]
+    sep = "," if language == "it" else "."
+    # Scientific reference data: these limits are not read from application ranges.
+    # A missing useful bound is shown as a dash, not as an artificial zero.
+    groups = (
+        ("lividity", "[1, 2]", (
+            ("beginning", "—", "≤ 3"),
+            ("confluence", "≥ 1", "≤ 4"),
+            ("maximum_row", "≥ 3", "≤ 16"),
+            ("thumb_pressure", "≤ 20", "≥ 1"),
+            ("complete_shifting", "≤ 6", "≥ 2"),
+            ("incomplete_shifting", "≤ 24", "≥ 4"),
+        )),
+        ("rigor", "[1]", (
+            ("beginning", f"≥ 0{sep}5", "≤ 7"),
+            ("rigor_complete", "≥ 2", "≤ 20"),
+            ("reestablishment", "≤ 8", "≥ 2"),
+        )),
+        ("mechanical", "[1]", (
+            ("tendon", f"≤ 2{sep}5", "—"),
+            ("idiomuscular", "≤ 13", f"≥ 1{sep}5"),
+        )),
+        ("mouth", "[1]", (("muscle_response", "≤ 11*", "≥ 3"),)),
+        ("chemical", "[1]", (
+            ("atropin", "≤ 10", "≥ 3"),
+            ("tropicamide", "≤ 30", "≥ 5"),
+            ("acetylcholine", "≤ 46", "≥ 14"),
+        )),
+    )
+    rows = []
+    for parameter, reference, criteria in groups:
+        for index, (criterion, present, absent) in enumerate(criteria):
+            group_cell = (
+                f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
+                f'{text[parameter]} {reference}</th>' if index == 0 else ""
+            )
+            rows.append(
+                f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
+                f'<td class="combined-limit">{present}</td>'
+                f'<td class="combined-limit">{absent}</td></tr>'
+            )
+    st.caption(text["intro"])
     st.markdown(
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
-              {text['caption']}
-            </caption>
+            <caption>{text['caption']}</caption>
+            <colgroup><col style="width:24%"><col style="width:46%"><col style="width:15%"><col style="width:15%"></colgroup>
             <thead>
-              <tr>
-                <th>{text['method']}</th>
-                <th>{text['result']}</th>
-                <th>{text['minimum']}</th>
-                <th>{text['result']}</th>
-                <th>{text['maximum']}</th>
-                <th>{text['statistics']}</th>
-                <th>{text['reference']}</th>
-              </tr>
+              <tr><th scope="col">{text['parameter']}</th><th scope="col">{text['criterion']}</th>
+              <th scope="col">{text['present']}</th><th scope="col">{text['absent']}</th></tr>
+            </thead>
+            <tbody>{''.join(rows)}</tbody>
+          </table>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.caption(text["reading_note"])
+    st.caption(text["mouth_note"])
+    st.caption(text["variation_note"])
+    # Fig. 4 of Henssge & Madea (2004), checked visually: grade II is 3.5–16 h.
+    # Its limits describe an observed grade, not absence of that same grade.
+    st.markdown(
+        f"""
+        <div class="mallach-table-wrap">
+          <table class="mallach-table combined-supra-table">
+            <caption>{text['eyebrow']} [2]</caption>
+            <thead>
+              <tr><th scope="col">{text['grade']}</th><th scope="col">{text['interval']}</th>
+              <th scope="col">{text['grade']}</th><th scope="col">{text['interval']}</th></tr>
             </thead>
             <tbody>
-              <tr class="group-row"><td>{text['lividity']}</td><td></td><td></td><td></td><td></td><td></td><td>[8]</td></tr>
-              <tr><td class="subcriterion">{text['beginning']}</td><td>{p}</td><td>0.0</td><td>{n}</td><td>3.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['confluence']}</td><td>{p}</td><td>1.0</td><td>{n}</td><td>4.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['thumb_pressure']}</td><td>{n}</td><td>1.0</td><td>{p}</td><td>20.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['complete_shifting']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>6.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>3.0</td><td>{n}</td><td>16.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['incomplete_shifting']}</td><td>{n}</td><td>4.0</td><td>{p}</td><td>24.0</td><td></td><td></td></tr>
-              <tr class="group-row"><td>{text['rigor']}</td><td></td><td></td><td></td><td></td><td></td><td>[8]</td></tr>
-              <tr><td class="subcriterion">{text['beginning']}</td><td>{p}</td><td>0.5</td><td>{n}</td><td>7.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['reestablishment']}</td><td>{n}</td><td>2.0</td><td>{p}</td><td>8.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['maximum_row']}</td><td>{p}</td><td>2.0</td><td>{n}</td><td>20.0</td><td>{v}</td><td></td></tr>
-              <tr class="group-row"><td>{text['mechanical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-              <tr><td class="subcriterion">{text['tendon']}</td><td>{n}</td><td>0.0</td><td>{p}</td><td>2.5</td><td>{v}</td><td>[9, 10]</td></tr>
-              <tr><td class="subcriterion">{text['idiomuscular']}</td><td>{n}</td><td>1.5</td><td>{p}</td><td>13.0</td><td>{v}</td><td>[10, 11]</td></tr>
-              <tr class="group-row"><td>{text['electrical']}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-              <tr><td class="subcriterion">{text['eyebrow']}</td><td></td><td></td><td></td><td></td><td></td><td>[4, 7]</td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} VI</td><td>{n}</td><td>1.0</td><td>{p}</td><td>6.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} V</td><td>{n}</td><td>2.0</td><td>{p}</td><td>7.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} IV</td><td>{n}</td><td>3.0</td><td>{p}</td><td>8.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} III</td><td>{n}</td><td>3.5</td><td>{p}</td><td>13.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} II</td><td>{n}</td><td>5.0</td><td>{p}</td><td>26.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion nested">{text['grade']} I</td><td>{n}</td><td>5.0</td><td>{p}</td><td>22.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['mouth']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>11.0*</td><td>{v}</td><td>[4]</td></tr>
-              <tr class="group-row"><td>{text['chemical']}</td><td></td><td></td><td></td><td></td><td></td><td>[4]</td></tr>
-              <tr><td class="subcriterion">{text['atropin']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>10.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['tropicamide']}</td><td>{n}</td><td>5.0</td><td>{p}</td><td>30.0</td><td>{v}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['acetylcholine']}</td><td>{n}</td><td>14.0</td><td>{p}</td><td>46.0</td><td>{v}</td><td></td></tr>
+              <tr><td>VI</td><td>≤ 6</td><td>III</td><td>3–13</td></tr>
+              <tr><td>V</td><td>1–7</td><td>II</td><td>3{sep}5–16</td></tr>
+              <tr><td>IV</td><td>2–8</td><td>I</td><td>5–22</td></tr>
             </tbody>
           </table>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    st.caption(f"{text['adapted']}: {_COMBINED_REFERENCE}")
-    st.caption(text['mouth_note'])
-    st.caption("Riferimenti ripresi dalla bibliografia originale, con la stessa numerazione; non tutti consultati direttamente." if language == "it" else "References from the original bibliography, retaining its numbering; not all were consulted directly.")
+    st.caption(f"{text['no_response']} {text['confidence_note']}")
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)
 
@@ -773,33 +811,35 @@ st.markdown(
         line-height: 1.08;
         margin-top: 0.08rem;
     }
-    .combined-table td:first-child {
-        min-width: 7.2rem;
+    table.combined-table,
+    table.combined-supra-table {
+        width: 100%;
+        max-width: 48rem;
+        table-layout: fixed;
     }
-    .combined-table thead th {
-        white-space: normal;
+    .combined-table td,
+    .combined-table th,
+    .combined-supra-table td,
+    .combined-supra-table th {
+        padding: 0.20rem 0.25rem;
     }
-    .combined-table th:first-child {
-        width: 7.2rem;
-        max-width: 7.2rem;
+    .combined-table td:first-child,
+    .combined-supra-table td:first-child {
+        min-width: 0;
     }
-    .combined-table th:nth-child(2),
-    .combined-table th:nth-child(4) {
-        width: 4.0rem;
-        max-width: 4.0rem;
+    .combined-table th.combined-group,
+    .combined-table td.combined-criterion {
+        text-align: left;
+        overflow-wrap: anywhere;
     }
-    .combined-table th:nth-child(3),
-    .combined-table th:nth-child(5) {
-        width: 5.2rem;
-        max-width: 5.2rem;
+    .combined-table .combined-group {
+        background: rgba(128,128,128,.05);
     }
-    .combined-table th:nth-child(6) {
-        width: 4.6rem;
-        max-width: 4.6rem;
+    .combined-table td.combined-limit {
+        white-space: nowrap;
     }
-    .combined-table th:nth-child(7) {
-        width: 3.8rem;
-        max-width: 3.8rem;
+    table.combined-supra-table {
+        max-width: 30rem;
     }
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
@@ -929,7 +969,8 @@ rigor_language = st.radio(
 )
 _render_rigor_table("it" if rigor_language == "Italiano" else "en")
 
-st.markdown("## Metodi combinati")
+_combined_language_before = st.session_state.get("combined_table_language", "Italiano")
+st.markdown("## Metodo combinato di Henssge" if _combined_language_before == "Italiano" else "## Henssge’s compound method")
 combined_language = st.radio(
     "Lingua tabella metodi combinati",
     ["Italiano", "English"],
