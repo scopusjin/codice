@@ -164,7 +164,8 @@ _COMBINED_TABLE_TEXT = {
         "caption": "Criteri tanatologici non termici",
         "intro": (
             "Sintesi riorganizzata dei limiti temporali impiegati nel metodo combinato proposto "
-            "da Henssge et al. [1], con riferimento alla successiva trattazione di Henssge e Madea [2]. "
+            "da Henssge et al. [1], integrata con il decorso della rigidità e gli intervalli "
+            "dell’eccitabilità sopraciliare riportati da Henssge e Madea [2]. "
             "Tutti i tempi sono espressi in ore post-mortem."
         ),
         "parameter": "Parametro",
@@ -181,6 +182,9 @@ _COMBINED_TABLE_TEXT = {
         "rigor": "Rigidità",
         "rigor_complete": "Completa instaurazione",
         "reestablishment": "Ricomparsa dopo essere stata vinta",
+        "rigor_persistence": "Persistenza [2]",
+        "rigor_resolution": "Risoluzione [2]",
+        "course_limits": "Limiti di variazione",
         "mechanical": "Eccitabilità meccanica",
         "tendon": "Reazione alla percussione tendinea",
         "idiomuscular": "Contrazione idiomuscolare",
@@ -203,14 +207,16 @@ _COMBINED_TABLE_TEXT = {
         "confidence_note": "Gli intervalli dei gradi sopraciliari sono indicati dalla fonte [2] come limiti di confidenza al 95%.",
         "reading_note": (
             "«—» indica che il criterio non fornisce un limite temporale utile. Per comparsa e completo "
-            "sviluppo, «assente» significa non ancora raggiunto; per la migrabilità significa non più conservata."
+            "sviluppo, «assente» significa non ancora raggiunto; per la migrabilità significa non più conservata. "
+            "Le celle unite descrivono il decorso della rigidità [2]."
         ),
     },
     "en": {
         "caption": "Non-temperature-based postmortem criteria",
         "intro": (
             "Reorganized synthesis of the time limits used in the compound method proposed by "
-            "Henssge et al. [1], with reference to the subsequent account by Henssge and Madea [2]. "
+            "Henssge et al. [1], supplemented with the time course of rigor and the supraciliary "
+            "excitability intervals reported by Henssge and Madea [2]. "
             "All times are expressed in hours postmortem."
         ),
         "parameter": "Parameter",
@@ -227,6 +233,9 @@ _COMBINED_TABLE_TEXT = {
         "rigor": "Rigor",
         "rigor_complete": "Full development",
         "reestablishment": "Re-establishment after breaking",
+        "rigor_persistence": "Persistence [2]",
+        "rigor_resolution": "Resolution [2]",
+        "course_limits": "Limits of variation",
         "mechanical": "Mechanical excitability",
         "tendon": "Reaction to tendon percussion",
         "idiomuscular": "Idiomuscular contraction",
@@ -249,7 +258,8 @@ _COMBINED_TABLE_TEXT = {
         "confidence_note": "The source [2] describes the intervals for the supraciliary grades as 95% confidence limits.",
         "reading_note": (
             "“—” means that the criterion provides no useful time limit. For onset and full development, "
-            "“absent” means not yet reached; for shifting, it means no longer possible."
+            "“absent” means not yet reached; for shifting, it means no longer possible. "
+            "The merged cells describe the time course of rigor [2]."
         ),
     },
 }
@@ -516,10 +526,12 @@ def _render_combined_table(language: str) -> None:
             ("complete_shifting", "≤ 6", "≥ 2"),
             ("incomplete_shifting", "≤ 24", "≥ 4"),
         )),
-        ("rigor", "[1]", (
+        ("rigor", "[1, 2]", (
             ("beginning", f"≥ 0{sep}5", "≤ 7"),
             ("rigor_complete", "≥ 2", "≤ 20"),
             ("reestablishment", "≤ 8", "≥ 2"),
+            ("rigor_persistence", "24–96", None),
+            ("rigor_resolution", "24–192", None),
         )),
         ("mechanical", "[1]", (
             ("tendon", f"≤ 2{sep}5", "—"),
@@ -539,10 +551,15 @@ def _render_combined_table(language: str) -> None:
                 f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
                 f'{text[parameter]} {reference}</th>' if index == 0 else ""
             )
+            # Time-course ranges in [2] are not separate present/absent bounds.
+            limit_cells = (
+                f'<td colspan="2" class="combined-course">{text["course_limits"]}<br>{present}</td>'
+                if absent is None else
+                f'<td class="combined-limit">{present}</td><td class="combined-limit">{absent}</td>'
+            )
             rows.append(
                 f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
-                f'<td class="combined-limit">{present}</td>'
-                f'<td class="combined-limit">{absent}</td></tr>'
+                f'{limit_cells}</tr>'
             )
     st.caption(text["intro"])
     st.markdown(

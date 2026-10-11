@@ -93,3 +93,9 @@ Verifiche di questo blocco: 18 test Python mirati superati; motore FC (3385 cont
 - Il CSS a quattro colonne si adatta alla larghezza disponibile. Il refactor riguarda soltanto il contenuto documentale e la sua presentazione; non modifica parametri, algoritmi o risultati di calcolo. La riorganizzazione non costituisce una certificazione di assenza di vincoli di copyright.
 
 Verifica locale: compilazione Python e controllo diff superati; test preesistente della matrice FC al peso superato; AppTest della pagina Tabelle eseguito in IT/EN senza eccezioni, con controllo di tutte le 30 celle temporali, dei sei intervalli sopraciliari, delle note e dei due riferimenti. Questa verifica non attesta la versione distribuita su Streamlit Cloud.
+
+### Integrazione delle fasi tardive della rigidità
+
+Su richiesta dell'utente, aggiunte direttamente alla tabella combinata le righe Persistenza (24–96 ore) e Risoluzione (24–192 ore), tratte dalla tabella 1 di Henssge e Madea (2004), riferimento [2]. I due intervalli descrivono il decorso: sono mostrati in celle unite, esplicitamente etichettati come limiti di variazione, senza ricavare soglie distinte per presenza o assenza. L'introduzione identifica queste righe come integrazioni del 2004. Le altre tabelle non sono state rimosse e non sono cambiati i parametri di calcolo.
+
+AppTest IT/EN superato: 17 righe, gruppo rigidità esteso a 5 righe, entrambi i nuovi intervalli associati a [2], conservazione delle 30 celle temporali precedenti e dei sei intervalli sopraciliari. Controllo diff superato.
