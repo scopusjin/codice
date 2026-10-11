@@ -31,7 +31,7 @@ console.log(JSON.stringify({ids:Object.keys(api.EXAMPLE_MATCHERS),
  rows:api.EXAMPLES.map(e=>({conditions:api.exampleConditions(e),fc:api.exampleFCText(e)}))}));
 """
         data = json.loads(subprocess.check_output(['node', '-e', script], cwd=ROOT, text=True))
-        self.assertEqual(data['ids'], [e['id'] for e in load_examples()])
+        self.assertEqual(data['ids'], [e['id'] for e in load_examples() if not e.get('referenceOnly')])
         for row, js_row in zip(case_rows(), data['rows'], strict=True):
             self.assertEqual(row['Condizioni'], js_row['conditions'])
             self.assertEqual(row['FC'], js_row['fc'].removeprefix('FC: '))
@@ -56,7 +56,7 @@ assert 'pandas' not in sys.modules
         self.assertIn('41,6', rows['Caso 33']['Condizioni'])
         self.assertIn('mancato utilizzo', rows['Caso 33']['Significato e limiti'])
         self.assertIn('non poté verificare', rows['Caso 6']['Significato e limiti'])
-        self.assertEqual(len(case_rows(('Caso operativo',))), 4)
+        self.assertEqual(len(case_rows(('Caso operativo',))), 30)
         self.assertEqual(len(case_rows(('Esperimento', 'Esperimenti'))), 12)
         for row in rows.values():
             self.assertTrue(row['Peso (kg)'])

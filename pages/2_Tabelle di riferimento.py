@@ -26,6 +26,21 @@ _COMBINED_REFERENCE = (
     "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
 )
 
+# Numbering retained from Henssge et al. (2000), part II, Table 1.
+_COMBINED_BIBLIOGRAPHY = (
+    "[4] Klein A, Klein S. Die Todeszeitbestimmung am menschlichen Auge. "
+    "MD thesis, Medizinische Akademie Dresden; 1978.",
+    "[7] Henssge C. Methoden zur Bestimmung der Todeszeit. "
+    "MD thesis, Humboldt-Universität Berlin; 1982.",
+    "[8] Mallach HJ. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582.",
+    "[9] Prokop O. Supravitale Erscheinungen. In: Prokop O, Göhler W, eds. "
+    "Forensische Medizin. Berlin: Volk und Gesundheit; 1975:16–27.",
+    "[10] Powassilew J, Palm W. Über die Todeszeitbestimmung in den ersten 10 Stunden. "
+    "Z Arztl Fortbild (Jena). 1960;54:734–737.",
+    "[11] Dotzauer G. Idiomuskulärer Wulst und postmortale Blutung. "
+    "Dtsch Z Gerichtl Med. 1958;46:761–771.",
+)
+
 _HENSSGE_BASE_REFERENCE = (
     "Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. "
     "Forensic Sci Int. 1988;38(3–4):209–236. doi:10.1016/0379-0738(88)90168-5."
@@ -176,6 +191,7 @@ _COMBINED_TABLE_TEXT = {
         "eyebrow": "Elettrodi nel sopracciglio",
         "grade": "Grado",
         "mouth": "Elettrodi all'angolo della bocca",
+        "mouth_note": "* Henssge usa 11 ore per qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione (2000, rif. [4]).",
         "chemical": "Eccitabilità chimica dell'iride",
         "atropin": "Atropina",
         "tropicamide": "Tropicamide",
@@ -210,6 +226,7 @@ _COMBINED_TABLE_TEXT = {
         "eyebrow": "Electrodes in eyebrow",
         "grade": "Grade",
         "mouth": "Electrodes in corner of mouth",
+        "mouth_note": "* Henssge uses 11 hours for any positive perioral response, regardless of its extent (2000, ref. [4]).",
         "chemical": "Chemical excitability iris",
         "atropin": "Atropin",
         "tropicamide": "Tropicamide",
@@ -299,13 +316,14 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "clothing": "Abbigliamento",
         "factor": "Fattore di correzione f",
         "indifferent": "Termicamente indifferente",
-        "indifferent_ground": "Pavimento di casa/appartamento, prato, terreno asciutto, asfalto",
+        "indifferent_ground": "Pavimento di casa, prato, terreno asciutto, asfalto",
         "isolating": "Isolante",
         "heavy_padding": "Forte imbottitura",
         "mattress": "Materasso, tappeto spesso",
         "leaves": "Foglie (appoggio di circa 2 cm)",
         "leaves_factors": "1.0 (bagnate)<br>1.3 (umide)<br>1.5 (secche)<br>1.8–2.7 (anche copertura di circa 10 cm)",
         "leaves_reference": "Althaus et al., 2007 · prove su simulatori con foglie.",
+        "naked_note": "* Per il corpo nudo, i valori con +/− nell’originale sono interpretati come FC complessivi, non come incrementi o decrementi, in accordo con gli esempi di Henssge.",
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
         "yes": "Sì",
@@ -322,13 +340,14 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "clothing": "Clothing",
         "factor": "Corrective factor f",
         "indifferent": "Indifferent",
-        "indifferent_ground": "House or apartment flooring, lawn, dry earth, asphalt",
+        "indifferent_ground": "House flooring, lawn, dry earth, asphalt",
         "isolating": "Isolating",
         "heavy_padding": "Heavy padding",
         "mattress": "Mattress, thick carpet",
         "leaves": "Leaves (about 2 cm underneath)",
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
         "leaves_reference": "Althaus et al., 2007 · cooling experiments using dummies and leaves.",
+        "naked_note": "* For naked bodies, values marked +/− in the original are interpreted as overall correction factors, not increases or decreases, consistently with Henssge’s examples.",
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
         "yes": "Yes",
@@ -345,10 +364,10 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
     "it": {
         "weight": "Peso corporeo reale (kg)",
         "cooling": "Condizioni di raffreddamento",
-        "clothing": "Abbigliamento, più strati",
-        "bedspread": "Coperta",
-        "clothing_bedspread": "Abbigliamento + coperta",
-        "feather_bed": "Piumone",
+        "clothing": "Vestiti/teli, più strati",
+        "bedspread": "Coperte spesse",
+        "clothing_bedspread": "Vestiti/teli + coperte spesse",
+        "feather_bed": "Coperte molto pesanti/piumone",
         "note": (
             "Il riferimento dei fattori empirici è 70 kg (valori in grassetto). "
             "Per un peso corporeo diverso, il fattore scelto per 70 kg va adattato leggendo "
@@ -361,10 +380,10 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
     "en": {
         "weight": "Real body weight (kg)",
         "cooling": "Cooling conditions",
-        "clothing": "Clothing, more layers",
-        "bedspread": "Bedspread",
-        "clothing_bedspread": "Clothing + bedspread",
-        "feather_bed": "Feather bed",
+        "clothing": "Clothes/sheets, multiple layers",
+        "bedspread": "Thick blankets",
+        "clothing_bedspread": "Clothes/sheets + thick blankets",
+        "feather_bed": "Very heavy blankets/duvet",
         "note": (
             "The empirical corrective factors use 70 kg as the reference body weight "
             "(values in bold). For a different body weight, the factor selected for 70 kg "
@@ -513,7 +532,7 @@ def _render_combined_table(language: str) -> None:
               <tr><td class="subcriterion nested">{text['grade']} III</td><td>{n}</td><td>3.5</td><td>{p}</td><td>13.0</td><td>{c}</td><td></td></tr>
               <tr><td class="subcriterion nested">{text['grade']} II</td><td>{n}</td><td>5.0</td><td>{p}</td><td>26.0</td><td>{c}</td><td></td></tr>
               <tr><td class="subcriterion nested">{text['grade']} I</td><td>{n}</td><td>5.0</td><td>{p}</td><td>22.0</td><td>{c}</td><td></td></tr>
-              <tr><td class="subcriterion">{text['mouth']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>11.0</td><td>{v}</td><td>[4]</td></tr>
+              <tr><td class="subcriterion">{text['mouth']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>11.0*</td><td>{v}</td><td>[4]</td></tr>
               <tr class="group-row"><td>{text['chemical']}</td><td></td><td></td><td></td><td></td><td></td><td>[4]</td></tr>
               <tr><td class="subcriterion">{text['atropin']}</td><td>{n}</td><td>3.0</td><td>{p}</td><td>10.0</td><td>{v}</td><td></td></tr>
               <tr><td class="subcriterion">{text['tropicamide']}</td><td>{n}</td><td>5.0</td><td>{p}</td><td>30.0</td><td>{v}</td><td></td></tr>
@@ -525,7 +544,10 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(f"{text['adapted']}: {_COMBINED_REFERENCE}")
-    st.caption("I numeri tra parentesi quadre rinviano alla bibliografia dell’articolo originale." if language == "it" else "Numbers in square brackets refer to the original article’s bibliography.")
+    st.caption(text['mouth_note'])
+    st.caption("Riferimenti ripresi dalla bibliografia originale, con la stessa numerazione; non tutti consultati direttamente." if language == "it" else "References from the original bibliography, retaining its numbering; not all were consulted directly.")
+    for reference in _COMBINED_BIBLIOGRAPHY:
+        st.caption(reference)
 
 
 def _render_henssge_base_table(language: str) -> None:
@@ -593,12 +615,12 @@ def _render_henssge_special_table(language: str) -> None:
                 <td>{text['thick']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['thin']}</td><td>+0.3</td></tr>
-              <tr><td>{text['no']}</td><td>1.3</td></tr>
+              <tr><td>{text['no']}</td><td>1.3*</td></tr>
               <tr>
                 <td rowspan="2">{text['mattress']}</td>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
-              <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
+              <tr><td>{text['no']}</td><td>1.1–1.2*</td></tr>
               <tr>
                 <td>{text['leaves']}</td><td>{text['no']}</td><td>{text['leaves_factors']}</td>
               </tr>
@@ -607,7 +629,7 @@ def _render_henssge_special_table(language: str) -> None:
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
-              <tr><td>{text['no']}</td><td>0.75</td></tr>
+              <tr><td>{text['no']}</td><td>0.75*</td></tr>
             </tbody>
           </table>
         </div>
@@ -615,6 +637,7 @@ def _render_henssge_special_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(f"{text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
+    st.caption(text['naked_note'])
     st.caption(f"{text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
 
 

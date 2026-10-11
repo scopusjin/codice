@@ -31,12 +31,13 @@ def case_rows(case_types=None):
 
 def render_fc_cases():
     st.subheader("Casi documentati da Henssge")
-    st.caption("Sono riportati 13 casi sperimentali e 4 casi della pratica medico-legale, in 16 schede. L’elenco non comprende l’intera casistica pubblicata. Pesi e fattori conservano la precisione della fonte.")
+    st.caption("Sono riportati 13 casi sperimentali e 30 casi della pratica medico-legale, in 42 schede. I casi pratici coprono la selezione delle tabelle 6.17 e 6.21 di Madea, 2016, non l’intera serie di 72 casi. Pesi e fattori conservano la precisione della fonte.")
     st.markdown("**Esperimenti su cadaveri**")
     st.write("Il raffreddamento è osservato in condizioni controllate e il fattore di correzione è ricavato dai dati. Ogni valore si riferisce al peso e alle condizioni descritti: non costituisce un incremento fisso da attribuire a un singolo indumento.")
     st.dataframe(case_rows(("Esperimento", "Esperimenti")), hide_index=True, width="stretch")
     st.markdown("**Casi della pratica medico-legale**")
     st.write("Sono casi reali esaminati durante accertamenti medico-legali. Il medico sceglie il FC, o un intervallo di FC, in base alle condizioni della scena per stimare l’epoca del decesso. Quando l’indagine consente di conoscere il tempo di morte, si può verificare la concordanza con la stima; questo riscontro non è disponibile per tutti i casi.")
-    st.dataframe(case_rows(("Caso operativo",)), hide_index=True, width="stretch")
+    practical_rows = sorted(case_rows(("Caso operativo",)), key=lambda row: int(row["Caso"].split()[-1]))
+    st.dataframe(practical_rows, hide_index=True, width="stretch")
     st.caption("Le prove su simulatore, citate per alcuni appoggi e per le foglie, riguardano invece corpi artificiali con un peso virtuale: non sono casi su cadaveri. Le proposte interpretative dell’app sono indicate separatamente dalle osservazioni pubblicate.")
 
