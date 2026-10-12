@@ -25,6 +25,8 @@ from app.graphing_tanatology import (
 )
 from app.special_tanatology_states import PARAM_ELECTRICAL_PERIORAL
 from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combination
+from app.cooling_inputs import missing_cooling_inputs
+from app.fc_scenarios import temperature_description
 from app.utils_time import round_quarter_hour
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -172,6 +174,12 @@ def aggiorna_grafico(
 
     # --- validazioni base (configurabili) ---
     if not skip_warnings:
+        missing = missing_cooling_inputs(input_rt=input_rt, input_ta=input_ta,
+            input_tm=input_tm, input_w=input_w, fattore_correzione=fattore_correzione,
+            options=st.session_state if cooling_options is None else cooling_options)
+        if missing:
+            st.error(missing)
+            return
         if input_w is None or input_w <= 0:
             st.error(i18n.ui_text("graph.invalid_weight"))
             return
@@ -548,7 +556,7 @@ def aggiorna_grafico(
 
     st.session_state["frase_breve"] = None
 
-    if num_params_grafico == 0:
+    if num_params_grafico == 0 and not cooling.validation_error:
         warn_box(i18n.ui_text("graph.no_useful_data"))
 
     if num_params_grafico > 0:
@@ -673,7 +681,10 @@ def aggiorna_grafico(
             )
             _add_det(paragrafo_raffreddamento_input(
                 isp_dt=data_ora_ispezione if usa_orario_custom else None,
-                ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr
+                ta_val=Ta_val, tr_val=Tr_val, w_val=W_val, t0_val=T0_val, cf_descr=cf_descr,
+                ambient_temperature_text=temperature_description(
+                    st.session_state if cooling_options is None else cooling_options,
+                    (CF_val, CF_val), W_val, (Ta_val, Ta_val)),
             ))
 
         if temperatures_equal:

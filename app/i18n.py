@@ -358,6 +358,7 @@ def cooling_input_paragraph(
     weight_text: str,
     t0_text: str,
     correction_description: str,
+    ambient_temperature_text: Optional[str] = None,
     language: Optional[str] = None,
 ) -> str:
     """Riepilogo localizzato degli input utilizzati per il raffreddamento."""
@@ -369,6 +370,7 @@ def cooling_input_paragraph(
         weight_text=weight_text,
         t0_text=t0_text,
         correction_description=correction_description,
+        ambient_temperature_text=ambient_temperature_text,
     )
 
 
@@ -528,11 +530,13 @@ def prudent_graphing_result_range(start: str, end: str, language: Optional[str] 
 def prudent_graphing_detail_list(
     *, header: str, ta_text: str, cf_text: str, weight_text: str,
     scenario_description: Optional[str] = None,
+    ta_is_range: bool = True, cf_is_range: bool = True,
     language: Optional[str] = None,
 ) -> str:
     return _get_henssge_locale(language).prudent_graphing_detail_list(
         header=header, ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
         scenario_description=scenario_description,
+        ta_is_range=ta_is_range, cf_is_range=cf_is_range,
     )
 
 

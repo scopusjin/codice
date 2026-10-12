@@ -55,6 +55,25 @@ class CoolingInputRegressionTests(unittest.TestCase):
                     self.assertFalse(result.raffreddamento_calcolabile)
                     self.assertTrue(result.validation_error)
 
+    def test_missing_inputs_are_listed_together_without_calling_the_solver(self):
+        for values, expected in [
+            ({"input_rt": None}, "Manca la temperatura rettale."),
+            ({"input_rt": None, "input_ta": None, "input_tm": None},
+             "Mancano tutte le temperature (rettale, ambientale e ante-mortem)."),
+            ({"input_w": None, "fattore_correzione": None}, "Mancano il peso corporeo e il FC."),
+            ({"input_ta": None, "input_w": None}, "Mancano la temperatura ambientale e il peso corporeo."),
+        ]:
+            with self.subTest(values=values), patch('app.graphing_cooling.calcola_raffreddamento') as solver:
+                result = self.cooling({}, **values)
+                self.assertEqual(result.validation_error, expected)
+                solver.assert_not_called()
+
+    def test_cleared_raw_endpoint_is_identified_after_canonical_bounds_are_removed(self):
+        result = self.cooling(dict(stima_cautelativa_beta=True,
+            ta_base_val=20., ta_other_val=None, fc_min_val=1., fc_other_val=None))
+        self.assertEqual(result.validation_error,
+            "Mancano uno dei due valori di temperatura ambientale e uno dei due valori di FC.")
+
     def test_low_estimated_weight_does_not_generate_zero_or_negative_weights(self):
         state = dict(stima_cautelativa_beta=True, peso_stimato_beta=True,
                      Ta_min_beta=20., Ta_max_beta=20., FC_min_beta=1., FC_max_beta=1.)

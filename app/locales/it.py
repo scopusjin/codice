@@ -531,6 +531,7 @@ def cooling_input_paragraph(
     weight_text: str,
     t0_text: str,
     correction_description: str,
+    ambient_temperature_text: str | None = None,
 ) -> str:
     if inspection_time is None or inspection_date is None:
         temperature_title = "Temperature misurate nel corso dell’ispezione legale:"
@@ -545,7 +546,7 @@ def cooling_input_paragraph(
         "<ul>"
         f"<li>{temperature_title}"
         "<ul>"
-        f"<li>Temperatura ambientale: {ta_text} °C.</li>"
+        f"<li>Temperatura ambientale: {ambient_temperature_text or ta_text + ' °C'}.</li>"
         f"<li>Temperatura rettale: {tr_text} °C.</li>"
         "</ul>"
         "</li>"

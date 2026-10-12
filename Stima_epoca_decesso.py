@@ -25,6 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
+from app.cooling_inputs import missing_cooling_inputs
 from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 
 import streamlit as st
@@ -1130,14 +1131,18 @@ if st.session_state["show_results"]:
 
     if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile:
         with result_slot.container(key="mortem_no_data_box"):
-            st.warning(i18n.ui_text("full.no_data_warning"))
+            missing = missing_cooling_inputs(input_rt=input_rt, input_ta=input_ta,
+                input_tm=input_tm, input_w=input_w,
+                fattore_correzione=st.session_state.get("fattore_correzione"),
+                options=st.session_state)
+            st.warning(("Per la stima del raffreddamento: " + missing) if missing
+                       else i18n.ui_text("full.no_data_warning"))
         st.stop()
 
     # The cooling layer validates incomplete/invalid inputs and reports the
     # specific field. Other tanatological parameters remain usable.
     considera_raffreddamento = (
-        not st.session_state.get("henssge_non_applicabile", False) and
-        input_rt is not None
+        not st.session_state.get("henssge_non_applicabile", False)
     )
 
     with result_slot.container(key="mortem_result_box"):

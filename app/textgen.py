@@ -317,7 +317,8 @@ def paragrafo_raffreddamento_input(
     tr_val: Optional[float],
     w_val: Optional[float],
     t0_val: Optional[float],
-    cf_descr: str
+    cf_descr: str,
+    ambient_temperature_text: Optional[str] = None,
 ) -> str:
     """
     Paragrafo con riepilogo input Henssge. HTML <ul> nidificata.
@@ -341,6 +342,7 @@ def paragrafo_raffreddamento_input(
         weight_text=w_txt,
         t0_text=t0_txt,
         correction_description=cf_descr,
+        ambient_temperature_text=ambient_temperature_text,
     )
 
 def paragrafi_descrizioni_base(

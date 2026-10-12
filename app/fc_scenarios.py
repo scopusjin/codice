@@ -33,7 +33,9 @@ def summarize_scenarios(scenarios):
         texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
-    text = f"Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): {bounds[0]:.2f} ({descriptions[0]})"
+    label = ("Fattore di correzione considerato" if bounds[0] == bounds[1] else
+             "Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo)")
+    text = f"{label}: {bounds[0]:.2f} ({descriptions[0]})"
     if bounds[0] != bounds[1]:
         text += f" — {bounds[1]:.2f} ({descriptions[1]})"
     return bounds, text
@@ -99,6 +101,42 @@ def matching_temperature_scenarios(state, bounds, weight, temperatures):
     if tuple(temperatures) != expected:
         raise ValueError("Temperature modificate: aggiornare le temperature nel pannello Più scenari.")
     return [(float(item["temperature"]), item["range"]) for item in choice["scenarios"]]
+
+
+def temperature_description(state, bounds, weight, temperatures):
+    """Format the current temperatures, attaching water notes only to matching choices."""
+    lo, hi = temperatures
+    plain = f"{lo:.1f} °C" if lo == hi else f"{lo:.1f} – {hi:.1f} °C"
+    choice = state.get("__fc_applied_choice") or {}
+    if choice.get("range") != list(bounds) or choice.get("weight") != weight:
+        return plain
+    items = choice.get("scenarios") or [choice]
+    if not all(finite_number(item.get("temperature")) for item in items):
+        return plain
+    values = [float(item["temperature"]) for item in items]
+    if (min(values), max(values)) != (lo, hi):
+        return plain
+    water = {float(item["temperature"]) for item in items
+             if (item.get("conditions") or {}).get("state") == "Immerso"}
+    if not water:
+        return plain
+    if all((item.get("conditions") or {}).get("state") == "Immerso" for item in items):
+        return plain + " (temperatura dell’acqua)"
+
+    shared = {float(item["temperature"]) for item in items
+              if (item.get("conditions") or {}).get("state") != "Immerso"} & water
+    def endpoint(value):
+        text = f"{value:.1f} °C"
+        if value in water:
+            text += (" (temperatura ambientale e dell’acqua)" if value in shared else
+                     " (temperatura dell’acqua)")
+        return text
+
+    text = endpoint(lo) if lo == hi else endpoint(lo) + " – " + endpoint(hi)
+    middle_water = water - {lo, hi}
+    if middle_water:
+        text += " (temperatura dell’acqua: " + ", ".join(f"{v:.1f} °C" for v in sorted(middle_water)) + ")"
+    return text
 
 
 def manual_fc_note(state, bounds, weight):

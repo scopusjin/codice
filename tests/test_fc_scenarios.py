@@ -5,7 +5,7 @@ from app import i18n
 from app.fc_page import _current_fc_draft, FULL_PAGE, MSIL_PAGE
 from app.fc_selection import apply_choice, refresh_fc_for_weight, fc_weight_warning, validate_choice
 from app.fc_scenarios import (matching_scenario_description, summarize_scenarios,
-                             matching_temperature_scenarios, manual_fc_note)
+                             matching_temperature_scenarios, manual_fc_note, temperature_description)
 
 
 def scenario_payload():
@@ -92,7 +92,7 @@ class FCScenarioTests(unittest.TestCase):
                              [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
             self.assertEqual(sum(dict(cooling.qd_status_counts).values()), 2)
             details = "".join(cooling.detail_blocks)
-            self.assertIn("8.0 – 20.0 °C", details)
+            self.assertIn("8.0 °C (temperatura dell’acqua) – 20.0 °C", details)
             self.assertNotIn("Temperature degli scenari", details)
             self.assertIn("1.35 (corpo asciutto)", details)
             self.assertNotIn("corpo asciutto, ambiente", details)
@@ -102,6 +102,45 @@ class FCScenarioTests(unittest.TestCase):
             solver.assert_not_called()
             self.assertFalse(cooling.raffreddamento_calcolabile)
             self.assertIn("Temperature modificate", cooling.validation_error)
+
+    def test_water_notes_follow_matching_temperatures_and_collapse_equal_values(self):
+        payload = temperature_payload()
+        state = {"__fc_applied_choice": payload}
+        self.assertEqual(temperature_description(state, payload["range"], 70., (8., 20.)),
+                         "8.0 °C (temperatura dell’acqua) – 20.0 °C")
+        payload["scenarios"][0]["conditions"] = {"state": "Immerso"}
+        self.assertEqual(temperature_description(state, payload["range"], 70., (8., 20.)),
+                         "8.0 – 20.0 °C (temperatura dell’acqua)")
+        payload["scenarios"][1]["temperature"] = 20.
+        self.assertEqual(temperature_description(state, payload["range"], 70., (20., 20.)),
+                         "20.0 °C (temperatura dell’acqua)")
+        payload["scenarios"][0]["conditions"] = {"state": "Asciutto"}
+        self.assertEqual(temperature_description(state, payload["range"], 70., (20., 20.)),
+                         "20.0 °C (temperatura ambientale e dell’acqua)")
+        # Editing values/weight must not reuse conditions from an older choice.
+        self.assertEqual(temperature_description(state, payload["range"], 80., (20., 20.)), "20.0 °C")
+        self.assertEqual(temperature_description(state, payload["range"], 70., (19., 20.)), "19.0 – 20.0 °C")
+        state["__fc_applied_choice"] = payload["scenarios"][1]
+        self.assertEqual(temperature_description(state, [1.4, 1.4], 70., (20., 20.)),
+                         "20.0 °C (temperatura dell’acqua)")
+
+    def test_equal_values_use_singular_descriptions_even_with_multiple_scenarios(self):
+        import datetime
+        from app.graphing_cooling import compute_cooling_state
+        payload = temperature_payload()
+        for item in payload["scenarios"]:
+            item.update(temperature=20., range=[1.35, 1.35], base_range=[1.35, 1.35])
+        payload["range"] = [1.35, 1.35]
+        state = {}
+        apply_choice(state, payload)
+        result = compute_cooling_state(input_rt=30., input_ta=20., input_tm=37.2,
+            input_w=70., fattore_correzione=1.35, data_ora_ispezione=datetime.datetime(2026, 1, 1),
+            skip_warnings=True, cooling_options=state)
+        text = result.detail_blocks[0]
+        self.assertIn("Temperatura ambientale media", text)
+        self.assertIn("Fattore di correzione considerato: 1.35", text)
+        self.assertNotIn("Range di", text)
+        self.assertTrue(result.raffreddamento_calcolabile)
 
     def test_exact_extremes_and_conditions(self):
         payload = scenario_payload()

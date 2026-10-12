@@ -51,6 +51,23 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         self.assertNotIn("Applicando l'equazione", app.session_state['__desc_dettagliate_html'])
         self.assertNotRegex(app.session_state['__desc_dettagliate_html'], r'<(?:b|strong)\b')
 
+    def test_missing_rectal_temperature_is_named_in_both_views(self):
+        for msil in (False, True):
+            with self.subTest(msil=msil):
+                app = self.start(rt_val=None)
+                if msil:
+                    app.switch_page('pages/App_MSIL.py').run()
+                app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
+                self.assertFalse(app.exception)
+                self.assertTrue(any('Manca la temperatura rettale.' in warning.value
+                                    for warning in app.warning))
+                app.selectbox[0].select(app.selectbox[0].options[1]).run()
+                app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
+                self.assertFalse(app.exception)
+                self.assertIsNotNone(app.session_state['frase_breve'])
+                self.assertTrue(any('Manca la temperatura rettale.' in warning.value
+                                    for warning in app.warning))
+
     def test_temperature_order_is_invariant_in_full_results(self):
         results = []
         for first, second in [(20., 35.), (35., 20.)]:

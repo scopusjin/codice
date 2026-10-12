@@ -471,17 +471,13 @@ if st.session_state.get("run_stima_mobile"):
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     
-    considera_raffreddamento = (
-        input_rt is not None
-    )
-
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        input_rt=(input_rt if considera_raffreddamento else None),
-        input_ta=(input_ta if considera_raffreddamento else None),
-        input_tm=(37.2 if considera_raffreddamento else None),
-        input_w=(input_w if considera_raffreddamento else None),
+        input_rt=input_rt,
+        input_ta=input_ta,
+        input_tm=37.2,
+        input_w=input_w,
         fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
         widgets_parametri_aggiuntivi={},
         usa_orario_custom=st.session_state.get("usa_orario_custom"),

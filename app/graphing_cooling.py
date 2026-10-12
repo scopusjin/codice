@@ -19,8 +19,8 @@ from app import i18n
 from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
 from app.parameters import INF_HOURS
-from app.cooling_inputs import checked_interval, checked_weight, finite_number
-from app.fc_scenarios import matching_scenario_description, matching_temperature_scenarios
+from app.cooling_inputs import checked_interval, checked_weight, finite_number, missing_cooling_inputs
+from app.fc_scenarios import matching_scenario_description, matching_temperature_scenarios, temperature_description
 
 
 def _is_num(x):
@@ -143,6 +143,10 @@ def compute_cooling_state(
     requested = any(v is not None for v in (Tr_val, Ta_val, T0_val, W_val))
     try:
         if requested:
+            missing = missing_cooling_inputs(input_rt=Tr_val, input_ta=Ta_val,
+                input_tm=T0_val, input_w=W_val, fattore_correzione=CF_val, options=options)
+            if missing:
+                raise ValueError(missing)
             if prudent:
                 # Both UI modes supply explicit bounds. An incomplete form is
                 # not permission to reuse old suggestions or invent +/- deltas.
@@ -291,7 +295,7 @@ def compute_cooling_state(
 
             # --- Range Ta/FC per riepilogo ---
             ta_lo, ta_hi = Ta_range
-            ta_txt = f"{ta_lo:.1f} °C" if ta_lo == ta_hi else f"{ta_lo:.1f} – {ta_hi:.1f} °C"
+            ta_txt = temperature_description(options, CF_range, W_val, Ta_range)
 
             cf_lo, cf_hi = CF_range
             cf_txt = f"{cf_lo:.2f}" if cf_lo == cf_hi else f"{cf_lo:.2f} – {cf_hi:.2f}"
@@ -308,6 +312,8 @@ def compute_cooling_state(
                 cf_text=cf_txt,
                 weight_text=p_txt,
                 scenario_description=matching_scenario_description(options, CF_range, W_val),
+                ta_is_range=ta_lo != ta_hi,
+                cf_is_range=cf_lo != cf_hi,
             )
             detail_blocks.append(elenco_html)
 
