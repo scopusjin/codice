@@ -81,6 +81,13 @@ def _current_fc_draft(state, home):
         return scenario_draft(choice)
     base = choice.get("base_range") if matches else None
     manual = choice.get("manual", True) if base is not None else True
+    defaults = [0.9, 1.1] if home == MSIL_PAGE else [1.0, 1.0]
+    preset = (not choice and values == defaults) or (
+        matches and not choice.get("manual") and bool((choice.get("draft") or {}).get("preset"))
+    )
+    if preset:
+        manual = False
+        base = values if base is None else base
     draft = deepcopy(choice.get("draft") or state.get("__fc_draft") or {})
     if choice.get("scenarios"):
         draft.pop("multiple", None)
@@ -88,7 +95,7 @@ def _current_fc_draft(state, home):
     draft.update(
         lo="" if values[0] is None else f"{values[0]:.2f}",
         hi="" if values[1] is None else f"{values[1]:.2f}",
-        weight=state.get("peso"), manual=manual,
+        weight=state.get("peso"), manual=manual, preset=preset,
         manualBase=(base if base is not None else values) if manual else None,
         selectedBase=base if not manual else None,
         manualWeightAdjusted=bool(matches and choice.get("manual_weight_adjusted")),

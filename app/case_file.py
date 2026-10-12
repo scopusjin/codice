@@ -39,7 +39,7 @@ CHOICE_KEYS = set("""range weight base_range manual manual_weight_adjusted weigh
 manual_center conditions description rule explanation sources draft scenarios temperature""".split())
 DRAFT_FIELDS = set("""thin thick medium heavy surface metal-type leaf leaf-cover feather air water
 isolation blanket-volume support-soaked""".split())
-DRAFT_BOOLS = set("""waterNearZero wetCase manual manualWeightAdjusted weightAdjusted
+DRAFT_BOOLS = set("""waterNearZero wetCase manual preset manualWeightAdjusted weightAdjusted
 rangeExpanded sourceOpen multiple scenarioWeightAdjusted temperatureEdited""".split())
 DRAFT_KEYS = DRAFT_BOOLS | {"state", "fields", "lo", "hi", "weight", "manualBase", "selectedBase",
                             "temperature", "activeScenario", "scenarios"}

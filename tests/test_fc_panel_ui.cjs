@@ -184,3 +184,48 @@ nodes['scenario-temperature'].value='0';nodes['scenario-temperature'].events.inp
 assert.equal(nodes.use.disabled,false);assert.equal(panel.payload().temperature,0);
 console.log('Compact FC: point/range edits, automatic blanket range, exact saved weight and explicit temperature passed.');
 require('./test_fc_water_temperature.cjs');
+
+// Provenance follows actual edits, not the numeric value or opening the editor.
+const defaultDraft={state:'Asciutto',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',air:'still'},
+  lo:'1.00',hi:'1.00',weight:70,manual:false,preset:true,selectedBase:[1,1]};
+panel.restore(defaultDraft,70,20);
+assert.equal(nodes['editable-note'].textContent,'FC preimpostato, non ancora modificato.');
+assert.equal(panel.payload().manual,false);
+nodes.lo.events.blur();
+assert.equal(panel.snapshot().preset,true);
+nodes.weight.value='100';nodes.weight.events.input();
+assert.equal(panel.snapshot().preset,true);
+panel.restore(panel.snapshot(),100,20);
+assert.equal(panel.snapshot().preset,true);
+nodes.lo.value='1.00';nodes.lo.events.input();
+assert.equal(panel.snapshot().preset,false);
+assert.equal(panel.payload().manual,true);
+assert.match(nodes['editable-note'].textContent,/coincidente con il valore suggerito/);
+panel.restore(panel.snapshot(),100,20);
+assert.equal(panel.payload().manual,true);
+assert.equal(panel.snapshot().preset,false);
+
+// Both endpoints must stay inside the suggested interval (inclusive).
+panel.restore(defaultDraft,70,20);
+nodes.thin.value='3';nodes.thin.events.input();
+assert.equal(panel.snapshot().preset,false);
+assert.equal(panel.payload().manual,false);
+nodes.lo.value='1.25';nodes.lo.events.input();
+assert.match(nodes['editable-note'].textContent,/entro l’intervallo suggerito/);
+assert.match(nodes['editable-note'].textContent,/1.20.*1.30/);
+nodes.hi.value='1.35';nodes.hi.events.input();
+assert.match(nodes['editable-note'].textContent,/in parte al di fuori/);
+nodes.lo.value='1.35';nodes.lo.events.input();
+assert.match(nodes['editable-note'].textContent,/, al di fuori/);
+nodes.lo.value='1.20';nodes.lo.events.input();nodes.hi.value='1.30';nodes.hi.events.input();
+assert.equal(panel.payload().manual,true);
+assert.match(nodes['editable-note'].textContent,/entro l’intervallo suggerito/);
+nodes.restore.events.click();
+assert.equal(panel.payload().manual,false);
+assert.equal(nodes['editable-note'].hidden,true);
+
+// A manual value is still allowed when no automatic range can be suggested.
+nodes.surface.value='metal';nodes['metal-type'].value='';nodes.surface.events.change();
+nodes.lo.value='1.00';nodes.lo.events.input();nodes.hi.value='1.00';nodes.hi.events.input();
+assert.match(nodes['editable-note'].textContent,/senza un suggerimento automatico disponibile/);
+console.log('FC provenance: preset, intentional edits, reopening, weight and suggested-range comparisons passed.');
