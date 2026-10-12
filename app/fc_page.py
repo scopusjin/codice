@@ -53,8 +53,17 @@ def open_fc_page(home=FULL_PAGE, *, multiple=False):
 
 
 def render_scenarios_button(home=FULL_PAGE):
-    if st.button("Più scenari", key="btn_fc_scenarios",
-                 help="Confronta condizioni e temperature di più scenari."):
+    from app.full_mobile_layout import _render_click_help
+
+    with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
+        clicked = st.button("Più scenari", key="btn_fc_scenarios")
+        _render_click_help(
+            "Usa Più scenari se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, "
+            "in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli "
+            "al raffreddamento e fornisce un intervallo di stima che comprende entrambe.",
+            "mortem_help_prudent",
+        )
+    if clicked:
         open_fc_page(home, multiple=True)
 
 
@@ -155,7 +164,6 @@ def render_fc_route_if_requested(home=FULL_PAGE):
             open_fc_page(home)
         return
     # A stable component key retains the browser controls across draft reruns.
-    case_menu_slot = st.empty()
     component = components.declare_component("mortem_fc_panel", path=str(_FRONTEND))
     event = component(
         examples=load_examples(),
@@ -169,7 +177,7 @@ def render_fc_route_if_requested(home=FULL_PAGE):
     )
     _consume_event(event)
     from app.case_ui import render_case_menu
-    render_case_menu(home, case_menu_slot)
+    render_case_menu(home)
     st.stop()
 
 

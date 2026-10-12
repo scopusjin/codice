@@ -50,7 +50,7 @@ class FCPageTests(unittest.TestCase):
                     app.button(key="btn_stima").click().run()
                     self.assertEqual(list(app.exception), [])
                     text = app.session_state["__desc_dettagliate_html"]
-                    self.assertIn("color:blue;font-size:small;'>FC impostato manualmente negli scenari 1, 2.", text)
+                    self.assertRegex(text, r"<p style='color:blue;font-size:small;[^']*'>FC impostato manualmente negli scenari 1, 2\.")
                     self.assertIn("acqua 8 °C", text)
 
     def test_conditions_helper_replaces_toggle_and_panel_activates_ranges(self):
@@ -67,7 +67,7 @@ class FCPageTests(unittest.TestCase):
                     self.assertTrue(app.session_state["range_unico_beta"])
                     self.assertTrue(app.session_state["stima_cautelativa_beta"])
                     self.assertNotIn("stima_cautelativa_beta", [e.key for e in app.toggle])
-                    self.assertTrue(any("Usa Più scenari" in e.value for e in app.markdown))
+                    self.assertEqual(any("Usa Più scenari" in e.value for e in app.markdown), not excluded)
                 self.assertEqual(app.session_state["fc_min_val"], 1.)
                 self.assertEqual(app.session_state["fc_other_val"], 1.5)
 

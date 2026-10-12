@@ -118,8 +118,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-case_menu_slot = st.empty()
-
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
@@ -507,7 +505,7 @@ if st.session_state.get("run_stima_mobile"):
 
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
-render_case_menu(MSIL_PAGE, case_menu_slot)
+render_case_menu(MSIL_PAGE)
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)

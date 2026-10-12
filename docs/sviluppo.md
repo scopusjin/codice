@@ -115,3 +115,18 @@ Repository: `scopusjin/codice`. Branch: `refactor-tanatology-keys`, collegato a 
 - Ultimo commit con conferma di test utente recuperata dal precedente punto di ripresa: `9577c619`; non equivale alla validazione dei commit successivi. Questo intervento resta da provare in Word.
 
 Prossimo passo concordato: dopo l'aggiornamento dell'app, copiare descrizioni con voci annidate e note blu, incollare con Mantieni formattazione originale e verificare in Word Interlinea = Minima, valore = 14 pt e punti elenco modificabili. Non considerare il controllo HTML una prova del comportamento di Word. Nessun ulteriore intervento funzionale concordato prima di questo riscontro.
+
+
+## Punto di avanzamento — menu Caso e helper scenari, 12 ottobre 2026
+
+- Repository: `scopusjin/codice`; branch: `refactor-tanatology-keys`, collegato all’app di test secondo la conferma dell’utente già acquisita. Base verificata su GitHub: `9ad4e88591a13165e726e4b8a10a6f2f32e04ce1`. Il commit di questo intervento è identificabile con `git log -1 --format=%H --grep='Compatta menu Caso e helper Più scenari'`. `main` non coinvolto.
+- Richiesta autorizzata: menu Caso in fondo a destra, nella colonna della stima sul desktop; helper accanto a Più scenari; spiegazione senza riferimenti alle durate, basata sulle condizioni effettive o ragionevolmente possibili e sull’intervallo che comprende gli estremi.
+- `Stima_epoca_decesso.py`: rimosso lo spazio riservato al menu sopra gli input; menu finale e contenitore dei risultati conservato prima di esso anche in presenza dell’avviso di dati mancanti. Conservato il marcatore di layout esistente. Il pulsante scenari e il suo helper sono mostrati insieme quando Henssge è applicabile.
+- `app/desktop_layout.css`: il menu finale occupa la seconda colonna della griglia desktop esistente, dopo i risultati. La disposizione verticale sugli schermi stretti conserva il menu in fondo. Nessun posizionamento fisso o nuova correzione CSS sovrapposta.
+- `app/fc_page.py`, `render_scenarios_button()`: pulsante e helper nella stessa riga nativa Streamlit. `render_fc_route_if_requested()` e `pages/App_MSIL.py`: menu Caso dopo il contenuto.
+- `app/fc_panel_frontend/index.html`: anche la nota sugli scenari nel pannello usa il nuovo testo; eliminato il riferimento a 30–60 minuti. L’identificativo DOM esistente è conservato per evitare modifiche alla logica JavaScript.
+- Invariati calcoli, accoppiamenti temperatura/FC, adattamento al peso, risultati, formattazione Word, salvataggio/ripristino e chiavi di sessione.
+- Ultimo commit con test utente documentato: `9577c619`; le modifiche successive non sono automaticamente validate da quel riscontro. Questa disposizione richiede il test visivo dell’utente su desktop e telefono.
+- Tentativi falliti pertinenti: nessuna nuova disposizione scartata; il browser di controllo remoto non raggiunge il server locale (connessione rifiutata). La versione online precedente è stata osservata.
+- Verifiche: compilazione e controllo diff; integrazione del salvataggio casi su desktop/mobile/sopralluogo; 14 test scenari; suite JavaScript del pannello. Nel test preesistente della nota blu è stata accettata la proprietà aggiuntiva dell’interlinea introdotta dal commit `9ad4e885`, conservando il controllo su colore, dimensione e testo.
+- Prossimo passo: verificare nella versione di test Caso in basso a destra, helper vicino a Più scenari e apertura corretta dei due comandi. Restano aperti il riscontro in Word sulle descrizioni e gli altri punti scientifici/documentali già annotati.

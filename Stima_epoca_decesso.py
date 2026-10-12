@@ -46,17 +46,6 @@ def _is_num(x):
         return False
 
 
-def _render_conditions_help():
-    # Keep the page's CSS marker without binding the mode to a widget.
-    with st.container(width="content", key="stima_cautelativa_beta"):
-        _render_click_help(
-            "Usa Più scenari per confrontare condizioni e temperature diverse. "
-            "Ogni scenario associa la propria temperatura al proprio FC; non viene pesato per la durata. "
-            "Per modificare il FC, tocca il suo valore e usa il pannello.",
-            "mortem_help_prudent",
-        )
-
-
 def _sync_interval_state(first_key, second_key, min_key, max_key):
     """Aggiorna gli estremi di calcolo senza modificare i campi inseriti."""
     values = [st.session_state.get(first_key), st.session_state.get(second_key)]
@@ -256,8 +245,6 @@ else:
             f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
         )
 
-case_menu_slot = st.empty()
-
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
@@ -339,8 +326,6 @@ with st.container(border=True, key="full_cooling_card"):
                 help=i18n.ui_text("full.henssge_not_applicable_help"),
             )
 
-    if full_mobile or henssge_non_app:
-        _render_conditions_help()
     # The FC panel activates intervals when a range or multiple scenarios is applied.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
     # Detach the former widget value from Streamlit's widget cleanup on deployment.
@@ -504,9 +489,6 @@ with st.container(border=True, key="full_cooling_card"):
                                 _mortem_compact_label="",
                             )
 
-                    with _ta_right:
-                        _render_conditions_help()
-
                     _sync_interval_state(
                         "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
                     )
@@ -631,9 +613,6 @@ with st.container(border=True, key="full_cooling_card"):
                                 _mortem_compact_label="",
                             )
 
-                    with _ta_right:
-                        _render_conditions_help()
-
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
                     fc_input_col, _fc_spacer = st.columns(
                         [1, 1],
@@ -652,8 +631,10 @@ with st.container(border=True, key="full_cooling_card"):
                         st.session_state.get("toggle_fattore_inline_std", False)
                     )
 
-    if not henssge_non_app:
-        render_scenarios_button(FULL_PAGE)
+    # Preserve the existing layout marker without binding it to a widget.
+    with st.container(width="content", key="stima_cautelativa_beta"):
+        if not henssge_non_app:
+            render_scenarios_button(FULL_PAGE)
 
     # --- Pannello "Suggerisci FC" interno al riquadro raffreddamento ---
     if st.session_state.get("toggle_fattore", False):
@@ -926,8 +907,6 @@ def _inputs_signature():
 
     return tuple(_freeze(base + extra + caut))
 
-render_case_menu(FULL_PAGE, case_menu_slot)
-
 # --- Firma degli input che influenzano la stima ---
 curr_sig = _inputs_signature()
 
@@ -1126,6 +1105,10 @@ if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr
     st.session_state["show_results"] = False
 
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
+result_slot = st.empty()
+with st.container(gap=None, key="full_case_footer"):
+    render_case_menu(FULL_PAGE)
+
 if st.session_state["show_results"]:
     input_rt = st.session_state.get("rt_val")
     input_ta = st.session_state.get("ta_base_val")
@@ -1146,7 +1129,7 @@ if st.session_state["show_results"]:
     )
 
     if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile:
-        with st.container(key="mortem_no_data_box"):
+        with result_slot.container(key="mortem_no_data_box"):
             st.warning(i18n.ui_text("full.no_data_warning"))
         st.stop()
 
@@ -1157,7 +1140,7 @@ if st.session_state["show_results"]:
         input_rt is not None
     )
 
-    with st.container(key="mortem_result_box"):
+    with result_slot.container(key="mortem_result_box"):
         aggiorna_grafico(
             selettore_macchie=selettore_macchie,
             selettore_rigidita=selettore_rigidita,
