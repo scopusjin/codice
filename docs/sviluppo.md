@@ -139,3 +139,10 @@ Base verificata su GitHub: `a63c347ed3f382f373e24023a184c90e85a298b4`, branch `r
 L’utente ha respinto la resa del pulsante dopo il precedente spostamento: troppo simile al comando principale della stima. Non riproporre bordo blu e padding dei pulsanti principali per Più scenari. In `app/fc_page.py`, `render_scenarios_button()`, impostato lo stile nativo `tertiary`, senza bordo/sfondo e con larghezza limitata al contenuto. In `Stima_epoca_decesso.py` e `app/theme.py`, esclusa soltanto la chiave `btn_fc_scenarios` dalle regole grafiche generali che lo rendevano evidente; nessuna nuova toppa CSS. Il comando della stima, il menu Caso, l’helper, i testi, le chiavi di sessione e i calcoli restano invariati.
 
 Verifiche: compilazione Python, import tramite AppTest, diff controllato e test preesistente di apertura/applicazione scenari nelle viste desktop/mobile/sopralluogo. La precedente modifica `a63c347e` ha superato anche GitHub Actions; menu Caso e helper sono stati verificati online. Ultimo commit con test utente documentato resta `9577c619`; la nuova resa grafica è da confermare con l’utente. Prossimo passo: verificare che Più scenari sia un comando discreto vicino al punto interrogativo e apra correttamente il pannello.
+
+
+### Menu Caso sticky sul desktop — 12 ottobre 2026
+
+Richiesta esplicita successiva dell’utente: mantenere il comando e la sigla Caso visibili in basso nella colonna destra durante lo scorrimento. Base GitHub verificata: `0b3e4b898e968633d7429f8a87cf8766ef5b2070`, stesso repository e branch di test. Commit identificabile con `git log -1 --format=%H --grep='Mantiene Caso sticky in basso a destra sul desktop'`.
+
+In `app/desktop_layout.css` la regola esistente del contenitore `full_case_footer` usa `position: sticky`, margine inferiore 0.75rem e allineamento inferiore, limitatamente al layout desktop a due colonne. La posizione resta vincolata alla colonna; su schermi stretti il menu conserva il flusso normale. Nessuna variazione ai calcoli, ai dati, al salvataggio, ai testi o ai controlli. Diff controllato; verifica visiva con scorrimento e riscontro dell’utente come prossimo passo.

@@ -329,10 +329,15 @@
       grid-column: 2 !important;
       grid-row: 3 / span 12 !important;
     }
-    /* Case actions follow the results in the existing right-hand column. */
+    /* Keep case actions visible at the bottom of the existing right-hand column. */
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-full_case_footer, *:has(.st-key-full_case_footer)) {
       grid-column: 2 !important;
       grid-row: 15 !important;
+      position: sticky !important;
+      top: auto !important;
+      bottom: 0.75rem !important;
+      align-self: end !important;
+      z-index: 20 !important;
     }
   }
 }
