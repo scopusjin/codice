@@ -1,23 +1,10 @@
 import streamlit as st
 
-from app import i18n
 from app.mobile_shell import install_minimal_mobile_shell
 
 
 install_minimal_mobile_shell()
 
-
-_MALLACH_REFERENCE = (
-    "Handbook of Forensic Medicine. Editor: Burkhard Madea, 2022 — "
-    "Chapter 7: Post-mortem changes and time since death; dati da: "
-    "Mallach HJ. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
-)
-
-_RIGOR_REFERENCE = (
-    "Henssge C, Madea B. Estimation of the time since death in the early post-mortem period. "
-    "Forensic Sci Int. 2004;144(2–3):167–175. doi:10.1016/j.forsciint.2004.04.051, Table 1; "
-    "dati da Mallach H. Zur Frage der Todeszeitbestimmung. Berl Med. 1964;18:577–582."
-)
 
 _COMBINED_REFERENCE = (
     "Henssge C, Althaus L, Bolt J, Freislederer A, Haffner H-T, Henssge CA, "
@@ -55,109 +42,6 @@ _HENSSGE_WEIGHT_REFERENCE = (
     " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.20."
 )
 
-_MALLACH_TABLE_TEXT = {
-    "it": {
-        "caption": "Decorso temporale di diverse caratteristiche delle macchie ipostatiche*",
-        "criterion": "Criterio",
-        "sd": "DS",
-        "range": "Range di dispersione",
-        "references": "Numero di pubblicazioni valutate",
-        "lower": "Limite inferiore",
-        "upper": "Limite superiore",
-        "development": "In via di comparsa",
-        "confluence": "Confluenza",
-        "maximum": "Massima estensione e intensità",
-        "disappearance": "Improntabilità",
-        "thumb": "1. Completa alla pressione con il pollice",
-        "point": "2. Incompleta alla pressione focale e intensa (pinza)",
-        "shifting": "Migrabilità dopo aver spostato il corpo",
-        "complete": "1. Completa",
-        "incomplete": "2. Incompleta",
-        "slight": "3. Solo lieve impallidimento",
-        "note": (
-            "* I calcoli statistici non sono basati su studi trasversali o longitudinali, "
-            "ma su conoscenze empiriche riportate nei testi.<br>"
-            "x̄ = valore medio; DS = deviazione standard. "
-            "Tutti i tempi sono espressi in ore post-mortem."
-        ),
-        "adapted": "Adattato da",
-    },
-    "en": {
-        "caption": (
-            "Time course of the different criteria of lividity: Mallach's statistical "
-            "calculations based on data reported in textbooks*"
-        ),
-        "criterion": "Criterion",
-        "sd": "SD",
-        "range": "Range of variation",
-        "references": "No. references",
-        "lower": "Lower limit",
-        "upper": "Upper limit",
-        "development": "Development",
-        "confluence": "Confluence",
-        "maximum": "Maximum extension and intensity",
-        "disappearance": "Disappearance",
-        "thumb": "1. Complete on thumb pressure",
-        "point": "2. Incomplete on point pressure (forceps)",
-        "shifting": "Shifting after rotation of the body",
-        "complete": "1. Complete",
-        "incomplete": "2. Incomplete",
-        "slight": "3. Slight blanching only",
-        "note": (
-            "* The statistical calculations are not based on cross-sectional or longitudinal "
-            "studies, but on empirical knowledge reported in textbooks.<br>"
-            "x̄ = mean; SD = standard deviation. All times are expressed in hours postmortem."
-        ),
-        "adapted": "Adapted from",
-    },
-}
-
-_RIGOR_TABLE_TEXT = {
-    "it": {
-        "caption": "Decorso temporale della rigidità cadaverica",
-        "phase": "Fase della rigidità",
-        "mean": "Media con deviazione standard",
-        "hours": "Ore post-mortem",
-        "probability": "Limiti di probabilità del 95.5% (2 s)",
-        "variations": "Variazioni",
-        "lower": "Limite inferiore",
-        "upper": "Limite superiore",
-        "publications": "Numero di pubblicazioni valutate",
-        "delay": "Latenza prima della comparsa",
-        "reestablishment": "Si riforma dopo esser stato vinto",
-        "up_to_5": "Fino a 5",
-        "complete": "Rigidità estesa a tutto il corpo e massima",
-        "persistence": "Persistenza",
-        "resolution": "Risoluzione",
-        "note": (
-            "Media e deviazione standard calcolate sui dati della letteratura di 150 anni "
-            "(1811–1960) da Mallach (1964), nella versione riportata da Henssge e Madea (2004)."
-        ),
-        "adapted": "Adattato da",
-    },
-    "en": {
-        "caption": "Time course of cadaveric rigidity",
-        "phase": "Rigor phase",
-        "mean": "Mean with standard deviation(s)",
-        "hours": "Hours postmortem",
-        "probability": "Limits of 95.5% probability (2 s)",
-        "variations": "Variations",
-        "lower": "Lower limit",
-        "upper": "Upper limit",
-        "publications": "Number of publications evaluated",
-        "delay": "Delay period",
-        "reestablishment": "Re-establishment possible",
-        "up_to_5": "Up to 5",
-        "complete": "Complete rigidity",
-        "persistence": "Persistence",
-        "resolution": "Resolution",
-        "note": (
-            "Mean and standard deviation calculated from the literature data of 150 years "
-            "(1811–1960) by Mallach (1964), as reported by Henssge and Madea (2004)."
-        ),
-        "adapted": "Adapted from",
-    },
-}
 
 _COMBINED_TABLE_TEXT = {
     "it": {
@@ -423,95 +307,6 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
 }
 
 
-def _render_livor_table(language: str) -> None:
-    text = _MALLACH_TABLE_TEXT[language]
-    st.markdown(
-        f"""
-        <div class="mallach-table-wrap">
-          <table class="mallach-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
-              {text['caption']}
-            </caption>
-            <thead>
-              <tr>
-                <th rowspan="2">{text['criterion']}</th>
-                <th rowspan="2">x̄</th>
-                <th rowspan="2">{text['sd']}</th>
-                <th colspan="2">2 {text['sd']}</th>
-                <th colspan="2">{text['range']}</th>
-                <th rowspan="2">{text['references']}</th>
-              </tr>
-              <tr>
-                <th>{text['lower']}</th>
-                <th>{text['upper']}</th>
-                <th>{text['lower']}</th>
-                <th>{text['upper']}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>{text['development']}</td><td>¾</td><td>½</td><td>—</td><td>2</td><td>¼</td><td>3</td><td>17</td></tr>
-              <tr><td>{text['confluence']}</td><td>2½</td><td>1</td><td>¾</td><td>4¼</td><td>1</td><td>4</td><td>5</td></tr>
-              <tr><td>{text['maximum']}</td><td>9½</td><td>4½</td><td>½</td><td>18¼</td><td>3</td><td>16</td><td>7</td></tr>
-              <tr class="group-row"><td colspan="8">{text['disappearance']}</td></tr>
-              <tr><td class="subcriterion">{text['thumb']}</td><td>5½</td><td>6</td><td>—</td><td>17½</td><td>1</td><td>20</td><td>5</td></tr>
-              <tr><td class="subcriterion">{text['point']}</td><td>17</td><td>10½</td><td>—</td><td>37½</td><td>10</td><td>36</td><td>4</td></tr>
-              <tr class="group-row"><td colspan="8">{text['shifting']}</td></tr>
-              <tr><td class="subcriterion">{text['complete']}</td><td>3¾</td><td>1</td><td>2</td><td>5½</td><td>2</td><td>6</td><td>11</td></tr>
-              <tr><td class="subcriterion">{text['incomplete']}</td><td>11</td><td>4½</td><td>2¼</td><td>20</td><td>4</td><td>24</td><td>11</td></tr>
-              <tr><td class="subcriterion">{text['slight']}</td><td>18½</td><td>8</td><td>2½</td><td>34½</td><td>10</td><td>30</td><td>7</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mallach-note">{text['note']}</div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.caption(f"{text['adapted']}: {_MALLACH_REFERENCE}")
-
-
-def _render_rigor_table(language: str) -> None:
-    text = _RIGOR_TABLE_TEXT[language]
-    st.markdown(
-        f"""
-        <div class="mallach-table-wrap">
-          <table class="mallach-table">
-            <caption style="caption-side:top;text-align:left;font-weight:650;padding-bottom:.20rem;">
-              {text['caption']}
-            </caption>
-            <thead>
-              <tr>
-                <th rowspan="3">{text['phase']}</th>
-                <th rowspan="3">{text['mean']}</th>
-                <th colspan="4">{text['hours']}</th>
-                <th rowspan="3">{text['publications']}</th>
-              </tr>
-              <tr>
-                <th colspan="2">{text['probability']}</th>
-                <th colspan="2">{text['variations']}</th>
-              </tr>
-              <tr>
-                <th>{text['lower']}</th>
-                <th>{text['upper']}</th>
-                <th>{text['lower']}</th>
-                <th>{text['upper']}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>{text['delay']}</td><td>3 ± 2</td><td>–</td><td>7</td><td>&lt;1/2</td><td>7</td><td>26</td></tr>
-              <tr><td>{text['reestablishment']}</td><td>{text['up_to_5']}</td><td>–</td><td>–</td><td>2</td><td>8</td><td>–</td></tr>
-              <tr><td>{text['complete']}</td><td>8 ± 1</td><td>6</td><td>10</td><td>2</td><td>20</td><td>28</td></tr>
-              <tr><td>{text['persistence']}</td><td>57 ± 14</td><td>29</td><td>85</td><td>24</td><td>96</td><td>27</td></tr>
-              <tr><td>{text['resolution']}</td><td>76 ± 32</td><td>12</td><td>140</td><td>24</td><td>192</td><td>27</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mallach-note">{text['note']}</div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.caption(f"{text['adapted']}: {_RIGOR_REFERENCE}")
-
-
 def _render_combined_table(language: str) -> None:
     text = _COMBINED_TABLE_TEXT[language]
     sep = "," if language == "it" else "."
@@ -762,8 +557,6 @@ if st.session_state.get("__fc_tables_return"):
     if st.button("← Indietro al FC", key="back_to_fc_top"):
         from app.fc_page import FULL_PAGE
         st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
-    from app.fc_reference_cases import render_fc_cases
-    render_fc_cases()
 
 st.markdown(
     """
@@ -965,27 +758,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- Sezione 1: Mallach ---
-st.markdown(f"## {i18n.ui_text('full.livor_heading')}")
-livor_language = st.radio(
-    "Lingua tabella ipostasi",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="livor_table_language",
-    label_visibility="collapsed",
-)
-_render_livor_table("it" if livor_language == "Italiano" else "en")
-
-st.markdown("## Rigidità cadaverica")
-rigor_language = st.radio(
-    "Lingua tabella rigidità",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="rigor_table_language",
-    label_visibility="collapsed",
-)
-_render_rigor_table("it" if rigor_language == "Italiano" else "en")
-
+# Scientific synthesis of the compound method.
 _combined_language_before = st.session_state.get("combined_table_language", "Italiano")
 st.markdown("## Metodo combinato di Henssge" if _combined_language_before == "Italiano" else "## Henssge’s compound method")
 combined_language = st.radio(
@@ -1059,10 +832,6 @@ henssge_weight_language = st.radio(
     label_visibility="collapsed",
 )
 _render_henssge_weight_table("it" if henssge_weight_language == "Italiano" else "en")
-
-if not st.session_state.get("__fc_tables_return"):
-    from app.fc_reference_cases import render_fc_cases
-    render_fc_cases()
 
 if st.button("← Indietro al FC" if st.session_state.get("__fc_tables_return") else "⬅️ Torna alla pagina principale", key="back_home"):
     if st.session_state.get("__fc_tables_return"):

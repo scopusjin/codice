@@ -12,7 +12,7 @@ Origine: prova `fc-scelta-diretta.html`, versione 19.
 - Se si applica un intervallo dalla modalità standard, si attiva la stima con intervalli; la temperatura ambientale iniziale resta un intervallo puntuale. Un intervallo ambientale già impostato rimane invariato.
 - Anche la modalità sopralluogo conserva l’intervallo scelto, anziché ricostruire automaticamente ±0.10 attorno al valore centrale. Il suo campo centrale resta disponibile per l’inserimento manuale; una modifica manuale ripristina il precedente comportamento della modalità sopralluogo.
 - «Indietro» conserva la bozza e gli aggiornamenti del peso senza applicare il FC. Temperature, data, ora e selezioni della stima vengono ripristinate al ritorno.
-- Il collegamento «Apri le tabelle» apre la pagina già presente nell’app; il catalogo non viene duplicato nel pannello. Tornando al FC, la bozza rimane disponibile.
+- Il collegamento «Apri le tabelle» apre i riferimenti scientifici del metodo combinato e dei FC. Gli esempi selezionati restano nelle spiegazioni contestuali; l’archivio completo di manutenzione è privato. Tornando al FC, la bozza rimane disponibile.
 - Nessun limite superiore di 3 viene imposto al FC scelto.
 
 ## Controlli eseguiti
@@ -45,6 +45,6 @@ node tests/test_fc_panel_ui.cjs
 
 Verificare visivamente desktop e telefono: allineamento dei contatori, assenza di tagli nel componente, spiegazioni aperte, peso e trasferimento del range. I test Streamlit non verificano il rendering effettivo nel browser.
 
-Il catalogo comprende i 15 record documentali presenti nella prova, non l’intera casistica pubblicata. Le fonti già segnalate come incomplete rimangono indicate come tali. La formula del peso è quella concordata nella prova: il coefficiente 3.24596 proviene dalla trascrizione consultata; resta da confrontarlo visivamente con la pagina originale. L’integrazione non risolve queste verifiche bibliografiche pendenti.
+Il catalogo pubblico comprende 34 schede documentali selezionate per le spiegazioni, non l’intera casistica pubblicata. L’archivio completo è mantenuto privatamente su Drive; le fonti e le condizioni non chiarite restano segnalate nelle note. Il coefficiente 3.24596 della formula del peso è stato confrontato visivamente con l’equazione 6.10 di Madea, 3ª edizione, 2016.
 
 La sostituzione è proposta su un ramo dedicato. Nessuna modifica a `main` e nessuna pubblicazione automatica richiesta.

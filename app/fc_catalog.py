@@ -1,4 +1,6 @@
-"""Single documentary catalog for the FC panel and the reference page."""
+"""Selected documentary examples for contextual FC explanations.
+
+The complete maintenance archive is private and is not distributed with the app."""
 
 import json
 from pathlib import Path

@@ -86,6 +86,9 @@ function waterNearZero(){const temperature=temperatureValue();return state==='Im
 function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
+  waterExperiments: {"short": "Henssge, Brinkmann e Püschel, 1984 · immersione in acqua quasi ferma.", "full": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. doi:10.1007/BF00200284. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.7. Le prove distinguono acqua a circa 10–20 °C e prossima a 0 °C. Riguardano corpi nudi sospesi in acqua quasi ferma; non verificano tutte le condizioni di immersione.", "url": "https://doi.org/10.1007/BF00200284"},
+  flowingWater: {"short": "Henssge in Madea, 2016 · acqua corrente.", "full": "Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, sezione sull’immersione. Henssge discute una prova di Brown e Marshall su un corpo molto piccolo, in acqua in movimento a circa 5 m/ora, ricondotta a un FC di circa 0.35. È un’osservazione limitata, distinta dalla serie in acqua quasi ferma della tab. 6.7; non consente di generalizzare a ogni corrente."},
+
   duvet: {"short": "Henssge, 1992 · coperture di piume; Madea, 2016, tab. 6.20.", "full": "Henssge C. Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G. Ripreso in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.20. La tabella riporta i riferimenti 2.80 e 3.00 a 70 kg per le condizioni più isolanti con coperture di piume. Il loro uso come intervallo per la domanda dell’app è un’interpretazione dell’app.", "url": "https://doi.org/10.1016/0379-0738(92)90080-G"},
   wetNakedAccelerating: {short:'App · nudo bagnato su appoggio disperdente.',full:'Intervallo convenzionale dell’app: 0.60–0.75 per il nudo bagnato su cemento/pietra, pavimento molto freddo o PVC, sia in aria ferma sia mobile. Nelle fonti consultate non sono state individuate indicazioni specifiche sufficienti per quantificare separatamente queste combinazioni. Il minimo 0.60 non è un limite sperimentale né deriva dai valori dell’immersione.'},
   coldWater: {"short": "Henssge, Brinkmann e Püschel, 1984 · esperimenti in acqua.", "full": "Henssge C, Brinkmann B, Püschel K. Z Rechtsmed. 1984;92(4):255–276. doi:10.1007/BF00200284. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.7. Il range 0.50–1.00 per acqua stagnante prossima a 0 °C è la proposta dell’app basata sulla variabilità sperimentale; non è una nuova categoria della tabella originale. L’attivazione automatica a temperatura ≤ 1 °C è una soglia scelta per l’app.", "url": "https://doi.org/10.1007/BF00200284"},
@@ -347,13 +350,31 @@ const EXAMPLE_MATCHERS={
   'case-33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2,
   'case-6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2,
   'case-55':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===1,
+  'case-22':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true,
+  'case-62':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf===2&&c.s+c.p+c.m+c.h===0,
+  't6_3-28':c=>c.state==='Asciutto'&&c.air==='continuous'&&c.surf<=1&&c.s+c.p+c.m+c.h===0,
+  't6_7-01':c=>c.state==='Immerso'&&c.water==='stagnante'&&!c.waterNearZero,
+  't6_7-10':c=>c.state==='Immerso'&&c.water==='stagnante'&&!c.waterNearZero,
+  't6_7-15':c=>c.state==='Immerso'&&c.water==='stagnante'&&c.waterNearZero===true,
+  't6_7-16':c=>c.state==='Immerso'&&c.water==='stagnante'&&c.waterNearZero===true,
+  't6_8-55':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf<=1&&c.m+c.h===0&&c.p>=2,
+  't6_8-47':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf<=1&&c.m+c.h===0&&c.p===0&&c.s===3,
+  't6_10-200':c=>c.state==='Asciutto'&&c.surf===3,
+  't6_10-230':c=>c.state!=='Immerso'&&c.surf===10,
+  't6_10-260':c=>c.state!=='Immerso'&&c.surf===4,
+  't6_10-290':c=>c.state!=='Immerso'&&c.surf===7,
+  't6_11-riga-1':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='wet'&&c.leafCover==='no',
+  't6_11-riga-2':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='humid'&&c.leafCover==='no',
+  't6_11-riga-5':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='dry'&&c.leafCover==='no',
+  't6_12-riga-1':c=>c.state!=='Immerso'&&c.surf===8&&['wet','humid','dry'].includes(c.leaf)&&c.leafCover==='yes',
+  't6_12-riga-13':c=>c.state!=='Immerso'&&c.surf===8&&['wet','humid','dry'].includes(c.leaf)&&c.leafCover==='yes',
 };
 const EXAMPLES=[];
 function exampleFCText(e){
   return e.observations|| (e.weightNote?'FC iniziale: '+e.fc+'; a '+e.weight.toFixed(1)+' kg: '+e.adjustedFc+'.':'FC: '+e.fc);
 }
 function exampleConditions(e){return e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria');}
-function exampleMatches(c){if(['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
+function exampleMatches(c){if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
   if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
@@ -380,7 +401,9 @@ function sourceDetails(parent,source){
   parent.append(details);
 }
 function showSource(){
-  const c={...data(),state},examples=validCounts(c)&&c.surf!==null&&state!=='Immerso'?exampleMatches(c):[];
+  let c={...data(),state,water:q('#water').value};
+  if(q('#air-row').hidden)c={...c,air:'still',wind:false};
+  const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
   q('#reference').textContent=referenceLabel(result,c);
   const showOrigin=originLabel(result)!=='Ragionamento dell’app';
   q('#source-kind').hidden=!showOrigin;
@@ -390,6 +413,7 @@ function showSource(){
   q('#rule-source').textContent=result.detail;
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
+  if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
   if(sourceIds.has('wetMixed')){sourceIds.add('henssge');sourceIds.add('wetGarments');}
   if(sourceIds.has('wetSupport'))sourceIds.add('support');
   for(const id of ['wetMixed','wetBlankets','wetSupport','wetNakedAccelerating','soakedMattress'])sourceIds.delete(id);
@@ -402,8 +426,8 @@ function showSource(){
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
     const item=document.createElement('div');item.className='source-example';
-    paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':'Esperimento su cadavere')+' · '+e.title);
-    paragraph(item,'Peso: '+(e.weights||[e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg');
+    paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
+    paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg');
     paragraph(item,exampleConditions(e));
     paragraph(item,exampleFCText(e));
     if(e.notes)paragraph(item,e.notes);
