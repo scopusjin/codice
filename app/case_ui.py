@@ -1,4 +1,4 @@
-"""Small case menu shared by Full, Sopralluogo and the FC editor."""
+"""Small case menu shared by Full and Sopralluogo."""
 
 from copy import deepcopy
 from uuid import uuid4
@@ -9,6 +9,7 @@ from app.case_file import (
     CaseFileError, PAGES, app_version, case_filename, decode_case, encode_case,
     restored_inputs, snapshot_case,
 )
+from app.case_browser import render_browser_cases
 
 
 def _queue_import(case, ui_id):
@@ -76,16 +77,23 @@ def render_case_menu(home, slot=None):
                 st.session_state[code_key] = st.session_state.get("case_code", "")
                 st.text_input("Sigla / numero del caso", key=code_key, max_chars=80,
                               placeholder="Es. x26-05 oppure IL26-10", on_change=_store_case_code, args=(code_key, suffix))
+                data = None
                 try:
                     case = snapshot_case(st.session_state, view)
-                    save_label = "Salva " + (case["case_code"] or "caso")
-                    st.download_button(save_label, encode_case(case), file_name=case_filename(case),
+                    data = encode_case(case)
+                except CaseFileError as exc:
+                    st.error(str(exc))
+                imported = render_browser_cases(data.decode("utf-8") if data else None,
+                                               enabled=bool(st.session_state.get(widget_key("case_menu"), False)))
+                if imported is not None:
+                    _queue_import(imported, suffix)
+                    st.rerun()
+                if data is not None:
+                    st.download_button("Scarica file", data, file_name=case_filename(case),
                                        mime="application/json", key=widget_key("case_download"), on_click="ignore",
                                        disabled=not st.session_state.get(widget_key("case_menu"), False),
                                        icon=":material/download:")
-                except CaseFileError as exc:
-                    st.error(str(exc))
-                uploaded = st.file_uploader("Apri caso", type=["json"], max_upload_size=1,
+                uploaded = st.file_uploader("Apri da file", type=["json"], max_upload_size=1,
                                             key=widget_key("case_upload"), help="Seleziona un file del caso salvato da Mor-tem.")
                 if uploaded is not None:
                     try:

@@ -35,3 +35,4 @@ jobs:
         run: |
           node tests/test_fc_panel_engine.cjs
           node tests/test_fc_panel_ui.cjs
+          node tests/test_case_browser.cjs

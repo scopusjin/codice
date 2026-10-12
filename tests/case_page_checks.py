@@ -86,7 +86,9 @@ class CasePageTests(unittest.TestCase):
         self.assertTrue(app.session_state["__fc_active"])
         self.assertEqual(app.session_state["__fc_draft"]["temperature"], "")
         self.assertEqual(app.session_state["__fc_applied_choice"]["range"], [1.35, 1.4])
-        self.assertEqual(next(w.value for w in app.text_input if w.label == "Sigla / numero del caso"), "x26-05")
+        self.assertEqual(app.session_state["case_code"], "x26-05")
+        self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
+                             for c in app.get("component_instance")))
         # Leaving the restored editor must retain later draft edits, without
         # replaying the draft that was present when the file was imported.
         import json
@@ -103,8 +105,13 @@ class CasePageTests(unittest.TestCase):
         self.assertFalse(app.session_state["__fc_active"])
         self.assertEqual(app.session_state["__fc_draft"]["temperature"], "8")
         self.assertEqual(next(w.value for w in app.text_input if w.label == "Sigla / numero del caso"), "x26-05")
+        browser_component = next(c for c in app.get("component_instance")
+                                 if c.proto.component_name.endswith("mortem_browser_cases"))
+        browser_saved = decode_case(json.loads(browser_component.proto.json_args)["data"].encode())
+        self.assertEqual(browser_saved["fc_draft"]["temperature"], "8")
+        self.assertEqual(browser_saved["fc_choice"], saved["fc_choice"])
         app.button(key="btn_fc_scenarios").click().run()
-        self.assertEqual(next(w.value for w in app.text_input if w.label == "Sigla / numero del caso"), "x26-05")
+        self.assertEqual(app.session_state["case_code"], "x26-05")
 
     def test_import_opens_saved_calculation_mode(self):
         for source_msil in (False, True):
@@ -123,6 +130,32 @@ class CasePageTests(unittest.TestCase):
                 self.assertEqual(target.session_state["case_code"], "x26-05")
                 key = "btn_stima_mobile" if source_msil else "btn_stima"
                 self.assertIn(key, [b.key for b in target.button])
+
+    def test_browser_component_restores_case_and_does_not_replay(self):
+        import json
+        for msil in (False, True):
+            with self.subTest(msil=msil):
+                app = self.start(msil=msil)
+                saved = snapshot_case({"case_code": "BROWSER-TEST", "peso": 91., "rt_val": 28.},
+                                      "msil" if msil else "full")
+                component = next(c for c in app.get("component_instance")
+                                 if c.proto.component_name.endswith("mortem_browser_cases"))
+                args = json.loads(component.proto.json_args)
+                self.assertEqual(json.loads(args["data"])["format"], "mortem-case")
+                widgets = app._tree.get_widget_states()
+                widget = widgets.widgets.add()
+                widget.id = component.proto.id
+                widget.json_value = json.dumps({"instance": args["instance"], "event_id": "browser-open",
+                                               "action": "open", "data": encode_case(saved).decode()})
+                app._run(widgets)
+                self.assertEqual(list(app.exception), [])
+                self.assertEqual(app.session_state["case_code"], "BROWSER-TEST")
+                self.assertEqual(app.session_state["peso"], 91.)
+                self.assertNotEqual(app.session_state["__case_browser"]["instance"], args["instance"])
+                app.session_state["peso"] = 72.
+                app.run()
+                self.assertEqual(app.session_state["peso"], 72.)
+                self.assertEqual(list(app.exception), [])
 
 
 if __name__ == "__main__":

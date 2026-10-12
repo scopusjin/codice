@@ -183,8 +183,6 @@ def render_fc_route_if_requested(home=FULL_PAGE):
         default=None,
     )
     _consume_event(event)
-    from app.case_ui import render_case_menu
-    render_case_menu(home)
     st.stop()
 
 
