@@ -30,6 +30,7 @@ class CoolingPagesRegressionTests(unittest.TestCase):
             text = app.session_state['__desc_dettagliate_html']
             self.assertIn('19.0', text)
             self.assertIn('67', text)
+            self.assertNotRegex(text, r'<(?:b|strong)\b|font-weight\s*:\s*(?:bold|[6-9]00)')
             results.append(re.sub('<[^>]+>', '', app.session_state['frase_breve']))
             app.switch_page('Stima_epoca_decesso.py').run()
             self.assertFalse(app.exception)
@@ -48,6 +49,7 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         self.assertIsNotNone(app.session_state['frase_breve'])
         self.assertNotIn('Applicando l’equazione', app.session_state['__desc_dettagliate_html'])
         self.assertNotIn("Applicando l'equazione", app.session_state['__desc_dettagliate_html'])
+        self.assertNotRegex(app.session_state['__desc_dettagliate_html'], r'<(?:b|strong)\b')
 
     def test_temperature_order_is_invariant_in_full_results(self):
         results = []
@@ -86,6 +88,8 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 results.append((app.session_state['frase_breve'],
                                 app.session_state['__desc_dettagliate_html']))
                 self.assertIsNotNone(results[-1][0])
+                self.assertNotRegex(results[-1][1], r'<(?:b|strong)\b|font-weight\s*:\s*(?:bold|[6-9]00)')
+                self.assertIn('<b>', results[-1][0])  # The separate result summary keeps its formatting.
         self.assertEqual(results[0], results[1])
 
     def test_cleared_interval_endpoint_removes_old_bounds_in_both_layouts(self):

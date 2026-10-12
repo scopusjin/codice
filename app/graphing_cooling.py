@@ -291,10 +291,10 @@ def compute_cooling_state(
 
             # --- Range Ta/FC per riepilogo ---
             ta_lo, ta_hi = Ta_range
-            ta_txt = f"{ta_lo:.1f} – {ta_hi:.1f} °C"
+            ta_txt = f"{ta_lo:.1f} °C" if ta_lo == ta_hi else f"{ta_lo:.1f} – {ta_hi:.1f} °C"
 
             cf_lo, cf_hi = CF_range
-            cf_txt = f"{cf_lo:.2f} – {cf_hi:.2f}"
+            cf_txt = f"{cf_lo:.2f}" if cf_lo == cf_hi else f"{cf_lo:.2f} – {cf_hi:.2f}"
 
             p_txt = (
                 f"{max(W_val - 3, 1):.0f}–{(W_val + 3):.0f} kg"
@@ -302,21 +302,12 @@ def compute_cooling_state(
                 else f"{W_val:.0f} kg"
             )
 
-            scenario_temperatures = None
-            if temperature_scenarios is not None:
-                scenario_temperatures = "; ".join(
-                    f"scenario {i}: "
-                    f"{'acqua' if item.get('conditions', {}).get('state') == 'Immerso' else 'ambiente'} "
-                    f"{float(item['temperature']):g} °C"
-                    for i, item in enumerate(options["__fc_applied_choice"]["scenarios"], 1)
-                )
             elenco_html = i18n.prudent_graphing_detail_list(
                 header=i18n.prudent_header(),
                 ta_text=ta_txt,
                 cf_text=cf_txt,
                 weight_text=p_txt,
                 scenario_description=matching_scenario_description(options, CF_range, W_val),
-                scenario_temperatures=scenario_temperatures,
             )
             detail_blocks.append(elenco_html)
 

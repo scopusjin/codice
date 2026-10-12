@@ -92,7 +92,8 @@ class FCScenarioTests(unittest.TestCase):
                              [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
             self.assertEqual(sum(dict(cooling.qd_status_counts).values()), 2)
             details = "".join(cooling.detail_blocks)
-            self.assertIn("Temperature degli scenari: scenario 1: ambiente 20 °C; scenario 2: acqua 8 °C", details)
+            self.assertIn("8.0 – 20.0 °C", details)
+            self.assertNotIn("Temperature degli scenari", details)
             self.assertIn("1.35 (corpo asciutto)", details)
             self.assertNotIn("corpo asciutto, ambiente", details)
             state["Ta_min_beta"] = 9.
@@ -108,7 +109,7 @@ class FCScenarioTests(unittest.TestCase):
         apply_choice(state, payload)
         self.assertEqual(state["fc_suggested_vals"], [1.35, 1.4])
         self.assertEqual(state["__fc_applied_choice"]["description"],
-                         "FC degli scenari considerati: 1.35 (corpo asciutto)"
+                         "Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): 1.35 (corpo asciutto)"
                          " — 1.40 (corpo bagnato, aria in movimento)")
 
     def test_saved_condition_descriptions_use_compact_wording(self):
@@ -118,7 +119,7 @@ class FCScenarioTests(unittest.TestCase):
         state = {}
         apply_choice(state, payload)
         self.assertEqual(state["__fc_applied_choice"]["description"],
-                         "FC degli scenari considerati: 1.35 (corpo asciutto, adagiato su pavimento)"
+                         "Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): 1.35 (corpo asciutto, adagiato su pavimento)"
                          " — 1.40 (corpo immerso in acqua stagnante)")
 
     def test_weight_can_exchange_the_scenarios_defining_the_extremes(self):
@@ -204,10 +205,10 @@ class FCScenarioTests(unittest.TestCase):
         text = matching_scenario_description(state, [1.35, 1.4], 70.)
         html = i18n.prudent_graphing_detail_list(header="Riepilogo", ta_text="20 °C",
             cf_text="1.35–1.40", weight_text="70 kg", scenario_description=text)
-        self.assertIn("FC degli scenari considerati:", html)
+        self.assertIn("Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo):", html)
         self.assertIn("&lt;script&gt;", html)
         self.assertNotIn("<script>", html)
-        self.assertNotIn("Range per il fattore", html)
+        self.assertEqual(html.count("Range di FC considerati"), 1)
         self.assertIsNone(matching_scenario_description(state, [1., 1.4], 70.))
         self.assertIsNone(matching_scenario_description(state, [1.35, 1.4], 100.))
 
@@ -224,9 +225,11 @@ class FCScenarioTests(unittest.TestCase):
         without_scenarios = compute_cooling_state(**args, cooling_options=state)
         for field in ("t_min_raff_henssge", "t_max_raff_henssge", "Qd_min", "Qd_max"):
             self.assertEqual(getattr(with_scenarios, field), getattr(without_scenarios, field))
-        self.assertIn("FC degli scenari considerati: 1.35 (corpo asciutto)", "".join(with_scenarios.detail_blocks))
+        self.assertIn("Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): 1.35 (corpo asciutto)", "".join(with_scenarios.detail_blocks))
         self.assertIn("1.40 (corpo bagnato, aria in movimento)", "".join(with_scenarios.detail_blocks))
-        self.assertNotIn("FC degli scenari", "".join(without_scenarios.detail_blocks))
+        self.assertIn("Range di FC considerati", "".join(without_scenarios.detail_blocks))
+        self.assertNotIn("corpo asciutto", "".join(without_scenarios.detail_blocks))
+        self.assertNotIn("20.0 – 20.0", "".join(with_scenarios.detail_blocks))
 
 
 if __name__ == "__main__":
