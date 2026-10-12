@@ -130,3 +130,12 @@ Prossimo passo concordato: dopo l'aggiornamento dell'app, copiare descrizioni co
 - Tentativi falliti pertinenti: nessuna nuova disposizione scartata; il browser di controllo remoto non raggiunge il server locale (connessione rifiutata). La versione online precedente è stata osservata.
 - Verifiche: compilazione e controllo diff; integrazione del salvataggio casi su desktop/mobile/sopralluogo; 14 test scenari; suite JavaScript del pannello. Nel test preesistente della nota blu è stata accettata la proprietà aggiuntiva dell’interlinea introdotta dal commit `9ad4e885`, conservando il controllo su colore, dimensione e testo.
 - Prossimo passo: verificare nella versione di test Caso in basso a destra, helper vicino a Più scenari e apertura corretta dei due comandi. Restano aperti il riscontro in Word sulle descrizioni e gli altri punti scientifici/documentali già annotati.
+
+
+### Pulsante Più scenari discreto — 12 ottobre 2026
+
+Base verificata su GitHub: `a63c347ed3f382f373e24023a184c90e85a298b4`, branch `refactor-tanatology-keys`, repository `scopusjin/codice`. Commit di questo intervento identificabile con `git log -1 --format=%H --grep='Rende discreto il pulsante Più scenari'`.
+
+L’utente ha respinto la resa del pulsante dopo il precedente spostamento: troppo simile al comando principale della stima. Non riproporre bordo blu e padding dei pulsanti principali per Più scenari. In `app/fc_page.py`, `render_scenarios_button()`, impostato lo stile nativo `tertiary`, senza bordo/sfondo e con larghezza limitata al contenuto. In `Stima_epoca_decesso.py` e `app/theme.py`, esclusa soltanto la chiave `btn_fc_scenarios` dalle regole grafiche generali che lo rendevano evidente; nessuna nuova toppa CSS. Il comando della stima, il menu Caso, l’helper, i testi, le chiavi di sessione e i calcoli restano invariati.
+
+Verifiche: compilazione Python, import tramite AppTest, diff controllato e test preesistente di apertura/applicazione scenari nelle viste desktop/mobile/sopralluogo. La precedente modifica `a63c347e` ha superato anche GitHub Actions; menu Caso e helper sono stati verificati online. Ultimo commit con test utente documentato resta `9577c619`; la nuova resa grafica è da confermare con l’utente. Prossimo passo: verificare che Più scenari sia un comando discreto vicino al punto interrogativo e apra correttamente il pannello.

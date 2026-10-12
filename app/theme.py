@@ -110,16 +110,16 @@ def apply_theme():
       }}
 
       /* Pulsanti */
-      .stButton > button {{
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)) {{
         background: {C["Btn"]} !important;
         color: {C["BtnText"]} !important;
         border: 0 !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
       }}
-      .stButton > button:hover  {{ background: {C["BtnHover"]} !important; }}
-      .stButton > button:active {{ background: {C["BtnActive"]} !important; }}
-      .stButton > button:focus  {{
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):hover  {{ background: {C["BtnHover"]} !important; }}
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):active {{ background: {C["BtnActive"]} !important; }}
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):focus  {{
         outline: 0 !important;
         box-shadow: 0 0 0 3px {C["FocusRing"]} !important;
       }}

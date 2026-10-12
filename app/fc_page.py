@@ -56,7 +56,7 @@ def render_scenarios_button(home=FULL_PAGE):
     from app.full_mobile_layout import _render_click_help
 
     with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
-        clicked = st.button("Più scenari", key="btn_fc_scenarios")
+        clicked = st.button("Più scenari", key="btn_fc_scenarios", type="tertiary", width="content")
         _render_click_help(
             "Usa Più scenari se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, "
             "in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli "
