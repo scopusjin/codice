@@ -49,6 +49,8 @@ temp('1');temp('');panel.restore(panel.snapshot(),70);
 assert.equal(nodes.use.disabled,true);temp('2');assert.deepEqual(range(),[.5,.5]);
 // Each scenario keeps its own temperature and is recalculated on restore and weight edits.
 temp('1');nodes['multiple-scenarios'].checked=true;nodes['multiple-scenarios'].events.change();
+assert.equal(panel.snapshot().activeScenario,0);
+nodes['scenario-tabs'].children[1].click();
 temp('2');
 let scenarios=panel.payload().scenarios;
 assert.deepEqual(Array.from(scenarios,s=>[...s.range]).flat(),[.5,1,.5,.5]);

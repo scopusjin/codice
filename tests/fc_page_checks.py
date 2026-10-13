@@ -36,11 +36,13 @@ class FCPageTests(unittest.TestCase):
                 app.button(key="btn_fc_scenarios").click().run()
                 self.assertEqual(list(app.exception), [])
                 self.assertTrue(app.session_state["__fc_draft"]["multiple"])
+                self.assertEqual(app.session_state["__fc_draft"]["activeScenario"], 0)
                 self.assertEqual(len(app.session_state["__fc_draft"]["scenarios"]), 2)
                 self.event(app, "use", **temperature_payload())
                 self.assertEqual((app.session_state["Ta_min_beta"], app.session_state["Ta_max_beta"]), (8., 20.))
                 app.button(key="btn_fc_scenarios").click().run()
                 draft = app.session_state["__fc_draft"]
+                self.assertEqual(draft["activeScenario"], 0)
                 self.assertEqual([s["temperature"] for s in draft["scenarios"]], ["20.0", "8.0"])
                 self.event(app, "back", weight=100.)
                 self.assertEqual(list(app.exception), [])

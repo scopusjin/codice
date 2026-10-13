@@ -41,9 +41,13 @@ def open_fc_page(home=FULL_PAGE, *, multiple=False):
     if multiple:
         draft = st.session_state["__fc_draft"]
         if not draft.get("multiple"):
-            draft = {**draft, "multiple": True, "activeScenario": 1,
+            draft = {**draft, "multiple": True, "activeScenario": 0,
                      "scenarios": [deepcopy(draft), deepcopy(draft)]}
         st.session_state["__fc_draft"] = draft
+    # A fresh visit starts from scenario 1; in-panel navigation still retains
+    # its active scenario across component draft reruns.
+    if isinstance(st.session_state.get("__fc_draft"), dict):
+        st.session_state["__fc_draft"] = {**st.session_state["__fc_draft"], "activeScenario": 0}
     st.session_state["__fc_form"] = _form_snapshot()
     st.session_state["__fc_home"] = home
     st.session_state["__fc_active"] = True

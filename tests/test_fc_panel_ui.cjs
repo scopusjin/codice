@@ -183,6 +183,21 @@ assert.equal(nodes.use.disabled,true);
 nodes['scenario-temperature'].value='0';nodes['scenario-temperature'].events.input();
 assert.equal(nodes.use.disabled,false);assert.equal(panel.payload().temperature,0);
 console.log('Compact FC: point/range edits, automatic blanket range, exact saved weight and explicit temperature passed.');
+// Switching to a point uses the displayed minimum and records a real choice;
+// subsequent weight changes must not restore the discarded upper bound.
+panel.restore({state:'Asciutto',temperature:'20',fields:{thin:'3',thick:'0',medium:'0',heavy:'0',surface:'0',air:'still'}},70,20);
+assert.equal(nodes['expand-range'].textContent,'Valore singolo?');
+nodes['expand-range'].click();
+assert.equal(nodes['hi-control'].hidden,true);
+assert.equal(nodes['expand-range'].textContent,'Intervallo?');
+assert.deepEqual([...panel.payload().range],[1.2,1.2]);
+assert.equal(panel.payload().manual,true);
+const pointDraft=panel.snapshot();panel.restore(pointDraft,100,20);
+assert.deepEqual([...panel.payload().range],[1.2,1.2]);
+assert.equal(nodes['hi-control'].hidden,true);
+nodes['expand-range'].click();
+assert.equal(nodes['hi-control'].hidden,false);
+assert.deepEqual([...panel.payload().range],[1.2,1.2]);
 require('./test_fc_water_temperature.cjs');
 
 // Provenance follows actual edits, not the numeric value or opening the editor.

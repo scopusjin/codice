@@ -19,6 +19,8 @@
     const temperature = temperatureValue();
     item.temperature = Number.isFinite(temperature) ? temperature : null;
     item.error = q('error').textContent;
+    item.provenanceNote = q('editable-note').textContent;
+    item.weightNote = q('manual-state').textContent;
     if (item.temperature === null || !Number.isFinite(item.temperature)) item.error ||= 'Specificare la temperatura.';
     item.description = window.FCDescriptions.conditions(item.conditions,item.draft.fields);
     return item;
@@ -31,37 +33,44 @@
     return {range, description:'Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): ' + range[0].toFixed(2) +
       ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};
   }
-  function renderConditions(selected, range) {
-    const rows = range && range.every(Number.isFinite) && range[0]!==range[1] ? [0,1].map(index=>[
-      index===0?'Minimo':'Massimo', [...new Set(selected.filter(item=>item.range[index]===range[index]).map(item=>item.description))].join(' / ')
-    ]) : [['FC',[...new Set(selected.map(item=>item.description))].join(' / ')]];
-    q('scenario-summary').replaceChildren(...rows.map(([label,description])=>{
-      const row=document.createElement('div');row.className='condition-line';
-      const name=document.createElement('span'),text=document.createElement('span');
-      name.textContent=label;text.textContent='('+description+').';row.append(name,text);return row;
+  function renderConditions(selected) {
+    q('conditions-title').textContent=enabled?'Scenari considerati':'Condizioni considerate';
+    q('scenario-summary').replaceChildren(...selected.map((item,index)=>{
+      const row=document.createElement('div');row.className='condition-line scenario-tone-'+(index%4);
+      if(enabled){
+        const number=document.createElement('span');number.className='condition-number';
+        number.textContent=String(index+1);number.setAttribute('aria-label','Scenario '+(index+1));row.append(number);
+      }
+      const content=document.createElement('div'),text=document.createElement('div');
+      text.textContent=item.description+'.';content.append(text);
+      if(enabled)for(const note of [item.provenanceNote,item.weightNote])if(note){
+        const status=document.createElement('div');status.className='condition-note';status.textContent=note;content.append(status);
+      }
+      row.append(content);return row;
     }));
   }
   function updateTemperatureLabel() {
     const immersed=single.snapshot().state==='Immerso';
     q('environment-row').dataset.immersed=String(immersed);
     const label=q('scenario-temperature-label');
-    label.textContent=immersed?'T.':'Temperatura ambientale';
-    q('scenario-temperature').setAttribute('aria-label',immersed?'Temperatura dell’acqua in gradi Celsius':'Temperatura ambientale in gradi Celsius');
-    if(immersed && q('water-fields').getBoundingClientRect &&
-       q('scenario-temperature-row').getBoundingClientRect().top-q('water-fields').getBoundingClientRect().top>12)label.textContent='T. acqua';
+    label.textContent=immersed?'Temperatura dell’acqua':'Temperatura ambientale media';
+    q('scenario-temperature').setAttribute('aria-label',immersed?'Temperatura dell’acqua in gradi Celsius':'Temperatura ambientale media in gradi Celsius');
   }
   function render() {
     q('multiple-scenarios').checked = enabled;
+    q('fc-full').dataset.multiple=String(enabled);
+    q('scenario-editor').className='scenario-tone-'+(active%4);
+    q('scenario-editor').setAttribute('aria-label',enabled?'Scenario '+(active+1):'Condizioni del corpo');
     q('scenario-controls').hidden = q('scenario-result').hidden = !enabled;
     q('scenario-duration-note').hidden = !enabled;
     q('scenario-temperature-row').hidden = false;
     updateTemperatureLabel();
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateTemperatureLabel);
     q('use').hidden = enabled;
-    q('fc-heading').textContent = 'FC';
+    q('fc-heading').textContent = enabled?'FC dello scenario '+(active+1):'FC';
     if (!enabled) {
       const item=single.payload.call(single);
-      renderConditions([item],item.range);
+      renderConditions([item]);
       q('scenario-error').textContent=(temperatureEdited||item.conditions.state==='Immerso')&&!Number.isFinite(temperatureValue())?'Specificare la temperatura.':'';
       q('use').disabled=!!q('error').textContent||!!q('scenario-error').textContent;
       return;
@@ -76,14 +85,14 @@
       return button;
     }));
     items.forEach((item,i)=>{
+      tabs.children[i].className='scenario-tone-'+(i%4);
       tabs.children[i].setAttribute('aria-label','Scenario '+(i+1)+(item.error?' · da completare':''));
       tabs.children[i].setAttribute('aria-pressed',String(i===active));
     });
     q('remove-scenario').hidden = items.length <= 2;
     const group = combined(), missing = items.flatMap((item,i)=>item.error?[i+1]:[]);
     q('scenario-output').textContent=group?(group.range[0]===group.range[1]?group.range[0].toFixed(2):group.range.map(v=>v.toFixed(2)).join(' – ')):'—';
-    if(group)renderConditions(items,group.range);
-    else q('scenario-summary').textContent='Scenari da completare.';
+    renderConditions(items);
     q('scenario-error').textContent = missing.length ? 'Completare gli scenari: ' + missing.join(', ') + '.' : '';
     q('use').disabled = q('use-scenarios').disabled = !group;
   }
@@ -138,14 +147,15 @@
       const group = combined();
       return {draft:this.snapshot(), range:group?.range || [null,null], weight:single.payload.call(single).weight,
         base_range:null, manual:false, weight_adjusted:weightAdjusted, rule:'multiple-scenarios',
-        description:group?.description || '', scenarios:items.map(({error,...item})=>copy(item))};
+        description:group?.description || '', scenarios:items.map(({error,provenanceNote,weightNote,...item})=>copy(item))};
     }
   };
   q('multiple-scenarios').addEventListener('change',()=>{
     if (q('multiple-scenarios').checked) {
       const current = capture();
-      if (items.length < 2) { items = [current,copy(current)]; active = 1; }
+      if (items.length < 2) { items = [current,copy(current)]; }
       else items[active] = current;
+      active = 0;
       enabled = true; normalizeAll(current.weight);
     } else {
       enabled = false; weightAdjusted = false; load(active,items[active].weight); render();

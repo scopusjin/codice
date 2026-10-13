@@ -468,10 +468,8 @@ with st.container(border=True, key="full_cooling_card"):
                         _TA_RANGE_DESKTOP_HELP,
                         "ta_range",
                     )
-                    ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
-                    with ta_left:
-                        ta_min_col, ta_max_col = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with ta_min_col:
+                    with st.container(horizontal=True, gap="xsmall"):
+                        with st.container(width=144):
                             ta_base_val = st.number_input(
                                 i18n.ui_text("full.ta_base_input"),
                                 value=sget("ta_base_val", 20.0),
@@ -480,7 +478,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
-                        with ta_max_col:
+                        with st.container(width=144):
                             ta_other_val = st.number_input(
                                 i18n.ui_text("full.ta_other_input"),
                                 value=sget("ta_other_val", ta_base_val),
@@ -499,29 +497,25 @@ with st.container(border=True, key="full_cooling_card"):
                         _FC_RANGE_DESKTOP_HELP,
                         "fc_range",
                     )
-                    fc_min_col, fc_max_col, _fc_spacer = st.columns(
-                        [1, 1, 2],
-                        gap="xsmall",
-                        vertical_alignment="top",
-                    )
-                    with fc_min_col:
-                        fc_min_val = st.number_input(
-                            i18n.ui_text("full.fc_min_input"),
-                            value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
-                            step=0.05, format="%.2f",
-                            key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
-                            label_visibility="collapsed",
-                            _mortem_compact_label="",
-                        )
-                    with fc_max_col:
-                        fc_other_val = st.number_input(
-                            i18n.ui_text("full.fc_max_input"),
-                            value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
-                            step=0.05, format="%.2f",
-                            key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
-                            label_visibility="collapsed",
-                            _mortem_compact_label="",
-                        )
+                    with st.container(horizontal=True, gap="xsmall"):
+                        with st.container(width=144):
+                            fc_min_val = st.number_input(
+                                i18n.ui_text("full.fc_min_input"),
+                                value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                                step=0.05, format="%.2f",
+                                key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
+                        with st.container(width=144):
+                            fc_other_val = st.number_input(
+                                i18n.ui_text("full.fc_max_input"),
+                                value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                                step=0.05, format="%.2f",
+                                key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
 
                     _sync_interval_state(
                         "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
@@ -603,24 +597,16 @@ with st.container(border=True, key="full_cooling_card"):
                         i18n.ui_text("full.ta_mean_help"),
                         "ta_standard",
                     )
-                    ta_left, _ta_right = st.columns(2, gap="small", vertical_alignment="bottom")
-                    with ta_left:
-                        ta_col, _ta_spacer = st.columns(2, gap="xsmall", vertical_alignment="bottom")
-                        with ta_col:
-                            st.number_input(
-                                i18n.ui_text("full.ta_input_label"),
-                                value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
-                                key="ta_base_val", label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
+                    with st.container(width=144):
+                        st.number_input(
+                            i18n.ui_text("full.ta_input_label"),
+                            value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                            key="ta_base_val", label_visibility="collapsed",
+                            _mortem_compact_label="",
+                        )
 
                     _render_desktop_cooling_label("Fattore di correzione (FC)")
-                    fc_input_col, _fc_spacer = st.columns(
-                        [1, 1],
-                        gap="xsmall",
-                        vertical_alignment="top",
-                    )
-                    with fc_input_col:
+                    with st.container(width=144):
                         st.number_input(
                             i18n.ui_text("full.fc_input_label"),
                             value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",

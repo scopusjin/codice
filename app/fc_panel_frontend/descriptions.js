@@ -2,6 +2,7 @@
 (() => {
   function clothing(c) {
     const total = c.s + c.p;
+    if (!Number.isFinite(total)) return 'vestizione da precisare';
     if (!total) return 'nudo';
     if (total === 1) return 'con uno strato di tessuto ' + (c.p ? 'pesante' : 'leggero');
     const quantity = total === 2 ? 'pochi' : total <= 4 ? 'alcuni' : 'molti';
@@ -10,6 +11,7 @@
   }
   function blankets(c) {
     const total = c.m + c.h;
+    if (!Number.isFinite(total)) return 'coperture da precisare';
     if (!total) return '';
     if (total === 1) return c.h ? 'sotto un piumone o una coperta molto pesante' : 'sotto una coperta spessa';
     const quantity = total === 2 ? 'poche' : total <= 4 ? 'alcune' : 'molte';
