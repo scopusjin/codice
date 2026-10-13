@@ -243,7 +243,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thin_metal": "Lamiera metallica sottile",
         "pvc": "Pavimento rivestito in PVC",
         "pvc_factors": "0.76–0.77",
-        "metal": "Piano metallico spesso<br>(es. acciaio su calcestruzzo, con acqua circostante)",
+        "metal": "Piano metallico spesso",
         "metal_factors": "0.53–0.55",
         "support_reference": (
             "Henssge C. Basics and application of the nomogram method at the scene. "
@@ -284,7 +284,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thin_metal": "Thin sheet metal",
         "pvc": "PVC-covered floor",
         "pvc_factors": "0.76–0.77",
-        "metal": "Thick metal surface<br>(e.g. steel on concrete, with surrounding water)",
+        "metal": "Thick metal surface",
         "metal_factors": "0.53–0.55",
         "support_reference": (
             "Henssge C. Basics and application of the nomogram method at the scene. "
