@@ -91,7 +91,6 @@ _COMBINED_TABLE_TEXT = {
         "supra_nasal": "È presente almeno una contrazione localizzata all’angolo interno della palpebra superiore?",
         "mouth": "Eccitabilità elettrica peribuccale",
         "muscle_response": "È presente una risposta muscolare (indipendentemente dalla sua estensione) all’applicazione di uno stimolo elettrico?",
-        "mouth_note": "† Il limite di 11 ore riguarda qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione.",
         "chemical": "Eccitabilità chimica pupillare",
         "atropin": "La pupilla si dilata dopo iniezione di atropina?",
         "tropicamide": "La pupilla si dilata dopo iniezione di tropicamide?",
@@ -156,7 +155,6 @@ _COMBINED_TABLE_TEXT = {
         "supra_nasal": "Is at least a localized contraction at the inner corner of the upper eyelid present?",
         "mouth": "Perioral electrical excitability",
         "muscle_response": "Is a muscular response present (regardless of its extent) following the application of an electrical stimulus?",
-        "mouth_note": "† The 11-hour limit applies to any positive perioral response, regardless of its extent.",
         "chemical": "Chemical excitability of the pupil",
         "atropin": "Does the pupil dilate after atropine injection?",
         "tropicamide": "Does the pupil dilate after tropicamide injection?",
@@ -384,7 +382,7 @@ def _render_combined_table(language: str) -> None:
             ("supra_partial_upper_lid", "≤ 16", "≥ 5"),
             ("supra_nasal", "≤ 22", "≥ 5"),
         )),
-        ("mouth", "[1]", (("muscle_response", "≤ 11†", "≥ 3"),)),
+        ("mouth", "[1]", (("muscle_response", "≤ 11", "≥ 3"),)),
         ("chemical", "[1, 5]", (
             ("atropin", "≤ 10", "≥ 3"),
             ("tropicamide", "≤ 30", "≥ 5"),
@@ -423,7 +421,6 @@ def _render_combined_table(language: str) -> None:
     st.caption(text["course_note"])
     st.caption(text["supra_note"])
     st.caption(text["reestablishment_note"])
-    st.caption(text["mouth_note"])
     st.caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)

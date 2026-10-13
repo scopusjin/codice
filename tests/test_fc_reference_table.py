@@ -175,7 +175,7 @@ class CombinedReferenceTableTests(unittest.TestCase):
             self.assertTrue(any('Anders et al., 2013' in note and note.startswith('*')
                                 for note in self.captions))
             self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
-            self.assertTrue(rows['muscle_response'][0].endswith('†'))
+            self.assertEqual(rows['muscle_response'], ('≤ 11', '≥ 3'))
 
     def test_mechanical_response_questions_match_app_states_without_false_negative_bounds(self):
         expected = dati_parametri_aggiuntivi['Eccitabilità muscolare meccanica']['range']
