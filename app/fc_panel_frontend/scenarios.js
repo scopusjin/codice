@@ -64,7 +64,7 @@
     updateTemperatureLabel();
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateTemperatureLabel);
     q('use').hidden = enabled;
-    q('fc-heading').textContent = enabled?'FC dello scenario '+(active+1):'FC';
+    q('fc-heading').textContent = enabled?'FC dello scenario '+(active+1)+':':'FC per la stima:';
     if (!enabled) {
       const item=single.payload.call(single);
       renderConditions([item]);

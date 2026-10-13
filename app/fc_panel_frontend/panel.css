@@ -3,6 +3,7 @@
   --fc-muted:light-dark(#59676b,#b3bec5); --fc-line:light-dark(#dde3e5,#3b454f);
   --fc-soft:light-dark(#f1f3f3,#262e37); --fc-selected:light-dark(#dcece7,#294b41);
   --fc-action:light-dark(#087fa0,#59bdd9); --fc-action-text:light-dark(#fff,#10242b);
+  --fc-estimate-bg:light-dark(#e8f4ef,#203b34);
   position:relative; font:14px/1.4 Arial,sans-serif; color:var(--fc-ink); background:var(--fc-bg);
   padding:12px; max-width:560px; margin:auto; container-type:inline-size; container-name:fc-panel;
 }
