@@ -117,7 +117,7 @@ class CombinedReferenceTableTests(unittest.TestCase):
         self.assertEqual(len(self.html), 1)
         parser = CombinedRows()
         parser.feed(self.html[0])
-        self.assertEqual(len(parser.rows), 24)
+        self.assertEqual(len(parser.rows), 23)
         text = self.namespace['_COMBINED_TABLE_TEXT'][language]
         return {key: parser.rows[label] for key, label in text.items() if label in parser.rows}
 
@@ -175,23 +175,16 @@ class CombinedReferenceTableTests(unittest.TestCase):
             self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
             self.assertEqual(rows['muscle_response'], ('≤ 11', '≥ 3'))
 
-    def test_mechanical_response_questions_match_app_states_without_false_negative_bounds(self):
-        expected = dati_parametri_aggiuntivi['Eccitabilità muscolare meccanica']['range']
-        states = {
-            'Contrazione dell’intero muscolo':
-                [('whole_muscle', True), ('reversible_swelling', False), ('mechanical_response', True)],
-            'Tumefazione reversibile':
-                [('whole_muscle', False), ('reversible_swelling', True), ('mechanical_response', True)],
-            'Piccola tumefazione persistente':
-                [('whole_muscle', False), ('reversible_swelling', False), ('mechanical_response', True)],
-            'Nessuna reazione':
-                [('whole_muscle', False), ('reversible_swelling', False), ('mechanical_response', False)],
-        }
+    def test_mechanical_criteria_keep_compound_method_bounds_distinct_from_descriptive_phases(self):
+        # Henssge et al. (2000), Table 1: propagated response and local
+        # idiomuscular contraction are distinct criteria. The reference table
+        # must not be forced to reproduce the application's descriptive states.
         for language in ('it', 'en'):
             rows = self.render(language)
-            for state, answers in states.items():
-                with self.subTest(language=language, state=state):
-                    self.assertEqual(self.interval(rows, answers), expected[state])
+            self.assertEqual(rows['whole_muscle'], ('≤ 2.5', '—'))
+            self.assertEqual(rows['mechanical_response'], ('≤ 13', '≥ 1.5'))
+            self.assertNotIn('reversible_swelling', rows)
+            self.assertEqual(self.interval(rows, [('whole_muscle', False)]), (0, INF_HOURS))
 
 
 if __name__ == '__main__':

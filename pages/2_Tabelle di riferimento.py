@@ -79,9 +79,8 @@ _COMBINED_TABLE_TEXT = {
         "rigor_persistence": "Ha iniziato a risolversi?",
         "rigor_resolution": "È completamente risolta?",
         "mechanical": "Eccitabilità muscolare meccanica",
-        "whole_muscle": "La percussione del muscolo provoca la contrazione dell’intero muscolo?",
-        "reversible_swelling": "La percussione del muscolo provoca una tumefazione reversibile?",
-        "mechanical_response": "È presente una risposta alla percussione del muscolo (contrazione dell’intero muscolo, tumefazione reversibile o piccola tumefazione persistente)?",
+        "whole_muscle": "La percussione provoca la contrazione dell’intero muscolo (fenomeno di Zsako)?",
+        "mechanical_response": "La percussione del bicipite provoca una tumefazione locale (contrazione idiomuscolare)?",
         "eyebrow": "Eccitabilità elettrica sopraciliare",
         "supra_cheek": "La contrazione coinvolge le palpebre superiore e inferiore, la fronte e la guancia?",
         "supra_forehead": "La contrazione coinvolge le palpebre superiore e inferiore e la fronte?",
@@ -98,16 +97,6 @@ _COMBINED_TABLE_TEXT = {
         "variation_note": (
             "I limiti temporali indicati non corrispondono tutti a intervalli statistici al 95% "
             "e non costituiscono soglie biologiche assolute."
-        ),
-        "supra_note": (
-            "Per l’eccitabilità sopraciliare, «Sì» comprende anche una contrazione più estesa: "
-            "il limite minimo deriva dalla risposta immediatamente più estesa non ottenibile, quello massimo "
-            "dalla risposta conservata [1, 3]."
-        ),
-        "reading_note": (
-            "«—»: nessun limite utile. Nelle domande sul decorso, «No» significa «non ancora»; "
-            "per migrabilità ed eccitabilità, indica una risposta non ottenibile. "
-            "I reperti non valutati o non attendibili non equivalgono a «No»."
         ),
     },
     "en": {
@@ -135,9 +124,8 @@ _COMBINED_TABLE_TEXT = {
         "rigor_persistence": "Has rigor started to resolve?",
         "rigor_resolution": "Has rigor completely resolved?",
         "mechanical": "Mechanical muscle excitability",
-        "whole_muscle": "Does percussion of the muscle cause contraction of the whole muscle?",
-        "reversible_swelling": "Does percussion of the muscle cause a reversible swelling?",
-        "mechanical_response": "Is a response to muscle percussion present (whole-muscle contraction, reversible swelling or a small persistent swelling)?",
+        "whole_muscle": "Does percussion cause contraction of the whole muscle (Zsako’s phenomenon)?",
+        "mechanical_response": "Does percussion of the biceps cause a local muscular swelling (idiomuscular contraction)?",
         "eyebrow": "Supraciliary electrical excitability",
         "supra_cheek": "Does the contraction involve the upper and lower eyelids, the forehead and the cheek?",
         "supra_forehead": "Does the contraction involve the upper and lower eyelids and the forehead?",
@@ -154,16 +142,6 @@ _COMBINED_TABLE_TEXT = {
         "variation_note": (
             "The stated time limits do not all represent 95% statistical intervals "
             "and are not absolute biological thresholds."
-        ),
-        "supra_note": (
-            "For supraciliary excitability, “Yes” also includes a more extensive contraction: "
-            "the lower limit comes from the next more extensive response that cannot be elicited, "
-            "and the upper limit from the preserved response [1, 3]."
-        ),
-        "reading_note": (
-            "“—”: no useful limit. For questions on progression, “No” means “not yet”; "
-            "for shifting and excitability, it means that the response cannot be elicited. "
-            "Unassessed or unreliable findings do not count as “No”."
         ),
     },
 }
@@ -194,7 +172,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thick_bedspread": "Coperte spesse",
         "clothing_combined": "+ vestiti/teli",
         "note": (
-            "* I valori indicati si riferiscono a corpi di peso medio (riferimento: 70 kg), "
+            "I valori indicati si riferiscono a corpi di peso medio (riferimento: 70 kg), "
             "in posizione distesa su una base termicamente indifferente."
         ),
         "lower_trunk": (
@@ -228,7 +206,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thick_bedspread": "Thick blankets",
         "clothing_combined": "+ clothes/sheets",
         "note": (
-            "* The listed values apply to bodies of average weight (reference: 70 kg), "
+            "The listed values apply to bodies of average weight (reference: 70 kg), "
             "in an extended position on a thermally indifferent base."
         ),
         "lower_trunk": (
@@ -247,14 +225,38 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "clothing": "Abbigliamento",
         "factor": "FC",
         "indifferent": "Termicamente indifferente",
-        "indifferent_ground": "Pavimento di casa, prato, terreno asciutto, asfalto",
+        "indifferent_ground": "Pavimento di casa, prato, terreno, asfalto",
         "isolating": "Isolante",
         "heavy_padding": "Forte imbottitura",
         "mattress": "Materasso, tappeto spesso",
-        "leaves": "Foglie (appoggio di circa 2 cm)",
+        "leaves": "Foglie (strato di circa 2 cm)",
         "leaves_factors": "1.0 (bagnate)<br>1.3 (umide)<br>1.5 (secche)<br>1.8–2.7 (anche copertura di circa 10 cm)",
-        "leaves_reference": "Althaus et al., 2007 · prove su simulatori con foglie.",
-        "naked_note": "* Per il corpo nudo, i valori con +/− nell’originale sono interpretati come FC complessivi, non come incrementi o decrementi, in accordo con gli esempi di Henssge.",
+        "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Prove su simulatori.",
+        "naked_note": (
+            "Nelle tabelle di letteratura, alcuni FC per il corpo nudo sono preceduti da segni + o −, "
+            "che possono farli confondere con correzioni da sommare o sottrarre al FC di base. "
+            "Gli autori dell’app ritengono che possa trattarsi di refusi tipografici e li riportano "
+            "come FC complessivi. Questa interpretazione è coerente con il testo di Henssge, "
+            "che indica un FC di 0.75 per il corpo nudo su cemento, e con le prove su simulatori "
+            "su PVC (FC 0.76–0.77), pur riferite a una superficie diversa [3]. "
+            "Non si tratta di una rettifica ufficiale della fonte."
+        ),
+        "metal": "Acciaio su calcestruzzo, con acqua circostante",
+        "metal_factors": "0.55<br>(prova su simulatore)",
+        "metal_note": (
+            "Metallo: contano sia la conducibilità sia la capacità termica. Una lamiera sottile "
+            "può riscaldarsi rapidamente e non accelerare sensibilmente il raffreddamento; "
+            "un supporto massiccio può avere un effetto diverso. Il FC 0.55 deriva dalla prova 290 "
+            "su acciaio appoggiato su calcestruzzo, con acqua circostante; "
+            "non è generalizzabile a ogni piano metallico [3]."
+        ),
+        "support_reference": (
+            "Henssge C. Basics and application of the nomogram method at the scene. "
+            "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
+            "Chapter 6.1, Table 6.10 e testo sulle superfici di appoggio. "
+            "Esperimenti su simulatori di Knörle T., tesi di medicina, University of Cologne, 1991, "
+            "citati nel capitolo (riferimento 90); tesi non consultata direttamente."
+        ),
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
         "yes": "Sì",
@@ -271,14 +273,38 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "clothing": "Clothing",
         "factor": "FC",
         "indifferent": "Indifferent",
-        "indifferent_ground": "House flooring, lawn, dry earth, asphalt",
+        "indifferent_ground": "House flooring, lawn, ground, asphalt",
         "isolating": "Isolating",
         "heavy_padding": "Heavy padding",
         "mattress": "Mattress, thick carpet",
-        "leaves": "Leaves (about 2 cm underneath)",
+        "leaves": "Leaves (layer about 2 cm thick)",
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
-        "leaves_reference": "Althaus et al., 2007 · cooling experiments using dummies and leaves.",
-        "naked_note": "* For naked bodies, values marked +/− in the original are interpreted as the overall FC, not increases or decreases, consistently with Henssge’s examples.",
+        "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Experiments using dummies.",
+        "naked_note": (
+            "In published tables, some FC values for naked bodies are preceded by + or − signs, "
+            "which may be mistaken for adjustments to add to or subtract from the basic FC. "
+            "The app authors consider these possible typographical errors and report the values "
+            "as overall FCs. This interpretation is consistent with Henssge’s text, which gives "
+            "an FC of 0.75 for a naked body on concrete, and with dummy experiments on PVC "
+            "(FC 0.76–0.77), although these concern a different surface [3]. "
+            "This is not an official correction of the source."
+        ),
+        "metal": "Steel on concrete, with surrounding water",
+        "metal_factors": "0.55<br>(dummy experiment)",
+        "metal_note": (
+            "Metal: both thermal conductivity and heat capacity matter. Thin sheet metal "
+            "may warm up quickly without markedly accelerating cooling; a massive support "
+            "may behave differently. The FC of 0.55 comes from experiment 290 on steel "
+            "resting on concrete, with surrounding water; it cannot be generalized "
+            "to every metal surface [3]."
+        ),
+        "support_reference": (
+            "Henssge C. Basics and application of the nomogram method at the scene. "
+            "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
+            "Chapter 6.1, Table 6.10 and discussion of supporting surfaces. "
+            "Dummy experiments by Knörle T., MD thesis, University of Cologne, 1991, "
+            "cited in the chapter (reference 90); thesis not consulted directly."
+        ),
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
         "yes": "Yes",
@@ -300,11 +326,8 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "clothing_bedspread": "Vestiti/teli + coperte spesse",
         "feather_bed": "Coperte molto pesanti/piumone",
         "note": (
-            "Il FC empirico si riferisce a 70 kg (valori in grassetto). "
-            "Per un peso corporeo diverso, il FC scelto per 70 kg va adattato leggendo "
-            "il valore sulla stessa riga. Per un FC inferiore a 1.4 (fino a 0.75), "
-            "la dipendenza dal peso corporeo può essere trascurata. "
-            "I valori delle aree accorpate nell’originale sono ripetuti nelle colonne corrispondenti."
+            "Per un FC inferiore a 1.4 (fino a 0.75), "
+            "la dipendenza dal peso corporeo può essere trascurata."
         ),
         "adapted": "Adattato da",
     },
@@ -316,11 +339,7 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
         "clothing_bedspread": "Clothes/sheets + thick blankets",
         "feather_bed": "Very heavy blankets/duvet",
         "note": (
-            "The empirical FC uses 70 kg as the reference body weight "
-            "(values in bold). For a different body weight, the FC selected for 70 kg "
-            "is adjusted by reading the value on the same row. For an FC below "
-            "1.4 (down to 0.75), dependence on body weight may be neglected. "
-            "Values spanning merged areas in the original are repeated in the corresponding columns."
+            "For an FC below 1.4 (down to 0.75), dependence on body weight may be neglected."
         ),
         "adapted": "Adapted from",
     },
@@ -351,9 +370,9 @@ def _render_combined_table(language: str) -> None:
         )),
         ("mechanical", "[1, 5]", (
             ("whole_muscle", "≤ 2.5", "—"),
-            ("reversible_swelling", "≤ 5", "—"),
-            # The negative bound applies only when no mechanical response is obtained.
-            # The 13-hour compound-method limit remains distinct from Table 3.5's 8–12 h.
+            # Compound-method criterion: local idiomuscular contraction, not a
+            # cumulative question mixing it with propagated whole-muscle excitation.
+            # Do not insert the descriptive reversible phase (≤5 h) into this criterion.
             ("mechanical_response", "≤ 13", "≥ 1.5"),
         )),
         # Table 10.4 and Figure 10.7 in [3]: each question is cumulative.
@@ -401,8 +420,6 @@ def _render_combined_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.caption(text["reading_note"])
-    st.caption(text["supra_note"])
     st.caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)
@@ -442,10 +459,11 @@ def _render_henssge_base_table(language: str) -> None:
             </tbody>
           </table>
         </div>
-        <div class="mallach-note">{text['note']}<br>{text['lower_trunk']}</div>
         """,
         unsafe_allow_html=True,
     )
+    st.caption(text['note'])
+    st.caption(text['lower_trunk'])
     st.caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
 
 
@@ -455,48 +473,62 @@ def _render_henssge_special_table(language: str) -> None:
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table henssge-special-table">
+            <colgroup><col style="width:43%"><col style="width:22%"><col style="width:35%"></colgroup>
             <thead>
               <tr>
-                <th>{text['ground']}</th>
-                <th>{text['clothing']}</th>
-                <th>{text['factor']}</th>
+                <th scope="col">{text['ground']}</th>
+                <th scope="col">{text['clothing']}</th>
+                <th scope="col">{text['factor']}</th>
               </tr>
             </thead>
             <tbody>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1]</sup></th></tr>
               <tr>
-                <td rowspan="2"><strong>{text['indifferent']}</strong><br>{text['indifferent_ground']}</td>
-                <td>{text['yes']}</td><td>{text['see_table_1']}</td>
+                <th scope="row">{text['indifferent_ground']}</th>
+                <td>{text['yes']} / {text['no']}</td><td>{text['see_table_1']}</td>
               </tr>
-              <tr><td>{text['no']}</td><td>{text['see_table_1']}</td></tr>
+            </tbody>
+            <tbody>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['isolating']} <sup>[1, 2]</sup></th></tr>
               <tr>
-                <td rowspan="3"><strong>{text['isolating']}</strong><br>{text['heavy_padding']}</td>
+                <th rowspan="3" scope="rowgroup">{text['heavy_padding']} <sup>[1]</sup></th>
                 <td>{text['thick']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['thin']}</td><td>+0.3</td></tr>
-              <tr><td>{text['no']}</td><td>1.3*</td></tr>
+              <tr><td>{text['no']}</td><td>1.3<sup>*</sup></td></tr>
               <tr>
-                <td rowspan="2">{text['mattress']}</td>
+                <th rowspan="2" scope="rowgroup">{text['mattress']} <sup>[1]</sup></th>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
-              <tr><td>{text['no']}</td><td>1.1–1.2*</td></tr>
+              <tr><td>{text['no']}</td><td>1.1–1.2<sup>*</sup></td></tr>
               <tr>
-                <td>{text['leaves']}</td><td>{text['no']}</td><td>{text['leaves_factors']}</td>
+                <th scope="row">{text['leaves']} <sup>[2]</sup></th>
+                <td>{text['no']}</td><td>{text['leaves_factors']}</td>
               </tr>
+            </tbody>
+            <tbody>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['conducting']} <sup>[1, 3]</sup></th></tr>
               <tr>
-                <td rowspan="3"><strong>{text['conducting']}</strong><br>{text['concrete']}</td>
+                <th rowspan="3" scope="rowgroup">{text['concrete']} <sup>[1]</sup></th>
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
-              <tr><td>{text['no']}</td><td>0.75*</td></tr>
+              <tr><td>{text['no']}</td><td>0.75<sup>*</sup></td></tr>
+              <tr>
+                <th scope="row">{text['metal']} <sup>[3]</sup></th>
+                <td>{text['no']}</td><td>{text['metal_factors']}</td>
+              </tr>
             </tbody>
           </table>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    st.caption(f"{text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
-    st.caption(text['naked_note'])
-    st.caption(f"{text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
+    st.caption(r"\* " + text['naked_note'])
+    st.caption(text['metal_note'])
+    st.caption(f"[1] {text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
+    st.caption(f"[2] {text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
+    st.caption(f"[3] {text['support_reference']}")
 
 
 def _render_henssge_weight_table(language: str) -> None:
@@ -551,10 +583,10 @@ def _render_henssge_weight_table(language: str) -> None:
             </tbody>
           </table>
         </div>
-        <div class="mallach-note">{text['note']}</div>
         """,
         unsafe_allow_html=True,
     )
+    st.caption(text['note'])
     st.caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
 
 
@@ -622,11 +654,6 @@ st.markdown(
     .mallach-table .subcriterion.nested {
         padding-left: 0.15rem;
     }
-    .mallach-note {
-        font-size: 0.64rem;
-        line-height: 1.08;
-        margin-top: 0.08rem;
-    }
     table.combined-table {
         width: 100%;
         max-width: 48rem;
@@ -664,16 +691,28 @@ st.markdown(
     .henssge-base-table th:nth-child(3) {
         min-width: 3.8rem;
     }
-    .henssge-special-table td:first-child {
-        min-width: 7.5rem;
-        max-width: 9rem;
-        white-space: normal;
+    table.henssge-special-table {
+        width: 100%;
+        max-width: 48rem;
+        table-layout: fixed;
     }
-    .henssge-special-table th:nth-child(2) {
-        min-width: 4rem;
+    table.henssge-special-table th,
+    table.henssge-special-table td {
+        min-width: 0;
+        max-width: none;
+        padding: 0.25rem;
+        overflow-wrap: anywhere;
     }
-    .henssge-special-table th:nth-child(3) {
-        min-width: 4.5rem;
+    .henssge-special-table tbody th {
+        text-align: left;
+        font-weight: 400;
+    }
+    .henssge-special-table .surface-category th {
+        font-weight: 650;
+        background: rgba(128,128,128,.08);
+    }
+    .henssge-special-table sup {
+        white-space: nowrap;
     }
     .henssge-weight-table {
         font-size: 0.64rem !important;
@@ -721,8 +760,9 @@ st.markdown(
         line-height: 1 !important;
     }
     div[data-testid="stCaptionContainer"] p {
-        font-size: 0.62rem !important;
-        line-height: 1.08 !important;
+        font-family: inherit;
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
     }
     div[data-testid="stMarkdownContainer"] h2 {
         font-size: 1.15rem !important;
@@ -740,10 +780,6 @@ st.markdown(
         }
         .henssge-weight-table {
             font-size: 0.72rem !important;
-        }
-        .mallach-note {
-            font-size: 0.70rem;
-            line-height: 1.12;
         }
         .henssge-table-title {
             font-size: 0.86rem;
