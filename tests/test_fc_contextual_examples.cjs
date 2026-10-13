@@ -32,7 +32,7 @@ function show(state,extra){
 let rendered=show('Immerso',{'scenario-temperature':'10',air:'unknown',surface:'metal','metal-type':'',thin:'invalid'});
 assert.equal(nodes['source-examples'].hidden,false);
 assert.match(rendered,/Caso 01/);assert.match(rendered,/Caso 10/);
-assert.match(rendered,/Peso: 65 kg/);assert.match(rendered,/19,3 °C/);
+assert.match(rendered,/Peso: 65 kg/);assert.match(rendered,/19\.3 °C/);
 assert.doesNotMatch(rendered,/tab\. 6\.7|Riferimento:|soglia universale|intervallo di confidenza/);
 assert.match(text(nodes['source-full-citations']),/Fonti degli esempi/);
 assert.match(text(nodes['source-full-citations']),/tab\. 6\.7/);
@@ -45,7 +45,7 @@ assert.equal(nodes['source-examples'].hidden,true);
 assert.match(text(nodes['source-full-citations']),/Brown e Marshall/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'no'});
 assert.match(rendered,/Prova su simulatore/);
-assert.match(rendered,/Peso virtuale standard: 60,4 kg/);
+assert.match(rendered,/Peso virtuale standard: 60\.4 kg/);
 assert.doesNotMatch(rendered,/Althaus|tab\. 6\.11|non quantifica altre combinazioni/);
 assert.match(text(nodes['source-full-citations']),/Althaus/);
 assert.match(text(nodes['source-full-citations']),/tab\. 6\.11/);

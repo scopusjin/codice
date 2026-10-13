@@ -376,7 +376,8 @@ const EXAMPLES=[];
 function exampleFCText(e){
   return e.observations|| (e.weightNote?'FC iniziale: '+e.fc+'; a '+e.weight.toFixed(1)+' kg: '+e.adjustedFc+'.':'FC: '+e.fc);
 }
-function exampleConditions(e){return e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria');}
+function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
+function exampleConditions(e){return exampleDecimalText(e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
 function exampleMatches(c){if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
@@ -408,7 +409,7 @@ function showSource(){
   if(q('#air-row').hidden)c={...c,air:'still',wind:false};
   const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
   q('#reference').textContent=referenceLabel(result,c);
-  const showOrigin=originLabel(result)!=='Ragionamento dell’app';
+  const showOrigin=result.kind!=='Tabella Henssge'&&originLabel(result)!=='Ragionamento dell’app';
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
@@ -438,9 +439,8 @@ function showSource(){
   for(const e of examples){
     const item=document.createElement('div');item.className='source-example';
     paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
-    paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg · '+exampleConditions(e));
-    paragraph(item,exampleFCText(e));
-    if(e.notes)paragraph(item,e.notes);
+    paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(String).join(' / ')+' kg · '+exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
+    if(e.notes)paragraph(item,exampleDecimalText(e.notes));
     list.append(item);
   }
 }

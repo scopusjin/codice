@@ -2,6 +2,7 @@
 
 import ast
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -35,7 +36,8 @@ console.log(JSON.stringify({ids:Object.keys(api.EXAMPLE_MATCHERS),
         self.assertFalse(any(e.get('referenceOnly') for e in examples))
         for row, js_row in zip(examples, data['rows'], strict=True):
             self.assertEqual(row['id'], js_row['id'])
-            self.assertEqual(row['conditions'].replace('aria mobile', 'correnti d’aria').replace('aria ferma', 'assenza di correnti d’aria'), js_row['conditions'])
+            conditions = row['conditions'].replace('aria mobile', 'correnti d’aria').replace('aria ferma', 'assenza di correnti d’aria')
+            self.assertEqual(re.sub(r'(\d),(\d)', r'\1.\2', conditions), js_row['conditions'])
             expected = row.get('observations') or (
                 f"FC iniziale: {row['fc']}; a {row['weight']:.1f} kg: {row['adjustedFc']}."
                 if row.get('weightNote') else 'FC: ' + row['fc'])
