@@ -26,6 +26,8 @@ _COMBINED_BIBLIOGRAPHY = (
     "Estimation of the time since death—reconsidering the re-establishment of rigor mortis. "
     "Int J Legal Med. 2013;127(1):127–130. "
     "[doi:10.1007/s00414-011-0632-z](https://doi.org/10.1007/s00414-011-0632-z).",
+    "[5] Madea B. Supravitality in tissues. In: Madea B, ed. Estimation of the Time Since Death. "
+    "3rd ed. CRC Press; 2016. Chapter 3, Tables 3.1–3.2, 3.5.",
 )
 
 _HENSSGE_BASE_REFERENCE = (
@@ -62,22 +64,23 @@ _COMBINED_TABLE_TEXT = {
         "criterion": "Criterio",
         "yes": "Sì",
         "no": "No",
-        "lividity": "Ipostasi",
+        "lividity": "Macchie ipostatiche",
         "lividity_beginning": "Sono già comparse?",
         "confluence": "Sono confluenti?",
-        "thumb_pressure": "Scompaiono completamente alla pressione del pollice?",
+        "thumb_pressure": "Scompaiono completamente alla digitopressione?",
         "complete_shifting": "Sono completamente migrabili?",
         "maximum_row": "Hanno raggiunto la massima estensione e intensità?",
         "incomplete_shifting": "Sono migrabili almeno parzialmente?",
-        "rigor": "Rigidità",
+        "rigor": "Rigidità cadaverica",
         "rigor_beginning": "È già comparsa?",
-        "rigor_complete": "Ha raggiunto la completa instaurazione, con intensità massima e distribuzione generalizzata?",
+        "rigor_complete": "Si è già completamente instaurata, con intensità massima e distribuzione generalizzata?",
         "reestablishment": "Ricompare dopo essere stata vinta con la mobilizzazione?",
-        "rigor_persistence": "Ha iniziato a risolversi? [2]",
-        "rigor_resolution": "È completamente risolta? [2]",
-        "mechanical": "Eccitabilità meccanica",
-        "tendon": "Si ottiene una reazione alla percussione tendinea?",
-        "idiomuscular": "Si ottiene una contrazione idiomuscolare?",
+        "rigor_persistence": "Ha iniziato a risolversi?",
+        "rigor_resolution": "È completamente risolta?",
+        "mechanical": "Eccitabilità muscolare meccanica",
+        "whole_muscle": "La percussione del muscolo provoca la contrazione dell’intero muscolo?",
+        "reversible_swelling": "La percussione del muscolo provoca una tumefazione reversibile?",
+        "mechanical_response": "È presente una risposta alla percussione del muscolo (contrazione dell’intero muscolo, tumefazione reversibile o piccola tumefazione persistente)?",
         "eyebrow": "Eccitabilità elettrica sopraciliare",
         "supra_cheek": "La contrazione coinvolge le palpebre superiore e inferiore, la fronte e la guancia?",
         "supra_forehead": "La contrazione coinvolge le palpebre superiore e inferiore e la fronte?",
@@ -89,9 +92,9 @@ _COMBINED_TABLE_TEXT = {
         "muscle_response": "È presente una risposta muscolare (indipendentemente dalla sua estensione) all’applicazione di uno stimolo elettrico?",
         "mouth_note": "† Il limite di 11 ore riguarda qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione.",
         "chemical": "Eccitabilità chimica pupillare",
-        "atropin": "La pupilla si dilata dopo atropina?",
-        "tropicamide": "La pupilla si dilata dopo tropicamide?",
-        "acetylcholine": "La pupilla si restringe dopo acetilcolina?",
+        "atropin": "La pupilla si dilata dopo iniezione di atropina?",
+        "tropicamide": "La pupilla si dilata dopo iniezione di tropicamide?",
+        "acetylcholine": "La pupilla si restringe dopo iniezione di acetilcolina?",
         "variation_note": (
             "I limiti temporali indicati non corrispondono tutti a intervalli statistici al 95% "
             "e non costituiscono soglie biologiche assolute."
@@ -102,8 +105,7 @@ _COMBINED_TABLE_TEXT = {
         ),
         "course_note": (
             "Le domande sull’inizio e sul completamento della risoluzione rielaborano i limiti "
-            "descrittivi di persistenza e risoluzione [2]. «Ha iniziato a risolversi?» comprende "
-            "anche la completa risoluzione."
+            "descrittivi di persistenza e risoluzione [2]."
         ),
         "supra_note": (
             "Per l’eccitabilità sopraciliare, «Sì» comprende anche una contrazione più estesa: "
@@ -127,22 +129,23 @@ _COMBINED_TABLE_TEXT = {
         "criterion": "Criterion",
         "yes": "Yes",
         "no": "No",
-        "lividity": "Lividity",
+        "lividity": "Postmortem lividity",
         "lividity_beginning": "Has lividity appeared?",
         "confluence": "Is lividity confluent?",
-        "thumb_pressure": "Does lividity disappear completely under thumb pressure?",
+        "thumb_pressure": "Does lividity disappear completely under finger pressure?",
         "complete_shifting": "Can lividity shift completely?",
         "maximum_row": "Has lividity reached its maximum extent and intensity?",
         "incomplete_shifting": "Can lividity shift at least partially?",
-        "rigor": "Rigor",
+        "rigor": "Rigor mortis",
         "rigor_beginning": "Has rigor appeared?",
-        "rigor_complete": "Has rigor become fully developed, with maximum intensity and generalized distribution?",
+        "rigor_complete": "Has rigor mortis already fully developed, with maximum intensity and generalized distribution?",
         "reestablishment": "Does rigor re-establish after being broken by mobilization?",
-        "rigor_persistence": "Has rigor started to resolve? [2]",
-        "rigor_resolution": "Has rigor completely resolved? [2]",
-        "mechanical": "Mechanical excitability",
-        "tendon": "Is a reaction to tendon percussion obtained?",
-        "idiomuscular": "Is an idiomuscular contraction obtained?",
+        "rigor_persistence": "Has rigor started to resolve?",
+        "rigor_resolution": "Has rigor completely resolved?",
+        "mechanical": "Mechanical muscle excitability",
+        "whole_muscle": "Does percussion of the muscle cause contraction of the whole muscle?",
+        "reversible_swelling": "Does percussion of the muscle cause a reversible swelling?",
+        "mechanical_response": "Is a response to muscle percussion present (whole-muscle contraction, reversible swelling or a small persistent swelling)?",
         "eyebrow": "Supraciliary electrical excitability",
         "supra_cheek": "Does the contraction involve the upper and lower eyelids, the forehead and the cheek?",
         "supra_forehead": "Does the contraction involve the upper and lower eyelids and the forehead?",
@@ -154,9 +157,9 @@ _COMBINED_TABLE_TEXT = {
         "muscle_response": "Is a muscular response present (regardless of its extent) following the application of an electrical stimulus?",
         "mouth_note": "† The 11-hour limit applies to any positive perioral response, regardless of its extent.",
         "chemical": "Chemical excitability of the pupil",
-        "atropin": "Does the pupil dilate after atropine?",
-        "tropicamide": "Does the pupil dilate after tropicamide?",
-        "acetylcholine": "Does the pupil constrict after acetylcholine?",
+        "atropin": "Does the pupil dilate after atropine injection?",
+        "tropicamide": "Does the pupil dilate after tropicamide injection?",
+        "acetylcholine": "Does the pupil constrict after acetylcholine injection?",
         "variation_note": (
             "The stated time limits do not all represent 95% statistical intervals "
             "and are not absolute biological thresholds."
@@ -167,7 +170,7 @@ _COMBINED_TABLE_TEXT = {
         ),
         "course_note": (
             "The questions on the onset and completion of resolution adapt the descriptive limits "
-            "for persistence and resolution [2]. “Has rigor started to resolve?” also includes complete resolution."
+            "for persistence and resolution [2]."
         ),
         "supra_note": (
             "For supraciliary excitability, “Yes” also includes a more extensive contraction: "
@@ -363,9 +366,12 @@ def _render_combined_table(language: str) -> None:
             ("rigor_persistence", "≥ 24", "≤ 96"),
             ("rigor_resolution", "≥ 24", "≤ 192"),
         )),
-        ("mechanical", "[1]", (
-            ("tendon", "≤ 2.5", "—"),
-            ("idiomuscular", "≤ 13", "≥ 1.5"),
+        ("mechanical", "[1, 5]", (
+            ("whole_muscle", "≤ 2.5", "—"),
+            ("reversible_swelling", "≤ 5", "—"),
+            # The negative bound applies only when no mechanical response is obtained.
+            # The 13-hour compound-method limit remains distinct from Table 3.5's 8–12 h.
+            ("mechanical_response", "≤ 13", "≥ 1.5"),
         )),
         # Table 10.4 and Figure 10.7 in [3]: each question is cumulative.
         # A negative response concerns this extent, not absence of all contraction.
@@ -378,7 +384,7 @@ def _render_combined_table(language: str) -> None:
             ("supra_nasal", "≤ 22", "≥ 5"),
         )),
         ("mouth", "[1]", (("muscle_response", "≤ 11†", "≥ 3"),)),
-        ("chemical", "[1]", (
+        ("chemical", "[1, 5]", (
             ("atropin", "≤ 10", "≥ 3"),
             ("tropicamide", "≤ 30", "≥ 5"),
             ("acetylcholine", "≤ 46", "≥ 14"),

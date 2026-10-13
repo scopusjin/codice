@@ -244,12 +244,12 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         ),
         PUPILLARY_POSITIVE: (
             "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una risposta dei muscoli "
-            "pupillari dell’occhio (con aumento del diametro della pupilla) all’instillazione intraoculare di atropina. Tale reazione "
+            "pupillari dell’occhio (con aumento del diametro della pupilla) all’iniezione di atropina. Tale reazione "
             "suggerisce che il decesso fosse avvenuto meno di 30 ore prima delle valutazioni medico legali."
         ),
         PUPILLARY_NEGATIVE: (
             "L’eccitabilità pupillare chimica residua, nel momento dell’ispezione legale, era caratterizzata da una assenza di risposta "
-            "dei muscoli pupillari dell’occhio (senza aumento del diametro della pupilla) all'instillazione intraoculare di atropina. "
+            "dei muscoli pupillari dell’occhio (senza aumento del diametro della pupilla) all’iniezione di atropina. "
             "Tale reazione suggerisce che il decesso fosse avvenuto più di 5 ore prima delle valutazioni medico legali."
         ),
     },

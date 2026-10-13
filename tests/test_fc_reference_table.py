@@ -117,7 +117,7 @@ class CombinedReferenceTableTests(unittest.TestCase):
         self.assertEqual(len(self.html), 1)
         parser = CombinedRows()
         parser.feed(self.html[0])
-        self.assertEqual(len(parser.rows), 23)
+        self.assertEqual(len(parser.rows), 24)
         text = self.namespace['_COMBINED_TABLE_TEXT'][language]
         return {key: parser.rows[label] for key, label in text.items() if label in parser.rows}
 
@@ -176,6 +176,24 @@ class CombinedReferenceTableTests(unittest.TestCase):
                                 for note in self.captions))
             self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
             self.assertTrue(rows['muscle_response'][0].endswith('†'))
+
+    def test_mechanical_response_questions_match_app_states_without_false_negative_bounds(self):
+        expected = dati_parametri_aggiuntivi['Eccitabilità muscolare meccanica']['range']
+        states = {
+            'Contrazione dell’intero muscolo':
+                [('whole_muscle', True), ('reversible_swelling', False), ('mechanical_response', True)],
+            'Tumefazione reversibile':
+                [('whole_muscle', False), ('reversible_swelling', True), ('mechanical_response', True)],
+            'Piccola tumefazione persistente':
+                [('whole_muscle', False), ('reversible_swelling', False), ('mechanical_response', True)],
+            'Nessuna reazione':
+                [('whole_muscle', False), ('reversible_swelling', False), ('mechanical_response', False)],
+        }
+        for language in ('it', 'en'):
+            rows = self.render(language)
+            for state, answers in states.items():
+                with self.subTest(language=language, state=state):
+                    self.assertEqual(self.interval(rows, answers), expected[state])
 
 
 if __name__ == '__main__':

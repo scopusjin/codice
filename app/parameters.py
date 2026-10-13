@@ -152,32 +152,32 @@ dati_parametri_aggiuntivi = {
         },
         "descrizioni": {
             "Dilatazione con atropina": (
-                "L’instillazione di atropina ha determinato una dilatazione pupillare. "
+                "L’iniezione di atropina ha determinato una dilatazione pupillare. "
                 "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
                 "meno di 10 ore prima della valutazione del dato tanatologico."
             ),
             "Nessuna variazione con atropina": (
-                "L’instillazione di atropina non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’iniezione di atropina non ha determinato variazioni apprezzabili del diametro pupillare. "
                 "L’assenza di reazione suggerisce che fossero trascorse almeno 3 ore dal decesso al momento della "
                 "valutazione del dato tanatologico."
             ),
             "Dilatazione con tropicamide": (
-                "L’instillazione di tropicamide ha determinato una dilatazione pupillare. "
+                "L’iniezione di tropicamide ha determinato una dilatazione pupillare. "
                 "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
                 "meno di 30 ore prima della valutazione del dato tanatologico."
             ),
             "Nessuna variazione con tropicamide": (
-                "L’instillazione di tropicamide non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’iniezione di tropicamide non ha determinato variazioni apprezzabili del diametro pupillare. "
                 "L’assenza di reazione suggerisce che fossero trascorse almeno 5 ore dal decesso al momento della "
                 "valutazione del dato tanatologico."
             ),
             "Riduzione con acetilcolina": (
-                "L’instillazione di acetilcolina ha determinato una riduzione del diametro pupillare. "
+                "L’iniezione di acetilcolina ha determinato una riduzione del diametro pupillare. "
                 "La persistenza di tale eccitabilità chimica dell’iride suggerisce che il decesso fosse avvenuto "
                 "meno di 46 ore prima della valutazione del dato tanatologico."
             ),
             "Nessuna variazione con acetilcolina": (
-                "L’instillazione di acetilcolina non ha determinato variazioni apprezzabili del diametro pupillare. "
+                "L’iniezione di acetilcolina non ha determinato variazioni apprezzabili del diametro pupillare. "
                 "L’assenza di reazione suggerisce che fossero trascorse almeno 14 ore dal decesso al momento della "
                 "valutazione del dato tanatologico."
             ),

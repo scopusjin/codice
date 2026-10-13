@@ -75,7 +75,7 @@ _HELPER_TEXTS = {
         "muscolo, tumefazione reversibile, piccola tumefazione persistente o nessuna reazione."
     ),
     PARAM_CHEMICAL_PUPILLARY: (
-        "Il metodo valuta la persistenza dell’eccitabilità chimica dell’iride mediante instillazione "
+        "Il metodo valuta la persistenza dell’eccitabilità chimica dell’iride mediante iniezione "
         "di atropina, tropicamide o acetilcolina e osservazione del diametro pupillare: dilatazione, "
         "riduzione o assenza di variazione."
     ),
