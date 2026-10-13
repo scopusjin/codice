@@ -412,7 +412,6 @@ function showSource(){
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
-  if(examples.some(e=>e.id==='blanket-H08'))q('#source-extra').textContent='Gli esempi riportati mostrano che l’effetto delle coperture può variare sensibilmente. Il valore 1.80 non è un limite minimo assoluto: gli estremi possono essere adattati alla condizione osservata. Nei due esperimenti il materasso è già compreso nel FC.';
   q('#rule-source').textContent=result.detail;
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
@@ -421,6 +420,15 @@ function showSource(){
   if(sourceIds.has('wetSupport'))sourceIds.add('support');
   for(const id of ['wetMixed','wetBlankets','wetSupport','wetNakedAccelerating','soakedMattress'])sourceIds.delete(id);
   for(const id of sourceIds)sourceDetails(citations,SOURCES[id]);
+  if(examples.length){
+    const details=document.createElement('details'),summary=document.createElement('summary');
+    summary.textContent='Fonti degli esempi';details.append(summary);
+    const seen=new Set();
+    for(const e of examples)if(!seen.has(e.sourceText)){
+      seen.add(e.sourceText);sourceLink(details,e.sourceText,e.url);
+    }
+    citations.append(details);
+  }
   const w=num(q('#weight'));
   const active=result.range&&suggestion&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
   q('#weight-source').hidden=!active;
@@ -432,7 +440,6 @@ function showSource(){
     paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
     paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg · '+exampleConditions(e));
     paragraph(item,exampleFCText(e));
-    sourceLink(item,'Riferimento: '+e.sourceText,e.url);
     if(e.notes)paragraph(item,e.notes);
     list.append(item);
   }

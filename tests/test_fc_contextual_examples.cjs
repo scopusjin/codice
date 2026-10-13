@@ -21,7 +21,7 @@ for(const [conditions,expected] of [
 ])assert.deepEqual(ids(conditions),expected,JSON.stringify(conditions));
 
 // Exercise the visible source section: immersion must work despite stale,
-// hidden land controls; each selected card carries its own source and weight.
+// hidden land controls; sources stay available in the collapsed source section.
 const text=node=>[node.textContent,...node.children.map(text)].join('\n');
 const links=node=>[...(node.href?[node.href]:[]),...node.children.flatMap(links)];
 const fields={thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',air:'still',water:'stagnante'};
@@ -33,8 +33,10 @@ let rendered=show('Immerso',{'scenario-temperature':'10',air:'unknown',surface:'
 assert.equal(nodes['source-examples'].hidden,false);
 assert.match(rendered,/Caso 01/);assert.match(rendered,/Caso 10/);
 assert.match(rendered,/Peso: 65 kg/);assert.match(rendered,/19,3 °C/);
-assert.match(rendered,/tab\. 6\.7/);
-assert(links(nodes['example-list']).includes('https://pubmed.ncbi.nlm.nih.gov/6485584/'));
+assert.doesNotMatch(rendered,/tab\. 6\.7|Riferimento:|soglia universale|intervallo di confidenza/);
+assert.match(text(nodes['source-full-citations']),/Fonti degli esempi/);
+assert.match(text(nodes['source-full-citations']),/tab\. 6\.7/);
+assert(links(nodes['source-full-citations']).includes('https://pubmed.ncbi.nlm.nih.gov/6485584/'));
 rendered=show('Immerso',{'scenario-temperature':'0'});
 assert.match(rendered,/Caso 15/);assert.match(rendered,/FC: 1\.040/);
 assert.doesNotMatch(rendered,/Caso 01/);
@@ -44,7 +46,9 @@ assert.match(text(nodes['source-full-citations']),/Brown e Marshall/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'no'});
 assert.match(rendered,/Prova su simulatore/);
 assert.match(rendered,/Peso virtuale standard: 60,4 kg/);
-assert.match(rendered,/Althaus/);assert.match(rendered,/tab\. 6\.11/);
+assert.doesNotMatch(rendered,/Althaus|tab\. 6\.11|non quantifica altre combinazioni/);
+assert.match(text(nodes['source-full-citations']),/Althaus/);
+assert.match(text(nodes['source-full-citations']),/tab\. 6\.11/);
 assert.doesNotMatch(rendered,/Esperimento su cadavere|undefined/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'yes',air:'intermittent'});
 assert.match(rendered,/FC: 1\.77/);assert.match(rendered,/FC: 2\.72/);

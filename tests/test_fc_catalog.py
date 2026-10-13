@@ -59,14 +59,13 @@ assert 'pandas' not in sys.modules
         self.assertEqual(rows['Caso B54']['weight'], 63.5)
         self.assertEqual(rows['Caso 33']['weight'], 62)
         self.assertIn('41,6', rows['Caso 33']['conditions'])
-        self.assertIn('mancato utilizzo', rows['Caso 33']['notes'])
-        self.assertIn('non poté verificare', rows['Caso 6']['notes'])
+        self.assertIn('Metodo non applicato', rows['Caso 33']['notes'])
+        self.assertIn('non verificato', rows['Caso 6']['notes'])
         self.assertEqual(sum(e['type'] == 'Caso operativo' for e in load_examples()), 6)
         self.assertEqual(sum(e['type'] in ('Esperimento', 'Esperimenti') for e in load_examples()), 19)
         self.assertEqual(sum(e['type'] == 'Simulatore' for e in load_examples()), 9)
         for row in rows.values():
             self.assertTrue(row.get('weight') or row.get('weights') or row.get('virtualWeight'))
-            self.assertTrue(row['notes'])
 
     def test_new_case_references_require_relevant_conditions(self):
         script = """

@@ -8,7 +8,6 @@
     "source": "wet",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174(3–4):96–112. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.8.",
     "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/",
-    "notes": "Due cadaveri con la stessa descrizione degli indumenti: i diversi FC mostrano la variabilità osservata. Pesi e FC sono riportati nello stesso ordine dei casi 51 e 44.",
     "weights": [
       69.5,
       65
@@ -23,8 +22,7 @@
     "fc": "0.60 - 0.80",
     "source": "casework",
     "url": "https://doi.org/10.1007/s004149900089",
-    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17.",
-    "notes": "Intervallo di FC scelto nel caso reale, con appoggio e condizioni dell’aria già considerati; non è un intervallo ricavato da prove sperimentali. La fonte riporta un confronto con i tempi ricostruiti dall’indagine."
+    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17."
   },
   {
     "id": "wet-41",
@@ -35,8 +33,7 @@
     "fc": "1.00",
     "source": "wet",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174(3–4):96–112. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.8.",
-    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/",
-    "notes": "FC ricavato dal raffreddamento nelle condizioni descritte; il valore non è trasferibile a qualsiasi indumento bagnato."
+    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/"
   },
   {
     "id": "wet-52",
@@ -47,8 +44,7 @@
     "fc": "0.75",
     "source": "wet",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174(3–4):96–112. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.8.",
-    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/",
-    "notes": "FC ricavato dal raffreddamento nelle condizioni descritte; il valore non è trasferibile a qualsiasi indumento bagnato."
+    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/"
   },
   {
     "id": "wet-50",
@@ -59,8 +55,7 @@
     "fc": "0.77",
     "source": "wet",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174(3–4):96–112. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.8.",
-    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/",
-    "notes": "FC ricavato dal raffreddamento nelle condizioni descritte; il valore non è trasferibile a qualsiasi indumento bagnato."
+    "url": "https://pubmed.ncbi.nlm.nih.gov/6508475/"
   },
   {
     "id": "still-B63",
@@ -70,8 +65,7 @@
     "weight": 110,
     "fc": "1.10",
     "source": "clothesStill",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329."
   },
   {
     "id": "still-B58",
@@ -81,8 +75,7 @@
     "weight": 68,
     "fc": "1.10",
     "source": "clothesStill",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329."
   },
   {
     "id": "still-H6",
@@ -92,8 +85,7 @@
     "weight": 68,
     "fc": "1.07",
     "source": "clothesStill",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329."
   },
   {
     "id": "still-B54",
@@ -103,8 +95,7 @@
     "weight": 63.5,
     "fc": "1.44",
     "source": "clothesStill",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.4. La tabella cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329."
   },
   {
     "id": "wind-H15",
@@ -114,8 +105,7 @@
     "weight": 67.5,
     "fc": "0.90",
     "source": "clothesWind",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.5.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.5."
   },
   {
     "id": "wind-H14",
@@ -125,8 +115,7 @@
     "weight": 78,
     "fc": "0.97",
     "source": "clothesWind",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.5.",
-    "notes": "FC sperimentale riferito all’insieme delle condizioni descritte; non è un incremento da sommare per ciascun indumento."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.5."
   },
   {
     "id": "blanket-B33",
@@ -136,8 +125,7 @@
     "weight": 73,
     "fc": "2.16",
     "source": "blankets",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.6.",
-    "notes": "Il materasso è già compreso nella condizione sperimentale. Il FC non misura l’effetto della sola coperta e non costituisce un limite minimo generale."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.6."
   },
   {
     "id": "blanket-H08",
@@ -147,8 +135,7 @@
     "weight": 77,
     "fc": "1.44",
     "source": "blankets",
-    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.6.",
-    "notes": "Il materasso è già compreso nella condizione sperimentale. Il FC non misura l’effetto della sola coperta e non costituisce un limite minimo generale."
+    "sourceText": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.6."
   },
   {
     "id": "case-33",
@@ -160,7 +147,7 @@
     "source": "casework",
     "url": "https://doi.org/10.1007/s004149900089",
     "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17.",
-    "notes": "Caso con ipertermia: la fonte riporta il mancato utilizzo del metodo per mancanza di esperienza e un’elaborazione nell’ipotesi di ipertermia maligna, con temperatura alla morte di 43,5 °C. Non è una normale conferma del FC per coperte. Distinto dall’esperimento B33."
+    "notes": "Metodo non applicato nel caso; elaborazione nell’ipotesi di ipertermia maligna, con temperatura alla morte di 43,5 °C."
   },
   {
     "id": "case-6",
@@ -174,7 +161,7 @@
     "url": "https://doi.org/10.1007/s004149900089",
     "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.21.",
     "adjustedFc": "1.80 - 2.50",
-    "notes": "Caso della coppia 6/7. Il range fu adattato per il peso; l’indagine non poté verificare i tempi di morte. Il caso illustra una scelta del FC, senza una verifica indipendente della stima rispetto a un tempo noto."
+    "notes": "FC adattato per il peso; tempo del decesso non verificato dall’indagine."
   },
   {
     "id": "case-55",
@@ -185,8 +172,7 @@
     "fc": "0.80 - 1.00",
     "source": "casework",
     "url": "https://doi.org/10.1007/s004149900089",
-    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17.",
-    "notes": "Intervallo di FC scelto nel caso reale, con appoggio e condizioni dell’aria già considerati; non è un intervallo ricavato da prove sperimentali. La fonte riporta un confronto con i tempi ricostruiti dall’indagine."
+    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17."
   },
   {
     "id": "case-22",
@@ -197,8 +183,7 @@
     "fc": "0.60 - 0.80",
     "source": "casework",
     "url": "https://doi.org/10.1007/s004149900089",
-    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17.",
-    "notes": "Il FC comprende appoggio, bagnato e correnti d’aria. La fonte confronta la stima con i tempi ricostruiti dall’indagine."
+    "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17."
   },
   {
     "id": "case-62",
@@ -210,13 +195,12 @@
     "source": "casework",
     "url": "https://doi.org/10.1007/s004149900089",
     "sourceText": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.17.",
-    "notes": "Il valore centrale scelto è 1.15. Il caso documenta un FC complessivo per corpo nudo e letto, non un incremento da aggiungere al fattore del corpo nudo."
+    "notes": "Valore centrale: 1.15."
   },
   {
     "id": "t6_3-28",
     "title": "Caso 28",
     "conditions": "Corpo nudo esposto a correnti d’aria continue.",
-    "notes": "Valore sperimentale al peso della prova, in correnti continue; non descrive esposizioni intermittenti.",
     "sourceText": "Henssge C. Estimation of death-time by computing the rectal body cooling under various cooling conditions. Z Rechtsmed. 1981;87:147–178. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.3.",
     "type": "Esperimento",
     "fc": "0.76",
@@ -227,7 +211,6 @@
     "id": "t6_7-01",
     "title": "Caso 01",
     "conditions": "Corpo nudo sospeso in acqua quasi ferma. Temperatura: 19,3 °C.",
-    "notes": "Prova in acqua quasi ferma, distinta dall’acqua corrente. Valore individuale, non soglia universale. I casi mostrati sono esempi selezionati; i loro FC non definiscono l’intera dispersione della serie né un intervallo di confidenza.",
     "sourceText": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.7.",
     "type": "Esperimento",
     "fc": "0.445",
@@ -238,7 +221,6 @@
     "id": "t6_7-10",
     "title": "Caso 10",
     "conditions": "Corpo nudo sospeso in acqua quasi ferma. Temperatura: 10,2 °C.",
-    "notes": "Prova in acqua quasi ferma, distinta dall’acqua corrente. Valore individuale, non soglia universale. I casi mostrati sono esempi selezionati; i loro FC non definiscono l’intera dispersione della serie né un intervallo di confidenza.",
     "sourceText": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.7.",
     "type": "Esperimento",
     "fc": "0.417",
@@ -249,7 +231,6 @@
     "id": "t6_7-15",
     "title": "Caso 15",
     "conditions": "Corpo nudo sospeso in acqua quasi ferma. Temperatura: 0 °C.",
-    "notes": "Serie con acqua prossima a 0 °C. Il comportamento termico differisce dalle prove a circa 10 e 20 °C; conservare temperatura e peso del caso. I casi mostrati sono esempi selezionati; i loro FC non definiscono l’intera dispersione della serie né un intervallo di confidenza.",
     "sourceText": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.7.",
     "type": "Esperimento",
     "fc": "1.040",
@@ -260,7 +241,6 @@
     "id": "t6_7-16",
     "title": "Caso 16",
     "conditions": "Corpo nudo sospeso in acqua quasi ferma. Temperatura: 0 °C.",
-    "notes": "Serie con acqua prossima a 0 °C. Il comportamento termico differisce dalle prove a circa 10 e 20 °C; conservare temperatura e peso del caso. I casi mostrati sono esempi selezionati; i loro FC non definiscono l’intera dispersione della serie né un intervallo di confidenza.",
     "sourceText": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.7.",
     "type": "Esperimento",
     "fc": "0.557",
@@ -271,7 +251,6 @@
     "id": "t6_8-55",
     "title": "Caso 55",
     "conditions": "Mutande lunghe, pantaloni, maglione e cappotto bagnati; correnti continue.",
-    "notes": "FC sperimentale dell’insieme delle condizioni descritte, riferito al peso della prova; non è un incremento da sommare per singolo indumento. La corrispondenza con il conteggio degli strati è orientativa; confrontare anche il tipo di indumenti.",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174:96–112. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.8.",
     "type": "Esperimento",
     "fc": "0.90",
@@ -282,7 +261,6 @@
     "id": "t6_8-47",
     "title": "Caso 47",
     "conditions": "Tre camici bagnati; correnti continue.",
-    "notes": "FC sperimentale dell’insieme delle condizioni descritte, riferito al peso della prova; non è un incremento da sommare per singolo indumento. La corrispondenza con il conteggio degli strati è orientativa; confrontare anche il tipo di indumenti.",
     "sourceText": "Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174:96–112. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.8.",
     "type": "Esperimento",
     "fc": "0.70",
@@ -293,7 +271,7 @@
     "id": "t6_10-200",
     "title": "Prova 200",
     "conditions": "Simulatore senza rivestimento isolante. Base con spessa imbottitura in espanso.",
-    "notes": "Peso virtuale standard medio 64,7 kg; temperatura ambiente 14–19 °C, salvo prova 260 a 6,1 °C. Non è un esperimento su cadavere. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
+    "notes": "Temperatura ambientale: 14–19 °C.",
     "sourceText": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne; 1991. Tesi di medicina; riferimento 90 del capitolo. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.10. Tesi citata nel libro; testo integrale non consultato.",
     "type": "Simulatore",
     "fc": "1.31",
@@ -303,7 +281,7 @@
     "id": "t6_10-230",
     "title": "Prova 230",
     "conditions": "Simulatore senza rivestimento isolante. Pavimento rivestito in PVC.",
-    "notes": "Peso virtuale standard medio 64,7 kg; temperatura ambiente 14–19 °C, salvo prova 260 a 6,1 °C. Non è un esperimento su cadavere. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
+    "notes": "Temperatura ambientale: 14–19 °C.",
     "sourceText": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne; 1991. Tesi di medicina; riferimento 90 del capitolo. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.10. Tesi citata nel libro; testo integrale non consultato.",
     "type": "Simulatore",
     "fc": "0.76",
@@ -313,7 +291,6 @@
     "id": "t6_10-260",
     "title": "Prova 260",
     "conditions": "Simulatore senza rivestimento isolante. Lastra di pietra all’aperto. Temperatura: 6,1 °C.",
-    "notes": "Peso virtuale standard medio 64,7 kg; temperatura ambiente 14–19 °C, salvo prova 260 a 6,1 °C. Non è un esperimento su cadavere. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
     "sourceText": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne; 1991. Tesi di medicina; riferimento 90 del capitolo. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.10. Tesi citata nel libro; testo integrale non consultato.",
     "type": "Simulatore",
     "fc": "0.73",
@@ -323,7 +300,7 @@
     "id": "t6_10-290",
     "title": "Prova 290",
     "conditions": "Simulatore senza rivestimento isolante. Lastra d’acciaio su cemento, con acqua circostante.",
-    "notes": "Peso virtuale standard medio 64,7 kg; temperatura ambiente 14–19 °C, salvo prova 260 a 6,1 °C. Non è un esperimento su cadavere. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
+    "notes": "Temperatura ambientale: 14–19 °C.",
     "sourceText": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne; 1991. Tesi di medicina; riferimento 90 del capitolo. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.10. Tesi citata nel libro; testo integrale non consultato.",
     "type": "Simulatore",
     "fc": "0.55",
@@ -333,7 +310,6 @@
     "id": "t6_11-riga-1",
     "title": "Tabella 6.11, riga 1",
     "conditions": "Simulatore appoggiato su circa 2 cm di foglie bagnate.",
-    "notes": "Peso virtuale di raffreddamento, non massa di un cadavere. “Parzialmente asciutte” riprende la condizione intermedia della fonte; l’app la denomina umide. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
     "sourceText": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. doi:10.1007/s00414-006-0108-8. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.11.",
     "type": "Simulatore",
     "fc": "1.01",
@@ -344,7 +320,7 @@
     "id": "t6_11-riga-2",
     "title": "Tabella 6.11, riga 2",
     "conditions": "Simulatore appoggiato su circa 2 cm di foglie parzialmente asciutte.",
-    "notes": "Peso virtuale di raffreddamento, non massa di un cadavere. “Parzialmente asciutte” riprende la condizione intermedia della fonte; l’app la denomina umide. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
+    "notes": "Foglie parzialmente asciutte: categoria «umide» nell’app.",
     "sourceText": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. doi:10.1007/s00414-006-0108-8. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.11.",
     "type": "Simulatore",
     "fc": "1.28",
@@ -355,7 +331,6 @@
     "id": "t6_11-riga-5",
     "title": "Tabella 6.11, riga 5",
     "conditions": "Simulatore appoggiato su circa 2 cm di foglie completamente secche.",
-    "notes": "Peso virtuale di raffreddamento, non massa di un cadavere. “Parzialmente asciutte” riprende la condizione intermedia della fonte; l’app la denomina umide. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
     "sourceText": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. doi:10.1007/s00414-006-0108-8. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.11.",
     "type": "Simulatore",
     "fc": "1.55",
@@ -366,7 +341,7 @@
     "id": "t6_12-riga-1",
     "title": "Tabella 6.12, riga 1",
     "conditions": "Simulatore su circa 2 cm di foglie e coperto da circa 10 cm di foglie.",
-    "notes": "FC 1,77 contrassegnato da asterisco nella fonte: possibile influenza dell’umidità residua delle foglie. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
+    "notes": "FC 1,77 contrassegnato da asterisco nella fonte per la possibile influenza dell’umidità residua delle foglie.",
     "sourceText": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. doi:10.1007/s00414-006-0108-8. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.12.",
     "type": "Simulatore",
     "fc": "1.77",
@@ -377,7 +352,6 @@
     "id": "t6_12-riga-13",
     "title": "Tabella 6.12, riga 13",
     "conditions": "Simulatore su circa 2 cm di foglie e coperto da circa 10 cm di foglie.",
-    "notes": "Peso virtuale di raffreddamento; prova su simulatore, non su cadavere. Il risultato riguarda il simulatore nelle condizioni descritte; non quantifica altre combinazioni di vestiti, bagnato o correnti.",
     "sourceText": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121:112–114. doi:10.1007/s00414-006-0108-8. Dati consultati in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3ª ed. CRC Press; 2016. Cap. 6.1, tab. 6.12.",
     "type": "Simulatore",
     "fc": "2.72",
