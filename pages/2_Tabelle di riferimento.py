@@ -56,8 +56,9 @@ _COMBINED_TABLE_TEXT = {
     "it": {
         "caption": "Criteri tanatologici non termici",
         "intro": (
-            "Rielaborazione in forma di domande dei limiti temporali del metodo combinato "
-            "di Henssge [1, 3], integrata con il decorso della rigidità [2] e con dati successivi [4]. "
+            "Rielaborazione pratica dei limiti temporali del metodo combinato "
+            "di Henssge [1, 3], integrata anche con ulteriori fasi della rigidità cadaverica [2] "
+            "e con dati di letteratura più recenti [4]. "
             "Tutti i tempi sono espressi in ore post-mortem."
         ),
         "parameter": "Parametro",
@@ -121,8 +122,8 @@ _COMBINED_TABLE_TEXT = {
     "en": {
         "caption": "Non-temperature-based postmortem criteria",
         "intro": (
-            "Question-based adaptation of the time limits in Henssge’s compound method [1, 3], "
-            "supplemented with the time course of rigor [2] and later findings [4]. "
+            "Practical adaptation of the time limits in Henssge’s compound method [1, 3], "
+            "also supplemented with further stages of rigor mortis [2] and more recent literature data [4]. "
             "All times are expressed in hours postmortem."
         ),
         "parameter": "Parameter",
