@@ -99,10 +99,6 @@ _COMBINED_TABLE_TEXT = {
             "I limiti temporali indicati non corrispondono tutti a intervalli statistici al 95% "
             "e non costituiscono soglie biologiche assolute."
         ),
-        "reestablishment_note": (
-            "Dati aggiornati sulla base dei nuovi estremi temporali riportati in casistiche "
-            "pubblicate in letteratura (Anders et al., 2013) [4]."
-        ),
         "supra_note": (
             "Per l’eccitabilità sopraciliare, «Sì» comprende anche una contrazione più estesa: "
             "il limite minimo deriva dalla risposta immediatamente più estesa non ottenibile, quello massimo "
@@ -158,10 +154,6 @@ _COMBINED_TABLE_TEXT = {
         "variation_note": (
             "The stated time limits do not all represent 95% statistical intervals "
             "and are not absolute biological thresholds."
-        ),
-        "reestablishment_note": (
-            "Data updated on the basis of new temporal extremes reported in published case series "
-            "(Anders et al., 2013) [4]."
         ),
         "supra_note": (
             "For supraciliary excitability, “Yes” also includes a more extensive contraction: "
@@ -411,7 +403,6 @@ def _render_combined_table(language: str) -> None:
     )
     st.caption(text["reading_note"])
     st.caption(text["supra_note"])
-    st.caption(text["reestablishment_note"])
     st.caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)
