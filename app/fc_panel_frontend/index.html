@@ -262,7 +262,7 @@ function blanketOrClothingBase(c){
   const matches=RULES.filter(rule=>rule.match(c));
   if(matches.length>1)throw Error('Regole sovrapposte: '+matches.map(r=>r.id));
   if(!matches.length)return pending(isMany(c)&&c.state==='Asciutto'?'Precisare la presenza di capi particolarmente isolanti.':'Combinazione da precisare.',c.state==='Bagnato'?['wet']:['henssge','clothes']);
-  const rule=matches[0],r=decision(rule.id,rule.range(c),rule.kind,rule.note||'Suggerimento per la configurazione selezionata.',rule.sources,rule.note||'Valore riportato nella tabella di Henssge per la configurazione selezionata.');
+  const rule=matches[0],r=decision(rule.id,rule.range(c),rule.kind,rule.note||'Suggerimento per la configurazione selezionata.',rule.sources,rule.note||'Fattore di correzione indicato nella tabella riepilogativa degli studi di Henssge, in base a indumenti, coperture, condizioni del corpo e movimento dell’aria o dell’acqua.');
   if(rule.id==='wet-naked-still')r.detail='Intervallo tra due risultati sperimentali per il corpo nudo bagnato, senza correnti d’aria. I valori osservati sono 0.75 e 0.77; non costituiscono un intervallo di confidenza.';
   if(rule.sources.includes('wetMixed')&&!c.wind)r.detail='L’app considera due strati leggeri simili a uno pesante per scegliere tra i riferimenti degli strati bagnati. Questa equivalenza serve alla classificazione e non è una relazione sperimentale di Henssge.';
   if(rule.id==='wet-mixed-wind')r.detail='L’app propone l’intervallo fra i riferimenti per scarsa protezione e per almeno due strati pesanti bagnati, esposti a correnti d’aria. Questa combinazione non è riportata nella tabella di Henssge.';
