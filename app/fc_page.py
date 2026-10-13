@@ -92,6 +92,10 @@ def _current_fc_draft(state, home):
     if preset:
         manual = False
         base = values if base is None else base
+    if all(value is None for value in values):
+        manual = False
+        preset = False
+        base = None
     draft = deepcopy(choice.get("draft") or state.get("__fc_draft") or {})
     if choice.get("scenarios"):
         draft.pop("multiple", None)

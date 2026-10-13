@@ -66,9 +66,9 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     was_prudent = bool(state.get("stima_cautelativa_beta", False))
     interval = was_prudent or hi > lo or msil or bool(payload.get("scenarios"))
     if interval and not was_prudent:
-        ta = state.get("ta_base_val", 20.0)
+        ta = state.get("ta_base_val", None)
         state["__full_standard_ta_base_val"] = ta
-        state["__full_standard_fattore_correzione"] = state.get("fattore_correzione", 1.0)
+        state["__full_standard_fattore_correzione"] = state.get("fattore_correzione", None)
         for key in ("ta_other_val", "Ta_min_beta", "Ta_max_beta"):
             state[key] = ta
     if sync_weight:
@@ -93,8 +93,8 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
         state["ta_base_val_widget"] = temperatures[0]
         state["ta_base_val_str"] = f"{temperatures[0]:.1f}"
     if interval:
-        state["__full_interval_ta_base_val"] = state.get("ta_base_val", 20.0)
-        state["__full_interval_ta_other_val"] = state.get("ta_other_val", state.get("ta_base_val", 20.0))
+        state["__full_interval_ta_base_val"] = state.get("ta_base_val", None)
+        state["__full_interval_ta_other_val"] = state.get("ta_other_val", state.get("ta_base_val", None))
     state["__fc_applied_choice"] = payload
     state["__fc_reviewed_weight"] = weight
     state["fc_riassunto_contatori"] = None

@@ -10,6 +10,29 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FCPageTests(unittest.TestCase):
+    def test_fresh_sessions_keep_temperature_and_fc_empty(self):
+        for mobile, msil in ((False, False), (True, False), (True, True)):
+            with self.subTest(mobile=mobile, msil=msil):
+                app = self.start(mobile, msil=msil)
+                self.assertIsNone(app.session_state["ta_base_val"])
+                self.assertIsNone(app.session_state["fattore_correzione"])
+                if not msil:
+                    for key in ("ta_other_val", "fc_min_val", "fc_other_val"):
+                        self.assertIsNone(app.session_state[key])
+                self.open_from_fc(app)
+                draft = app.session_state["__fc_draft"]
+                self.assertEqual((draft["lo"], draft["hi"]), ("", ""))
+                self.assertIsNone(draft["temperature"])
+                self.assertFalse(draft["manual"])
+                self.assertFalse(draft["preset"])
+                self.event(app, "back", weight=70., draft=draft)
+                self.assertIsNone(app.session_state["ta_base_val"])
+                self.assertIsNone(app.session_state["fattore_correzione"])
+                app.button(key="btn_stima_mobile" if msil else "btn_stima").click().run()
+                self.assertEqual(list(app.exception), [])
+                self.assertTrue(any("temperatura ambientale" in item.value and "FC" in item.value
+                                    for item in app.warning))
+
     def test_single_panel_temperature_and_integer_weight_format_in_all_views(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
             with self.subTest(mobile=mobile, msil=msil):
@@ -248,8 +271,8 @@ class FCPageTests(unittest.TestCase):
                         self.assertEqual(app.session_state[key], before)
                         self.open_from_fc(app, key)
                         draft = app.session_state["__fc_draft"]
-                        if msil:
-                            self.assertEqual([draft["lo"], draft["hi"]], ["0.90", "1.10"])
+                        if before is None:
+                            self.assertEqual([draft["lo"], draft["hi"]], ["", ""])
                         else:
                             self.assertEqual(float(draft["lo" if key != "fc_other_val" else "hi"]), before)
                         self.event(app, "back", weight=app.session_state["peso"])
@@ -388,7 +411,7 @@ class FCPageTests(unittest.TestCase):
         self.open(app)
         self.event(app, "use", range=[1.4, 1.2], weight=70)
         self.assertTrue(app.session_state["__fc_active"])
-        self.assertEqual(app.session_state["__fc_form"]["fattore_correzione"], 1)
+        self.assertIsNone(app.session_state["__fc_form"]["fattore_correzione"])
         self.assertTrue(app.error)
 
     def test_scenarios_survive_apply_weight_change_and_reopening_in_all_views(self):

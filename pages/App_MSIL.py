@@ -161,7 +161,7 @@ _defaults = {
     # TM fisso e non editabile
     "tm_val": 37.2,
 
-    "fattore_correzione": 1.0,
+    "fattore_correzione": None,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
@@ -419,7 +419,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
 
 # Range TA e FC
 ta_center = st.session_state.get("ta_base_val")
-fc_center = st.session_state.get("fattore_correzione", 1.0)
+fc_center = st.session_state.get("fattore_correzione", None)
 
 scenario_temperatures = scenario_temperature_bounds(st.session_state.get("__fc_applied_choice") or {})
 if scenario_temperatures is not None and ta_center == scenario_temperatures[0]:
@@ -478,7 +478,7 @@ if st.session_state.get("run_stima_mobile"):
         input_ta=input_ta,
         input_tm=37.2,
         input_w=input_w,
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+        fattore_correzione=st.session_state.get("fattore_correzione", None),
         widgets_parametri_aggiuntivi={},
         usa_orario_custom=st.session_state.get("usa_orario_custom"),
         input_data_rilievo=st.session_state.get("input_data_rilievo"),

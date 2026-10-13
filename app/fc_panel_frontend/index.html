@@ -466,7 +466,7 @@ function update(){
   const c=data(),a=num(q('#lo')),b=num(q('#hi')),w=num(q('#weight'));
   let error='';
   if(state!=='Immerso'&&!validCounts(c))error='Inserire conteggi interi da 0 a 20.';
-  else if(!Number.isFinite(a)||!Number.isFinite(b))error=result.range&&suggestion?'Inserire entrambi gli estremi.':result.summary;
+  else if(!Number.isFinite(a)||!Number.isFinite(b))error=result.range&&suggestion?(rangeExpanded?'Inserire entrambi gli estremi.':'Inserire il FC o selezionare le condizioni del corpo.'):result.summary;
   else if(a<.35||b<a)error='Minimo ≥ 0.35 e massimo ≥ minimo.';
   else if(!onFCGrid(a)||!onFCGrid(b))error='Passi di 0.05: arrotondamento all’uscita dal campo.';
   else if(!Number.isFinite(w)||w<4||w>150)error='Inserire un peso tra 4 e 150 kg.';
@@ -564,10 +564,10 @@ function onWeightChange(){
   if(window.FCScenarios?.weightChanged())return;
   const saved=window.FCPanel.snapshot();
   applied=null;recalc();
-  if(saved.manual||saved.selectedBase){
+  if(saved.manual||saved.selectedBase||(saved.lo===''&&saved.hi==='')){
     manual=saved.manual;preset=!!saved.preset;manualBase=saved.manualBase;manualWeightAdjusted=saved.manualWeightAdjusted;selectedBase=saved.selectedBase;
     q('#lo').value=saved.lo;q('#hi').value=saved.hi;
-    adaptSelectedToWeight();rangeExpanded=!!saved.rangeExpanded||num(q('#lo'))!==num(q('#hi'));update();
+    adaptSelectedToWeight();rangeExpanded=!!saved.rangeExpanded||(Number.isFinite(num(q('#lo')))&&Number.isFinite(num(q('#hi')))&&num(q('#lo'))!==num(q('#hi')));update();
   }
   const previous=[Number(saved.lo),Number(saved.hi)],current=[num(q('#lo')),num(q('#hi'))];
   weightAdjusted=saved.lo!==''&&saved.hi!==''&&previous.every(Number.isFinite)&&current.every(Number.isFinite)&&current.some((v,i)=>v!==previous[i]);
@@ -591,6 +591,7 @@ q('#use').addEventListener('click',()=>{
 });
 q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
 recalc();
+q('#lo').value=q('#hi').value='';rangeExpanded=false;update();
 const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
   temperatureValue,
@@ -617,9 +618,10 @@ window.FCPanel={
     }
     setWeight(weight);
     recalc();
-    if(!draft&&suggestion?.[0]===1&&suggestion[1]===1){preset=true;selectedBase=[1,1];update();}
+    if(!draft){q('#lo').value=q('#hi').value='';rangeExpanded=false;update();}
     const waterCategoryChanged=state==='Immerso'&&q('#water').value==='stagnante'&&(!Number.isFinite(temperatureValue())||!!draft?.waterNearZero!==waterNearZero());
-    if(draft&&!waterCategoryChanged&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight)){
+    const emptySelection=draft?.lo===''&&draft?.hi==='';
+    if(draft&&(emptySelection||!waterCategoryChanged&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight))){
       q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;preset=!!draft.preset&&!manual;
       if(manual){
         recordManualEdit();
@@ -628,7 +630,7 @@ window.FCPanel={
       }
       selectedBase=draft.selectedBase||null;weightAdjusted=!!draft.weightAdjusted;
       if(Number(draft.weight)!==weight)adaptSelectedToWeight();
-      rangeExpanded=draft.rangeExpanded===true||num(q('#lo'))!==num(q('#hi'));
+      rangeExpanded=draft.rangeExpanded===true||(Number.isFinite(num(q('#lo')))&&Number.isFinite(num(q('#hi')))&&num(q('#lo'))!==num(q('#hi')));
       update();
     }
     if(draft)q('#source-panel').open=!!draft.sourceOpen;

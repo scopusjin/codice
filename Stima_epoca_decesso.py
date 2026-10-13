@@ -200,9 +200,9 @@ def sget(key, default):
 # Defaults iniziali una sola volta
 _defaults = {
     "rt_val": None,
-    "ta_base_val": 20.0,
+    "ta_base_val": None,
     "peso": 70.0,
-    "fattore_correzione": 1.0,
+    "fattore_correzione": None,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
@@ -213,9 +213,9 @@ _defaults = {
     "toggle_fattore_inline_std": False,
     "fc_suggested_vals": [],
     # range widgets
-    "fc_min_val": 1.00,
-    "fc_other_val": 1.00,
-    "ta_other_val": 20.0,
+    "fc_min_val": None,
+    "fc_other_val": None,
+    "ta_other_val": None,
 }
 for k, v in _defaults.items():
     st.session_state.setdefault(k, v)
@@ -335,8 +335,8 @@ with st.container(border=True, key="full_cooling_card"):
     # conservano invece i valori già inseriti dall'utente.
     if stima_cautelativa_beta:
         if not st.session_state.get("__prudent_explicit_ranges_initialized", False):
-            ta_seed = st.session_state.get("ta_base_val", 20.0)
-            fc_seed = st.session_state.get("fattore_correzione", 1.0)
+            ta_seed = st.session_state.get("ta_base_val", None)
+            fc_seed = st.session_state.get("fattore_correzione", None)
             if _is_num(ta_seed):
                 st.session_state["ta_other_val"] = float(ta_seed)
             if _is_num(fc_seed):
@@ -390,7 +390,7 @@ with st.container(border=True, key="full_cooling_card"):
 
                     ta_base_val = st.number_input(
                         i18n.ui_text("full.ta_base_input"),
-                        value=sget("ta_base_val", 20.0),
+                        value=sget("ta_base_val", None),
                         step=0.1, format="%.1f",
                         key="ta_base_val",
                         label_visibility="collapsed"
@@ -408,14 +408,14 @@ with st.container(border=True, key="full_cooling_card"):
 
                     fc_min_val = st.number_input(
                         i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                        value=sget("fc_min_val", sget("fattore_correzione", None)),
                         step=0.05, format="%.2f",
                         key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
                         label_visibility="collapsed"
                     )
                     fc_other_val = st.number_input(
                         i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                        value=sget("fc_other_val", sget("fattore_correzione", None)),
                         step=0.05, format="%.2f",
                         key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                         label_visibility="collapsed"
@@ -475,7 +475,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 with st.container(width=144):
                                     ta_base_val = st.number_input(
                                         i18n.ui_text("full.ta_base_input"),
-                                        value=sget("ta_base_val", 20.0),
+                                        value=sget("ta_base_val", None),
                                         step=0.1, format="%.1f",
                                         key="ta_base_val",
                                         label_visibility="collapsed",
@@ -504,7 +504,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 with st.container(width=144):
                                     fc_min_val = st.number_input(
                                         i18n.ui_text("full.fc_min_input"),
-                                        value=sget("fc_min_val", sget("fattore_correzione", 1.0)),
+                                        value=sget("fc_min_val", sget("fattore_correzione", None)),
                                         step=0.05, format="%.2f",
                                         key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
                                         label_visibility="collapsed",
@@ -513,7 +513,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 with st.container(width=144):
                                     fc_other_val = st.number_input(
                                         i18n.ui_text("full.fc_max_input"),
-                                        value=sget("fc_other_val", sget("fattore_correzione", 1.0)),
+                                        value=sget("fc_other_val", sget("fattore_correzione", None)),
                                         step=0.05, format="%.2f",
                                         key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
                                         label_visibility="collapsed",
@@ -556,12 +556,12 @@ with st.container(border=True, key="full_cooling_card"):
                     )
                     st.number_input(
                         i18n.ui_text("full.ta_input_label"),
-                        value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                        value=sget("ta_base_val", None), step=0.1, format="%.1f",
                         key="ta_base_val", label_visibility="collapsed"
                     )
                     st.number_input(
                         i18n.ui_text("full.fc_input_label"),
-                        value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
+                        value=sget("fattore_correzione", None), step=0.05, format="%.2f",
                         key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed"
                     )
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
@@ -610,7 +610,7 @@ with st.container(border=True, key="full_cooling_card"):
                             with st.container(width=144):
                                 st.number_input(
                                     i18n.ui_text("full.ta_input_label"),
-                                    value=sget("ta_base_val", 20.0), step=0.1, format="%.1f",
+                                    value=sget("ta_base_val", None), step=0.1, format="%.1f",
                                     key="ta_base_val", label_visibility="collapsed",
                                     _mortem_compact_label="",
                                 )
@@ -619,7 +619,7 @@ with st.container(border=True, key="full_cooling_card"):
                             with st.container(width=144):
                                 st.number_input(
                                     i18n.ui_text("full.fc_input_label"),
-                                    value=sget("fattore_correzione", 1.0), step=0.05, format="%.2f",
+                                    value=sget("fattore_correzione", None), step=0.05, format="%.2f",
                                     key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
                                     _mortem_compact_label="",
                                 )
@@ -876,7 +876,7 @@ def _inputs_signature():
         _freeze(st.session_state.get("ta_base_val") if "ta_base_val" in st.session_state else None),
         _freeze(st.session_state.get("tm_val")),
         _freeze(st.session_state.get("peso")),
-        _freeze(st.session_state.get("fattore_correzione", 1.0)),
+        _freeze(st.session_state.get("fattore_correzione", None)),
         bool(st.session_state.get("alterazioni_putrefattive", False)),
         bool(st.session_state.get("stima_cautelativa_beta", False)),
     ]
@@ -1151,7 +1151,7 @@ if st.session_state["show_results"]:
             input_ta=(input_ta if considera_raffreddamento else None),
             input_tm=(input_tm if considera_raffreddamento else None),
             input_w=(input_w if considera_raffreddamento else None),
-            fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+            fattore_correzione=st.session_state.get("fattore_correzione", None),
             widgets_parametri_aggiuntivi=widgets_parametri_aggiuntivi,
             usa_orario_custom=st.session_state.get("usa_orario_custom", False),
             input_data_rilievo=st.session_state.get("input_data_rilievo"),

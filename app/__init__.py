@@ -91,8 +91,8 @@ def _sync_full_interval_mode_state():
     interval_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
 
     if interval_mode:
-        standard_ta = st.session_state.get("ta_base_val", 20.0)
-        standard_fc = st.session_state.get("fattore_correzione", 1.0)
+        standard_ta = st.session_state.get("ta_base_val", None)
+        standard_fc = st.session_state.get("fattore_correzione", None)
         st.session_state["__full_standard_ta_base_val"] = standard_ta
         st.session_state["__full_standard_fattore_correzione"] = standard_fc
 
@@ -113,10 +113,10 @@ def _sync_full_interval_mode_state():
     # Il callback scatta prima del rerun: i widget della modalità con intervalli
     # sono ancora in session_state e possono essere salvati prima che spariscano.
     if st.session_state.get("__prudent_explicit_ranges_initialized", False):
-        st.session_state["__full_interval_ta_base_val"] = st.session_state.get("ta_base_val", 20.0)
-        st.session_state["__full_interval_ta_other_val"] = st.session_state.get("ta_other_val", 20.0)
-        st.session_state["__full_interval_fc_min_val"] = st.session_state.get("fc_min_val", 1.0)
-        st.session_state["__full_interval_fc_other_val"] = st.session_state.get("fc_other_val", 1.0)
+        st.session_state["__full_interval_ta_base_val"] = st.session_state.get("ta_base_val", None)
+        st.session_state["__full_interval_ta_other_val"] = st.session_state.get("ta_other_val", None)
+        st.session_state["__full_interval_fc_min_val"] = st.session_state.get("fc_min_val", None)
+        st.session_state["__full_interval_fc_other_val"] = st.session_state.get("fc_other_val", None)
 
     if "__full_standard_ta_base_val" in st.session_state:
         st.session_state["ta_base_val"] = st.session_state["__full_standard_ta_base_val"]

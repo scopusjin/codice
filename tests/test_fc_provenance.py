@@ -6,6 +6,15 @@ from app.fc_selection import apply_choice, normalize_fc_input, refresh_fc_for_we
 
 
 class FCProvenanceTests(unittest.TestCase):
+    def test_empty_fc_is_neither_preset_nor_manual(self):
+        for home in (FULL_PAGE, MSIL_PAGE):
+            draft = _current_fc_draft({"peso": 70.}, home)
+            self.assertEqual((draft["lo"], draft["hi"]), ("", ""))
+            self.assertFalse(draft["preset"])
+            self.assertFalse(draft["manual"])
+            self.assertIsNone(draft["manualBase"])
+            self.assertIsNone(draft["selectedBase"])
+
     def test_initial_default_and_deliberately_entered_one_are_distinct(self):
         state = {"fattore_correzione": 1.0, "peso": 70.0}
         draft = _current_fc_draft(state, FULL_PAGE)
