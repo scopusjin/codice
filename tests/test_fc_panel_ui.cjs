@@ -124,9 +124,9 @@ require('./test_fc_field_controls.cjs');
 // emitted once and cannot be overwritten by a delayed draft event.
 const fs=require('fs'),vm=require('vm'),path=require('path');
 const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/fc_examples.json'),'utf8'));
-const messages=[],events={},rootEvents={};let restored=0,callback=null;
+const messages=[],events={},rootEvents={};let restored=0,callback=null,openingDraft;
 const parent={postMessage:m=>messages.push(m)};
-const win={parent,FCPanel:{setExamples(examples){assert.deepEqual(examples,catalog);},restore(){restored++;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
+const win={parent,FCPanel:{setExamples(examples){assert.deepEqual(examples,catalog);},restore(draft){restored++;openingDraft=draft;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
 const root={getBoundingClientRect:()=>({height:600}),addEventListener:(name,cb)=>rootEvents[name]=cb};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend/bridge.js'),'utf8'),{
  window:win,document:{getElementById:id=>id==='fc-full'?root:{disabled:false},documentElement:{style:{}}},
@@ -135,6 +135,13 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend
 });
 const render={source:parent,data:{type:'streamlit:render',args:{instance:'test',weight:70,draft:null,examples:catalog}}};
 events.message(render);events.message(render);assert.equal(restored,1);
+assert.equal(openingDraft,null);
+const savedScenarios=[{lo:'1.20',hi:'1.30',temperature:'18'},{lo:'0.50',hi:'0.50',temperature:'20'}];
+const reopened={source:parent,data:{type:'streamlit:render',args:{...render.data.args,instance:'reopened',draft:{multiple:true,activeScenario:1,scenarios:savedScenarios}}}};
+events.message(reopened);
+assert.equal(openingDraft.activeScenario,0,'A new visit always starts at scenario 1');
+assert.deepEqual(openingDraft.scenarios,savedScenarios,'Opening at the first scenario preserves every draft');
+events.message(reopened);assert.equal(restored,2,'Rerenders do not reset the active scenario');
 rootEvents.input();callback();assert.equal(messages.at(-1).value.action,'draft');
 rootEvents.input();events.blur();
 assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'draft');

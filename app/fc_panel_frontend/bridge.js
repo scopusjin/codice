@@ -32,7 +32,10 @@
     if (!initialized || instance !== args.instance) {
       instance = args.instance;
       window.FCPanel.setExamples(args.examples);
-      window.FCPanel.restore(args.draft, typeof args.weight === 'number' ? args.weight : NaN, args.temperature);
+      // A new visit starts at scenario 1, including restored older drafts.
+      // Subsequent renders keep the operator's current tab and unfinished edits.
+      const openingDraft = args.draft ? {...args.draft, activeScenario:0} : args.draft;
+      window.FCPanel.restore(openingDraft, typeof args.weight === 'number' ? args.weight : NaN, args.temperature);
       initialized = true; navigating = false;
     }
     resize();
