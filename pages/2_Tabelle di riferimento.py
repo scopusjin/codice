@@ -233,13 +233,13 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "leaves_factors": "1.0 (bagnate)<br>1.3 (umide)<br>1.5 (secche)<br>1.8–2.7 (anche copertura di circa 10 cm)",
         "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Prove su simulatori.",
         "naked_note": (
-            "Nelle tabelle di letteratura, alcuni FC per il corpo nudo sono preceduti da segni + o −, "
-            "che possono farli confondere con correzioni da sommare o sottrarre al FC di base. "
-            "Gli autori dell’app ritengono che possa trattarsi di refusi tipografici e li riportano "
-            "come FC complessivi. Questa interpretazione è coerente con il testo di Henssge, "
-            "che indica un FC di 0.75 per il corpo nudo su cemento, e con le prove su simulatori "
-            "su PVC (FC 0.76–0.77), pur riferite a una superficie diversa [3]. "
-            "Non si tratta di una rettifica ufficiale della fonte."
+            "La nota riguarda esclusivamente i valori **0.75 e 1.3 per il corpo nudo**. "
+            "In alcune tabelle pubblicate questi valori sono preceduti da segni − o +, "
+            "che possono farli interpretare come quantità da sottrarre o aggiungere al FC di base. "
+            "Gli autori dell’app ipotizzano che tali segni siano refusi tipografici e interpretano "
+            "pertanto i due valori come **FC complessivi**, anziché come correzioni additive o sottrattive. "
+            "Questa interpretazione è coerente con alcuni esempi di casi riportati nei testi di Henssge [3], "
+            "ma non costituisce una rettifica ufficiale delle fonti."
         ),
         "metal": "Acciaio su calcestruzzo, con acqua circostante",
         "metal_factors": "0.55<br>(prova su simulatore)",
@@ -281,13 +281,13 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
         "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Experiments using dummies.",
         "naked_note": (
-            "In published tables, some FC values for naked bodies are preceded by + or − signs, "
-            "which may be mistaken for adjustments to add to or subtract from the basic FC. "
-            "The app authors consider these possible typographical errors and report the values "
-            "as overall FCs. This interpretation is consistent with Henssge’s text, which gives "
-            "an FC of 0.75 for a naked body on concrete, and with dummy experiments on PVC "
-            "(FC 0.76–0.77), although these concern a different surface [3]. "
-            "This is not an official correction of the source."
+            "This note applies exclusively to the values **0.75 and 1.3 for naked bodies**. "
+            "In some published tables these values are preceded by − or + signs, "
+            "which may lead them to be interpreted as amounts to subtract from or add to the basic FC. "
+            "The app authors hypothesize that these signs are typographical errors and therefore interpret "
+            "the two values as **overall FCs**, rather than additive or subtractive adjustments. "
+            "This interpretation is consistent with some case examples reported in Henssge’s texts [3], "
+            "but does not constitute an official correction of the sources."
         ),
         "metal": "Steel on concrete, with surrounding water",
         "metal_factors": "0.55<br>(dummy experiment)",
@@ -500,7 +500,7 @@ def _render_henssge_special_table(language: str) -> None:
                 <th rowspan="2" scope="rowgroup">{text['mattress']} <sup>[1]</sup></th>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
-              <tr><td>{text['no']}</td><td>1.1–1.2<sup>*</sup></td></tr>
+              <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
               <tr>
                 <th scope="row">{text['leaves']} <sup>[2]</sup></th>
                 <td>{text['no']}</td><td>{text['leaves_factors']}</td>

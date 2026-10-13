@@ -301,3 +301,12 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Base corrente 
 - Restano da verificare la resa visiva dopo la distribuzione e il riscontro dell'utente sul proprio dispositivo. Nessun nuovo tentativo funzionale fallito. Prossimo passo: test utente delle tabelle, prima di ulteriori interventi. `main`, motore FC, peso, stato, equazioni, risultati e altre pagine non modificati.
 
 - Verifica online completata sul commit applicativo `bb7eae5d23960afa77f32111a600c3007985855c`: pagina `https://mortem-test.streamlit.app/Tabelle_di_riferimento`, due criteri meccanici distinti, note eliminate, categorie delle superfici correttamente allineate, riga metallo e nota del peso visibili. Tutte le 16 note/citazioni hanno stile effettivo uniforme: Source Sans, 12 px, interlinea 15.6 px. Controllo della griglia HTML in IT/EN: tre colonne correttamente occupate in tutte le 15 righe della tabella superfici, tre asterischi con nota comune. Test del dispositivo mobile dell'utente ancora da eseguire. La CI generale era in corso al termine della verifica visiva (run `38427245359`); i cinque test locali e AppTest IT/EN sono superati.
+
+
+## Punto di avanzamento — nota limitata ai FC 0.75 e 1.3, 13 ottobre 2026
+
+Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificata su GitHub e nel checkout: `de2c3030cee2b69f5210c2ec26636e24e0728136`. L’utente ha precisato l’ambito della nota e proposto la formulazione sui possibili refusi dei segni +/−, dopo aver chiesto di discuterla prima dell’applicazione.
+
+- Nota esplicitamente limitata a 0.75 e 1.3 per il corpo nudo: possibili refusi secondo gli autori dell’app, interpretazione come FC complessivi e coerenza con esempi nei testi di Henssge [3], senza presentarla come rettifica ufficiale. Allineata la traduzione inglese.
+- Tolto l’asterisco da 1.1–1.2; restano soltanto i richiami di 0.75 e 1.3. Nota e riferimento sul metallo conservati separatamente. Modifica applicativa limitata al testo e al richiamo nella pagina delle tabelle; valori, calcoli e altre pagine invariati.
+- Verifica locale completata: AppTest della pagina IT/EN senza eccezioni, due asterischi associati ai soli valori indicati e ambito esplicito nella nota; cinque test esistenti delle tabelle superati, diff controllato. Nessun nuovo test permanente per la modifica testuale. Prossimo passo: controllo online della nota e riscontro dell’utente sulla pagina di test. `main` non coinvolto.
