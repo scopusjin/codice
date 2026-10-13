@@ -29,7 +29,7 @@
 #fc-full .choice-heading{display:grid;grid-template-columns:minmax(0,1fr) 96px max-content;align-items:center;gap:8px;width:100%}
 #fc-full #fc-heading{font-size:13px;font-weight:500}
 #fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
-#fc-full #range-fields>div{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;min-width:0}
+#fc-full #range-fields>div{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;min-width:0}
 #fc-full #range-fields label{font-size:11px;font-weight:400;color:var(--fc-muted);padding-right:3px}
 #fc-full #choice-row[data-range=false] #lo-control label{visibility:hidden}
 #fc-full #range-fields .step{display:grid;grid-template-columns:minmax(0,1fr) 28px 28px;width:100%}
@@ -75,14 +75,16 @@
 #fc-full .hint,#fc-full .status{color:var(--fc-muted);font-size:12px;margin:4px 0}
 #fc-full .error{color:light-dark(#a62e31,#ffa4a6);font-size:12px}
 #fc-full .status:empty,#fc-full .error:empty,#fc-full #source-extra:empty{display:none}
-#fc-full #editable-note{color:var(--fc-muted);font-size:12px;margin:4px 0}
+#fc-full .fc-note-marker{position:absolute;right:-6px;top:-3px;color:light-dark(#526f7d,#abc1cc);font-size:12px;line-height:1}
+#fc-full #fc-selection-note{display:flex;align-items:flex-start;gap:3px;margin:5px 0 7px;color:light-dark(#526f7d,#abc1cc);font-size:10px;line-height:1.35}
+#fc-full #editable-note,#fc-full #manual-state{margin:0}
+#fc-full #manual-state:empty{display:none}
 #fc-full #origin{display:none}
 #fc-full #conditions-summary{border-top:1px solid var(--fc-line);padding-top:8px;margin-top:10px;color:var(--fc-muted);font-size:12px}
 #fc-full #conditions-summary strong{color:var(--fc-ink);font-weight:500}
 #fc-full .condition-line{display:flex;align-items:flex-start;gap:7px;margin:7px 0;color:var(--fc-ink)}
 #fc-full .condition-number{display:inline-grid;place-items:center;flex:none;width:23px;height:23px;border-radius:5px;color:var(--fc-scenario-accent);background:var(--fc-scenario-fill)}
-#fc-full .condition-note{color:var(--fc-muted);font-size:12px;margin-top:2px}
-#fc-full[data-multiple=true] #editable-note,#fc-full[data-multiple=true] #manual-state{display:none}
+#fc-full[data-multiple=false] #scenario-summary,#fc-full[data-multiple=false] .condition-line,#fc-full[data-multiple=false] .condition-line>div,#fc-full[data-multiple=false] .condition-line>div>div{display:inline;margin:0}
 #fc-full details{margin:10px 0 0;font-size:12px;color:var(--fc-muted)}
 #fc-full summary{cursor:pointer;padding:4px 0}
 #fc-full #source-panel p{margin:4px 0;overflow-wrap:anywhere}

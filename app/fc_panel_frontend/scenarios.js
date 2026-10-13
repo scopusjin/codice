@@ -43,9 +43,6 @@
       }
       const content=document.createElement('div'),text=document.createElement('div');
       text.textContent=item.description+'.';content.append(text);
-      if(enabled)for(const note of [item.provenanceNote,item.weightNote])if(note){
-        const status=document.createElement('div');status.className='condition-note';status.textContent=note;content.append(status);
-      }
       row.append(content);return row;
     }));
   }
