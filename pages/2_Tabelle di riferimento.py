@@ -233,7 +233,6 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "leaves_factors": "1.0 (bagnate)<br>1.3 (umide)<br>1.5 (secche)<br>1.8–2.7 (anche copertura di circa 10 cm)",
         "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Prove su simulatori.",
         "naked_note": (
-            "La nota riguarda esclusivamente i valori **0.75 e 1.3 per il corpo nudo**. "
             "In alcune tabelle pubblicate questi valori sono preceduti da segni − o +, "
             "che possono farli interpretare come quantità da sottrarre o aggiungere al FC di base. "
             "Gli autori dell’app ipotizzano che tali segni siano refusi tipografici e interpretano "
@@ -281,7 +280,6 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
         "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Experiments using dummies.",
         "naked_note": (
-            "This note applies exclusively to the values **0.75 and 1.3 for naked bodies**. "
             "In some published tables these values are preceded by − or + signs, "
             "which may lead them to be interpreted as amounts to subtract from or add to the basic FC. "
             "The app authors hypothesize that these signs are typographical errors and therefore interpret "
