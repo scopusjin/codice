@@ -1,10 +1,13 @@
 """Check source-chart column alignment in the actual reference-table renderer."""
 
 import ast
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+
+from app.parameters import INF_HOURS, dati_parametri_aggiuntivi, opzioni_rigidita
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -63,6 +66,116 @@ class FCReferenceTableTests(unittest.TestCase):
             for row, anchors in zip(parser.rows, expected, strict=True):
                 self.assertEqual(len(row), 18)
                 self.assertEqual((row[6], row[9], row[17]), anchors)
+
+
+class CombinedRows(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.rows = {}
+        self.cells = []
+        self.cell = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'tr':
+            self.cells = []
+        elif tag == 'td':
+            self.cell = []
+
+    def handle_data(self, text):
+        if self.cell is not None:
+            self.cell.append(text)
+
+    def handle_endtag(self, tag):
+        if tag == 'td':
+            self.cells.append(''.join(self.cell).strip())
+            self.cell = None
+        elif tag == 'tr' and self.cells:
+            criterion, yes, no = self.cells
+            self.rows[criterion] = (yes, no)
+
+
+class CombinedReferenceTableTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = ROOT / 'pages/2_Tabelle di riferimento.py'
+        tree = ast.parse(path.read_text(encoding='utf-8'))
+        nodes = [node for node in tree.body if
+                 (isinstance(node, ast.Assign) and any(
+                     isinstance(target, ast.Name) and target.id.startswith('_COMBINED_')
+                     for target in node.targets)) or
+                 (isinstance(node, ast.FunctionDef) and node.name == '_render_combined_table')]
+        cls.html, cls.captions = [], []
+        cls.namespace = {'st': SimpleNamespace(
+            markdown=lambda html, **kwargs: cls.html.append(html),
+            caption=lambda text: cls.captions.append(text))}
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), cls.namespace)
+
+    def render(self, language):
+        self.html.clear()
+        self.captions.clear()
+        self.namespace['_render_combined_table'](language)
+        self.assertEqual(len(self.html), 1)
+        parser = CombinedRows()
+        parser.feed(self.html[0])
+        self.assertEqual(len(parser.rows), 23)
+        text = self.namespace['_COMBINED_TABLE_TEXT'][language]
+        return {key: parser.rows[label] for key, label in text.items() if label in parser.rows}
+
+    def interval(self, rows, answers):
+        lower, upper = 0, INF_HOURS
+        for key, yes in answers:
+            bound = rows[key][0 if yes else 1]
+            self.assertNotRegex(bound, r'\d,\d')
+            if bound == '—':
+                continue
+            match = re.fullmatch(r'([≥≤]) (\d+(?:\.\d+)?)[*†]?', bound)
+            self.assertIsNotNone(match, bound)
+            sign, number = match.groups()
+            if sign == '≥':
+                lower = max(lower, float(number))
+            else:
+                upper = min(upper, float(number))
+        return lower, upper
+
+    def test_cumulative_supraciliary_answers_match_observed_extent_intervals(self):
+        keys = ('supra_cheek', 'supra_forehead', 'supra_lower_lid',
+                'supra_whole_upper_lid', 'supra_partial_upper_lid', 'supra_nasal')
+        grades = ('Fase VI', 'Fase V', 'Fase IV', 'Fase III', 'Fase II', 'Fase I', 'Nessuna reazione')
+        expected = dati_parametri_aggiuntivi['Eccitabilità elettrica sopraciliare']['range']
+        for language in ('it', 'en'):
+            rows = self.render(language)
+            for first_positive, grade in enumerate(grades):
+                with self.subTest(language=language, grade=grade):
+                    answers = [(key, index >= first_positive) for index, key in enumerate(keys)]
+                    self.assertEqual(self.interval(rows, answers), expected[grade])
+
+    def test_progression_questions_reproduce_the_five_rigor_stages(self):
+        stages = {
+            'Non ancora apprezzabile': [('rigor_beginning', False)],
+            'Presente e in via di intensificazione e generalizzazione':
+                [('rigor_beginning', True), ('rigor_complete', False)],
+            'Presente, intensa e generalizzata':
+                [('rigor_complete', True), ('rigor_persistence', False)],
+            'In via di risoluzione': [('rigor_persistence', True), ('rigor_resolution', False)],
+            'Risolta': [('rigor_resolution', True)],
+        }
+        for language in ('it', 'en'):
+            rows = self.render(language)
+            for stage, answers in stages.items():
+                with self.subTest(language=language, stage=stage):
+                    self.assertEqual(self.interval(rows, answers), opzioni_rigidita[stage])
+
+    def test_updated_reestablishment_bound_has_its_own_source_and_note(self):
+        # Anders et al., Int J Legal Med 2013: observed re-establishment up to 19 h.
+        for language in ('it', 'en'):
+            rows = self.render(language)
+            self.assertEqual(self.interval(rows, [('reestablishment', True)]), (0, 19))
+            self.assertEqual(self.interval(rows, [('reestablishment', False)]), (2, INF_HOURS))
+            self.assertTrue(rows['reestablishment'][0].endswith('*'))
+            self.assertTrue(any('Anders et al., 2013' in note and note.startswith('*')
+                                for note in self.captions))
+            self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
+            self.assertTrue(rows['muscle_response'][0].endswith('†'))
 
 
 if __name__ == '__main__':

@@ -18,7 +18,14 @@ _COMBINED_BIBLIOGRAPHY = (
     f"[1] {_COMBINED_REFERENCE}",
     "[2] Henssge C, Madea B. Estimation of the time since death in the early post-mortem period. "
     "Forensic Sci Int. 2004;144(2–3):167–175. doi:10.1016/j.forsciint.2004.04.051, "
-    "Fig. 4; Tables 1–2.",
+    "Tables 1–2.",
+    "[3] Henssge C, Madea B. Integration of different methods in casework. "
+    "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
+    "Chapter 10.1, Table 10.4; Figure 10.7.",
+    "[4] Anders S, Kunz M, Gehl A, Sehner S, Raupach T, Beck-Bornholdt H-P. "
+    "Estimation of the time since death—reconsidering the re-establishment of rigor mortis. "
+    "Int J Legal Med. 2013;127(1):127–130. "
+    "[doi:10.1007/s00414-011-0632-z](https://doi.org/10.1007/s00414-011-0632-z).",
 )
 
 _HENSSGE_BASE_REFERENCE = (
@@ -47,103 +54,130 @@ _COMBINED_TABLE_TEXT = {
     "it": {
         "caption": "Criteri tanatologici non termici",
         "intro": (
-            "Sintesi riorganizzata dei limiti temporali impiegati nel metodo combinato proposto "
-            "da Henssge et al. [1], integrata con il decorso della rigidità e gli intervalli "
-            "dell’eccitabilità sopraciliare riportati da Henssge e Madea [2]. "
+            "Rielaborazione in forma di domande dei limiti temporali del metodo combinato "
+            "di Henssge [1, 3], integrata con il decorso della rigidità [2] e con dati successivi [4]. "
             "Tutti i tempi sono espressi in ore post-mortem."
         ),
         "parameter": "Parametro",
         "criterion": "Criterio",
-        "present": "Presente",
-        "absent": "Assente",
+        "yes": "Sì",
+        "no": "No",
         "lividity": "Ipostasi",
-        "beginning": "Comparsa",
-        "confluence": "Confluenza",
-        "thumb_pressure": "Scomparsa alla pressione del pollice",
-        "complete_shifting": "Migrabilità completa",
-        "maximum_row": "Massima estensione e intensità",
-        "incomplete_shifting": "Migrabilità almeno parziale",
+        "lividity_beginning": "Sono già comparse?",
+        "confluence": "Sono confluenti?",
+        "thumb_pressure": "Scompaiono completamente alla pressione del pollice?",
+        "complete_shifting": "Sono completamente migrabili?",
+        "maximum_row": "Hanno raggiunto la massima estensione e intensità?",
+        "incomplete_shifting": "Sono migrabili almeno parzialmente?",
         "rigor": "Rigidità",
-        "rigor_complete": "Completa instaurazione",
-        "reestablishment": "Ricomparsa dopo essere stata vinta",
-        "rigor_persistence": "Persistenza [2]",
-        "rigor_resolution": "Risoluzione [2]",
-        "course_limits": "Limiti di variazione",
+        "rigor_beginning": "È già comparsa?",
+        "rigor_complete": "Ha raggiunto la completa instaurazione, con intensità massima e distribuzione generalizzata?",
+        "reestablishment": "Ricompare dopo essere stata vinta con la mobilizzazione?",
+        "rigor_persistence": "Ha iniziato a risolversi? [2]",
+        "rigor_resolution": "È completamente risolta? [2]",
         "mechanical": "Eccitabilità meccanica",
-        "tendon": "Reazione alla percussione tendinea",
-        "idiomuscular": "Contrazione idiomuscolare",
+        "tendon": "Si ottiene una reazione alla percussione tendinea?",
+        "idiomuscular": "Si ottiene una contrazione idiomuscolare?",
         "eyebrow": "Eccitabilità elettrica sopraciliare",
-        "grade": "Grado",
-        "interval": "Intervallo (h)",
-        "no_response": "Nessuna reazione: ≥ 5 h [1].",
+        "supra_cheek": "La contrazione raggiunge anche la guancia?",
+        "supra_forehead": "La contrazione raggiunge anche la fronte?",
+        "supra_lower_lid": "La contrazione coinvolge anche la palpebra inferiore?",
+        "supra_whole_upper_lid": "La contrazione coinvolge tutta la palpebra superiore?",
+        "supra_partial_upper_lid": "La contrazione coinvolge almeno un terzo della palpebra superiore?",
+        "supra_nasal": "È presente almeno una contrazione localizzata all’angolo interno della palpebra superiore?",
         "mouth": "Eccitabilità elettrica peribuccale",
-        "muscle_response": "Risposta muscolare",
-        "mouth_note": "* Il limite di 11 ore riguarda qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione.",
+        "muscle_response": "È presente una risposta muscolare?",
+        "mouth_note": "† Il limite di 11 ore riguarda qualsiasi risposta peribuccale positiva, indipendentemente dalla sua estensione.",
         "chemical": "Eccitabilità chimica pupillare",
-        "atropin": "Dilatazione con atropina",
-        "tropicamide": "Dilatazione con tropicamide",
-        "acetylcholine": "Costrizione con acetilcolina",
+        "atropin": "La pupilla si dilata dopo atropina?",
+        "tropicamide": "La pupilla si dilata dopo tropicamide?",
+        "acetylcholine": "La pupilla si restringe dopo acetilcolina?",
         "variation_note": (
-            "Limiti di variazione: estremi temporali riportati in letteratura e adottati da Henssge "
-            "per la stima combinata; non corrispondono automaticamente a intervalli statistici al 95% "
-            "né a soglie biologiche assolute."
+            "I limiti temporali indicati non corrispondono tutti a intervalli statistici al 95% "
+            "e non costituiscono soglie biologiche assolute."
         ),
-        "confidence_note": "Gli intervalli dei gradi sopraciliari sono indicati dalla fonte [2] come limiti di confidenza al 95%.",
+        "reestablishment_note": (
+            "* Dati aggiornati sulla base dei nuovi estremi temporali riportati in casistiche "
+            "pubblicate in letteratura (Anders et al., 2013) [4]."
+        ),
+        "course_note": (
+            "Le domande sull’inizio e sul completamento della risoluzione rielaborano i limiti "
+            "descrittivi di persistenza e risoluzione [2]. «Ha iniziato a risolversi?» comprende "
+            "anche la completa risoluzione."
+        ),
+        "supra_note": (
+            "Per l’eccitabilità sopraciliare, «Sì» comprende anche una contrazione più estesa: "
+            "il limite minimo deriva dalla risposta immediatamente più estesa non ottenibile, quello massimo "
+            "dalla risposta conservata [1, 3]."
+        ),
         "reading_note": (
-            "«—» indica che il criterio non fornisce un limite temporale utile. Per comparsa e completo "
-            "sviluppo, «assente» significa non ancora raggiunto; per la migrabilità significa non più conservata. "
-            "Le celle unite descrivono il decorso della rigidità [2]."
+            "«—»: nessun limite utile. Nelle domande sul decorso, «No» significa «non ancora»; "
+            "per migrabilità ed eccitabilità, indica una risposta non ottenibile. "
+            "I reperti non valutati o non attendibili non equivalgono a «No»."
         ),
     },
     "en": {
         "caption": "Non-temperature-based postmortem criteria",
         "intro": (
-            "Reorganized synthesis of the time limits used in the compound method proposed by "
-            "Henssge et al. [1], supplemented with the time course of rigor and the supraciliary "
-            "excitability intervals reported by Henssge and Madea [2]. "
+            "Question-based adaptation of the time limits in Henssge’s compound method [1, 3], "
+            "supplemented with the time course of rigor [2] and later findings [4]. "
             "All times are expressed in hours postmortem."
         ),
         "parameter": "Parameter",
         "criterion": "Criterion",
-        "present": "Present",
-        "absent": "Absent",
+        "yes": "Yes",
+        "no": "No",
         "lividity": "Lividity",
-        "beginning": "Onset",
-        "confluence": "Confluence",
-        "thumb_pressure": "Disappearance under thumb pressure",
-        "complete_shifting": "Complete shifting",
-        "maximum_row": "Maximum extent and intensity",
-        "incomplete_shifting": "At least partial shifting",
+        "lividity_beginning": "Has lividity appeared?",
+        "confluence": "Is lividity confluent?",
+        "thumb_pressure": "Does lividity disappear completely under thumb pressure?",
+        "complete_shifting": "Can lividity shift completely?",
+        "maximum_row": "Has lividity reached its maximum extent and intensity?",
+        "incomplete_shifting": "Can lividity shift at least partially?",
         "rigor": "Rigor",
-        "rigor_complete": "Full development",
-        "reestablishment": "Re-establishment after breaking",
-        "rigor_persistence": "Persistence [2]",
-        "rigor_resolution": "Resolution [2]",
-        "course_limits": "Limits of variation",
+        "rigor_beginning": "Has rigor appeared?",
+        "rigor_complete": "Has rigor become fully developed, with maximum intensity and generalized distribution?",
+        "reestablishment": "Does rigor re-establish after being broken by mobilization?",
+        "rigor_persistence": "Has rigor started to resolve? [2]",
+        "rigor_resolution": "Has rigor completely resolved? [2]",
         "mechanical": "Mechanical excitability",
-        "tendon": "Reaction to tendon percussion",
-        "idiomuscular": "Idiomuscular contraction",
+        "tendon": "Is a reaction to tendon percussion obtained?",
+        "idiomuscular": "Is an idiomuscular contraction obtained?",
         "eyebrow": "Supraciliary electrical excitability",
-        "grade": "Grade",
-        "interval": "Interval (h)",
-        "no_response": "No response: ≥ 5 h [1].",
+        "supra_cheek": "Does the contraction also reach the cheek?",
+        "supra_forehead": "Does the contraction also reach the forehead?",
+        "supra_lower_lid": "Does the contraction also involve the lower eyelid?",
+        "supra_whole_upper_lid": "Does the contraction involve the entire upper eyelid?",
+        "supra_partial_upper_lid": "Does the contraction involve at least one third of the upper eyelid?",
+        "supra_nasal": "Is at least a localized contraction at the inner corner of the upper eyelid present?",
         "mouth": "Perioral electrical excitability",
-        "muscle_response": "Muscular response",
-        "mouth_note": "* The 11-hour limit applies to any positive perioral response, regardless of its extent.",
+        "muscle_response": "Is a muscular response present?",
+        "mouth_note": "† The 11-hour limit applies to any positive perioral response, regardless of its extent.",
         "chemical": "Chemical excitability of the pupil",
-        "atropin": "Dilatation with atropine",
-        "tropicamide": "Dilatation with tropicamide",
-        "acetylcholine": "Constriction with acetylcholine",
+        "atropin": "Does the pupil dilate after atropine?",
+        "tropicamide": "Does the pupil dilate after tropicamide?",
+        "acetylcholine": "Does the pupil constrict after acetylcholine?",
         "variation_note": (
-            "Limits of variation: extreme time limits reported in the literature and adopted by Henssge "
-            "for the compound estimate; they do not automatically represent 95% statistical intervals "
-            "or absolute biological thresholds."
+            "The stated time limits do not all represent 95% statistical intervals "
+            "and are not absolute biological thresholds."
         ),
-        "confidence_note": "The source [2] describes the intervals for the supraciliary grades as 95% confidence limits.",
+        "reestablishment_note": (
+            "* Data updated on the basis of new temporal extremes reported in published case series "
+            "(Anders et al., 2013) [4]."
+        ),
+        "course_note": (
+            "The questions on the onset and completion of resolution adapt the descriptive limits "
+            "for persistence and resolution [2]. “Has rigor started to resolve?” also includes complete resolution."
+        ),
+        "supra_note": (
+            "For supraciliary excitability, “Yes” also includes a more extensive contraction: "
+            "the lower limit comes from the next more extensive response that cannot be elicited, "
+            "and the upper limit from the preserved response [1, 3]."
+        ),
         "reading_note": (
-            "“—” means that the criterion provides no useful time limit. For onset and full development, "
-            "“absent” means not yet reached; for shifting, it means no longer possible. "
-            "The merged cells describe the time course of rigor [2]."
+            "“—”: no useful limit. For questions on progression, “No” means “not yet”; "
+            "for shifting and excitability, it means that the response cannot be elicited. "
+            "Unassessed or unreliable findings do not count as “No”."
         ),
     },
 }
@@ -309,30 +343,41 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
 
 def _render_combined_table(language: str) -> None:
     text = _COMBINED_TABLE_TEXT[language]
-    sep = "," if language == "it" else "."
     # Scientific reference data: these limits are not read from application ranges.
     # A missing useful bound is shown as a dash, not as an artificial zero.
     groups = (
         ("lividity", "[1, 2]", (
-            ("beginning", "—", "≤ 3"),
+            ("lividity_beginning", "—", "≤ 3"),
             ("confluence", "≥ 1", "≤ 4"),
             ("maximum_row", "≥ 3", "≤ 16"),
             ("thumb_pressure", "≤ 20", "≥ 1"),
             ("complete_shifting", "≤ 6", "≥ 2"),
             ("incomplete_shifting", "≤ 24", "≥ 4"),
         )),
-        ("rigor", "[1, 2]", (
-            ("beginning", f"≥ 0{sep}5", "≤ 7"),
+        ("rigor", "[1–4]", (
+            ("rigor_beginning", "≥ 0.5", "≤ 7"),
             ("rigor_complete", "≥ 2", "≤ 20"),
-            ("reestablishment", "≤ 8", "≥ 2"),
-            ("rigor_persistence", "24–96", None),
-            ("rigor_resolution", "24–192", None),
+            # Observed upper extreme in Anders et al. (2013), not a universal cutoff.
+            ("reestablishment", "≤ 19*", "≥ 2"),
+            # Agreed adaptation of the descriptive course limits in [2].
+            ("rigor_persistence", "≥ 24", "≤ 96"),
+            ("rigor_resolution", "≥ 24", "≤ 192"),
         )),
         ("mechanical", "[1]", (
-            ("tendon", f"≤ 2{sep}5", "—"),
-            ("idiomuscular", "≤ 13", f"≥ 1{sep}5"),
+            ("tendon", "≤ 2.5", "—"),
+            ("idiomuscular", "≤ 13", "≥ 1.5"),
         )),
-        ("mouth", "[1]", (("muscle_response", "≤ 11*", "≥ 3"),)),
+        # Table 10.4 and Figure 10.7 in [3]: each question is cumulative.
+        # A negative response concerns this extent, not absence of all contraction.
+        ("eyebrow", "[1, 3]", (
+            ("supra_cheek", "≤ 6", "≥ 1"),
+            ("supra_forehead", "≤ 7", "≥ 2"),
+            ("supra_lower_lid", "≤ 8", "≥ 3"),
+            ("supra_whole_upper_lid", "≤ 13", "≥ 3.5"),
+            ("supra_partial_upper_lid", "≤ 16", "≥ 5"),
+            ("supra_nasal", "≤ 22", "≥ 5"),
+        )),
+        ("mouth", "[1]", (("muscle_response", "≤ 11†", "≥ 3"),)),
         ("chemical", "[1]", (
             ("atropin", "≤ 10", "≥ 3"),
             ("tropicamide", "≤ 30", "≥ 5"),
@@ -341,20 +386,14 @@ def _render_combined_table(language: str) -> None:
     )
     rows = []
     for parameter, reference, criteria in groups:
-        for index, (criterion, present, absent) in enumerate(criteria):
+        for index, (criterion, yes, no) in enumerate(criteria):
             group_cell = (
                 f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
                 f'{text[parameter]} {reference}</th>' if index == 0 else ""
             )
-            # Time-course ranges in [2] are not separate present/absent bounds.
-            limit_cells = (
-                f'<td colspan="2" class="combined-course">{text["course_limits"]}<br>{present}</td>'
-                if absent is None else
-                f'<td class="combined-limit">{present}</td><td class="combined-limit">{absent}</td>'
-            )
             rows.append(
                 f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
-                f'{limit_cells}</tr>'
+                f'<td class="combined-limit">{yes}</td><td class="combined-limit">{no}</td></tr>'
             )
     st.caption(text["intro"])
     st.markdown(
@@ -365,7 +404,7 @@ def _render_combined_table(language: str) -> None:
             <colgroup><col style="width:24%"><col style="width:46%"><col style="width:15%"><col style="width:15%"></colgroup>
             <thead>
               <tr><th scope="col">{text['parameter']}</th><th scope="col">{text['criterion']}</th>
-              <th scope="col">{text['present']}</th><th scope="col">{text['absent']}</th></tr>
+              <th scope="col">{text['yes']}</th><th scope="col">{text['no']}</th></tr>
             </thead>
             <tbody>{''.join(rows)}</tbody>
           </table>
@@ -374,30 +413,11 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(text["reading_note"])
+    st.caption(text["course_note"])
+    st.caption(text["supra_note"])
+    st.caption(text["reestablishment_note"])
     st.caption(text["mouth_note"])
     st.caption(text["variation_note"])
-    # Fig. 4 of Henssge & Madea (2004), checked visually: grade II is 3.5–16 h.
-    # Its limits describe an observed grade, not absence of that same grade.
-    st.markdown(
-        f"""
-        <div class="mallach-table-wrap">
-          <table class="mallach-table combined-supra-table">
-            <caption>{text['eyebrow']} [2]</caption>
-            <thead>
-              <tr><th scope="col">{text['grade']}</th><th scope="col">{text['interval']}</th>
-              <th scope="col">{text['grade']}</th><th scope="col">{text['interval']}</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>VI</td><td>≤ 6</td><td>III</td><td>3–13</td></tr>
-              <tr><td>V</td><td>1–7</td><td>II</td><td>3{sep}5–16</td></tr>
-              <tr><td>IV</td><td>2–8</td><td>I</td><td>5–22</td></tr>
-            </tbody>
-          </table>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.caption(f"{text['no_response']} {text['confidence_note']}")
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)
 
@@ -621,20 +641,16 @@ st.markdown(
         line-height: 1.08;
         margin-top: 0.08rem;
     }
-    table.combined-table,
-    table.combined-supra-table {
+    table.combined-table {
         width: 100%;
         max-width: 48rem;
         table-layout: fixed;
     }
     .combined-table td,
-    .combined-table th,
-    .combined-supra-table td,
-    .combined-supra-table th {
+    .combined-table th {
         padding: 0.20rem 0.25rem;
     }
-    .combined-table td:first-child,
-    .combined-supra-table td:first-child {
+    .combined-table td:first-child {
         min-width: 0;
     }
     .combined-table th.combined-group,
@@ -647,9 +663,6 @@ st.markdown(
     }
     .combined-table td.combined-limit {
         white-space: nowrap;
-    }
-    table.combined-supra-table {
-        max-width: 30rem;
     }
     .henssge-base-table td:first-child,
     .henssge-base-table td:nth-child(4) {
