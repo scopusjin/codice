@@ -718,10 +718,10 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
       return 'Inserisci il valore minimo e massimo plausibili della temperatura ambientale media nel periodo tra il decesso e l’ispezione.';
     }
     if (desktopLabelText === 'Fattore di correzione (FC)') {
-      return 'Il pannello FC aiuta a individuare il fattore di correzione in base alle condizioni del corpo, agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali.';
+      return 'Clicca su un campo FC per aprire il pannello che suggerisce il fattore di correzione in base alle condizioni del corpo e ai dati della letteratura.';
     }
     if (desktopLabelText === 'Range fattore di correzione (FC)' || desktopLabelText === 'Fattore massimo') {
-      return 'Inserisci i due estremi plausibili del fattore di correzione. Il pannello FC aiuta a individuare i valori in base alle condizioni del corpo.';
+      return 'Clicca su un campo FC per aprire il pannello che suggerisce il fattore di correzione in base alle condizioni del corpo e ai dati della letteratura.';
     }
     return '';
   })();

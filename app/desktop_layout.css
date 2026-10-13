@@ -234,6 +234,16 @@
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-desktop_cooling_label_"]) {
     margin-top: 8px !important;
   }
+  html body:has(#mortem-page-title) .st-key-cooling_conditions_row_desktop {
+    margin-top: 8px !important;
+  }
+  html body:has(#mortem-page-title) .st-key-cooling_conditions_fields_desktop > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-desktop_cooling_label_fc_"]) {
+    margin-top: 8px !important;
+  }
+  /* Centre the action between the inputs, allowing for their label line. */
+  html body:has(#mortem-page-title) .st-key-cooling_scenarios_action_desktop {
+    padding-top: 1.125rem !important;
+  }
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"] {
     margin-block: 0 !important;
   }

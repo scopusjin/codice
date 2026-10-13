@@ -40,14 +40,12 @@ _TA_RANGE_MOBILE_NOTE = (
     "Inserisci il valore minimo e massimo plausibili della temperatura ambientale media "
     "nel periodo tra il decesso e l’ispezione."
 )
-_FC_RANGE_NOTE = (
-    "Inserisci i due estremi plausibili del fattore di correzione. "
-    "Il pannello FC aiuta a individuare i valori in base alle condizioni del corpo."
+FC_FIELD_HELP = (
+    "Clicca su un campo FC per aprire il pannello che suggerisce il fattore di correzione "
+    "in base alle condizioni del corpo e ai dati della letteratura."
 )
-_FC_STANDARD_NOTE = (
-    "Il pannello FC aiuta a individuare il fattore di correzione in base alle condizioni del corpo, "
-    "agli indumenti o alle coperture, alla superficie di appoggio e alle condizioni ambientali."
-)
+_FC_RANGE_NOTE = FC_FIELD_HELP
+_FC_STANDARD_NOTE = FC_FIELD_HELP
 _COMPACT_LABEL_ALIASES = {
     "Piumone / coperta molto spessa": "Piumone / coperta pesante",
 }
