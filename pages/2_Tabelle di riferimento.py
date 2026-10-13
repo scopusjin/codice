@@ -103,10 +103,6 @@ _COMBINED_TABLE_TEXT = {
             "Dati aggiornati sulla base dei nuovi estremi temporali riportati in casistiche "
             "pubblicate in letteratura (Anders et al., 2013) [4]."
         ),
-        "course_note": (
-            "Le domande sull’inizio e sul completamento della risoluzione rielaborano i limiti "
-            "descrittivi di persistenza e risoluzione [2]."
-        ),
         "supra_note": (
             "Per l’eccitabilità sopraciliare, «Sì» comprende anche una contrazione più estesa: "
             "il limite minimo deriva dalla risposta immediatamente più estesa non ottenibile, quello massimo "
@@ -166,10 +162,6 @@ _COMBINED_TABLE_TEXT = {
         "reestablishment_note": (
             "Data updated on the basis of new temporal extremes reported in published case series "
             "(Anders et al., 2013) [4]."
-        ),
-        "course_note": (
-            "The questions on the onset and completion of resolution adapt the descriptive limits "
-            "for persistence and resolution [2]."
         ),
         "supra_note": (
             "For supraciliary excitability, “Yes” also includes a more extensive contraction: "
@@ -418,7 +410,6 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(text["reading_note"])
-    st.caption(text["course_note"])
     st.caption(text["supra_note"])
     st.caption(text["reestablishment_note"])
     st.caption(text["variation_note"])
