@@ -402,9 +402,9 @@ def _render_combined_table(language: str) -> None:
                 f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
                 f'<td class="combined-limit">{yes}</td><td class="combined-limit">{no}</td></tr>'
             )
-    st.caption(text["intro"])
     st.markdown(
         f"""
+        <p class="combined-intro" style="font-size:1.0625rem;line-height:1.55;font-weight:400;color:inherit;margin:0 0 1rem;">{text['intro']}</p>
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
             <caption>{text['caption']}</caption>
