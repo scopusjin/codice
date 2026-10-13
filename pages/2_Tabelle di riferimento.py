@@ -240,7 +240,6 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
             "Questa interpretazione è coerente con alcuni esempi di casi riportati nei testi di Henssge [3], "
             "ma non costituisce una rettifica ufficiale delle fonti."
         ),
-        "thin_metal": "Lamiera metallica sottile",
         "pvc": "Pavimento rivestito in PVC",
         "pvc_factors": "0.76–0.77",
         "metal": "Piano metallico spesso",
@@ -259,7 +258,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Spesso",
         "thin": "Sottile",
         "very_thin": "Molto sottile",
-        "see_table_1": "vedi FC di base",
+        "no_adjustment": "Nessuna modifica",
         "adapted": "Adattato da",
     },
     "en": {
@@ -283,7 +282,6 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
             "This interpretation is consistent with some case examples reported in Henssge’s texts [3], "
             "but does not constitute an official correction of the sources."
         ),
-        "thin_metal": "Thin sheet metal",
         "pvc": "PVC-covered floor",
         "pvc_factors": "0.76–0.77",
         "metal": "Thick metal surface",
@@ -302,7 +300,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "thick": "Thick",
         "thin": "Thin",
         "very_thin": "Very thin",
-        "see_table_1": "see Basic FC",
+        "no_adjustment": "No adjustment",
         "adapted": "Adapted from",
     },
 }
@@ -395,10 +393,8 @@ def _render_combined_table(language: str) -> None:
             )
     st.markdown(
         f"""
-        <p class="combined-intro" style="font-size:1.0625rem;line-height:1.55;font-weight:400;color:inherit;margin:0 0 1rem;">{text['intro']}</p>
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
-            <caption>{text['caption']}</caption>
             <colgroup><col style="width:24%"><col style="width:46%"><col style="width:15%"><col style="width:15%"></colgroup>
             <thead>
               <tr><th scope="col">{text['parameter']}</th><th scope="col">{text['criterion']}</th>
@@ -410,6 +406,7 @@ def _render_combined_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
+    st.caption(text["intro"])
     st.caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         st.caption(reference)
@@ -472,14 +469,10 @@ def _render_henssge_special_table(language: str) -> None:
               </tr>
             </thead>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1, 3]</sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1]</sup></th></tr>
               <tr>
                 <th scope="row">{text['indifferent_ground']}</th>
-                <td>{text['clothing_indifferent']}</td><td>{text['see_table_1']}</td>
-              </tr>
-              <tr>
-                <th scope="row">{text['thin_metal']} <sup>[3]</sup></th>
-                <td>{text['clothing_indifferent']}</td><td>{text['see_table_1']}</td>
+                <td>{text['clothing_indifferent']}</td><td>{text['no_adjustment']}</td>
               </tr>
             </tbody>
             <tbody>
@@ -795,6 +788,12 @@ st.markdown(
 )
 
 # Scientific synthesis of the compound method.
+_combined_language_before = st.session_state.get("combined_table_language", "Italiano")
+_combined_text_before = _COMBINED_TABLE_TEXT["it" if _combined_language_before == "Italiano" else "en"]
+st.markdown(
+    f"<div class='henssge-table-title'>{_combined_text_before['caption']}</div>",
+    unsafe_allow_html=True,
+)
 combined_language = st.radio(
     "Lingua tabella metodi combinati",
     ["Italiano", "English"],
