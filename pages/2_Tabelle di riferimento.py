@@ -177,7 +177,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         ),
         "lower_trunk": (
             "Per la scelta del FC contano solo i vestiti/teli "
-            "e le coperte sul tronco inferiore. Indifferente = stesso FC con o senza correnti d’aria."
+            "e le coperte sul tronco inferiore."
         ),
         "adapted": "Adattato da",
     },
@@ -211,7 +211,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         ),
         "lower_trunk": (
             "For the selection of the FC, only the clothing "
-            "or covering of the lower trunk is relevant. No influence = same FC with or without air currents."
+            "or covering of the lower trunk is relevant."
         ),
         "adapted": "Adapted from",
     },
@@ -240,21 +240,15 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
             "Questa interpretazione è coerente con alcuni esempi di casi riportati nei testi di Henssge [3], "
             "ma non costituisce una rettifica ufficiale delle fonti."
         ),
-        "metal": "Acciaio su calcestruzzo, con acqua circostante",
-        "metal_factors": "0.55<br>(prova su simulatore)",
-        "metal_note": (
-            "Metallo: contano sia la conducibilità sia la capacità termica. Una lamiera sottile "
-            "può riscaldarsi rapidamente e non accelerare sensibilmente il raffreddamento; "
-            "un supporto massiccio può avere un effetto diverso. Il FC 0.55 deriva dalla prova 290 "
-            "su acciaio appoggiato su calcestruzzo, con acqua circostante; "
-            "non è generalizzabile a ogni piano metallico [3]."
-        ),
+        "thin_metal": "Lamiera metallica sottile",
+        "pvc": "Pavimento rivestito in PVC",
+        "pvc_factors": "0.76–0.77",
+        "metal": "Piano metallico spesso<br>(es. acciaio su calcestruzzo, con acqua circostante)",
+        "metal_factors": "0.53–0.55",
         "support_reference": (
             "Henssge C. Basics and application of the nomogram method at the scene. "
             "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
-            "Chapter 6.1, Table 6.10 e testo sulle superfici di appoggio. "
-            "Esperimenti su simulatori di Knörle T., tesi di medicina, University of Cologne, 1991, "
-            "citati nel capitolo (riferimento 90); tesi non consultata direttamente."
+            "Cap. 6.1, tab. 6.10 e paragrafo sulla scelta del fattore di correzione."
         ),
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
@@ -287,21 +281,15 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
             "This interpretation is consistent with some case examples reported in Henssge’s texts [3], "
             "but does not constitute an official correction of the sources."
         ),
-        "metal": "Steel on concrete, with surrounding water",
-        "metal_factors": "0.55<br>(dummy experiment)",
-        "metal_note": (
-            "Metal: both thermal conductivity and heat capacity matter. Thin sheet metal "
-            "may warm up quickly without markedly accelerating cooling; a massive support "
-            "may behave differently. The FC of 0.55 comes from experiment 290 on steel "
-            "resting on concrete, with surrounding water; it cannot be generalized "
-            "to every metal surface [3]."
-        ),
+        "thin_metal": "Thin sheet metal",
+        "pvc": "PVC-covered floor",
+        "pvc_factors": "0.76–0.77",
+        "metal": "Thick metal surface<br>(e.g. steel on concrete, with surrounding water)",
+        "metal_factors": "0.53–0.55",
         "support_reference": (
             "Henssge C. Basics and application of the nomogram method at the scene. "
             "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
-            "Chapter 6.1, Table 6.10 and discussion of supporting surfaces. "
-            "Dummy experiments by Knörle T., MD thesis, University of Cologne, 1991, "
-            "cited in the chapter (reference 90); thesis not consulted directly."
+            "Chapter 6.1, Table 6.10 and section on evaluating the corrective factor."
         ),
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
@@ -480,9 +468,13 @@ def _render_henssge_special_table(language: str) -> None:
               </tr>
             </thead>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1]</sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1, 3]</sup></th></tr>
               <tr>
                 <th scope="row">{text['indifferent_ground']}</th>
+                <td>{text['yes']} / {text['no']}</td><td>{text['see_table_1']}</td>
+              </tr>
+              <tr>
+                <th scope="row">{text['thin_metal']} <sup>[3]</sup></th>
                 <td>{text['yes']} / {text['no']}</td><td>{text['see_table_1']}</td>
               </tr>
             </tbody>
@@ -513,6 +505,10 @@ def _render_henssge_special_table(language: str) -> None:
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
               <tr><td>{text['no']}</td><td>0.75<sup>*</sup></td></tr>
               <tr>
+                <th scope="row">{text['pvc']} <sup>[3]</sup></th>
+                <td>{text['no']}</td><td>{text['pvc_factors']}</td>
+              </tr>
+              <tr>
                 <th scope="row">{text['metal']} <sup>[3]</sup></th>
                 <td>{text['no']}</td><td>{text['metal_factors']}</td>
               </tr>
@@ -523,7 +519,6 @@ def _render_henssge_special_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     st.caption(r"\* " + text['naked_note'])
-    st.caption(text['metal_note'])
     st.caption(f"[1] {text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
     st.caption(f"[2] {text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
     st.caption(f"[3] {text['support_reference']}")
