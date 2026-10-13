@@ -48,7 +48,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 </div>
 </div>
 <div class="summary">
-<div id="conditions-summary"><strong id="conditions-title">Condizioni considerate</strong><div id="scenario-summary" aria-live="polite"></div></div>
+<div id="conditions-summary"><strong id="conditions-title">Condizioni considerate:</strong><div id="scenario-summary" aria-live="polite"></div></div>
 <div id="editable-note" hidden></div><div class="hint" id="origin"></div>
 <div id="manual-state" class="status" aria-live="polite"></div>
 <div id="detail" hidden></div>
@@ -430,11 +430,11 @@ function showSource(){
   for(const e of examples){
     const item=document.createElement('div');item.className='source-example';
     paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
-    paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg');
-    paragraph(item,exampleConditions(e));
+    paragraph(item,(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(w=>String(w).replace('.',',')).join(' / ')+' kg · '+exampleConditions(e));
     paragraph(item,exampleFCText(e));
+    sourceLink(item,'Riferimento: '+e.sourceText,e.url);
     if(e.notes)paragraph(item,e.notes);
-    sourceLink(item,e.sourceText,e.url);list.append(item);
+    list.append(item);
   }
 }
 function manualSelectionNote(a,b){

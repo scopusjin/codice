@@ -911,7 +911,7 @@ def aggiorna_grafico(
         note_bounds = ([options.get("FC_min_beta"), options.get("FC_max_beta")]
                        if condizioni_variabili else [CF_val, CF_val])
         if fc_note := manual_fc_note(options, note_bounds, W_val):
-            chunks.append(_wrap_final("<p style='color:blue;font-size:small;'>" + fc_note + "</p>"))
+            chunks.append(_wrap_final("<p style='color:blue;font-size:8pt;'>" + fc_note + "</p>"))
 
     # 4) frase blu Qd sempre in fondo alle descrizioni dettagliate.
     if frase_qd_html:

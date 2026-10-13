@@ -346,7 +346,7 @@ def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
 
 def simple_sentence_no_dt_not_over(duration: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         f"<b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -354,7 +354,7 @@ def simple_sentence_no_dt_not_over(duration: str) -> str:
 
 def simple_sentence_no_dt_over(duration: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -362,7 +362,7 @@ def simple_sentence_no_dt_over(duration: str) -> str:
 
 def simple_sentence_no_dt_range(interval: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         f"<b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -370,7 +370,7 @@ def simple_sentence_no_dt_range(interval: str) -> str:
 
 def final_sentence_simple_over(duration: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
@@ -379,7 +379,7 @@ def final_sentence_simple_over(duration: str) -> str:
 
 def final_sentence_simple_not_over(duration: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
@@ -388,7 +388,7 @@ def final_sentence_simple_not_over(duration: str) -> str:
 
 def final_sentence_simple_range(interval: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
@@ -407,7 +407,7 @@ def simple_sentence_dt_not_over(
     else:
         window = f"tra le ore {lower_time} del {lower_date} e le {inspection_time} del {inspection_date}"
     return (
-        "<p>EPOCA DEL DECESSO STIMATA: "
+        "<p>"
         f"non oltre {duration} prima "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire all'incirca {window}.</p>"
@@ -416,7 +416,7 @@ def simple_sentence_dt_not_over(
 
 def simple_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -> str:
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
@@ -436,7 +436,7 @@ def simple_sentence_dt_range(
     else:
         window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
     return (
-        "<p><b>EPOCA DEL DECESSO STIMATA</b>: "
+        "<p>"
         f"<b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire circa <b>{window}</b>.</p>"
@@ -502,10 +502,10 @@ def putrefactive_paragraph() -> str:
 def parameter_summary(labels: list[str]) -> str:
     if len(labels) == 1:
         p = labels[0]
-        return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
+        return f"<p style='color:blue;font-size:8pt;'>La stima complessiva si basa sul seguente parametro: {p[0].lower() + p[1:]}.</p>"
     join = ', '.join(x[0].lower() + x[1:] for x in labels[:-1])
     join += f" e {labels[-1][0].lower() + labels[-1][1:]}"
-    return f"<p style='color:blue;font-size:small;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
+    return f"<p style='color:blue;font-size:8pt;'>La stima complessiva si basa sui seguenti parametri: {join}.</p>"
 
 
 def potente_paragraph(duration: str, days: str, high_temperature: bool = False) -> str:

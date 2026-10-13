@@ -34,7 +34,7 @@
       ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};
   }
   function renderConditions(selected) {
-    q('conditions-title').textContent=enabled?'Scenari considerati':'Condizioni considerate';
+    q('conditions-title').textContent=enabled?'Scenari considerati:':'Condizioni considerate:';
     q('scenario-summary').replaceChildren(...selected.map((item,index)=>{
       const row=document.createElement('div');row.className='condition-line scenario-tone-'+(index%4);
       if(enabled){

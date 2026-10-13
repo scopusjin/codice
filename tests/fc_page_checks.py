@@ -52,7 +52,7 @@ class FCPageTests(unittest.TestCase):
                     app.button(key="btn_stima").click().run()
                     self.assertEqual(list(app.exception), [])
                     text = app.session_state["__desc_dettagliate_html"]
-                    self.assertRegex(text, r"<p style='color:blue;font-size:small;[^']*'>FC impostato manualmente negli scenari 1, 2\.")
+                    self.assertRegex(text, r"<p style='color:blue;font-size:8pt;[^']*'>FC impostato manualmente negli scenari 1, 2\.")
                     self.assertIn("8.0 °C (temperatura dell’acqua) – 20.0 °C", text)
                     self.assertNotIn("Temperature degli scenari", text)
                     self.assertIn("Range di FC considerati", text)

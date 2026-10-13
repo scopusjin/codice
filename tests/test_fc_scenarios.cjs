@@ -15,7 +15,7 @@ panel.restore(start,70);toggle(true);
 assert.equal(panel.snapshot().scenarios.length,2);
 assert.equal(panel.snapshot().activeScenario,0);
 assert.equal(nodes['fc-heading'].textContent,'FC dello scenario 1');
-assert.equal(nodes['conditions-title'].textContent,'Scenari considerati');
+assert.equal(nodes['conditions-title'].textContent,'Scenari considerati:');
 choose(1);
 assert.equal(nodes.use.hidden,true);assert.equal(nodes['use-scenarios'].disabled,false);
 state('Bagnato');
