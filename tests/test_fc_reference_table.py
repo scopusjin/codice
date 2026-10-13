@@ -128,7 +128,7 @@ class CombinedReferenceTableTests(unittest.TestCase):
             self.assertNotRegex(bound, r'\d,\d')
             if bound == '—':
                 continue
-            match = re.fullmatch(r'([≥≤]) (\d+(?:\.\d+)?)[*†]?', bound)
+            match = re.fullmatch(r'([≥≤]) (\d+(?:\.\d+)?)(?: \[\d+\])?', bound)
             self.assertIsNotNone(match, bound)
             sign, number = match.groups()
             if sign == '≥':
@@ -171,8 +171,8 @@ class CombinedReferenceTableTests(unittest.TestCase):
             rows = self.render(language)
             self.assertEqual(self.interval(rows, [('reestablishment', True)]), (0, 19))
             self.assertEqual(self.interval(rows, [('reestablishment', False)]), (2, INF_HOURS))
-            self.assertTrue(rows['reestablishment'][0].endswith('*'))
-            self.assertTrue(any('Anders et al., 2013' in note and note.startswith('*')
+            self.assertTrue(rows['reestablishment'][0].endswith('[4]'))
+            self.assertTrue(any('Anders et al., 2013' in note and note.endswith('[4].')
                                 for note in self.captions))
             self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
             self.assertEqual(rows['muscle_response'], ('≤ 11', '≥ 3'))

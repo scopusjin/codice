@@ -100,7 +100,7 @@ _COMBINED_TABLE_TEXT = {
             "e non costituiscono soglie biologiche assolute."
         ),
         "reestablishment_note": (
-            "* Dati aggiornati sulla base dei nuovi estremi temporali riportati in casistiche "
+            "Dati aggiornati sulla base dei nuovi estremi temporali riportati in casistiche "
             "pubblicate in letteratura (Anders et al., 2013) [4]."
         ),
         "course_note": (
@@ -164,7 +164,7 @@ _COMBINED_TABLE_TEXT = {
             "and are not absolute biological thresholds."
         ),
         "reestablishment_note": (
-            "* Data updated on the basis of new temporal extremes reported in published case series "
+            "Data updated on the basis of new temporal extremes reported in published case series "
             "(Anders et al., 2013) [4]."
         ),
         "course_note": (
@@ -360,7 +360,7 @@ def _render_combined_table(language: str) -> None:
             ("rigor_beginning", "≥ 0.5", "≤ 7"),
             ("rigor_complete", "≥ 2", "≤ 20"),
             # Observed upper extreme in Anders et al. (2013), not a universal cutoff.
-            ("reestablishment", "≤ 19*", "≥ 2"),
+            ("reestablishment", "≤ 19 [4]", "≥ 2"),
             # Agreed adaptation of the descriptive course limits in [2].
             ("rigor_persistence", "≥ 24", "≤ 96"),
             ("rigor_resolution", "≥ 24", "≤ 192"),
