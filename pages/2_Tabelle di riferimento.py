@@ -252,8 +252,10 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         ),
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
+        "cold_floor": "Pavimento molto freddo (es. cantina)",
         "yes": "Sì",
-        "no": "No",
+        "naked": "Nudo",
+        "clothing_indifferent": "Indifferente",
         "thick": "Spesso",
         "thin": "Sottile",
         "very_thin": "Molto sottile",
@@ -293,8 +295,10 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         ),
         "conducting": "Conducting heat",
         "concrete": "Concrete, stone, tiles",
+        "cold_floor": "Very cold floor (e.g. cellar)",
         "yes": "Yes",
-        "no": "No",
+        "naked": "Naked",
+        "clothing_indifferent": "Any",
         "thick": "Thick",
         "thin": "Thin",
         "very_thin": "Very thin",
@@ -471,11 +475,11 @@ def _render_henssge_special_table(language: str) -> None:
               <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1, 3]</sup></th></tr>
               <tr>
                 <th scope="row">{text['indifferent_ground']}</th>
-                <td>{text['yes']} / {text['no']}</td><td>{text['see_table_1']}</td>
+                <td>{text['clothing_indifferent']}</td><td>{text['see_table_1']}</td>
               </tr>
               <tr>
                 <th scope="row">{text['thin_metal']} <sup>[3]</sup></th>
-                <td>{text['yes']} / {text['no']}</td><td>{text['see_table_1']}</td>
+                <td>{text['clothing_indifferent']}</td><td>{text['see_table_1']}</td>
               </tr>
             </tbody>
             <tbody>
@@ -485,15 +489,15 @@ def _render_henssge_special_table(language: str) -> None:
                 <td>{text['thick']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['thin']}</td><td>+0.3</td></tr>
-              <tr><td>{text['no']}</td><td>1.3<sup>*</sup></td></tr>
+              <tr><td>{text['naked']}</td><td>1.3<sup>*</sup></td></tr>
               <tr>
                 <th rowspan="2" scope="rowgroup">{text['mattress']} <sup>[1]</sup></th>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
-              <tr><td>{text['no']}</td><td>1.1–1.2</td></tr>
+              <tr><td>{text['naked']}</td><td>1.1–1.2</td></tr>
               <tr>
                 <th scope="row">{text['leaves']} <sup>[2]</sup></th>
-                <td>{text['no']}</td><td>{text['leaves_factors']}</td>
+                <td>{text['naked']}</td><td>{text['leaves_factors']}</td>
               </tr>
             </tbody>
             <tbody>
@@ -503,14 +507,18 @@ def _render_henssge_special_table(language: str) -> None:
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
-              <tr><td>{text['no']}</td><td>0.75<sup>*</sup></td></tr>
+              <tr><td>{text['naked']}</td><td>0.75<sup>*</sup></td></tr>
+              <tr>
+                <th scope="row">{text['cold_floor']} <sup>[3]</sup></th>
+                <td>{text['naked']}</td><td>0.75</td>
+              </tr>
               <tr>
                 <th scope="row">{text['pvc']} <sup>[3]</sup></th>
-                <td>{text['no']}</td><td>{text['pvc_factors']}</td>
+                <td>{text['naked']}</td><td>{text['pvc_factors']}</td>
               </tr>
               <tr>
                 <th scope="row">{text['metal']} <sup>[3]</sup></th>
-                <td>{text['no']}</td><td>{text['metal_factors']}</td>
+                <td>{text['naked']}</td><td>{text['metal_factors']}</td>
               </tr>
             </tbody>
           </table>
