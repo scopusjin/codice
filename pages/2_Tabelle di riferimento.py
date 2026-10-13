@@ -54,7 +54,7 @@ _HENSSGE_WEIGHT_REFERENCE = (
 
 _COMBINED_TABLE_TEXT = {
     "it": {
-        "caption": "Criteri tanatologici non termici",
+        "caption": "Criteri tanatologici non termici per il metodo combinato di Henssge",
         "intro": (
             "Rielaborazione pratica dei limiti temporali del metodo combinato "
             "di Henssge [1, 3], integrata anche con ulteriori fasi della rigidità cadaverica [2] "
@@ -120,7 +120,7 @@ _COMBINED_TABLE_TEXT = {
         ),
     },
     "en": {
-        "caption": "Non-temperature-based postmortem criteria",
+        "caption": "Non-temperature-based postmortem criteria for Henssge’s compound method",
         "intro": (
             "Practical adaptation of the time limits in Henssge’s compound method [1, 3], "
             "also supplemented with further stages of rigor mortis [2] and more recent literature data [4]. "
@@ -779,8 +779,6 @@ st.markdown(
 )
 
 # Scientific synthesis of the compound method.
-_combined_language_before = st.session_state.get("combined_table_language", "Italiano")
-st.markdown("## Metodo combinato di Henssge" if _combined_language_before == "Italiano" else "## Henssge’s compound method")
 combined_language = st.radio(
     "Lingua tabella metodi combinati",
     ["Italiano", "English"],
