@@ -34,6 +34,21 @@ def temperature_payload():
 
 
 class FCScenarioTests(unittest.TestCase):
+    def test_new_scenarios_retain_home_temperatures_in_input_order(self):
+        for first, second, expected in [(20., 8., [20., 8.]), (8., 20., [8., 20.]),
+                                        (-2.5, None, [-2.5, -2.5]), (None, 0., [0., 0.]),
+                                        (19.5, 19.5, [19.5, 19.5]), (None, None, [None, None])]:
+            with self.subTest(first=first, second=second):
+                state = dict(stima_cautelativa_beta=True, range_unico_beta=True,
+                             ta_base_val=first, ta_other_val=second, peso=70.)
+                draft = _current_fc_draft(state, FULL_PAGE)
+                self.assertEqual(draft["initialScenarioTemperatures"], expected)
+        # A hidden second endpoint must not affect single-temperature pages.
+        state = dict(ta_base_val=19.5, ta_other_val=8., peso=70.)
+        self.assertEqual(_current_fc_draft(state, FULL_PAGE)["initialScenarioTemperatures"], [19.5, 19.5])
+        state["stima_cautelativa_beta"] = True
+        self.assertEqual(_current_fc_draft(state, MSIL_PAGE)["initialScenarioTemperatures"], [19.5, 19.5])
+
     def test_temperatures_transfer_and_preserve_pairing_after_weight_change(self):
         state = {}
         apply_choice(state, temperature_payload())

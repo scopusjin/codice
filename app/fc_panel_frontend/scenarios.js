@@ -5,6 +5,7 @@
   const copy = value => JSON.parse(JSON.stringify(value));
   let enabled = false, items = [], active = 0, paused = false, weightAdjusted = false;
   let defaultTemperature = '', temperatureEdited = false;
+  let initialScenarioTemperatures = [];
 
   function restoreTemperature(draft) {
     q('scenario-temperature').value = draft?.temperature ?? defaultTemperature;
@@ -147,10 +148,12 @@
   window.FCPanel = {...single,
     snapshot() {
       return {...editorSnapshot(), multiple:enabled, activeScenario:active,
+        initialScenarioTemperatures:copy(initialScenarioTemperatures),
         scenarios:items.map(item=>copy(item.draft)), scenarioWeightAdjusted:weightAdjusted};
     },
     restore(draft, weight, temperature) {
       if (temperature !== undefined) defaultTemperature = Number.isFinite(temperature) ? String(temperature) : '';
+      initialScenarioTemperatures = Array.isArray(draft?.initialScenarioTemperatures) ? copy(draft.initialScenarioTemperatures) : [];
       restoreTemperature(draft);
       paused = true; enabled = !!draft?.multiple;
       try { single.restore(draft,weight); } finally { paused = false; }
@@ -172,7 +175,12 @@
   q('multiple-scenarios').addEventListener('change',()=>{
     if (q('multiple-scenarios').checked) {
       const current = capture();
-      if (items.length < 2) { items = [current,copy(current)]; }
+      if (items.length < 2) {
+        items = [current,copy(current)];
+        if (!temperatureEdited && initialScenarioTemperatures.length === 2) {
+          items.forEach((item,i)=>{item.draft.temperature=initialScenarioTemperatures[i] ?? '';});
+        }
+      }
       else items[active] = current;
       active = 0;
       enabled = true; normalizeAll(current.weight);

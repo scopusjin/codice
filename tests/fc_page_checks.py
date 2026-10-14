@@ -56,11 +56,19 @@ class FCPageTests(unittest.TestCase):
                 app = self.start(mobile, msil=msil)
                 app.session_state["rt_val"] = 30.
                 app.session_state["tm_val"] = 37.2
+                app.session_state["ta_base_val"] = 20.
+                if not msil:
+                    app.session_state["stima_cautelativa_beta"] = True
+                    app.session_state["__prudent_explicit_ranges_initialized"] = True
+                    app.session_state["ta_other_val"] = 8.
+                app.run()
                 app.button(key="btn_fc_scenarios").click().run()
                 self.assertEqual(list(app.exception), [])
                 self.assertTrue(app.session_state["__fc_draft"]["multiple"])
                 self.assertEqual(app.session_state["__fc_draft"]["activeScenario"], 0)
                 self.assertEqual(len(app.session_state["__fc_draft"]["scenarios"]), 2)
+                self.assertEqual([s["temperature"] for s in app.session_state["__fc_draft"]["scenarios"]],
+                                 [20., 20. if msil else 8.])
                 self.event(app, "use", **temperature_payload())
                 self.assertEqual((app.session_state["Ta_min_beta"], app.session_state["Ta_max_beta"]), (8., 20.))
                 app.button(key="btn_fc_scenarios").click().run()

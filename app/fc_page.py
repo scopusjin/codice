@@ -42,7 +42,8 @@ def open_fc_page(home=FULL_PAGE, *, multiple=False):
         draft = st.session_state["__fc_draft"]
         if not draft.get("multiple"):
             draft = {**draft, "multiple": True, "activeScenario": 0,
-                     "scenarios": [deepcopy(draft), deepcopy(draft)]}
+                     "scenarios": [{**deepcopy(draft), "temperature": temperature}
+                                   for temperature in draft["initialScenarioTemperatures"]]}
         st.session_state["__fc_draft"] = draft
     # A fresh visit starts from scenario 1; in-panel navigation still retains
     # its active scenario across component draft reruns.
@@ -113,6 +114,12 @@ def _current_fc_draft(state, home):
     # previously unknown range; an old draft must not replace a newer home value.
     draft["temperature"] = _scenario_temperature_seed(state)
     draft["temperatureEdited"] = False
+    temperatures = [state.get("ta_base_val")]
+    if home == FULL_PAGE and state.get("stima_cautelativa_beta"):
+        temperatures.append(state.get("ta_other_val"))
+    temperatures = [float(value) for value in temperatures if finite_number(value)]
+    # Preserve input order; a lone value is the starting temperature for both scenarios.
+    draft["initialScenarioTemperatures"] = (temperatures * 2)[:2] if temperatures else [None, None]
     return draft
 
 

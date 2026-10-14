@@ -91,7 +91,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 t0_val=37.2,
                 cf_descr="1.0 (nessuna correzione)",
             ),
-            "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+            "<ul><li>Per la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
             "<ul>"
             "<li>Temperature misurate nel corso dell’ispezione legale:"
             "<ul>"
@@ -116,7 +116,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 t0_val=37.2,
                 cf_descr="1.0 (nessuna correzione)",
             ),
-            "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+            "<ul><li>Per la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
             "<ul>"
             "<li>Temperature misurate nel corso dell’ispezione legale verso le ore 14:30 del 21.08.2026:"
             "<ul>"

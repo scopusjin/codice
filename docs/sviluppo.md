@@ -377,3 +377,12 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Base remota verificata `f4cdbebba1873892ea0d54d9d71c847aa73be053`; contenuti dei file interessati confrontati con il checkout. L’helper della pagina principale e la spiegazione nel pannello iniziano ora con «Da usare se il corpo si è trovato…», mantenendo il resto del testo indicato dall’utente.
 - Nella pagina principale desktop, il gruppo temperatura–FC occupa la larghezza del contenuto: «Specifica più scenari» resta subito accanto ai campi, anziché essere spinto al margine destro. Aggiornate sia la vista singola sia quella con intervalli.
 - Superati i due test di integrazione esistenti mirati all’helper e all’apertura/applicazione degli scenari, con passaggi desktop, mobile e MSIL; diff controllato. Il trasferimento iniziale dei due estremi di temperatura ai nuovi scenari è stato discusso con l’utente e non fa parte di questo intervento.
+
+## Punto di avanzamento — recupero delle temperature nei nuovi scenari, 14 ottobre 2026
+
+- Base remota verificata `183a2cbfb6d1945b81e9d552dfa70868c3a21335`. Dopo l’approvazione dell’utente, i due valori della temperatura nella pagina principale precompilano scenario 1 e scenario 2 nell’ordine di inserimento; con un solo valore valido, anche se è il secondo campo o è zero, vengono precompilati entrambi. Due campi vuoti restano vuoti.
+- Il recupero funziona sia dal pulsante della pagina principale sia attivando «Più scenari» nell’editor singolo. Una temperatura modificata nell’editor prevale sui valori iniziali. Gli scenari già applicati conservano le temperature associate; gli estremi nascosti nella modalità singola e in MSIL non vengono recuperati.
+- Superati 20 test Python mirati, inclusa l’integrazione desktop/mobile/MSIL, e la suite JavaScript degli scenari. Verificati ordine, valori singoli/uguali/negativi/zero/mancanti, ripristino del pannello, modifica prima dell’attivazione e riapertura degli scenari applicati. Diff controllato; nessuna modifica alle formule.
+- Verificata online anche la precedente modifica di posizione: il pulsante desktop ora segue il gruppo temperatura–FC con 16 px di distanza, senza lo spazio vuoto che lo spingeva al margine destro.
+
+- Ulteriore semplificazione testuale richiesta: l’introduzione diventa «Per la valutazione del raffreddamento cadaverico, sono stati stimati i parametri di seguito indicati.». Aspettative dei test testuali esistenti allineate.

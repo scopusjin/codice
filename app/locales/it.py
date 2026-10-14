@@ -542,7 +542,7 @@ def cooling_input_paragraph(
         )
 
     return (
-        "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+        "<ul><li>Per la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
         "<ul>"
         f"<li>{temperature_title}"
         "<ul>"

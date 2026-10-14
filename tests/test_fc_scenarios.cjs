@@ -112,3 +112,16 @@ assert.equal(nodes['use-scenarios'].disabled,true);
 assert.equal(nodes['scenario-temperature-output'].textContent,'—');
 assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura.\nScenario 2: Specificare la temperatura.');
 console.log('FC temperatures: paired values, negative/zero/missing input, water label, restoration and neutral wood passed.');
+
+// Home endpoints survive entering the single editor before enabling scenarios.
+panel.restore({...start,temperature:null,initialScenarioTemperatures:[20,8]},70,null);
+panel.restore(plain(panel.snapshot()),70,null);toggle(true);
+assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[20,8]);
+choose(1);change('scenario-temperature','9','input');toggle(false);toggle(true);
+assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[20,9]);
+panel.restore({...start,temperature:null,initialScenarioTemperatures:[0,0]},70,null);toggle(true);
+assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[0,0]);
+// A temperature changed in the single editor takes precedence over old home endpoints.
+panel.restore({...start,temperature:null,initialScenarioTemperatures:[20,8]},70,null);
+change('scenario-temperature','17','input');toggle(true);
+assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[17,17]);

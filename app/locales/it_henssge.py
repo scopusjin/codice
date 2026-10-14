@@ -172,7 +172,7 @@ def prudent_result_text(*, minimum_text: str, maximum_text: str | None, beyond: 
 
 def prudent_header() -> str:
     return (
-        "Per quanto attiene la valutazione del raffreddamento cadaverico, "
+        "Per la valutazione del raffreddamento cadaverico, "
         "sono stati stimati i parametri di seguito indicati."
     )
 
