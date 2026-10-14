@@ -505,3 +505,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Superati 15 test della schermata raffreddamento, 8 del controllo mobile, 6 della selezione FC e 7 del file caso; incluse sequenze alternate di apertura/chiusura, verifica dei limiti numerici e blocco multi-scenario. Diff controllato. Prossimo passo: verifica visiva dopo aggiornamento e controllo dell’utente sul dispositivo.
 
 - Verifica aggiuntiva: 21 controlli di integrazione del pannello FC superati dopo aver escluso i pulsanti transitori dal ripristino del form. Aggiornati i test che presumevano ancora il legame tra i due range o l’apertura del pannello dai campi temperatura ora bloccati. Preservato l’aggiornamento remoto `752243d9` delle spiegazioni sulla temperatura.
+
+## Punto di avanzamento — spaziatura minimo/massimo nel pannello FC, 14 ottobre 2026
+
+- Base remota verificata `005acb8183ce0c99158e751e189b195c12389434`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`; commit corrente: quello contenente questa voce.
+- Esaminata l’immagine allegata: campi del range eccessivamente larghi e «max» vicino al campo precedente. In `app/fc_panel_frontend/panel.css` e `scenarios.css`, limitata a 144 px la larghezza dei gruppi min/max, con 14 px tra gruppi e 5 px tra etichetta e campo; colonna delle etichette uniforme a 24 px. Su contenitori fino a 400 px, etichette sopra i campi del range per preservare spazio al valore. Sostituite le regole esistenti; calcoli e controlli invariati.
+- Suite del pannello e diff superati. Controllo visivo sul dispositivo dell’utente ancora da eseguire; browser locale non disponibile come documentato nel precedente intervento. Nessun nuovo tentativo fallito. Prossimo passo: verificare la separazione di «max» e la leggibilità dei campi.

@@ -29,11 +29,11 @@
 #fc-full #choice-row{--fc-control-width:188px;display:flex;flex-direction:column;gap:6px;width:calc(2 * var(--fc-control-width) + 26px);max-width:100%;padding:6px 8px 8px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
 #fc-full .choice-heading{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:8px;width:100%}
 #fc-full #fc-heading{font-size:13px;font-weight:500}
-#fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 68px;align-items:center;gap:8px;width:100%}
+#fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,144px)) 68px;align-items:center;column-gap:14px;row-gap:8px;width:100%}
 #fc-full #lo-control{grid-column:1;grid-row:1}
 #fc-full #hi-control{grid-column:2;grid-row:1}
 #fc-full #choice-row[data-range=false] #expand-range{grid-column:2;justify-self:start}
-#fc-full #range-fields>div{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;min-width:0}
+#fc-full #range-fields>div{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:5px;align-items:center;min-width:0}
 #fc-full #range-fields label{font-size:11px;font-weight:400;color:var(--fc-muted);padding-right:3px}
 #fc-full #choice-row[data-range=false] #lo-control label{visibility:hidden}
 #fc-full #range-fields .step{display:grid;grid-template-columns:minmax(0,1fr) 30px 30px;width:100%}

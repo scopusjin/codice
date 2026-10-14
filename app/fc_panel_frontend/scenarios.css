@@ -24,8 +24,8 @@
 #fc-full[data-multiple=false] #choice-row{display:grid;grid-template-columns:max-content minmax(0,1fr) 90px max-content;align-items:center;gap:6px;width:100%;padding:8px;border-color:transparent;background:var(--fc-estimate-bg)}
 #fc-full[data-multiple=false] .choice-heading{display:contents}
 #fc-full[data-multiple=false] #fc-heading{grid-column:1;grid-row:1;white-space:nowrap}
-#fc-full[data-multiple=false] #range-fields{grid-column:2;grid-row:1;gap:6px}
-#fc-full[data-multiple=false] #range-fields>div{grid-template-columns:20px minmax(0,1fr)}
+#fc-full[data-multiple=false] #range-fields{grid-column:2;grid-row:1;column-gap:14px;row-gap:6px}
+#fc-full[data-multiple=false] #range-fields>div{grid-template-columns:24px minmax(0,1fr)}
 #fc-full[data-multiple=false] #range-fields .step{grid-template-columns:minmax(0,1fr) 22px 22px;background:var(--fc-bg)}
 #fc-full[data-multiple=false] #choice-row[data-range=false] #range-fields{grid-template-columns:minmax(0,1fr);max-width:144px}
 #fc-full[data-multiple=false] #choice-row[data-range=false] #lo-control{grid-template-columns:minmax(0,1fr)}
@@ -39,6 +39,7 @@
   #fc-full[data-multiple=false] #range-fields .step{grid-template-columns:minmax(0,1fr) 28px 28px}
 }
 @container fc-panel (max-width:400px){
+  #fc-full[data-multiple=false] #choice-row[data-range=true] #range-fields>div{grid-template-columns:minmax(0,1fr)}
   #fc-full[data-multiple=false] #choice-row[data-range=true] #range-fields{grid-column:1 / -1;grid-row:2}
   #fc-full[data-multiple=false] #choice-row[data-range=true] #expand-range,#fc-full[data-multiple=false] #choice-row[data-range=true] .selected-actions{grid-row:3}
 }
