@@ -1,5 +1,10 @@
 const assert=require('node:assert/strict');
-const {panel,nodes,buttons,context}=require('./fc_panel_harness.cjs');
+const {panel,nodes,buttons,context,html}=require('./fc_panel_harness.cjs');
+// The clothing symbols share the categories' header, not a separate legend row.
+assert.doesNotMatch(html, /<legend title="Indumenti e coperture"/);
+assert.match(html, /id="blanket-counts"><div class="category"><span>Coperte<\/span><span class="covering-icons"/);
+assert.equal((html.match(/class="covering-icons"/g)||[]).length,1);
+assert.match(html, /id="special-covers"/);
 nodes.surface.selectedOptions=[{textContent:'Piano neutro'}];
 let sent;
 context.window.FCBridge={send:action=>{sent={action,...panel.payload()};}};
