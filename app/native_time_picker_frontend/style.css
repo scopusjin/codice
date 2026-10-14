@@ -34,6 +34,16 @@ body {
   box-shadow: 0 0 0 1px var(--primary, #168AC1);
 }
 
+/* The main inspection time follows the same incomplete-field indicator. */
+.time-control.needs-input {
+  border-color: #b33b32;
+  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
+}
+.time-control.needs-input #time-input::placeholder {
+  color: #b33b32;
+  opacity: 1;
+}
+
 #time-input {
   box-sizing: border-box;
   flex: 1 1 auto;
