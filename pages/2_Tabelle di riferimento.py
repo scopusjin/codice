@@ -191,6 +191,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thermal_foil": (
             "Una mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
         ),
+        "body_bag": "Un sacco mortuario in plastica semplice e non imbottito è assimilato per analogia a un telo pesante (FC di riferimento 1.2 per corpo nudo e asciutto, a 70 kg, su appoggio termicamente indifferente). Con indumenti o altre coperture si valuta l’insieme, senza aggiungere un incremento fisso al FC. Lo studio su manichino di [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238) documenta l’effetto isolante di un telo plastico; l’equivalenza con un telo pesante e il FC 1.2 sono proposti per analogia.",
         "adapted": "Adattato da",
     },
     "en": {
@@ -228,6 +229,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
         "thermal_foil": (
             "A metallized emergency blanket wrapped securely around the body is treated by analogy as a thick blanket: a manikin study found thermal insulation comparable to that of a wool blanket. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
         ),
+        "body_bag": "A simple, unpadded plastic body bag is treated by analogy as a thick sheet (reference FC 1.2 for a naked, dry, 70 kg body on a thermally indifferent support). Clothing and other coverings are assessed together, without adding a fixed increment to the FC. The manikin study by [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238) documents the insulating effect of a plastic sheet; equivalence to a thick sheet and FC 1.2 are proposed by analogy.",
         "adapted": "Adapted from",
     },
 }
@@ -467,6 +469,7 @@ def _render_henssge_base_table(language: str) -> None:
     st.caption(text['note'])
     st.caption(text['lower_trunk'])
     st.caption(text['thermal_foil'])
+    st.caption(text['body_bag'])
     st.caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
 
 
