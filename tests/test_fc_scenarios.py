@@ -266,6 +266,29 @@ class FCScenarioTests(unittest.TestCase):
         self.assertIsNone(matching_scenario_description(state, [1., 1.4], 70.))
         self.assertIsNone(matching_scenario_description(state, [1.35, 1.4], 100.))
 
+    def test_single_configuration_range_includes_conditions_without_changing_results(self):
+        import datetime
+        from app.graphing_cooling import compute_cooling_state
+        state = {"ta_base_val": 20.}
+        payload = {"range": [1.7, 2.3], "base_range": [1.7, 2.3], "weight": 70.,
+                   "manual": True, "description": "corpo asciutto, coperta spessa, su pavimento interno",
+                   "temperature": 20., "draft": {}}
+        apply_choice(state, payload)
+        args = dict(input_rt=30., input_ta=20., input_tm=37.2, input_w=70.,
+                    fattore_correzione=1.7, data_ora_ispezione=datetime.datetime(2026, 10, 10, 9),
+                    skip_warnings=False)
+        with_conditions = compute_cooling_state(**args, cooling_options=state)
+        text = "".join(with_conditions.detail_blocks)
+        self.assertIn("1.70 – 2.30 (corpo asciutto, coperta spessa, adagiato su pavimento)", text)
+        self.assertIsNone(matching_temperature_scenarios(state, [1.7, 2.3], 70., (20., 20.)))
+        self.assertIsNone(matching_scenario_description(state, [1.6, 2.3], 70.))
+        self.assertIsNone(matching_scenario_description(state, [1.7, 2.3], 80.))
+        state.pop("__fc_applied_choice")
+        without_conditions = compute_cooling_state(**args, cooling_options=state)
+        for field in ("t_min_raff_henssge", "t_max_raff_henssge", "Qd_min", "Qd_max"):
+            self.assertEqual(getattr(with_conditions, field), getattr(without_conditions, field))
+        self.assertNotIn("coperta spessa", "".join(without_conditions.detail_blocks))
+
     def test_actual_cooling_output_includes_conditions_without_changing_results(self):
         import datetime
         from app.graphing_cooling import compute_cooling_state
