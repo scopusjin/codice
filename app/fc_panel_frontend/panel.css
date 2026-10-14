@@ -51,11 +51,11 @@
 #fc-full #environment-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px}
 #fc-full #water-fields{display:flex;align-items:center;gap:5px;font-size:12px}
 #fc-full #water{width:98px;padding:4px 5px}
-#fc-full #scenario-temperature-row{display:flex;align-items:center;gap:10px;max-width:100%;font-size:14px}
+#fc-full #scenario-temperature-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px;max-width:100%;font-size:14px}
 #fc-full #scenario-temperature-label{min-width:0;font-weight:500}
 #fc-full .temperature-control{display:flex;flex:none}
-#fc-full .temperature-control .step{background:var(--fc-bg);box-shadow:inset 0 0 0 1px #d6ad21}
-#fc-full #scenario-temperature{width:80px;min-height:40px;padding:5px 6px;font-size:16px}
+#fc-full .temperature-control .step{background:transparent}
+#fc-full #scenario-temperature{width:60px;min-height:40px;padding:5px 4px;font-size:16px;background:var(--fc-bg);border-color:#d6ad21}
 #fc-full #scenario-temperature-unit{width:24px;text-align:center;color:var(--fc-muted);font-size:13px}
 #fc-full .temperature-control button{width:30px;min-height:40px}
 #fc-full #counts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;margin:2px 0 6px;padding:10px 9px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
@@ -157,7 +157,7 @@
 }
 
 /* Contextual help floats above the panel without changing its layout. */
-#fc-full #temperature-help-anchor{display:flex;align-items:center;gap:4px;min-width:0}
+#fc-full #temperature-help-anchor{display:flex;align-items:center;flex:none;gap:4px;min-width:0}
 #fc-full #environment-row[data-immersed=true] #temperature-help-button{display:none}
 #fc-full .counter-help span{width:18px;height:18px;line-height:1;border-color:color-mix(in srgb,var(--fc-ink) 58%,transparent);opacity:.8}
 #fc-full .fc-help-popover{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(20rem,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;padding:.55rem .65rem;border:1px solid var(--fc-line);border-radius:.48rem;background:var(--fc-bg);color:var(--fc-ink);box-shadow:0 .35rem 1rem rgba(0,0,0,.14);font:400 .8rem/1.35 Arial,sans-serif;white-space:normal}

@@ -478,3 +478,10 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Base remota verificata `4c022e4c1ccf6a345f419a02e60af8c5fe19906a`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`; commit corrente: quello contenente questa voce.
 - Su richiesta esplicita, `updateTemperatureLabel()` in `app/fc_panel_frontend/scenarios.js` mostra «T amb media» per il layout mobile, riconosciuto con lo stesso criterio `(pointer: coarse)` del CSS esistente. Etichetta desktop, acqua, helper, nome accessibile e calcoli invariati. La scritta si aggiorna anche al cambio del criterio responsive.
 - Controllo sintattico JavaScript, suite del pannello e diff superati. Verifica visiva sul dispositivo dell’utente ancora da eseguire; nessun tentativo fallito. Prossimo passo: controllo della scritta sul mobile.
+
+## Punto di avanzamento — campo temperatura compatto e bordo sul valore, 14 ottobre 2026
+
+- Base remota verificata `b472bc735a3d2396071228f0d93e41cf9c8246da`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`; commit corrente: quello contenente questa voce.
+- Richiesta esplicita: nel pannello FC mantenere etichetta e campo sulla stessa riga quando lo schermo lo consente, restringendo il campo; bordo ocra intorno al solo valore, esclusi −/+, su mobile e desktop.
+- `app/fc_panel_frontend/panel.css`: campo temperatura da 80 a 60 px, spazio tra etichetta e controllo da 10 a 6 px; il gruppo etichetta/helper mantiene la propria larghezza naturale. La riga flex può andare a capo quando manca spazio. Rimosso il bordo simulato del gruppo e applicato il colore ocra al bordo del solo input. Pulsanti, helper, dati e calcoli invariati; modificate le regole esistenti senza aggiungere override.
+- Suite del pannello e diff superati. Verifica visiva locale tentata ma non eseguibile: runtime Playwright presente senza browser Chromium installato. Non è un tentativo di layout fallito; l’esito grafico resta da verificare sul dispositivo dell’utente. Prossimo passo: controllo mobile/desktop, compresi valori negativi e decimali.
