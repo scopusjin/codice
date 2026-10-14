@@ -179,6 +179,7 @@ def _consume_event(event):
         st.switch_page("pages/9_Reference.py")
     elif action == "tables":
         st.session_state["__fc_tables_return"] = True
+        st.session_state["__fc_tables_scroll"] = True
         st.switch_page(TABLES_PAGE)
 
 
