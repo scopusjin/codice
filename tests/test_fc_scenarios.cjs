@@ -93,9 +93,9 @@ change('scenario-temperature','','input');choose(1);
 assert.equal(nodes['use-scenarios'].disabled,true);
 assert.equal(nodes['scenario-temperature-output'].textContent,'—');
 assert.match(summaryValues()[0],/T\. ambientale media —/);
-assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.');
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura.');
 change('scenario-temperature','','input');
-assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.\nScenario 2: Specificare la temperatura dell’acqua.');
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura.\nScenario 2: Specificare la temperatura.');
 change('scenario-temperature','8','input');
 choose(0);change('scenario-temperature','0','input');
 assert.equal(nodes['use-scenarios'].disabled,false);
@@ -110,5 +110,5 @@ assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[19.5,19
 panel.restore({...start,temperature:undefined},70,null);toggle(true);
 assert.equal(nodes['use-scenarios'].disabled,true);
 assert.equal(nodes['scenario-temperature-output'].textContent,'—');
-assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.\nScenario 2: Specificare la temperatura ambientale media.');
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura.\nScenario 2: Specificare la temperatura.');
 console.log('FC temperatures: paired values, negative/zero/missing input, water label, restoration and neutral wood passed.');

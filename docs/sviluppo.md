@@ -361,3 +361,5 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Suite JavaScript degli scenari superata e diff controllato. Prossimo passo: verifica online della singola occorrenza dell’avviso e della sua permanenza nel caso singolo.
 
 - Verifica online completata sul commit applicativo `545a0df910bfd7440af2ff516b4297a344979b86`: con più scenari è visibile soltanto l’avviso numerato; disattivando «Più scenari» resta visibile l’avviso locale sul FC. Nessun avviso necessario eliminato.
+
+- Formulazione successiva richiesta dall’utente, base verificata `fa706fd5805f89fd7f34221440ae23cd19669b06`: «Scenario 1: selezionare le condizioni del corpo per ricevere suggerimenti o scrivere il FC. Specificare la temperatura.». Il numero segue lo scenario; la richiesta del FC precede quella della temperatura e ciascuna compare soltanto se necessaria. Gli altri messaggi di validazione restano specifici. Modifica testuale in `scenarios.js`, aspettative dei test esistenti allineate; suite JavaScript degli scenari e diff superati. Nessuna modifica ai calcoli o alla validazione.

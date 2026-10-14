@@ -99,9 +99,10 @@
     q('remove-scenario').hidden = items.length <= 2;
     const group = combined(), missing = items.flatMap((item,i)=>{
       const reasons=[];
-      if(!Number.isFinite(item.temperature))reasons.push(item.conditions.state==='Immerso'?
-        'Specificare la temperatura dell’acqua.':'Specificare la temperatura ambientale media.');
-      if(item.error && item.error!=='Specificare la temperatura.')reasons.push(item.error);
+      if(item.error && item.error!=='Specificare la temperatura.')reasons.push(
+        item.error==='Inserire il FC o selezionare le condizioni del corpo.'?
+        'selezionare le condizioni del corpo per ricevere suggerimenti o scrivere il FC.':item.error);
+      if(!Number.isFinite(item.temperature))reasons.push('Specificare la temperatura.');
       return reasons.length?['Scenario '+(i+1)+': '+reasons.join(' ')]:[];
     });
     q('scenario-output').textContent=group?(group.range[0]===group.range[1]?group.range[0].toFixed(2):group.range.map(v=>v.toFixed(2)).join(' – ')):'—';
