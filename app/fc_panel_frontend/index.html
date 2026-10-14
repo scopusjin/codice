@@ -40,7 +40,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <label class="check"><input id="thermal-foil" type="checkbox">Mantellina termica</label>
 <label class="check"><input id="body-bag" type="checkbox">Sacco mortuario</label>
 </div>
-<details class="hint"><summary>Esempi e coperture aggiuntive</summary><p><strong>Coperte spesse:</strong> per esempio una coperta pesante di lana. <strong>Molto pesanti / piumoni:</strong> coperture molto spesse o imbottite.</p><p>Una mantellina termica metallizzata ben avvolta è assimilata a una coperta spessa (FC di riferimento 1.8; stesse regole per indumenti, appoggio e peso). Vedi Henriksson et al., 2009 nelle note della tabella di riferimento. Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di <a href="https://doi.org/10.1017/S1049023X00007238" target="_blank" rel="noopener noreferrer">Henriksson et al., 2009</a> documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario. Indumenti e coperture sono valutati insieme, senza incrementi fissi del FC. Le opzioni selezionate sono conteggiate automaticamente: non aggiungerle anche nei contatori.</p></details>
+
 </fieldset>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti elementi particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="one">Sì, uno</option><option value="several">Sì, più di uno</option></select></div>
 <div class="conditional" id="feather-row" hidden><label for="feather">Piumone di piume molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
@@ -66,6 +66,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><div id="example-list"></div></div>
+<div id="cover-examples"><strong>Esempi di coperture</strong><p><strong>Coperte spesse:</strong> per esempio una coperta pesante di lana. <strong>Molto pesanti / piumoni:</strong> coperture molto spesse o imbottite.</p><p>Una mantellina termica metallizzata ben avvolta è assimilata a una coperta spessa (FC di riferimento 1.8; stesse regole per indumenti, appoggio e peso). Vedi Henriksson et al., 2009 nelle note della tabella di riferimento. Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di <a href="https://doi.org/10.1017/S1049023X00007238" target="_blank" rel="noopener noreferrer">Henriksson et al., 2009</a> documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario. Indumenti e coperture sono valutati insieme, senza incrementi fissi del FC. Le opzioni selezionate sono conteggiate automaticamente: non aggiungerle anche nei contatori.</p></div>
 <div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
 </div>
 <a id="open-tables" href="#tables-page">Apri le tabelle →</a>
@@ -527,6 +528,7 @@ function recalc(){
   if(!showAir)c={...c,air:'still',wind:false};
   q('#air-fields').hidden=state==='Immerso';
   q('#water-fields').hidden=state!=='Immerso';
+  q('#cover-examples').hidden=state==='Immerso';
   q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
   q('#isolation-row').hidden=state!=='Asciutto'||c.m+c.h>0||!isMany(c);
   q('#blanket-volume-row').hidden=state!=='Asciutto'||c.m+c.h<=1||(c.h>0&&c.feather!=='no');

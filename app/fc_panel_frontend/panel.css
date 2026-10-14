@@ -141,8 +141,6 @@
 #fc-full #coverings-box legend{display:flex;gap:5px;padding:0 5px;color:var(--fc-muted);line-height:1}
 #fc-full #coverings-box legend svg{width:16px;height:16px}
 #fc-full #coverings-box #counts{border:0;padding:0;background:transparent}
-#fc-full #coverings-box .hint{margin:0;font-size:11px}
-#fc-full #coverings-box summary{padding:2px 0}
 #fc-full #coverings-box #special-covers{margin:0;gap:0 16px}
 @media(pointer:fine){
   #fc-full[data-desktop=true] #counts input{width:26px;min-height:26px;font-size:13px}
