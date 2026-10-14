@@ -308,16 +308,16 @@ class FCPageTests(unittest.TestCase):
                 for key in ("ta_base_val", "ta_other_val"):
                     field = key + ("_range" if key == "ta_base_val" and not mobile else "")
                     component_key = "mortem_decimal_" + field
-                    if mobile:
-                        controls = [json.loads(c.proto.json) for c in app.get("bidi_component")
-                                    if c.proto.id.endswith("-" + component_key + "-v2")]
-                    else:
-                        controls = [json.loads(c.proto.json_args) for c in app.get("component_instance")
-                                    if c.proto.id.endswith("-" + component_key)]
+                    v1 = [json.loads(c.proto.json_args) for c in app.get("component_instance")
+                          if c.proto.id.endswith("-" + component_key)]
+                    v2 = [json.loads(c.proto.json) for c in app.get("bidi_component")
+                          if c.proto.id.endswith("-" + component_key + "-v2")]
+                    # Some desktop temperature inputs also use the V2 renderer.
+                    controls = v1 + v2
                     self.assertEqual(len(controls), 1, field)
                     self.assertFalse(controls[0]["disabled"], field)
                     self.assertTrue(controls[0]["edit_on_click"], field)
-                    if mobile:
+                    if v2:
                         self.assertFalse(controls[0]["temperature_action"], field)
                         self.assertFalse(controls[0]["suggest_enabled"], field)
                     # A stale inline value event cannot detach temperatures from scenarios.
