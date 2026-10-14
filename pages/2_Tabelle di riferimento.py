@@ -189,7 +189,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "e le coperte sul tronco inferiore."
         ),
         "thermal_foil": (
-            "La mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
+            "Una mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
         ),
         "adapted": "Adattato da",
     },
