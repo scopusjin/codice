@@ -8,7 +8,7 @@
   function resize() {
     post('streamlit:setFrameHeight', {height:Math.ceil(root.getBoundingClientRect().height) + 20});
   }
-  function send(action) {
+  function send(action, reference) {
     if (!initialized || navigating) return;
     clearTimeout(timer);
     timer = null;
@@ -16,7 +16,7 @@
     // A pending incomplete input is a draft, never a chosen FC.
     if (action === 'use' && document.getElementById('use').disabled) return;
     navigating = action !== 'draft';
-    post('streamlit:setComponentValue', {value:{...payload, instance, action,
+    post('streamlit:setComponentValue', {value:{...payload, instance, action, ...(reference ? {reference} : {}),
       event_id:crypto.randomUUID()}});
   }
   function schedule() {

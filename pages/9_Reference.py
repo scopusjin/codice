@@ -10,6 +10,18 @@ install_minimal_mobile_shell()
 # Titolo grande e in grassetto
 st.markdown("# **Riferimenti bibliografici**")
 
+if st.session_state.get("__fc_active"):
+    if st.button("← Indietro al FC", key="back_to_fc_top"):
+        st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
+    selected = st.session_state.get("__fc_reference", {})
+    if selected.get("full"):
+        st.subheader(selected.get("short", "Riferimento selezionato"))
+        st.write(selected["full"])
+        url = selected.get("url", "")
+        if url.startswith("https://doi.org/"):
+            st.markdown(f"[DOI: {url.removeprefix('https://doi.org/')}]({url})")
+        st.divider()
+
 # Testo in markdown: corsivo solo per i titoli di libri/articoli
 REFERENCES_MD = """
 - *Handbook of Forensic Medicine*. Editor: Burkhard Madea, 2022 — Chapter 7: Post-mortem changes and time since death.
@@ -40,8 +52,8 @@ REFERENCES_MD = """
 st.caption("Le note delle singole tabelle e schede indicano il punto della fonte consultata. «Citato in» distingue i dati ripresi dal libro dagli originali consultati direttamente; i numeri delle tabelle nelle citazioni appartengono alle fonti.")
 st.markdown(REFERENCES_MD)
 
-if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page(FULL_PAGE)
+if st.button("← Indietro al FC" if st.session_state.get("__fc_active") else "⬅️ Torna alla pagina principale", key="back_home"):
+    st.switch_page(st.session_state.get("__fc_home", FULL_PAGE) if st.session_state.get("__fc_active") else FULL_PAGE)
 
 st.markdown(
     """

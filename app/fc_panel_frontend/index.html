@@ -66,7 +66,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><div id="example-list"></div></div>
-<div id="cover-examples"><strong>Esempi di coperture</strong><p><strong>Coperte spesse:</strong> per esempio una coperta pesante di lana. <strong>Molto pesanti / piumoni:</strong> coperture molto spesse o imbottite.</p><p>Una mantellina termica metallizzata ben avvolta è assimilata a una coperta spessa (FC di riferimento 1.8; stesse regole per indumenti, appoggio e peso). Vedi Henriksson et al., 2009 nelle note della tabella di riferimento. Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di <a href="https://doi.org/10.1017/S1049023X00007238" target="_blank" rel="noopener noreferrer">Henriksson et al., 2009</a> documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario. Indumenti e coperture sono valutati insieme, senza incrementi fissi del FC. Le opzioni selezionate sono conteggiate automaticamente: non aggiungerle anche nei contatori.</p></div>
+
 <div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
 </div>
 <a id="open-tables" href="#tables-page">Apri le tabelle →</a>
@@ -105,6 +105,7 @@ function waterNearZero(){const temperature=temperatureValue();return state==='Im
 function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h,...(c.garmentThin===undefined?[]:[c.garmentThin,c.garmentThick,c.teli,c.lightCover])].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
+  thermalCover: {short:'Henriksson et al., 2009 · studio su manichino, analogia per le coperture.',full:'Henriksson O, Lundgren JP, Kuklane K, Holmér I, Bjornstig U. Protection against cold in prehospital care—thermal insulation properties of blankets and rescue bags in different wind conditions. Prehosp Disaster Med. 2009;24(5):408–415. doi:10.1017/S1049023X00007238. L’assimilazione del sacco mortuario a un telo pesante è una valutazione degli autori dell’app; lo studio non attribuisce un FC cadaverico al sacco mortuario.',url:'https://doi.org/10.1017/S1049023X00007238'},
   waterExperiments: {"short": "Henssge, Brinkmann e Püschel, 1984 · immersione in acqua quasi ferma.", "full": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. doi:10.1007/BF00200284. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.7. Le prove distinguono acqua a circa 10–20 °C e prossima a 0 °C. Riguardano corpi nudi sospesi in acqua quasi ferma; non verificano tutte le condizioni di immersione.", "url": "https://doi.org/10.1007/BF00200284"},
   flowingWater: {"short": "Henssge in Madea, 2016 · acqua corrente.", "full": "Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, sezione sull’immersione. Henssge discute una prova di Brown e Marshall su un corpo molto piccolo, in acqua in movimento a circa 5 m/ora, ricondotta a un FC di circa 0.35. È un’osservazione limitata, distinta dalla serie in acqua quasi ferma della tab. 6.7; non consente di generalizzare a ogni corrente."},
 
@@ -414,13 +415,10 @@ function referenceLabel(r,c){
 }
 function coverConvention(c){if(c.state==='Immerso')return '';return [c.thermalFoil?'La mantellina termica è conteggiata come una coperta spessa (FC di riferimento 1.8).':'',c.bodyBag?'Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.':''].filter(Boolean).join(' ');}
 function paragraph(parent,text){const p=document.createElement('p');p.textContent=text;parent.append(p);return p;}
-function sourceLink(parent,label,url){if(!url){paragraph(parent,label);return;}const a=document.createElement('a');a.textContent=label;a.href=url;a.target='_blank';a.rel='noopener noreferrer';const p=document.createElement('p');p.append(a);parent.append(p);}
 function sourceDetails(parent,source){
-  const details=document.createElement('details'),summary=document.createElement('summary');
-  summary.textContent=source.short;details.append(summary);
-  paragraph(details,source.full);
-  if(source.url)sourceLink(details,'Riferimento bibliografico',source.url);
-  parent.append(details);
+  const link=document.createElement('a');link.textContent=source.short;link.href='#reference-page';
+  link.addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('reference',source);});
+  const row=document.createElement('p');row.append(link);parent.append(row);
 }
 function showSource(){
   let c={...data(),state,water:q('#water').value};
@@ -439,14 +437,11 @@ function showSource(){
   if(sourceIds.has('wetSupport'))sourceIds.add('support');
   for(const id of ['wetMixed','wetBlankets','wetSupport','wetNakedAccelerating','soakedMattress'])sourceIds.delete(id);
   for(const id of sourceIds)sourceDetails(citations,SOURCES[id]);
-  if(examples.length){
-    const details=document.createElement('details'),summary=document.createElement('summary');
-    summary.textContent='Fonti degli esempi';details.append(summary);
-    const seen=new Set();
-    for(const e of examples)if(!seen.has(e.sourceText)){
-      seen.add(e.sourceText);sourceLink(details,e.sourceText,e.url);
-    }
-    citations.append(details);
+  if(state!=='Immerso'&&(c.thermalFoil||c.bodyBag))sourceDetails(citations,SOURCES.thermalCover);
+  const seenExamples=new Set();
+  for(const e of examples)if(!seenExamples.has(e.sourceText)){
+    seenExamples.add(e.sourceText);
+    sourceDetails(citations,{short:(SOURCES[e.source]?.short||'Fonte')+' · '+e.title,full:e.sourceText,url:e.url});
   }
   const w=num(q('#weight'));
   const active=result.range&&suggestion&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
@@ -528,7 +523,6 @@ function recalc(){
   if(!showAir)c={...c,air:'still',wind:false};
   q('#air-fields').hidden=state==='Immerso';
   q('#water-fields').hidden=state!=='Immerso';
-  q('#cover-examples').hidden=state==='Immerso';
   q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
   q('#isolation-row').hidden=state!=='Asciutto'||c.m+c.h>0||!isMany(c);
   q('#blanket-volume-row').hidden=state!=='Asciutto'||c.m+c.h<=1||(c.h>0&&c.feather!=='no');

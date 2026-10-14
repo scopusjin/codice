@@ -140,7 +140,7 @@ def _consume_event(event):
         return
     st.session_state["__fc_last_event"] = event_id
     action = event.get("action")
-    if action not in {"draft", "back", "tables", "use"}:
+    if action not in {"draft", "back", "tables", "reference", "use"}:
         return
     if action == "use":
         try:
@@ -169,6 +169,14 @@ def _consume_event(event):
         _return_to_form()
     elif action == "back":
         _return_to_form()
+    elif action == "reference":
+        reference = event.get("reference")
+        if isinstance(reference, dict):
+            st.session_state["__fc_reference"] = {
+                key: value for key, value in reference.items()
+                if key in {"short", "full", "url"} and isinstance(value, str) and len(value) <= 8000
+            }
+        st.switch_page("pages/9_Reference.py")
     elif action == "tables":
         st.session_state["__fc_tables_return"] = True
         st.switch_page(TABLES_PAGE)

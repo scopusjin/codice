@@ -524,3 +524,15 @@ class FCPageTests(unittest.TestCase):
                 self.event(app, "back", weight=74.0)
                 self.assertEqual(app.session_state["rt_val"], 31.8)
                 self.assert_weight(app.session_state, 74.0)
+
+    def test_reference_opens_selected_source_and_returns_to_fc(self):
+        app = self.start(False)
+        self.open(app)
+        reference = {"short": "Henriksson et al., 2009", "full": "Riferimento completo selezionato", "url": "https://doi.org/10.1017/S1049023X00007238"}
+        self.event(app, "reference", reference=reference, weight=70., draft={"state": "Asciutto", "lo": "1.80", "hi": "1.80", "thermalFoil": True})
+        self.assertIn(reference["short"], [item.value for item in app.subheader])
+        self.assertEqual(app.session_state["__fc_reference"], reference)
+        app.button(key="back_to_fc_top").click().run()
+        self.assertEqual(list(app.exception), [])
+        self.assertTrue(app.session_state["__fc_active"])
+        self.assertTrue(app.session_state["__fc_draft"]["thermalFoil"])
