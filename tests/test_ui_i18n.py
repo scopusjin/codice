@@ -41,11 +41,10 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             i18n.ui_text("full.henssge_not_applicable_help"),
             "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"
             "• Non è possibile stabilire che il luogo di rinvenimento del corpo coincida con il luogo del decesso.\n"
-            "• Presenza di una fonte di calore nelle immediate vicinanze del corpo.\n"
-            "• Presenza di riscaldamento a pavimento sotto il corpo.\n"
+            "• Presenza di una fonte di calore nelle immediate vicinanze del corpo o di pavimento riscaldato sotto ad esso.\n"
             "• Ipotermia accertata o sospetta (temperatura corporea iniziale < 35 °C).\n"
             "• Impossibilità di determinare la temperatura ambientale media.\n"
-            "• Impossibilità di stimare il fattore correttivo di Henssge.\n"
+            "• Impossibilità di stimare il fattore di correzione.\n"
             "• Aumento significativo della temperatura ambientale (da valori bassi a elevati).",
         )
         self.assertEqual(

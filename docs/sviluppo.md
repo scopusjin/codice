@@ -459,3 +459,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Formule, intervalli di calcolo, peso e altre funzioni invariati. Il comando a valore singolo resta assente con scenari a temperature diverse.
 - Superati 13 test delle pagine cooling e 7 test del componente V2, compresa la transizione della modalità dal callback inline e l’assenza dell’azione nei campi bloccati. Controllati sintassi e diff.
 - Da verificare sul telefono dell’utente: leggibilità e posizione del comando inline. Nessuna ulteriore modifica concordata.
+
+## Punto di avanzamento — testo Henssge non applicabile, 14 ottobre 2026
+
+- Base remota verificata `267ebf72886e3278233062e476dfcaa6123210b6`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Commit corrente: quello contenente questa voce.
+- Applicata la formulazione italiana richiesta dall’utente in `app/locales/it_ui.py`, chiave `full.henssge_not_applicable_help`, condivisa dagli helper desktop/mobile: unite fonte di calore e pavimento riscaldato; sostituito «fattore correttivo di Henssge» con «fattore di correzione». Altre voci e calcoli invariati.
+- Aggiornata l’aspettativa del test esistente; otto test `test_ui_i18n.py`, compilazione e diff superati. Verifica manuale dell’helper ancora da eseguire; nessun tentativo fallito. Prossimo passo: controllo del testo nell’app dopo l’aggiornamento.
