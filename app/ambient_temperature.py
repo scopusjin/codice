@@ -1,6 +1,7 @@
 """Independent ambient-temperature input mode; calculation bounds stay explicit."""
 
 from app.cooling_inputs import finite_number
+from app.fc_scenarios import scenario_temperature_bounds
 
 MODE_KEY = "ambient_temperature_range"
 
@@ -30,14 +31,26 @@ def sync_temperature_bounds(state):
         state.pop("Ta_max_beta", None)
 
 
+def apply_scenario_temperatures(state):
+    choice = state.get("__fc_applied_choice") or {}
+    bounds = scenario_temperature_bounds(choice) if choice.get("scenarios") else None
+    if bounds is None:
+        return False
+    state[MODE_KEY] = bounds[0] != bounds[1]
+    state["ta_base_val"], state["ta_other_val"] = bounds
+    return True
+
+
 def render_temperature_inputs(*, mobile, render_label):
     import streamlit as st
     from app import i18n
 
+    from_scenarios = apply_scenario_temperatures(st.session_state)
     with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
         if not mobile:
             render_label("T. ambientale media", i18n.ui_text("full.ta_mean_help"), "ta_mode")
-        st.checkbox("Intervallo di temperatura", key=MODE_KEY,
+        st.checkbox("Intervallo di temperatura", key=MODE_KEY, disabled=from_scenarios,
+                    help="Temperature ricavate dai singoli scenari; modificale nel pannello FC." if from_scenarios else None,
                     on_change=set_temperature_mode, args=(st.session_state,))
     interval = st.session_state[MODE_KEY]
     with st.container(horizontal=not mobile, gap="xsmall"):
@@ -45,6 +58,6 @@ def render_temperature_inputs(*, mobile, render_label):
                 [("ta_other_val", "full.ta_other_input")] if interval else []):
             with st.container(key="cooling_value_" + key):
                 st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
-                                step=0.1, format="%.1f", key=key, label_visibility="collapsed",
+                                step=0.1, format="%.1f", key=key, label_visibility="collapsed", disabled=from_scenarios,
                                 **({} if mobile else {"_mortem_compact_label": ""}))
     sync_temperature_bounds(st.session_state)
