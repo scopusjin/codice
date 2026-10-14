@@ -312,7 +312,7 @@ function evaluateFixedAir(c){
 }
 
 function evaluateFC(c){
-  if(!['Asciutto','Bagnato','Immerso'].includes(c.state))return pending('Specificare se il corpo è asciutto, bagnato o immerso.');
+  if(!['Asciutto','Bagnato','Immerso'].includes(c.state))return pending('Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.');
   if(c.state==='Immerso')return evaluateFixedAir(c);
   if(!validCounts(c))return pending('Correggere i conteggi.');
   const air=c.air||(c.wind?'continuous':'still');

@@ -541,3 +541,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base remota `0396cb03`, branch `refactor-tanatology-keys`. Aggiunta la scritta «Cadavere:» prima dei pulsanti Asciutto/Bagnato/Immerso, sulla stessa riga esclusivamente nel pannello desktop, usando il criterio `data-desktop` già esistente.
 - Mobile e logica di selezione invariati. Suite UI del pannello e controllo diff superati. Prossimo passo: verifica utente sul desktop.
+
+## Punto di avanzamento — messaggio iniziale generico FC, 14 ottobre 2026
+
+- Base remota `9905c225`, branch `refactor-tanatology-keys`. Sostituito su richiesta il messaggio che chiedeva lo stato asciutto/bagnato/immerso con: «Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.»
+- Modifica esclusivamente testuale nel pannello FC. Controllata la sostituzione unica e il diff; logica invariata.
