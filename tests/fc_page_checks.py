@@ -307,10 +307,24 @@ class FCPageTests(unittest.TestCase):
                 before = deepcopy(app.session_state["__fc_applied_choice"])
                 for key in ("ta_base_val", "ta_other_val"):
                     field = key + ("_range" if key == "ta_base_val" and not mobile else "")
-                    # Even a stale value event must not detach temperatures from scenarios.
-                    self.change_decimal(app, "mortem_decimal_" + field, 25.)
+                    component_key = "mortem_decimal_" + field
+                    if mobile:
+                        controls = [json.loads(c.proto.json) for c in app.get("bidi_component")
+                                    if c.proto.id.endswith("-" + component_key + "-v2")]
+                    else:
+                        controls = [json.loads(c.proto.json_args) for c in app.get("component_instance")
+                                    if c.proto.id.endswith("-" + component_key)]
+                    self.assertEqual(len(controls), 1, field)
+                    self.assertFalse(controls[0]["disabled"], field)
+                    self.assertTrue(controls[0]["edit_on_click"], field)
+                    if mobile:
+                        self.assertFalse(controls[0]["temperature_action"], field)
+                        self.assertFalse(controls[0]["suggest_enabled"], field)
+                    # A stale inline value event cannot detach temperatures from scenarios.
+                    self.change_decimal(app, component_key, 25.)
                     self.assertEqual((app.session_state["ta_base_val"], app.session_state["ta_other_val"]), (8., 20.))
-                    app.button(key="btn_fc_scenarios").click().run()
+                    # Clicking either displayed endpoint must open the existing scenario editor.
+                    self.open_from_fc(app, field)
                     draft = app.session_state["__fc_draft"]
                     self.assertTrue(draft["multiple"])
                     self.assertEqual([s["temperature"] for s in draft["scenarios"]], ["20.0", "8.0"])
