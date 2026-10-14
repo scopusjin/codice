@@ -29,6 +29,7 @@
     if (event.source !== window.parent || event.data?.type !== 'streamlit:render') return;
     const args = event.data.args || {};
     document.documentElement.style.colorScheme = args.theme_base === 'dark' ? 'dark' : 'light';
+    window.FCPanel.setDesktop(args.desktop === true);
     if (!initialized || instance !== args.instance) {
       instance = args.instance;
       window.FCPanel.setExamples(args.examples);

@@ -60,11 +60,11 @@ assert 'pandas' not in sys.modules
         self.assertEqual(rows['Caso H15']['weight'], 67.5)
         self.assertEqual(rows['Caso B54']['weight'], 63.5)
         self.assertEqual(rows['Caso 33']['weight'], 62)
-        self.assertIn('41,6', rows['Caso 33']['conditions'])
+        self.assertIn('41.6', rows['Caso 33']['conditions'])
         self.assertIn('Metodo non applicato', rows['Caso 33']['notes'])
         self.assertIn('non verificato', rows['Caso 6']['notes'])
         self.assertEqual(sum(e['type'] == 'Caso operativo' for e in load_examples()), 6)
-        self.assertEqual(sum(e['type'] in ('Esperimento', 'Esperimenti') for e in load_examples()), 19)
+        self.assertEqual(sum(e['type'] in ('Esperimento', 'Esperimenti') for e in load_examples()), 20)
         self.assertEqual(sum(e['type'] == 'Simulatore' for e in load_examples()), 9)
         for row in rows.values():
             self.assertTrue(row.get('weight') or row.get('weights') or row.get('virtualWeight'))

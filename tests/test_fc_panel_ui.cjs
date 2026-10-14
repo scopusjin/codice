@@ -26,7 +26,7 @@ assert.equal(nodes.lo.value,'1.25');
 nodes.use.events.click();
 assert.equal(sent.action,'use');assert.deepEqual([...sent.range],[1.25,1.3]);
 assert.equal(sent.manual,true);assert.deepEqual([...sent.base_range],[1.25,1.3]);
-assert(sent.description.includes('alcuni strati di tessuti leggeri'));
+assert(sent.description.includes('vari strati di indumenti o teli leggeri'));
 panel.restore(draft,100);
 assert.equal(nodes.lo.value,'1.25');assert.equal(nodes.hi.value,'1.30');
 buttons.find(x=>x.dataset.state==='Immerso').events.click();nodes.use.events.click();
@@ -134,7 +134,7 @@ const fs=require('fs'),vm=require('vm'),path=require('path');
 const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/fc_examples.json'),'utf8'));
 const messages=[],events={},rootEvents={};let restored=0,callback=null,openingDraft;
 const parent={postMessage:m=>messages.push(m)};
-const win={parent,FCPanel:{setExamples(examples){assert.deepEqual(examples,catalog);},restore(draft){restored++;openingDraft=draft;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
+const win={parent,FCPanel:{setDesktop(){},setExamples(examples){assert.deepEqual(examples,catalog);},restore(draft){restored++;openingDraft=draft;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
 const root={getBoundingClientRect:()=>({height:600}),addEventListener:(name,cb)=>rootEvents[name]=cb};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend/bridge.js'),'utf8'),{
  window:win,document:{getElementById:id=>id==='fc-full'?root:{disabled:false},documentElement:{style:{}}},
@@ -179,7 +179,7 @@ assert.match(panel.payload().description,/nudo, sotto una coperta spessa/);
 nodes.thin.value='1';nodes.thin.events.input();
 assert.equal(nodes['hi-control'].hidden,false,'Blanket conditions expose the automatic range');
 assert.notEqual(panel.payload().range[0],panel.payload().range[1]);
-assert.match(panel.payload().description,/uno strato di tessuto leggero, sotto una coperta spessa/);
+assert.match(panel.payload().description,/un indumento o telo leggero, sotto una coperta spessa/);
 assert.doesNotMatch(panel.payload().description,/\d+ strati|aria ferma|°C|manuale/);
 // UI precision must not silently round a previously saved measured weight.
 panel.restore(panel.snapshot(),82.5,20);

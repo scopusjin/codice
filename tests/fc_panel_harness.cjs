@@ -21,6 +21,7 @@ nodes.surface.value='0';nodes.water.value='stagnante';nodes.air.value='still';
 const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table};})();');
 const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,window:{}};
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/descriptions.js'),'utf8'),ctx);
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/counters.js'),'utf8'),ctx);
 vm.runInNewContext(code,ctx);
 ctx.window.FCPanel.setExamples(JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_examples.json'),'utf8')));
 const api=ctx.api,base={state:'Asciutto',s:0,p:0,m:0,h:0,surf:0,air:'still',wind:false,strongWind:false,isolation:'',volume:'',water:'stagnante',feather:'no',leaf:'wet'};

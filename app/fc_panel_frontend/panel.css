@@ -113,3 +113,25 @@
   #fc-full #air-help-button{width:44px;min-height:44px}
 }
 @container fc-panel (max-width:400px){#fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 24px 24px}}
+
+/* Six desktop counters, two rows. The mobile aggregate controls stay unchanged. */
+#fc-full #desktop-counts{display:none}
+#fc-full[data-desktop=true]{max-width:960px}
+#fc-full[data-desktop=true] #counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 16px;padding:0;border:0;border-radius:0;margin:4px 0 8px}
+#fc-full[data-desktop=true] #desktop-counts,#fc-full[data-desktop=true] #blanket-counts{display:contents}
+#fc-full[data-desktop=true] #clothing-counts,#fc-full[data-desktop=true] #counts .category{display:none}
+#fc-full[data-desktop=true] #counts .counter{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:4px;margin:0}
+#fc-full[data-desktop=true] #counts label{width:auto;white-space:normal;font-size:12px}
+#fc-full[data-desktop=true] #counts .step{margin:0}
+#fc-full[data-desktop=true] #garment-thin-control{grid-area:1 / 1}
+#fc-full[data-desktop=true] #teli-control{grid-area:1 / 2}
+#fc-full[data-desktop=true] #medium-control{grid-area:1 / 3}
+#fc-full[data-desktop=true] #garment-thick-control{grid-area:2 / 1}
+#fc-full[data-desktop=true] #light-cover-control{grid-area:2 / 2}
+#fc-full[data-desktop=true] #heavy-control{grid-area:2 / 3}
+@container fc-panel (max-width:760px){
+  #fc-full[data-desktop=true] #counts{gap:6px 10px}
+  #fc-full[data-desktop=true] #counts .counter{flex-direction:column;align-items:flex-start;justify-content:flex-end}
+}
+
+#fc-full #special-covers{display:flex;flex-wrap:wrap;gap:0 20px;margin:2px 0}

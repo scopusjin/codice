@@ -546,7 +546,7 @@ def potente_paragraph(duration: str, days: str, high_temperature: bool = False) 
     if high_temperature:
         return (
             "<ul><li>Per temperature ambientali &gt;23 °C, il metodo di Henssge utilizza un modello derivato da casistiche numericamente limitate. "
-            "Secondo Potente et al., quando Q ≤0,5, l’intervallo post-mortale calcolato non dispone di limiti di confidenza adeguatamente validati e deve pertanto essere considerato poco affidabile. "
+            "Secondo Potente et al., quando Q ≤0.5, l’intervallo post-mortale calcolato non dispone di limiti di confidenza adeguatamente validati e deve pertanto essere considerato poco affidabile. "
             "In tali condizioni gli Autori propongono, in via prudenziale, di indicare soltanto il tempo minimo trascorso dal decesso. "
             f"Applicato al caso specifico, il metodo proposto da Potente et al. suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} (≈ {days} giorni) dal decesso.</li></ul>"
         )

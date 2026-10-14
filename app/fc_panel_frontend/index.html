@@ -16,6 +16,7 @@ FC >= 1.40 e peso < 60 oppure > 80 kg; arrotondamento finale al più vicino 0.05
 Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. -->
 <link rel="stylesheet" href="panel.css">
 <script src="descriptions.js"></script>
+<script src="counters.js"></script>
 <section id="suggest-page">
 <div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3 id="panel-title">Consiglia FC</h3></div>
 <div id="suggest-weight-slot"><div class="weight" id="shared-weight" data-session-key="peso"><label for="weight">Peso</label><div class="step"><input id="weight" type="text" inputmode="numeric" value="70"><button data-weight="-1" aria-label="Diminuisci peso di un chilogrammo">−</button><button data-weight="1" aria-label="Aumenta peso di un chilogrammo">+</button></div><span>kg</span></div></div>
@@ -32,8 +33,12 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div id="environment-row"><div id="water-fields" hidden><label for="water">Acqua</label><select id="water"><option value="stagnante">Ferma</option><option value="corrente">Corrente</option></select></div>
 <div id="scenario-temperature-row" hidden><label id="scenario-temperature-label" for="scenario-temperature">Temperatura ambientale media</label><div class="temperature-control"><div class="step"><input id="scenario-temperature" type="text" inputmode="decimal" aria-describedby="scenario-temperature-unit"><span id="scenario-temperature-unit">°C</span><button data-temperature="-0.1" aria-label="Riduci temperatura">−</button><button data-temperature="0.1" aria-label="Aumenta temperatura">+</button></div></div></div></div>
 <div id="air-fields">
-<div id="counts" role="group" aria-label="Vestiti e coperture"><div id="clothing-counts"><div class="category">Vestiti/teli</div></div><div id="blanket-counts"><div class="category">Coperte</div></div></div>
-<details class="hint"><summary>Esempi di coperture</summary><p><strong>Spesse:</strong> coperta pesante di lana; per analogia, mantellina termica metallizzata ben avvolta che copre anche il tronco inferiore. L’assimilazione non è validata sul raffreddamento cadaverico (Henriksson et al., 2009; vedi note della tabella di riferimento su indumenti e coperte). <strong>Molto pesanti / piumoni:</strong> coperture molto spesse o imbottite.</p><p><strong>Sacco mortuario in plastica:</strong> se semplice e non imbottito, è assimilato per analogia a un telo pesante (FC di riferimento 1.2 per corpo nudo e asciutto, a 70 kg, su appoggio termicamente indifferente). Con indumenti o altre coperture si valuta l’insieme, senza aggiungere un incremento fisso al FC.</p></details>
+<div id="counts" role="group" aria-label="Vestiti e coperture"><div id="desktop-counts"></div><div id="clothing-counts"><div class="category">Vestiti/teli</div></div><div id="blanket-counts"><div class="category">Coperte</div></div></div>
+<div id="special-covers" role="group" aria-label="Coperture aggiuntive">
+<label class="check"><input id="thermal-foil" type="checkbox">Mantellina termica</label>
+<label class="check"><input id="body-bag" type="checkbox">Sacco mortuario</label>
+</div>
+<details class="hint"><summary>Esempi e coperture aggiuntive</summary><p><strong>Coperte spesse:</strong> per esempio una coperta pesante di lana. <strong>Molto pesanti / piumoni:</strong> coperture molto spesse o imbottite.</p><p>Una mantellina termica metallizzata ben avvolta è assimilata a una coperta spessa (FC di riferimento 1.8; stesse regole per indumenti, appoggio e peso). Vedi Henriksson et al., 2009 nelle note della tabella di riferimento. Un sacco mortuario in plastica semplice e non imbottito è assimilato a un telo pesante per convenzione dell’app (FC di riferimento 1.2 per corpo nudo e asciutto, a 70 kg, su appoggio termicamente indifferente). Indumenti e coperture sono valutati insieme, senza incrementi fissi del FC. Le opzioni selezionate sono conteggiate automaticamente: non aggiungerle anche nei contatori.</p></details>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti elementi particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="one">Sì, uno</option><option value="several">Sì, più di uno</option></select></div>
 <div class="conditional" id="feather-row" hidden><label for="feather">Piumone di piume molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato complessivamente molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
@@ -81,6 +86,7 @@ function step(id,label,value,delta,group){const wrap=document.createElement('div
 specs.forEach(([id,l,v],i)=>{
   step(id,l,v,1,i<2?'#clothing-counts':'#blanket-counts');q('#'+id).setAttribute('inputmode','numeric');
 });
+const counters=window.FCCounters({root,q,num,step,recalc});
 step('lo','FC minimo','1.80',.05,'#range-fields');
 step('hi','FC massimo','2.00',.05,'#range-fields');
 q('label[for="lo"]').textContent='min';q('#lo').setAttribute('aria-label','FC minimo');
@@ -92,8 +98,8 @@ for(const id of ['lo','hi']){
 }
 function temperatureValue(){const raw=q('#scenario-temperature').value.trim().replace(',','.');return /^-?\d+(\.\d{1,2})?$/.test(raw)?Number(raw):NaN;}
 function waterNearZero(){const temperature=temperatureValue();return state==='Immerso'&&q('#water').value==='stagnante'&&Number.isFinite(temperature)&&temperature<=1;}
-function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {s:num(q('#thin')),p:num(q('#thick')),m:num(q('#medium')),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
-function validCounts(c){return [c.s,c.p,c.m,c.h].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
+function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
+function validCounts(c){return [c.s,c.p,c.m,c.h,...(c.garmentThin===undefined?[]:[c.garmentThin,c.garmentThick,c.teli,c.lightCover])].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
   waterExperiments: {"short": "Henssge, Brinkmann e Püschel, 1984 · immersione in acqua quasi ferma.", "full": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. doi:10.1007/BF00200284. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.7. Le prove distinguono acqua a circa 10–20 °C e prossima a 0 °C. Riguardano corpi nudi sospesi in acqua quasi ferma; non verificano tutte le condizioni di immersione.", "url": "https://doi.org/10.1007/BF00200284"},
   flowingWater: {"short": "Henssge in Madea, 2016 · acqua corrente.", "full": "Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, sezione sull’immersione. Henssge discute una prova di Brown e Marshall su un corpo molto piccolo, in acqua in movimento a circa 5 m/ora, ricondotta a un FC di circa 0.35. È un’osservazione limitata, distinta dalla serie in acqua quasi ferma della tab. 6.7; non consente di generalizzare a ogni corrente."},
@@ -354,7 +360,8 @@ const EXAMPLE_MATCHERS={
   'still-B54':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6&&c.surf<=1,
   'wind-H15':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
   'wind-H14':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0,
-  'blanket-B33':matchesBlanketExperiments,
+  'blanket-B33':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf===2&&(c.m>=2||c.h>=1),
+  'blanket-B56':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf<=1&&c.lightCover===1&&c.teli===0&&c.garmentThin>=1&&c.garmentThin<=2&&c.garmentThick===0&&c.m+c.h===0,
   'blanket-H08':matchesBlanketExperiments,
   'case-33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2,
   'case-6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2,
@@ -384,7 +391,7 @@ function exampleFCText(e){
 }
 function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
 function exampleConditions(e){return exampleDecimalText(e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
-function exampleMatches(c){if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
+function exampleMatches(c){if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
   if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
@@ -401,6 +408,7 @@ function referenceLabel(r,c){
   const references={'dry-two-thin':'1.10 / 1.20','dry-three-thin':'1.20 / 1.30','dry-mixed':'1.20 / 1.40','dry-many':'1.40','dry-insulating':'1.40'};
   return references[r.id]||(r.sources.includes('support')?'Vedi fonte':'Non univoco');
 }
+function coverConvention(c){if(c.state==='Immerso')return '';return [c.thermalFoil?'La mantellina termica è conteggiata come una coperta spessa (FC di riferimento 1.8).':'',c.bodyBag?'Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.':''].filter(Boolean).join(' ');}
 function paragraph(parent,text){const p=document.createElement('p');p.textContent=text;parent.append(p);return p;}
 function sourceLink(parent,label,url){if(!url){paragraph(parent,label);return;}const a=document.createElement('a');a.textContent=label;a.href=url;a.target='_blank';a.rel='noopener noreferrer';const p=document.createElement('p');p.append(a);parent.append(p);}
 function sourceDetails(parent,source){
@@ -419,7 +427,7 @@ function showSource(){
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
-  q('#rule-source').textContent=result.detail;
+  q('#rule-source').textContent=[result.detail,coverConvention(c)].filter(Boolean).join(' ');
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
   if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
@@ -576,7 +584,7 @@ function onWeightChange(){
 }
 q('#air-help-button').addEventListener('click',()=>{q('#air-help').hidden=!q('#air-help').hidden;q('#air-help-button').setAttribute('aria-expanded',String(!q('#air-help').hidden));});
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else recalc();}));specs.forEach(([id])=>q('#'+id).addEventListener('input',recalc));['surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!suggestion||suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#expand-range').addEventListener('click',()=>{
   const expanded=q('#choice-row').dataset.range==='true';
   if(expanded){
@@ -593,8 +601,9 @@ q('#use').addEventListener('click',()=>{
 q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
 recalc();
 q('#lo').value=q('#hi').value='';rangeExpanded=false;update();
-const savedFields=['thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
+const savedFields=['teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
+  setDesktop: counters.setDesktop,
   temperatureValue,
   temperatureChanged(){
     // Incomplete typing must not discard a manual choice. A valid change of
@@ -605,18 +614,21 @@ window.FCPanel={
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
   },
   snapshot(){
-    return {state, fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
+    return {state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:waterNearZero(),wetCase:q('#wet-case').checked,
       lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,preset,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
       sourceOpen:q('#source-panel').open};
   },
   restore(draft,weight){
+    q('#thermal-foil').checked=!!draft?.thermalFoil;
+    q('#body-bag').checked=!!draft?.bodyBag;
     if(draft){
       if(['Asciutto','Bagnato','Immerso'].includes(draft.state))state=draft.state;
       for(const id of savedFields)if(draft.fields&&id in draft.fields)q('#'+id).value=draft.fields[id];
       q('#wet-case').checked=!!draft.wetCase;
       root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
     }
+    counters.restore(draft);
     setWeight(weight);
     recalc();
     if(!draft){q('#lo').value=q('#hi').value='';rangeExpanded=false;update();}
@@ -644,7 +656,7 @@ window.FCPanel={
     const description=window.FCDescriptions.conditions(c,this.snapshot().fields);
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
       base_range:manual?manualBase:selectedBase||result.range,manual_weight_adjusted:manualWeightAdjusted,weight_adjusted:weightAdjusted,
-      conditions:c,manual,description,rule:result.id,explanation:result.detail,sources:result.sources};
+      conditions:c,manual,description,rule:result.id,explanation:[result.detail,coverConvention(c)].filter(Boolean).join(' '),sources:result.sources};
   }
 };
 

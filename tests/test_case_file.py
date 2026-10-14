@@ -38,6 +38,18 @@ class CaseFileTests(unittest.TestCase):
             refresh_fc_for_weight(restored)
             self.assertEqual(restored["__fc_applied_choice"], state["__fc_applied_choice"])
 
+    def test_cover_details_and_special_options_survive_export(self):
+        state = self.example()
+        draft = {"state": "Asciutto", "clothingDetailed": True,
+                 "thermalFoil": True, "bodyBag": True,
+                 "fields": {"thin": "3", "thick": "1", "teli": "1", "light-cover": "1"}}
+        state["__fc_applied_choice"]["scenarios"][0]["draft"].update(draft)
+        state["__fc_draft"] = deepcopy(draft)
+        restored = restored_inputs(decode_case(encode_case(snapshot_case(state, "full"))))
+        self.assertEqual(restored["__fc_draft"], draft)
+        for key, value in draft.items():
+            self.assertEqual(restored["__fc_applied_choice"]["scenarios"][0]["draft"][key], value)
+
     def test_incomplete_inputs_and_fc_draft_are_distinct_from_applied_values(self):
         state = self.example()
         applied = deepcopy(state["__fc_applied_choice"])

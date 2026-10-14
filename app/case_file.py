@@ -37,12 +37,12 @@ for param, label in SPECIAL_PARAM_LABEL_IT.items():
 STATE_KEYS = NUMBER_KEYS | BOOL_KEYS | TEXT_KEYS | DATE_KEYS | LIST_KEYS | SELECTORS.keys() | {"henssge_round_minutes"}
 CHOICE_KEYS = set("""range weight base_range manual manual_weight_adjusted weight_adjusted
 manual_center conditions description rule explanation sources draft scenarios temperature""".split())
-DRAFT_FIELDS = set("""thin thick medium heavy surface metal-type leaf leaf-cover feather air water
+DRAFT_FIELDS = set("""teli light-cover thin thick medium heavy surface metal-type leaf leaf-cover feather air water
 isolation blanket-volume support-soaked""".split())
-DRAFT_BOOLS = set("""waterNearZero wetCase manual preset manualWeightAdjusted weightAdjusted
+DRAFT_BOOLS = set("""thermalFoil bodyBag clothingDetailed waterNearZero wetCase manual preset manualWeightAdjusted weightAdjusted
 rangeExpanded sourceOpen multiple scenarioWeightAdjusted temperatureEdited""".split())
 DRAFT_KEYS = DRAFT_BOOLS | {"state", "fields", "lo", "hi", "weight", "manualBase", "selectedBase",
-                            "temperature", "activeScenario", "scenarios"}
+                            "temperature", "activeScenario", "scenarios", "initialScenarioTemperatures"}
 
 
 class CaseFileError(ValueError):
@@ -97,6 +97,9 @@ def _validate_draft(draft, *, nested=False):
             _require(value is None or _pair(value, nullable=True))
         elif key in {"temperature", "weight"}:
             _require(value is None or _number(value) or (key == "temperature" and _text(value, 100)))
+        elif key == "initialScenarioTemperatures":
+            _require(isinstance(value, list) and len(value) <= 2)
+            _require(all(v is None or _number(v) for v in value))
         elif key == "activeScenario":
             _require(type(value) is int and 0 <= value < 100)
         elif key == "scenarios":

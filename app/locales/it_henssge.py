@@ -50,7 +50,7 @@ def qd_summary(
     status: str | None = None,
 ) -> str:
     condition = "T. amb ≤ 23 °C" if ambient_at_most_23 else "T. amb > 23 °C"
-    threshold = "0,2" if ambient_at_most_23 else "0,5"
+    threshold = "0.2" if ambient_at_most_23 else "0.5"
     resolved_status = status or ("optimal" if within_limits else "outside")
 
     if resolved_status == "intermediate":
@@ -91,15 +91,15 @@ def qd_range_summary(
     if status == "all_optimal":
         sentence = (
             "Nelle condizioni considerate, i parametri consentono di ottenere una stima sufficientemente attendibile mediante il metodo di Henssge "
-            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
     elif status == "mixed":
         sentence = (
             "Per una parte delle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali il metodo di Henssge consente di ottenere una stima sufficientemente attendibile "
-            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
     elif status == "no_optimal_intermediate":
@@ -111,14 +111,14 @@ def qd_range_summary(
         sentence = (
             "Nelle condizioni considerate, i parametri consentono l’applicazione del metodo di Henssge, "
             "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
-            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nelle condizioni considerate il valore di Qd "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2; nelle condizioni considerate il valore di Qd "
             f"{qd_near_limit})."
         )
     else:
         sentence = (
             "Nelle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali il metodo di Henssge consente di ottenere una stima sufficientemente attendibile "
-            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, "
-            "mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2, "
+            "mentre con T. amb. > 23 °C dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd "
             f"{qd_value})."
         )
 

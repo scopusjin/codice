@@ -35,7 +35,7 @@ I test di isolamento esercitano accessi concorrenti al contesto e il suo azzeram
 
 ## Motore FC e catalogo esempi
 
-Il motore attivo resta in `app/fc_panel_frontend/index.html`. `data/fc_examples.json` contiene soltanto le 34 schede selezionate per le spiegazioni contestuali (20 osservazioni sperimentali su cadaveri, 9 prove su simulatori e 6 casi della pratica medico-legale; una scheda comprende due esperimenti). `app/fc_catalog.py` le fornisce al componente FC tramite gli argomenti Streamlit. Il pannello mantiene i criteri di abbinamento per identificativo; non occorrono richieste esterne per caricare gli esempi. La pagina Tabelle presenta la sintesi del metodo combinato e i riferimenti FC, senza tabelle separate di ipostasi, rigidità o casistica.
+Il motore attivo resta in `app/fc_panel_frontend/index.html`. `data/fc_examples.json` contiene soltanto le 35 schede selezionate per le spiegazioni contestuali (21 osservazioni sperimentali su cadaveri, 9 prove su simulatori e 6 casi della pratica medico-legale; una scheda comprende due esperimenti). `app/fc_catalog.py` le fornisce al componente FC tramite gli argomenti Streamlit. Il pannello mantiene i criteri di abbinamento per identificativo; non occorrono richieste esterne per caricare gli esempi. La pagina Tabelle presenta la sintesi del metodo combinato e i riferimenti FC, senza tabelle separate di ipostasi, rigidità o casistica.
 
 L’archivio completo di manutenzione è conservato privatamente su Drive, fuori dal repository e dai dati trasmessi al browser. Contiene anche le ulteriori serie del capitolo su acqua, aria, indumenti, coperture, superfici e foglie, con fonti, limiti e indice delle tabelle. Non integrare l’archivio completo nel JSON pubblico né aggiungere percorsi o credenziali di accesso. La rimozione dal ramo corrente non elimina le versioni già presenti nello storico Git.
 
@@ -410,3 +410,12 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 
 - Base remota verificata `1e5b17648e6abfd78c6d461b4886de1e09aa96f3`, branch `refactor-tanatology-keys`. Su richiesta dell’utente eliminata `pages/Raccomandazioni.py`, con rimozione della corrispondente voce dalla navigazione automatica di Streamlit. La pagina ripeteva indicazioni già disponibili negli helper e nelle reference.
 - Nessun collegamento applicativo residuo alla pagina. Gli helper contestuali rimangono disponibili. Aggiornato il test esistente sulle sottopagine ausiliarie; apertura e ritorno dalla pagina Impostazioni e dalla pagina Reference verificati senza eccezioni. Diff controllato.
+
+
+## Pannello FC compatto e coperture specifiche — 14 ottobre 2026
+
+- Desktop: sei contatori in due righe, separando indumenti e teli/copriletti; mobile: categorie aggregate preesistenti. `counters.js` mantiene i totali del motore e i dettagli descrittivi. I vecchi salvataggi restano generici; modificare i totali su mobile elimina la suddivisione non più ricostruibile.
+- Due opzioni indipendenti, disponibili anche su mobile: mantellina termica come una coperta spessa (FC di riferimento 1.8, con tutte le regole preesistenti), sacco mortuario come un telo pesante per convenzione operativa richiesta dall’utente. Il contributo è aggiunto una sola volta nella costruzione dei dati di calcolo, senza modificare i contatori visibili o i totali salvati. L’immersione ignora le coperture. Non attribuire al sacco un FC sperimentalmente validato.
+- Descrizioni: indumenti leggeri/pesanti/di diverso spessore; teli sottili/spessi; coperte spesse/molto pesanti. Le opzioni sono nominate esplicitamente senza descriverle anche come teli o coperte. Le condizioni confluiscono nel riepilogo e nel testo finale. La casistica ordinaria non viene abbinata automaticamente alle coperture assimilate.
+- B56 usa FC 1.29 del capitolo, mantenendo distinto l’ottimale 1.0 del 1981; B33 usa 2.16, mantenendo distinto 2.4. B33 richiede appoggio su materasso/tappeto spesso e coperture consistenti; un solo copriletto non lo attiva. Le analogie non sono equivalenze sperimentali.
+- Il formato di salvataggio accetta i dettagli dei contatori, le due opzioni e `initialScenarioTemperatures`, già prodotto dall’editor degli scenari. I decimali nei testi italiani e negli esempi selezionati usano il punto.

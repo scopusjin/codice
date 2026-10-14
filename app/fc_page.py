@@ -187,7 +187,9 @@ def render_fc_route_if_requested(home=FULL_PAGE):
         return
     # A stable component key retains the browser controls across draft reruns.
     component = components.declare_component("mortem_fc_panel", path=str(_FRONTEND))
+    from app.device_mode import full_device_is_mobile
     event = component(
+        desktop=not full_device_is_mobile(),
         examples=load_examples(),
         weight=st.session_state.get("peso"),
         temperature=_scenario_temperature_seed(st.session_state),

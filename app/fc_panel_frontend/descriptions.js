@@ -1,26 +1,43 @@
 // One description for the editor, the chosen FC and the final case summary.
 (() => {
   function clothing(c) {
-    const total = c.s + c.p;
-    if (!Number.isFinite(total)) return 'vestizione da precisare';
-    if (!total) return 'nudo';
-    if (total === 1) return 'con uno strato di tessuto ' + (c.p ? 'pesante' : 'leggero');
-    const quantity = total === 2 ? 'pochi' : total <= 4 ? 'alcuni' : 'molti';
-    const kind = c.s && c.p ? 'di diverso spessore' : c.p ? 'pesanti' : 'leggeri';
-    return 'con ' + quantity + ' strati di tessuti ' + kind;
+    const detailed=Number.isFinite(c.garmentThin)&&Number.isFinite(c.garmentThick);
+    const light=detailed?c.garmentThin:c.s,heavy=detailed?c.garmentThick:c.p-Number(!!c.bodyBag);
+    const total=light+heavy;
+    if(!Number.isFinite(total))return 'vestizione da precisare';
+    if(!total)return 'nudo';
+    const noun=detailed?'indumenti':'indumenti o teli';
+    const kind=light&&heavy?'di diverso spessore':heavy?'pesanti':'leggeri';
+    if(total===1)return detailed?'con uno strato di '+noun+' '+kind:'con un indumento o telo '+(heavy?'pesante':'leggero');
+    if(total===2)return 'con pochi '+noun+' '+kind;
+    return 'con '+(total<=4?'vari':'molti')+' strati di '+noun+' '+kind;
   }
-  function blankets(c) {
-    const total = c.m + c.h;
-    if (!Number.isFinite(total)) return 'coperture da precisare';
-    if (!total) return '';
-    if (total === 1) return c.h ? 'sotto un piumone o una coperta molto pesante' : 'sotto una coperta spessa';
-    const quantity = total === 2 ? 'poche' : total <= 4 ? 'alcune' : 'molte';
-    const kind = c.m && c.h ? 'coperte di diverso spessore' : c.h ? 'coperte molto pesanti o piumoni' : 'coperte spesse';
-    return 'sotto ' + quantity + ' ' + kind;
+  function counted(n,one,many){return n===1?one:n===2?'due '+many:'più '+many;}
+  function coverings(c){
+    const thin=c.teli||0,thick=c.lightCover||0;
+    const medium=c.m-Number(!!c.thermalFoil),heavy=c.h;
+    if(!Number.isFinite(medium+heavy))return 'coperture da precisare';
+    const sheets=thin+thick,blankets=medium+heavy;
+    if(sheets&&blankets)return 'coperto con teli e coperte di diverso spessore';
+    if(sheets){
+      if(thin&&thick)return 'coperto con più teli di diverso spessore';
+      return 'coperto con '+(thin?counted(thin,'un telo sottile','teli sottili'):counted(thick,'un telo spesso','teli spessi'));
+    }
+    if(blankets){
+      if(medium&&heavy)return 'sotto più coperte di diverso spessore';
+      return 'sotto '+(medium?counted(medium,'una coperta spessa','coperte spesse'):counted(heavy,'una coperta molto pesante','coperte molto pesanti'));
+    }
+    return '';
+  }
+  function specialCoverings(c){
+    const items=[];
+    if(c.thermalFoil)items.push('una mantellina termica');
+    if(c.bodyBag)items.push('un sacco mortuario');
+    return items.length?'avvolto in '+items.join(' e in '):'';
   }
   function conditions(c, fields) {
     if (c.state === 'Immerso') return 'corpo immerso in acqua ' + (c.water === 'corrente' ? 'corrente' : 'ferma');
-    const parts = ['corpo ' + c.state.toLowerCase(), clothing(c), blankets(c)];
+    const parts = ['corpo ' + c.state.toLowerCase(), clothing(c), coverings(c), specialCoverings(c)];
     const many = c.p >= 3 || (c.p >= 1 && c.s >= 3) || (!c.p && c.s >= 5);
     if (c.state === 'Asciutto') {
       if (!c.m && !c.h && many && c.isolation === 'one') parts.push('un capo particolarmente isolante');

@@ -866,7 +866,7 @@ def aggiorna_grafico(
             swiss_note = (
                 "A titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
                 f"il tempo trascorso dal decesso al momento dei rilievi sarebbe stimabile tra {swiss_min_txt} e {swiss_max_txt}. "
-                "Tale risultato non viene utilizzato nella stima principale poiché, per temperature ambientali &gt;23 °C e Q ≤0,5, "
+                "Tale risultato non viene utilizzato nella stima principale poiché, per temperature ambientali &gt;23 °C e Q ≤0.5, "
                 "Potente et al. considerano non adeguatamente validati i limiti di confidenza dell’intervallo calcolato mediante il metodo di Henssge "
                 "e propongono, in via prudenziale, di fare riferimento al solo tempo minimo trascorso dal decesso."
             )
@@ -874,14 +874,14 @@ def aggiorna_grafico(
             swiss_note = (
                 "A titolo esclusivamente orientativo, secondo l’impostazione utilizzata da Swisswuff, "
                 f"il tempo trascorso dal decesso al momento dei rilievi ricadrebbe complessivamente tra {swiss_min_txt} e {swiss_max_txt}. "
-                "Tale risultato non viene utilizzato nella stima principale: per le condizioni con temperatura ambientale &gt;23 °C e Q ≤0,5 "
+                "Tale risultato non viene utilizzato nella stima principale: per le condizioni con temperatura ambientale &gt;23 °C e Q ≤0.5 "
                 "Potente et al. considerano non adeguatamente validati i limiti di confidenza dell’intervallo calcolato mediante il metodo di Henssge; "
-                "per le condizioni con Q ≤0,2, l’intervallo Swisswuff è inoltre ottenuto applicando una variazione di ±20% alla stima centrale "
+                "per le condizioni con Q ≤0.2, l’intervallo Swisswuff è inoltre ottenuto applicando una variazione di ±20% alla stima centrale "
                 "ed è privo di uno specifico fondamento statistico."
             )
         else:
             swiss_scope = (
-                "Per le condizioni con Qd ≤ 0,2, a titolo esclusivamente orientativo, "
+                "Per le condizioni con Qd ≤ 0.2, a titolo esclusivamente orientativo, "
                 if condizioni_variabili
                 else "A titolo esclusivamente orientativo, "
             )
