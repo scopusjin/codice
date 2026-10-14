@@ -82,17 +82,26 @@ def adapt_scenarios(choice, weight):
 
 
 def matching_scenario_description(state, bounds, weight):
-    """Do not attach old scenario conditions to a different calculation."""
+    """Describe matching applied conditions, with or without multiple scenarios."""
     choice = state.get("__fc_applied_choice") or {}
-    if (not choice.get("scenarios") or choice.get("range") != list(bounds)
-            or choice.get("weight") != weight):
+    if choice.get("range") != list(bounds) or choice.get("weight") != weight:
         return None
-    return summarize_scenarios(choice["scenarios"])[1]
+    if choice.get("scenarios"):
+        return summarize_scenarios(choice["scenarios"])[1]
+    if not isinstance(choice.get("description"), str) or not choice["description"].strip():
+        return None
+    conditions = scenario_conditions(choice).strip().rstrip(".")
+    lo, hi = bounds
+    if lo == hi:
+        return f"Fattore di correzione considerato: {lo:.2f} ({conditions})"
+    return ("Range dei fattori di correzione stimati, considerate le varie condizioni "
+            f"in cui potrebbe essersi trovato il corpo: {lo:.2f} – {hi:.2f} ({conditions})")
 
 
 def matching_temperature_scenarios(state, bounds, weight, temperatures):
     """Reject stale temperatures instead of silently crossing unrelated inputs."""
-    if matching_scenario_description(state, bounds, weight) is None:
+    if (not (state.get("__fc_applied_choice") or {}).get("scenarios")
+            or matching_scenario_description(state, bounds, weight) is None):
         return None
     choice = state["__fc_applied_choice"]
     expected = scenario_temperature_bounds(choice)
