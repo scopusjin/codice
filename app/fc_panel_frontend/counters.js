@@ -12,7 +12,7 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
   const helpItems=[
     ['teli','#teli-control','Esempi di teli','Lenzuola, asciugamani sottili.'],
     ['heavy','#heavy-control','Esempi di piumoni e coperte molto pesanti','Piumoni o coperte molto pesanti, spesse o imbottite.'],
-    ['temperature','#temperature-help-anchor','Temperatura ambientale media','Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.']
+    ['temperature','#temperature-help-anchor','Temperatura ambientale media','Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.']
   ];
   for(const [id,parent,label,text] of helpItems){
     const button=document.createElement('button');

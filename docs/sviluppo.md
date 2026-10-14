@@ -491,3 +491,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Base remota verificata `b472bc73`, branch `refactor-tanatology-keys`. Lo screenshot dell’utente mostra ancora Range con bordo azzurro e pulsante tagliato: la regola generale `div.stButton > button` prevaleva sulla precedente regola inline.
 - Esclusa l’azione della temperatura dallo stile generale dei pulsanti; spostata la sua tipografia nel foglio desktop caricato a ogni render, con selettore specifico. Range rimane testo piccolo accanto ai campi, senza bordo né sfondo; conservato il focus da tastiera. Mobile e pannello FC conservano le proprie azioni inline.
 - Superati i 13 test di regressione della schermata raffreddamento e il controllo diff. Nessuna modifica ai calcoli o alla regola che nasconde Valore singolo per scenari con temperature diverse. Verifica visiva dopo aggiornamento ancora da completare.
+
+## Punto di avanzamento — range nell’helper temperatura, 14 ottobre 2026
+
+- Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base remota verificata `b0e9135aafffd82312fe5c76d02a7c5e1e9ec5b9`. Commit corrente: quello contenente questa voce.
+- Aggiunta richiesta dall’utente: «In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.» Testo allineato in `app/locales/it_ui.py` (helper e label temperatura), `app/decimal_number_input_v2.py` (helper del componente) e `app/fc_panel_frontend/counters.js` (pannello FC). Nessuna modifica ai calcoli o al comportamento dei range.
+- Aggiornato il test testuale esistente. Otto test i18n, suite JavaScript del pannello, compilazione Python, controllo sintattico JavaScript e diff superati. Verifica visiva dell’helper ancora da eseguire; nessun tentativo fallito. Prossimo passo: controllo del testo dopo l’aggiornamento.

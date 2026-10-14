@@ -78,7 +78,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
         ta_help = (
             "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
             "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
-            "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+            "del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.'>ⓘ</span>"
         )
         expected = {
             "full.specify_range": "Specifica range",

@@ -726,7 +726,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const externalActionUsesParentWidth = Boolean(data?.external_action_uses_parent_width);
   const desktopHelpText = (() => {
     if (desktopLabelText === 'T. ambientale media') {
-      return 'Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.';
+      return 'Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.';
     }
     if (desktopLabelText === 'Range temperatura ambientale media' || desktopLabelText === 'T. ambientale media 2') {
       return 'Inserisci il valore minimo e massimo plausibili della temperatura ambientale media nel periodo tra il decesso e l’ispezione.';

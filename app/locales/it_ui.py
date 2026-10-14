@@ -49,18 +49,18 @@ UI_TEXT = {
         "T. ambientale media (°C): "
         "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
         "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
-        "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+        "del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.'>ⓘ</span>"
     ),
     "full.ta_range_label": (
         "Range di T. ambientale media (°C): "
         "<span title='Considera la temperatura ambientale media alla quale il corpo può essere stato esposto "
         "tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento "
-        "del rilievo, soprattutto se il cadavere si trova all’aperto.'>ⓘ</span>"
+        "del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.'>ⓘ</span>"
     ),
     "full.ta_mean_help": (
         "Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso "
         "e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, "
-        "soprattutto se il cadavere si trova all’aperto."
+        "soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato."
     ),
     "full.fc_label": "Fattore di correzione (FC):",
     "full.fc_range_label": "Range del fattore di correzione (FC):",
