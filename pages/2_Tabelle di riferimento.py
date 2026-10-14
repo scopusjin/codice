@@ -2,6 +2,7 @@ import re
 from html import escape
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from app.mobile_shell import install_minimal_mobile_shell
 
@@ -17,8 +18,8 @@ _CITATION_PATTERN = re.compile(
 
 
 def _reference_link(label: str) -> str:
-    # Navigate the whole Cloud app, including when Streamlit is embedded.
-    return f'<a href="/Reference" target="_top">{escape(label)}</a>'
+    # The navigation bridge uses Streamlit to preserve the current session.
+    return f'<a class="mortem-reference-link" href="Reference" target="_self">{escape(label)}</a>'
 
 
 def _reference_caption(text: str) -> None:
@@ -482,48 +483,48 @@ def _render_henssge_special_table(language: str) -> None:
               </tr>
             </thead>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup><a href="/Reference" target="_top">[1]</a></sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1]</a></sup></th></tr>
               <tr>
                 <th scope="row">{text['indifferent_ground']}</th>
                 <td>{text['clothing_indifferent']}</td><td>{text['no_adjustment']}</td>
               </tr>
             </tbody>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['isolating']} <sup><a href="/Reference" target="_top">[1, 2]</a></sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['isolating']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1, 2]</a></sup></th></tr>
               <tr>
-                <th rowspan="3" scope="rowgroup">{text['heavy_padding']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
+                <th rowspan="3" scope="rowgroup">{text['heavy_padding']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1]</a></sup></th>
                 <td>{text['thick']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['thin']}</td><td>+0.3</td></tr>
               <tr><td>{text['naked']}</td><td>1.3<sup>*</sup></td></tr>
               <tr>
-                <th rowspan="2" scope="rowgroup">{text['mattress']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
+                <th rowspan="2" scope="rowgroup">{text['mattress']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1]</a></sup></th>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['naked']}</td><td>1.1–1.2</td></tr>
               <tr>
-                <th scope="row">{text['leaves']} <sup><a href="/Reference" target="_top">[2]</a></sup></th>
+                <th scope="row">{text['leaves']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[2]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['leaves_factors']}</td>
               </tr>
             </tbody>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['conducting']} <sup><a href="/Reference" target="_top">[1, 3]</a></sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['conducting']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1, 3]</a></sup></th></tr>
               <tr>
-                <th rowspan="3" scope="rowgroup">{text['concrete']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
+                <th rowspan="3" scope="rowgroup">{text['concrete']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[1]</a></sup></th>
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
               <tr><td>{text['naked']}</td><td>0.75<sup>*</sup></td></tr>
               <tr>
-                <th scope="row">{text['cold_floor']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
+                <th scope="row">{text['cold_floor']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>0.75</td>
               </tr>
               <tr>
-                <th scope="row">{text['pvc']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
+                <th scope="row">{text['pvc']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['pvc_factors']}</td>
               </tr>
               <tr>
-                <th scope="row">{text['metal']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
+                <th scope="row">{text['metal']} <sup><a class="mortem-reference-link" href="Reference" target="_self">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['metal_factors']}</td>
               </tr>
             </tbody>
@@ -905,3 +906,47 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
+# Use Streamlit navigation instead of trying to navigate the Cloud host iframe.
+if st.button("Apri riferimenti bibliografici", key="tables_reference_nav"):
+    st.session_state.pop("__fc_reference", None)
+    st.switch_page("pages/9_Reference.py")
+
+st.markdown("""<style>
+.st-key-tables_reference_nav, .st-key-tables_navigation_bridge {display:none;}
+</style>""", unsafe_allow_html=True)
+_scroll_to_fc = st.session_state.pop("__fc_tables_scroll", False)
+with st.container(key="tables_navigation_bridge"):
+    components.html(
+        """<script>
+        (() => {
+            const host = window.parent;
+            const doc = host.document;
+            if (host.mortemReferenceClick) {
+                doc.removeEventListener('click', host.mortemReferenceClick, true);
+            }
+            host.mortemReferenceClick = event => {
+                const link = event.target.closest('a.mortem-reference-link');
+                if (!link) return;
+                const button = doc.querySelector('.st-key-tables_reference_nav button');
+                if (!button) return;
+                event.preventDefault();
+                event.stopPropagation();
+                button.click();
+            };
+            doc.addEventListener('click', host.mortemReferenceClick, true);
+            if (SCROLL_TO_FC) {
+                let attempts = 0;
+                const scroll = () => {
+                    const heading = doc.getElementById('fattore-di-correzione-fc')
+                        || doc.getElementById('correction-factor-fc');
+                    if (heading) heading.scrollIntoView({block:'start'});
+                    else if (++attempts < 30) host.requestAnimationFrame(scroll);
+                };
+                host.requestAnimationFrame(scroll);
+            }
+        })();
+        </script>""".replace("SCROLL_TO_FC", "true" if _scroll_to_fc else "false"),
+        height=0,
+    )
