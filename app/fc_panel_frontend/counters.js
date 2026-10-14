@@ -2,14 +2,24 @@
 window.FCCounters = ({root,q,num,step,recalc}) => {
   let detailed=false;
   const pairs=[['thin','garment-thin','teli'],['thick','garment-thick','light-cover']];
-  const specs=[['garment-thin','Indumenti leggeri'],['teli','Teli ⓘ'],
+  const specs=[['garment-thin','Indumenti leggeri'],['teli','Teli'],
     ['garment-thick','Indumenti pesanti'],['light-cover','Copriletti / coperte leggere']];
   for(const [id,label] of specs){
     step(id,label,0,1,'#desktop-counts');
     q('#'+id).setAttribute('inputmode','numeric');
     q('#'+id).addEventListener('input',()=>{changed(id);recalc();});
   }
-  q('#teli-control').setAttribute('title','Lenzuola, asciugamani sottili');
+  for(const [id,text] of [['teli','Lenzuola, asciugamani sottili.'],['heavy','Piumoni o coperte molto pesanti, spesse o imbottite.']]){
+    const button=document.createElement('button');
+    button.type='button';button.className='counter-help';
+    button.setAttribute('aria-label',id==='teli'?'Esempi di teli':'Esempi di piumoni e coperte molto pesanti');
+    button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id+'-help');
+    const symbol=document.createElement('span');symbol.textContent='?';symbol.setAttribute('aria-hidden','true');
+    button.append(symbol);
+    const hint=document.createElement('p');hint.id=id+'-help';hint.className='hint';hint.hidden=true;hint.textContent=text;
+    button.addEventListener('click',()=>{hint.hidden=!hint.hidden;button.setAttribute('aria-expanded',String(!hint.hidden));});
+    q('#'+id+'-control').append(button);q('#coverings-box').append(hint);
+  }
   function changed(id){
     if(specs.some(([key])=>key===id)){
       detailed=true;
@@ -34,8 +44,7 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
   function setDesktop(value){
     root.dataset.desktop=String(!!value);
     q('label[for="medium"]').textContent=value?'Coperte spesse':'Spesse';
-    q('label[for="heavy"]').textContent=value?'Piumoni ⓘ':'Molto pesanti / piumoni';
-    q('#heavy-control').setAttribute('title','Piumoni o coperte molto pesanti');
+    q('label[for="heavy"]').textContent=value?'Piumoni':'Molto pesanti / piumoni';
   }
   setDesktop(false);
   return {changed,restore,details,setDesktop,known:()=>detailed};

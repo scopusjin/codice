@@ -71,8 +71,8 @@
 #fc-full .conditional select{width:100%;font-size:13px;padding:4px 6px}
 #fc-full .check{display:flex;align-items:center;gap:7px;font-size:12px;min-height:32px}
 #fc-full .check input{accent-color:var(--fc-action);width:17px;height:17px;min-height:0;margin:0;padding:0;flex:none}
-#fc-full #air-help-button{width:28px;min-height:28px;padding:0;border:0;background:transparent}
-#fc-full #air-help-button span{display:inline-grid;place-items:center;width:21px;height:21px;border:1px solid var(--fc-line);border-radius:50%}
+#fc-full #air-help-button,#fc-full #counts .counter-help{width:28px;min-height:28px;padding:0;border:0;background:transparent}
+#fc-full #air-help-button span,#fc-full .counter-help span{display:inline-grid;place-items:center;width:21px;height:21px;border:1px solid var(--fc-line);border-radius:50%}
 #fc-full .hint,#fc-full .status{color:var(--fc-muted);font-size:12px;margin:4px 0}
 #fc-full .error{color:light-dark(#a62e31,#ffa4a6);font-size:12px}
 #fc-full .status:empty,#fc-full .error:empty,#fc-full #source-extra:empty{display:none}
@@ -110,7 +110,7 @@
   #fc-full #counts input{min-height:44px;font-size:16px}
   #fc-full #shared-weight input{font-size:16px;min-height:44px}
   #fc-full #shared-weight button,#fc-full .temperature-control button{width:44px;min-height:44px}
-  #fc-full #air-help-button{width:44px;min-height:44px}
+  #fc-full #air-help-button,#fc-full #counts .counter-help{width:44px;min-height:44px}
 }
 @container fc-panel (max-width:400px){#fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 24px 24px}}
 
@@ -120,7 +120,7 @@
 #fc-full[data-desktop=true] #counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 12px;padding:0;border:0;border-radius:0;margin:0 0 4px}
 #fc-full[data-desktop=true] #desktop-counts,#fc-full[data-desktop=true] #blanket-counts{display:contents}
 #fc-full[data-desktop=true] #clothing-counts,#fc-full[data-desktop=true] #counts .category{display:none}
-#fc-full[data-desktop=true] #counts .counter{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:4px;margin:0}
+#fc-full[data-desktop=true] #counts .counter{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:6px;margin:0}
 #fc-full[data-desktop=true] #counts label{width:auto;white-space:normal;font-size:12px}
 #fc-full[data-desktop=true] #counts .step{margin:0}
 #fc-full[data-desktop=true] #garment-thin-control{grid-area:1 / 1}
