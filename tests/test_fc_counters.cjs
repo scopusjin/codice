@@ -65,7 +65,9 @@ const descriptions=[
   [{garmentThin:2,garmentThick:3,m:2},'con molti strati di indumenti di diverso spessore, sotto due coperte spesse'],
   [{teli:1,lightCover:1},'coperto con più teli di diverso spessore'],
   [{m:1,h:1},'sotto più coperte di diverso spessore'],
-  [{teli:1,m:1},'coperto con teli e coperte di diverso spessore']
+  [{teli:1,m:1},'coperto con teli e coperte di diverso spessore'],
+  [{h:1,feather:'yes'},'coperto con un piumone molto voluminoso e avvolgente'],
+  [{teli:1,m:1,h:1,feather:'yes'},'coperto con coperte di diverso spessore, tra cui un piumone molto voluminoso e avvolgente']
 ];
 for(const [counts,phrase] of descriptions)assert(describe({...base,garmentThin:0,garmentThick:0,...counts},{}).includes(phrase),phrase);
 console.log('Special covers: numerical equivalence across states, weights and supports; no double counting; restore, mobile, immersion and wording passed.');

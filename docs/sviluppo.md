@@ -575,3 +575,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 ## Punto di avanzamento — descrizione sintetica piumone, 14 ottobre 2026
 
 - Base `15ee34de`, branch `refactor-tanatology-keys`. Nelle condizioni considerate la specificazione del piumone è abbreviata a «piumone». Domanda di dettaglio, motivazione del suggerimento e calcolo FC invariati. Controllo diff eseguito.
+
+## Punto di avanzamento — piumone integrato nelle coperture, 14 ottobre 2026
+
+- Base `de678324`, branch `refactor-tanatology-keys`. Domanda «Piumone imbottito molto voluminoso e avvolgente?». Nelle condizioni, se presenti più coperture: «coperto con coperte di diverso spessore, tra cui un piumone molto voluminoso e avvolgente»; se singolo, «coperto con un piumone molto voluminoso e avvolgente». Eliminata l’aggiunta separata e duplicata del piumone.
+- Valori e criteri FC invariati. Verificate descrizioni singola/multipla con suite contatori e controllo diff.

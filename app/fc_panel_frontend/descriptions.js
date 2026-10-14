@@ -18,6 +18,11 @@
     const medium=c.m-Number(!!c.thermalFoil),heavy=c.h;
     if(!Number.isFinite(medium+heavy))return 'coperture da precisare';
     const sheets=thin+thick,blankets=medium+heavy;
+    if(c.state==='Asciutto'&&heavy&&c.feather==='yes'){
+      return sheets+blankets>1
+        ? 'coperto con coperte di diverso spessore, tra cui un piumone molto voluminoso e avvolgente'
+        : 'coperto con un piumone molto voluminoso e avvolgente';
+    }
     if(sheets&&blankets)return 'coperto con teli e coperte di diverso spessore';
     if(sheets){
       if(thin&&thick)return 'coperto con più teli di diverso spessore';
@@ -42,7 +47,6 @@
     if (c.state === 'Asciutto') {
       if (!c.m && !c.h && many && c.isolation === 'one') parts.push('un capo particolarmente isolante');
       if (!c.m && !c.h && many && c.isolation === 'several') parts.push('più capi particolarmente isolanti');
-      if (c.h && c.feather === 'yes') parts.push('piumone');
       if (c.m + c.h > 1 && (!c.h || c.feather === 'no') && c.volume === 'yes') parts.push('coperture molto voluminose');
     }
     const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento',
