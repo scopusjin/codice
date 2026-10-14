@@ -218,19 +218,25 @@ def simple_sentence_no_dt_range(interval: str, language: Optional[str] = None) -
     return get_locale(language).simple_sentence_no_dt_range(interval)
 
 
-def final_sentence_simple_over(duration: str, language: Optional[str] = None) -> str:
+def final_sentence_simple_over(
+    duration: str, language: Optional[str] = None, *, single_parameter: bool = False,
+) -> str:
     """Frase conclusiva localizzata per un limite minimo senza data/ora."""
-    return get_locale(language).final_sentence_simple_over(duration)
+    return get_locale(language).final_sentence_simple_over(duration, single_parameter=single_parameter)
 
 
-def final_sentence_simple_not_over(duration: str, language: Optional[str] = None) -> str:
+def final_sentence_simple_not_over(
+    duration: str, language: Optional[str] = None, *, single_parameter: bool = False,
+) -> str:
     """Frase conclusiva localizzata per un limite massimo senza data/ora."""
-    return get_locale(language).final_sentence_simple_not_over(duration)
+    return get_locale(language).final_sentence_simple_not_over(duration, single_parameter=single_parameter)
 
 
-def final_sentence_simple_range(interval: str, language: Optional[str] = None) -> str:
+def final_sentence_simple_range(
+    interval: str, language: Optional[str] = None, *, single_parameter: bool = False,
+) -> str:
     """Frase conclusiva localizzata per un intervallo senza data/ora."""
-    return get_locale(language).final_sentence_simple_range(interval)
+    return get_locale(language).final_sentence_simple_range(interval, single_parameter=single_parameter)
 
 
 def simple_sentence_dt_not_over(
@@ -286,9 +292,13 @@ def final_sentence_dt_over(
     cutoff_time: str,
     cutoff_date: str,
     language: Optional[str] = None,
+    *,
+    single_parameter: bool = False,
 ) -> str:
     """Frase conclusiva localizzata per un limite minimo con data/ora."""
-    return get_locale(language).final_sentence_dt_over(duration, cutoff_time, cutoff_date)
+    return get_locale(language).final_sentence_dt_over(
+        duration, cutoff_time, cutoff_date, single_parameter=single_parameter,
+    )
 
 
 def final_sentence_dt_not_over(
@@ -298,6 +308,8 @@ def final_sentence_dt_not_over(
     inspection_time: str,
     inspection_date: str,
     language: Optional[str] = None,
+    *,
+    single_parameter: bool = False,
 ) -> str:
     """Frase conclusiva localizzata per un limite massimo con data/ora."""
     return get_locale(language).final_sentence_dt_not_over(
@@ -306,6 +318,7 @@ def final_sentence_dt_not_over(
         lower_date,
         inspection_time,
         inspection_date,
+        single_parameter=single_parameter,
     )
 
 
@@ -317,6 +330,8 @@ def final_sentence_dt_range(
     end_date: str,
     same_date: bool,
     language: Optional[str] = None,
+    *,
+    single_parameter: bool = False,
 ) -> str:
     """Frase conclusiva localizzata per un intervallo con data/ora."""
     return get_locale(language).final_sentence_dt_range(
@@ -326,6 +341,7 @@ def final_sentence_dt_range(
         end_time,
         end_date,
         same_date,
+        single_parameter=single_parameter,
     )
 
 

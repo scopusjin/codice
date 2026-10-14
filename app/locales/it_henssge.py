@@ -173,7 +173,7 @@ def prudent_result_text(*, minimum_text: str, maximum_text: str | None, beyond: 
 def prudent_header() -> str:
     return (
         "Per la valutazione del raffreddamento cadaverico, "
-        "sono stati stimati i parametri di seguito indicati."
+        "sono stati considerati i parametri di seguito indicati."
     )
 
 
@@ -181,7 +181,7 @@ def prudent_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> str:
     return (
         "<ul>"
         f"<li>Range di temperature ambientali medie, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>{ta_text}</b>.</li>"
-        f"<li>Range di FC considerati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>{cf_text}</b>.</li>"
+        f"<li>Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>{cf_text}</b>.</li>"
         f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
         "</ul>"
     )
@@ -191,7 +191,7 @@ def prudent_simple_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> s
     return (
         "<ul>"
         f"<li>Range di temperature ambientali medie: <b>{ta_text}</b></li>"
-        f"<li>Range di FC considerati: <b>{cf_text}</b></li>"
+        f"<li>Range di FC stimati: <b>{cf_text}</b></li>"
         f"<li>Peso corporeo: <b>{weight_text}</b></li>"
         "</ul>"
     )
@@ -242,7 +242,7 @@ def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, wei
                                 ta_is_range: bool = True, cf_is_range: bool = True) -> str:
     from html import escape
     ta_label = ("Range di temperature ambientali medie" if ta_is_range else "Temperatura ambientale media")
-    cf_label = ("Range di FC considerati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo"
+    cf_label = ("Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo"
                 if cf_is_range else "Fattore di correzione considerato")
     fc_item = (f"<li>{escape(scenario_description)}.</li>" if scenario_description else
                f"<li>{cf_label}: <b>{cf_text}</b>.</li>")

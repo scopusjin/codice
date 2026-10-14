@@ -54,7 +54,8 @@ def build_final_sentence(
     qd_val: Optional[float] = None,
     mt_ore: Optional[float] = None,
     ta_val: Optional[float] = None,
-    inf_hours: float = np.inf
+    inf_hours: float = np.inf,
+    single_parameter: bool = False,
 ) -> Optional[str]:
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
@@ -67,7 +68,9 @@ def build_final_sentence(
         h1, m1 = _hm_from_hours(start)
         decesso_dt = isp_dt - datetime.timedelta(hours=start)
         hh_d, dd_d = _fmt_dt(decesso_dt)
-        return i18n.final_sentence_dt_over(_fmt_hm_full(h1, m1), hh_d, dd_d)
+        return i18n.final_sentence_dt_over(
+            _fmt_hm_full(h1, m1), hh_d, dd_d, single_parameter=single_parameter,
+        )
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
@@ -81,6 +84,7 @@ def build_final_sentence(
             dd_lo,
             hh_isp,
             dd_isp,
+            single_parameter=single_parameter,
         )
 
     # Caso: A–B
@@ -99,6 +103,7 @@ def build_final_sentence(
             hh_aa,
             dd_aa,
             dt_da.date() == dt_aa.date(),
+            single_parameter=single_parameter,
         )
 
     return None
@@ -195,10 +200,11 @@ def build_final_sentence_simple(
     comune_inizio: float,
     comune_fine: float,
     *,
-    inf_hours: float = np.inf
+    inf_hours: float = np.inf,
+    single_parameter: bool = False,
 ) -> Optional[str]:
     """
-    Versione semplificata per l’expander. HTML con intestazione in grassetto.
+    Conclusione dettagliata senza data/ora, adeguata ai parametri disponibili.
     """
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
@@ -208,19 +214,25 @@ def build_final_sentence_simple(
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         h1, m1 = _hm_from_hours(comune_inizio)
-        return i18n.final_sentence_simple_over(_fmt_hm_full(h1, m1))
+        return i18n.final_sentence_simple_over(
+            _fmt_hm_full(h1, m1), single_parameter=single_parameter,
+        )
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2 = _hm_from_hours(comune_fine)
-        return i18n.final_sentence_simple_not_over(_fmt_hm_full(h2, m2))
+        return i18n.final_sentence_simple_not_over(
+            _fmt_hm_full(h2, m2), single_parameter=single_parameter,
+        )
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
         h1, m1 = _hm_from_hours(comune_inizio)
         h2, m2 = _hm_from_hours(comune_fine)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
-        return i18n.final_sentence_simple_range(intervallo_txt)
+        return i18n.final_sentence_simple_range(
+            intervallo_txt, single_parameter=single_parameter,
+        )
 
     return None
 

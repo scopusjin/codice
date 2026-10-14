@@ -386,3 +386,12 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Verificata online anche la precedente modifica di posizione: il pulsante desktop ora segue il gruppo temperatura–FC con 16 px di distanza, senza lo spazio vuoto che lo spingeva al margine destro.
 
 - Ulteriore semplificazione testuale richiesta: l’introduzione diventa «Per la valutazione del raffreddamento cadaverico, sono stati stimati i parametri di seguito indicati.». Aspettative dei test testuali esistenti allineate.
+
+- Verificato online sul commit `9b13f5e3f25e03960c025fa9d7987bbb18b25450` il recupero dei due estremi inseriti nella pagina principale: 20 °C nello scenario 1 e 8 °C nello scenario 2, con riepilogo complessivo 8–20 °C e FC conservati.
+
+## Punto di avanzamento — conclusione con un solo parametro e diciture dei range, 14 ottobre 2026
+
+- Base remota verificata `9b13f5e3f25e03960c025fa9d7987bbb18b25450`, branch `refactor-tanatology-keys`. Con una sola famiglia di parametri effettivamente utilizzata, la conclusione dettagliata inizia con «La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa». Più scenari del raffreddamento restano un unico parametro.
+- Se sono disponibili data e ora dei rilievi, la conclusione riporta direttamente l’intervallo di calendario, senza ripetere la durata relativa. In assenza dell’orario resta il tempo trascorso prima dei rilievi. Conservati i limiti aperti e i casi «non oltre»; la conclusione integrata rimane per più parametri. Intestazione della descrizione breve, calcoli, arrotondamenti e intervalli invariati.
+- Ulteriore formulazione richiesta dall’utente: «Per la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati.» e «Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo:». Aggiornati i riepiloghi generati da Python e JavaScript e le aspettative dei test esistenti; testo delle temperature conservato.
+- Superati 33 test Python mirati e la suite JavaScript degli scenari. Verificati il passaggio tra uno e più parametri, il caso senza raffreddamento, data/ora presente o assente, attraversamento della mezzanotte e limiti aperti. Diff controllato. Prossimo passo: controllo online delle nuove diciture dopo la distribuzione.

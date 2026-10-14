@@ -488,6 +488,9 @@ def aggiorna_grafico(
         )
         famiglie_usate.append(FAMILY_COOLING)
 
+    # Più scenari o metodi del raffreddamento restano un solo parametro.
+    single_parameter = len(set(famiglie_usate)) == 1
+
     # intersezione finale
     starts_clean = [s for s in inizio if _is_num(s)]
     if not starts_clean:
@@ -733,13 +736,15 @@ def aggiorna_grafico(
         if usa_orario_custom:
             _tmp = build_final_sentence(
                 comune_inizio, comune_fine, data_ora_ispezione,
-                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS,
+                single_parameter=single_parameter,
             )
         else:
             _tmp = build_final_sentence_simple(
                 comune_inizio=comune_inizio,
                 comune_fine=comune_fine,
                 inf_hours=INF_HOURS,
+                single_parameter=single_parameter,
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
@@ -749,13 +754,15 @@ def aggiorna_grafico(
         if usa_orario_custom:
             _tmp = build_final_sentence(
                 comune_inizio, comune_fine, data_ora_ispezione,
-                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS
+                qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS,
+                single_parameter=single_parameter,
             )
         else:
             _tmp = build_final_sentence_simple(
                 comune_inizio=comune_inizio,
                 comune_fine=comune_fine,
                 inf_hours=INF_HOURS,
+                single_parameter=single_parameter,
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp

@@ -22,10 +22,10 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
     def test_summary_keeps_current_output(self):
         expected = (
             "Per la valutazione del raffreddamento cadaverico, "
-            "sono stati stimati i parametri di seguito indicati."
+            "sono stati considerati i parametri di seguito indicati."
             "<br><ul>"
             "<li>Range di temperature ambientali medie, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>19–21 °C</b>.</li>"
-            "<li>Range di FC considerati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>0.9–1.1 </b>.</li>"
+            "<li>Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>0.9–1.1 </b>.</li>"
             "<li>Peso corporeo: <b>70 kg</b>.</li>"
             "</ul>"
             "<br>Applicando l'equazione di Henssge, è possibile stimare che il decesso "
@@ -61,7 +61,7 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
         self.assertEqual(
             i18n.prudent_header(),
             "Per la valutazione del raffreddamento cadaverico, "
-            "sono stati stimati i parametri di seguito indicati.",
+            "sono stati considerati i parametri di seguito indicati.",
         )
         self.assertEqual(
             i18n.prudent_simple_bullets(
@@ -71,7 +71,7 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
             ),
             "<ul>"
             "<li>Range di temperature ambientali medie: <b>19.0 – 21.0 °C</b></li>"
-            "<li>Range di FC considerati: <b>0.90 – 1.10</b></li>"
+            "<li>Range di FC stimati: <b>0.90 – 1.10</b></li>"
             "<li>Peso corporeo: <b>70 kg</b></li>"
             "</ul>",
         )
@@ -89,10 +89,10 @@ class PrudentCoolingTextCompatibilityTests(unittest.TestCase):
                 weight_text="70 kg",
             ),
             "<ul>"
-            "<li>Per la valutazione del raffreddamento cadaverico, sono stati stimati i parametri di seguito indicati."
+            "<li>Per la valutazione del raffreddamento cadaverico, sono stati considerati i parametri di seguito indicati."
             "<ul style='list-style-type: circle; margin-left: 20px;'>"
             "<li>Range di temperature ambientali medie, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>19.0 – 21.0 °C</b>.</li>"
-            "<li>Range di FC considerati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>0.90 – 1.10</b>.</li>"
+            "<li>Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: <b>0.90 – 1.10</b>.</li>"
             "<li>Peso corporeo: <b>70 kg</b>.</li>"
             "</ul></li>"
             "</ul>",

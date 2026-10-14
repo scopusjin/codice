@@ -368,7 +368,18 @@ def simple_sentence_no_dt_range(interval: str) -> str:
     )
 
 
-def final_sentence_simple_over(duration: str) -> str:
+def _available_data_conclusion(window: str) -> str:
+    return (
+        "<p>La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa "
+        f"{window}.</p>"
+    )
+
+
+def final_sentence_simple_over(duration: str, *, single_parameter: bool = False) -> str:
+    if single_parameter:
+        return _available_data_conclusion(
+            f"<b>oltre {duration} prima</b> dei rilievi effettuati nel corso dell’ispezione legale"
+        )
     return (
         "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
@@ -377,7 +388,11 @@ def final_sentence_simple_over(duration: str) -> str:
     )
 
 
-def final_sentence_simple_not_over(duration: str) -> str:
+def final_sentence_simple_not_over(duration: str, *, single_parameter: bool = False) -> str:
+    if single_parameter:
+        return _available_data_conclusion(
+            f"<b>non oltre {duration} prima</b> dei rilievi effettuati nel corso dell’ispezione legale"
+        )
     return (
         "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
@@ -386,7 +401,11 @@ def final_sentence_simple_not_over(duration: str) -> str:
     )
 
 
-def final_sentence_simple_range(interval: str) -> str:
+def final_sentence_simple_range(interval: str, *, single_parameter: bool = False) -> str:
+    if single_parameter:
+        return _available_data_conclusion(
+            f"<b>{interval} prima</b> dei rilievi effettuati nel corso dell’ispezione legale"
+        )
     return (
         "<p>"
         "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali, "
@@ -443,7 +462,11 @@ def simple_sentence_dt_range(
     )
 
 
-def final_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -> str:
+def final_sentence_dt_over(
+    duration: str, cutoff_time: str, cutoff_date: str, *, single_parameter: bool = False,
+) -> str:
+    if single_parameter:
+        return _available_data_conclusion(f"<b>prima delle ore {cutoff_time} del {cutoff_date}</b>")
     return (
         "<p>La valutazione complessiva dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
         f"<b>oltre {duration} prima</b> "
@@ -458,7 +481,14 @@ def final_sentence_dt_not_over(
     lower_date: str,
     inspection_time: str,
     inspection_date: str,
+    *,
+    single_parameter: bool = False,
 ) -> str:
+    if single_parameter:
+        return _available_data_conclusion(
+            f"<b>successivamente alle ore {lower_time} del {lower_date} "
+            f"(ma prima delle ore {inspection_time} del {inspection_date})</b>"
+        )
     return (
         "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>non oltre {duration} prima</b> "
@@ -475,11 +505,15 @@ def final_sentence_dt_range(
     end_time: str,
     end_date: str,
     same_date: bool,
+    *,
+    single_parameter: bool = False,
 ) -> str:
     if same_date:
         window = f"tra le ore {start_time} e le ore {end_time} del {start_date}"
     else:
         window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
+    if single_parameter:
+        return _available_data_conclusion(f"<b>{window}</b>")
     return (
         "<p>La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi, "
         f"consente di stimare che la morte sia avvenuta all'incirca <b>{interval} prima</b> "

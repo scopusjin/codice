@@ -71,6 +71,33 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "vale a dire circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
         )
 
+    def test_single_parameter_conclusion_with_dates_uses_only_calendar_window(self):
+        isp_dt = datetime.datetime(2026, 10, 14, 11, 28)
+        intro = "<p>La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa "
+        cases = [
+            (2, 13.5, "tra le ore 21:58 del 13.10.2026 e le ore 09:28 del 14.10.2026"),
+            (2, 4, "tra le ore 07:28 e le ore 09:28 del 14.10.2026"),
+            (0, 13.5, "successivamente alle ore 21:58 del 13.10.2026 (ma prima delle ore 11:28 del 14.10.2026)"),
+            (2, np.inf, "prima delle ore 09:28 del 14.10.2026"),
+        ]
+        for lower, upper, window in cases:
+            with self.subTest(lower=lower, upper=upper):
+                self.assertEqual(
+                    build_final_sentence(lower, upper, isp_dt, single_parameter=True),
+                    intro + f"<b>{window}</b>.</p>",
+                )
+
+    def test_single_parameter_conclusion_without_dates_preserves_time_bounds(self):
+        intro = "<p>La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa "
+        for lower, upper, window in [(2, 13.5, "tra 2 ore e 13 ore 30 minuti"),
+                                     (0, 4, "non oltre 4 ore"),
+                                     (2, np.inf, "oltre 2 ore")]:
+            with self.subTest(lower=lower, upper=upper):
+                self.assertEqual(
+                    build_final_sentence_simple(lower, upper, single_parameter=True),
+                    intro + f"<b>{window} prima</b> dei rilievi effettuati nel corso dell’ispezione legale.</p>",
+                )
+
     def test_simple_sentence_with_datetime_keeps_current_html(self):
         isp_dt = datetime.datetime(2026, 8, 21, 14, 0)
         self.assertEqual(

@@ -1,3 +1,4 @@
+import datetime
 import re
 import unittest
 from pathlib import Path
@@ -37,6 +38,40 @@ class CoolingPagesRegressionTests(unittest.TestCase):
             self.assertEqual(app.session_state['stima_cautelativa_beta'], prudent)
             self.assertEqual(app.session_state['peso_stimato_beta'], prudent)
         self.assertEqual(results[0], results[1])
+
+    def test_detailed_conclusion_distinguishes_one_parameter_from_combined_data(self):
+        for with_datetime in (False, True):
+            with self.subTest(with_datetime=with_datetime):
+                values = dict(input_data_rilievo=datetime.date(2026, 10, 14))
+                if with_datetime:
+                    values['input_ora_rilievo'] = '11:28'
+                app = self.start(**values)
+                app.button(key='btn_stima').click().run()
+                self.assertFalse(app.exception)
+                detail = app.session_state['__desc_dettagliate_html']
+                self.assertIn('La valutazione dei dati disponibili porta a stimare', detail)
+                self.assertNotIn('La valutazione complessiva', detail)
+                conclusion = detail.split('La valutazione dei dati disponibili', 1)[1]
+                self.assertEqual('del 14.10.2026' in conclusion, with_datetime)
+                self.assertEqual('prima dei rilievi' in conclusion, not with_datetime)
+                self.assertNotIn('EPOCA DEL DECESSO STIMATA:', detail)
+                self.assertIn('EPOCA DEL DECESSO STIMATA:', app.session_state['frase_breve'])
+
+                app.selectbox[0].select('Parzialmente migrabili').run()
+                app.button(key='btn_stima').click().run()
+                self.assertFalse(app.exception)
+                detail = app.session_state['__desc_dettagliate_html']
+                self.assertIn('La valutazione complessiva dei dati tanatologici', detail)
+                self.assertNotIn('La valutazione dei dati disponibili', detail)
+
+                # The fallback without cooling still has one available parameter.
+                app.session_state['rt_val'] = None
+                app.run()
+                app.button(key='btn_stima').click().run()
+                self.assertFalse(app.exception)
+                detail = app.session_state['__desc_dettagliate_html']
+                self.assertIn('La valutazione dei dati disponibili porta a stimare', detail)
+                self.assertNotIn('La valutazione complessiva', detail)
 
     def test_empty_fc_max_excludes_cooling_but_keeps_other_parameters(self):
         app = self.start(stima_cautelativa_beta=True,

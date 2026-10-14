@@ -86,7 +86,7 @@ class FCPageTests(unittest.TestCase):
                     self.assertRegex(text, r"<p style='color:blue;font-size:8pt;[^']*'>FC impostato manualmente negli scenari 1, 2\.")
                     self.assertIn("8.0 °C (temperatura dell’acqua) – 20.0 °C", text)
                     self.assertNotIn("Temperature degli scenari", text)
-                    self.assertIn("Range di FC considerati", text)
+                    self.assertIn("Range di FC stimati", text)
                     self.assertNotRegex(text, r"<(?:b|strong)\b")
 
     def test_conditions_helper_replaces_toggle_and_panel_activates_ranges(self):
