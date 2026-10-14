@@ -26,13 +26,16 @@ def _form_snapshot():
     return deepcopy({key: value for key, value in st.session_state.items()
         if not key.startswith(("__fc_", "mortem_", "btn_", "desktop_caut_fc_", "__case_",
                                "case_upload", "case_download", "case_open", "case_menu"))
-        and not key.endswith("_button") and key not in {"back_home", "__next_fc"}})
+        and not key.endswith("_button") and key not in {"back_home", "__next_fc",
+            "ambient_temperature_range_toggle", "fc_range_toggle"}})
 
 
 def _close_flags(values):
     for key in _TOGGLES:
         values[key] = False
     values.pop("__full_fc_suggest_target", None)
+    values.pop("ambient_temperature_range_toggle", None)
+    values.pop("fc_range_toggle", None)
 
 
 def open_fc_page(home=FULL_PAGE, *, multiple=False):
@@ -110,6 +113,8 @@ def _current_fc_draft(state, home):
         manualWeightAdjusted=bool(matches and choice.get("manual_weight_adjusted")),
         weightAdjusted=bool(matches and choice.get("weight_adjusted", choice.get("manual_weight_adjusted", False))),
     )
+    if home == FULL_PAGE and "fc_input_range" in state:
+        draft["rangeExpanded"] = bool(state["fc_input_range"])
     # A single editor starts from the current home temperature, including a
     # previously unknown range; an old draft must not replace a newer home value.
     draft["temperature"] = _scenario_temperature_seed(state)

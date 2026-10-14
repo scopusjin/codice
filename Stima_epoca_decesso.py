@@ -27,6 +27,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import missing_cooling_inputs
 from app.ambient_temperature import MODE_KEY, render_temperature_inputs
+from app.fc_input_mode import initialize_fc_mode, render_fc_inputs
 from app.decimal_number_input import FC_FIELD_HELP
 from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 
@@ -329,6 +330,8 @@ with st.container(border=True, key="full_cooling_card"):
     if MODE_KEY not in st.session_state:
         st.session_state[MODE_KEY] = bool(st.session_state.get("stima_cautelativa_beta", False))
 
+    initialize_fc_mode(st.session_state)
+
     # The FC panel activates intervals when a range or multiple scenarios is applied.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
     # Detach the former widget value from Streamlit's widget cleanup on deployment.
@@ -394,23 +397,7 @@ with st.container(border=True, key="full_cooling_card"):
 
                     render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
 
-                    fc_min_val = st.number_input(
-                        i18n.ui_text("full.fc_min_input"),
-                        value=sget("fc_min_val", sget("fattore_correzione", None)),
-                        step=0.05, format="%.2f",
-                        key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
-                        label_visibility="collapsed"
-                    )
-                    fc_other_val = st.number_input(
-                        i18n.ui_text("full.fc_max_input"),
-                        value=sget("fc_other_val", sget("fattore_correzione", None)),
-                        step=0.05, format="%.2f",
-                        key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
-                        label_visibility="collapsed"
-                    )
-                    _sync_interval_state(
-                        "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
-                    )
+                    render_fc_inputs(mobile=True, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
@@ -453,36 +440,9 @@ with st.container(border=True, key="full_cooling_card"):
                     with temperature_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
-                    fc_fields_col, scenarios_col = st.columns(2, gap="small", vertical_alignment="bottom")
+                    fc_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="bottom")
                     with fc_fields_col:
-                        _render_desktop_cooling_label(
-                            "Range fattore di correzione (FC)",
-                            _FC_RANGE_DESKTOP_HELP,
-                            "fc_range",
-                        )
-                        fc_min_col, fc_max_col = st.columns(2, gap="xsmall")
-                        with fc_min_col:
-                            fc_min_val = st.number_input(
-                                i18n.ui_text("full.fc_min_input"),
-                                value=sget("fc_min_val", sget("fattore_correzione", None)),
-                                step=0.05, format="%.2f",
-                                key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
-                                label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
-                        with fc_max_col:
-                            fc_other_val = st.number_input(
-                                i18n.ui_text("full.fc_max_input"),
-                                value=sget("fc_other_val", sget("fattore_correzione", None)),
-                                step=0.05, format="%.2f",
-                                key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
-                                label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
-
-                        _sync_interval_state(
-                            "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
-                        )
+                        render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
 
@@ -515,11 +475,7 @@ with st.container(border=True, key="full_cooling_card"):
                         key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                     )
                     render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
-                    st.number_input(
-                        i18n.ui_text("full.fc_input_label"),
-                        value=sget("fattore_correzione", None), step=0.05, format="%.2f",
-                        key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed"
-                    )
+                    render_fc_inputs(mobile=True, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
             else:
                 with st.container(gap="xsmall", key="cooling_standard_v2_grid_desktop"):
@@ -557,17 +513,9 @@ with st.container(border=True, key="full_cooling_card"):
                     with temperature_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
-                    fc_fields_col, scenarios_col = st.columns(2, gap="small", vertical_alignment="bottom")
+                    fc_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="bottom")
                     with fc_fields_col:
-                        _render_desktop_cooling_label("Fattore di correzione (FC)", FC_FIELD_HELP, "fc_standard")
-                        fc_value_col, _fc_spacer = st.columns(2, gap="xsmall")
-                        with fc_value_col:
-                            st.number_input(
-                                i18n.ui_text("full.fc_input_label"),
-                                value=sget("fattore_correzione", None), step=0.05, format="%.2f",
-                                key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
-                                _mortem_compact_label="",
-                            )
+                        render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
 
@@ -863,7 +811,7 @@ if "show_results" not in st.session_state:
 # Stile bottone
 st.markdown("""
     <style>
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)) {
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *, .st-key-fc_range_action *)) {
         border: 2px solid #2196F3 !important;
         color: black !important;
         background-color: white !important;
@@ -871,7 +819,7 @@ st.markdown("""
         border-radius: 8px !important;
         padding: 0.6em 2em !important;
     }
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *, .st-key-fc_range_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
 
     /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
        automatica di Streamlit altera centratura e larghezza del cerchio. */

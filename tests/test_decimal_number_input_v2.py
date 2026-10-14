@@ -51,6 +51,36 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         self.assertIn("data-mortem-decimal-help-portal", _JS)
         self.assertIn("openMobileHelpPortal(mobileHelpText)", _JS)
 
+    def test_inline_fc_action_keeps_temperature_mode(self):
+        from unittest.mock import patch
+        import app.decimal_number_input_v2 as v2
+        for locked in (False, True):
+            state = dict(__full_device_mobile=True, ambient_temperature_range=True,
+                         fc_input_range=False, ta_base_val=20., ta_other_val=25.,
+                         stima_cautelativa_beta=True, fattore_correzione=1.)
+            if locked:
+                state['__fc_applied_choice'] = {'scenarios': [{}, {}], 'range': [1., 1.]}
+            calls = []
+            def renderer(**kwargs):
+                calls.append(kwargs)
+                return {'value': 1.}
+            with patch.object(v2.st, 'session_state', state), patch.object(v2, '_get_renderer', return_value=renderer):
+                v2.render_mobile_decimal_v2(
+                    value=1., step=0.05, decimals=2, min_value=None, max_value=None,
+                    disabled=False, sync_token=0, aria_label='FC', compact_label='FC', unit='',
+                    help_enabled=False, help_state_key=None, help_text='', suggest_enabled=False,
+                    suggest_label='', suggest_active=False, on_suggest=None, on_change=None,
+                    key='mortem_decimal_fattore_correzione')
+                call = calls[0]
+                self.assertEqual(call['height'], 40)
+                self.assertEqual(call['data']['suggest_enabled'], not locked)
+                if not locked:
+                    self.assertEqual(call['data']['suggest_label'], 'Range?')
+                    call['on_suggest_change']()
+                    self.assertTrue(state['fc_input_range'])
+                    self.assertTrue(state['ambient_temperature_range'])
+                    self.assertEqual(state['ta_other_val'], 25.)
+
     def test_inline_temperature_action_uses_existing_state_and_is_absent_when_locked(self):
         from unittest.mock import patch
         import app.decimal_number_input_v2 as v2

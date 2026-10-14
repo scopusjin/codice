@@ -60,6 +60,7 @@ class FCPageTests(unittest.TestCase):
                 if not msil:
                     app.session_state["stima_cautelativa_beta"] = True
                     app.session_state["__prudent_explicit_ranges_initialized"] = True
+                    app.session_state["ambient_temperature_range"] = True
                     app.session_state["ta_other_val"] = 8.
                 app.run()
                 app.button(key="btn_fc_scenarios").click().run()
@@ -270,7 +271,10 @@ class FCPageTests(unittest.TestCase):
                         self.choose_manual(app, [1., 1.5])
                     self.assertNotIn("Consiglia FC", [e.label for e in app.button] + [e.label for e in app.toggle])
                     for component in app.get("bidi_component"):
-                        self.assertFalse(json.loads(component.proto.json).get("suggest_enabled", False))
+                        data = json.loads(component.proto.json)
+                        if data.get("suggest_enabled"):
+                            self.assertTrue(data.get("temperature_action"))
+                            self.assertIn(data.get("suggest_label"), ("Range?", "Valore singolo?"))
                     for component in app.get("component_instance"):
                         self.assertFalse(json.loads(component.proto.json_args).get("suggest_enabled", False))
                     keys = ("fc_min_val", "fc_other_val") if interval else ("fattore_correzione",)
@@ -306,7 +310,7 @@ class FCPageTests(unittest.TestCase):
                     # Even a stale value event must not detach temperatures from scenarios.
                     self.change_decimal(app, "mortem_decimal_" + field, 25.)
                     self.assertEqual((app.session_state["ta_base_val"], app.session_state["ta_other_val"]), (8., 20.))
-                    self.open_from_fc(app, field)
+                    app.button(key="btn_fc_scenarios").click().run()
                     draft = app.session_state["__fc_draft"]
                     self.assertTrue(draft["multiple"])
                     self.assertEqual([s["temperature"] for s in draft["scenarios"]], ["20.0", "8.0"])
@@ -316,7 +320,7 @@ class FCPageTests(unittest.TestCase):
                     self.assertEqual(app.session_state["__fc_applied_choice"], before)
                     self.assertEqual(app.session_state["rt_val"], 30.)
 
-                self.open_from_fc(app, "ta_other_val")
+                app.button(key="btn_fc_scenarios").click().run()
                 updated = temperature_payload()
                 for item, temperature in zip(updated["scenarios"], (18.5, 10.)):
                     item["temperature"] = temperature
@@ -336,6 +340,9 @@ class FCPageTests(unittest.TestCase):
                     app = self.start(mobile)
                     if interval:
                         self.choose_manual(app, [1., 1.5])
+                        from app.ambient_temperature import toggle_temperature_mode
+                        toggle_temperature_mode(app.session_state)
+                        app.run()
                     for key in (("ta_base_val", "ta_other_val") if interval else ("ta_base_val",)):
                         scope = ("_range" if interval else "_single") if key == "ta_base_val" and not mobile else ""
                         self.change_decimal(app, "mortem_decimal_" + key + scope, 19.5)

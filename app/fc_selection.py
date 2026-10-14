@@ -79,6 +79,9 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
         state[key] = lo
     for key in ("fc_other_val", "FC_max_beta", "__full_interval_fc_other_val"):
         state[key] = hi
+    state["fc_input_range"] = hi > lo or (not payload.get("scenarios") and bool(
+        (payload.get("draft") or {}).get("rangeExpanded") if sync_weight else state.get("fc_input_range")
+    ))
     state["fc_suggested_vals"] = [lo, hi]
     state["stima_cautelativa_beta"] = interval
     state["range_unico_beta"] = interval

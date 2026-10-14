@@ -7,6 +7,8 @@ MODE_KEY = "ambient_temperature_range"
 
 
 def set_temperature_mode(state):
+    from app.fc_input_mode import initialize_fc_mode
+    initialize_fc_mode(state)
     if state[MODE_KEY]:
         if not state.get("stima_cautelativa_beta", False):
             fc = state.get("fattore_correzione")

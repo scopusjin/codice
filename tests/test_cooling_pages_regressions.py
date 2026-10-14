@@ -82,6 +82,53 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         self.assertFalse(app.exception)
         return app
 
+    def test_independent_range_actions_and_collapse(self):
+        from app.fc_input_mode import toggle_fc_mode
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(__full_device_mobile=mobile)
+                self.toggle_range(app, mobile)
+                self.assertFalse(app.session_state['fc_input_range'])
+                self.assertFalse(any(n.key == 'fc_other_val' for n in app.number_input))
+                app.session_state['ta_other_val'] = 25.
+                app.run()
+                def toggle_fc():
+                    if mobile:
+                        toggle_fc_mode(app.session_state)
+                        app.run()
+                    else:
+                        app.button(key='fc_range_toggle').click().run()
+                    self.assertFalse(app.exception)
+                toggle_fc()
+                self.assertTrue(app.session_state['fc_input_range'])
+                app.session_state['fc_other_val'] = 1.4
+                app.run()
+                self.toggle_range(app, mobile)
+                self.assertTrue(app.session_state['fc_input_range'])
+                self.assertEqual(app.session_state['FC_max_beta'], 1.4)
+                self.assertEqual(app.session_state['Ta_max_beta'], 20.)
+                toggle_fc()
+                self.assertEqual(app.session_state['FC_min_beta'], 1.)
+                self.assertEqual(app.session_state['FC_max_beta'], 1.)
+                self.assertFalse(app.session_state['ambient_temperature_range'])
+                toggle_fc()
+                self.assertFalse(app.session_state['ambient_temperature_range'])
+
+    def test_scenarios_hide_fc_mode_action_and_preserve_bounds(self):
+        from test_fc_scenarios import temperature_payload
+        from app.fc_input_mode import toggle_fc_mode
+        app = self.start(__fc_applied_choice=temperature_payload(),
+                         stima_cautelativa_beta=True,
+                         __prudent_explicit_ranges_initialized=True,
+                         fc_min_val=1.35, fc_other_val=1.4)
+        self.assertTrue(app.session_state['fc_input_range'])
+        self.assertFalse(any(b.key == 'fc_range_toggle' for b in app.button))
+        toggle_fc_mode(app.session_state)
+        app.run()
+        self.assertTrue(app.session_state['fc_input_range'])
+        self.assertEqual(app.session_state['FC_min_beta'], 1.35)
+        self.assertEqual(app.session_state['FC_max_beta'], 1.4)
+
     def test_sopralluogo_calculation_is_independent_of_full_mode(self):
         results = []
         for prudent in (False, True):

@@ -23,7 +23,7 @@ __full_standard_ta_base_val __full_standard_fattore_correzione
 __full_interval_ta_base_val __full_interval_ta_other_val
 __full_interval_fc_min_val __full_interval_fc_other_val __fc_reviewed_weight""".split())
 BOOL_KEYS = set("""usa_orario_custom henssge_non_applicabile stima_cautelativa_beta
-range_unico_beta peso_stimato_beta ambient_temperature_range mostra_parametri_aggiuntivi alterazioni_putrefattive
+range_unico_beta peso_stimato_beta fc_input_range ambient_temperature_range mostra_parametri_aggiuntivi alterazioni_putrefattive
 __prudent_explicit_ranges_initialized ta_range_toggle_beta fc_manual_range_beta""".split())
 TEXT_KEYS = {"input_ora_rilievo", "fattori_condizioni_testo", "fattori_condizioni_parentetica"}
 DATE_KEYS = {"input_data_rilievo"}

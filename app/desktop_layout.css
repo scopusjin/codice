@@ -353,7 +353,7 @@
 }
 
 /* Inline temperature mode action, separate from primary form commands. */
-html body:has(#mortem-page-title) .st-key-ambient_temperature_action button {
+html body:has(#mortem-page-title) :is(.st-key-ambient_temperature_action, .st-key-fc_range_action) button {
   width: auto !important;
   min-height: 0 !important;
   height: auto !important;
@@ -363,16 +363,16 @@ html body:has(#mortem-page-title) .st-key-ambient_temperature_action button {
   box-shadow: none !important;
   color: inherit !important;
 }
-html body:has(#mortem-page-title) .st-key-ambient_temperature_action button p {
+html body:has(#mortem-page-title) :is(.st-key-ambient_temperature_action, .st-key-fc_range_action) button p {
   font-size: 0.72rem !important;
   font-weight: 400 !important;
   line-height: 1.2 !important;
   white-space: nowrap;
 }
-html body:has(#mortem-page-title) .st-key-ambient_temperature_action button:hover p {
+html body:has(#mortem-page-title) :is(.st-key-ambient_temperature_action, .st-key-fc_range_action) button:hover p {
   text-decoration: underline;
 }
-html body:has(#mortem-page-title) .st-key-ambient_temperature_action button:focus-visible {
+html body:has(#mortem-page-title) :is(.st-key-ambient_temperature_action, .st-key-fc_range_action) button:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 2px;
 }
