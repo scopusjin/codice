@@ -19,6 +19,10 @@ assert.equal(nodes['fc-selection-note'].hidden,true);
 panel.restore(null,70,20);
 nodes.weight.value='70';nodes.weight.events.input();
 nodes.thin.value='3';nodes.thin.events.input();
+assert.equal(panel.snapshot().state,'');
+assert.equal(nodes.lo.value,'');
+assert(buttons.filter(x=>x.dataset.state).every(x=>x['aria-pressed']==='false'));
+buttons.find(x=>x.dataset.state==='Asciutto').events.click();
 assert.equal(nodes.lo.value,'1.20');assert.equal(nodes.hi.value,'1.30');
 nodes.lo.value='1.25';nodes.lo.events.input();
 const draft=panel.snapshot();panel.restore(draft,70);
@@ -272,3 +276,11 @@ nodes.surface.value='metal';nodes['metal-type'].value='';nodes.surface.events.ch
 nodes.lo.value='1.00';nodes.lo.events.input();nodes.hi.value='1.00';nodes.hi.events.input();
 assert.match(nodes['editable-note'].textContent,/senza un suggerimento automatico disponibile/);
 console.log('FC provenance: preset, intentional edits, reopening, weight and suggested-range comparisons passed.');
+
+// A new or unspecified draft never inherits a previous body's state.
+for(const draft of [null, {fields:{}}]){
+  panel.restore(draft,70,20);
+  assert.equal(panel.snapshot().state,'');
+  assert(buttons.filter(x=>x.dataset.state).every(x=>x['aria-pressed']==='false'));
+  assert.equal(nodes.lo.value,'');
+}

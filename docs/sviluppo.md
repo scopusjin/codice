@@ -529,3 +529,10 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Base remota `140bf45b`, branch `refactor-tanatology-keys`. Su richiesta dell’utente il pulsante «Specifica più scenari» è centrato verticalmente a destra del gruppo temperatura ambientale/FC, anziché allineato alla sola riga FC.
 - Riunite le due righe nella medesima colonna desktop, conservando il rapporto 3:1, la larghezza dei campi e il relativo helper. Applicato sia alla visualizzazione standard sia a quella con range. Nessuna modifica a stato, calcoli o pannello FC.
 - Controllo diff e regressioni della schermata raffreddamento; verifica utente dopo aggiornamento.
+
+## Punto di avanzamento — nessuno stato del corpo preimpostato, 14 ottobre 2026
+
+- Base remota `38a5e193`, branch `refactor-tanatology-keys`. Richiesta esplicita: nessuna selezione iniziale tra Asciutto, Bagnato e Immerso.
+- Rimossi il valore JavaScript iniziale Asciutto e la selezione nel markup. Il ripristino di un pannello nuovo o di una bozza senza stato azzera la selezione, evitando di ereditare quella precedente; una scelta salvata valida viene conservata.
+- In assenza di stato non viene generato un suggerimento automatico FC: compare la richiesta di specificarlo. Invariate le regole per gli stati selezionati e l’inserimento manuale FC.
+- Superate suite UI e scenari, inclusa la verifica del pannello nuovo e della bozza senza stato; motore FC: 3385 controlli e 33600 combinazioni superati. Diff controllato. Prossimo passo: verifica utente all’apertura di un pannello nuovo.
