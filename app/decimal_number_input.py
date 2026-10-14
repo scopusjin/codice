@@ -116,35 +116,33 @@ def decimal_number_input(
     compact_mobile = bool(compact_mobile)
     compact_label = _COMPACT_LABEL_ALIASES.get(str(compact_label or ""), str(compact_label or ""))
 
-    prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
-    interval_mode = bool(
-        prudent_mode
-        and st.session_state.get("range_unico_beta", False)
-    )
+    # The temperature and FC intervals can be selected independently.
+    temperature_range = bool(st.session_state.get("ambient_temperature_range", False))
+    fc_range = bool(st.session_state.get("fc_input_range", False))
     is_ta_base = key == _TA_BASE_COMPONENT_KEY
     is_ta_other = key == _TA_OTHER_COMPONENT_KEY
 
     help_state_key = None
     help_text = ""
     inline_range_help = False
-    if prudent_mode and compact_label == "T. ambientale":
+    if temperature_range and compact_label == "T. ambientale":
         help_state_key = _TA_RANGE_HELP_OPEN_KEY
         help_text = _TA_RANGE_MOBILE_NOTE
         inline_range_help = True
-    elif prudent_mode and compact_label == "Range FC":
+    elif fc_range and compact_label == "Range FC":
         help_state_key = _FC_RANGE_HELP_OPEN_KEY
         help_text = _FC_RANGE_NOTE
         inline_range_help = True
-    elif is_ta_base and not interval_mode:
+    elif is_ta_base and not temperature_range:
         help_state_key = _TA_STANDARD_HELP_OPEN_KEY
         help_text = ui_text("full.ta_mean_help")
-    elif is_ta_other and interval_mode:
+    elif is_ta_other and temperature_range:
         help_state_key = _TA_RANGE_HELP_OPEN_KEY
         help_text = _TA_RANGE_MOBILE_NOTE
-    elif key == "mortem_decimal_fattore_correzione" and not prudent_mode:
+    elif key == "mortem_decimal_fattore_correzione" and not fc_range:
         help_state_key = _FC_STANDARD_HELP_OPEN_KEY
         help_text = _FC_STANDARD_NOTE
-    elif key == "mortem_decimal_fc_other_val" and prudent_mode:
+    elif key == "mortem_decimal_fc_other_val" and fc_range:
         help_state_key = _FC_RANGE_HELP_OPEN_KEY
         help_text = _FC_RANGE_NOTE
     help_enabled = help_state_key is not None
