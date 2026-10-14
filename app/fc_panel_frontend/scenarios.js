@@ -62,6 +62,7 @@
   }
   function updateTemperatureLabel() {
     const immersed=single.snapshot().state==='Immerso';
+    q('scenario-temperature-row').hidden=!enabled&&!immersed;
     q('environment-row').dataset.immersed=String(immersed);
     const label=q('scenario-temperature-label');
     label.textContent=immersed?'Temperatura dell’acqua':mobileLayout?.matches?'T amb media':'Temperatura ambientale media';
@@ -75,7 +76,6 @@
     q('scenario-editor').className='scenario-tone-'+(active%4);
     q('scenario-editor').setAttribute('aria-label',enabled?'Scenario '+(active+1):'Condizioni del corpo');
     q('scenario-controls').hidden = q('scenario-result').hidden = !enabled;
-    q('scenario-temperature-row').hidden = false;
     updateTemperatureLabel();
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateTemperatureLabel);
     q('use').hidden = enabled;

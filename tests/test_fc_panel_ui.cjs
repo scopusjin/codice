@@ -284,3 +284,16 @@ for(const draft of [null, {fields:{}}]){
   assert(buttons.filter(x=>x.dataset.state).every(x=>x['aria-pressed']==='false'));
   assert.equal(nodes.lo.value,'');
 }
+
+// Single FC hides ambient temperature; immersion still requires water temperature.
+panel.restore(null,70,20);
+assert.equal(nodes['scenario-temperature-row'].hidden,true);
+buttons.find(x=>x.dataset.state==='Asciutto').events.click();
+assert.equal(nodes['scenario-temperature-row'].hidden,true);
+buttons.find(x=>x.dataset.state==='Immerso').events.click();
+assert.equal(nodes['scenario-temperature-row'].hidden,false);
+buttons.find(x=>x.dataset.state==='Bagnato').events.click();
+assert.equal(nodes['scenario-temperature-row'].hidden,true);
+nodes['multiple-scenarios'].checked=true;
+nodes['multiple-scenarios'].events.change();
+assert.equal(nodes['scenario-temperature-row'].hidden,false);

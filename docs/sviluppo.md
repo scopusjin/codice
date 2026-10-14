@@ -556,3 +556,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base remota `5633d588`, branch `refactor-tanatology-keys`. Lo screenshot mostra il testo del menu metallico troncato dal limite generico di 140 px. Riservati 320 px al selettore sui layout ampi; sotto 560 px etichetta e menu occupano righe separate, con menu a larghezza piena.
 - Su richiesta rimossa la dicitura «o leggero»: voce «Lamiera/piano metallico sottile», con terminologia coerente nella descrizione e nella spiegazione. Nessuna modifica ai valori FC. Controllo diff e suite UI del pannello eseguiti; verifica utente dopo ricaricamento.
+
+## Punto di avanzamento — temperatura ambientale nel solo pannello multi-scenario, 14 ottobre 2026
+
+- Base remota `b0a0aa7c`, branch `refactor-tanatology-keys`. Nascosta la temperatura ambientale media nel pannello FC singolo; compare attivando Più scenari. Conservati valore e stato senza modificare la temperatura della schermata principale.
+- In immersione resta visibile la temperatura dell’acqua, necessaria alla regola già presente per acqua prossima a zero. Verificati passaggi Asciutto/Immerso/Bagnato e attivazione Più scenari; suite UI e controllo diff superati. Nessuna modifica alle formule FC.
