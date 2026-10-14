@@ -26,6 +26,8 @@ def _uniform_helper_container_key(key):
         return "fcpanel_std_vest_help_slot_prudent"
     if key == "mortem_help_henssge":
         return "fcpanel_std_vest_help_slot_henssge"
+    if key == "mortem_help_prudent_scenarios":
+        return "fcpanel_std_vest_help_slot_scenarios"
     if key.startswith("mortem_help_prudent_electrical_"):
         suffix = key[len("mortem_help_prudent_electrical_"):]
         return f"fcpanel_std_vest_help_slot_electrical_{suffix}"
