@@ -105,6 +105,40 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
                         self.assertEqual(state['ambient_temperature_range'], not interval)
                         self.assertEqual(state['ta_base_val'], 20.)
 
+    def test_scenario_temperatures_open_editor_without_inline_range_action(self):
+        from unittest.mock import patch
+        import app.decimal_number_input_v2 as v2
+
+        for key in ("mortem_decimal_ta_base_val", "mortem_decimal_ta_other_val"):
+            with self.subTest(key=key):
+                state = dict(__full_device_mobile=True,
+                             stima_cautelativa_beta=True,
+                             ambient_temperature_range=True)
+                calls, opened = [], []
+
+                def renderer(**kwargs):
+                    calls.append(kwargs)
+                    return {"value": 20.}
+
+                with patch.object(v2.st, "session_state", state), patch.object(v2, "_get_renderer", return_value=renderer):
+                    v2.render_mobile_decimal_v2(
+                        value=20., step=0.1, decimals=1, min_value=None, max_value=None,
+                        disabled=False, sync_token=0, aria_label="T. ambientale",
+                        compact_label="T. amb.", unit="°C", help_enabled=False,
+                        help_state_key=None, help_text="", suggest_enabled=False,
+                        suggest_label="", suggest_active=False, on_suggest=None,
+                        on_change=None, on_edit=lambda: opened.append(key), key=key,
+                    )
+
+                self.assertEqual(len(calls), 1)
+                data = calls[0]["data"]
+                self.assertFalse(data["disabled"])
+                self.assertTrue(data["edit_on_click"])
+                self.assertFalse(data["temperature_action"])
+                self.assertFalse(data["suggest_enabled"])
+                calls[0]["on_edit_change"]()
+                self.assertEqual(opened, [key])
+
     def test_v2_mounts_and_reruns_without_streamlit_exception(self):
         script = r'''
 import app.decimal_number_input_v2 as v2
