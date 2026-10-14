@@ -33,6 +33,9 @@
     return {range, description:'Range di FC considerati (considerate le varie condizioni in cui potrebbe essersi trovato il corpo): ' + range[0].toFixed(2) +
       ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};
   }
+  function formatTemperature(value) {
+    return Number.isFinite(value) ? value.toFixed(Number.isInteger(value*10)?1:2) + ' °C' : '—';
+  }
   function renderConditions(selected) {
     q('conditions-title').textContent=enabled?'Scenari considerati:':'Condizioni considerate:';
     q('scenario-summary').replaceChildren(...selected.map((item,index)=>{
@@ -43,6 +46,13 @@
       }
       const content=document.createElement('div'),text=document.createElement('div');
       text.textContent=item.description+'.';content.append(text);
+      if(enabled){
+        const values=document.createElement('div');
+        const fc=item.range.every(Number.isFinite)?(item.range[0]===item.range[1]?item.range[0].toFixed(2):item.range.map(v=>v.toFixed(2)).join(' – ')):'—';
+        const temperatureLabel=item.conditions.state==='Immerso'?'T. acqua':'T. ambientale media';
+        values.textContent='FC '+fc+' · '+temperatureLabel+' '+formatTemperature(item.temperature);
+        content.append(values);
+      }
       row.append(content);return row;
     }));
   }
@@ -87,10 +97,20 @@
       tabs.children[i].setAttribute('aria-pressed',String(i===active));
     });
     q('remove-scenario').hidden = items.length <= 2;
-    const group = combined(), missing = items.flatMap((item,i)=>item.error?[i+1]:[]);
+    const group = combined(), missing = items.flatMap((item,i)=>{
+      const reasons=[];
+      if(!Number.isFinite(item.temperature))reasons.push(item.conditions.state==='Immerso'?
+        'Specificare la temperatura dell’acqua.':'Specificare la temperatura ambientale media.');
+      if(item.error && item.error!=='Specificare la temperatura.')reasons.push(item.error);
+      return reasons.length?['Scenario '+(i+1)+': '+reasons.join(' ')]:[];
+    });
     q('scenario-output').textContent=group?(group.range[0]===group.range[1]?group.range[0].toFixed(2):group.range.map(v=>v.toFixed(2)).join(' – ')):'—';
+    const temperatures=items.map(item=>item.temperature);
+    const lo=Math.min(...temperatures),hi=Math.max(...temperatures);
+    q('scenario-temperature-output').textContent=temperatures.every(Number.isFinite)?
+      (lo===hi?formatTemperature(lo):formatTemperature(lo).replace(' °C','')+' – '+formatTemperature(hi)):'—';
     renderConditions(items);
-    q('scenario-error').textContent = missing.length ? 'Completare gli scenari: ' + missing.join(', ') + '.' : '';
+    q('scenario-error').textContent = missing.join('\n');
     q('use').disabled = q('use-scenarios').disabled = !group;
   }
   function temperatureValue() {

@@ -752,7 +752,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   input.disabled = disabled;
   input.readOnly = editOnClick;
   input.setAttribute('inputmode', editOnClick ? 'none' : 'decimal');
-  input.title = editOnClick ? 'Modifica FC nel pannello' : '';
+  input.title = editOnClick ? 'Modifica nel pannello FC' : '';
   input.style.cursor = editOnClick ? 'pointer' : '';
   input.setAttribute('aria-label', String(data?.aria_label || 'Valore numerico'));
 

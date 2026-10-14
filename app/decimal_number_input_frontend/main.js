@@ -252,7 +252,7 @@ function onRender(event) {
   input.disabled = disabled;
   input.readOnly = editOnClick;
   input.setAttribute("inputmode", editOnClick ? "none" : "decimal");
-  input.title = editOnClick ? "Modifica FC nel pannello" : "";
+  input.title = editOnClick ? "Modifica nel pannello FC" : "";
   input.style.cursor = editOnClick ? "pointer" : "";
   control.classList.toggle("is-disabled", disabled);
   control.classList.toggle("review-required", Boolean(args.review_required));

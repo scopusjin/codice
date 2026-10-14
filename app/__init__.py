@@ -224,7 +224,12 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             component_scope = "_range" if prudent_mode and range_mode else "_single"
 
         state_key = _msil_widget_state_keys.get(key, key)
-        fc_panel_only = key in {"fattore_correzione", "fc_min_val", "fc_other_val"}
+        scenario_temperature = (
+            key in {"ta_base_val", "ta_other_val"}
+            and prudent_mode and range_mode
+            and bool((st.session_state.get("__fc_applied_choice") or {}).get("scenarios"))
+        )
+        panel_only = key in {"fattore_correzione", "fc_min_val", "fc_other_val"} or scenario_temperature
         logical_value = st.session_state.get(state_key, kwargs.get("value"))
         mirror_key = f"__decimal_component_mirror_{key}{component_scope}"
         sync_key = f"__decimal_component_sync_{key}{component_scope}"
@@ -266,7 +271,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
         callback_kwargs = kwargs.get("kwargs") or {}
 
         def _component_on_change():
-            if fc_panel_only:
+            if panel_only:
                 return
             incoming = st.session_state.get(component_key)
             expected_present = expected_sync_key in st.session_state
@@ -333,7 +338,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
             unit=_full_mobile_units.get(key, "") if compact_mobile else "",
             hide_group_heading=hide_group_heading,
             inline_weight_toggle=inline_weight_toggle,
-            on_edit=_component_edit_fc if fc_panel_only else None,
+            on_edit=_component_edit_fc if panel_only else None,
             on_change=_component_on_change if callable(user_on_change) else None,
             key=component_key,
         )
@@ -341,7 +346,7 @@ def _number_input_with_decimal_point(label, *args, **kwargs):
         # Durante una sincronizzazione esterna il valore restituito dal
         # componente può essere quello del render precedente: in quel solo
         # passaggio prevale il valore logico appena aggiornato.
-        if external_change or fc_panel_only:
+        if external_change or panel_only:
             return logical_value
 
         st.session_state[state_key] = result

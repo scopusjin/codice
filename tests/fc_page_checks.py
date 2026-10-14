@@ -87,6 +87,7 @@ class FCPageTests(unittest.TestCase):
                 app = self.start(mobile)
                 self.assertFalse(app.session_state["stima_cautelativa_beta"])
                 self.assertNotIn("Condizioni variabili?", [e.label for e in app.toggle])
+                self.assertEqual(app.button(key="btn_fc_scenarios").label, "Specifica più scenari")
                 self.assertTrue(any("Usa Più scenari" in e.value for e in app.markdown))
                 self.choose_manual(app, [1., 1.5])
                 for excluded in (True, False):
@@ -279,6 +280,59 @@ class FCPageTests(unittest.TestCase):
                         self.assertEqual(app.session_state[key], before)
                         app.run()
                         self.assertFalse(app.session_state["__fc_active"])
+
+    def test_scenario_temperatures_open_panel_and_apply_paired_values(self):
+        from copy import deepcopy
+        from test_fc_scenarios import temperature_payload
+        from app.fc_scenarios import matching_temperature_scenarios
+
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(mobile)
+                app.session_state["rt_val"] = 30.
+                app.button(key="btn_fc_scenarios").click().run()
+                self.event(app, "use", **temperature_payload())
+                before = deepcopy(app.session_state["__fc_applied_choice"])
+                for key in ("ta_base_val", "ta_other_val"):
+                    field = key + ("_range" if key == "ta_base_val" and not mobile else "")
+                    # Even a stale value event must not detach temperatures from scenarios.
+                    self.change_decimal(app, "mortem_decimal_" + field, 25.)
+                    self.assertEqual((app.session_state["ta_base_val"], app.session_state["ta_other_val"]), (8., 20.))
+                    self.open_from_fc(app, field)
+                    draft = app.session_state["__fc_draft"]
+                    self.assertTrue(draft["multiple"])
+                    self.assertEqual([s["temperature"] for s in draft["scenarios"]], ["20.0", "8.0"])
+                    self.event(app, "back", weight=70., draft=draft)
+                    app.run()
+                    self.assertFalse(app.session_state["__fc_active"])
+                    self.assertEqual(app.session_state["__fc_applied_choice"], before)
+                    self.assertEqual(app.session_state["rt_val"], 30.)
+
+                self.open_from_fc(app, "ta_other_val")
+                updated = temperature_payload()
+                for item, temperature in zip(updated["scenarios"], (18.5, 10.)):
+                    item["temperature"] = temperature
+                    item["draft"]["temperature"] = str(temperature)
+                self.event(app, "use", **updated)
+                self.assertEqual((app.session_state["ta_base_val"], app.session_state["ta_other_val"]), (10., 18.5))
+                self.assertEqual(matching_temperature_scenarios(app.session_state, [1.35, 1.4], 70., (10., 18.5)),
+                                 [(18.5, [1.35, 1.35]), (10., [1.4, 1.4])])
+                app.button(key="btn_stima").click().run()
+                self.assertEqual(list(app.exception), [])
+                self.assertFalse(any("Temperature modificate" in item.value for item in app.warning))
+
+    def test_temperature_inputs_stay_inline_without_multiple_scenarios(self):
+        for mobile in (False, True):
+            for interval in (False, True):
+                with self.subTest(mobile=mobile, interval=interval):
+                    app = self.start(mobile)
+                    if interval:
+                        self.choose_manual(app, [1., 1.5])
+                    for key in (("ta_base_val", "ta_other_val") if interval else ("ta_base_val",)):
+                        scope = ("_range" if interval else "_single") if key == "ta_base_val" and not mobile else ""
+                        self.change_decimal(app, "mortem_decimal_" + key + scope, 19.5)
+                        self.assertEqual(app.session_state[key], 19.5)
+                        self.assertFalse(app.session_state.get("__fc_active", False))
 
     def test_main_weight_refreshes_point_and_range_in_every_view(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):

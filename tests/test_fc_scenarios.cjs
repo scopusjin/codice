@@ -7,6 +7,7 @@ const choose=i=>nodes['scenario-tabs'].children[i].click();
 const toggle=value=>{nodes['multiple-scenarios'].checked=value;nodes['multiple-scenarios'].events.change();};
 const manual=(lo,hi)=>{change('lo',String(lo),'input');change('hi',String(hi),'input');};
 const weight=value=>change('weight',String(value),'input');
+const summaryValues=()=>nodes['scenario-summary'].children.map(row=>row.children.at(-1).children[1].textContent);
 const start={state:'Asciutto',temperature:'20',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',
   'metal-type':'',leaf:'','leaf-cover':'',feather:'',air:'still',water:'stagnante',isolation:'',
   'blanket-volume':'','support-soaked':'unknown'}};
@@ -16,6 +17,8 @@ assert.equal(panel.snapshot().scenarios.length,2);
 assert.equal(panel.snapshot().activeScenario,0);
 assert.equal(nodes['fc-heading'].textContent,'FC dello scenario 1:');
 assert.equal(nodes['conditions-title'].textContent,'Scenari considerati:');
+assert.equal(nodes['scenario-temperature-output'].textContent,'20.0 °C');
+assert.deepEqual(summaryValues(),['FC 1.00 · T. ambientale media 20.0 °C','FC 1.00 · T. ambientale media 20.0 °C']);
 choose(1);
 assert.equal(nodes.use.hidden,true);assert.equal(nodes['use-scenarios'].disabled,false);
 state('Bagnato');
@@ -40,6 +43,7 @@ choose(0);change('thin','0','input');assert.equal(nodes['use-scenarios'].disable
 // Adapt separate bases, not the continuous envelope across the 1.40 threshold.
 manual(1.35,1.35);choose(1);manual(2,2);
 weight(100);assert.deepEqual(plain(panel.payload().range),[1.35,1.75]);
+assert.deepEqual(summaryValues(),['FC 1.35 · T. ambientale media 20.0 °C','FC 1.75 · T. ambientale media 20.0 °C']);
 assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.base_range)),[[1.35,1.35],[2,2]]);
 assert.equal(panel.payload().weight_adjusted,true);
 const weighted=plain(panel.snapshot());panel.restore(weighted,100);
@@ -78,17 +82,33 @@ assert.equal(panel.payload().scenarios[0].conditions.surf,0);
 assert.match(panel.payload().scenarios[0].description,/su piano di legno/);
 choose(1);state('Immerso');change('scenario-temperature','8','input');
 assert.equal(nodes['scenario-temperature-label'].textContent,'Temperatura dell’acqua');
+assert.equal(nodes['scenario-temperature-output'].textContent,'-2.5 – 20.0 °C');
+assert.match(summaryValues()[0],/T\. ambientale media -2\.5 °C/);
+assert.match(summaryValues()[1],/T\. acqua 8\.0 °C/);
 assert.doesNotMatch(panel.payload().description,/manuale/);
 assert.doesNotMatch(panel.payload().description,/°C|aria ferma|pavimento interno|\[|\]/);
 weight(90);panel.restore(plain(panel.snapshot()),90,30);
 choose(0);assert.equal(nodes['scenario-temperature'].value,'-2.5');
 change('scenario-temperature','','input');choose(1);
 assert.equal(nodes['use-scenarios'].disabled,true);
+assert.equal(nodes['scenario-temperature-output'].textContent,'—');
+assert.match(summaryValues()[0],/T\. ambientale media —/);
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.');
+change('scenario-temperature','','input');
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.\nScenario 2: Specificare la temperatura dell’acqua.');
+change('scenario-temperature','8','input');
 choose(0);change('scenario-temperature','0','input');
 assert.equal(nodes['use-scenarios'].disabled,false);
+assert.equal(nodes['scenario-error'].textContent,'');
+assert.equal(nodes['scenario-temperature-output'].textContent,'0.0 – 20.0 °C');
+change('scenario-temperature','1.01','input');
+assert.equal(nodes['scenario-temperature-output'].textContent,'1.01 – 20.0 °C');
+manual(1,1.2);assert.match(summaryValues()[0],/^FC 1.00 – 1.20 ·/);
 // The current home temperature seeds new scenarios; unknown temperatures stay blank.
 panel.restore({...start,temperature:undefined},70,19.5);toggle(true);
 assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[19.5,19.5]);
 panel.restore({...start,temperature:undefined},70,null);toggle(true);
 assert.equal(nodes['use-scenarios'].disabled,true);
+assert.equal(nodes['scenario-temperature-output'].textContent,'—');
+assert.equal(nodes['scenario-error'].textContent,'Scenario 1: Specificare la temperatura ambientale media.\nScenario 2: Specificare la temperatura ambientale media.');
 console.log('FC temperatures: paired values, negative/zero/missing input, water label, restoration and neutral wood passed.');
