@@ -95,8 +95,13 @@ _COMBINED_TABLE_TEXT = {
         "tropicamide": "La pupilla si dilata dopo iniezione di tropicamide?",
         "acetylcholine": "La pupilla si restringe dopo iniezione di acetilcolina?",
         "variation_note": (
-            "I limiti temporali indicati non corrispondono tutti a intervalli statistici al 95% "
-            "e non costituiscono soglie biologiche assolute."
+            "Tra i criteri riportati, solo i limiti dell’eccitabilità elettrica sopraciliare derivano "
+            "da intervalli statistici al 95%, basati su modalità standardizzate di stimolazione e "
+            "valutazione della risposta e verificati in studi successivi. Per gli altri criteri, "
+            "i dati disponibili non consentono di attribuire ai limiti temporali un significato "
+            "statistico altrettanto verificato: si utilizzano pertanto i limiti minimi o massimi "
+            "osservati nelle casistiche di letteratura. Questi valori non costituiscono soglie "
+            "biologiche assolute."
         ),
     },
     "en": {
@@ -140,8 +145,12 @@ _COMBINED_TABLE_TEXT = {
         "tropicamide": "Does the pupil dilate after tropicamide injection?",
         "acetylcholine": "Does the pupil constrict after acetylcholine injection?",
         "variation_note": (
-            "The stated time limits do not all represent 95% statistical intervals "
-            "and are not absolute biological thresholds."
+            "Among the criteria shown, only the time limits for supraciliary electrical "
+            "excitability derive from 95% statistical intervals, based on standardized stimulation "
+            "and response assessment procedures and verified in subsequent studies. For the other "
+            "criteria, the available data do not allow the time limits to be assigned an equally "
+            "verified statistical meaning: the minimum or maximum limits observed in published "
+            "case series are therefore used. These values are not absolute biological thresholds."
         ),
     },
 }
