@@ -405,3 +405,8 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Aggiornato e superato il test di integrazione esistente: solo raffreddamento, raffreddamento e ipostasi, sole ipostasi, ciascuno con e senza orario. Verificata l’assenza della ripetizione e la permanenza della frase di Henssge. Diff controllato.
 - Ulteriore richiesta dell’utente: nelle conclusioni basate su più parametri, «La valutazione complessiva dei dati tanatologici» diventa «La valutazione combinata dei dati tanatologici». Allineate anche le varianti per rilievi eseguiti in orari differenti e le aspettative dei test esistenti. Superati complessivamente 11 test sui testi temporali e sull’integrazione dei parametri.
 - Ultima dicitura richiesta: «Range dei fattori di correzione stimati», estesa nei riepiloghi Python e JavaScript. Aggiornate le aspettative dei test esistenti; ulteriori 22 test Python testuali e sugli scenari, suite JavaScript e diff superati.
+
+## Punto di avanzamento — rimozione della sottopagina Raccomandazioni, 14 ottobre 2026
+
+- Base remota verificata `1e5b17648e6abfd78c6d461b4886de1e09aa96f3`, branch `refactor-tanatology-keys`. Su richiesta dell’utente eliminata `pages/Raccomandazioni.py`, con rimozione della corrispondente voce dalla navigazione automatica di Streamlit. La pagina ripeteva indicazioni già disponibili negli helper e nelle reference.
+- Nessun collegamento applicativo residuo alla pagina. Gli helper contestuali rimangono disponibili. Aggiornato il test esistente sulle sottopagine ausiliarie; apertura e ritorno dalla pagina Impostazioni e dalla pagina Reference verificati senza eccezioni. Diff controllato.

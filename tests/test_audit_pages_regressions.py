@@ -62,7 +62,7 @@ class AuditPagesRegressionTests(unittest.TestCase):
 
     def test_auxiliary_pages_return_to_existing_main_page(self):
         app = self.start()
-        for page in ('Impostazioni', '9_Reference', 'Raccomandazioni'):
+        for page in ('Impostazioni', '9_Reference'):
             with self.subTest(page=page):
                 app.switch_page(f'pages/{page}.py').run()
                 app.button(key='back_home').click().run()
