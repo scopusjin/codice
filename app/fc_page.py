@@ -69,7 +69,7 @@ def render_scenarios_button(home=FULL_PAGE):
             "Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, "
             "in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli "
             "al raffreddamento e fornisce un intervallo di stima che comprende entrambe.",
-            "mortem_help_prudent",
+            "mortem_help_prudent_scenarios",
         )
     if clicked:
         open_fc_page(home, multiple=True)
