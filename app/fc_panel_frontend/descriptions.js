@@ -47,7 +47,7 @@
     }
     const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento',
       1:'asfalto / terreno / prato', 2:'materasso / tappeto spesso', 3:'supporto molto imbottito e avvolgente',
-      4:'cemento / pietra', 5:'pavimento molto freddo', 6:'piano metallico sottile o leggero',
+      4:'cemento / pietra', 5:'piastrelle molto fredde', 6:'piano metallico sottile o leggero',
       7:'piano metallico molto spesso', 8:'foglie ' + ({dry:'secche',humid:'umide',wet:'bagnate'}[c.leaf] || ''),
       10:'pavimento in PVC'};
     if (surfaces[c.surf]) parts.push('adagiato su ' + surfaces[c.surf]);

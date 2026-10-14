@@ -264,7 +264,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         ),
         "conducting": "Termoconduttiva",
         "concrete": "Cemento, pietra, piastrelle",
-        "cold_floor": "Pavimento molto freddo (es. cantina)",
+        "cold_floor": "Piastrelle molto fredde (es. cantina, all’esterno, …)",
         "yes": "Sì",
         "naked": "Nudo",
         "clothing_indifferent": "Indifferente",

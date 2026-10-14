@@ -546,3 +546,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base remota `9905c225`, branch `refactor-tanatology-keys`. Sostituito su richiesta il messaggio che chiedeva lo stato asciutto/bagnato/immerso con: «Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.»
 - Modifica esclusivamente testuale nel pannello FC. Controllata la sostituzione unica e il diff; logica invariata.
+
+## Punto di avanzamento — voce piastrelle molto fredde, 14 ottobre 2026
+
+- Base remota `323a9f8c`, branch `refactor-tanatology-keys`. Su richiesta sostituita la voce «Pavimento molto freddo (es. cantina)» con «Piastrelle molto fredde (es. cantina, all’esterno, …)» nel selettore Appoggio e nella tabella di riferimento. Allineata la denominazione nelle descrizioni generate e nella relativa spiegazione dell’app.
+- Identificativo della superficie e valori FC invariati; modifica esclusivamente testuale. Controllo diff eseguito.
