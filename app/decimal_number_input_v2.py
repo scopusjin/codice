@@ -274,14 +274,18 @@ _CSS = r"""
   border-radius: 0 6px 6px 0;
 }
 
-/* Le caselle ancora vuote hanno un'indicazione visiva, senza influire sul dato. */
-.number-control.needs-input:not(.is-dense) .number-input {
+/* A missing value marks the complete control, including the mobile label. */
+.number-control.needs-input:not(.is-dense) {
   border-color: #b33b32;
   background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
 }
+.number-control.needs-input:not(.is-dense) .label-help-cluster {
+  background: transparent;
+}
+.number-control.needs-input:not(.is-dense) .number-input,
 .number-control.needs-input:not(.is-dense).has-unit .mobile-unit {
   border-color: #b33b32;
-  background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
+  background: transparent;
 }
 .number-control.needs-input .number-input::placeholder {
   color: #b33b32;
