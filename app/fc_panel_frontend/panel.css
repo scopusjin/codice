@@ -60,6 +60,8 @@
 #fc-full .temperature-control .step{background:transparent}
 #fc-full #scenario-temperature{width:60px;min-height:40px;padding:5px 4px;font-size:16px;background:var(--fc-bg);border-color:#d6ad21}
 #fc-full #scenario-temperature-unit{width:24px;text-align:center;color:var(--fc-muted);font-size:13px}
+#fc-full #environment-row[data-immersed=true] #scenario-temperature{border-right:0;border-radius:6px 0 0 6px}
+#fc-full #environment-row[data-immersed=true] #scenario-temperature-unit{display:flex;align-items:center;justify-content:center;height:40px;border:1px solid #d6ad21;border-left:0;border-radius:0 6px 6px 0;background:var(--fc-bg)}
 #fc-full .temperature-control button{width:30px;min-height:40px}
 #fc-full #counts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;margin:2px 0 6px;padding:10px 9px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
 #fc-full #counts .category{font-size:14px;font-weight:600;margin:0 0 5px}

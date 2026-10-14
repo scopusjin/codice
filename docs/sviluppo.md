@@ -561,3 +561,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base remota `b0a0aa7c`, branch `refactor-tanatology-keys`. Nascosta la temperatura ambientale media nel pannello FC singolo; compare attivando Più scenari. Conservati valore e stato senza modificare la temperatura della schermata principale.
 - In immersione resta visibile la temperatura dell’acqua, necessaria alla regola già presente per acqua prossima a zero. Verificati passaggi Asciutto/Immerso/Bagnato e attivazione Più scenari; suite UI e controllo diff superati. Nessuna modifica alle formule FC.
+
+## Punto di avanzamento — helper temperatura dello scenario e unità acqua, 14 ottobre 2026
+
+- Base remota `a187c9c7`, branch `refactor-tanatology-keys`. L’helper del pannello chiede la temperatura ambientale media dello scenario considerato, riferita al periodo nelle condizioni descritte; rimosso il riferimento al range.
+- In immersione il bordo ocra comprende valore e unità °C, lasciando esterni i comandi meno/più. Suite UI e controllo diff superati; da verificare visivamente nell’app dopo ricaricamento.

@@ -13,7 +13,7 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
     ['scenario','#scenario-help-anchor','Quando usare più scenari','Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli al raffreddamento e fornisce un intervallo di stima che comprende entrambe. Variazioni di breve durata delle condizioni del corpo possono ragionevolmente essere trascurate.'],
     ['teli','#teli-control','Esempi di teli','Lenzuola, asciugamani sottili.'],
     ['heavy','#heavy-control','Esempi di piumoni e coperte molto pesanti','Piumoni o coperte molto pesanti, spesse o imbottite.'],
-    ['temperature','#temperature-help-anchor','Temperatura ambientale media','Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto. In caso di dubbi, è possibile indicare un range: quanto più è ampio, tanto più ampio sarà l’intervallo temporale stimato.']
+    ['temperature','#temperature-help-anchor','Temperatura ambientale media','Indicare la temperatura ambientale media dello scenario considerato, riferita al periodo in cui il corpo si è trovato, o si ipotizza possa essersi trovato, nelle condizioni descritte.']
   ];
   for(const [id,parent,label,text] of helpItems){
     const button=document.createElement('button');
