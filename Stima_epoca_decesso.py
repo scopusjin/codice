@@ -449,7 +449,7 @@ with st.container(border=True, key="full_cooling_card"):
                         with weight_toggle_col:
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    temperature_col, _temperature_spacer = st.columns(2, gap="small")
+                    temperature_col, _temperature_spacer = st.columns([3, 1], gap="small")
                     with temperature_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
@@ -553,7 +553,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 _mortem_compact_label="",
                             )
 
-                    temperature_col, _temperature_spacer = st.columns(2, gap="small")
+                    temperature_col, _temperature_spacer = st.columns([3, 1], gap="small")
                     with temperature_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 

@@ -19,12 +19,12 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                                  fc_min_val=1.4, fc_other_val=1.8)
                 self.assertEqual(app.session_state['Ta_min_beta'], 20.)
                 self.assertEqual(app.session_state['Ta_max_beta'], 20.)
-                app.button(key='ambient_temperature_range_toggle').click().run()
+                self.toggle_range(app, mobile)
                 self.assertFalse(app.exception)
                 app.session_state['ta_other_val'] = 24.
                 app.run()
                 self.assertEqual(app.session_state['Ta_max_beta'], 24.)
-                app.button(key='ambient_temperature_range_toggle').click().run()
+                self.toggle_range(app, mobile)
                 self.assertFalse(app.exception)
                 self.assertEqual(app.session_state['Ta_max_beta'], 20.)
                 self.assertEqual(app.session_state['FC_min_beta'], 1.4)
@@ -54,13 +54,22 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                                      __prudent_explicit_ranges_initialized=True,
                                      __fc_applied_choice=choice,
                                      fc_min_val=1.35, fc_other_val=1.4)
-                    if same_temperature:
+                    if same_temperature and not mobile:
                         self.assertTrue(app.button(key='ambient_temperature_range_toggle').disabled)
                     else:
                         self.assertFalse(any(button.key == 'ambient_temperature_range_toggle' for button in app.button))
                     self.assertEqual(app.session_state['ambient_temperature_range'], not same_temperature)
                     self.assertEqual(app.session_state['Ta_min_beta'], 20. if same_temperature else 8.)
                     self.assertEqual(app.session_state['Ta_max_beta'], 20.)
+
+    def toggle_range(self, app, mobile):
+        if mobile:
+            from app.ambient_temperature import toggle_temperature_mode
+            self.assertFalse(any(button.key == 'ambient_temperature_range_toggle' for button in app.button))
+            toggle_temperature_mode(app.session_state)
+            app.run()
+        else:
+            app.button(key='ambient_temperature_range_toggle').click().run()
 
     def start(self, **values):
         decimal_v2._renderer = None

@@ -433,6 +433,20 @@ _CSS = r"""
 .suggest-button:active:not(:disabled) {
   background: color-mix(in srgb, var(--st-primary-color, #168AC1) 22%, transparent);
 }
+.suggest-button.temperature-range-action,
+.suggest-button.temperature-range-action:hover,
+.suggest-button.temperature-range-action:active {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 0.66rem;
+  font-weight: 400;
+  padding: 0 2px;
+}
+.suggest-button.temperature-range-action:focus-visible {
+  outline: 1px solid var(--st-primary-color, #168AC1);
+  outline-offset: -2px;
+}
 .step-button:disabled,
 .suggest-button:disabled,
 .temperature-help:disabled,
@@ -747,7 +761,9 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   }
   suggestButton.classList.toggle('is-visible', showSuggest);
   suggestButton.classList.toggle('is-active', showSuggest && Boolean(data?.suggest_active));
-  suggestButton.textContent = showSuggest ? 'Consiglia FC' : String(data?.suggest_label || '');
+  suggestButton.classList.toggle('temperature-range-action', Boolean(data?.temperature_action));
+  suggestButton.textContent = data?.temperature_action ? String(data.suggest_label) : (showSuggest ? 'Consiglia FC' : String(data?.suggest_label || ''));
+  suggestButton.setAttribute('aria-label', data?.temperature_action ? String(data.suggest_label) : 'Consiglia fattore di correzione');
   suggestButton.setAttribute('aria-pressed', data?.suggest_active ? 'true' : 'false');
   input.disabled = disabled;
   input.readOnly = editOnClick;
@@ -951,7 +967,13 @@ def render_mobile_decimal_v2(
             "mortem_decimal_fc_other_val",
         }
     )
-    effective_suggest_enabled = bool(suggest_enabled and not external_fc_suggest)
+    # The temperature mode action occupies the existing inline action slot.
+    temperature_action = bool(full_mobile and key == "mortem_decimal_ta_base_val" and not disabled)
+    if temperature_action:
+        from app.ambient_temperature import MODE_KEY, toggle_temperature_mode
+        suggest_label = "Valore singolo?" if st.session_state.get(MODE_KEY, False) else "Range?"
+        on_suggest = lambda: toggle_temperature_mode(st.session_state)
+    effective_suggest_enabled = bool(temperature_action or (suggest_enabled and not external_fc_suggest))
     external_action = bool(
         (
             key == "mortem_decimal_peso"
@@ -1012,6 +1034,7 @@ def render_mobile_decimal_v2(
             "help_enabled": effective_help_enabled,
             "mobile_help_text": str(help_text or "") if full_mobile and effective_help_enabled else "",
             "suggest_enabled": effective_suggest_enabled,
+            "temperature_action": temperature_action,
             "suggest_label": str(suggest_label or "") if effective_suggest_enabled else "",
             "suggest_active": bool(suggest_active and effective_suggest_enabled),
             "reserve_action": reserve_action,

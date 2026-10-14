@@ -51,23 +51,24 @@ def render_temperature_inputs(*, mobile, render_label):
     from app import i18n
 
     from_scenarios = apply_scenario_temperatures(st.session_state)
-    with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
-        if not mobile:
-            render_label("T. ambientale media", i18n.ui_text("full.ta_mean_help"), "ta_mode")
-        if not (from_scenarios and st.session_state[MODE_KEY]):
-            st.button("Valore singolo?" if st.session_state[MODE_KEY] else "Range?",
-                      key="ambient_temperature_range_toggle", type="tertiary", disabled=from_scenarios,
-                      help="Temperature ricavate dai singoli scenari; modificale nel pannello FC." if from_scenarios else None,
-                      on_click=toggle_temperature_mode, args=(st.session_state,))
+    if not mobile:
+        render_label("T. ambientale media", i18n.ui_text("full.ta_mean_help"), "ta_mode")
     interval = st.session_state[MODE_KEY]
     fields = [("ta_base_val", "full.ta_base_input" if interval else "full.ta_input_label")]
     if interval:
         fields.append(("ta_other_val", "full.ta_other_input"))
     # Native columns preserve the same field width as rectal/ante-mortem inputs.
-    slots = [st.container() for _ in fields] if mobile else st.columns(2, gap="xsmall")
+    slots = [st.container() for _ in fields] if mobile else st.columns(3, gap="xsmall")
     for slot, (key, label) in zip(slots, fields):
         with slot:
             st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
                             step=0.1, format="%.1f", key=key, label_visibility="collapsed", disabled=from_scenarios,
                             **({} if mobile else {"_mortem_compact_label": ""}))
+    if not mobile and not (from_scenarios and interval):
+        with slots[len(fields)]:
+            with st.container(key="ambient_temperature_action", horizontal=True, vertical_alignment="center", height=40, border=False):
+                st.button("Valore singolo?" if interval else "Range?",
+                          key="ambient_temperature_range_toggle", type="tertiary", disabled=from_scenarios,
+                          help="Temperature ricavate dai singoli scenari; modificale nel pannello FC." if from_scenarios else None,
+                          on_click=toggle_temperature_mode, args=(st.session_state,))
     sync_temperature_bounds(st.session_state)

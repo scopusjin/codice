@@ -51,6 +51,35 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         self.assertIn("data-mortem-decimal-help-portal", _JS)
         self.assertIn("openMobileHelpPortal(mobileHelpText)", _JS)
 
+    def test_inline_temperature_action_uses_existing_state_and_is_absent_when_locked(self):
+        from unittest.mock import patch
+        import app.decimal_number_input_v2 as v2
+        for interval in (False, True):
+            for locked in (False, True):
+                state = dict(__full_device_mobile=True, ambient_temperature_range=interval,
+                             ta_base_val=20., fattore_correzione=1.)
+                calls = []
+                def renderer(**kwargs):
+                    calls.append(kwargs)
+                    return {'value': 20.}
+                with patch.object(v2.st, 'session_state', state), patch.object(v2, '_get_renderer', return_value=renderer):
+                    v2.render_mobile_decimal_v2(
+                        value=20., step=0.1, decimals=1, min_value=None, max_value=None,
+                        disabled=locked, sync_token=0, aria_label='T. ambientale',
+                        compact_label='T. ambientale', unit='°C', help_enabled=False,
+                        help_state_key=None, help_text='', suggest_enabled=False,
+                        suggest_label='', suggest_active=False, on_suggest=None,
+                        on_change=None, key='mortem_decimal_ta_base_val')
+                    call = calls[0]
+                    self.assertEqual(call['height'], 40)
+                    self.assertEqual(call['data']['temperature_action'], not locked)
+                    self.assertEqual(call['data']['suggest_enabled'], not locked)
+                    if not locked:
+                        self.assertEqual(call['data']['suggest_label'], 'Valore singolo?' if interval else 'Range?')
+                        call['on_suggest_change']()
+                        self.assertEqual(state['ambient_temperature_range'], not interval)
+                        self.assertEqual(state['ta_base_val'], 20.)
+
     def test_v2_mounts_and_reruns_without_streamlit_exception(self):
         script = r'''
 import app.decimal_number_input_v2 as v2

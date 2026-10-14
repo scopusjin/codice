@@ -450,3 +450,12 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Superati i test esistenti degli scenari e del pannello, estesi al FC vuoto, alla ricomparsa del riepilogo e alla numerazione di scenari parzialmente compilati; diff controllato. Verifica visiva dell’utente ancora da eseguire; nessun tentativo fallito. Ultimo commit pubblicato precedente: `30b0e05e`; nessuna conferma manuale ricevuta.
 - Integrato senza modifiche al codice concorrente sopra `d0b819f48a2d55e93136acc3532f5c3df0adefa1` (layout temperature); conservate entrambe le voci di avanzamento.
 - Prossimo passo: ricaricare il pannello e verificare che «Condizioni considerate» compaia solo dopo il FC. Le modifiche al layout delle temperature restano separate.
+
+## Punto di avanzamento — comando Range inline, 14 ottobre 2026
+
+- Base remota `39c782d0`, ramo `refactor-tanatology-keys`, repository `scopusjin/codice`. La correzione precedente `d0b819f4` è stata verificata online: spazi vuoti eliminati e range desktop affiancato. L’utente segnala però che il comando nativo è troppo evidente e occupa una riga su mobile; questa presentazione è superata.
+- `app/ambient_temperature.py`: su desktop l’azione è accanto ai campi, nella stessa riga, con dimensioni tipografiche ridotte. `Stima_epoca_decesso.py`: spazio per due campi e azione. `app/full_mobile_layout.py`: sola rifinitura del testo, senza sfondo/bordo.
+- `app/decimal_number_input_v2.py`: su mobile «Range?» / «Valore singolo?» occupa lo slot azione già presente nel controllo temperatura, sempre alto 40 px. Nessuna riga aggiuntiva, nessuna nuova chiave dati. Il comando riusa il callback della modalità temperatura. Con temperature vincolate dagli scenari l’azione mobile non è renderizzata.
+- Formule, intervalli di calcolo, peso e altre funzioni invariati. Il comando a valore singolo resta assente con scenari a temperature diverse.
+- Superati 13 test delle pagine cooling e 7 test del componente V2, compresa la transizione della modalità dal callback inline e l’assenza dell’azione nei campi bloccati. Controllati sintassi e diff.
+- Da verificare sul telefono dell’utente: leggibilità e posizione del comando inline. Nessuna ulteriore modifica concordata.
