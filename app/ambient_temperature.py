@@ -63,8 +63,11 @@ def render_temperature_inputs(*, mobile, render_label):
     slots = [st.container() for _ in fields] if mobile else st.columns(3, gap="xsmall")
     for slot, (key, label) in zip(slots, fields):
         with slot:
+            # When scenarios supplied these values, the shared numeric control
+            # already opens the FC editor on click instead of accepting inline edits.
+            # Do not disable that click target.
             st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
-                            step=0.1, format="%.1f", key=key, label_visibility="collapsed", disabled=from_scenarios,
+                            step=0.1, format="%.1f", key=key, label_visibility="collapsed",
                             **({} if mobile else {"_mortem_compact_label": ""}))
     if not mobile and not (from_scenarios and interval):
         with slots[len(fields)]:
