@@ -18,7 +18,6 @@
 #fc-full .scenario-totals{display:flex;align-items:center;flex-wrap:wrap;gap:8px 24px;min-width:0}
 #fc-full #scenario-output,#fc-full #scenario-temperature-output{display:block;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
 #fc-full #use-scenarios{min-width:66px}
-#fc-full #scenario-duration-note{font-size:12px;line-height:1.3}
 #fc-full #scenario-error{white-space:pre-line}
 #fc-full[data-multiple=true] #error{display:none}
 #fc-full[data-multiple=false] #choice-row{display:grid;grid-template-columns:max-content minmax(0,1fr) 90px max-content;align-items:center;gap:6px;width:100%;padding:8px;border-color:transparent;background:var(--fc-estimate-bg)}

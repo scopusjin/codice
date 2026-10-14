@@ -75,7 +75,6 @@
     q('scenario-editor').className='scenario-tone-'+(active%4);
     q('scenario-editor').setAttribute('aria-label',enabled?'Scenario '+(active+1):'Condizioni del corpo');
     q('scenario-controls').hidden = q('scenario-result').hidden = !enabled;
-    q('scenario-duration-note').hidden = !enabled;
     q('scenario-temperature-row').hidden = false;
     updateTemperatureLabel();
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateTemperatureLabel);
