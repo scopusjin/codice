@@ -71,7 +71,7 @@
 #fc-full .conditional select{width:100%;font-size:13px;padding:4px 6px}
 #fc-full .check{display:flex;align-items:center;gap:7px;font-size:12px;min-height:32px}
 #fc-full .check input{accent-color:var(--fc-action);width:17px;height:17px;min-height:0;margin:0;padding:0;flex:none}
-#fc-full #air-help-button,#fc-full #counts .counter-help{width:28px;min-height:28px;padding:0;border:0;background:transparent}
+#fc-full #air-help-button,#fc-full .counter-help,#fc-full #counts .counter-help{width:28px;min-height:28px;padding:0;border:0;background:transparent}
 #fc-full #air-help-button span,#fc-full .counter-help span{display:inline-grid;place-items:center;width:21px;height:21px;border:1px solid var(--fc-line);border-radius:50%}
 #fc-full .hint,#fc-full .status{color:var(--fc-muted);font-size:12px;margin:4px 0}
 #fc-full .error{color:light-dark(#a62e31,#ffa4a6);font-size:12px}
@@ -110,7 +110,7 @@
   #fc-full #counts input{min-height:44px;font-size:16px}
   #fc-full #shared-weight input{font-size:16px;min-height:44px}
   #fc-full #shared-weight button,#fc-full .temperature-control button{width:44px;min-height:44px}
-  #fc-full #air-help-button,#fc-full #counts .counter-help{width:44px;min-height:44px}
+  #fc-full #air-help-button,#fc-full .counter-help,#fc-full #counts .counter-help{width:44px;min-height:44px}
 }
 @container fc-panel (max-width:400px){#fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 24px 24px}}
 
@@ -147,3 +147,9 @@
   #fc-full[data-desktop=true] #counts button{width:22px;min-height:26px}
   #fc-full[data-desktop=true] #special-covers .check{min-height:26px}
 }
+
+/* Contextual help floats above the panel without changing its layout. */
+#fc-full #temperature-help-anchor{display:flex;align-items:center;gap:4px;min-width:0}
+#fc-full #environment-row[data-immersed=true] #temperature-help-button{display:none}
+#fc-full .counter-help span{width:18px;height:18px;line-height:1;border-color:color-mix(in srgb,var(--fc-ink) 58%,transparent);opacity:.8}
+#fc-full .fc-help-popover{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(20rem,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;padding:.55rem .65rem;border:1px solid var(--fc-line);border-radius:.48rem;background:var(--fc-bg);color:var(--fc-ink);box-shadow:0 .35rem 1rem rgba(0,0,0,.14);font:400 .8rem/1.35 Arial,sans-serif;white-space:normal}

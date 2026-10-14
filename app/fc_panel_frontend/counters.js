@@ -9,16 +9,30 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
     q('#'+id).setAttribute('inputmode','numeric');
     q('#'+id).addEventListener('input',()=>{changed(id);recalc();});
   }
-  for(const [id,text] of [['teli','Lenzuola, asciugamani sottili.'],['heavy','Piumoni o coperte molto pesanti, spesse o imbottite.']]){
+  const helpItems=[
+    ['teli','#teli-control','Esempi di teli','Lenzuola, asciugamani sottili.'],
+    ['heavy','#heavy-control','Esempi di piumoni e coperte molto pesanti','Piumoni o coperte molto pesanti, spesse o imbottite.'],
+    ['temperature','#temperature-help-anchor','Temperatura ambientale media','Considera la temperatura ambientale media alla quale il corpo può essere stato esposto tra il decesso e l’ispezione. Non corrisponde necessariamente alla temperatura misurata al momento del rilievo, soprattutto se il cadavere si trova all’aperto.']
+  ];
+  for(const [id,parent,label,text] of helpItems){
     const button=document.createElement('button');
-    button.type='button';button.className='counter-help';
-    button.setAttribute('aria-label',id==='teli'?'Esempi di teli':'Esempi di piumoni e coperte molto pesanti');
+    button.id=id+'-help-button';button.type='button';button.className='counter-help';
+    button.setAttribute('aria-label',label);
     button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id+'-help');
     const symbol=document.createElement('span');symbol.textContent='?';symbol.setAttribute('aria-hidden','true');
     button.append(symbol);
-    const hint=document.createElement('p');hint.id=id+'-help';hint.className='hint';hint.hidden=true;hint.textContent=text;
-    button.addEventListener('click',()=>{hint.hidden=!hint.hidden;button.setAttribute('aria-expanded',String(!hint.hidden));});
-    q('#'+id+'-control').append(button);q('#coverings-box').append(hint);
+    const hint=document.createElement('div');
+    hint.id=id+'-help';hint.className='fc-help-popover';hint.textContent=text;
+    hint.setAttribute('popover','auto');hint.setAttribute('role','note');
+    button.addEventListener('click',()=>{
+      if(hint.matches(':popover-open')){hint.hidePopover();return;}
+      hint.showPopover();
+      const anchor=button.getBoundingClientRect(),box=hint.getBoundingClientRect();
+      hint.style.left=Math.max(8,Math.min(anchor.left,window.innerWidth-box.width-8))+'px';
+      hint.style.top=Math.max(8,Math.min(anchor.bottom+4,window.innerHeight-box.height-8))+'px';
+    });
+    hint.addEventListener('toggle',event=>button.setAttribute('aria-expanded',String(event.newState==='open')));
+    q(parent).append(button);root.append(hint);
   }
   function changed(id){
     if(specs.some(([key])=>key===id)){
