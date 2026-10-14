@@ -125,7 +125,7 @@
   border-color:light-dark(#b33b32,#dc877d);
 }
 #fc-full #body-state-row[data-needs-value=true]::after{
-  content:'?';color:light-dark(#a32822,#ffb4ab);font-weight:600;align-self:center;
+  content:'…';color:light-dark(#a32822,#ffb4ab);font-weight:600;align-self:center;
 }
 
 @container fc-panel (max-width:480px){#fc-full #counts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#fc-full #counts .counter{flex-wrap:wrap;gap:3px}#fc-full #counts label{width:100%;white-space:normal}#fc-full #counts .step{margin-bottom:3px}}
