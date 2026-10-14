@@ -1020,7 +1020,7 @@ if st.session_state["show_results"]:
                 input_tm=input_tm, input_w=input_w,
                 fattore_correzione=st.session_state.get("fattore_correzione"),
                 options=st.session_state)
-            st.warning(("Per la stima del raffreddamento: " + missing) if missing
+            st.warning(("Per la stima del raffreddamento: " + missing[0].lower() + missing[1:]) if missing
                        else i18n.ui_text("full.no_data_warning"))
         st.stop()
 

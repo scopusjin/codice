@@ -22,7 +22,7 @@ def missing_cooling_inputs(*, input_rt, input_ta, input_tm, input_w,
         if count == 2:
             return label
         if count == 1:
-            return "uno dei due valori di " + label.removeprefix("la ").removeprefix("il ")
+            return ("uno dei due valori del " if label.startswith("il ") else "uno dei due valori di ") + label.removeprefix("la ").removeprefix("il ")
         return None
 
     ambient = (interval_missing(("ta_base_val", "ta_other_val"),
@@ -38,8 +38,8 @@ def missing_cooling_inputs(*, input_rt, input_ta, input_tm, input_w,
     if not finite_number(input_w):
         missing.append("il peso corporeo")
     fc = (interval_missing(("fc_min_val", "fc_other_val"),
-                           ("FC_min_beta", "FC_max_beta"), "il FC")
-          if prudent else ("il FC" if not finite_number(fattore_correzione) else None))
+                           ("FC_min_beta", "FC_max_beta"), "il fattore di correzione")
+          if prudent else ("il fattore di correzione" if not finite_number(fattore_correzione) else None))
     if fc:
         missing.append(fc)
     if not missing:
