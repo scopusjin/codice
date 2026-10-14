@@ -49,11 +49,16 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 app.button(key='btn_stima').click().run()
                 self.assertFalse(app.exception)
                 detail = app.session_state['__desc_dettagliate_html']
-                self.assertIn('La valutazione dei dati disponibili porta a stimare', detail)
-                self.assertNotIn('La valutazione complessiva', detail)
-                conclusion = detail.split('La valutazione dei dati disponibili', 1)[1]
-                self.assertEqual('del 14.10.2026' in conclusion, with_datetime)
-                self.assertEqual('prima dei rilievi' in conclusion, not with_datetime)
+                self.assertEqual('La valutazione dei dati disponibili porta a stimare' in detail,
+                                 with_datetime)
+                self.assertNotIn('La valutazione combinata', detail)
+                self.assertIn("Applicando l'equazione di Henssge", detail)
+                if with_datetime:
+                    conclusion = detail.split('La valutazione dei dati disponibili', 1)[1]
+                    self.assertIn('del 14.10.2026', conclusion)
+                    self.assertNotIn('prima dei rilievi', conclusion)
+                else:
+                    self.assertEqual(detail.count('prima dei rilievi effettuati'), 1)
                 self.assertNotIn('EPOCA DEL DECESSO STIMATA:', detail)
                 self.assertIn('EPOCA DEL DECESSO STIMATA:', app.session_state['frase_breve'])
 
@@ -61,7 +66,7 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 app.button(key='btn_stima').click().run()
                 self.assertFalse(app.exception)
                 detail = app.session_state['__desc_dettagliate_html']
-                self.assertIn('La valutazione complessiva dei dati tanatologici', detail)
+                self.assertIn('La valutazione combinata dei dati tanatologici', detail)
                 self.assertNotIn('La valutazione dei dati disponibili', detail)
 
                 # The fallback without cooling still has one available parameter.
@@ -70,8 +75,9 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 app.button(key='btn_stima').click().run()
                 self.assertFalse(app.exception)
                 detail = app.session_state['__desc_dettagliate_html']
-                self.assertIn('La valutazione dei dati disponibili porta a stimare', detail)
-                self.assertNotIn('La valutazione complessiva', detail)
+                self.assertEqual('La valutazione dei dati disponibili porta a stimare' in detail,
+                                 with_datetime)
+                self.assertNotIn('La valutazione combinata', detail)
 
     def test_empty_fc_max_excludes_cooling_but_keeps_other_parameters(self):
         app = self.start(stima_cautelativa_beta=True,

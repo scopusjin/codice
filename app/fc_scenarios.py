@@ -34,7 +34,7 @@ def summarize_scenarios(scenarios):
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
     label = ("Fattore di correzione considerato" if bounds[0] == bounds[1] else
-             "Range di FC stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
+             "Range dei fattori di correzione stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
     text = f"{label}: {bounds[0]:.2f} ({descriptions[0]})"
     if bounds[0] != bounds[1]:
         text += f" — {bounds[1]:.2f} ({descriptions[1]})"

@@ -769,14 +769,14 @@ def aggiorna_grafico(
 
     if orari_parametri_differenti and frase_finale_html:
         intro_orari_diversi = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi "
+            "La valutazione combinata dei dati tanatologici, integrando i loro limiti temporali minimi e massimi "
             "e tenendo conto dei diversi orari di misurazione dei vari parametri,"
         )
         intro_min_max = (
-            "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali minimi e massimi,"
+            "La valutazione combinata dei dati tanatologici, integrando i loro limiti temporali minimi e massimi,"
         )
-        intro_generico = "La valutazione complessiva dei dati tanatologici consente"
-        intro_semplice = "La valutazione complessiva dei dati tanatologici, integrando i loro limiti temporali,"
+        intro_generico = "La valutazione combinata dei dati tanatologici consente"
+        intro_semplice = "La valutazione combinata dei dati tanatologici, integrando i loro limiti temporali,"
         if intro_min_max in frase_finale_html:
             frase_finale_html = frase_finale_html.replace(intro_min_max, intro_orari_diversi, 1)
         elif intro_generico in frase_finale_html:
@@ -897,7 +897,8 @@ def aggiorna_grafico(
     # 2) stima complessiva / eventuale discordanza
     if discordanti:
         chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
-    elif overlap and frase_finale_html:
+    elif overlap and frase_finale_html and (not single_parameter or usa_orario_custom):
+        # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
     # 3) frase blu di riepilogo dei parametri usati.
