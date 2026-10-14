@@ -76,6 +76,8 @@
 #fc-full .conditional{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,140px);align-items:center;gap:8px;margin:4px 0}
 #fc-full .conditional label{font-size:12px}
 #fc-full .conditional select{width:100%;font-size:13px;padding:4px 6px}
+#fc-full #metal-type-row{grid-template-columns:minmax(0,1fr) minmax(0,320px)}
+@media(max-width:560px){#fc-full #metal-type-row{grid-template-columns:minmax(0,1fr);gap:4px}}
 #fc-full .check{display:flex;align-items:center;gap:7px;font-size:12px;min-height:32px}
 #fc-full .check input{accent-color:var(--fc-action);width:17px;height:17px;min-height:0;margin:0;padding:0;flex:none}
 #fc-full #air-help-button,#fc-full .counter-help,#fc-full #counts .counter-help{width:28px;min-height:28px;padding:0;border:0;background:transparent}

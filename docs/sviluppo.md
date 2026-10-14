@@ -551,3 +551,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base remota `323a9f8c`, branch `refactor-tanatology-keys`. Su richiesta sostituita la voce «Pavimento molto freddo (es. cantina)» con «Piastrelle molto fredde (es. cantina, all’esterno, …)» nel selettore Appoggio e nella tabella di riferimento. Allineata la denominazione nelle descrizioni generate e nella relativa spiegazione dell’app.
 - Identificativo della superficie e valori FC invariati; modifica esclusivamente testuale. Controllo diff eseguito.
+
+## Punto di avanzamento — leggibilità superficie metallica, 14 ottobre 2026
+
+- Base remota `5633d588`, branch `refactor-tanatology-keys`. Lo screenshot mostra il testo del menu metallico troncato dal limite generico di 140 px. Riservati 320 px al selettore sui layout ampi; sotto 560 px etichetta e menu occupano righe separate, con menu a larghezza piena.
+- Su richiesta rimossa la dicitura «o leggero»: voce «Lamiera/piano metallico sottile», con terminologia coerente nella descrizione e nella spiegazione. Nessuna modifica ai valori FC. Controllo diff e suite UI del pannello eseguiti; verifica utente dopo ricaricamento.
