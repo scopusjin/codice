@@ -359,3 +359,5 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Base verificata: `b93678eb62a2108527bfd7eff0afc62e2bf0642f`, branch `refactor-tanatology-keys`. L’utente segnala la duplicazione dell’avviso sul FC, mostrato sia da solo sia nella riga dello scenario.
 - Modifica limitata a `app/fc_panel_frontend/scenarios.css`: con più scenari attivi viene mostrato soltanto il riepilogo degli errori per numero di scenario, che include già gli avvisi sul FC e sulle temperature. Il messaggio locale resta disponibile nel caso singolo; validazione e condizioni di abilitazione di «Usa» invariate.
 - Suite JavaScript degli scenari superata e diff controllato. Prossimo passo: verifica online della singola occorrenza dell’avviso e della sua permanenza nel caso singolo.
+
+- Verifica online completata sul commit applicativo `545a0df910bfd7440af2ff516b4297a344979b86`: con più scenari è visibile soltanto l’avviso numerato; disattivando «Più scenari» resta visibile l’avviso locale sul FC. Nessun avviso necessario eliminato.
