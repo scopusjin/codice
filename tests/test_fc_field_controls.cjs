@@ -70,5 +70,24 @@ for (const version of [1, 2]) {
   assert.equal(ordinary.input.readOnly, false);
   assert.equal(ordinary.values.at(-1), 3);
   assert.equal(ordinary.edits.length, 0);
+
+  // An empty field stays visibly incomplete until the operator enters a value.
+  const empty = harness(version);
+  empty.render({...data, value: null, edit_on_click: false});
+  assert.equal(empty.input.value, '');
+  assert.equal(empty.input.placeholder, '…');
+  assert.equal(empty.input['aria-invalid'], 'true');
+  empty.input.value = '3';
+  empty.input.fire('input');
+  assert.equal(empty.input.placeholder, '');
+  assert.equal(empty.input['aria-invalid'], 'false');
+  empty.input.fire('blur');
+  assert.equal(empty.input.value, '3.00');
+  empty.input.value = '';
+  empty.input.fire('input');
+  assert.equal(empty.input.placeholder, '…');
+  empty.render({...data, value: null, disabled: true, edit_on_click: false, sync_token: 1});
+  assert.equal(empty.input.placeholder, '');
+  assert.equal(empty.input['aria-invalid'], 'false');
 }
 console.log('FC field V1/V2: click/keyboard opens editor; inline edits blocked; weight refresh never navigates.');
