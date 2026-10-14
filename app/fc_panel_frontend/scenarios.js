@@ -64,6 +64,7 @@
     q('scenario-temperature').setAttribute('aria-label',immersed?'Temperatura dell’acqua in gradi Celsius':'Temperatura ambientale media in gradi Celsius');
   }
   function render() {
+    q('panel-title').textContent=enabled?'Gestisci scenari':'Consiglia FC';
     q('multiple-scenarios').checked = enabled;
     q('fc-full').dataset.multiple=String(enabled);
     q('scenario-editor').className='scenario-tone-'+(active%4);
