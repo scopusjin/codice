@@ -39,7 +39,9 @@
   }
   function renderConditions(selected) {
     q('conditions-title').textContent=enabled?'Scenari considerati:':'Condizioni considerate:';
-    q('scenario-summary').replaceChildren(...selected.map((item,index)=>{
+    q('conditions-summary').hidden = !selected.some(item => item.range.every(Number.isFinite));
+    q('scenario-summary').replaceChildren(...selected.flatMap((item,index)=>{
+      if (!item.range.every(Number.isFinite)) return [];
       const row=document.createElement('div');row.className='condition-line scenario-tone-'+(index%4);
       if(enabled){
         const number=document.createElement('span');number.className='condition-number';

@@ -125,3 +125,19 @@ assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[0,0]);
 panel.restore({...start,temperature:null,initialScenarioTemperatures:[20,8]},70,null);
 change('scenario-temperature','17','input');toggle(true);
 assert.deepEqual(plain(panel.payload().scenarios.map(s=>s.temperature)),[17,17]);
+
+// Conditions must not describe defaults before an FC is available.
+panel.restore({...start,lo:'',hi:'',manual:false},70);
+assert.equal(nodes['conditions-summary'].hidden,true);
+assert.equal(nodes['scenario-summary'].children.length,0);
+state('Asciutto');
+assert.equal(nodes['conditions-summary'].hidden,false);
+assert.equal(nodes['scenario-summary'].children.length,1);
+toggle(true);
+choose(0);manual('','');
+assert.equal(nodes['scenario-summary'].children.length,1);
+assert.equal(nodes['scenario-summary'].children[0].children[0].textContent,'2');
+choose(1);manual('','');
+assert.equal(nodes['conditions-summary'].hidden,true);
+assert.equal(nodes['scenario-summary'].children.length,0);
+console.log('Conditions stay hidden without FC; available scenarios retain their original numbering.');

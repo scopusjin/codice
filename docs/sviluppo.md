@@ -442,3 +442,11 @@ Commit dell'intervento: quello che introduce questa sezione (vedere `git log`).
 - Prossimo passo: verifica utente di compattezza, Range e scenari a temperature uguali/diverse; nessun ulteriore intervento concordato.
 
 Precisazione utente: con scenari a temperature diverse il comando «Valore singolo?» non viene renderizzato. Verificata la sua assenza nei test di pagina desktop/mobile. Pubblicazione inizialmente bloccata dal controllo automatico, poi autorizzata esplicitamente dall’utente.
+
+## Punto di avanzamento — condizioni visibili solo con FC, 14 ottobre 2026
+
+- Base GitHub verificata: `30b0e05e54bc297fc0a4c483cc7e29a202bc8fd1`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Commit corrente dell’intervento: quello contenente questa voce.
+- Richiesta esplicita dell’utente: non mostrare le descrizioni delle condizioni prima della comparsa del FC. In `app/fc_panel_frontend/scenarios.js`, `renderConditions()`, le righe senza estremi FC numerici vengono omesse; se nessuna riga è disponibile, viene nascosto tutto il riepilogo. Gli scenari disponibili conservano il numero originale. Nessuna modifica ai calcoli o alle chiavi di stato.
+- Superati i test esistenti degli scenari e del pannello, estesi al FC vuoto, alla ricomparsa del riepilogo e alla numerazione di scenari parzialmente compilati; diff controllato. Verifica visiva dell’utente ancora da eseguire; nessun tentativo fallito. Ultimo commit pubblicato precedente: `30b0e05e`; nessuna conferma manuale ricevuta.
+- Integrato senza modifiche al codice concorrente sopra `d0b819f48a2d55e93136acc3532f5c3df0adefa1` (layout temperature); conservate entrambe le voci di avanzamento.
+- Prossimo passo: ricaricare il pannello e verificare che «Condizioni considerate» compaia solo dopo il FC. Le modifiche al layout delle temperature restano separate.
