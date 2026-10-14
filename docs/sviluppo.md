@@ -371,3 +371,9 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Base GitHub e checkout isolato verificati: `a049630c42b3cb86605780e98916165bd262d037`, branch `refactor-tanatology-keys`. Su richiesta dell’utente, sostituite con una virgola le parentesi introduttive nelle descrizioni del range di FC e delle temperature ambientali medie, anche nei riepiloghi generati dagli scenari.
 - Ripristinata «EPOCA DEL DECESSO STIMATA:» soltanto all’inizio della descrizione breve, in tutte le varianti con e senza data/ora. Le descrizioni dettagliate restano prive di questa intestazione.
 - Allineate le aspettative dei test esistenti; superati 29 test Python su scenari, testi del raffreddamento e frasi temporali, la suite JavaScript degli scenari e il controllo del diff. Nessun nuovo test permanente per queste modifiche testuali; calcoli e dati numerici invariati.
+
+## Punto di avanzamento — helper degli scenari e pulsante vicino ai campi, 14 ottobre 2026
+
+- Base remota verificata `f4cdbebba1873892ea0d54d9d71c847aa73be053`; contenuti dei file interessati confrontati con il checkout. L’helper della pagina principale e la spiegazione nel pannello iniziano ora con «Da usare se il corpo si è trovato…», mantenendo il resto del testo indicato dall’utente.
+- Nella pagina principale desktop, il gruppo temperatura–FC occupa la larghezza del contenuto: «Specifica più scenari» resta subito accanto ai campi, anziché essere spinto al margine destro. Aggiornate sia la vista singola sia quella con intervalli.
+- Superati i due test di integrazione esistenti mirati all’helper e all’apertura/applicazione degli scenari, con passaggi desktop, mobile e MSIL; diff controllato. Il trasferimento iniziale dei due estremi di temperatura ai nuovi scenari è stato discusso con l’utente e non fa parte di questo intervento.

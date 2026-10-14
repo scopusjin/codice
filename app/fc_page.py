@@ -62,7 +62,7 @@ def render_scenarios_button(home=FULL_PAGE):
     with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
         clicked = st.button("Specifica più scenari", key="btn_fc_scenarios", type="secondary", width="content")
         _render_click_help(
-            "Usa Più scenari se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, "
+            "Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, "
             "in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli "
             "al raffreddamento e fornisce un intervallo di stima che comprende entrambe.",
             "mortem_help_prudent",

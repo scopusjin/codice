@@ -88,7 +88,7 @@ class FCPageTests(unittest.TestCase):
                 self.assertFalse(app.session_state["stima_cautelativa_beta"])
                 self.assertNotIn("Condizioni variabili?", [e.label for e in app.toggle])
                 self.assertEqual(app.button(key="btn_fc_scenarios").label, "Specifica più scenari")
-                self.assertTrue(any("Usa Più scenari" in e.value for e in app.markdown))
+                self.assertTrue(any("Da usare se il corpo si è trovato" in e.value for e in app.markdown))
                 self.choose_manual(app, [1., 1.5])
                 for excluded in (True, False):
                     app.checkbox(key="henssge_non_applicabile").set_value(excluded).run()
@@ -96,7 +96,7 @@ class FCPageTests(unittest.TestCase):
                     self.assertTrue(app.session_state["range_unico_beta"])
                     self.assertTrue(app.session_state["stima_cautelativa_beta"])
                     self.assertNotIn("stima_cautelativa_beta", [e.key for e in app.toggle])
-                    self.assertEqual(any("Usa Più scenari" in e.value for e in app.markdown), not excluded)
+                    self.assertEqual(any("Da usare se il corpo si è trovato" in e.value for e in app.markdown), not excluded)
                 self.assertEqual(app.session_state["fc_min_val"], 1.)
                 self.assertEqual(app.session_state["fc_other_val"], 1.5)
 

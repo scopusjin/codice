@@ -465,7 +465,7 @@ with st.container(border=True, key="full_cooling_card"):
                         horizontal=True, wrap=False, vertical_alignment="center",
                         gap="small", key="cooling_conditions_row_desktop",
                     ):
-                        with st.container(width="stretch", key="cooling_conditions_fields_desktop"):
+                        with st.container(width="content", key="cooling_conditions_fields_desktop"):
                             _render_desktop_cooling_label(
                                 "Range temperatura ambientale media",
                                 _TA_RANGE_DESKTOP_HELP,
@@ -601,7 +601,7 @@ with st.container(border=True, key="full_cooling_card"):
                         horizontal=True, wrap=False, vertical_alignment="center",
                         gap="small", key="cooling_conditions_row_desktop",
                     ):
-                        with st.container(width="stretch", key="cooling_conditions_fields_desktop"):
+                        with st.container(width="content", key="cooling_conditions_fields_desktop"):
                             _render_desktop_cooling_label(
                                 "T. ambientale media",
                                 i18n.ui_text("full.ta_mean_help"),
