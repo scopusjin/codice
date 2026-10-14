@@ -90,6 +90,11 @@ _FULL_MOBILE_CSS = r"""
   display: none !important;
 }
 
+/* La freccia standard è in un wrapper aria-hidden, non nell'icona stessa. */
+[class*="st-key-mortem_help_prudent_scenarios"] [data-testid="stPopoverButton"] [aria-hidden="true"] {
+  display: none !important;
+}
+
 [class*="st-key-mortem_help_prudent"] button p,
 [class*="st-key-mortem_help_henssge"] button p,
 [class*="st-key-mortem_help_prudent_electrical_"] button p {
