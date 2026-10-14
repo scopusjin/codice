@@ -152,9 +152,15 @@
     q('scenario-temperature-output').textContent=temperatures.every(Number.isFinite)?
       (lo===hi?formatTemperature(lo):formatTemperature(lo).replace(' °C','')+' – '+formatTemperature(hi)):'—';
     renderConditions(items);
+    const incompleteNumbers=items.flatMap((item,i)=>
+      item.error||!item.range.every(Number.isFinite)||!Number.isFinite(item.temperature)?[i+1]:[]);
+    const incompleteList=incompleteNumbers.length>1
+      ? incompleteNumbers.slice(0,-1).join(', ')+' e '+incompleteNumbers.at(-1)
+      : String(incompleteNumbers[0]);
     q('scenario-error').textContent = mobileLayout?.matches
-      ? items.flatMap((item,i)=>item.error||!item.range.every(Number.isFinite)||!Number.isFinite(item.temperature)
-        ? ['Completare scenario '+(i+1)]:[]).join('\n')
+      ? (incompleteNumbers.length
+          ? 'Compila '+(incompleteNumbers.length===1?'scenario ':'scenari ')+incompleteList
+          : '')
       : missing.join('\n');
     q('use').disabled = q('use-scenarios').disabled = !group;
   }
