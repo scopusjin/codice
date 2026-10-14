@@ -987,7 +987,12 @@ def render_mobile_decimal_v2(
         }
     )
     # The temperature mode action occupies the existing inline action slot.
-    temperature_action = bool(full_mobile and key == "mortem_decimal_ta_base_val" and not disabled)
+    # Temperatures coming from FC scenarios open that panel, not the inline
+    # single/range temperature switch. The on_edit callback owns their click.
+    temperature_action = bool(
+        full_mobile and key == "mortem_decimal_ta_base_val"
+        and not disabled and not callable(on_edit)
+    )
     if temperature_action:
         from app.ambient_temperature import MODE_KEY, toggle_temperature_mode
         suggest_label = "Valore singolo?" if st.session_state.get(MODE_KEY, False) else "Range?"
