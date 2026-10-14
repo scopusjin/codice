@@ -98,6 +98,7 @@ def native_time_picker(
         inherited_background_color=_inherited_background_color(),
         allow_empty=allow_empty,
         open_default_now=open_default_now,
+        highlight_missing=main_datetime,
         key=key,
         default=value,
     )
