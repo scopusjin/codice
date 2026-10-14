@@ -126,10 +126,70 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   align-items: center !important;
 }
 
+/* Shared Streamlit popover trigger: same ring and size as the T/FC V2 helpers. */
+[class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopover"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 1.45rem !important;
+  min-width: 1.45rem !important;
+  max-width: 1.45rem !important;
+  height: 1.45rem !important;
+  min-height: 1.45rem !important;
+  max-height: 1.45rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+[class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopoverButton"] {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 1.45rem !important;
+  min-width: 1.45rem !important;
+  max-width: 1.45rem !important;
+  height: 1.45rem !important;
+  min-height: 1.45rem !important;
+  max-height: 1.45rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid color-mix(in srgb,var(--st-text-color,#31333F) 58%,transparent) !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: inherit !important;
+  opacity: .8;
+  box-shadow: none !important;
+  font-size: .74rem !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+[class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopoverButton"] [aria-hidden="true"] {
+  display: none !important;
+}
+[class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopoverButton"] > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-right: 0 !important;
+  gap: 0 !important;
+}
+@media(pointer:coarse) {
+  [class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopover"],
+  [class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopoverButton"] {
+    width: 1.42rem !important;
+    min-width: 1.42rem !important;
+    max-width: 1.42rem !important;
+    height: 1.42rem !important;
+    min-height: 1.42rem !important;
+    max-height: 1.42rem !important;
+  }
+}
+
 .mortem-help-copy {
-  max-width: min(82vw, 30rem);
-  font-size: 0.90rem;
-  line-height: 1.28;
+  max-width: min(82vw, 20rem);
+  font-size: 0.80rem;
+  line-height: 1.35;
 }
 
 .mortem-help-copy-intro {
