@@ -353,3 +353,9 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 
 - Verifica online completata sul commit applicativo `c6f14f7e8ac3bfd390bfac416c92344b74d05604`: pulsante «Specifica più scenari» con bordo visibile; due scenari sintetici (ambiente 20.0 °C/FC 1.00 e acqua 8.0 °C/FC 0.50), avvisi distinti sulle temperature mancanti, riepilogo complessivo e coppie individuali verificati. Clic sul secondo campo temperatura e pulsante + del primo aprono direttamente il pannello sullo scenario 1. Modifica della temperatura dell’acqua a 9.0 °C applicata con «Usa», valore rientrato nella pagina principale e conservato alla riapertura; nessuna variazione involontaria tramite +. GitHub Actions superato (run `38537534573`). Verifica mobile coperta dai test locali; resta il riscontro sul dispositivo dell’utente.
 - Pubblicazione tramite connessione GitHub dopo mancata autenticazione del push CLI; albero remoto confrontato con quello locale verificato, identico. Non riprovare il push CLI senza credenziali configurate.
+
+## Punto di avanzamento — avvisi degli scenari senza ripetizioni, 14 ottobre 2026
+
+- Base verificata: `b93678eb62a2108527bfd7eff0afc62e2bf0642f`, branch `refactor-tanatology-keys`. L’utente segnala la duplicazione dell’avviso sul FC, mostrato sia da solo sia nella riga dello scenario.
+- Modifica limitata a `app/fc_panel_frontend/scenarios.css`: con più scenari attivi viene mostrato soltanto il riepilogo degli errori per numero di scenario, che include già gli avvisi sul FC e sulle temperature. Il messaggio locale resta disponibile nel caso singolo; validazione e condizioni di abilitazione di «Usa» invariate.
+- Suite JavaScript degli scenari superata e diff controllato. Prossimo passo: verifica online della singola occorrenza dell’avviso e della sua permanenza nel caso singolo.
