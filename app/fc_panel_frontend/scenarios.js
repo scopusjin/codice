@@ -80,12 +80,12 @@
     };
     flagInput('scenario-temperature',mobile&&!Number.isFinite(temperatureValue()));
     const selectIds=['isolation','feather','blanket-volume','leaf','leaf-cover','metal-type','support-soaked'];
-    const pendingAnswer=selectIds.some(id=>{
+    const pendingAnswer=selectIds.map(id=>{
       const field=q(id);
       const pending=mobile&&!q(id+'-row').hidden&&(field.value===''||field.value==='unknown');
       if(field.options?.length)field.options[0].textContent=pending?'?':'Da precisare';
       return pending;
-    });
+    }).some(Boolean);
     const immersed=single.snapshot().state==='Immerso';
     const countIds=q('fc-full').dataset.desktop==='true'
       ? ['garment-thin','garment-thick','teli','light-cover','medium','heavy']
