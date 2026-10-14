@@ -149,6 +149,28 @@ body {
   border-radius: 0 6px 6px 0;
 }
 
+/* Valore obbligatorio ancora assente: rosso e segnaposto con ellissi. */
+.number-control.needs-input #number-input {
+  border: 1px solid #b33b32;
+  border-radius: 6px;
+  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
+}
+.number-control.needs-input.has-unit #number-input {
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+}
+.number-control.needs-input.has-unit .mobile-unit {
+  border: 1px solid #b33b32;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
+}
+.number-control.needs-input #number-input::placeholder {
+  color: #b33b32;
+  opacity: 1;
+}
+
+
 .number-control.desktop-external-label .mobile-label {
   display: none;
 }
