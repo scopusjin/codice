@@ -523,3 +523,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base remota verificata `e25ef55ed4eba904ec4246a1371edbd214d27828`, inclusa la rimozione concorrente del comando FC nella schermata principale. Commit corrente: quello contenente questa voce.
 - Su richiesta esplicita, testo completo e invariato della spiegazione «Da usare se il corpo…» spostato dal paragrafo fisso al pulsante «?» accanto a «Più scenari». `index.html` raggruppa selettore e helper; `counters.js` riutilizza il costruttore dei popover già usato per temperatura e coperture; `panel.css` condivide lo stile dell’ancoraggio. Rimossi paragrafo, regola CSS e comando di visibilità precedenti da `scenarios.css` e `scenarios.js`. Helper disponibile anche a modalità multipla disattivata. Nessuna variazione a testo, calcoli o dati.
 - Controlli sintattici JS, suite del pannello e diff superati. Verifica manuale dell’apertura/chiusura sul dispositivo ancora da eseguire; browser locale non disponibile. Nessun tentativo fallito. Prossimo passo: controllo del nuovo «?» desktop/mobile.
+
+## Punto di avanzamento — allineamento verticale del pulsante scenari, 14 ottobre 2026
+
+- Base remota `140bf45b`, branch `refactor-tanatology-keys`. Su richiesta dell’utente il pulsante «Specifica più scenari» è centrato verticalmente a destra del gruppo temperatura ambientale/FC, anziché allineato alla sola riga FC.
+- Riunite le due righe nella medesima colonna desktop, conservando il rapporto 3:1, la larghezza dei campi e il relativo helper. Applicato sia alla visualizzazione standard sia a quella con range. Nessuna modifica a stato, calcoli o pannello FC.
+- Controllo diff e regressioni della schermata raffreddamento; verifica utente dopo aggiornamento.

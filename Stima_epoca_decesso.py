@@ -436,12 +436,9 @@ with st.container(border=True, key="full_cooling_card"):
                         with weight_toggle_col:
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    temperature_col, _temperature_spacer = st.columns([3, 1], gap="small")
-                    with temperature_col:
+                    cooling_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="center")
+                    with cooling_fields_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
-
-                    fc_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="bottom")
-                    with fc_fields_col:
                         render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
@@ -509,12 +506,9 @@ with st.container(border=True, key="full_cooling_card"):
                                 _mortem_compact_label="",
                             )
 
-                    temperature_col, _temperature_spacer = st.columns([3, 1], gap="small")
-                    with temperature_col:
+                    cooling_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="center")
+                    with cooling_fields_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
-
-                    fc_fields_col, scenarios_col = st.columns([3, 1], gap="small", vertical_alignment="bottom")
-                    with fc_fields_col:
                         render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
