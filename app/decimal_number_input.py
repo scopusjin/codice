@@ -255,7 +255,7 @@ def decimal_number_input(
     if help_enabled and st.session_state.get(help_state_key, False):
         if help_state_key in {_FC_STANDARD_HELP_OPEN_KEY, _FC_RANGE_HELP_OPEN_KEY}:
             note_key = "fc_range_help_note"
-        elif inline_range_help or interval_mode:
+        elif inline_range_help or temperature_range:
             note_key = "ta_range_help_note"
         else:
             note_key = "ta_standard_help_note"
