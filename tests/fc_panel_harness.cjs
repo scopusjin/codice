@@ -8,7 +8,18 @@ class El{
   append(...els){for(const e of els){e.parent=this;this.children.push(e);}}
   replaceChildren(...els){this.children=[];this.append(...els);}
   addEventListener(e,f){this.events[e]=f;}setAttribute(k,v){this[k]=v;}focus(){}
-  click(){if(!this.disabled)this.events.click?.();}
+  showPopover(){this._popoverOpen=true;this.events.toggle?.({newState:'open'});}
+  hidePopover(){this._popoverOpen=false;this.events.toggle?.({newState:'closed'});}
+  matches(selector){return selector===':popover-open'&&!!this._popoverOpen;}
+  getBoundingClientRect(){return {left:8,bottom:32,width:240,height:80};}
+  click(){
+    if(this.disabled)return;
+    if(this.popovertarget){
+      const popup=nodes[this.popovertarget];
+      popup.matches(':popover-open')?popup.hidePopover():popup.showPopover();
+    }
+    this.events.click?.();
+  }
   querySelector(s){if(s.startsWith('label['))return new El();assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
   querySelectorAll(s){if(s==='input')return inputs;const map={'[data-input]':'input','[data-state]':'state','[data-weight]':'weight','[data-temperature]':'temperature'};assert(map[s],'Unexpected selector '+s);return buttons.filter(b=>b.dataset[map[s]]!==undefined);}
 }
@@ -16,10 +27,14 @@ function parseInputs(s){for(const m of s.matchAll(/<input\b([^>]*)>/g)){const id
 function parseButtons(s){for(const m of s.matchAll(/<button\b([^>]*)>/g)){const id=m[1].match(/id="([^"]+)"/),e=id?nodes[id[1]]||new El(id[1]):new El();for(const d of m[1].matchAll(/data-(\w+)="([^"]+)"/g))e.dataset[d[1]]=d[2];buttons.push(e);}}
 for(const m of html.matchAll(/id="([^"]+)"/g)){assert(!nodes[m[1]],'Duplicate ID '+m[1]);new El(m[1]);}
 const markup=html.slice(0,html.indexOf('<script>'));parseInputs(markup);parseButtons(markup);
+for(const match of markup.matchAll(/<select\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\/select>/g))
+  nodes[match[1]].options=[...match[2].matchAll(/<option\b[^>]*>(.*?)<\/option>/g)].map(option=>({textContent:option[1]}));
 nodes['weight-data'].textContent=html.match(/id="weight-data">(.*?)<\/script>/s)[1];
 nodes.surface.value='0';nodes.water.value='stagnante';nodes.air.value='still';
 const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table};})();');
-const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,window:{}};
+const media={matches:false,events:{},addEventListener(event,handler){this.events[event]=handler;}};
+const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,
+  window:{innerWidth:420,innerHeight:800,matchMedia:()=>media}};
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/descriptions.js'),'utf8'),ctx);
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/counters.js'),'utf8'),ctx);
 vm.runInNewContext(code,ctx);
@@ -29,4 +44,4 @@ vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_pan
 const run=c=>JSON.parse(JSON.stringify(api.evaluateFC({...base,...c}))),eq=(c,expected)=>assert.deepEqual(run(c).range,expected,JSON.stringify(c));
 
 
-module.exports={api,base,run,nodes,buttons,html,panel:ctx.window.FCPanel,context:ctx};
+module.exports={api,base,run,nodes,buttons,html,panel:ctx.window.FCPanel,context:ctx,media};
