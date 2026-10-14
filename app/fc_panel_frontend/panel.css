@@ -47,6 +47,9 @@
 #fc-full #restore{width:30px;padding:4px;border:0;background:transparent;font-size:19px}
 #fc-full .states{display:flex;gap:5px;margin:8px 0 10px}
 #fc-full .states button{flex:1;min-width:0}
+#fc-full .body-state-label{display:none}
+#fc-full[data-desktop=true] .states{align-items:center;flex-wrap:nowrap}
+#fc-full[data-desktop=true] .body-state-label{display:inline;flex:none;white-space:nowrap;margin-right:3px}
 #fc-full .states button[aria-pressed=true]{background:var(--fc-selected);border-color:var(--fc-selected)}
 #fc-full #environment-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px}
 #fc-full #water-fields{display:flex;align-items:center;gap:5px;font-size:12px}

@@ -536,3 +536,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Rimossi il valore JavaScript iniziale Asciutto e la selezione nel markup. Il ripristino di un pannello nuovo o di una bozza senza stato azzera la selezione, evitando di ereditare quella precedente; una scelta salvata valida viene conservata.
 - In assenza di stato non viene generato un suggerimento automatico FC: compare la richiesta di specificarlo. Invariate le regole per gli stati selezionati e l’inserimento manuale FC.
 - Superate suite UI e scenari, inclusa la verifica del pannello nuovo e della bozza senza stato; motore FC: 3385 controlli e 33600 combinazioni superati. Diff controllato. Prossimo passo: verifica utente all’apertura di un pannello nuovo.
+
+## Punto di avanzamento — etichetta Cadavere sul desktop, 14 ottobre 2026
+
+- Base remota `0396cb03`, branch `refactor-tanatology-keys`. Aggiunta la scritta «Cadavere:» prima dei pulsanti Asciutto/Bagnato/Immerso, sulla stessa riga esclusivamente nel pannello desktop, usando il criterio `data-desktop` già esistente.
+- Mobile e logica di selezione invariati. Suite UI del pannello e controllo diff superati. Prossimo passo: verifica utente sul desktop.
