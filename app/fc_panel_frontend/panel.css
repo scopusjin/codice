@@ -65,6 +65,9 @@
 #fc-full .temperature-control button{width:30px;min-height:40px}
 #fc-full #counts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;margin:2px 0 6px;padding:10px 9px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
 #fc-full #counts .category{font-size:14px;font-weight:600;margin:0 0 5px}
+#fc-full #blanket-counts > .category{display:flex;align-items:center;justify-content:space-between;gap:4px}
+#fc-full .covering-icons{display:inline-flex;align-items:center;gap:3px;flex:none;color:var(--fc-muted)}
+#fc-full .covering-icons svg{width:16px;height:16px}
 #fc-full #counts .counter{display:flex;align-items:center;gap:6px;min-width:0;margin-top:3px}
 #fc-full #counts label{font-size:12px;line-height:1.2}
 #fc-full #clothing-counts label{width:45px;flex:none}
@@ -175,11 +178,10 @@
 #fc-full #special-covers{display:flex;flex-wrap:wrap;gap:0 20px;margin:2px 0}
 
 /* One compact frame contains ordinary and special covers on both layouts. */
-#fc-full #coverings-box{min-width:0;margin:2px 0 8px;padding:4px 9px 5px;border:1px solid var(--fc-line);border-radius:8px}
-#fc-full #coverings-box legend{display:flex;gap:5px;padding:0 5px;color:var(--fc-muted);line-height:1}
-#fc-full #coverings-box legend svg{width:16px;height:16px}
-#fc-full #coverings-box #counts{border:0;padding:0;background:transparent}
-#fc-full #coverings-box #special-covers{margin:0;gap:0 16px}
+#fc-full #coverings-box{min-width:0;margin:2px 0 8px;padding:6px 9px 3px;border:1px solid var(--fc-line);border-radius:8px}
+#fc-full #coverings-box #counts{border:0;padding:0;margin:0 0 1px;background:transparent}
+#fc-full #coverings-box #special-covers{margin:0;gap:0 8px}
+#fc-full #coverings-box #special-covers .check{min-height:36px}
 @media(pointer:fine){
   #fc-full[data-desktop=true] #counts input{width:26px;min-height:26px;font-size:13px}
   #fc-full[data-desktop=true] #counts button{width:22px;min-height:26px}
