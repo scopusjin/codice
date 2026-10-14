@@ -34,7 +34,7 @@ def summarize_scenarios(scenarios):
                               if item["range"][index] == value)
         descriptions.append(" / ".join(texts))
     label = ("Fattore di correzione considerato" if bounds[0] == bounds[1] else
-             "Range dei fattori di correzione stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
+             "Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
     text = f"{label}: {bounds[0]:.2f} ({descriptions[0]})"
     if bounds[0] != bounds[1]:
         text += f" — {bounds[1]:.2f} ({descriptions[1]})"
@@ -94,7 +94,7 @@ def matching_scenario_description(state, bounds, weight):
     lo, hi = bounds
     if lo == hi:
         return f"Fattore di correzione considerato: {lo:.2f} ({conditions})"
-    return ("Range dei fattori di correzione stimati, considerate le varie condizioni "
+    return ("Range stimato per il fattore di correzione, considerate le varie condizioni "
             f"in cui potrebbe essersi trovato il corpo: {lo:.2f} – {hi:.2f} ({conditions})")
 
 
