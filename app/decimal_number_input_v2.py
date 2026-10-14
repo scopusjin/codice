@@ -273,6 +273,21 @@ _CSS = r"""
   border-left: 0;
   border-radius: 0 6px 6px 0;
 }
+
+/* Le caselle ancora vuote hanno un'indicazione visiva, senza influire sul dato. */
+.number-control.needs-input:not(.is-dense) .number-input {
+  border-color: #b33b32;
+  background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
+}
+.number-control.needs-input:not(.is-dense).has-unit .mobile-unit {
+  border-color: #b33b32;
+  background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
+}
+.number-control.needs-input .number-input::placeholder {
+  color: #b33b32;
+  opacity: 1;
+}
+
 .number-control:not(.is-dense):not(.has-unit) .number-input {
   grid-column: 2 / 4;
   padding-right: 8px;
@@ -569,6 +584,10 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     helpButton.disabled = disabled;
     desktopHelpButton.disabled = disabled;
     suggestButton.disabled = disabled;
+    const missing = !disabled && !Boolean(data?.dense) && parsedInput() === null;
+    control.classList.toggle('needs-input', missing);
+    input.placeholder = missing ? '…' : '';
+    input.setAttribute('aria-invalid', String(missing));
   };
   const setDisplayedValue = (value) => {
     input.value = formatValue(value);
