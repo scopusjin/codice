@@ -156,8 +156,8 @@ def _same_decimal_value(a, b) -> bool:
 
 
 def _compact_mobile_label(label, key) -> str:
-    prudent_mode = bool(st.session_state.get("stima_cautelativa_beta", False))
-    range_mode = bool(st.session_state.get("range_unico_beta", False))
+    # The temperature interval is independent of the prudent FC mode.
+    temperature_range = bool(st.session_state.get("ambient_temperature_range", False))
 
     if not full_device_is_mobile():
         if key == "fattore_correzione":
@@ -167,7 +167,7 @@ def _compact_mobile_label(label, key) -> str:
         if key == "fc_other_val":
             return "Fattore massimo"
         if key == "ta_base_val":
-            return "T. ambientale media 1" if prudent_mode and range_mode else "T. ambientale media"
+            return "T. ambientale media 1" if temperature_range else "T. ambientale media"
         if key == "ta_other_val":
             return "T. ambientale media 2"
         if key == "rt_val":
@@ -191,7 +191,7 @@ def _compact_mobile_label(label, key) -> str:
     if key == "fc_other_val":
         return "FC max"
     if key == "ta_base_val":
-        return "T. amb. 1" if prudent_mode and range_mode else "T. amb. media"
+        return "T. amb. 1" if temperature_range else "T. amb. media"
     if key == "ta_other_val":
         return "T. amb. 2"
 
