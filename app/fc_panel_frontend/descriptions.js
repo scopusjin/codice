@@ -42,7 +42,7 @@
     if (c.state === 'Asciutto') {
       if (!c.m && !c.h && many && c.isolation === 'one') parts.push('un capo particolarmente isolante');
       if (!c.m && !c.h && many && c.isolation === 'several') parts.push('più capi particolarmente isolanti');
-      if (c.h && c.feather === 'yes') parts.push('piumone di piume voluminoso e avvolgente');
+      if (c.h && c.feather === 'yes') parts.push('piumone');
       if (c.m + c.h > 1 && (!c.h || c.feather === 'no') && c.volume === 'yes') parts.push('coperture molto voluminose');
     }
     const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento',

@@ -571,3 +571,7 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base `0b72ecce`, branch `refactor-tanatology-keys`. Dopo «Per la stima del raffreddamento:» il messaggio inizia in minuscolo. Nei dati mancanti «FC» è scritto «fattore di correzione», anche per range incompleti.
 - Aggiornate le aspettative dei test esistenti; eseguite regressioni input raffreddamento e controllo diff.
+
+## Punto di avanzamento — descrizione sintetica piumone, 14 ottobre 2026
+
+- Base `15ee34de`, branch `refactor-tanatology-keys`. Nelle condizioni considerate la specificazione del piumone è abbreviata a «piumone». Domanda di dettaglio, motivazione del suggerimento e calcolo FC invariati. Controllo diff eseguito.
