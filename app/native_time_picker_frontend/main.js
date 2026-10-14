@@ -24,6 +24,7 @@ let pickerEnabled = false;
 let overlayPicker = false;
 let allowEmpty = false;
 let openDefaultNow = false;
+let highlightMissing = false;
 let draftHour = 0;
 let draftMinute = 0;
 let hourScrollTimer = null;
@@ -45,6 +46,12 @@ function setTheme(args) {
 
 function setInheritedState(active) {
   timeControl.classList.toggle("inherited", Boolean(active));
+}
+
+function updateMissingState() {
+  const missing = highlightMissing && !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(timeInput.value.trim());
+  timeControl.classList.toggle("needs-input", missing);
+  timeInput.setAttribute("aria-invalid", String(missing));
 }
 
 function parseTime(value) {
@@ -94,6 +101,7 @@ function commitNormalizedValue(value) {
   pendingCommittedValue = value;
   timeInput.value = value;
   setInheritedState(false);
+  updateMissingState();
   Streamlit.setComponentValue(value);
 }
 
@@ -101,12 +109,15 @@ function commitTypedValue() {
   const normalized = normalizeTypedTime(timeInput.value);
   if (normalized === null) {
     timeInput.value = committedValue;
+    updateMissingState();
     return false;
   }
 
   timeInput.value = normalized;
   if (normalized !== committedValue) {
     commitNormalizedValue(normalized);
+  } else {
+    updateMissingState();
   }
   return true;
 }
@@ -416,6 +427,7 @@ function onRender(event) {
     : Boolean(args.overlay_picker);
   allowEmpty = Boolean(args.allow_empty);
   openDefaultNow = Boolean(args.open_default_now);
+  highlightMissing = Boolean(args.highlight_missing);
   pickerToggle.hidden = !pickerEnabled;
   if ((!pickerEnabled || !overlayPicker) && overlayHost) {
     closePicker();
@@ -449,6 +461,7 @@ function onRender(event) {
     }
   }
 
+  updateMissingState();
   Streamlit.setFrameHeight(pickerEnabled && !picker.hidden && !overlayHost ? OPEN_HEIGHT : 40);
 }
 
@@ -470,6 +483,7 @@ timeInput.addEventListener("input", () => {
       timeInput.value = normalized;
     }
   }
+  updateMissingState();
 });
 
 timeInput.addEventListener("blur", () => {
