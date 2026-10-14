@@ -168,3 +168,12 @@
 #fc-full #environment-row[data-immersed=true] #temperature-help-button{display:none}
 #fc-full .counter-help span{width:18px;height:18px;line-height:1;border-color:color-mix(in srgb,var(--fc-ink) 58%,transparent);opacity:.8}
 #fc-full .fc-help-popover{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:min(20rem,calc(100vw - 16px));max-height:calc(100vh - 16px);overflow:auto;padding:.55rem .65rem;border:1px solid var(--fc-line);border-radius:.48rem;background:var(--fc-bg);color:var(--fc-ink);box-shadow:0 .35rem 1rem rgba(0,0,0,.14);font:400 .8rem/1.35 Arial,sans-serif;white-space:normal}
+
+/* Follow-up questions stay with the clothing and covering counters. */
+#fc-full #counts > .conditional{grid-column:1 / -1;min-width:0}
+#fc-full[data-desktop=true] #counts > .conditional{align-self:start;grid-template-columns:minmax(0,1fr);gap:4px;margin:6px 0 2px}
+#fc-full[data-desktop=true] #counts > .conditional label{line-height:1.35}
+#fc-full[data-desktop=true] #counts > .conditional select{max-width:140px}
+#fc-full[data-desktop=true] #counts > #isolation-row{grid-area:3 / 1}
+#fc-full[data-desktop=true] #counts > #feather-row{grid-area:3 / 3}
+#fc-full[data-desktop=true] #counts > #blanket-volume-row{grid-area:4 / 2 / auto / 4}

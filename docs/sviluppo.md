@@ -580,3 +580,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base `de678324`, branch `refactor-tanatology-keys`. Domanda «Piumone imbottito molto voluminoso e avvolgente?». Nelle condizioni, se presenti più coperture: «coperto con coperte di diverso spessore, tra cui un piumone molto voluminoso e avvolgente»; se singolo, «coperto con un piumone molto voluminoso e avvolgente». Eliminata l’aggiunta separata e duplicata del piumone.
 - Valori e criteri FC invariati. Verificate descrizioni singola/multipla con suite contatori e controllo diff.
+
+## Punto di avanzamento — domande accanto ai contatori, 14 ottobre 2026
+
+- Base `aabd28ca`, branch `refactor-tanatology-keys`. Domande su isolamento, piumone e volume delle coperture inserite nel riquadro indumenti/coperture. Desktop: isolamento sotto gli indumenti, piumone sotto il relativo contatore, volume sotto le coperture. Mobile: domande a larghezza del riquadro. Identificativi e regole di attivazione invariati.
+- Eseguite suite UI e contatori, controllo diff; impaginazione da verificare visivamente nell’app.
