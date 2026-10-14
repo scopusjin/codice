@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const {panel,nodes,buttons,context}=require('./fc_panel_harness.cjs');
+const {panel,nodes,buttons,context,media}=require('./fc_panel_harness.cjs');
 const plain=value=>JSON.parse(JSON.stringify(value));
 const change=(id,value,event='change')=>{nodes[id].value=value;nodes[id].events[event]();};
 const state=value=>buttons.find(b=>b.dataset.state===value).events.click();
@@ -141,3 +141,47 @@ choose(1);manual('','');
 assert.equal(nodes['conditions-summary'].hidden,true);
 assert.equal(nodes['scenario-summary'].children.length,0);
 console.log('Conditions stay hidden without FC; available scenarios retain their original numbering.');
+
+
+// Mobile: the multi-scenario warning is short and the missing fields remain identifiable.
+panel.restore(null,70,null);
+media.matches=true;media.events.change();
+toggle(true);
+assert.equal(nodes['scenario-error'].textContent,'Completare scenario 1\nCompletare scenario 2');
+assert.equal(nodes['scenario-temperature'].placeholder,'?');
+assert.equal(nodes['scenario-temperature']['aria-invalid'],'true');
+assert.equal(nodes.lo.placeholder,'?');
+assert.equal(nodes['body-state-row']['data-needs-value'],'true');
+state('Asciutto');change('scenario-temperature','20','input');
+assert.equal(nodes['scenario-error'].textContent,'Completare scenario 2');
+assert.equal(nodes['scenario-temperature']['aria-invalid'],'false');
+assert.equal(nodes.lo.placeholder,'');
+change('heavy','1','input');
+assert.equal(nodes.feather['data-needs-value'],'true');
+assert.equal(nodes.feather.options[0].textContent,'?');
+change('feather','yes');
+assert.equal(nodes.feather['data-needs-value'],'false');
+assert.equal(nodes.feather.options[0].textContent,'Da precisare');
+assert.equal(nodes['scenario-error'].textContent,'Completare scenario 2');
+choose(1);
+assert.equal(nodes['body-state-row']['data-needs-value'],'true');
+change('lo','1.00','input');
+assert.equal(nodes['body-state-row']['data-needs-value'],'false','Direct FC entry replaces body-state selection');
+change('scenario-temperature','18','input');
+assert.equal(nodes['scenario-error'].textContent,'');
+assert.equal(nodes['use-scenarios'].disabled,false);
+
+// Native popover trigger: second tap closes each help, including the air help.
+choose(0);
+for(const id of ['scenario','temperature','heavy','air']){
+  const button=nodes[id+'-help-button'],hint=nodes[id+'-help'];
+  assert.equal(button.popovertarget,id+'-help');
+  button.click();assert.equal(button['aria-expanded'],'true');
+  assert.equal(hint.matches(':popover-open'),true);
+  button.click();assert.equal(button['aria-expanded'],'false');
+  assert.equal(hint.matches(':popover-open'),false);
+}
+nodes['air-help-button'].click();state('Immerso');
+assert.equal(nodes['air-help-button']['aria-expanded'],'false','Hiding air dismisses its open helper');
+toggle(false);media.matches=false;media.events.change();panel.restore(null,70,null);
+console.log('FC mobile: concise scenario messages, missing-field highlights and repeat-tap popovers passed.');
