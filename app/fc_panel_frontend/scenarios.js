@@ -68,7 +68,42 @@
     label.textContent=immersed?'Temperatura dell’acqua':mobileLayout?.matches?'T amb media':'Temperatura ambientale media';
     q('scenario-temperature').setAttribute('aria-label',immersed?'Temperatura dell’acqua in gradi Celsius':'Temperatura ambientale media in gradi Celsius');
   }
-  mobileLayout?.addEventListener('change', updateTemperatureLabel);
+  mobileLayout?.addEventListener('change',()=>render());
+  // Only presentation flags change: the FC engine and the required inputs stay unchanged.
+  function markMobileIncompleteFields() {
+    const mobile = enabled && !!mobileLayout?.matches;
+    const flagInput = (id,missing) => {
+      const field=q(id);
+      field.setAttribute('data-needs-value',String(missing));
+      field.setAttribute('aria-invalid',String(missing));
+      field.placeholder=missing?'?':'';
+    };
+    flagInput('scenario-temperature',mobile&&!Number.isFinite(temperatureValue()));
+    const selectIds=['isolation','feather','blanket-volume','leaf','leaf-cover','metal-type','support-soaked'];
+    const pendingAnswer=selectIds.some(id=>{
+      const field=q(id);
+      const pending=mobile&&!q(id+'-row').hidden&&(field.value===''||field.value==='unknown');
+      if(field.options?.length)field.options[0].textContent=pending?'?':'Da precisare';
+      return pending;
+    });
+    const immersed=single.snapshot().state==='Immerso';
+    const countIds=q('fc-full').dataset.desktop==='true'
+      ? ['garment-thin','garment-thick','teli','light-cover','medium','heavy']
+      : ['thin','thick','medium','heavy'];
+    const invalidCounts=countIds.map(id=>{
+      const value=q(id).value.trim(),bad=mobile&&!immersed&&(!/^\d+$/.test(value)||Number(value)>20);
+      flagInput(id,bad);
+      return bad;
+    }).some(Boolean);
+    const weightText=q('weight').value.trim().replace(',','.');
+    const invalidWeight=mobile&&(!/^\d+(\.\d{1,2})?$/.test(weightText)||Number(weightText)<4||Number(weightText)>150);
+    flagInput('weight',invalidWeight);
+    const fcMissing=mobile&&!items[active]?.range.every(Number.isFinite)&&!pendingAnswer&&!invalidCounts&&!invalidWeight;
+    flagInput('lo',fcMissing&&(!q('lo').value.trim()||!!q('error').textContent));
+    flagInput('hi',fcMissing&&!q('hi-control').hidden&&(!q('hi').value.trim()||!!q('error').textContent));
+    const missingState=mobile&&!single.snapshot().state&&!!q('error').textContent;
+    q('body-state-row').setAttribute('data-needs-value',String(missingState));
+  }
   function render() {
     q('panel-title').textContent=enabled?'Gestisci scenari':'Consiglia FC';
     q('multiple-scenarios').checked = enabled;
@@ -77,6 +112,7 @@
     q('scenario-editor').setAttribute('aria-label',enabled?'Scenario '+(active+1):'Condizioni del corpo');
     q('scenario-controls').hidden = q('scenario-result').hidden = !enabled;
     updateTemperatureLabel();
+    markMobileIncompleteFields();
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(updateTemperatureLabel);
     q('use').hidden = enabled;
     q('fc-heading').textContent = enabled?'FC dello scenario '+(active+1)+':':'FC per la stima:';
@@ -116,7 +152,10 @@
     q('scenario-temperature-output').textContent=temperatures.every(Number.isFinite)?
       (lo===hi?formatTemperature(lo):formatTemperature(lo).replace(' °C','')+' – '+formatTemperature(hi)):'—';
     renderConditions(items);
-    q('scenario-error').textContent = missing.join('\n');
+    q('scenario-error').textContent = mobileLayout?.matches
+      ? items.flatMap((item,i)=>item.error||!item.range.every(Number.isFinite)||!Number.isFinite(item.temperature)
+        ? ['Completare scenario '+(i+1)]:[]).join('\n')
+      : missing.join('\n');
     q('use').disabled = q('use-scenarios').disabled = !group;
   }
   function temperatureValue() {
