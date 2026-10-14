@@ -13,6 +13,7 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
     ['scenario','#scenario-help-anchor','Quando usare più scenari','Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli al raffreddamento e fornisce un intervallo di stima che comprende entrambe. Variazioni di breve durata delle condizioni del corpo possono ragionevolmente essere trascurate.'],
     ['teli','#teli-control','Esempi di teli','Lenzuola, asciugamani sottili.'],
     ['heavy','#heavy-control','Esempi di piumoni e coperte molto pesanti','Piumoni o coperte molto pesanti, spesse o imbottite.'],
+    ['air','#air-row','Quando considerare le correnti d’aria','Considerare le correnti d’aria se interessano effettivamente il corpo per un periodo rilevante. Una finestra aperta o una corrente occasionale nell’ambiente non bastano.'],
     ['temperature','#temperature-help-anchor','Temperatura ambientale media','Indicare la temperatura ambientale media dello scenario considerato, riferita al periodo in cui il corpo si è trovato, o si ipotizza possa essersi trovato, nelle condizioni descritte.']
   ];
   for(const [id,parent,label,text] of helpItems){
@@ -20,19 +21,21 @@ window.FCCounters = ({root,q,num,step,recalc}) => {
     button.id=id+'-help-button';button.type='button';button.className='counter-help';
     button.setAttribute('aria-label',label);
     button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id+'-help');
+    button.setAttribute('popovertarget',id+'-help');
     const symbol=document.createElement('span');symbol.textContent='?';symbol.setAttribute('aria-hidden','true');
     button.append(symbol);
     const hint=document.createElement('div');
     hint.id=id+'-help';hint.className='fc-help-popover';hint.textContent=text;
     hint.setAttribute('popover','auto');hint.setAttribute('role','note');
-    button.addEventListener('click',()=>{
-      if(hint.matches(':popover-open')){hint.hidePopover();return;}
-      hint.showPopover();
+    // Native popover buttons toggle on repeated taps and retain outside-click/Escape dismissal.
+    hint.addEventListener('toggle',event=>{
+      const isOpen=event.newState==='open';
+      button.setAttribute('aria-expanded',String(isOpen));
+      if(!isOpen)return;
       const anchor=button.getBoundingClientRect(),box=hint.getBoundingClientRect();
       hint.style.left=Math.max(8,Math.min(anchor.left,window.innerWidth-box.width-8))+'px';
       hint.style.top=Math.max(8,Math.min(anchor.bottom+4,window.innerHeight-box.height-8))+'px';
     });
-    hint.addEventListener('toggle',event=>button.setAttribute('aria-expanded',String(event.newState==='open')));
     q(parent).append(button);root.append(hint);
   }
   function changed(id){
