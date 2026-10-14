@@ -413,7 +413,7 @@ function referenceLabel(r,c){
   const references={'dry-two-thin':'1.10 / 1.20','dry-three-thin':'1.20 / 1.30','dry-mixed':'1.20 / 1.40','dry-many':'1.40','dry-insulating':'1.40'};
   return references[r.id]||(r.sources.includes('support')?'Vedi fonte':'Non univoco');
 }
-function coverConvention(c){if(c.state==='Immerso')return '';return [c.thermalFoil?'La mantellina termica è conteggiata come una coperta spessa (FC di riferimento 1.8).':'',c.bodyBag?'Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.':''].filter(Boolean).join(' ');}
+function coverConvention(c){if(c.state==='Immerso')return '';return [c.thermalFoil?'La mantellina termica è conteggiata come una coperta spessa per convenzione dell’app (FC di riferimento 1.8).':'',c.bodyBag?'Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.':''].filter(Boolean).join(' ');}
 function paragraph(parent,text){const p=document.createElement('p');p.textContent=text;parent.append(p);return p;}
 function sourceDetails(parent,source){
   const link=document.createElement('a');link.textContent=source.short;link.href='#reference-page';
