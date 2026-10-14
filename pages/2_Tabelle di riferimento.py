@@ -1,4 +1,5 @@
 import re
+from html import escape
 
 import streamlit as st
 
@@ -11,16 +12,28 @@ install_minimal_mobile_shell()
 # All short citations lead to the internal bibliography page.
 _CITATION_PATTERN = re.compile(
     r"(?:Henssge(?: et al\.| e Madea)?|Anders et al\.|Althaus et al\.|"
-    r"Henriksson et al\.|Madea)(?:, in Madea)?, \d{4}|\[\d+\]"
+    r"Henriksson et al\.|Madea)(?:, in Madea)?, \d{4}|\[\d+(?:\s*[,–-]\s*\d+)*\]"
 )
 
 
-def _reference_caption(text: str) -> None:
-    def link(match):
-        label = match.group().replace("[", r"\[").replace("]", r"\]")
-        return f"[{label}](Reference)"
+def _reference_link(label: str) -> str:
+    # Navigate the whole Cloud app, including when Streamlit is embedded.
+    return f'<a href="/Reference" target="_top">{escape(label)}</a>'
 
-    st.caption(_CITATION_PATTERN.sub(link, text))
+
+def _reference_caption(text: str) -> None:
+    st.caption(
+        _CITATION_PATTERN.sub(lambda match: _reference_link(match.group()), text),
+        unsafe_allow_html=True,
+    )
+
+
+def _reference_numbers_html(text: str) -> str:
+    return re.sub(
+        r"\[\d+(?:\s*[,–-]\s*\d+)*\]",
+        lambda match: _reference_link(match.group()),
+        text,
+    )
 
 
 _COMBINED_REFERENCE = 'Henssge et al., 2000, parte II, tab. 1.'
@@ -383,11 +396,11 @@ def _render_combined_table(language: str) -> None:
         for index, (criterion, yes, no) in enumerate(criteria):
             group_cell = (
                 f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
-                f'{text[parameter]} <a href="Reference" target="_self">{reference}</a></th>' if index == 0 else ""
+                f'{text[parameter]} {_reference_link(reference)}</th>' if index == 0 else ""
             )
             rows.append(
                 f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
-                f'<td class="combined-limit">{yes}</td><td class="combined-limit">{no}</td></tr>'
+                f'<td class="combined-limit">{_reference_numbers_html(yes)}</td><td class="combined-limit">{_reference_numbers_html(no)}</td></tr>'
             )
     st.markdown(
         f"""
@@ -469,48 +482,48 @@ def _render_henssge_special_table(language: str) -> None:
               </tr>
             </thead>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup>[1]</sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['indifferent']} <sup><a href="/Reference" target="_top">[1]</a></sup></th></tr>
               <tr>
                 <th scope="row">{text['indifferent_ground']}</th>
                 <td>{text['clothing_indifferent']}</td><td>{text['no_adjustment']}</td>
               </tr>
             </tbody>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['isolating']} <sup>[1, 2]</sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['isolating']} <sup><a href="/Reference" target="_top">[1, 2]</a></sup></th></tr>
               <tr>
-                <th rowspan="3" scope="rowgroup">{text['heavy_padding']} <sup>[1]</sup></th>
+                <th rowspan="3" scope="rowgroup">{text['heavy_padding']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
                 <td>{text['thick']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['thin']}</td><td>+0.3</td></tr>
               <tr><td>{text['naked']}</td><td>1.3<sup>*</sup></td></tr>
               <tr>
-                <th rowspan="2" scope="rowgroup">{text['mattress']} <sup>[1]</sup></th>
+                <th rowspan="2" scope="rowgroup">{text['mattress']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
                 <td>{text['yes']}</td><td>+0.1</td>
               </tr>
               <tr><td>{text['naked']}</td><td>1.1–1.2</td></tr>
               <tr>
-                <th scope="row">{text['leaves']} <sup>[2]</sup></th>
+                <th scope="row">{text['leaves']} <sup><a href="/Reference" target="_top">[2]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['leaves_factors']}</td>
               </tr>
             </tbody>
             <tbody>
-              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['conducting']} <sup>[1, 3]</sup></th></tr>
+              <tr class="surface-category"><th colspan="3" scope="rowgroup">{text['conducting']} <sup><a href="/Reference" target="_top">[1, 3]</a></sup></th></tr>
               <tr>
-                <th rowspan="3" scope="rowgroup">{text['concrete']} <sup>[1]</sup></th>
+                <th rowspan="3" scope="rowgroup">{text['concrete']} <sup><a href="/Reference" target="_top">[1]</a></sup></th>
                 <td>{text['thick']}</td><td>−0.1</td>
               </tr>
               <tr><td>{text['very_thin']}</td><td>−0.2</td></tr>
               <tr><td>{text['naked']}</td><td>0.75<sup>*</sup></td></tr>
               <tr>
-                <th scope="row">{text['cold_floor']} <sup>[3]</sup></th>
+                <th scope="row">{text['cold_floor']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>0.75</td>
               </tr>
               <tr>
-                <th scope="row">{text['pvc']} <sup>[3]</sup></th>
+                <th scope="row">{text['pvc']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['pvc_factors']}</td>
               </tr>
               <tr>
-                <th scope="row">{text['metal']} <sup>[3]</sup></th>
+                <th scope="row">{text['metal']} <sup><a href="/Reference" target="_top">[3]</a></sup></th>
                 <td>{text['naked']}</td><td>{text['metal_factors']}</td>
               </tr>
             </tbody>
