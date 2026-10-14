@@ -204,7 +204,7 @@ panel.restore({state:'Asciutto',temperature:'20',fields:{thin:'3',thick:'0',medi
 assert.equal(nodes['expand-range'].textContent,'Valore singolo?');
 nodes['expand-range'].click();
 assert.equal(nodes['hi-control'].hidden,true);
-assert.equal(nodes['expand-range'].textContent,'Intervallo?');
+assert.equal(nodes['expand-range'].textContent,'Range?');
 assert.deepEqual([...panel.payload().range],[1.2,1.2]);
 assert.equal(panel.payload().manual,true);
 const pointDraft=panel.snapshot();panel.restore(pointDraft,100,20);

@@ -41,6 +41,11 @@ def apply_scenario_temperatures(state):
     return True
 
 
+def toggle_temperature_mode(state):
+    state[MODE_KEY] = not state[MODE_KEY]
+    set_temperature_mode(state)
+
+
 def render_temperature_inputs(*, mobile, render_label):
     import streamlit as st
     from app import i18n
@@ -49,15 +54,20 @@ def render_temperature_inputs(*, mobile, render_label):
     with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
         if not mobile:
             render_label("T. ambientale media", i18n.ui_text("full.ta_mean_help"), "ta_mode")
-        st.checkbox("Intervallo di temperatura", key=MODE_KEY, disabled=from_scenarios,
-                    help="Temperature ricavate dai singoli scenari; modificale nel pannello FC." if from_scenarios else None,
-                    on_change=set_temperature_mode, args=(st.session_state,))
+        if not (from_scenarios and st.session_state[MODE_KEY]):
+            st.button("Valore singolo?" if st.session_state[MODE_KEY] else "Range?",
+                      key="ambient_temperature_range_toggle", type="tertiary", disabled=from_scenarios,
+                      help="Temperature ricavate dai singoli scenari; modificale nel pannello FC." if from_scenarios else None,
+                      on_click=toggle_temperature_mode, args=(st.session_state,))
     interval = st.session_state[MODE_KEY]
-    with st.container(horizontal=not mobile, gap="xsmall"):
-        for key, label in [("ta_base_val", "full.ta_base_input" if interval else "full.ta_input_label")] + (
-                [("ta_other_val", "full.ta_other_input")] if interval else []):
-            with st.container(key="cooling_value_" + key):
-                st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
-                                step=0.1, format="%.1f", key=key, label_visibility="collapsed", disabled=from_scenarios,
-                                **({} if mobile else {"_mortem_compact_label": ""}))
+    fields = [("ta_base_val", "full.ta_base_input" if interval else "full.ta_input_label")]
+    if interval:
+        fields.append(("ta_other_val", "full.ta_other_input"))
+    # Native columns preserve the same field width as rectal/ante-mortem inputs.
+    slots = [st.container() for _ in fields] if mobile else st.columns(2, gap="xsmall")
+    for slot, (key, label) in zip(slots, fields):
+        with slot:
+            st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
+                            step=0.1, format="%.1f", key=key, label_visibility="collapsed", disabled=from_scenarios,
+                            **({} if mobile else {"_mortem_compact_label": ""}))
     sync_temperature_bounds(st.session_state)

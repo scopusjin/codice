@@ -426,3 +426,19 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Su autorizzazione esplicita dell’utente, spostato in `app/fc_panel_frontend/index.html` il paragrafo `scenario-duration-note` da «Come viene consigliato il FC» a subito dopo la barra «Più scenari», prima dell’editor. Testo integralmente conservato. La funzione `render()` di `scenarios.js` conserva la visibilità condizionata alla modalità multipla; nessuna modifica a JavaScript, CSS, calcoli o stato.
 - Superati `node tests/test_fc_scenarios.cjs` e `node tests/test_fc_panel_ui.cjs`; diff controllato. Ultima verifica online documentata precedente: `37cb5d09919e340c3144020e7974ba33d4a15f4d` (altra funzione); nessuna nuova conferma visiva dell’utente acquisita per questo intervento.
 - Prossimo passo: test manuale nell’app, attivando «Più scenari» e verificando la nota sotto i comandi e la sua assenza nel pannello delle fonti. Nessun tentativo fallito per questo spostamento. Le altre richieste grafiche restano separate.
+## Punto di avanzamento FC — layout raffreddamento, 14 ottobre 2026
+
+Repository: `scopusjin/codice`; ramo di destinazione: `refactor-tanatology-keys`.
+Base GitHub verificata: `72eb290b96af5bd0796e71521d3102236bee398f`.
+Commit dell'intervento: quello che introduce questa sezione (vedere `git log`).
+
+- Corretto il tentativo di uniformare i campi introdotto da `c9b5e382`: il `flex-basis` basato sulla larghezza, applicato anche nei contenitori verticali, produceva grandi spazi vuoti. Non riutilizzare quella regola per dimensionare i campi.
+- Temperatura e FC usano colonne native, con larghezza coerente con rettale/ante-mortem. Gli estremi della temperatura sono affiancati su desktop; il pulsante scenari è allineato alla riga FC.
+- Comando temperatura `Range?` / `Valore singolo?`, sul modello del pannello FC, che ora usa anch'esso `Range?`.
+- Le temperature provenienti dagli scenari restano vincolate: range con temperature diverse, singolo valore con temperature uguali; comando manuale disabilitato. Calcoli, FC scientifico e chiavi dei dati invariati.
+- File: `Stima_epoca_decesso.py`, `app/ambient_temperature.py`, `app/full_mobile_layout.py`, `app/fc_panel_frontend/index.html`; aggiornati i relativi test esistenti.
+- Verifiche: sintassi/diff; 27 test cooling prima dell'aggiunta della verifica scenari, poi 13 test di pagina inclusa la nuova verifica desktop/mobile; test JavaScript dell'interfaccia FC superati.
+- Test manuale utente ancora da eseguire; nessun nuovo commit dichiarato validato dall'utente. Il rendering locale nel browser non è disponibile in questa sessione; verifica visiva sul sito dopo aggiornamento.
+- Prossimo passo: verifica utente di compattezza, Range e scenari a temperature uguali/diverse; nessun ulteriore intervento concordato.
+
+Precisazione utente: con scenari a temperature diverse il comando «Valore singolo?» non viene renderizzato. Verificata la sua assenza nei test di pagina desktop/mobile. Pubblicazione inizialmente bloccata dal controllo automatico, poi autorizzata esplicitamente dall’utente.

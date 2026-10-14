@@ -479,16 +479,6 @@ body:has([class*="st-key-stima_cautelativa_beta"])
 }
 
 @media (min-width: 769px) {
-  /* Same responsive width as the rectal/ante-mortem quarter columns. */
-  :is(.st-key-cooling_standard_v2_grid_desktop,.st-key-cooling_prudent_v2_grid_desktop) {
-    container-type: inline-size;
-  }
-  :is(.st-key-cooling_standard_v2_grid_desktop,.st-key-cooling_prudent_v2_grid_desktop) [class*="st-key-cooling_value_"] {
-    width: calc((100cqw - 2rem) / 4) !important;
-    flex: 0 0 calc((100cqw - 2rem) / 4) !important;
-    min-width: 0 !important;
-  }
-
   body:has([class*="st-key-stima_cautelativa_beta"]) .block-container {
     padding-top: 2rem !important;
   }

@@ -95,7 +95,7 @@ def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_
     fc_class = " mortem-fc-field-label" if "(FC)" in text else ""
     with st.container(
         horizontal=True, wrap=False, vertical_alignment="center", gap="xsmall",
-        key=f"desktop_cooling_label_{help_key or text}",
+        key=f"desktop_cooling_label_{help_key or text}", width="content",
     ):
         st.markdown(
             f"<div class='mortem-cooling-field-label{fc_class}'>{text}</div>",
@@ -449,43 +449,42 @@ with st.container(border=True, key="full_cooling_card"):
                         with weight_toggle_col:
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    with st.container(
-                        horizontal=True, wrap=False, vertical_alignment="center",
-                        gap="small", key="cooling_conditions_row_desktop",
-                    ):
-                        with st.container(width="content", key="cooling_conditions_fields_desktop"):
-                            render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
+                    temperature_col, _temperature_spacer = st.columns(2, gap="small")
+                    with temperature_col:
+                        render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
-                            _render_desktop_cooling_label(
-                                "Range fattore di correzione (FC)",
-                                _FC_RANGE_DESKTOP_HELP,
-                                "fc_range",
+                    fc_fields_col, scenarios_col = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with fc_fields_col:
+                        _render_desktop_cooling_label(
+                            "Range fattore di correzione (FC)",
+                            _FC_RANGE_DESKTOP_HELP,
+                            "fc_range",
+                        )
+                        fc_min_col, fc_max_col = st.columns(2, gap="xsmall")
+                        with fc_min_col:
+                            fc_min_val = st.number_input(
+                                i18n.ui_text("full.fc_min_input"),
+                                value=sget("fc_min_val", sget("fattore_correzione", None)),
+                                step=0.05, format="%.2f",
+                                key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
                             )
-                            with st.container(horizontal=True, gap="xsmall"):
-                                with st.container(key="cooling_value_fc_min_val"):
-                                    fc_min_val = st.number_input(
-                                        i18n.ui_text("full.fc_min_input"),
-                                        value=sget("fc_min_val", sget("fattore_correzione", None)),
-                                        step=0.05, format="%.2f",
-                                        key="fc_min_val", on_change=_normalize_fc_field, args=("fc_min_val",),
-                                        label_visibility="collapsed",
-                                        _mortem_compact_label="",
-                                    )
-                                with st.container(key="cooling_value_fc_other_val"):
-                                    fc_other_val = st.number_input(
-                                        i18n.ui_text("full.fc_max_input"),
-                                        value=sget("fc_other_val", sget("fattore_correzione", None)),
-                                        step=0.05, format="%.2f",
-                                        key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
-                                        label_visibility="collapsed",
-                                        _mortem_compact_label="",
-                                    )
+                        with fc_max_col:
+                            fc_other_val = st.number_input(
+                                i18n.ui_text("full.fc_max_input"),
+                                value=sget("fc_other_val", sget("fattore_correzione", None)),
+                                step=0.05, format="%.2f",
+                                key="fc_other_val", on_change=_normalize_fc_field, args=("fc_other_val",),
+                                label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
 
-                            _sync_interval_state(
-                                "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
-                            )
-                        with st.container(width="content", key="cooling_scenarios_action_desktop"):
-                            render_scenarios_button(FULL_PAGE)
+                        _sync_interval_state(
+                            "fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"
+                        )
+                    with scenarios_col:
+                        render_scenarios_button(FULL_PAGE)
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
@@ -554,23 +553,23 @@ with st.container(border=True, key="full_cooling_card"):
                                 _mortem_compact_label="",
                             )
 
-                    with st.container(
-                        horizontal=True, wrap=False, vertical_alignment="center",
-                        gap="small", key="cooling_conditions_row_desktop",
-                    ):
-                        with st.container(width="content", key="cooling_conditions_fields_desktop"):
-                            render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
+                    temperature_col, _temperature_spacer = st.columns(2, gap="small")
+                    with temperature_col:
+                        render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
-                            _render_desktop_cooling_label("Fattore di correzione (FC)", FC_FIELD_HELP, "fc_standard")
-                            with st.container(key="cooling_value_fattore_correzione"):
-                                st.number_input(
-                                    i18n.ui_text("full.fc_input_label"),
-                                    value=sget("fattore_correzione", None), step=0.05, format="%.2f",
-                                    key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
-                                    _mortem_compact_label="",
-                                )
-                        with st.container(width="content", key="cooling_scenarios_action_desktop"):
-                            render_scenarios_button(FULL_PAGE)
+                    fc_fields_col, scenarios_col = st.columns(2, gap="small", vertical_alignment="bottom")
+                    with fc_fields_col:
+                        _render_desktop_cooling_label("Fattore di correzione (FC)", FC_FIELD_HELP, "fc_standard")
+                        fc_value_col, _fc_spacer = st.columns(2, gap="xsmall")
+                        with fc_value_col:
+                            st.number_input(
+                                i18n.ui_text("full.fc_input_label"),
+                                value=sget("fattore_correzione", None), step=0.05, format="%.2f",
+                                key="fattore_correzione", on_change=_normalize_fc_field, args=("fattore_correzione",), label_visibility="collapsed",
+                                _mortem_compact_label="",
+                            )
+                    with scenarios_col:
+                        render_scenarios_button(FULL_PAGE)
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline_std", False)

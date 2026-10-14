@@ -19,12 +19,12 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                                  fc_min_val=1.4, fc_other_val=1.8)
                 self.assertEqual(app.session_state['Ta_min_beta'], 20.)
                 self.assertEqual(app.session_state['Ta_max_beta'], 20.)
-                app.checkbox(key='ambient_temperature_range').check().run()
+                app.button(key='ambient_temperature_range_toggle').click().run()
                 self.assertFalse(app.exception)
                 app.session_state['ta_other_val'] = 24.
                 app.run()
                 self.assertEqual(app.session_state['Ta_max_beta'], 24.)
-                app.checkbox(key='ambient_temperature_range').uncheck().run()
+                app.button(key='ambient_temperature_range_toggle').click().run()
                 self.assertFalse(app.exception)
                 self.assertEqual(app.session_state['Ta_max_beta'], 20.)
                 self.assertEqual(app.session_state['FC_min_beta'], 1.4)
@@ -32,13 +32,35 @@ class CoolingPagesRegressionTests(unittest.TestCase):
 
     def test_temperature_range_can_start_with_single_fc(self):
         app = self.start()
-        app.checkbox(key='ambient_temperature_range').check().run()
+        app.button(key='ambient_temperature_range_toggle').click().run()
         self.assertFalse(app.exception)
         self.assertEqual(app.session_state['FC_min_beta'], 1.)
         self.assertEqual(app.session_state['FC_max_beta'], 1.)
         app.session_state['ta_other_val'] = 25.
         app.run()
         self.assertEqual(app.session_state['Ta_max_beta'], 25.)
+
+    def test_scenario_temperatures_control_range_and_disable_manual_mode(self):
+        from test_fc_scenarios import temperature_payload
+        for mobile in (False, True):
+            for same_temperature in (False, True):
+                with self.subTest(mobile=mobile, same_temperature=same_temperature):
+                    choice = temperature_payload()
+                    if same_temperature:
+                        choice['scenarios'][1]['temperature'] = 20.
+                        choice['scenarios'][1]['draft']['temperature'] = '20.0'
+                    app = self.start(__full_device_mobile=mobile,
+                                     stima_cautelativa_beta=True,
+                                     __prudent_explicit_ranges_initialized=True,
+                                     __fc_applied_choice=choice,
+                                     fc_min_val=1.35, fc_other_val=1.4)
+                    if same_temperature:
+                        self.assertTrue(app.button(key='ambient_temperature_range_toggle').disabled)
+                    else:
+                        self.assertFalse(any(button.key == 'ambient_temperature_range_toggle' for button in app.button))
+                    self.assertEqual(app.session_state['ambient_temperature_range'], not same_temperature)
+                    self.assertEqual(app.session_state['Ta_min_beta'], 20. if same_temperature else 8.)
+                    self.assertEqual(app.session_state['Ta_max_beta'], 20.)
 
     def start(self, **values):
         decimal_v2._renderer = None
