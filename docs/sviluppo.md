@@ -472,3 +472,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - In `app/fc_panel_frontend/index.html`, «Range?» / «Valore singolo?» è stato spostato dalla testata alla riga dei campi. In `panel.css` è testo piccolo senza sfondo o bordo, su desktop e mobile; su touch gli incrementi restano alti 44 px e più stretti per lasciare spazio ai valori e all’azione.
 - Corretto `recalc()` e il ripristino del suggerimento: quando non esiste ancora un FC suggerito si mostra un solo campo vuoto. Due estremi compaiono per scelta esplicita o per un range effettivamente disponibile. Conservati i range applicati e gli scenari.
 - Motore scientifico invariato. Superate le suite JavaScript UI/scenari e motore (3385 controlli, 33600 combinazioni), inclusa la nuova verifica del FC vuoto in modalità singola. Diff controllato. Test utente su desktop/mobile ancora richiesto.
+
+## Punto di avanzamento — etichetta temperatura mobile nel pannello FC, 14 ottobre 2026
+
+- Base remota verificata `4c022e4c1ccf6a345f419a02e60af8c5fe19906a`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`; commit corrente: quello contenente questa voce.
+- Su richiesta esplicita, `updateTemperatureLabel()` in `app/fc_panel_frontend/scenarios.js` mostra «T amb media» per il layout mobile, riconosciuto con lo stesso criterio `(pointer: coarse)` del CSS esistente. Etichetta desktop, acqua, helper, nome accessibile e calcoli invariati. La scritta si aggiorna anche al cambio del criterio responsive.
+- Controllo sintattico JavaScript, suite del pannello e diff superati. Verifica visiva sul dispositivo dell’utente ancora da eseguire; nessun tentativo fallito. Prossimo passo: controllo della scritta sul mobile.

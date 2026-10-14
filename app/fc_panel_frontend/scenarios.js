@@ -2,6 +2,7 @@
 // Each keeps its own unadapted FC base; only their final bounds are combined.
 (() => {
   const single = {...window.FCPanel}, q = id => document.getElementById(id);
+  const mobileLayout = window.matchMedia?.('(pointer: coarse)');
   const copy = value => JSON.parse(JSON.stringify(value));
   let enabled = false, items = [], active = 0, paused = false, weightAdjusted = false;
   let defaultTemperature = '', temperatureEdited = false;
@@ -63,9 +64,10 @@
     const immersed=single.snapshot().state==='Immerso';
     q('environment-row').dataset.immersed=String(immersed);
     const label=q('scenario-temperature-label');
-    label.textContent=immersed?'Temperatura dell’acqua':'Temperatura ambientale media';
+    label.textContent=immersed?'Temperatura dell’acqua':mobileLayout?.matches?'T amb media':'Temperatura ambientale media';
     q('scenario-temperature').setAttribute('aria-label',immersed?'Temperatura dell’acqua in gradi Celsius':'Temperatura ambientale media in gradi Celsius');
   }
+  mobileLayout?.addEventListener('change', updateTemperatureLabel);
   function render() {
     q('panel-title').textContent=enabled?'Gestisci scenari':'Consiglia FC';
     q('multiple-scenarios').checked = enabled;
