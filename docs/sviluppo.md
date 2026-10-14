@@ -485,3 +485,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Richiesta esplicita: nel pannello FC mantenere etichetta e campo sulla stessa riga quando lo schermo lo consente, restringendo il campo; bordo ocra intorno al solo valore, esclusi −/+, su mobile e desktop.
 - `app/fc_panel_frontend/panel.css`: campo temperatura da 80 a 60 px, spazio tra etichetta e controllo da 10 a 6 px; il gruppo etichetta/helper mantiene la propria larghezza naturale. La riga flex può andare a capo quando manca spazio. Rimosso il bordo simulato del gruppo e applicato il colore ocra al bordo del solo input. Pulsanti, helper, dati e calcoli invariati; modificate le regole esistenti senza aggiungere override.
 - Suite del pannello e diff superati. Verifica visiva locale tentata ma non eseguibile: runtime Playwright presente senza browser Chromium installato. Non è un tentativo di layout fallito; l’esito grafico resta da verificare sul dispositivo dell’utente. Prossimo passo: controllo mobile/desktop, compresi valori negativi e decimali.
+
+## Punto di avanzamento — correzione Range desktop, 14 ottobre 2026
+
+- Base remota verificata `b472bc73`, branch `refactor-tanatology-keys`. Lo screenshot dell’utente mostra ancora Range con bordo azzurro e pulsante tagliato: la regola generale `div.stButton > button` prevaleva sulla precedente regola inline.
+- Esclusa l’azione della temperatura dallo stile generale dei pulsanti; spostata la sua tipografia nel foglio desktop caricato a ogni render, con selettore specifico. Range rimane testo piccolo accanto ai campi, senza bordo né sfondo; conservato il focus da tastiera. Mobile e pannello FC conservano le proprie azioni inline.
+- Superati i 13 test di regressione della schermata raffreddamento e il controllo diff. Nessuna modifica ai calcoli o alla regola che nasconde Valore singolo per scenari con temperature diverse. Verifica visiva dopo aggiornamento ancora da completare.

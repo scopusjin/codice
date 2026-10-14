@@ -20,23 +20,6 @@ _PRUDENT_HELP_TEXT = re.sub(r"<[^>]+>", "", ui_text("full.prudent_default_note")
 
 _FULL_MOBILE_CSS = r"""
 <style>
-/* Native inline action: typography only; its row is defined in Python. */
-.st-key-ambient_temperature_action button,
-.st-key-ambient_temperature_action button:hover,
-.st-key-ambient_temperature_action button:active {
-  min-height: 0 !important;
-  height: auto !important;
-  padding: 3px 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: inherit !important;
-}
-.st-key-ambient_temperature_action button p {
-  font-size: 0.72rem !important;
-  font-weight: 400 !important;
-  line-height: 1.2 !important;
-}
 
 body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button,
