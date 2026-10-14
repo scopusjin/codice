@@ -1,9 +1,26 @@
+import re
+
 import streamlit as st
 
 from app.mobile_shell import install_minimal_mobile_shell
 
 
 install_minimal_mobile_shell()
+
+
+# All short citations lead to the internal bibliography page.
+_CITATION_PATTERN = re.compile(
+    r"(?:Henssge(?: et al\.| e Madea)?|Anders et al\.|Althaus et al\.|"
+    r"Henriksson et al\.|Madea)(?:, in Madea)?, \d{4}|\[\d+\]"
+)
+
+
+def _reference_caption(text: str) -> None:
+    def link(match):
+        label = match.group().replace("[", r"\[").replace("]", r"\]")
+        return f"[{label}](Reference)"
+
+    st.caption(_CITATION_PATTERN.sub(link, text))
 
 
 _COMBINED_REFERENCE = 'Henssge et al., 2000, parte II, tab. 1.'
@@ -366,7 +383,7 @@ def _render_combined_table(language: str) -> None:
         for index, (criterion, yes, no) in enumerate(criteria):
             group_cell = (
                 f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
-                f'{text[parameter]} {reference}</th>' if index == 0 else ""
+                f'{text[parameter]} <a href="Reference" target="_self">{reference}</a></th>' if index == 0 else ""
             )
             rows.append(
                 f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
@@ -387,10 +404,10 @@ def _render_combined_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.caption(text["intro"])
-    st.caption(text["variation_note"])
+    _reference_caption(text["intro"])
+    _reference_caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
-        st.caption(reference)
+        _reference_caption(reference)
 
 
 def _render_henssge_base_table(language: str) -> None:
@@ -430,11 +447,11 @@ def _render_henssge_base_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.caption(text['note'])
-    st.caption(text['lower_trunk'])
-    st.caption(text['thermal_foil'])
-    st.caption(text['body_bag'])
-    st.caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
+    _reference_caption(text['note'])
+    _reference_caption(text['lower_trunk'])
+    _reference_caption(text['thermal_foil'])
+    _reference_caption(text['body_bag'])
+    _reference_caption(f"{text['adapted']}: {_HENSSGE_BASE_REFERENCE}")
 
 
 def _render_henssge_special_table(language: str) -> None:
@@ -502,10 +519,10 @@ def _render_henssge_special_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.caption(r"\* " + text['naked_note'])
-    st.caption(f"[1] {text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
-    st.caption(f"[2] {text['leaves_reference']}")
-    st.caption(f"[3] {text['support_reference']}")
+    _reference_caption(r"\* " + text['naked_note'])
+    _reference_caption(f"[1] {text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
+    _reference_caption(f"[2] {text['leaves_reference']}")
+    _reference_caption(f"[3] {text['support_reference']}")
 
 
 def _render_henssge_weight_table(language: str) -> None:
@@ -563,13 +580,13 @@ def _render_henssge_weight_table(language: str) -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.caption(text['note'])
-    st.caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
+    _reference_caption(text['note'])
+    _reference_caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
 
 
 st.title("Tabelle di riferimento")
 if st.session_state.get("__fc_tables_return"):
-    st.caption("Riferimenti completi nella sezione «Riferimenti bibliografici». I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
+    _reference_caption("I richiami bibliografici aprono la sezione «Riferimenti bibliografici», con le citazioni complete. I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
 
 if st.button("← Indietro al FC", key="back_to_fc_top"):
         from app.fc_page import FULL_PAGE
