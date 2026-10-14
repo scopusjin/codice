@@ -189,17 +189,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "e le coperte sul tronco inferiore."
         ),
         "thermal_foil": (
-            "Mantellina termica metallizzata ben avvolta, con copertura del tronco inferiore: "
-            "assimilazione proposta alla coperta spessa (FC di riferimento 1.8), per analogia. "
-            "Su manichino con biancheria termica, in aria quasi ferma, Henriksson et al. hanno "
-            "misurato un isolamento complessivo di 2.9 clo con una mantellina oro/argento "
-            "e 2.7 clo con una coperta di lana di 5.5 mm. Il confronto sostiene l’analogia "
-            "tra coperture, ma non valida un FC cadaverico né una conversione da clo a FC. "
-            "Il valore non è un incremento da sommare al FC degli indumenti. "
-            "Henriksson O et al. Protection against cold in prehospital care—thermal insulation "
-            "properties of blankets and rescue bags in different wind conditions. "
-            "Prehosp Disaster Med. 2009;24(5):408–415. "
-            "[doi:10.1017/S1049023X00007238](https://doi.org/10.1017/S1049023X00007238)."
+            "La mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
         ),
         "adapted": "Adattato da",
     },
@@ -236,16 +226,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "or covering of the lower trunk is relevant."
         ),
         "thermal_foil": (
-            "A metallized emergency blanket wrapped securely around the body, covering the lower "
-            "trunk, is assigned by analogy to the thick-blanket category (reference FC 1.8). "
-            "On a manikin wearing thermal underwear in near-still air, Henriksson et al. measured "
-            "total insulation of 2.9 clo with a gold/silver foil blanket and 2.7 clo with a "
-            "5.5 mm wool blanket. This supports comparison of the coverings but does not validate "
-            "a postmortem FC or a conversion from clo to FC. The value is not an increment "
-            "to add to the clothing FC. Henriksson O et al. Protection against cold in prehospital "
-            "care—thermal insulation properties of blankets and rescue bags in different wind "
-            "conditions. Prehosp Disaster Med. 2009;24(5):408–415. "
-            "[doi:10.1017/S1049023X00007238](https://doi.org/10.1017/S1049023X00007238)."
+            "A metallized emergency blanket wrapped securely around the body is treated by analogy as a thick blanket: a manikin study found thermal insulation comparable to that of a wool blanket. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
         ),
         "adapted": "Adapted from",
     },
