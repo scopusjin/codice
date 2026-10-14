@@ -76,14 +76,14 @@
       const field=q(id);
       field.setAttribute('data-needs-value',String(missing));
       field.setAttribute('aria-invalid',String(missing));
-      field.placeholder=missing?'?':'';
+      field.placeholder=missing?'…':'';
     };
     flagInput('scenario-temperature',mobile&&!Number.isFinite(temperatureValue()));
     const selectIds=['isolation','feather','blanket-volume','leaf','leaf-cover','metal-type','support-soaked'];
     const pendingAnswer=selectIds.map(id=>{
       const field=q(id);
       const pending=mobile&&!q(id+'-row').hidden&&(field.value===''||field.value==='unknown');
-      if(field.options?.length)field.options[0].textContent=pending?'?':'Da precisare';
+      if(field.options?.length)field.options[0].textContent=pending?'…':'Da precisare';
       return pending;
     }).some(Boolean);
     const immersed=single.snapshot().state==='Immerso';
