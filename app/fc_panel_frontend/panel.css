@@ -27,16 +27,20 @@
 #fc-full #shared-weight input{width:34px;min-height:26px;font-size:13px}
 #fc-full #shared-weight button{width:22px;min-height:26px;font-size:14px}
 #fc-full #choice-row{--fc-control-width:188px;display:flex;flex-direction:column;gap:6px;width:calc(2 * var(--fc-control-width) + 26px);max-width:100%;padding:6px 8px 8px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
-#fc-full .choice-heading{display:grid;grid-template-columns:minmax(0,1fr) 96px max-content;align-items:center;gap:8px;width:100%}
+#fc-full .choice-heading{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:8px;width:100%}
 #fc-full #fc-heading{font-size:13px;font-weight:500}
-#fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+#fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 68px;align-items:center;gap:8px;width:100%}
+#fc-full #lo-control{grid-column:1;grid-row:1}
+#fc-full #hi-control{grid-column:2;grid-row:1}
+#fc-full #choice-row[data-range=false] #expand-range{grid-column:2;justify-self:start}
 #fc-full #range-fields>div{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;min-width:0}
 #fc-full #range-fields label{font-size:11px;font-weight:400;color:var(--fc-muted);padding-right:3px}
 #fc-full #choice-row[data-range=false] #lo-control label{visibility:hidden}
 #fc-full #range-fields .step{display:grid;grid-template-columns:minmax(0,1fr) 30px 30px;width:100%}
 #fc-full #range-fields input{width:100%;min-height:40px;padding:5px 4px;font-size:16px}
 #fc-full #range-fields button{width:100%;min-height:40px;font-size:17px}
-#fc-full #expand-range{width:96px;min-height:28px;padding:0 3px;border:0;background:transparent;color:var(--fc-muted);font-size:12px}
+#fc-full #range-fields #expand-range{grid-column:3;grid-row:1;width:auto;min-height:28px;padding:0;border:0;background:transparent;color:var(--fc-muted);font-size:10px;font-weight:400;white-space:nowrap}
+#fc-full #range-fields #expand-range:hover{background:transparent;text-decoration:underline}
 #fc-full .selected-actions{display:flex;align-items:center;gap:3px}
 #fc-full #use,#fc-full #use-scenarios{background:var(--fc-action);color:var(--fc-action-text);border-color:transparent}
 #fc-full #use{width:44px;padding:4px;font-size:12px}
@@ -102,7 +106,11 @@
   #fc-full .check{min-height:44px}
   #fc-full #choice-row{--fc-control-width:176px}
   #fc-full #range-fields input,#fc-full #range-fields button,#fc-full #expand-range{min-height:44px}
-  #fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 44px 44px}
+  #fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 26px 26px}
+  #fc-full #range-fields>div{grid-template-columns:minmax(0,1fr)}
+  #fc-full #range-fields label{line-height:14px}
+  #fc-full #choice-row[data-range=false] #lo-control label{display:none}
+  #fc-full #range-fields #expand-range{align-self:end;font-size:10px}
   #fc-full #restore{width:44px;min-height:44px}
   #fc-full #counts .counter{flex-wrap:wrap}
   #fc-full #counts label{width:100%}

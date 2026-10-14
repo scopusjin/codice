@@ -465,3 +465,10 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Base remota verificata `267ebf72886e3278233062e476dfcaa6123210b6`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Commit corrente: quello contenente questa voce.
 - Applicata la formulazione italiana richiesta dall’utente in `app/locales/it_ui.py`, chiave `full.henssge_not_applicable_help`, condivisa dagli helper desktop/mobile: unite fonte di calore e pavimento riscaldato; sostituito «fattore correttivo di Henssge» con «fattore di correzione». Altre voci e calcoli invariati.
 - Aggiornata l’aspettativa del test esistente; otto test `test_ui_i18n.py`, compilazione e diff superati. Verifica manuale dell’helper ancora da eseguire; nessun tentativo fallito. Prossimo passo: controllo del testo nell’app dopo l’aggiornamento.
+
+## Punto di avanzamento — Range nel pannello FC, 14 ottobre 2026
+
+- Base remota verificata `267ebf72886e3278233062e476dfcaa6123210b6`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`.
+- In `app/fc_panel_frontend/index.html`, «Range?» / «Valore singolo?» è stato spostato dalla testata alla riga dei campi. In `panel.css` è testo piccolo senza sfondo o bordo, su desktop e mobile; su touch gli incrementi restano alti 44 px e più stretti per lasciare spazio ai valori e all’azione.
+- Corretto `recalc()` e il ripristino del suggerimento: quando non esiste ancora un FC suggerito si mostra un solo campo vuoto. Due estremi compaiono per scelta esplicita o per un range effettivamente disponibile. Conservati i range applicati e gli scenari.
+- Motore scientifico invariato. Superate le suite JavaScript UI/scenari e motore (3385 controlli, 33600 combinazioni), inclusa la nuova verifica del FC vuoto in modalità singola. Diff controllato. Test utente su desktop/mobile ancora richiesto.

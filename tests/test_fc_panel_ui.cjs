@@ -159,6 +159,15 @@ win.FCBridge.send('use');assert.equal(messages.at(-1).value.action,'tables');
 console.log('Streamlit bridge: draft preservation and single navigation delivery passed.');
 require('./test_fc_scenarios.cjs');
 
+// Missing required conditions must not turn an empty FC into a range.
+panel.restore({state:'Asciutto',temperature:'20',fields:{thin:'',thick:'',medium:'',heavy:'',surface:'0',air:'still'}},70,20);
+assert.equal(nodes['hi-control'].hidden,true);
+assert.equal(nodes['expand-range'].textContent,'Range?');
+nodes['expand-range'].click();
+assert.equal(nodes['hi-control'].hidden,false);
+nodes['expand-range'].click();
+assert.equal(nodes['hi-control'].hidden,true);
+
 // The compact editor has one authoritative point value, or two independent bounds.
 panel.restore({state:'Asciutto',temperature:'20',fields:{thin:'0',thick:'0',medium:'0',heavy:'0',surface:'0',air:'still',water:'stagnante'}},70,20);
 assert.equal(nodes['hi-control'].hidden,true);
