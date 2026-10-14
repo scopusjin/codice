@@ -585,3 +585,8 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 
 - Base `aabd28ca`, branch `refactor-tanatology-keys`. Domande su isolamento, piumone e volume delle coperture inserite nel riquadro indumenti/coperture. Desktop: isolamento sotto gli indumenti, piumone sotto il relativo contatore, volume sotto le coperture. Mobile: domande a larghezza del riquadro. Identificativi e regole di attivazione invariati.
 - Eseguite suite UI e contatori, controllo diff; impaginazione da verificare visivamente nell’app.
+
+## Punto di avanzamento — mantellina nella descrizione coperture, 14 ottobre 2026
+
+- Base `0d55cf2b`, branch `refactor-tanatology-keys`. Mantellina termica descritta come copertura, integrata nella frase con teli/coperte/piumone quando presenti. «Avvolto» resta riservato al sacco mortuario. Nessuna modifica al calcolo.
+- Suite contatori con descrizioni singole e combinate e controllo diff superati.

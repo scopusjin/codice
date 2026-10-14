@@ -13,7 +13,7 @@
     return 'con '+(total<=4?'vari':'molti')+' strati di '+noun+' '+kind;
   }
   function counted(n,one,many){return n===1?one:n===2?'due '+many:'più '+many;}
-  function coverings(c){
+  function ordinaryCoverings(c){
     const thin=c.teli||0,thick=c.lightCover||0;
     const medium=c.m-Number(!!c.thermalFoil),heavy=c.h;
     if(!Number.isFinite(medium+heavy))return 'coperture da precisare';
@@ -34,11 +34,18 @@
     }
     return '';
   }
+  function coverings(c){
+    const ordinary=ordinaryCoverings(c);
+    if(!c.thermalFoil)return ordinary;
+    if(!ordinary)return 'coperto con una mantellina termica';
+    if(ordinary==='coperture da precisare')return 'coperto con una mantellina termica e altre coperture da precisare';
+    const description=ordinary.replace(/^sotto /,'coperto con ');
+    const detail=description.indexOf(', tra cui ');
+    return detail<0 ? description+' e una mantellina termica'
+      : description.slice(0,detail)+' e una mantellina termica'+description.slice(detail);
+  }
   function specialCoverings(c){
-    const items=[];
-    if(c.thermalFoil)items.push('una mantellina termica');
-    if(c.bodyBag)items.push('un sacco mortuario');
-    return items.length?'avvolto in '+items.join(' e in '):'';
+    return c.bodyBag?'avvolto in un sacco mortuario':'';
   }
   function conditions(c, fields) {
     if (c.state === 'Immerso') return 'corpo immerso in acqua ' + (c.water === 'corrente' ? 'corrente' : 'ferma');

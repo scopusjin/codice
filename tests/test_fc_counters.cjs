@@ -41,11 +41,11 @@ for(const state of ['Asciutto','Bagnato'])for(const weight of [50,70,100])for(co
 }
 panel.restore({state:'Asciutto',fields},70,20);toggle('thermal-foil',true);
 assert.deepEqual([...panel.payload().base_range],[1.8,1.8]);
-assert.match(panel.payload().description,/nudo, avvolto in una mantellina termica/);
+assert.match(panel.payload().description,/nudo, coperto con una mantellina termica/);
 assert.doesNotMatch(panel.payload().description,/sotto una coperta/);
 assert.equal(nodes.medium.value,'0');
 toggle('body-bag',true);const specialSaved=panel.snapshot(),specialText=panel.payload().description;
-assert.match(specialText,/avvolto in una mantellina termica e in un sacco mortuario/);
+assert.match(specialText,/coperto con una mantellina termica, avvolto in un sacco mortuario/);
 assert.equal(api.exampleMatches(panel.payload().conditions).length,0,'No documentary match treats the equivalents as actual clothes');
 panel.restore({state:'Asciutto',fields},70,20);
 assert.equal(nodes['thermal-foil'].checked,false);assert.equal(nodes['body-bag'].checked,false);
@@ -59,6 +59,8 @@ assert.doesNotMatch(panel.payload().description,/sacco|mantellina/);
 assert.equal(panel.payload().conditions.bodyBag,undefined);
 const describe=require('./fc_panel_harness.cjs').context.window.FCDescriptions.conditions;
 const descriptions=[
+  [{thermalFoil:true,m:2},'coperto con una coperta spessa e una mantellina termica'],
+  [{thermalFoil:true,m:2,h:1,feather:'yes'},'coperto con coperte di diverso spessore e una mantellina termica, tra cui un piumone molto voluminoso e avvolgente'],
   [{garmentThin:1},'con uno strato di indumenti leggeri'],
   [{garmentThin:2,teli:1},'con pochi indumenti leggeri, coperto con un telo sottile'],
   [{garmentThin:3,teli:2},'con vari strati di indumenti leggeri, coperto con due teli sottili'],
