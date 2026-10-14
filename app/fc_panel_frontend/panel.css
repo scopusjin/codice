@@ -26,16 +26,16 @@
 #fc-full #shared-weight{display:flex;align-items:center;gap:3px;color:var(--fc-muted);font-size:11.5px}
 #fc-full #shared-weight input{width:34px;min-height:26px;font-size:13px}
 #fc-full #shared-weight button{width:22px;min-height:26px;font-size:14px}
-#fc-full #choice-row{--fc-control-width:144px;display:flex;flex-direction:column;gap:6px;width:calc(2 * var(--fc-control-width) + 26px);max-width:100%;padding:6px 8px 8px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
+#fc-full #choice-row{--fc-control-width:188px;display:flex;flex-direction:column;gap:6px;width:calc(2 * var(--fc-control-width) + 26px);max-width:100%;padding:6px 8px 8px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
 #fc-full .choice-heading{display:grid;grid-template-columns:minmax(0,1fr) 96px max-content;align-items:center;gap:8px;width:100%}
 #fc-full #fc-heading{font-size:13px;font-weight:500}
 #fc-full #range-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
 #fc-full #range-fields>div{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;min-width:0}
 #fc-full #range-fields label{font-size:11px;font-weight:400;color:var(--fc-muted);padding-right:3px}
 #fc-full #choice-row[data-range=false] #lo-control label{visibility:hidden}
-#fc-full #range-fields .step{display:grid;grid-template-columns:minmax(0,1fr) 28px 28px;width:100%}
-#fc-full #range-fields input{width:100%;min-height:38px;padding:5px 4px;font-size:16px}
-#fc-full #range-fields button{width:100%;min-height:38px;font-size:17px}
+#fc-full #range-fields .step{display:grid;grid-template-columns:minmax(0,1fr) 30px 30px;width:100%}
+#fc-full #range-fields input{width:100%;min-height:40px;padding:5px 4px;font-size:16px}
+#fc-full #range-fields button{width:100%;min-height:40px;font-size:17px}
 #fc-full #expand-range{width:96px;min-height:28px;padding:0 3px;border:0;background:transparent;color:var(--fc-muted);font-size:12px}
 #fc-full .selected-actions{display:flex;align-items:center;gap:3px}
 #fc-full #use,#fc-full #use-scenarios{background:var(--fc-action);color:var(--fc-action-text);border-color:transparent}
@@ -51,9 +51,9 @@
 #fc-full #scenario-temperature-label{min-width:0;font-weight:500}
 #fc-full .temperature-control{display:flex;flex:none}
 #fc-full .temperature-control .step{background:var(--fc-bg);box-shadow:inset 0 0 0 1px #d6ad21}
-#fc-full #scenario-temperature{width:64px;min-height:38px;padding:5px 6px;font-size:16px}
+#fc-full #scenario-temperature{width:80px;min-height:40px;padding:5px 6px;font-size:16px}
 #fc-full #scenario-temperature-unit{width:24px;text-align:center;color:var(--fc-muted);font-size:13px}
-#fc-full .temperature-control button{min-height:38px}
+#fc-full .temperature-control button{width:30px;min-height:40px}
 #fc-full #counts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:12px;margin:2px 0 6px;padding:10px 9px;border:1px solid var(--fc-line);border-radius:8px;background:var(--fc-bg)}
 #fc-full #counts .category{font-size:14px;font-weight:600;margin:0 0 5px}
 #fc-full #counts .counter{display:flex;align-items:center;gap:6px;min-width:0;margin-top:3px}
@@ -112,7 +112,7 @@
   #fc-full #shared-weight button,#fc-full .temperature-control button{width:44px;min-height:44px}
   #fc-full #air-help-button,#fc-full .counter-help,#fc-full #counts .counter-help{width:44px;min-height:44px}
 }
-@container fc-panel (max-width:400px){#fc-full #range-fields .step{grid-template-columns:minmax(0,1fr) 24px 24px}}
+
 
 /* Six desktop counters, two rows. The mobile aggregate controls stay unchanged. */
 #fc-full #desktop-counts{display:none}

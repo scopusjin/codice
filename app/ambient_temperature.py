@@ -1,0 +1,50 @@
+"""Independent ambient-temperature input mode; calculation bounds stay explicit."""
+
+from app.cooling_inputs import finite_number
+
+MODE_KEY = "ambient_temperature_range"
+
+
+def set_temperature_mode(state):
+    if state[MODE_KEY]:
+        if not state.get("stima_cautelativa_beta", False):
+            fc = state.get("fattore_correzione")
+            for key in ("fc_min_val", "fc_other_val", "FC_min_beta", "FC_max_beta"):
+                state[key] = fc
+        if not finite_number(state.get("ta_other_val")):
+            state["ta_other_val"] = state.get("ta_base_val")
+        state["stima_cautelativa_beta"] = True
+        state["__prudent_explicit_ranges_initialized"] = True
+    state["show_results"] = False
+
+
+def sync_temperature_bounds(state):
+    first = state.get("ta_base_val")
+    if not state[MODE_KEY]:
+        state["ta_other_val"] = first
+    second = state.get("ta_other_val")
+    if all(finite_number(v) for v in (first, second)):
+        state["Ta_min_beta"], state["Ta_max_beta"] = sorted((float(first), float(second)))
+    else:
+        state.pop("Ta_min_beta", None)
+        state.pop("Ta_max_beta", None)
+
+
+def render_temperature_inputs(*, mobile, render_label):
+    import streamlit as st
+    from app import i18n
+
+    with st.container(horizontal=True, vertical_alignment="center", gap="xsmall"):
+        if not mobile:
+            render_label("T. ambientale media", i18n.ui_text("full.ta_mean_help"), "ta_mode")
+        st.checkbox("Intervallo di temperatura", key=MODE_KEY,
+                    on_change=set_temperature_mode, args=(st.session_state,))
+    interval = st.session_state[MODE_KEY]
+    with st.container(horizontal=not mobile, gap="xsmall"):
+        for key, label in [("ta_base_val", "full.ta_base_input" if interval else "full.ta_input_label")] + (
+                [("ta_other_val", "full.ta_other_input")] if interval else []):
+            with st.container(key="cooling_value_" + key):
+                st.number_input(i18n.ui_text(label), value=st.session_state.get(key),
+                                step=0.1, format="%.1f", key=key, label_visibility="collapsed",
+                                **({} if mobile else {"_mortem_compact_label": ""}))
+    sync_temperature_bounds(st.session_state)

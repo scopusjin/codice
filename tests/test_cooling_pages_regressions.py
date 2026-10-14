@@ -10,6 +10,36 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CoolingPagesRegressionTests(unittest.TestCase):
+    def test_temperature_mode_is_independent_of_fc_range(self):
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(__full_device_mobile=mobile, stima_cautelativa_beta=True,
+                                 __prudent_explicit_ranges_initialized=True,
+                                 ambient_temperature_range=False, ta_other_val=28.,
+                                 fc_min_val=1.4, fc_other_val=1.8)
+                self.assertEqual(app.session_state['Ta_min_beta'], 20.)
+                self.assertEqual(app.session_state['Ta_max_beta'], 20.)
+                app.checkbox(key='ambient_temperature_range').check().run()
+                self.assertFalse(app.exception)
+                app.session_state['ta_other_val'] = 24.
+                app.run()
+                self.assertEqual(app.session_state['Ta_max_beta'], 24.)
+                app.checkbox(key='ambient_temperature_range').uncheck().run()
+                self.assertFalse(app.exception)
+                self.assertEqual(app.session_state['Ta_max_beta'], 20.)
+                self.assertEqual(app.session_state['FC_min_beta'], 1.4)
+                self.assertEqual(app.session_state['FC_max_beta'], 1.8)
+
+    def test_temperature_range_can_start_with_single_fc(self):
+        app = self.start()
+        app.checkbox(key='ambient_temperature_range').check().run()
+        self.assertFalse(app.exception)
+        self.assertEqual(app.session_state['FC_min_beta'], 1.)
+        self.assertEqual(app.session_state['FC_max_beta'], 1.)
+        app.session_state['ta_other_val'] = 25.
+        app.run()
+        self.assertEqual(app.session_state['Ta_max_beta'], 25.)
+
     def start(self, **values):
         decimal_v2._renderer = None
         app = AppTest.from_file(str(ROOT / 'Stima_epoca_decesso.py'), default_timeout=30)

@@ -64,6 +64,7 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     if payload.get("manual") is True and payload.get("base_range") is None:
         payload = {**payload, "base_range": [lo, hi], "manual_weight_adjusted": False}
     was_prudent = bool(state.get("stima_cautelativa_beta", False))
+    state.setdefault("ambient_temperature_range", was_prudent)
     interval = was_prudent or hi > lo or msil or bool(payload.get("scenarios"))
     if interval and not was_prudent:
         ta = state.get("ta_base_val", None)
@@ -86,6 +87,7 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
     if temperatures is None and "temperature" in payload:
         temperatures = (float(payload["temperature"]),) * 2
     if temperatures is not None and sync_weight:
+        state["ambient_temperature_range"] = temperatures[0] != temperatures[1]
         for key in ("ta_base_val", "Ta_min_beta"):
             state[key] = temperatures[0]
         for key in ("ta_other_val", "Ta_max_beta"):

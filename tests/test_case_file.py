@@ -10,6 +10,13 @@ from test_fc_scenarios import temperature_payload
 
 
 class CaseFileTests(unittest.TestCase):
+    def test_ambient_temperature_mode_survives_export(self):
+        for interval in (False, True):
+            state = self.example()
+            state['ambient_temperature_range'] = interval
+            restored = restored_inputs(decode_case(encode_case(snapshot_case(state, 'full'))))
+            self.assertEqual(restored['ambient_temperature_range'], interval)
+
     def example(self):
         state = {"case_code": "IL26-10", "rt_val": 30., "tm_val": 37.2, "peso": 70.,
                  "input_data_rilievo": date(2026, 10, 10), "input_ora_rilievo": "09:15",

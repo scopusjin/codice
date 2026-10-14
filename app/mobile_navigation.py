@@ -7,6 +7,7 @@ import streamlit as st
 _FULL_NAV_STATE_KEYS = (
     "stima_cautelativa_beta",
     "range_unico_beta",
+    "ambient_temperature_range",
     "peso_stimato_beta",
     "ta_range_toggle_beta",
     "fc_manual_range_beta",

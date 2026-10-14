@@ -164,7 +164,7 @@ body {
   padding: 0 6px 0 1px;
   font-size: 13px;
 }
-.number-control.compact-mobile.desktop-external-label .step-button {
+.number-control.desktop-external-label .step-button {
   flex-basis: 30px;
   width: 30px;
 }

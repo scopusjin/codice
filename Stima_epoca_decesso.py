@@ -26,6 +26,7 @@ from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.cooling_inputs import missing_cooling_inputs
+from app.ambient_temperature import MODE_KEY, render_temperature_inputs
 from app.decimal_number_input import FC_FIELD_HELP
 from app.fc_selection import normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
 
@@ -325,6 +326,9 @@ with st.container(border=True, key="full_cooling_card"):
                 help=i18n.ui_text("full.henssge_not_applicable_help"),
             )
 
+    if MODE_KEY not in st.session_state:
+        st.session_state[MODE_KEY] = bool(st.session_state.get("stima_cautelativa_beta", False))
+
     # The FC panel activates intervals when a range or multiple scenarios is applied.
     stima_cautelativa_beta = st.session_state["stima_cautelativa_beta"]
     # Detach the former widget value from Streamlit's widget cleanup on deployment.
@@ -388,23 +392,7 @@ with st.container(border=True, key="full_cooling_card"):
                         with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
                             st.toggle(i18n.ui_text("full.weight_uncertainty"), key="peso_stimato_beta")
 
-                    ta_base_val = st.number_input(
-                        i18n.ui_text("full.ta_base_input"),
-                        value=sget("ta_base_val", None),
-                        step=0.1, format="%.1f",
-                        key="ta_base_val",
-                        label_visibility="collapsed"
-                    )
-                    ta_other_val = st.number_input(
-                        i18n.ui_text("full.ta_other_input"),
-                        value=sget("ta_other_val", ta_base_val),
-                        step=0.1, format="%.1f",
-                        key="ta_other_val",
-                        label_visibility="collapsed"
-                    )
-                    _sync_interval_state(
-                        "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
-                    )
+                    render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
 
                     fc_min_val = st.number_input(
                         i18n.ui_text("full.fc_min_input"),
@@ -466,34 +454,7 @@ with st.container(border=True, key="full_cooling_card"):
                         gap="small", key="cooling_conditions_row_desktop",
                     ):
                         with st.container(width="content", key="cooling_conditions_fields_desktop"):
-                            _render_desktop_cooling_label(
-                                "Range temperatura ambientale media",
-                                _TA_RANGE_DESKTOP_HELP,
-                                "ta_range",
-                            )
-                            with st.container(horizontal=True, gap="xsmall"):
-                                with st.container(width=144):
-                                    ta_base_val = st.number_input(
-                                        i18n.ui_text("full.ta_base_input"),
-                                        value=sget("ta_base_val", None),
-                                        step=0.1, format="%.1f",
-                                        key="ta_base_val",
-                                        label_visibility="collapsed",
-                                        _mortem_compact_label="",
-                                    )
-                                with st.container(width=144):
-                                    ta_other_val = st.number_input(
-                                        i18n.ui_text("full.ta_other_input"),
-                                        value=sget("ta_other_val", ta_base_val),
-                                        step=0.1, format="%.1f",
-                                        key="ta_other_val",
-                                        label_visibility="collapsed",
-                                        _mortem_compact_label="",
-                                    )
-
-                            _sync_interval_state(
-                                "ta_base_val", "ta_other_val", "Ta_min_beta", "Ta_max_beta"
-                            )
+                            render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
                             _render_desktop_cooling_label(
                                 "Range fattore di correzione (FC)",
@@ -501,7 +462,7 @@ with st.container(border=True, key="full_cooling_card"):
                                 "fc_range",
                             )
                             with st.container(horizontal=True, gap="xsmall"):
-                                with st.container(width=144):
+                                with st.container(key="cooling_value_fc_min_val"):
                                     fc_min_val = st.number_input(
                                         i18n.ui_text("full.fc_min_input"),
                                         value=sget("fc_min_val", sget("fattore_correzione", None)),
@@ -510,7 +471,7 @@ with st.container(border=True, key="full_cooling_card"):
                                         label_visibility="collapsed",
                                         _mortem_compact_label="",
                                     )
-                                with st.container(width=144):
+                                with st.container(key="cooling_value_fc_other_val"):
                                     fc_other_val = st.number_input(
                                         i18n.ui_text("full.fc_max_input"),
                                         value=sget("fc_other_val", sget("fattore_correzione", None)),
@@ -554,11 +515,7 @@ with st.container(border=True, key="full_cooling_card"):
                         value=sget("peso", 70.0), step=1.0, format="%.0f",
                         key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                     )
-                    st.number_input(
-                        i18n.ui_text("full.ta_input_label"),
-                        value=sget("ta_base_val", None), step=0.1, format="%.1f",
-                        key="ta_base_val", label_visibility="collapsed"
-                    )
+                    render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
                     st.number_input(
                         i18n.ui_text("full.fc_input_label"),
                         value=sget("fattore_correzione", None), step=0.05, format="%.2f",
@@ -602,21 +559,10 @@ with st.container(border=True, key="full_cooling_card"):
                         gap="small", key="cooling_conditions_row_desktop",
                     ):
                         with st.container(width="content", key="cooling_conditions_fields_desktop"):
-                            _render_desktop_cooling_label(
-                                "T. ambientale media",
-                                i18n.ui_text("full.ta_mean_help"),
-                                "ta_standard",
-                            )
-                            with st.container(width=144):
-                                st.number_input(
-                                    i18n.ui_text("full.ta_input_label"),
-                                    value=sget("ta_base_val", None), step=0.1, format="%.1f",
-                                    key="ta_base_val", label_visibility="collapsed",
-                                    _mortem_compact_label="",
-                                )
+                            render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
 
                             _render_desktop_cooling_label("Fattore di correzione (FC)", FC_FIELD_HELP, "fc_standard")
-                            with st.container(width=144):
+                            with st.container(key="cooling_value_fattore_correzione"):
                                 st.number_input(
                                     i18n.ui_text("full.fc_input_label"),
                                     value=sget("fattore_correzione", None), step=0.05, format="%.2f",
