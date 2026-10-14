@@ -419,3 +419,10 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Descrizioni: indumenti leggeri/pesanti/di diverso spessore; teli sottili/spessi; coperte spesse/molto pesanti. Le opzioni sono nominate esplicitamente senza descriverle anche come teli o coperte. Le condizioni confluiscono nel riepilogo e nel testo finale. La casistica ordinaria non viene abbinata automaticamente alle coperture assimilate.
 - B56 usa FC 1.29 del capitolo, mantenendo distinto l’ottimale 1.0 del 1981; B33 usa 2.16, mantenendo distinto 2.4. B33 richiede appoggio su materasso/tappeto spesso e coperture consistenti; un solo copriletto non lo attiva. Le analogie non sono equivalenze sperimentali.
 - Il formato di salvataggio accetta i dettagli dei contatori, le due opzioni e `initialScenarioTemperatures`, già prodotto dall’editor degli scenari. I decimali nei testi italiani e negli esempi selezionati usano il punto.
+
+## Punto di avanzamento — nota Più scenari, 14 ottobre 2026
+
+- Repository `scopusjin/codice`, branch dell’app di test `refactor-tanatology-keys`; base remota verificata `72eb290b96af5bd0796e71521d3102236bee398f`. Commit dell’intervento: quello contenente questa voce.
+- Su autorizzazione esplicita dell’utente, spostato in `app/fc_panel_frontend/index.html` il paragrafo `scenario-duration-note` da «Come viene consigliato il FC» a subito dopo la barra «Più scenari», prima dell’editor. Testo integralmente conservato. La funzione `render()` di `scenarios.js` conserva la visibilità condizionata alla modalità multipla; nessuna modifica a JavaScript, CSS, calcoli o stato.
+- Superati `node tests/test_fc_scenarios.cjs` e `node tests/test_fc_panel_ui.cjs`; diff controllato. Ultima verifica online documentata precedente: `37cb5d09919e340c3144020e7974ba33d4a15f4d` (altra funzione); nessuna nuova conferma visiva dell’utente acquisita per questo intervento.
+- Prossimo passo: test manuale nell’app, attivando «Più scenari» e verificando la nota sotto i comandi e la sua assenza nel pannello delle fonti. Nessun tentativo fallito per questo spostamento. Le altre richieste grafiche restano separate.

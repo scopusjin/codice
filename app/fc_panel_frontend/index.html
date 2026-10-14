@@ -25,6 +25,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Più scenari</label>
 <div id="scenario-controls" hidden><div class="scenario-tools"><span id="scenario-label">Scenari</span><div id="scenario-tabs" role="group" aria-labelledby="scenario-label"></div><button id="add-scenario" aria-label="Aggiungi scenario">+</button><button id="remove-scenario" aria-label="Rimuovi lo scenario selezionato">×</button></div></div>
 </div>
+<p id="scenario-duration-note" hidden>Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli al raffreddamento e fornisce un intervallo di stima che comprende entrambe. Variazioni di breve durata delle condizioni del corpo possono ragionevolmente essere trascurate.</p>
 <div id="scenario-editor" role="group" aria-label="Condizioni del corpo">
 <div id="choice-row"><div class="choice-heading"><strong id="fc-heading">FC per la stima:</strong><button id="expand-range" aria-label="Crea intervallo FC" aria-controls="hi-control" aria-expanded="false">Intervallo?</button><span class="selected-actions"><button id="use">Usa</button><button id="restore" aria-label="Ripristina il suggerimento per queste condizioni">↺</button></span></div><div id="range-fields"></div></div>
 <div id="fc-selection-note" aria-live="polite" hidden><span aria-hidden="true">*</span><div><div id="editable-note" hidden></div><div id="manual-state"></div></div></div>
@@ -62,7 +63,6 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="hint" id="origin"></div>
 <div id="detail" hidden></div>
 <details id="source-panel"><summary>Come viene consigliato il FC</summary>
-<p id="scenario-duration-note" hidden>Da usare se il corpo si è trovato, o potrebbe ragionevolmente essersi trovato, in condizioni diverse. L’app considera le condizioni più favorevoli e più sfavorevoli al raffreddamento e fornisce un intervallo di stima che comprende entrambe. Variazioni di breve durata delle condizioni del corpo possono ragionevolmente essere trascurate.</p>
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><div id="example-list"></div></div>
