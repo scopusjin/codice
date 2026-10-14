@@ -376,3 +376,12 @@ html body:has(#mortem-page-title) :is(.st-key-ambient_temperature_action, .st-ke
   outline: 1px solid currentColor;
   outline-offset: 2px;
 }
+
+/* Leave room for the adjacent helper in the fourth cooling column. */
+html body:has(#mortem-page-title) .st-key-btn_fc_scenarios button {
+  padding-inline: 0.4rem !important;
+}
+html body:has(#mortem-page-title) .st-key-btn_fc_scenarios button p {
+  font-size: 0.72rem !important;
+  white-space: nowrap;
+}
