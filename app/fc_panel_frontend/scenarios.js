@@ -31,7 +31,7 @@
     const range = [Math.min(...items.map(item => item.range[0])), Math.max(...items.map(item => item.range[1]))];
     const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(item=>item.description))].join(' / ');
     if(range[0]===range[1])return {range,description:'Fattore di correzione considerato: '+range[0].toFixed(2)+' ('+conditions(0)+')'};
-    return {range, description:'Range dei fattori di correzione stimati, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: ' + range[0].toFixed(2) +
+    return {range, description:'Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: ' + range[0].toFixed(2) +
       ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};
   }
   function formatTemperature(value) {
