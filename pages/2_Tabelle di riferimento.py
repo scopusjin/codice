@@ -6,50 +6,16 @@ from app.mobile_shell import install_minimal_mobile_shell
 install_minimal_mobile_shell()
 
 
-_COMBINED_REFERENCE = (
-    "Henssge C, Althaus L, Bolt J, Freislederer A, Haffner H-T, Henssge CA, "
-    "Hoppe B, Schneider V. Experiences with a compound method for estimating "
-    "the time since death. II. Integration of non-temperature-based methods. "
-    "Int J Legal Med. 2000;113(6):320–331. doi:10.1007/s004149900090, Table 1."
-)
+_COMBINED_REFERENCE = 'Henssge et al., 2000, parte II, tab. 1.'
 
 # Local numbering for the scientific synthesis, independent of the source bibliography.
-_COMBINED_BIBLIOGRAPHY = (
-    f"[1] {_COMBINED_REFERENCE}",
-    "[2] Henssge C, Madea B. Estimation of the time since death in the early post-mortem period. "
-    "Forensic Sci Int. 2004;144(2–3):167–175. doi:10.1016/j.forsciint.2004.04.051, "
-    "Tables 1–2.",
-    "[3] Henssge C, Madea B. Integration of different methods in casework. "
-    "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
-    "Chapter 10.1, Table 10.4; Figure 10.7.",
-    "[4] Anders S, Kunz M, Gehl A, Sehner S, Raupach T, Beck-Bornholdt H-P. "
-    "Estimation of the time since death—reconsidering the re-establishment of rigor mortis. "
-    "Int J Legal Med. 2013;127(1):127–130. "
-    "[doi:10.1007/s00414-011-0632-z](https://doi.org/10.1007/s00414-011-0632-z).",
-    "[5] Madea B. Supravitality in tissues. In: Madea B, ed. Estimation of the Time Since Death. "
-    "3rd ed. CRC Press; 2016. Chapter 3, Tables 3.1–3.2, 3.5.",
-)
+_COMBINED_BIBLIOGRAPHY = ('[1] Henssge et al., 2000, parte II, tab. 1.', '[2] Henssge e Madea, 2004, tab. 1–2.', '[3] Henssge e Madea, in Madea, 2016, cap. 10.1, tab. 10.4 e fig. 10.7.', '[4] Anders et al., 2013.', '[5] Madea, 2016, cap. 3, tab. 3.1–3.2 e 3.5.')
 
-_HENSSGE_BASE_REFERENCE = (
-    "Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. "
-    "Forensic Sci Int. 1988;38(3–4):209–236. doi:10.1016/0379-0738(88)90168-5."
-    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.18."
-)
+_HENSSGE_BASE_REFERENCE = 'Henssge, 1988; ripreso in Henssge, in Madea, 2016, cap. 6.1, tab. 6.18.'
 
-_HENSSGE_SPECIAL_REFERENCE = (
-    "Henßge C. Todeszeitbestimmung an Leichen. "
-    "Rechtsmedizin. 2002;12(2):112–131. doi:10.1007/s00194-002-0136-8."
-    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.19."
-)
+_HENSSGE_SPECIAL_REFERENCE = 'Henssge, 2002; ripreso in Henssge, in Madea, 2016, cap. 6.1, tab. 6.19.'
 
-_HENSSGE_WEIGHT_REFERENCE = (
-    "Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors "
-    "on the body weight under stronger thermic insulation conditions. "
-    "Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G; "
-    "Madea B. Methods for determining time of death. "
-    "Forensic Sci Med Pathol. 2016;12(4):451–485. doi:10.1007/s12024-016-9776-y, Table 10."
-    " Ripreso in: Henssge C. Basics and application of the nomogram method at the scene. In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. Chapter 6.1, Table 6.20."
-)
+_HENSSGE_WEIGHT_REFERENCE = 'Henssge, 1992; Madea, 2016, Methods for determining time of death, tab. 10; ripreso in Henssge, in Madea, 2016, cap. 6.1, tab. 6.20.'
 
 
 _COMBINED_TABLE_TEXT = {
@@ -189,9 +155,9 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "e le coperte sul tronco inferiore."
         ),
         "thermal_foil": (
-            "Una mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
+            "Una mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. Henriksson et al., 2009."
         ),
-        "body_bag": "Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238) documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario.",
+        "body_bag": "Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di Henriksson et al., 2009 documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario.",
         "adapted": "Adattato da",
     },
     "en": {
@@ -227,9 +193,9 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "or covering of the lower trunk is relevant."
         ),
         "thermal_foil": (
-            "A metallized emergency blanket wrapped securely around the body is treated by analogy as a thick blanket: a manikin study found thermal insulation comparable to that of a wool blanket. [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238)."
+            "A metallized emergency blanket wrapped securely around the body is treated by analogy as a thick blanket: a manikin study found thermal insulation comparable to that of a wool blanket. Henriksson et al., 2009."
         ),
-        "body_bag": "In this app, a simple plastic body bag is treated by analogy as a thick sheet. The manikin study by [Henriksson et al., 2009](https://doi.org/10.1017/S1049023X00007238) documents the insulating effect of a plastic sheet. This classification is an assessment by the app authors, as sufficiently reliable data to assign a specific FC to a body bag were not identified in the literature.",
+        "body_bag": "In this app, a simple plastic body bag is treated by analogy as a thick sheet. The manikin study by Henriksson et al., 2009 documents the insulating effect of a plastic sheet. This classification is an assessment by the app authors, as sufficiently reliable data to assign a specific FC to a body bag were not identified in the literature.",
         "adapted": "Adapted from",
     },
 }
@@ -248,7 +214,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "mattress": "Materasso, tappeto spesso",
         "leaves": "Foglie (strato di circa 2 cm)",
         "leaves_factors": "1.0 (bagnate)<br>1.3 (umide)<br>1.5 (secche)<br>1.8–2.7 (anche copertura di circa 10 cm)",
-        "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Prove su simulatori.",
+        "leaves_reference": "Althaus et al., 2007. Prove su simulatori.",
         "naked_note": (
             "In alcune tabelle pubblicate questi valori sono preceduti da segni − o +, "
             "che possono farli interpretare come quantità da sottrarre o aggiungere al FC di base. "
@@ -262,8 +228,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "metal": "Piano metallico spesso",
         "metal_factors": "0.53–0.55",
         "support_reference": (
-            "Henssge C. Basics and application of the nomogram method at the scene. "
-            "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
+            "Henssge, in Madea, 2016. "
             "Cap. 6.1, tab. 6.10 e paragrafo sulla scelta del fattore di correzione."
         ),
         "conducting": "Termoconduttiva",
@@ -290,7 +255,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "mattress": "Mattress, thick carpet",
         "leaves": "Leaves (layer about 2 cm thick)",
         "leaves_factors": "1.0 (wet)<br>1.3 (partly dry)<br>1.5 (dry)<br>1.8–2.7 (also covered by about 10 cm of leaves)",
-        "leaves_reference": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. Experiments using dummies.",
+        "leaves_reference": "Althaus et al., 2007. Experiments using dummies.",
         "naked_note": (
             "In some published tables these values are preceded by − or + signs, "
             "which may lead them to be interpreted as amounts to subtract from or add to the basic FC. "
@@ -304,8 +269,7 @@ _HENSSGE_SPECIAL_TABLE_TEXT = {
         "metal": "Thick metal surface",
         "metal_factors": "0.53–0.55",
         "support_reference": (
-            "Henssge C. Basics and application of the nomogram method at the scene. "
-            "In: Madea B, ed. Estimation of the Time Since Death. 3rd ed. CRC Press; 2016. "
+            "Henssge, in Madea, 2016. "
             "Chapter 6.1, Table 6.10 and section on evaluating the corrective factor."
         ),
         "conducting": "Conducting heat",
@@ -540,7 +504,7 @@ def _render_henssge_special_table(language: str) -> None:
     )
     st.caption(r"\* " + text['naked_note'])
     st.caption(f"[1] {text['adapted']}: {_HENSSGE_SPECIAL_REFERENCE}")
-    st.caption(f"[2] {text['leaves_reference']} [doi:10.1007/s00414-006-0108-8](https://doi.org/10.1007/s00414-006-0108-8)")
+    st.caption(f"[2] {text['leaves_reference']}")
     st.caption(f"[3] {text['support_reference']}")
 
 
@@ -605,7 +569,9 @@ def _render_henssge_weight_table(language: str) -> None:
 
 st.title("Tabelle di riferimento")
 if st.session_state.get("__fc_tables_return"):
-    if st.button("← Indietro al FC", key="back_to_fc_top"):
+    st.caption("Riferimenti completi nella sezione «Riferimenti bibliografici». I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
+
+if st.button("← Indietro al FC", key="back_to_fc_top"):
         from app.fc_page import FULL_PAGE
         st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
 
