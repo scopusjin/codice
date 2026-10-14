@@ -86,6 +86,10 @@ function updateButtons() {
   plusButton.disabled = !canStep(1);
   helpButton.disabled = disabled;
   suggestButton.disabled = disabled;
+  const missing = !disabled && parsedInput() === null;
+  control.classList.toggle("needs-input", missing);
+  input.placeholder = missing ? "…" : "";
+  input.setAttribute("aria-invalid", String(missing));
 }
 
 function setDisplayedValue(value) {
