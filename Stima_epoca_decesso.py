@@ -811,7 +811,7 @@ if "show_results" not in st.session_state:
 # Stile bottone
 st.markdown("""
     <style>
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *, .st-key-fc_range_action *)) {
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)) {
         border: 2px solid #2196F3 !important;
         color: black !important;
         background-color: white !important;
@@ -819,7 +819,7 @@ st.markdown("""
         border-radius: 8px !important;
         padding: 0.6em 2em !important;
     }
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *, .st-key-fc_range_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
 
     /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
        automatica di Streamlit altera centratura e larghezza del cerchio. */

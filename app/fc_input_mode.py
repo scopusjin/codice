@@ -15,30 +15,11 @@ def initialize_fc_mode(state):
     return bool(choice.get("scenarios"))
 
 
-def toggle_fc_mode(state):
-    if initialize_fc_mode(state):
-        return
-    state[FC_MODE_KEY] = not state[FC_MODE_KEY]
-    if state[FC_MODE_KEY]:
-        value = state.get("fattore_correzione")
-        state["fc_min_val"] = state["fc_other_val"] = value
-        if not state.get("stima_cautelativa_beta"):
-            state["ta_other_val"] = state.get("ta_base_val")
-        state["stima_cautelativa_beta"] = True
-        state["__prudent_explicit_ranges_initialized"] = True
-    else:
-        state["fattore_correzione"] = state.get("fc_min_val")
-        state["fc_other_val"] = state.get("fc_min_val")
-        from app.fc_selection import normalize_fc_input
-        normalize_fc_input(state, "fattore_correzione")
-    state["show_results"] = False
-
-
 def render_fc_inputs(*, mobile, render_label, normalize, help_text):
     import streamlit as st
     from app import i18n
     state = st.session_state
-    locked = initialize_fc_mode(state)
+    initialize_fc_mode(state)
     interval = state[FC_MODE_KEY]
     if not mobile:
         render_label("Fattore di correzione (FC)", help_text, "fc_independent")
@@ -50,11 +31,6 @@ def render_fc_inputs(*, mobile, render_label, normalize, help_text):
             st.number_input(i18n.ui_text(label), value=state.get(key), step=0.05, format="%.2f",
                             key=key, on_change=normalize, args=(key,), label_visibility="collapsed",
                             **({} if mobile else {"_mortem_compact_label": ""}))
-    if not mobile and not locked:
-        with slots[len(fields)]:
-            with st.container(key="fc_range_action", horizontal=True, vertical_alignment="center", height=40, border=False):
-                st.button("Valore singolo?" if interval else "Range?", key="fc_range_toggle",
-                          type="tertiary", on_click=toggle_fc_mode, args=(state,))
     if not interval:
         state["fc_min_val"] = state["fc_other_val"] = state.get("fattore_correzione")
     values = [state.get("fc_min_val"), state.get("fc_other_val")]

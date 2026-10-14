@@ -973,13 +973,6 @@ def render_mobile_decimal_v2(
         from app.ambient_temperature import MODE_KEY, toggle_temperature_mode
         suggest_label = "Valore singolo?" if st.session_state.get(MODE_KEY, False) else "Range?"
         on_suggest = lambda: toggle_temperature_mode(st.session_state)
-    fc_mode_action = bool(full_mobile and key in {"mortem_decimal_fattore_correzione", "mortem_decimal_fc_min_val"}
-                          and not (st.session_state.get("__fc_applied_choice") or {}).get("scenarios"))
-    if fc_mode_action:
-        from app.fc_input_mode import FC_MODE_KEY, toggle_fc_mode
-        suggest_label = "Valore singolo?" if st.session_state.get(FC_MODE_KEY, False) else "Range?"
-        on_suggest = lambda: toggle_fc_mode(st.session_state)
-    temperature_action = temperature_action or fc_mode_action
     effective_suggest_enabled = bool(temperature_action or (suggest_enabled and not external_fc_suggest))
     external_action = bool(
         (

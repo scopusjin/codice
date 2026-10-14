@@ -511,3 +511,9 @@ Precisazione utente: con scenari a temperature diverse il comando «Valore singo
 - Base remota verificata `005acb8183ce0c99158e751e189b195c12389434`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`; commit corrente: quello contenente questa voce.
 - Esaminata l’immagine allegata: campi del range eccessivamente larghi e «max» vicino al campo precedente. In `app/fc_panel_frontend/panel.css` e `scenarios.css`, limitata a 144 px la larghezza dei gruppi min/max, con 14 px tra gruppi e 5 px tra etichetta e campo; colonna delle etichette uniforme a 24 px. Su contenitori fino a 400 px, etichette sopra i campi del range per preservare spazio al valore. Sostituite le regole esistenti; calcoli e controlli invariati.
 - Suite del pannello e diff superati. Controllo visivo sul dispositivo dell’utente ancora da eseguire; browser locale non disponibile come documentato nel precedente intervento. Nessun nuovo tentativo fallito. Prossimo passo: verificare la separazione di «max» e la leggibilità dei campi.
+
+## Punto di avanzamento — Range FC solo nel pannello, 14 ottobre 2026
+
+- Base remota verificata `841d035b`, branch `refactor-tanatology-keys`. Su richiesta dell’utente rimosso il comando Range/Valore singolo del FC dalla schermata principale, sia desktop sia mobile, insieme al callback ora inutilizzato e ai relativi selettori CSS.
+- Conservata la modalità FC indipendente: il comando Range della temperatura modifica solo i campi termici. Il FC si modifica aprendo il pannello dal suo campo; i comandi Range del pannello e i vincoli degli scenari restano invariati.
+- Verifiche mirate: schermata raffreddamento e controllo mobile, inclusa assenza del comando FC e conservazione di FC singolo/range durante apertura e chiusura del range termico. Diff controllato; nessuna modifica ai calcoli. Prossimo passo: verifica utente dopo ricaricamento.

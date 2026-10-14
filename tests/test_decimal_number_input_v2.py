@@ -51,7 +51,7 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         self.assertIn("data-mortem-decimal-help-portal", _JS)
         self.assertIn("openMobileHelpPortal(mobileHelpText)", _JS)
 
-    def test_inline_fc_action_keeps_temperature_mode(self):
+    def test_fc_has_no_inline_range_action(self):
         from unittest.mock import patch
         import app.decimal_number_input_v2 as v2
         for locked in (False, True):
@@ -73,13 +73,8 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
                     key='mortem_decimal_fattore_correzione')
                 call = calls[0]
                 self.assertEqual(call['height'], 40)
-                self.assertEqual(call['data']['suggest_enabled'], not locked)
-                if not locked:
-                    self.assertEqual(call['data']['suggest_label'], 'Range?')
-                    call['on_suggest_change']()
-                    self.assertTrue(state['fc_input_range'])
-                    self.assertTrue(state['ambient_temperature_range'])
-                    self.assertEqual(state['ta_other_val'], 25.)
+                self.assertFalse(call['data']['suggest_enabled'])
+                self.assertFalse(call['data']['temperature_action'])
 
     def test_inline_temperature_action_uses_existing_state_and_is_absent_when_locked(self):
         from unittest.mock import patch
