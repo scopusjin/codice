@@ -36,6 +36,80 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
         ):
             self.assertFalse(is_full_mobile_v2_key(key))
 
+    def test_temperature_label_follows_actual_temperature_mode(self):
+        from unittest.mock import patch
+        import app
+
+        state = {
+            "stima_cautelativa_beta": True,
+            "range_unico_beta": True,
+            "ambient_temperature_range": False,
+        }
+        with patch.object(app.st, "session_state", state):
+            for mobile, single_label, range_label in (
+                (True, "T. amb. media", "T. amb. 1"),
+                (False, "T. ambientale media", "T. ambientale media 1"),
+            ):
+                with patch.object(app, "full_device_is_mobile", return_value=mobile):
+                    self.assertEqual(app._compact_mobile_label("unused", "ta_base_val"), single_label)
+                    state["ambient_temperature_range"] = True
+                    self.assertEqual(app._compact_mobile_label("unused", "ta_base_val"), range_label)
+                    state["ambient_temperature_range"] = False
+
+    def test_independent_single_value_helpers_even_in_prudent_mode(self):
+        import importlib
+        from unittest.mock import patch
+
+        decimal = importlib.import_module("app.decimal_number_input")
+        state = {
+            "stima_cautelativa_beta": True,
+            "range_unico_beta": True,
+            "ambient_temperature_range": False,
+            "fc_input_range": False,
+        }
+        captured = []
+        def recorder(**kwargs):
+            captured.append(kwargs)
+            return kwargs["value"]
+        with (
+            patch.object(decimal.st, "session_state", state),
+            patch.object(decimal, "mobile_decimal_v2_available", return_value=True),
+            patch.object(decimal, "render_mobile_decimal_v2", side_effect=recorder),
+        ):
+            def help_for(key, value, label):
+                captured.clear()
+                decimal.decimal_number_input(value=value, compact_mobile=True,
+                                             compact_label=label, key=key)
+                self.assertEqual(len(captured), 1)
+                return captured[0]
+
+            ta = help_for("mortem_decimal_ta_base_val", 19., "T. amb. media")
+            self.assertTrue(ta["help_enabled"])
+            self.assertEqual(ta["help_state_key"], decimal._TA_STANDARD_HELP_OPEN_KEY)
+            fc = help_for("mortem_decimal_fattore_correzione", 1., "FC")
+            self.assertTrue(fc["help_enabled"])
+            self.assertEqual(fc["help_state_key"], decimal._FC_STANDARD_HELP_OPEN_KEY)
+
+            state["ambient_temperature_range"] = True
+            ta_range = help_for("mortem_decimal_ta_other_val", 20., "T. amb. 2")
+            self.assertTrue(ta_range["help_enabled"])
+            self.assertEqual(ta_range["help_state_key"], decimal._TA_RANGE_HELP_OPEN_KEY)
+            state["ambient_temperature_range"] = False
+            self.assertTrue(help_for("mortem_decimal_ta_base_val", 19., "T. amb. media")["help_enabled"])
+
+            state["fc_input_range"] = True
+            fc_range = help_for("mortem_decimal_fc_other_val", 1.4, "FC max")
+            self.assertTrue(fc_range["help_enabled"])
+            self.assertEqual(fc_range["help_state_key"], decimal._FC_RANGE_HELP_OPEN_KEY)
+            state["fc_input_range"] = False
+            self.assertTrue(help_for("mortem_decimal_fattore_correzione", 1., "FC")["help_enabled"])
+
+    def test_incomplete_main_fields_highlight_entire_control(self):
+        self.assertIn(".number-control.needs-input:not(.is-dense) {", _CSS)
+        self.assertIn(".number-control.needs-input:not(.is-dense) .label-help-cluster", _CSS)
+        self.assertIn("control.classList.toggle('needs-input', missing)", _JS)
+        self.assertIn("input.placeholder = missing ? '…' : ''", _JS)
+
     def test_v2_component_key_avoids_reserved_event_delimiter(self):
         component_key = _component_instance_key("mortem_decimal_rt_val")
         self.assertEqual(component_key, "mortem_decimal_rt_val-v2")
