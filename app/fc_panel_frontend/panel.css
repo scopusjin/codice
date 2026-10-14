@@ -116,8 +116,8 @@
 
 /* Six desktop counters, two rows. The mobile aggregate controls stay unchanged. */
 #fc-full #desktop-counts{display:none}
-#fc-full[data-desktop=true]{max-width:960px}
-#fc-full[data-desktop=true] #counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 16px;padding:0;border:0;border-radius:0;margin:4px 0 8px}
+#fc-full[data-desktop=true]{max-width:820px}
+#fc-full[data-desktop=true] #counts{grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 12px;padding:0;border:0;border-radius:0;margin:0 0 4px}
 #fc-full[data-desktop=true] #desktop-counts,#fc-full[data-desktop=true] #blanket-counts{display:contents}
 #fc-full[data-desktop=true] #clothing-counts,#fc-full[data-desktop=true] #counts .category{display:none}
 #fc-full[data-desktop=true] #counts .counter{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:4px;margin:0}
@@ -129,9 +129,23 @@
 #fc-full[data-desktop=true] #garment-thick-control{grid-area:2 / 1}
 #fc-full[data-desktop=true] #light-cover-control{grid-area:2 / 2}
 #fc-full[data-desktop=true] #heavy-control{grid-area:2 / 3}
-@container fc-panel (max-width:760px){
+@container fc-panel (max-width:600px){
   #fc-full[data-desktop=true] #counts{gap:6px 10px}
   #fc-full[data-desktop=true] #counts .counter{flex-direction:column;align-items:flex-start;justify-content:flex-end}
 }
 
 #fc-full #special-covers{display:flex;flex-wrap:wrap;gap:0 20px;margin:2px 0}
+
+/* One compact frame contains ordinary and special covers on both layouts. */
+#fc-full #coverings-box{min-width:0;margin:2px 0 8px;padding:4px 9px 5px;border:1px solid var(--fc-line);border-radius:8px}
+#fc-full #coverings-box legend{display:flex;gap:5px;padding:0 5px;color:var(--fc-muted);line-height:1}
+#fc-full #coverings-box legend svg{width:16px;height:16px}
+#fc-full #coverings-box #counts{border:0;padding:0;background:transparent}
+#fc-full #coverings-box .hint{margin:0;font-size:11px}
+#fc-full #coverings-box summary{padding:2px 0}
+#fc-full #coverings-box #special-covers{margin:0;gap:0 16px}
+@media(pointer:fine){
+  #fc-full[data-desktop=true] #counts input{width:26px;min-height:26px;font-size:13px}
+  #fc-full[data-desktop=true] #counts button{width:22px;min-height:26px}
+  #fc-full[data-desktop=true] #special-covers .check{min-height:26px}
+}
