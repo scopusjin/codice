@@ -346,7 +346,7 @@ def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
 
 def simple_sentence_no_dt_not_over(duration: str) -> str:
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>non oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -354,7 +354,7 @@ def simple_sentence_no_dt_not_over(duration: str) -> str:
 
 def simple_sentence_no_dt_over(duration: str) -> str:
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -362,7 +362,7 @@ def simple_sentence_no_dt_over(duration: str) -> str:
 
 def simple_sentence_no_dt_range(interval: str) -> str:
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
     )
@@ -407,7 +407,7 @@ def simple_sentence_dt_not_over(
     else:
         window = f"tra le ore {lower_time} del {lower_date} e le {inspection_time} del {inspection_date}"
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"non oltre {duration} prima "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire all'incirca {window}.</p>"
@@ -416,7 +416,7 @@ def simple_sentence_dt_not_over(
 
 def simple_sentence_dt_over(duration: str, cutoff_time: str, cutoff_date: str) -> str:
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>oltre {duration} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
@@ -436,7 +436,7 @@ def simple_sentence_dt_range(
     else:
         window = f"tra le ore {start_time} del {start_date} e le ore {end_time} del {end_date}"
     return (
-        "<p>"
+        "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>{interval} prima</b> "
         "dei rilievi effettuati nel corso dell’ispezione legale, "
         f"vale a dire circa <b>{window}</b>.</p>"

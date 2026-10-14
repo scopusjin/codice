@@ -365,3 +365,9 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`; base verificat
 - Formulazione successiva richiesta dall’utente, base verificata `fa706fd5805f89fd7f34221440ae23cd19669b06`: «Scenario 1: selezionare le condizioni del corpo per ricevere suggerimenti o scrivere il FC. Specificare la temperatura.». Il numero segue lo scenario; la richiesta del FC precede quella della temperatura e ciascuna compare soltanto se necessaria. Gli altri messaggi di validazione restano specifici. Modifica testuale in `scenarios.js`, aspettative dei test esistenti allineate; suite JavaScript degli scenari e diff superati. Nessuna modifica ai calcoli o alla validazione.
 
 - Titolo dinamico richiesto dall’utente, base GitHub `2345c38d4c9c7c5ea9c25475900812611997d614` con contenuti locali confrontati: «Gestisci scenari» quando «Più scenari» è attivo, «Consiglia FC» nel caso singolo. Aggiornamento limitato al titolo HTML e al suo testo durante il rendering; suite JavaScript degli scenari e diff superati. Nessuna variazione a dati, calcoli o navigazione.
+
+## Punto di avanzamento — punteggiatura dei range e intestazione breve, 14 ottobre 2026
+
+- Base GitHub e checkout isolato verificati: `a049630c42b3cb86605780e98916165bd262d037`, branch `refactor-tanatology-keys`. Su richiesta dell’utente, sostituite con una virgola le parentesi introduttive nelle descrizioni del range di FC e delle temperature ambientali medie, anche nei riepiloghi generati dagli scenari.
+- Ripristinata «EPOCA DEL DECESSO STIMATA:» soltanto all’inizio della descrizione breve, in tutte le varianti con e senza data/ora. Le descrizioni dettagliate restano prive di questa intestazione.
+- Allineate le aspettative dei test esistenti; superati 29 test Python su scenari, testi del raffreddamento e frasi temporali, la suite JavaScript degli scenari e il controllo del diff. Nessun nuovo test permanente per queste modifiche testuali; calcoli e dati numerici invariati.
