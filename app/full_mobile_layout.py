@@ -21,9 +21,7 @@ _PRUDENT_HELP_TEXT = re.sub(r"<[^>]+>", "", ui_text("full.prudent_default_note")
 _FULL_MOBILE_CSS = r"""
 <style>
 
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button,
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button {
   width: 18px !important;
   min-width: 18px !important;
@@ -36,11 +34,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   line-height: 1 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent_electrical_"] {
   flex: 0 0 18px !important;
   width: 18px !important;
@@ -54,11 +49,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   padding: 0 !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] button,
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button,
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent_electrical_"] button {
   display: inline-flex !important;
   align-items: center !important;
@@ -68,11 +60,8 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   transform: none !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent"] [data-testid="stPopover"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] [data-testid="stPopover"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"] {
   display: flex !important;
   align-items: center !important;
@@ -87,22 +76,22 @@ body:has([class*="st-key-stima_cautelativa_beta"])
   padding: 0 !important;
 }
 
-/* Il triangolino standard dei popover non serve nei piccoli pulsanti di aiuto
-   e li fa apparire decentrati rispetto alle etichette. */
-body:has([class*="st-key-stima_cautelativa_beta"])
+/* Gli helper mantengono soltanto il punto interrogativo: nessun triangolino,
+   in tutte le schermate che utilizzano gli st.popover di aiuto. */
 [class*="st-key-mortem_help_prudent"] button [data-testid="stIconMaterial"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button [data-testid="stIconMaterial"],
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent_electrical_"] button [data-testid="stIconMaterial"] {
   display: none !important;
 }
 
-body:has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_help_prudent"] [data-testid="stPopover"] button svg,
+[class*="st-key-mortem_help_henssge"] [data-testid="stPopover"] button svg,
+[class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"] button svg {
+  display: none !important;
+}
+
 [class*="st-key-mortem_help_prudent"] button p,
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_henssge"] button p,
-body:has([class*="st-key-stima_cautelativa_beta"])
 [class*="st-key-mortem_help_prudent_electrical_"] button p {
   display: flex !important;
   align-items: center !important;
