@@ -8,6 +8,7 @@ from app.fc_selection import (
     apply_choice, fc_weight_needs_review, fc_weight_warning, normalize_fc_input, refresh_fc_for_weight,
 )
 from app.fc_weight import adapt_fc_range
+from app.fc_input_mode import _fc_adaptation_notice, _fc_weight_label
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -88,6 +89,35 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
         self.assertIn('<input id="weight" type="hidden"', html)
         self.assertNotIn('data-weight="-1"', html)
         self.assertNotIn('data-weight="1"', html)
+
+    def test_compact_weight_notice_is_beside_fc_label_only_when_adapted(self):
+        state = {}
+        apply_choice(state, self.automatic_choice(base=(2., 2.)))
+        self.assertIsNone(_fc_adaptation_notice(state))
+        self.assertEqual(_fc_weight_label(None), "Fattore di correzione (FC)")
+
+        state["peso"] = 100.
+        self.assertTrue(refresh_fc_for_weight(state))
+        note = _fc_adaptation_notice(state)
+        self.assertEqual(note, "FC adattato per il peso (100 kg).")
+        self.assertEqual(_fc_weight_label(note),
+                         "Fattore di correzione (FC) <small><sup>*</sup> "
+                         "FC adattato per il peso (100 kg)</small>")
+        self.assertEqual(_fc_weight_label(note, mobile=True),
+                         "FC <small><sup>*</sup> FC adattato per il peso (100 kg)</small>")
+
+        state["peso"] = 70.
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertIsNone(_fc_adaptation_notice(state))
+        self.assertEqual(_fc_weight_label(None, mobile=True), "FC")
+
+    def test_compact_weight_notice_does_not_hide_a_pending_review(self):
+        state = {}
+        apply_choice(state, self.automatic_choice())
+        state["peso"] = 100.
+        self.assertIsNone(_fc_adaptation_notice(state))
+        self.assertEqual(fc_weight_warning(state), "Peso modificato: ricontrollare il FC.")
+        self.assertIn("&lt;script&gt;", _fc_weight_label("<script>"))
 
     def test_incomplete_manual_edits_disable_refresh(self):
         for key in ('fattore_correzione', 'fc_min_val', 'fc_other_val'):
