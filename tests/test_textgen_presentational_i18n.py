@@ -197,41 +197,41 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             frase_qd(0.19, 23.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb ≤ 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.190). "
+            "dovrebbe essere > 0.2; nel caso in esame è pari a 0.190). "
             + definition,
         )
         self.assertEqual(
             frase_qd(0.2, 23.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb ≤ 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,2; nel caso in esame è pari a 0.200). "
+            "dovrebbe essere > 0.2; nel caso in esame è pari a 0.200). "
             + definition,
         )
         self.assertEqual(
             frase_qd(0.25, 23.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, i parametri consentono l’applicazione del metodo di Henssge, "
             "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
-            "(con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nel caso in esame è pari a 0.250). "
+            "(con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2; nel caso in esame è pari a 0.250). "
             + definition,
         )
         self.assertEqual(
             frase_qd(0.35, 23.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, i parametri consentono di ottenere una stima sufficientemente attendibile "
-            "mediante il metodo di Henssge (con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nel caso in esame è pari a 0.350). "
+            "mediante il metodo di Henssge (con T. amb ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2; nel caso in esame è pari a 0.350). "
             + definition,
         )
         self.assertEqual(
             frase_qd(0.49, 24.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb > 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.490). "
+            "dovrebbe essere > 0.5; nel caso in esame è pari a 0.490). "
             + definition,
         )
         self.assertEqual(
             frase_qd(0.5, 24.0),
             "<p style='color:blue;font-size:8pt;'> Nel caso in esame, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb > 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,5; nel caso in esame è pari a 0.500). "
+            "dovrebbe essere > 0.5; nel caso in esame è pari a 0.500). "
             + definition,
         )
 
@@ -248,8 +248,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 single_value=False,
             ),
             "<p style='color:blue;font-size:8pt;'> Nelle condizioni considerate, i parametri consentono di ottenere una stima sufficientemente attendibile "
-            "mediante il metodo di Henssge (con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2, mentre con T. amb. > 23 °C "
-            "dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd varia da 0.350 a 0.480). "
+            "mediante il metodo di Henssge (con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2, mentre con T. amb. > 23 °C "
+            "dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd varia da 0.350 a 0.480). "
             + definition,
         )
         self.assertEqual(
@@ -261,7 +261,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             ),
             "<p style='color:blue;font-size:8pt;'> Per una parte delle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb. ≤ 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "dovrebbe essere > 0.2, mentre con T. amb. > 23 °C dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd "
             "varia da 0.190 a 0.350). "
             + definition,
         )
@@ -274,7 +274,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             ),
             "<p style='color:blue;font-size:8pt;'> Nelle condizioni considerate, i parametri consentono l’applicazione del metodo di Henssge, "
             "sebbene il valore di Qd sia prossimo al limite inferiore e comporti pertanto un intervallo temporale di stima più ampio "
-            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0,2; nelle condizioni considerate il valore di Qd varia da 0.230 a 0.280). "
+            "(con T. amb. ≤ 23 °C, il valore di Qd dovrebbe essere > 0.2; nelle condizioni considerate il valore di Qd varia da 0.230 a 0.280). "
             + definition,
         )
         self.assertEqual(
@@ -286,7 +286,7 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             ),
             "<p style='color:blue;font-size:8pt;'> Nelle condizioni considerate, il valore di Qd ricade al di fuori dei valori per i quali "
             "il metodo di Henssge consente di ottenere una stima sufficientemente attendibile (con T. amb. ≤ 23 °C, il valore di Qd "
-            "dovrebbe essere > 0,2, mentre con T. amb. > 23 °C dovrebbe essere > 0,5; nelle condizioni considerate il valore di Qd "
+            "dovrebbe essere > 0.2, mentre con T. amb. > 23 °C dovrebbe essere > 0.5; nelle condizioni considerate il valore di Qd "
             "varia da 0.100 a 0.190). "
             + definition,
         )
