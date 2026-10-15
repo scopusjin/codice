@@ -949,5 +949,5 @@ with st.container(key="tables_navigation_bridge"):
             }
         })();
         </script>""".replace("SCROLL_TO_FC", "true" if _scroll_to_fc else "false"),
-        height=0,
+        height=1,
     )
