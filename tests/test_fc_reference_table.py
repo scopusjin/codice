@@ -120,7 +120,7 @@ class FCReferenceTableTests(unittest.TestCase):
                      {'st': st_stub, '_scroll_to_fc': scroll})
                 self.assertEqual(len(embedded), 1)
                 html, options = embedded[0]
-                self.assertEqual(options, {'height': 0})
+                self.assertEqual(options, {'height': 1})
                 self.assertIn("doc.addEventListener('click', host.mortemReferenceClick, true)", html)
                 self.assertIn("doc.querySelector('.st-key-tables_reference_nav button')", html)
                 self.assertIn("host.requestAnimationFrame(scroll)", html)
