@@ -5,9 +5,11 @@ import streamlit as st
 
 from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
+from app.page_navigation import TABLES_PAGE, record_page_visit, render_back_button
 
 
 install_minimal_mobile_shell()
+record_page_visit(st.session_state, TABLES_PAGE)
 
 
 # All short citations lead to the internal bibliography page.
@@ -878,10 +880,7 @@ henssge_weight_language = st.radio(
 )
 _render_henssge_weight_table("it" if henssge_weight_language == "Italiano" else "en")
 
-if st.button("← Indietro al FC" if st.session_state.get("__fc_tables_return") else "⬅️ Torna alla pagina principale", key="back_home"):
-    if st.session_state.get("__fc_tables_return"):
-        st.switch_page(st.session_state.get("__fc_home", "Stima_epoca_decesso.py"))
-    st.switch_page("Stima_epoca_decesso.py")
+render_back_button(TABLES_PAGE, key="back_home")
 
 st.markdown(
     """
