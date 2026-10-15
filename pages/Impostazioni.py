@@ -1,12 +1,13 @@
 # pages/Impostazioni.py
 import streamlit as st
 
-from app.fc_page import FULL_PAGE
 from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
+from app.page_navigation import SETTINGS_PAGE, record_page_visit, render_back_button
 
 st.set_page_config(page_title="Impostazioni", layout="centered")
 install_minimal_mobile_shell()
+record_page_visit(st.session_state, SETTINGS_PAGE)
 
 render_page_heading("⚙️ Impostazioni")
 
@@ -27,8 +28,7 @@ st.session_state["henssge_round_minutes"] = {
 
 st.success(f"Impostato a {st.session_state['henssge_round_minutes']} minuti.")
 
-if st.button("⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page(FULL_PAGE)
+render_back_button(SETTINGS_PAGE, key="back_home")
 
 st.markdown(
     """
