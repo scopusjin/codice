@@ -4,6 +4,7 @@ from html import escape
 import streamlit as st
 
 from app.mobile_shell import install_minimal_mobile_shell
+from app.page_heading import render_page_heading
 
 
 install_minimal_mobile_shell()
@@ -597,7 +598,7 @@ def _render_henssge_weight_table(language: str) -> None:
     _reference_caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
 
 
-st.title("Tabelle di riferimento")
+render_page_heading("Tabelle di riferimento")
 if st.session_state.get("__fc_tables_return"):
     _reference_caption("I richiami bibliografici aprono la sezione «Riferimenti bibliografici», con le citazioni complete. I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
 
