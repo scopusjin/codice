@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 
-from app.fc_page import FULL_PAGE
 from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
+from app.page_navigation import (
+    FC_VIEW, REFERENCES_PAGE, previous_view, record_page_visit, render_back_button,
+)
 
 
 install_minimal_mobile_shell()
+record_page_visit(st.session_state, REFERENCES_PAGE)
 
 # Same title typography as the main page, with mobile header integration.
 render_page_heading("Riferimenti bibliografici")
 
 if st.session_state.get("__fc_active"):
-    if st.button("← Indietro al FC", key="back_to_fc_top"):
-        st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
+    if previous_view(st.session_state, REFERENCES_PAGE) == FC_VIEW:
+        render_back_button(REFERENCES_PAGE, key="back_to_fc_top")
     selected = st.session_state.get("__fc_reference", {})
     if selected.get("full"):
         st.subheader(selected.get("short", "Riferimento selezionato"))
@@ -56,8 +59,7 @@ REFERENCES_MD = """
 
 st.markdown(REFERENCES_MD)
 
-if st.button("← Indietro al FC" if st.session_state.get("__fc_active") else "⬅️ Torna alla pagina principale", key="back_home"):
-    st.switch_page(st.session_state.get("__fc_home", FULL_PAGE) if st.session_state.get("__fc_active") else FULL_PAGE)
+render_back_button(REFERENCES_PAGE, key="back_home")
 
 st.markdown(
     """
