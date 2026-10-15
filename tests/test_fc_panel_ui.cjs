@@ -7,7 +7,7 @@ assert.equal((html.match(/class="covering-icons"/g)||[]).length,1);
 assert.match(html, /id="special-covers"/);
 nodes.surface.selectedOptions=[{textContent:'Piano neutro'}];
 let sent;
-context.window.FCBridge={send:action=>{sent={action,...panel.payload()};}};
+context.window.FCBridge={send:(action,reference)=>{sent={action,reference,...panel.payload()};}};
 panel.restore(null,70,null);
 assert.equal(nodes.lo.value,'');
 assert.equal(nodes['scenario-temperature'].value,'');
@@ -41,6 +41,20 @@ assert.equal(nodes.lo.value,'1.25');assert.equal(nodes.hi.value,'1.30');
 buttons.find(x=>x.dataset.state==='Immerso').events.click();nodes.use.events.click();
 assert.equal(sent.conditions.s,undefined);assert.equal(sent.conditions.surf,undefined);
 nodes['open-tables'].events.click({preventDefault(){}});assert.equal(sent.action,'tables');
+// The desktop source citation and tables links must both send navigation events.
+panel.setDesktop(true);
+const citation={short:'Henssge 2000',full:'Test citation',url:'https://doi.org/10.1/test'};
+const citationHost=nodes['source-full-citations'];
+context.api.sourceDetails(citationHost,citation);
+const citationLink=citationHost.children.at(-1).children[0];
+let citationPrevented=false;
+citationLink.events.click({preventDefault(){citationPrevented=true;}});
+assert.equal(citationPrevented,true);
+assert.equal(sent.action,'reference');
+assert.equal(sent.reference.full,citation.full);
+nodes['open-tables'].events.click({preventDefault(){}});
+assert.equal(sent.action,'tables');
+panel.setDesktop(false);
 panel.restore(null,NaN);assert.equal(nodes.use.disabled,true);
 console.log('FC controls: manual bounds, weight, draft, immersion and tables handoff passed.');
 
@@ -165,7 +179,14 @@ assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'draft');
 rootEvents.input();win.FCBridge.send('tables');rootEvents.click();
 assert.equal(callback,null);assert.equal(messages.at(-1).value.action,'tables');
 win.FCBridge.send('use');assert.equal(messages.at(-1).value.action,'tables');
-console.log('Streamlit bridge: draft preservation and single navigation delivery passed.');
+// Desktop may reuse the same iframe instance when returning from a table.
+// The next server render must unlock the bibliography and tables links.
+events.message({source:parent,data:{type:'streamlit:render',args:{...reopened.data.args,desktop:true}}});
+const selectedSource={short:'Henssge',full:'Full bibliographic reference'};
+win.FCBridge.send('reference',selectedSource);
+assert.equal(messages.at(-1).value.action,'reference');
+assert.equal(messages.at(-1).value.reference.full,selectedSource.full);
+console.log('Streamlit bridge: draft preservation and desktop table/reference navigation passed.');
 require('./test_fc_scenarios.cjs');
 
 // Missing required conditions must not turn an empty FC into a range.
