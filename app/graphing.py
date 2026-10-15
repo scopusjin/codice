@@ -28,6 +28,7 @@ from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combi
 from app.cooling_inputs import missing_cooling_inputs
 from app.fc_scenarios import temperature_description
 from app.utils_time import round_quarter_hour
+from app.tanatology_times import format_tanatology_measurement_datetime
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
     build_final_sentence, paragrafo_raffreddamento_dettaglio, paragrafo_potente,
@@ -299,12 +300,8 @@ def aggiorna_grafico(
             diff_h = (data_ora_param - data_ora_ispezione_raw).total_seconds() / 3600.0
 
             if diff_h != 0:
-                include_date = data_ora_param.date() != data_ora_ispezione_raw.date()
-                measurement_when = f"alle ore {data_ora_param:%H:%M}"
-                reference_when = f"alle ore {data_ora_ispezione_raw:%H:%M}"
-                if include_date:
-                    measurement_when += f" del {data_ora_param:%d.%m.%Y}"
-                    reference_when += f" del {data_ora_ispezione_raw:%d.%m.%Y}"
+                measurement_when = format_tanatology_measurement_datetime(data_ora_param)
+                reference_when = format_tanatology_measurement_datetime(data_ora_ispezione_raw)
 
                 plural = "valutazioni del dato tanatologico"
                 singular = "valutazione del dato tanatologico"
