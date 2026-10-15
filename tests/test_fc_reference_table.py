@@ -89,7 +89,7 @@ class FCReferenceTableTests(unittest.TestCase):
                 self.assertEqual((row[6], row[9], row[17]), anchors)
 
 
-    def test_reference_navigation_bridge_uses_supported_iframe(self):
+    def test_reference_navigation_bridge_runs_directly_in_page(self):
         path = ROOT / 'pages/2_Tabelle di riferimento.py'
         source = path.read_text(encoding='utf-8')
         tree = ast.parse(source)
@@ -102,7 +102,7 @@ class FCReferenceTableTests(unittest.TestCase):
                 and isinstance(call.func, ast.Attribute)
                 and isinstance(call.func.value, ast.Name)
                 and call.func.value.id == 'st'
-                and call.func.attr == 'iframe'
+                and call.func.attr == 'html'
                 for call in ast.walk(node)
             )
         ]
@@ -113,14 +113,16 @@ class FCReferenceTableTests(unittest.TestCase):
                 embedded = []
                 st_stub = SimpleNamespace(
                     container=lambda **kwargs: nullcontext(),
-                    iframe=lambda html, **kwargs: embedded.append((html, kwargs)),
+                    html=lambda html, **kwargs: embedded.append((html, kwargs)),
                 )
                 exec(compile(ast.Module(body=bridge, type_ignores=[]),
                              str(path), 'exec'),
                      {'st': st_stub, '_scroll_to_fc': scroll})
                 self.assertEqual(len(embedded), 1)
                 html, options = embedded[0]
-                self.assertEqual(options, {'height': 1})
+                self.assertEqual(options, {'unsafe_allow_javascript': True})
+                self.assertIn("const host = window;", html)
+                self.assertNotIn("window.parent", html)
                 self.assertIn("doc.addEventListener('click', host.mortemReferenceClick, true)", html)
                 self.assertIn("doc.querySelector('.st-key-tables_reference_nav button')", html)
                 self.assertIn("host.requestAnimationFrame(scroll)", html)
