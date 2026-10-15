@@ -46,6 +46,8 @@ class FCWeightTests(unittest.TestCase):
                     self.assertIsInstance(call.args[1], ast.Constant)
                     self.assertIsNone(call.args[1].value)
                 self.assertNotIn("peso_default=70.0", source)
+        wrapper = (ROOT / "app/full_factor_panel.py").read_text(encoding="utf-8")
+        self.assertEqual(wrapper.count("peso_default: float | None = None"), 2)
         self.assertEqual(
             missing_cooling_inputs(input_rt=35., input_ta=20., input_tm=37.2,
                                    input_w=None, fattore_correzione=1.),
