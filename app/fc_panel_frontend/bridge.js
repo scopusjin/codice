@@ -37,8 +37,11 @@
       // Subsequent renders keep the operator's current tab and unfinished edits.
       const openingDraft = args.draft ? {...args.draft, activeScenario:0} : args.draft;
       window.FCPanel.restore(openingDraft, typeof args.weight === 'number' ? args.weight : NaN, args.temperature);
-      initialized = true; navigating = false;
+      initialized = true;
     }
+    // A reused desktop iframe can receive a new render with the same
+    // instance after navigation. Do not leave its links permanently locked.
+    navigating = false;
     resize();
   });
   for (const name of ['input','change','click']) root.addEventListener(name, schedule);
