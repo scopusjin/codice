@@ -2,6 +2,7 @@
 
 import ast
 import re
+from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,6 +11,30 @@ import unittest
 from app.parameters import INF_HOURS, dati_parametri_aggiuntivi, opzioni_rigidita
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def _isolated_reference_renderer(path, constants, renderer, html, captions):
+    """Compile the real renderer with its real bibliography dependencies."""
+    tree = ast.parse(path.read_text(encoding='utf-8'))
+    constants = set(constants) | {'_CITATION_PATTERN'}
+    functions = {renderer, '_reference_link', '_reference_caption', '_reference_numbers_html'}
+    nodes = [
+        node for node in tree.body
+        if (isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id in constants
+            for target in node.targets
+        )) or (isinstance(node, ast.FunctionDef) and node.name in functions)
+    ]
+    namespace = {
+        're': re,
+        'escape': escape,
+        'st': SimpleNamespace(
+            markdown=lambda text, **kwargs: html.append(text),
+            caption=lambda text, **kwargs: captions.append(text),
+        ),
+    }
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), namespace)
+    return namespace
 
 
 class WeightRows(HTMLParser):
@@ -39,19 +64,14 @@ class WeightRows(HTMLParser):
 class FCReferenceTableTests(unittest.TestCase):
     def test_reference_weights_stay_in_the_source_columns_in_both_languages(self):
         path = ROOT / 'pages/2_Tabelle di riferimento.py'
-        tree = ast.parse(path.read_text(encoding='utf-8'))
-        # Isolate the unmodified renderer from page navigation and session state.
-        nodes = [node for node in tree.body if
-                 (isinstance(node, ast.Assign) and any(
-                     isinstance(target, ast.Name) and target.id in
-                     {'_HENSSGE_WEIGHT_TABLE_TEXT', '_HENSSGE_WEIGHT_REFERENCE'}
-                     for target in node.targets)) or
-                 (isinstance(node, ast.FunctionDef) and
-                  node.name == '_render_henssge_weight_table')]
-        output = []
-        namespace = {'st': SimpleNamespace(
-            markdown=lambda html, **kwargs: output.append(html), caption=lambda text: None)}
-        exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), namespace)
+        # Keep navigation and unrelated Streamlit page code out of this test.
+        output, captions = [], []
+        namespace = _isolated_reference_renderer(
+            path,
+            {'_HENSSGE_WEIGHT_TABLE_TEXT', '_HENSSGE_WEIGHT_REFERENCE'},
+            '_render_henssge_weight_table',
+            output, captions,
+        )
         # Source: Madea, 3rd ed. (2016), Table 6.20. Anchors at 40/70/150 kg
         # detect the previous left shift and the loss of values at high weights.
         expected = [(1.4, 1.4, 1.2), (1.6, 1.6, 1.3), (2.1, 1.8, 1.4),
@@ -98,23 +118,25 @@ class CombinedReferenceTableTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = ROOT / 'pages/2_Tabelle di riferimento.py'
-        tree = ast.parse(path.read_text(encoding='utf-8'))
-        nodes = [node for node in tree.body if
-                 (isinstance(node, ast.Assign) and any(
-                     isinstance(target, ast.Name) and target.id.startswith('_COMBINED_')
-                     for target in node.targets)) or
-                 (isinstance(node, ast.FunctionDef) and node.name == '_render_combined_table')]
         cls.html, cls.captions = [], []
-        cls.namespace = {'st': SimpleNamespace(
-            markdown=lambda html, **kwargs: cls.html.append(html),
-            caption=lambda text: cls.captions.append(text))}
-        exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), 'exec'), cls.namespace)
+        tree = ast.parse(path.read_text(encoding='utf-8'))
+        combined_constants = {
+            target.id for node in tree.body if isinstance(node, ast.Assign)
+            for target in node.targets if isinstance(target, ast.Name)
+            and target.id.startswith('_COMBINED_')
+        }
+        cls.namespace = _isolated_reference_renderer(
+            path, combined_constants, '_render_combined_table',
+            cls.html, cls.captions,
+        )
 
     def render(self, language):
         self.html.clear()
         self.captions.clear()
         self.namespace['_render_combined_table'](language)
         self.assertEqual(len(self.html), 1)
+        self.assertIn('href="Reference" target="_self"', self.html[0])
+        self.assertTrue(any('href="Reference"' in caption for caption in self.captions))
         parser = CombinedRows()
         parser.feed(self.html[0])
         self.assertEqual(len(parser.rows), 23)
@@ -172,7 +194,15 @@ class CombinedReferenceTableTests(unittest.TestCase):
             self.assertEqual(self.interval(rows, [('reestablishment', True)]), (0, 19))
             self.assertEqual(self.interval(rows, [('reestablishment', False)]), (2, INF_HOURS))
             self.assertTrue(rows['reestablishment'][0].endswith('[4]'))
-            self.assertTrue(any('10.1007/s00414-011-0632-z' in note for note in self.captions))
+            # The table now links its abbreviated [4] citation to the full
+            # internal bibliography; the DOI belongs to that destination.
+            self.assertTrue(any(
+                'Anders et al., 2013' in note and 'href="Reference"' in note
+                for note in self.captions
+            ))
+            bibliography = ROOT / 'pages/9_Reference.py'
+            self.assertIn('10.1007/s00414-011-0632-z',
+                          bibliography.read_text(encoding='utf-8'))
             self.assertEqual(rows['muscle_response'], ('≤ 11', '≥ 3'))
 
     def test_mechanical_criteria_keep_compound_method_bounds_distinct_from_descriptive_phases(self):
