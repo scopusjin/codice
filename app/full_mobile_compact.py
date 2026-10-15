@@ -723,6 +723,12 @@ def install_full_mobile_compact_css() -> None:
         if isinstance(body, str) and ".final-text{" in body:
             body = body + _FULL_MOBILE_COMPACT_CSS
             kwargs["unsafe_allow_html"] = True
+            # The Full's initial style block is CSS only. On mobile, render
+            # the complete existing bundle as st.html so Streamlit places it
+            # outside the page's vertical flow, avoiding an empty spacer
+            # between the header and the inspection controls.
+            if st.session_state.get("__full_device_mobile", False) and not args:
+                return st.html(body)
         return original_markdown(body, *args, **kwargs)
 
     st.markdown = markdown_with_full_mobile_compact_css
