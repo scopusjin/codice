@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import ast
 import unittest
 from pathlib import Path
 
@@ -43,6 +44,35 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertIn("function openSidebar()", html)
         self.assertIn('[data-testid="stExpandSidebarButton"]', html)
         self.assertIn('[data-testid="stSidebarCollapsedControl"]', html)
+
+    def test_mobile_header_uses_supported_iframe_with_fixed_height(self):
+        # This is the header only: the host-chrome bridge is a separate change.
+        script = Path(__file__).resolve().parents[1] / "app" / "mobile_shell.py"
+        module = ast.parse(script.read_text(encoding="utf-8"))
+        install = next(
+            node for node in module.body
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "install_minimal_mobile_shell"
+        )
+        calls = [
+            node for node in ast.walk(install)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "st"
+            and node.func.attr == "iframe"
+        ]
+        self.assertEqual(len(calls), 1)
+        header = calls[0]
+        self.assertEqual(len(header.args), 1)
+        self.assertIsInstance(header.args[0], ast.Name)
+        self.assertEqual(header.args[0].id, "_MOBILE_HEADER_HTML")
+        self.assertEqual(
+            {option.arg: ast.literal_eval(option.value) for option in header.keywords},
+            {"height": 34},
+        )
+        self.assertIn("menu.addEventListener(\"click\", openSidebar)", _MOBILE_HEADER_HTML)
+        self.assertIn("title.textContent = source.textContent.trim()", _MOBILE_HEADER_HTML)
 
     def test_additional_tanatology_section_opens_cleanly(self):
         app = self._mobile_app()
