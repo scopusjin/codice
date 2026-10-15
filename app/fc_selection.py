@@ -175,10 +175,11 @@ def refresh_fc_for_weight(state, *, msil=False):
             return False
         weight = float(state.get("peso"))
         bounds = adapt_fc_range(base, weight)
+        adjusted = bounds != adapt_fc_range(base, 70.0)
         updated = {**choice, "range": bounds, "weight": weight,
-                   "weight_adjusted": bounds != [lo, hi]}
+                   "weight_adjusted": adjusted}
         if choice.get("manual") is True:
-            updated["manual_weight_adjusted"] = bounds != [lo, hi]
+            updated["manual_weight_adjusted"] = adjusted
         validate_choice(updated)
     except (TypeError, ValueError, OverflowError):
         return False
@@ -204,10 +205,29 @@ def fc_weight_needs_review(state):
     return isfinite(previous) and isfinite(current) and abs(previous - current) > 1e-8
 
 
+def _fc_is_weight_adjusted(choice):
+    """Compare applied FC values with their original (70 kg) reference."""
+    if not isinstance(choice, dict):
+        return False
+    items = choice.get("scenarios") or [choice]
+    try:
+        pairs = [(list(item["range"]), adapt_fc_range(item.get("base_range"), 70.0))
+                 for item in items]
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return False
+    return any(current != original for current, original in pairs)
+
+
 def fc_weight_warning(state):
     if fc_weight_needs_review(state):
         return "Peso modificato: ricontrollare il FC."
     choice = state.get("__fc_applied_choice") or {}
-    if choice.get("weight_adjusted", choice.get("manual_weight_adjusted", False)):
-        return "FC adattato per il peso."
-    return None
+    if not _fc_is_weight_adjusted(choice):
+        return None
+    try:
+        weight = float(state.get("peso"))
+        if not isfinite(weight) or not 4 <= weight <= 150 or weight != float(choice["weight"]):
+            return None
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return None
+    return f"FC adattato per il peso ({weight:g} kg)."
