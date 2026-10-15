@@ -187,7 +187,8 @@ class FCScenarioTests(unittest.TestCase):
             self.assertEqual([item["base_range"] for item in choice["scenarios"]], [[1.35, 1.35], [1.4, 1.4]])
             first_condition = "corpo bagnato" if weight == 100 else "corpo asciutto"
             self.assertIn(f"{expected[0]:.2f} ({first_condition}", choice["description"])
-            self.assertEqual(fc_weight_warning(state), "FC adattato per il peso.")
+            self.assertEqual(fc_weight_warning(state),
+                             "FC adattato per il peso (100 kg)." if weight == 100 else None)
         state["peso"] = 75.
         self.assertTrue(refresh_fc_for_weight(state))
         self.assertIsNone(fc_weight_warning(state))
