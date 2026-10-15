@@ -29,7 +29,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 apply_theme()
-install_minimal_mobile_shell()
+install_minimal_mobile_shell(msil_title=True)
 
 from app.fc_page import render_fc_route_if_requested, render_scenarios_button, MSIL_PAGE
 from app.case_ui import prepare_case_import, render_case_menu
@@ -48,9 +48,10 @@ section.main, div.block-container{margin-top:0!important}
 .mortem-msil-page-title{
   margin:0 0 .12rem 0!important;
   padding:0!important;
-  font-size:1.05rem!important;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:clamp(1.2rem,1.25vw,1.5rem)!important;
   font-weight:650!important;
-  line-height:1.05!important;
+  line-height:1.25!important;
 }
 [data-testid="stElementContainer"]:has(.mortem-msil-page-title){
   margin:0!important;
