@@ -54,7 +54,6 @@ REFERENCES_MD = """
 - Madea B. *Supravitality in tissues*. In: Madea B, ed. *Estimation of the Time Since Death*. 3rd ed. CRC Press; 2016. Chapter 3, Tables 3.1–3.2, 3.5.
 """
 
-st.caption("Le note delle singole tabelle e schede indicano il punto della fonte consultata. «Citato in» distingue i dati ripresi dal libro dagli originali consultati direttamente; i numeri delle tabelle nelle citazioni appartengono alle fonti.")
 st.markdown(REFERENCES_MD)
 
 if st.button("← Indietro al FC" if st.session_state.get("__fc_active") else "⬅️ Torna alla pagina principale", key="back_home"):
