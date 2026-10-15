@@ -118,9 +118,10 @@ _MOBILE_HEADER_HTML = r"""
     grid-template-columns: 2rem minmax(0, 1fr) 2rem;
     align-items: center;
     width: 100%;
-    min-height: 2rem;
+    height: 100%;
+    min-height: 0;
     margin: 0;
-    padding: 0;
+    padding: 2px 0 0;
   }
   .menu-button {
     box-sizing: border-box;
@@ -155,6 +156,7 @@ _MOBILE_HEADER_HTML = r"""
     font-size: 1.15rem;
     font-weight: 650;
     line-height: 1.05;
+    text-transform: uppercase;
     white-space: nowrap;
   }
   .page-title.msil {
