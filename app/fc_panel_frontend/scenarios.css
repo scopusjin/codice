@@ -42,5 +42,6 @@
   #fc-full[data-multiple=false] #choice-row[data-range=true] #range-fields{grid-column:1 / -1;grid-row:2}
   #fc-full[data-multiple=false] #choice-row[data-range=true] #expand-range,#fc-full[data-multiple=false] #choice-row[data-range=true] .selected-actions{grid-row:3}
 }
+@media(max-width:768px){#fc-full .scenario-toolbar{margin:0 0 6px}}
 @media(pointer:coarse){#fc-full #scenario-tabs button,#fc-full #add-scenario,#fc-full #remove-scenario{width:44px;min-height:44px}}
 @media(max-width:360px){#fc-full #scenario-editor{padding:6px}}
