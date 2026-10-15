@@ -158,7 +158,10 @@ _MOBILE_HEADER_HTML = r"""
     white-space: nowrap;
   }
   .page-title.msil {
-    font-size: 0.95rem;
+    font-size: 1.15rem;
+    line-height: 1.05;
+    white-space: normal;
+    text-wrap: balance;
   }
 </style>
 </head>
@@ -318,7 +321,7 @@ def _install_compact_cooling_help_labels() -> None:
     st.markdown = markdown_with_compact_cooling_help
 
 
-def install_minimal_mobile_shell() -> None:
+def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
     # CSS-only HTML is installed before any visual element, without adding
     # a Markdown spacer above the mobile header on the first page load.
@@ -329,6 +332,9 @@ def install_minimal_mobile_shell() -> None:
     reset_render_contexts()
     _install_compact_cooling_help_labels()
     if is_mobile:
-        st.iframe(_MOBILE_HEADER_HTML, height=34)
+        st.iframe(
+            _MOBILE_HEADER_HTML,
+            height=46 if msil_title and not st.session_state.get("__fc_active") else 34,
+        )
     else:
         install_desktop_datetime_ui()
