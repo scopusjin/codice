@@ -81,7 +81,10 @@ class AuditPagesRegressionTests(unittest.TestCase):
         self.assertEqual(app.session_state['FC_max_beta'], 1.30)
 
     def test_both_full_range_endpoints_are_applied_from_the_panel(self):
-        app = self.start(stima_cautelativa_beta=True, range_unico_beta=True)
+        # The FC interval has its own switch, independent of prudent mode.
+        app = self.start(stima_cautelativa_beta=True, range_unico_beta=True,
+                         fc_input_range=True)
+        self.assertTrue(app.session_state['fc_input_range'])
         self.edit_fc(app, 'fc_min_val', 1.25, other=1.45)
         app.run()
         self.assertEqual((app.session_state['FC_min_beta'], app.session_state['FC_max_beta']),
