@@ -143,7 +143,10 @@ class ItalianTextRegressionTests(unittest.TestCase):
         self.assertIn("prima delle ore 05:00 del 23.08.2026", over)
         self.assertIn("tra le ore 04:00 e le 10:00 del 23.08.2026", not_over)
         self.assertNotIn("successivamente alle ore", not_over)
-        self.assertNotIn("<b>", not_over)
+        # The short result summary intentionally bolds its heading;
+        # the "not over" estimate itself must remain plain text.
+        self.assertIn("<b>EPOCA DEL DECESSO STIMATA:</b>", not_over)
+        self.assertEqual(not_over.count("<b>"), 1)
 
     def test_final_sentences_cover_all_three_range_shapes(self):
         inspection = datetime.datetime(2026, 8, 23, 10, 0)
