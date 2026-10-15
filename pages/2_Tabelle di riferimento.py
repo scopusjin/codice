@@ -602,10 +602,6 @@ render_page_heading("Tabelle di riferimento")
 if st.session_state.get("__fc_tables_return"):
     _reference_caption("I richiami bibliografici aprono la sezione «Riferimenti bibliografici», con le citazioni complete. I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
 
-if st.button("← Indietro al FC", key="back_to_fc_top"):
-        from app.fc_page import FULL_PAGE
-        st.switch_page(st.session_state.get("__fc_home", FULL_PAGE))
-
 st.markdown(
     """
     <style>
