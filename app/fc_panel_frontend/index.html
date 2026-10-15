@@ -19,7 +19,8 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <script src="counters.js"></script>
 <section id="suggest-page">
 <div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3 id="panel-title">Consiglia FC</h3></div>
-<div id="suggest-weight-slot"><div class="weight" id="shared-weight" data-session-key="peso"><label for="weight">Peso</label><div class="step"><input id="weight" type="text" inputmode="numeric" value="70"><button data-weight="-1" aria-label="Diminuisci peso di un chilogrammo">−</button><button data-weight="1" aria-label="Aumenta peso di un chilogrammo">+</button></div><span>kg</span></div></div>
+<!-- Peso del caso: sincronizzato dalla schermata principale, senza controlli modificabili qui. -->
+<input id="weight" type="hidden" value="">
 <div id="scenario-result" hidden><div class="scenario-totals"><div><strong>FC complessivo per la stima</strong><output id="scenario-output" aria-live="polite"></output></div><div><strong>Temperature degli scenari</strong><output id="scenario-temperature-output" aria-live="polite"></output></div></div><button id="use-scenarios">Usa</button></div>
 <div class="scenario-toolbar">
 <div id="scenario-help-anchor"><label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Più scenari</label></div>
@@ -443,9 +444,9 @@ function showSource(){
     sourceDetails(citations,{short:(SOURCES[e.source]?.short||'Fonte')+' · '+e.title,full:e.sourceText,url:e.url});
   }
   const w=num(q('#weight'));
-  const active=result.range&&suggestion&&Number.isFinite(w)&&weightApplies(w)&&result.range[1]>=1.4;
+  const active=result.range&&suggestion&&Number.isFinite(w)&&suggestion.some((v,i)=>v!==roundFC(result.range[i]));
   q('#weight-source').hidden=!active;
-  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+w.toFixed(0)+' kg = '+rangeText(suggestion)+').':'';
+  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+String(Number(w.toFixed(2)))+' kg = '+rangeText(suggestion)+').':'';
   if(active&&!result.sources.includes('weight'))sourceDetails(citations,SOURCES.weight);
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
@@ -480,8 +481,12 @@ function update(){
   q('#error').textContent=error;
   q('#use').disabled=!!error;
   
-  const manualMatchesSuggestion=manual&&suggestion&&a===suggestion[0]&&b===suggestion[1];
-  q('#manual-state').textContent=manualMatchesSuggestion?'':manualWeightAdjusted?'Il FC inserito manualmente è stato adattato al nuovo peso. Se desideri valori diversi, reinseriscili manualmente.':weightAdjusted?'FC adattato per il peso.':'';
+  const reference=manual?manualBase:(selectedBase||result.range);
+  const adapted=Number.isFinite(w)&&Array.isArray(reference)&&reference.length===2
+    &&reference.every(Number.isFinite)&&[a,b].every(Number.isFinite)
+    &&[a,b].some((v,i)=>v!==roundFC(reference[i]));
+  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':'';
+  q('#manual-state').textContent=weightNote&&manual?weightNote+' Se desideri valori diversi, reinseriscili manualmente.':weightNote;
   q('#editable-note').hidden=!manual&&!preset;
   q('#editable-note').textContent=manual?manualSelectionNote(a,b):preset?'FC preimpostato, non ancora modificato.':'';
   q('#origin').textContent=result.range&&suggestion?'':result.summary;
