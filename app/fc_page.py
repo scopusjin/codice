@@ -12,6 +12,7 @@ from app.fc_catalog import load_examples
 from app.fc_selection import apply_choice, sync_fc_weight, validate_choice
 from app.fc_scenarios import scenario_draft
 from app.cooling_inputs import finite_number
+from app.page_navigation import FC_VIEW, record_page_visit
 
 TABLES_PAGE = "pages/2_Tabelle di riferimento.py"
 FULL_PAGE = "Stima_epoca_decesso.py"
@@ -190,6 +191,7 @@ def _consume_event(event):
 
 def render_fc_route_if_requested(home=FULL_PAGE):
     """Called before any form widgets: no edits to already-instantiated widgets."""
+    record_page_visit(st.session_state, FC_VIEW if st.session_state.get("__fc_active") else home)
     resume = st.session_state.pop("__fc_resume", None)
     if isinstance(resume, dict):
         for key, value in resume.items():
