@@ -1,3 +1,4 @@
+import ast
 import json
 import subprocess
 import unittest
@@ -8,6 +9,7 @@ from app.fc_selection import (
     apply_choice, fc_weight_needs_review, fc_weight_warning, normalize_fc_input, refresh_fc_for_weight,
 )
 from app.fc_weight import adapt_fc_range
+from app.cooling_inputs import missing_cooling_inputs
 from app.fc_input_mode import _fc_adaptation_notice, _fc_weight_label
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +19,46 @@ class FCWeightTests(unittest.TestCase):
     def automatic_choice(self, base=(2.8, 3.1), weight=70):
         return {"range": adapt_fc_range(base, weight), "base_range": list(base),
                 "weight": weight, "manual": False, "description": "condizioni conservate"}
+
+    def test_no_prescribed_initial_weight_in_main_and_sopralluogo(self):
+        for filename, required_inputs in (("Stima_epoca_decesso.py", 4), ("pages/App_MSIL.py", 0)):
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                tree = ast.parse(source)
+                defaults = next(
+                    ast.literal_eval(node.value)
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "_defaults"
+                            for target in node.targets)
+                )
+                self.assertIsNone(defaults["peso"])
+                uses = [
+                    node for node in ast.walk(tree)
+                    if isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name) and node.func.id == "sget"
+                    and len(node.args) >= 2
+                    and isinstance(node.args[0], ast.Constant)
+                    and node.args[0].value == "peso"
+                ]
+                self.assertEqual(len(uses), required_inputs)
+                for call in uses:
+                    self.assertIsInstance(call.args[1], ast.Constant)
+                    self.assertIsNone(call.args[1].value)
+                self.assertNotIn("peso_default=70.0", source)
+        self.assertEqual(
+            missing_cooling_inputs(input_rt=35., input_ta=20., input_tm=37.2,
+                                   input_w=None, fattore_correzione=1.),
+            "Manca il peso corporeo."
+        )
+
+    def test_manual_fc_can_be_entered_before_weight_in_main_page(self):
+        state = {"peso": None, "fattore_correzione": 2.0}
+        normalize_fc_input(state, "fattore_correzione")
+        self.assertIsNone(state["__fc_applied_choice"]["weight"])
+        state["peso"] = 100.
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertEqual(state["fc_suggested_vals"], adapt_fc_range([2., 2.], 100.))
 
     def test_same_outputs_as_existing_panel_formula(self):
         # Execute the actual panel functions, including the discontinuity and
