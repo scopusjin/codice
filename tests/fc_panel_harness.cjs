@@ -31,7 +31,7 @@ for(const match of markup.matchAll(/<select\b[^>]*id="([^"]+)"[^>]*>([\s\S]*?)<\
   nodes[match[1]].options=[...match[2].matchAll(/<option\b[^>]*>(.*?)<\/option>/g)].map(option=>({textContent:option[1]}));
 nodes['weight-data'].textContent=html.match(/id="weight-data">(.*?)<\/script>/s)[1];
 nodes.surface.value='0';nodes.water.value='stagnante';nodes.air.value='still';
-const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table};})();');
+const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table,sourceDetails};})();');
 const media={matches:false,events:{},addEventListener(event,handler){this.events[event]=handler;}};
 const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,
   window:{innerWidth:420,innerHeight:800,matchMedia:()=>media}};
