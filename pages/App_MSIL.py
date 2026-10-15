@@ -350,7 +350,7 @@ st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mob
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     with fc_panel_start():
         pannello_suggerisci_fc_mobile(
-            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
+            peso_default=st.session_state.get("peso"),
             key_prefix="fcpanel_mobile"
         )
 
