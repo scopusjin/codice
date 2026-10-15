@@ -7,7 +7,10 @@ from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 import app.decimal_number_input_v2 as decimal_v2
-from app.mobile_shell import _MINIMAL_MOBILE_SHELL_CSS, _MOBILE_HEADER_HTML
+from app.mobile_shell import (
+    _HOST_CHROME_HTML, _MINIMAL_APP_CHROME_CSS,
+    _MINIMAL_MOBILE_SHELL_CSS, _MOBILE_HEADER_HTML,
+)
 
 
 class FullMobileFlowTests(unittest.TestCase):
@@ -29,6 +32,39 @@ class FullMobileFlowTests(unittest.TestCase):
             "Dati tanatologici aggiuntivi",
             [toggle.label for toggle in app.toggle],
         )
+
+    def test_host_chrome_uses_hidden_supported_iframe(self):
+        # A separate host-chrome bridge must stay invisible, without
+        # modifying the already-tested mobile header and sidebar logic.
+        script = Path(__file__).resolve().parents[1] / "app" / "mobile_shell.py"
+        source = script.read_text(encoding="utf-8")
+        module = ast.parse(source)
+        install = next(
+            node for node in module.body
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "install_minimal_app_chrome"
+        )
+        calls = [
+            node for node in ast.walk(install)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "st"
+            and node.func.attr == "iframe"
+        ]
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(len(calls[0].args), 1)
+        self.assertIsInstance(calls[0].args[0], ast.Name)
+        self.assertEqual(calls[0].args[0].id, "_HOST_CHROME_HTML")
+        self.assertEqual(
+            {option.arg: ast.literal_eval(option.value) for option in calls[0].keywords},
+            {"height": 1},
+        )
+        self.assertNotIn("components.html(", source)
+        self.assertIn(".st-key-mortem_host_chrome", _MINIMAL_APP_CHROME_CSS)
+        self.assertIn("display: none !important", _MINIMAL_APP_CHROME_CSS)
+        self.assertIn("const doc = host.document", _HOST_CHROME_HTML)
+        self.assertIn("catch (_)", _HOST_CHROME_HTML)
 
     def test_mobile_header_hides_native_header_but_keeps_sidebar_trigger(self):
         css = _MINIMAL_MOBILE_SHELL_CSS
