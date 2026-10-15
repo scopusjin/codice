@@ -35,7 +35,7 @@ html body .st-key-mortem_host_chrome {
 _HOST_CHROME_HTML = r"""
 <script>
 (() => {
-  let host = window.parent;
+  let host = window;
   for (let level = 0; level < 3; level += 1) {
     try {
       const doc = host.document;
@@ -65,7 +65,7 @@ def install_minimal_app_chrome() -> None:
     """Hide hosting/developer controls without hiding sidebar navigation."""
     st.html(_MINIMAL_APP_CHROME_CSS)
     with st.container(key="mortem_host_chrome"):
-        st.iframe(_HOST_CHROME_HTML, height=1)
+        st.html(_HOST_CHROME_HTML, unsafe_allow_javascript=True)
 
 
 _MINIMAL_MOBILE_SHELL_CSS = r"""
