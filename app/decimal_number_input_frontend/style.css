@@ -149,15 +149,11 @@ body {
   border-radius: 0 6px 6px 0;
 }
 
-/* Missing values remain visibly red across the whole numeric control. */
-.number-control.needs-input {
-  border-color: #b33b32;
-  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
-}
+/* Missing values highlight only the editable field, not the label/stepper row. */
 .number-control.needs-input #number-input {
   border: 1px solid #b33b32;
   border-radius: 6px;
-  background: transparent;
+  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
 }
 .number-control.needs-input.has-unit #number-input {
   border-right: 0;
@@ -167,7 +163,7 @@ body {
   border: 1px solid #b33b32;
   border-left: 0;
   border-radius: 0 6px 6px 0;
-  background: transparent;
+  background: color-mix(in srgb, #b33b32 12%, var(--field-bg, #F0F2F6));
 }
 .number-control.needs-input #number-input::placeholder {
   color: #b33b32;
