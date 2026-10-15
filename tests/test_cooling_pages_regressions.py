@@ -172,13 +172,20 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 self.assertNotIn('La valutazione combinata', detail)
 
     def test_empty_fc_max_excludes_cooling_but_keeps_other_parameters(self):
+        # With independent FC intervals, exercise the missing upper endpoint
+        # explicitly. A valid inspection time isolates cooling validation.
         app = self.start(stima_cautelativa_beta=True,
                          __prudent_explicit_ranges_initialized=True,
+                         fc_input_range=True,
+                         input_ora_rilievo='11:28',
+                         input_ora_rilievo_native='11:28',
                          fc_min_val=1.4, fc_other_val=None, ta_other_val=20.)
         app.selectbox[0].select(app.selectbox[0].options[1]).run()
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any('FC' in warning.value for warning in app.warning))
+        self.assertTrue(any('fattore di correzione' in warning.value.lower()
+                            for warning in app.warning),
+                        [warning.value for warning in app.warning])
         self.assertIsNotNone(app.session_state['frase_breve'])
         self.assertNotIn('Applicando l’equazione', app.session_state['__desc_dettagliate_html'])
         self.assertNotIn("Applicando l'equazione", app.session_state['__desc_dettagliate_html'])
@@ -187,19 +194,23 @@ class CoolingPagesRegressionTests(unittest.TestCase):
     def test_missing_rectal_temperature_is_named_in_both_views(self):
         for msil in (False, True):
             with self.subTest(msil=msil):
-                app = self.start(rt_val=None)
+                app = self.start(rt_val=None,
+                                 input_ora_rilievo='11:28',
+                                 input_ora_rilievo_native='11:28')
                 if msil:
                     app.switch_page('pages/App_MSIL.py').run()
                 app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
                 self.assertFalse(app.exception)
-                self.assertTrue(any('Manca la temperatura rettale.' in warning.value
-                                    for warning in app.warning))
+                self.assertTrue(any('manca la temperatura rettale.' in warning.value.lower()
+                                    for warning in app.warning),
+                                [warning.value for warning in app.warning])
                 app.selectbox[0].select(app.selectbox[0].options[1]).run()
                 app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
                 self.assertFalse(app.exception)
                 self.assertIsNotNone(app.session_state['frase_breve'])
-                self.assertTrue(any('Manca la temperatura rettale.' in warning.value
-                                    for warning in app.warning))
+                self.assertTrue(any('manca la temperatura rettale.' in warning.value.lower()
+                                    for warning in app.warning),
+                                [warning.value for warning in app.warning])
 
     def test_temperature_order_is_invariant_in_full_results(self):
         results = []
