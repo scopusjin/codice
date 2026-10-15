@@ -2,6 +2,7 @@
 
 import ast
 import re
+from contextlib import nullcontext
 from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -86,6 +87,45 @@ class FCReferenceTableTests(unittest.TestCase):
             for row, anchors in zip(parser.rows, expected, strict=True):
                 self.assertEqual(len(row), 18)
                 self.assertEqual((row[6], row[9], row[17]), anchors)
+
+
+    def test_reference_navigation_bridge_uses_supported_iframe(self):
+        path = ROOT / 'pages/2_Tabelle di riferimento.py'
+        source = path.read_text(encoding='utf-8')
+        tree = ast.parse(source)
+        # Execute only the actual navigation bridge with a minimal Streamlit
+        # stand-in, not the page setup or any other application state.
+        bridge = [
+            node for node in tree.body if isinstance(node, ast.With)
+            and any(
+                isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Attribute)
+                and isinstance(call.func.value, ast.Name)
+                and call.func.value.id == 'st'
+                and call.func.attr == 'iframe'
+                for call in ast.walk(node)
+            )
+        ]
+        self.assertEqual(len(bridge), 1)
+        self.assertNotIn('components.html(', source)
+        for scroll in (False, True):
+            with self.subTest(scroll=scroll):
+                embedded = []
+                st_stub = SimpleNamespace(
+                    container=lambda **kwargs: nullcontext(),
+                    iframe=lambda html, **kwargs: embedded.append((html, kwargs)),
+                )
+                exec(compile(ast.Module(body=bridge, type_ignores=[]),
+                             str(path), 'exec'),
+                     {'st': st_stub, '_scroll_to_fc': scroll})
+                self.assertEqual(len(embedded), 1)
+                html, options = embedded[0]
+                self.assertEqual(options, {'height': 0})
+                self.assertIn("doc.addEventListener('click', host.mortemReferenceClick, true)", html)
+                self.assertIn("doc.querySelector('.st-key-tables_reference_nav button')", html)
+                self.assertIn("host.requestAnimationFrame(scroll)", html)
+                self.assertIn(f"if ({str(scroll).lower()})", html)
+                self.assertNotIn('SCROLL_TO_FC', html)
 
 
 class CombinedRows(HTMLParser):
