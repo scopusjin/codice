@@ -274,18 +274,11 @@ _CSS = r"""
   border-radius: 0 6px 6px 0;
 }
 
-/* A missing value marks the complete control, including the mobile label. */
-.number-control.needs-input:not(.is-dense) {
-  border-color: #b33b32;
-  background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
-}
-.number-control.needs-input:not(.is-dense) .label-help-cluster {
-  background: transparent;
-}
+/* A missing value colors only its input (and adjacent unit), never the label or actions. */
 .number-control.needs-input:not(.is-dense) .number-input,
 .number-control.needs-input:not(.is-dense).has-unit .mobile-unit {
   border-color: #b33b32;
-  background: transparent;
+  background: color-mix(in srgb, #b33b32 12%, var(--st-secondary-background-color, #F0F2F6));
 }
 .number-control.needs-input .number-input::placeholder {
   color: #b33b32;
