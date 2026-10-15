@@ -51,7 +51,8 @@ function setInheritedState(active) {
 function updateMissingState() {
   const missing = highlightMissing && !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(timeInput.value.trim());
   timeControl.classList.toggle("needs-input", missing);
-  timeInput.setAttribute("aria-invalid", String(missing));
+  // The main inspection time is optional: an empty value is not invalid.
+  timeInput.setAttribute("aria-invalid", "false");
 }
 
 function parseTime(value) {
