@@ -210,7 +210,7 @@ def sget(key, default):
 _defaults = {
     "rt_val": None,
     "ta_base_val": None,
-    "peso": 70.0,
+    "peso": None,
     "fattore_correzione": None,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
@@ -401,7 +401,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                         with st.container(width="stretch", key="prudent_weight_value_mobile"):
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.0f",
+                                value=sget("peso", None), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                             )
                         with st.container(width="content", key="prudent_weight_uncertainty_mobile"):
@@ -442,7 +442,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                             _render_desktop_cooling_label("Peso")
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.0f",
+                                value=sget("peso", None), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
@@ -482,7 +482,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                     )
                     st.number_input(
                         i18n.ui_text("full.weight_label"),
-                        value=sget("peso", 70.0), step=1.0, format="%.0f",
+                        value=sget("peso", None), step=1.0, format="%.0f",
                         key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed"
                     )
                     render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
@@ -516,7 +516,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                             _render_desktop_cooling_label("Peso")
                             st.number_input(
                                 i18n.ui_text("full.weight_label"),
-                                value=sget("peso", 70.0), step=1.0, format="%.0f",
+                                value=sget("peso", None), step=1.0, format="%.0f",
                                 key="peso", on_change=_refresh_weight_fc, label_visibility="collapsed",
                                 _mortem_compact_label="",
                             )
@@ -545,7 +545,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
             key="full_fc_panel_mobile" if full_mobile else "full_fc_panel_desktop",
         ):
             pannello_suggerisci_fc(
-                peso_default=st.session_state.get("peso", 70.0),
+                peso_default=st.session_state.get("peso"),
                 key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
             )
 
