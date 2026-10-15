@@ -33,9 +33,9 @@ class FullMobileFlowTests(unittest.TestCase):
             [toggle.label for toggle in app.toggle],
         )
 
-    def test_host_chrome_uses_hidden_supported_iframe(self):
-        # A separate host-chrome bridge must stay invisible, without
-        # modifying the already-tested mobile header and sidebar logic.
+    def test_host_chrome_uses_hidden_javascript_html(self):
+        # The injected bridge must not create a second iframe or reserve
+        # space above the already-tested mobile header.
         script = Path(__file__).resolve().parents[1] / "app" / "mobile_shell.py"
         source = script.read_text(encoding="utf-8")
         module = ast.parse(source)
@@ -50,19 +50,27 @@ class FullMobileFlowTests(unittest.TestCase):
             and isinstance(node.func, ast.Attribute)
             and isinstance(node.func.value, ast.Name)
             and node.func.value.id == "st"
-            and node.func.attr == "iframe"
+            and node.func.attr == "html"
+            and len(node.args) == 1
+            and isinstance(node.args[0], ast.Name)
+            and node.args[0].id == "_HOST_CHROME_HTML"
         ]
         self.assertEqual(len(calls), 1)
-        self.assertEqual(len(calls[0].args), 1)
-        self.assertIsInstance(calls[0].args[0], ast.Name)
-        self.assertEqual(calls[0].args[0].id, "_HOST_CHROME_HTML")
         self.assertEqual(
             {option.arg: ast.literal_eval(option.value) for option in calls[0].keywords},
-            {"height": 1},
+            {"unsafe_allow_javascript": True},
         )
+        self.assertFalse(any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "iframe"
+            for node in ast.walk(install)
+        ))
         self.assertNotIn("components.html(", source)
         self.assertIn(".st-key-mortem_host_chrome", _MINIMAL_APP_CHROME_CSS)
         self.assertIn("display: none !important", _MINIMAL_APP_CHROME_CSS)
+        self.assertIn("let host = window;", _HOST_CHROME_HTML)
+        self.assertNotIn("let host = window.parent;", _HOST_CHROME_HTML)
         self.assertIn("const doc = host.document", _HOST_CHROME_HTML)
         self.assertIn("catch (_)", _HOST_CHROME_HTML)
 
