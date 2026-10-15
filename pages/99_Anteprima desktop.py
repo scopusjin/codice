@@ -4,7 +4,6 @@
 from pathlib import Path
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from app.mobile_shell import install_minimal_app_chrome
 
@@ -60,7 +59,7 @@ st.caption(
     "Anteprima tecnica della finestra desktop, ridotta in scala quando necessario."
 )
 
-components.html(
+st.iframe(
     f"""
     <style>
       html, body {{
@@ -121,5 +120,4 @@ components.html(
     </script>
     """,
     height=_PREVIEW_HEIGHT,
-    scrolling=False,
 )
