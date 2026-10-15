@@ -43,6 +43,14 @@ def _refresh_weight_fc():
     refresh_fc_for_weight(st.session_state)
 
 
+def _show_fc_weight_notice():
+    if warning := fc_weight_warning(st.session_state):
+        if fc_weight_needs_review(st.session_state):
+            st.warning(warning)
+        else:
+            st.caption(warning)
+
+
 def _is_num(x):
     try:
         return x is not None and float(x) == float(x)
@@ -403,6 +411,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                     render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
 
                     render_fc_inputs(mobile=True, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
+                    _show_fc_weight_notice()
 
                     st.session_state["toggle_fattore"] = bool(
                         st.session_state.get("toggle_fattore_inline", False)
@@ -445,6 +454,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                     with cooling_fields_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
                         render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
+                        _show_fc_weight_notice()
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
 
@@ -478,6 +488,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                     )
                     render_temperature_inputs(mobile=True, render_label=_render_desktop_cooling_label)
                     render_fc_inputs(mobile=True, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
+                    _show_fc_weight_notice()
                     st.session_state["toggle_fattore"] = st.session_state.get("toggle_fattore_inline_std", False)
             else:
                 with st.container(gap="xsmall", key="cooling_standard_v2_grid_desktop"):
@@ -515,6 +526,7 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                     with cooling_fields_col:
                         render_temperature_inputs(mobile=False, render_label=_render_desktop_cooling_label)
                         render_fc_inputs(mobile=False, render_label=_render_desktop_cooling_label, normalize=_normalize_fc_field, help_text=FC_FIELD_HELP)
+                        _show_fc_weight_notice()
                     with scenarios_col:
                         render_scenarios_button(FULL_PAGE)
 
@@ -537,12 +549,6 @@ with primary_cards.container(border=True, key="full_cooling_card"):
                 peso_default=st.session_state.get("peso", 70.0),
                 key_prefix="fcpanel_caut" if st.session_state.get("stima_cautelativa_beta", False) else "fcpanel_std"
             )
-
-if warning := fc_weight_warning(st.session_state):
-    if fc_weight_needs_review(st.session_state):
-        primary_cards.warning(warning)
-    else:
-        primary_cards.caption(warning)
 
 # Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
 full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
