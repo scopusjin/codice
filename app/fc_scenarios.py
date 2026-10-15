@@ -62,7 +62,7 @@ def adapt_scenarios(choice, weight):
         if not original_manual and adapt_fc_range(base, item["weight"]) != previous:
             raise ValueError("Base del FC dello scenario non coerente.")
         bounds = adapt_fc_range(base, weight)
-        changed = bounds != previous
+        changed = bounds != adapt_fc_range(base, 70.0)
         updated = {**item, "range": bounds, "weight": weight,
                    "weight_adjusted": changed,
                    "manual_weight_adjusted": bool(item.get("manual") and changed)}
@@ -76,7 +76,7 @@ def adapt_scenarios(choice, weight):
         scenarios.append(updated)
     bounds, description = summarize_scenarios(scenarios)
     updated = {**choice, "range": bounds, "weight": weight, "scenarios": scenarios,
-               "description": description, "weight_adjusted": bounds != choice["range"]}
+               "description": description, "weight_adjusted": any(item["weight_adjusted"] for item in scenarios)}
     updated["draft"] = scenario_draft(updated)
     return updated
 
