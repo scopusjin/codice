@@ -1,7 +1,22 @@
 """Independent FC input presentation; explicit bounds feed the existing solver."""
+from html import escape
+
 from app.cooling_inputs import finite_number
 
 FC_MODE_KEY = "fc_input_range"
+
+
+def _fc_adaptation_notice(state):
+    """The compact label is only for an adjustment successfully applied."""
+    from app.fc_selection import fc_weight_needs_review, fc_weight_warning
+    return None if fc_weight_needs_review(state) else fc_weight_warning(state)
+
+
+def _fc_weight_label(note, *, mobile=False):
+    label = "FC" if mobile else "Fattore di correzione (FC)"
+    if not note:
+        return label
+    return f"{label} <small><sup>*</sup> {escape(note.removesuffix('.'))}</small>"
 
 
 def initialize_fc_mode(state):
@@ -21,8 +36,15 @@ def render_fc_inputs(*, mobile, render_label, normalize, help_text):
     state = st.session_state
     initialize_fc_mode(state)
     interval = state[FC_MODE_KEY]
+    note = _fc_adaptation_notice(state)
     if not mobile:
-        render_label("Fattore di correzione (FC)", help_text, "fc_independent")
+        render_label(_fc_weight_label(note), help_text, "fc_independent")
+    elif note:
+        # Mobile has no permanent FC label: show the compact note by its input.
+        st.markdown(
+            f"<div class='mortem-cooling-field-label'>{_fc_weight_label(note, mobile=True)}</div>",
+            unsafe_allow_html=True,
+        )
     fields = ([("fc_min_val", "full.fc_min_input"), ("fc_other_val", "full.fc_max_input")]
               if interval else [("fattore_correzione", "full.fc_input_label")])
     slots = [st.container() for _ in fields] if mobile else st.columns(3, gap="xsmall")
