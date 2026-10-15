@@ -44,11 +44,10 @@ def _refresh_weight_fc():
 
 
 def _show_fc_weight_notice():
-    if warning := fc_weight_warning(st.session_state):
-        if fc_weight_needs_review(st.session_state):
+    # A successful adaptation is indicated beside the FC label, not below its inputs.
+    if fc_weight_needs_review(st.session_state):
+        if warning := fc_weight_warning(st.session_state):
             st.warning(warning)
-        else:
-            st.caption(warning)
 
 
 def _is_num(x):
