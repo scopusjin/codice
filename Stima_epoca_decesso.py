@@ -249,7 +249,12 @@ else:
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
-with st.container(border=True, key="full_inspection_card"):
+# One native compact stack on mobile; desktop retains its existing root layout.
+primary_cards = (
+    st.container(gap="xsmall", key="full_mobile_primary_cards")
+    if full_device_is_mobile() else st
+)
+with primary_cards.container(border=True, key="full_inspection_card"):
     st.markdown(
         "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
         unsafe_allow_html=True,
@@ -292,7 +297,7 @@ input_ora_rilievo  = st.session_state.get("input_ora_rilievo")
 # 📌 Riquadro raffreddamento (STANDARD o CAUTELATIVA)
 # ================================
 full_mobile = full_device_is_mobile()
-with st.container(border=True, key="full_cooling_card"):
+with primary_cards.container(border=True, key="full_cooling_card"):
     if full_mobile:
         with st.container(
             horizontal=True,
@@ -535,13 +540,13 @@ with st.container(border=True, key="full_cooling_card"):
 
 if warning := fc_weight_warning(st.session_state):
     if fc_weight_needs_review(st.session_state):
-        st.warning(warning)
+        primary_cards.warning(warning)
     else:
-        st.caption(warning)
+        primary_cards.caption(warning)
 
 # Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
 full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
-with st.container(border=True, key="full_signs_card"):
+with primary_cards.container(border=True, key="full_signs_card"):
     col1, col2 = st.columns(2, gap="small")
 
     livor_labels = list(FULL_LIVOR_STATE_BY_LABEL.keys())
