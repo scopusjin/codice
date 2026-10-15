@@ -14,9 +14,11 @@ _PAGE_HEADING_CSS = """
     font-weight: 650 !important;
     line-height: 1.25 !important;
     text-align: left !important;
+    text-transform: uppercase !important;
 }
 @media (max-width: 768px) {
     .mortem-subpage-title {
+        margin-bottom: 0 !important;
         font-size: 1.15rem !important;
         line-height: 1.05 !important;
     }
@@ -27,5 +29,5 @@ _PAGE_HEADING_CSS = """
 
 def render_page_heading(text: str) -> None:
     """Render a single title; the existing mobile shell displays it in its header."""
-    st.html(_PAGE_HEADING_CSS)
-    st.html(f'<h1 class="mortem-full-title mortem-subpage-title">{escape(text)}</h1>')
+    # A single element avoids a second, visually empty mobile layout slot.
+    st.html(_PAGE_HEADING_CSS + f'<h1 class="mortem-full-title mortem-subpage-title">{escape(text)}</h1>')
