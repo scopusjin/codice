@@ -3,12 +3,13 @@ import streamlit as st
 
 from app.fc_page import FULL_PAGE
 from app.mobile_shell import install_minimal_mobile_shell
+from app.page_heading import render_page_heading
 
 
 install_minimal_mobile_shell()
 
-# Titolo grande e in grassetto
-st.markdown("# **Riferimenti bibliografici**")
+# Same title typography as the main page, with mobile header integration.
+render_page_heading("Riferimenti bibliografici")
 
 if st.session_state.get("__fc_active"):
     if st.button("← Indietro al FC", key="back_to_fc_top"):
