@@ -327,6 +327,6 @@ def install_minimal_mobile_shell() -> None:
     is_mobile = _request_is_mobile()
     if is_mobile:
         st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
-        components.html(_MOBILE_HEADER_HTML, height=34, scrolling=False)
+        st.iframe(_MOBILE_HEADER_HTML, height=34)
     else:
         install_desktop_datetime_ui()
