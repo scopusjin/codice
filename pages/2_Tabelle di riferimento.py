@@ -917,12 +917,12 @@ st.markdown("""<style>
 </style>""", unsafe_allow_html=True)
 _scroll_to_fc = st.session_state.pop("__fc_tables_scroll", False)
 with st.container(key="tables_navigation_bridge"):
-    # Trusted, static JS bridge: st.iframe preserves the same-origin DOM access
-    # used by the bibliography links and the FC-section scroll.
-    st.iframe(
+    # Run the static link bridge in this page's document, not in an iframe.
+    # This keeps citation clicks consistent on desktop and mobile.
+    st.html(
         """<script>
         (() => {
-            const host = window.parent;
+            const host = window;
             const doc = host.document;
             if (host.mortemReferenceClick) {
                 doc.removeEventListener('click', host.mortemReferenceClick, true);
@@ -949,5 +949,5 @@ with st.container(key="tables_navigation_bridge"):
             }
         })();
         </script>""".replace("SCROLL_TO_FC", "true" if _scroll_to_fc else "false"),
-        height=1,
+        unsafe_allow_javascript=True,
     )
