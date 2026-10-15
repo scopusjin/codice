@@ -23,6 +23,16 @@ class FullMobileFlowTests(unittest.TestCase):
         app.run(timeout=20)
         return app
 
+    def test_primary_cards_have_native_compact_gap_on_mobile_only(self):
+        source = (Path(__file__).resolve().parents[1] / "Stima_epoca_decesso.py").read_text(encoding="utf-8")
+        self.assertIn('st.container(gap="xsmall", key="full_mobile_primary_cards")', source)
+        self.assertIn('if full_device_is_mobile() else st', source)
+        for card in ("full_inspection_card", "full_cooling_card", "full_signs_card"):
+            self.assertIn(f'with primary_cards.container(border=True, key="{card}"):', source)
+        self.assertIn("primary_cards.warning(warning)", source)
+        self.assertIn("primary_cards.caption(warning)", source)
+        ast.parse(source)
+
     def test_mobile_navigation_uses_sidebar_only(self):
         app = self._mobile_app()
 
