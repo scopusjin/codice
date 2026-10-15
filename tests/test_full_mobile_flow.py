@@ -74,6 +74,63 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertIn("const doc = host.document", _HOST_CHROME_HTML)
         self.assertIn("catch (_)", _HOST_CHROME_HTML)
 
+    def test_mobile_styles_load_before_header_without_markdown_spacers(self):
+        # The first-load mobile CSS must be registered before any visual
+        # element, rather than generating a blank Markdown row.
+        shell = Path(__file__).resolve().parents[1] / "app" / "mobile_shell.py"
+        tree = ast.parse(shell.read_text(encoding="utf-8"))
+        install = next(
+            node for node in tree.body
+            if isinstance(node, ast.FunctionDef)
+            and node.name == "install_minimal_mobile_shell"
+        )
+        html_calls = [
+            node for node in ast.walk(install)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "st"
+            and node.func.attr == "html"
+            and len(node.args) == 1
+            and isinstance(node.args[0], ast.Name)
+            and node.args[0].id == "_MINIMAL_MOBILE_SHELL_CSS"
+        ]
+        self.assertEqual(len(html_calls), 1)
+        self.assertFalse(any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "markdown"
+            and any(isinstance(arg, ast.Name) and arg.id == "_MINIMAL_MOBILE_SHELL_CSS"
+                    for arg in node.args)
+            for node in ast.walk(install)
+        ))
+        first_css_line = html_calls[0].lineno
+        host_setup_line = next(
+            node.lineno for node in ast.walk(install)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "install_minimal_app_chrome"
+        )
+        header_line = next(
+            node.lineno for node in ast.walk(install)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "iframe"
+        )
+        self.assertLess(first_css_line, host_setup_line)
+        self.assertLess(host_setup_line, header_line)
+
+        # The existing Full-specific CSS rules must still be included, but
+        # mobile-only style content must go through the zero-spacing st.html.
+        compact = (
+            Path(__file__).resolve().parents[1] / "app" / "full_mobile_compact.py"
+        ).read_text(encoding="utf-8")
+        self.assertIn('body = body + _FULL_MOBILE_COMPACT_CSS', compact)
+        self.assertIn('if st.session_state.get("__full_device_mobile", False) and not args:', compact)
+        self.assertIn('return st.html(body)', compact)
+        app = self._mobile_app()
+        self.assertEqual([str(item) for item in app.exception], [])
+
     def test_mobile_header_hides_native_header_but_keeps_sidebar_trigger(self):
         css = _MINIMAL_MOBILE_SHELL_CSS
         html = _MOBILE_HEADER_HTML
