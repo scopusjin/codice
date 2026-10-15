@@ -320,12 +320,15 @@ def _install_compact_cooling_help_labels() -> None:
 
 def install_minimal_mobile_shell() -> None:
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
+    # CSS-only HTML is installed before any visual element, without adding
+    # a Markdown spacer above the mobile header on the first page load.
+    is_mobile = _request_is_mobile()
+    if is_mobile:
+        st.html(_MINIMAL_MOBILE_SHELL_CSS)
     install_minimal_app_chrome()
     reset_render_contexts()
     _install_compact_cooling_help_labels()
-    is_mobile = _request_is_mobile()
     if is_mobile:
-        st.markdown(_MINIMAL_MOBILE_SHELL_CSS, unsafe_allow_html=True)
         st.iframe(_MOBILE_HEADER_HTML, height=34)
     else:
         install_desktop_datetime_ui()
