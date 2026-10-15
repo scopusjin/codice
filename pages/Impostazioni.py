@@ -3,11 +3,12 @@ import streamlit as st
 
 from app.fc_page import FULL_PAGE
 from app.mobile_shell import install_minimal_mobile_shell
+from app.page_heading import render_page_heading
 
 st.set_page_config(page_title="Impostazioni", layout="centered")
 install_minimal_mobile_shell()
 
-st.markdown("## ⚙️ Impostazioni")
+render_page_heading("⚙️ Impostazioni")
 
 # Default se non c'è ancora
 if "henssge_round_minutes" not in st.session_state:
