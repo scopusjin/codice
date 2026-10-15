@@ -104,9 +104,11 @@ class DecimalNumberInputV2Tests(unittest.TestCase):
             state["fc_input_range"] = False
             self.assertTrue(help_for("mortem_decimal_fattore_correzione", 1., "FC")["help_enabled"])
 
-    def test_incomplete_main_fields_highlight_entire_control(self):
-        self.assertIn(".number-control.needs-input:not(.is-dense) {", _CSS)
-        self.assertIn(".number-control.needs-input:not(.is-dense) .label-help-cluster", _CSS)
+    def test_incomplete_main_fields_highlight_only_numeric_input(self):
+        self.assertNotIn(".number-control.needs-input:not(.is-dense) {", _CSS)
+        self.assertNotIn(".number-control.needs-input:not(.is-dense) .label-help-cluster", _CSS)
+        self.assertIn(".number-control.needs-input:not(.is-dense) .number-input,", _CSS)
+        self.assertIn(".number-control.needs-input:not(.is-dense).has-unit .mobile-unit {", _CSS)
         self.assertIn("control.classList.toggle('needs-input', missing)", _JS)
         self.assertIn("input.placeholder = missing ? '…' : ''", _JS)
 
