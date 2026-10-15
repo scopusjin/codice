@@ -2,7 +2,6 @@
 """Cornice mobile minimale condivisa dalle due modalità di Mor-tem."""
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from app.desktop_datetime_ui import install_desktop_datetime_ui
 from app.render_context import reset_render_contexts, serialized_installation
@@ -66,7 +65,7 @@ def install_minimal_app_chrome() -> None:
     """Hide hosting/developer controls without hiding sidebar navigation."""
     st.html(_MINIMAL_APP_CHROME_CSS)
     with st.container(key="mortem_host_chrome"):
-        components.html(_HOST_CHROME_HTML, height=0, scrolling=False)
+        st.iframe(_HOST_CHROME_HTML, height=1)
 
 
 _MINIMAL_MOBILE_SHELL_CSS = r"""
