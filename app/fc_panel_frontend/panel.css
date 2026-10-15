@@ -9,7 +9,8 @@
 }
 #fc-full,#fc-full *{box-sizing:border-box}
 #fc-full [hidden]{display:none!important}
-#fc-full h3{font-size:18px;font-weight:500;margin:0}
+#fc-full h3{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:clamp(1.2rem,1.25vw,1.5rem);font-weight:650;line-height:1.25;margin:0}
+@media(max-width:768px){#fc-full h3{font-size:1.15rem;line-height:1.05}}
 #fc-full button,#fc-full input,#fc-full select{font:inherit;color:inherit}
 #fc-full button{cursor:pointer;min-height:34px;padding:6px 10px;border:1px solid var(--fc-line);border-radius:7px;background:var(--fc-bg);white-space:nowrap}
 #fc-full button:disabled{opacity:.45;cursor:default}
