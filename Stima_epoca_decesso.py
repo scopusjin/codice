@@ -151,14 +151,10 @@ st.markdown("""
   opacity: 0.82;
 }
 @media (max-width: 768px) {
-  /* This card is already a native horizontal Streamlit layout.
-     Refine only its padding and the small baseline beneath the time iframe. */
+  /* Preserve separate label and controls with native vertical spacing.
+     Keep only moderate mobile padding; no fixed heights or negative offsets. */
   .st-key-full_inspection_card {
-    padding: 0.35rem 0.55rem !important;
-    gap: 0.2rem !important;
-  }
-  .st-key-full_inspection_card .st-key-inspection_datetime_row {
-    gap: 0.3rem !important;
+    padding: 0.55rem 0.65rem !important;
   }
   .st-key-full_inspection_card iframe[data-testid="stCustomComponentV1"] {
     display: block !important;
@@ -273,7 +269,7 @@ primary_cards = (
     st.container(gap="xsmall", key="full_mobile_primary_cards")
     if full_device_is_mobile() else st
 )
-with primary_cards.container(border=True, gap="xsmall", key="full_inspection_card"):
+with primary_cards.container(border=True, gap="small", key="full_inspection_card"):
     st.markdown(
         "<div class='mortem-section-title'>Data e ora rilievi tanatologici</div>",
         unsafe_allow_html=True,
