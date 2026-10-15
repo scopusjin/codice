@@ -59,6 +59,36 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
         self.assertTrue(refresh_fc_for_weight(state))
         self.assertEqual(state['fc_suggested_vals'], [2.8, 3.1])
 
+    def test_single_interval_and_msil_return_to_unadjusted_reference(self):
+        for msil in (False, True):
+            for base in ([2., 2.], [1.35, 1.6]):
+                with self.subTest(msil=msil, base=base):
+                    state = {}
+                    apply_choice(state, self.automatic_choice(base), msil=msil)
+                    self.assertIsNone(fc_weight_warning(state))
+                    for weight in (100., 70.):
+                        state['peso'] = weight
+                        self.assertTrue(refresh_fc_for_weight(state, msil=msil))
+                        self.assertEqual(state['fc_suggested_vals'], adapt_fc_range(base, weight))
+                        self.assertEqual(state['__fc_applied_choice']['base_range'], base)
+                        self.assertEqual(fc_weight_warning(state),
+                                         'FC adattato per il peso (100 kg).' if weight == 100 else None)
+                        if msil:
+                            self.assertEqual(state['__msil_fc_chosen_range'],
+                                             adapt_fc_range(base, weight))
+
+    def test_initial_adaptation_and_hidden_weight_control(self):
+        state = {}
+        apply_choice(state, self.automatic_choice(base=(2., 2.), weight=100))
+        self.assertEqual(fc_weight_warning(state), 'FC adattato per il peso (100 kg).')
+        state['peso'] = 70.
+        self.assertTrue(refresh_fc_for_weight(state))
+        self.assertIsNone(fc_weight_warning(state))
+        html = (ROOT / 'app/fc_panel_frontend/index.html').read_text(encoding='utf-8')
+        self.assertIn('<input id="weight" type="hidden"', html)
+        self.assertNotIn('data-weight="-1"', html)
+        self.assertNotIn('data-weight="1"', html)
+
     def test_incomplete_manual_edits_disable_refresh(self):
         for key in ('fattore_correzione', 'fc_min_val', 'fc_other_val'):
             for value in (None, float('nan'), 0):
@@ -101,7 +131,7 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             self.assertTrue(refresh_fc_for_weight(state))
             self.assertEqual(state['fc_suggested_vals'], adapt_fc_range([2., 2.], weight))
             self.assertEqual(state['__fc_applied_choice']['base_range'], [2., 2.])
-            self.assertIn('FC adattato per il peso', fc_weight_warning(state))
+            self.assertEqual(fc_weight_warning(state), f"FC adattato per il peso ({weight:g} kg)." if weight != 70 else None)
             self.assertFalse(refresh_fc_for_weight(state))
 
     def test_reentering_manual_fc_resets_base_and_notice(self):
@@ -153,10 +183,11 @@ console.log(JSON.stringify(ranges.flatMap(base=>weights.map(weight=>({
             if manual:
                 choice.update(manual=True, manual_weight_adjusted=False)
             apply_choice(state, choice)
-            for weight, notice in ((100., True), (70., True), (75., False)):
+            for weight, notice in ((100., True), (70., False), (75., False)):
                 state['peso'] = weight
                 self.assertTrue(refresh_fc_for_weight(state))
-                self.assertEqual(fc_weight_warning(state), 'FC adattato per il peso.' if notice else None)
+                self.assertEqual(fc_weight_warning(state),
+                                 f'FC adattato per il peso ({weight:g} kg).' if notice else None)
 
     def test_manual_fc_entered_before_weight_is_retained_until_weight_is_valid(self):
         state = {'peso': None, 'fattore_correzione': 2.}
