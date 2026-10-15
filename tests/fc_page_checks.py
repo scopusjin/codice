@@ -30,8 +30,14 @@ class FCPageTests(unittest.TestCase):
                 self.assertIsNone(app.session_state["fattore_correzione"])
                 app.button(key="btn_stima_mobile" if msil else "btn_stima").click().run()
                 self.assertEqual(list(app.exception), [])
-                self.assertTrue(any("temperatura ambientale" in item.value and "FC" in item.value
-                                    for item in app.warning))
+                self.assertTrue(any(
+                    "temperatura ambientale" in item.value.lower()
+                    and "fattore di correzione" in item.value.lower()
+                    for item in app.warning
+                ), [item.value for item in app.warning])
+                # Attempting a calculation must not populate either missing field.
+                self.assertIsNone(app.session_state["ta_base_val"])
+                self.assertIsNone(app.session_state["fattore_correzione"])
 
     def test_single_panel_temperature_and_integer_weight_format_in_all_views(self):
         for mobile, msil in ((False, False), (True, False), (True, True)):
