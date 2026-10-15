@@ -2,7 +2,6 @@ import re
 from html import escape
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from app.mobile_shell import install_minimal_mobile_shell
 
@@ -918,7 +917,9 @@ st.markdown("""<style>
 </style>""", unsafe_allow_html=True)
 _scroll_to_fc = st.session_state.pop("__fc_tables_scroll", False)
 with st.container(key="tables_navigation_bridge"):
-    components.html(
+    # Trusted, static JS bridge: st.iframe preserves the same-origin DOM access
+    # used by the bibliography links and the FC-section scroll.
+    st.iframe(
         """<script>
         (() => {
             const host = window.parent;
