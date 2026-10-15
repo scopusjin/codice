@@ -52,6 +52,7 @@ section.main, div.block-container{margin-top:0!important}
   font-size:clamp(1.2rem,1.25vw,1.5rem)!important;
   font-weight:650!important;
   line-height:1.25!important;
+  text-transform:uppercase!important;
 }
 [data-testid="stElementContainer"]:has(.mortem-msil-page-title){
   margin:0!important;
