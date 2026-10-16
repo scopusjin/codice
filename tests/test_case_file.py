@@ -6,6 +6,9 @@ import unittest
 from app.case_file import (CaseFileError, MAX_BYTES, case_filename, decode_case,
                            encode_case, restored_inputs, snapshot_case)
 from app.fc_selection import apply_choice, refresh_fc_for_weight
+from app.livor_digitopressione import (
+    PRESSURE_KEY, PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING,
+)
 from test_fc_scenarios import temperature_payload
 
 
@@ -44,6 +47,26 @@ class CaseFileTests(unittest.TestCase):
             refresh_fc_for_weight(state)
             refresh_fc_for_weight(restored)
             self.assertEqual(restored["__fc_applied_choice"], state["__fc_applied_choice"])
+
+    def test_digitopressione_is_saved_and_old_cases_remain_readable(self):
+        for pressure in (PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING):
+            state = self.example()
+            state[PRESSURE_KEY] = pressure
+            saved = snapshot_case(state, "full")
+            restored = restored_inputs(decode_case(encode_case(saved)))
+            self.assertEqual(saved["inputs"][PRESSURE_KEY], pressure)
+            self.assertEqual(restored[PRESSURE_KEY], pressure)
+
+        # Un file precedente non conteneva la digitopressione: la domanda resta non valutata.
+        old_case = snapshot_case(self.example(), "full")
+        self.assertNotIn(PRESSURE_KEY, old_case["inputs"])
+        restored_old = restored_inputs(decode_case(encode_case(old_case)))
+        self.assertNotIn(PRESSURE_KEY, restored_old)
+
+        corrupted = deepcopy(old_case)
+        corrupted["inputs"][PRESSURE_KEY] = "invalid"
+        with self.assertRaises(CaseFileError):
+            decode_case(json.dumps(corrupted).encode())
 
     def test_cover_details_and_special_options_survive_export(self):
         state = self.example()
