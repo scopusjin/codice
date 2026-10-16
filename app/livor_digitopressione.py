@@ -1,0 +1,69 @@
+"""Digitopressione delle ipostasi: opzioni, limiti e controllo condiviso.
+
+La digitopressione è indipendente dalla migrabilità dopo cambiamento di posizione.
+I suoi limiti sono intersecati con il solo intervallo delle ipostasi, senza
+aggiungere una seconda famiglia di dati nel metodo combinato.
+"""
+
+from app.tanatology_states import LIVOR_ABSENT, LIVOR_NOT_ASSESSED, LIVOR_UNRELIABLE
+
+PRESSURE_KEY = "livor_digitopressione"
+PRESSURE_NOT_ASSESSED = "not_assessed"
+PRESSURE_COMPLETE_FADING = "complete_fading"
+PRESSURE_INCOMPLETE_FADING = "incomplete_fading"
+
+PRESSURE_OPTIONS = (
+    PRESSURE_NOT_ASSESSED,
+    PRESSURE_COMPLETE_FADING,
+    PRESSURE_INCOMPLETE_FADING,
+)
+
+PRESSURE_LABEL_IT = {
+    PRESSURE_NOT_ASSESSED: "Non valutata",
+    PRESSURE_COMPLETE_FADING: "Sì",
+    PRESSURE_INCOMPLETE_FADING: "No",
+}
+
+
+def pressure_is_applicable(livor_id):
+    """La domanda ha senso solo quando le ipostasi sono presenti e attendibili."""
+    return livor_id not in (None, LIVOR_NOT_ASSESSED, LIVOR_ABSENT, LIVOR_UNRELIABLE)
+
+
+def intersect_livor_pressure(livor_range, pressure_option):
+    """Interseca i limiti bibliografici senza inventare limiti mancanti.
+
+    Scomparsa completa: non oltre 20 h. Mancata scomparsa completa: almeno 1 h.
+    Il valore superiore aperto dell'intervallo delle ipostasi viene preservato.
+    """
+    if livor_range is None:
+        return None
+    lo, hi = livor_range
+    if pressure_option == PRESSURE_COMPLETE_FADING:
+        hi = min(hi, 20)
+    elif pressure_option == PRESSURE_INCOMPLETE_FADING:
+        lo = max(lo, 1)
+    # Le combinazioni attualmente ammesse non hanno intersezioni vuote.
+    return (lo, hi) if lo <= hi else None
+
+
+def render_livor_pressure_input(livor_id, label):
+    """Stessa sottodomanda nella pagina completa e nel sopralluogo."""
+    import streamlit as st
+
+    if not pressure_is_applicable(livor_id):
+        # Quando le ipostasi non sono valutabili/presenti, non usare un vecchio
+        # risultato di digitopressione eventualmente rimasto nella sessione.
+        st.session_state[PRESSURE_KEY] = PRESSURE_NOT_ASSESSED
+        return PRESSURE_NOT_ASSESSED
+    return st.selectbox(
+        label,
+        options=PRESSURE_OPTIONS,
+        format_func=lambda value: PRESSURE_LABEL_IT[value],
+        key=PRESSURE_KEY,
+        help=(
+            "Valuta lo sbiancamento delle macchie ipostatiche con una digitopressione. "
+            "Non equivale alla migrabilità dopo cambiamento di posizione. "
+            "Se il reperto non è stato valutato, lascia «Non valutata»."
+        ),
+    )
