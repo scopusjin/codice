@@ -15,6 +15,7 @@ from app import i18n
 from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
+from app.livor_digitopressione import PRESSURE_NOT_ASSESSED
 from app.graphing_tanatology import (
     FAMILY_LIVOR,
     FAMILY_RIGOR,
@@ -138,6 +139,7 @@ def aggiorna_grafico(
     alterazioni_putrefattive: bool,
     skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
     cooling_options=None,
+    livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
     **kwargs,
 ):
     # Back-compat: accetta skip_warnings anche via **kwargs
@@ -243,7 +245,9 @@ def aggiorna_grafico(
     temp_difference_small = (_is_num(Tr_val) and _is_num(Ta_val) and (Tr_val - Ta_val) >= 0 and (Tr_val - Ta_val) < 2.0)
 
     # --- macchie/rigidità ---
-    base_tanatology = resolve_base_tanatology_ranges(selettore_macchie, selettore_rigidita)
+    base_tanatology = resolve_base_tanatology_ranges(
+        selettore_macchie, selettore_rigidita, livor_digitopressione
+    )
     macchie_range = base_tanatology.livor_range
     macchie_range_valido = isinstance(macchie_range, tuple)
     macchie_medi_range = base_tanatology.livor_typical_range if macchie_range_valido else None
@@ -789,8 +793,12 @@ def aggiorna_grafico(
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
     if not macchie_non_valutate:
         testo_macchie = i18n.livor_description(base_tanatology.livor_id)
+        if macchie_range_valido:
+            testo_digitopressione = i18n.livor_pressure_description(livor_digitopressione)
+            if testo_digitopressione:
+                testo_macchie = (testo_macchie or "").strip() + " " + testo_digitopressione
         if testo_macchie:
-            _add_det(f"<ul><li>{testo_macchie}</li></ul>")
+            _add_det(f"<ul><li>{testo_macchie.strip()}</li></ul>")
     if not rigidita_non_valutata:
         testo_rigidita = i18n.rigor_description(base_tanatology.rigor_id)
         if testo_rigidita:
