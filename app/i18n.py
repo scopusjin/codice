@@ -578,6 +578,11 @@ def livor_description(state_id: str, language: Optional[str] = None):
     return get_locale(language).livor_description_it(state_id)
 
 
+def livor_pressure_description(option_id: str, language: Optional[str] = None):
+    """Descrizione localizzata del risultato alla digitopressione."""
+    return get_locale(language).livor_pressure_description_it(option_id)
+
+
 def rigor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato della rigidità cadaverica."""
     return get_locale(language).rigor_description_it(state_id)
@@ -651,6 +656,7 @@ __all__ = [
     "prudent_graphing_detail_list",
     "factor_correction_description",
     "livor_description",
+    "livor_pressure_description",
     "rigor_description",
     "special_description",
     "special_graph_label",
