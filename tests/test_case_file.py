@@ -7,7 +7,7 @@ from app.case_file import (CaseFileError, MAX_BYTES, case_filename, decode_case,
                            encode_case, restored_inputs, snapshot_case)
 from app.fc_selection import apply_choice, refresh_fc_for_weight
 from app.livor_digitopressione import (
-    PRESSURE_KEY, PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING,
+    PRESSURE_KEY, PRESSURE_VISIBILITY_KEY, PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING,
 )
 from test_fc_scenarios import temperature_payload
 
@@ -119,11 +119,13 @@ class CaseFileTests(unittest.TestCase):
     def test_only_case_data_is_exported_and_case_code_is_preserved(self):
         for code in ("x26-05", "IL26-10", "12345", "IL26/10", ""):
             state = {**self.example(), "case_code": code, "secret": "not a case input",
-                     "__full_device_mobile": True, "__fc_instance": "old", "mortem_decimal_peso": {"edit": True}}
+                     "__full_device_mobile": True, "__fc_instance": "old", "mortem_decimal_peso": {"edit": True},
+                     PRESSURE_VISIBILITY_KEY: False}
             case = decode_case(encode_case(snapshot_case(state, "full")))
             self.assertEqual(case["case_code"], code)
             self.assertNotIn("not a case input", encode_case(case).decode())
             self.assertNotIn("__full_device_mobile", case["inputs"])
+            self.assertNotIn(PRESSURE_VISIBILITY_KEY, case["inputs"])
             self.assertNotIn("__fc_instance", case["inputs"])
             self.assertNotIn("/", case_filename(case))
             if code in ("x26-05", "IL26-10", "12345"):
