@@ -19,6 +19,7 @@ from app.graphing_tanatology import (
     resolve_special_tanatology_value,
 )
 from app.special_tanatology_states import PARAM_ELECTRICAL_SUPRACILIARY
+from app.livor_digitopressione import PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING
 
 
 class GraphingTanatologyCompatibilityTests(unittest.TestCase):
@@ -48,6 +49,44 @@ class GraphingTanatologyCompatibilityTests(unittest.TestCase):
             resolved = resolve_base_tanatology_ranges(label, rigor_default)
             self.assertEqual(resolved.livor_range, expected_range)
             self.assertEqual(resolved.livor_typical_range, macchie_medi.get(label))
+
+    def test_confluence_and_migrability_are_independent_clinical_intervals(self):
+        expected = {
+            "In via di confluenza": (0, 4),
+            "Confluenti (migrabilità non valutata)": (1, 200),
+            "Confluenti e completamente migrabili": (1, 6),
+            "Completamente migrabili": (0, 6),
+            "Parzialmente migrabili": (4, 24),
+            "Migrabili perlomeno parzialmente": (0, 24),
+            "Fisse": (4, 200),
+        }
+        for state, expected_range in expected.items():
+            self.assertEqual(
+                resolve_base_tanatology_ranges(state, "Non valutata").livor_range,
+                expected_range,
+            )
+
+    def test_digitopressione_intersects_only_livor_bounds(self):
+        examples = (
+            ("In via di confluenza", PRESSURE_INCOMPLETE_FADING, (1, 4), (1.5, 3.5)),
+            ("Completamente migrabili", PRESSURE_INCOMPLETE_FADING, (1, 6), (1, 6)),
+            ("Confluenti (migrabilità non valutata)", PRESSURE_COMPLETE_FADING, (1, 20), None),
+            ("Parzialmente migrabili", PRESSURE_COMPLETE_FADING, (4, 20), (6, 12)),
+            ("Fisse", PRESSURE_COMPLETE_FADING, (4, 20), (12, 20)),
+        )
+        for state, pressure, expected, expected_typical in examples:
+            with self.subTest(state=state, pressure=pressure):
+                base = resolve_base_tanatology_ranges(state, "Non valutata")
+                combined = resolve_base_tanatology_ranges(state, "Non valutata", pressure)
+                self.assertEqual(combined.livor_range, expected)
+                self.assertEqual(combined.livor_typical_range, expected_typical)
+                self.assertEqual(combined.rigor_range, base.rigor_range)
+        # Un rilievo residuo non deve modificare ipostasi assenti/non valutate.
+        for state in ("Non ancora comparse", "Non valutate", "Non valutabili/Non attendibili"):
+            self.assertEqual(
+                resolve_base_tanatology_ranges(state, "Non valutata", PRESSURE_INCOMPLETE_FADING),
+                resolve_base_tanatology_ranges(state, "Non valutata"),
+            )
 
     def test_all_rigor_ranges_match_legacy_dictionaries(self):
         livor_default = next(iter(opzioni_macchie))
