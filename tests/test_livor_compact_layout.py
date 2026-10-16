@@ -50,7 +50,7 @@ class CompactLivorPickerTests(unittest.TestCase):
             with self.subTest(key=key):
                 fake = FakeStreamlit({key: choices[-1]})
                 from app import livor_picker
-                with patch.dict(sys.modules, {"streamlit": fake}), \\
+                with patch.dict(sys.modules, {"streamlit": fake}), \
                         patch.object(livor_picker, "_native_select", return_value=choices[-1]) as component:
                     result = render_livor_picker(
                         choices, state_key=key, picker_key="livor_picker_test",
@@ -67,7 +67,7 @@ class CompactLivorPickerTests(unittest.TestCase):
         choices = ("Non valutate", "Fisse")
         fake = FakeStreamlit({"selettore_macchie_ui": "Fisse", "__case_ui_id": "new-case"})
         from app import livor_picker
-        with patch.dict(sys.modules, {"streamlit": fake}), \\
+        with patch.dict(sys.modules, {"streamlit": fake}), \
                 patch.object(livor_picker, "_native_select", return_value=None) as component:
             selected = render_livor_picker(
                 choices, state_key="selettore_macchie_ui", picker_key="livor_picker_test",
@@ -79,7 +79,7 @@ class CompactLivorPickerTests(unittest.TestCase):
     def test_user_choice_updates_existing_state_key(self):
         fake = FakeStreamlit({"selettore_macchie_ui": "Non valutate"})
         from app import livor_picker
-        with patch.dict(sys.modules, {"streamlit": fake}), \\
+        with patch.dict(sys.modules, {"streamlit": fake}), \
                 patch.object(livor_picker, "_native_select", return_value="Fisse"):
             selected = render_livor_picker(
                 ("Non valutate", "Fisse"),
@@ -92,7 +92,7 @@ class CompactLivorPickerTests(unittest.TestCase):
     def test_initial_value_and_invalid_component_result_are_safe(self):
         fake = FakeStreamlit()
         from app import livor_picker
-        with patch.dict(sys.modules, {"streamlit": fake}), \\
+        with patch.dict(sys.modules, {"streamlit": fake}), \
                 patch.object(livor_picker, "_native_select", return_value="unknown"):
             chosen = render_livor_picker(
                 ("Non valutate", "Fisse"),
