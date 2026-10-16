@@ -25,7 +25,7 @@ from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
-from app.livor_digitopressione import PRESSURE_KEY, render_livor_pressure_input
+from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
 from app.cooling_inputs import missing_cooling_inputs
 from app.ambient_temperature import MODE_KEY, render_temperature_inputs
 from app.fc_input_mode import initialize_fc_mode, render_fc_inputs
@@ -781,7 +781,7 @@ def _inputs_signature():
         _freeze(st.session_state.get("input_data_rilievo")),
         _freeze(st.session_state.get("input_ora_rilievo")),
         _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
-        _freeze(st.session_state.get(PRESSURE_KEY)),
+        _freeze(effective_livor_pressure(st.session_state)),
         _freeze(st.session_state.get("selettore_rigidita") if "selettore_rigidita" in st.session_state else None),
         _freeze(st.session_state.get("rt_val")),
         _freeze(st.session_state.get("ta_base_val") if "ta_base_val" in st.session_state else None),
@@ -1058,7 +1058,7 @@ if st.session_state["show_results"]:
         aggiorna_grafico(
             selettore_macchie=selettore_macchie,
             selettore_rigidita=selettore_rigidita,
-            livor_digitopressione=st.session_state.get(PRESSURE_KEY),
+            livor_digitopressione=effective_livor_pressure(st.session_state),
             input_rt=(input_rt if considera_raffreddamento else None),
             input_ta=(input_ta if considera_raffreddamento else None),
             input_tm=(input_tm if considera_raffreddamento else None),
