@@ -172,7 +172,6 @@ def compute_cooling_state(
             Tr_val, Ta_val, T0_val, CF_val = map(float, (Tr_val, Ta_val, T0_val, CF_val))
     except ValueError as exc:
         validation_error = str(exc)
-        detail_blocks.append("<ul><li>Raffreddamento non calcolato: " + validation_error + "</li></ul>")
     if not requested or validation_error:
         Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
         raffreddamento_calcolabile = False
