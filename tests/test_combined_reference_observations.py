@@ -33,12 +33,8 @@ class CombinedReferencePresentationTests(unittest.TestCase):
         cls.groups = {group: (reference, findings) for group, reference, findings in values["groups"]}
         cls.headings = values["headings"]
 
-    def test_original_single_sided_scientific_limits_remain_intact(self):
+    def test_other_scientific_limits_remain_intact(self):
         expected = {
-            "lividity": [
-                "≤ 3", "≥ 1", "≤ 4", "≥ 3", "≤ 16", "≤ 20",
-                "≥ 1", "≤ 6", "≥ 2", "≤ 24", "≥ 4",
-            ],
             "rigor": [
                 "≤ 7", "≥ 0.5", "≤ 20", "≥ 2", "≤ 19 [4]",
                 "≥ 2", "≤ 96", "≥ 24", "≤ 192", "≥ 24",
@@ -49,6 +45,17 @@ class CombinedReferencePresentationTests(unittest.TestCase):
         }
         for group, limits in expected.items():
             self.assertEqual([row[2] for row in self.groups[group][1]], limits)
+
+    def test_livor_clinical_intervals_match_bibliographic_combinations(self):
+        values = [row[2] for row in self.groups["lividity"][1]]
+        self.assertEqual(
+            values,
+            ["0–3", "0–4", "≥ 1", "0–6", "1–6",
+             "4–24", "0–24", "≥ 4", "0–20", "≥ 1"],
+        )
+        description = " ".join(row[0] for row in self.groups["lividity"][1])
+        self.assertNotIn("massima estensione", description.lower())
+        self.assertIn("digitopressione", description)
 
     def test_supraciliary_phase_intervals_match_engine(self):
         references, rows = self.groups["eyebrow"]
