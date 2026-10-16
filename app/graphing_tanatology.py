@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from app.parameters import dati_parametri_aggiuntivi
+from app.livor_digitopressione import PRESSURE_NOT_ASSESSED, intersect_livor_pressure
 from app.tanatology_states import (
     LIVOR_ID_BY_LEGACY_LABEL,
     RIGOR_ID_BY_LEGACY_LABEL,
@@ -75,8 +76,9 @@ class SpecialTanatologyValue:
 def resolve_base_tanatology_ranges(
     livor_legacy_label: str,
     rigor_legacy_label: str,
+    livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
 ) -> BaseTanatologyRanges:
-    """Restituisce gli stessi range legacy, indicizzati tramite ID stabili.
+    """Restituisce i range legacy e, se valutata, l'intersezione con la digitopressione.
 
     Per etichette sconosciute conserva il comportamento permissivo dei vecchi
     ``dict.get``: ID e range risultano ``None`` invece di sollevare eccezioni.
@@ -86,8 +88,10 @@ def resolve_base_tanatology_ranges(
 
     return BaseTanatologyRanges(
         livor_id=livor_id,
-        livor_range=LIVOR_RANGES_BY_ID.get(livor_id),
-        livor_typical_range=LIVOR_TYPICAL_RANGES_BY_ID.get(livor_id),
+        livor_range=intersect_livor_pressure(LIVOR_RANGES_BY_ID.get(livor_id), livor_digitopressione),
+        livor_typical_range=intersect_livor_pressure(
+            LIVOR_TYPICAL_RANGES_BY_ID.get(livor_id), livor_digitopressione
+        ),
         rigor_id=rigor_id,
         rigor_range=RIGOR_RANGES_BY_ID.get(rigor_id),
         rigor_typical_range=RIGOR_TYPICAL_RANGES_BY_ID.get(rigor_id),
