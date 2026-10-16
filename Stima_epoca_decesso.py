@@ -589,21 +589,18 @@ with primary_cards.container(border=True, key="full_signs_card"):
     with col2:
         rigor_heading = i18n.ui_text("full.rigor_heading")
         st.markdown(f"<div class='mortem-section-title'>{rigor_heading}</div>", unsafe_allow_html=True)
-        prev_rigor = st.session_state.get("selettore_rigidita", rigor_labels[0])
-        if prev_rigor not in rigor_labels:
-            prev_rigor = rigor_labels[0]
-        scelta_rigidita_lbl = st.selectbox(
-            i18n.ui_text("full.rigor_select_label"),
-            options=rigor_labels,
-            index=rigor_labels.index(prev_rigor),
-            key="selettore_rigidita_ui",
-            label_visibility="collapsed",
-            filter_mode=None if full_device_is_mobile() else "fuzzy",
-        )
-        st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
-        selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
-        st.session_state["selettore_rigidita"] = selettore_rigidita
-        render_rigor_reformation_input(st.session_state["selettore_rigidita_id"])
+        with st.container(gap=None, key="full_rigor_input_stack"):
+            scelta_rigidita_lbl = render_livor_picker(
+                rigor_labels,
+                state_key="selettore_rigidita_ui",
+                picker_key="rigor_picker_full",
+                default_label=st.session_state.get("selettore_rigidita"),
+                aria_label="Rigidità cadaverica",
+            )
+            st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
+            selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
+            st.session_state["selettore_rigidita"] = selettore_rigidita
+            render_rigor_reformation_input(st.session_state["selettore_rigidita_id"])
 
 # Parametri aggiuntivi: sezione compatta, chiusa all'avvio e aperta soltanto
 # quando serve. Il toggle conserva la precedente semantica di inclusione.
