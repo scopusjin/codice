@@ -24,6 +24,8 @@ from app.parameters import (
     opzioni_macchie,
     dati_parametri_aggiuntivi,
 )
+from app.locales.it import LIVOR_LABEL_BY_ID
+from app.tanatology_states import LIVOR_LABEL_IT, LIVOR_CONFLUENT, LIVOR_CONFLUENT_FULLY_MIGRATABLE
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     SPECIAL_PARAM_LABEL_IT,
@@ -34,19 +36,28 @@ from app.special_tanatology_states import (
 
 class FullTanatologyMappingTests(unittest.TestCase):
     def test_full_livor_ui_matches_current_parameter_options(self):
-        current_labels = tuple(opzioni_macchie.keys())
+        shown_labels = tuple(LIVOR_LABEL_BY_ID.values())
+        self.assertEqual(tuple(FULL_LIVOR_STATE_BY_LABEL.keys()), shown_labels)
+        self.assertEqual(full_livor_labels(), shown_labels)
+        self.assertEqual(full_livor_labels("it"), shown_labels)
+        for state_id, ui_label in LIVOR_LABEL_BY_ID.items():
+            self.assertEqual(full_livor_state_id(ui_label), state_id)
+            self.assertEqual(FULL_LIVOR_STATE_BY_LABEL[ui_label], state_id)
+            legacy_value = LIVOR_LABEL_IT[state_id]
+            self.assertEqual(full_livor_legacy_value(ui_label), legacy_value)
+            self.assertIn(legacy_value, opzioni_macchie)
+
+    def test_confluite_is_display_only_and_keeps_legacy_range_keys(self):
+        self.assertEqual(LIVOR_LABEL_BY_ID[LIVOR_CONFLUENT], "Confluite (migrabilità non valutata)")
         self.assertEqual(
-            tuple(FULL_LIVOR_STATE_BY_LABEL.keys()),
-            current_labels,
+            LIVOR_LABEL_BY_ID[LIVOR_CONFLUENT_FULLY_MIGRATABLE],
+            "Confluite e completamente migrabili",
         )
-        self.assertEqual(full_livor_labels(), current_labels)
-        self.assertEqual(full_livor_labels("it"), current_labels)
-        for ui_label in opzioni_macchie:
-            self.assertEqual(
-                full_livor_state_id(ui_label),
-                FULL_LIVOR_STATE_BY_LABEL[ui_label],
-            )
-            self.assertEqual(full_livor_legacy_value(ui_label), ui_label)
+        self.assertEqual(
+            full_livor_legacy_value("Confluite e completamente migrabili"),
+            "Confluenti e completamente migrabili",
+        )
+        self.assertEqual(opzioni_macchie["Confluenti e completamente migrabili"], (1, 6))
 
     def test_full_rigor_ui_matches_current_labels_and_legacy_values(self):
         current_labels = (
