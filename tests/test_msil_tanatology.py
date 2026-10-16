@@ -21,7 +21,7 @@ class MSILTanatologyMappingTests(unittest.TestCase):
             "Ipostasi assenti": "Non ancora comparse",
             "Ipostasi presenti, non confluite": "In via di confluenza",
             "Ipostasi confluite": "Confluenti (migrabilità non valutata)",
-            "Ipostasi completamente migrabili": "Completamente migrabili",
+            "Ipostasi completamente migrabili (confluenza non specificata)": "Completamente migrabili",
             "Ipostasi confluite e completamente migrabili": "Confluenti e completamente migrabili",
             "Ipostasi parzialmente migrabili": "Parzialmente migrabili",
             "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
