@@ -16,6 +16,7 @@ from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
 from app.livor_digitopressione import PRESSURE_NOT_ASSESSED
+from app.rigor_reformation import REFORMATION_NOT_ASSESSED, REFORMATION_YES
 from app.graphing_tanatology import (
     FAMILY_LIVOR,
     FAMILY_RIGOR,
@@ -140,6 +141,7 @@ def aggiorna_grafico(
     skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
     cooling_options=None,
     livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
+    rigor_reformation: str = REFORMATION_NOT_ASSESSED,
     **kwargs,
 ):
     # Back-compat: accetta skip_warnings anche via **kwargs
@@ -246,7 +248,7 @@ def aggiorna_grafico(
 
     # --- macchie/rigidità ---
     base_tanatology = resolve_base_tanatology_ranges(
-        selettore_macchie, selettore_rigidita, livor_digitopressione
+        selettore_macchie, selettore_rigidita, livor_digitopressione, rigor_reformation
     )
     macchie_range = base_tanatology.livor_range
     macchie_range_valido = isinstance(macchie_range, tuple)
@@ -833,6 +835,25 @@ def aggiorna_grafico(
             _add_det(f"<ul><li>{testo_macchie.strip()}</li></ul>")
     if not rigidita_non_valutata:
         testo_rigidita = i18n.rigor_description(base_tanatology.rigor_id)
+        if (
+            rigor_reformation == REFORMATION_YES
+            and isinstance(rigidita_range, tuple)
+            and base_tanatology.rigor_id in ("rigor_developing", "rigor_full")
+        ):
+            minimo, massimo = rigidita_range
+            reperto = (
+                "fosse in via di formazione, intensificazione e generalizzazione"
+                if base_tanatology.rigor_id == "rigor_developing"
+                else "fosse presente e generalizzata"
+            )
+            minimo_testo = "30 minuti" if minimo == 0.5 else f"{minimo:g} ore"
+            testo_rigidita = (
+                "È possibile valutare che la rigidità cadaverica, al momento dell’ispezione legale, "
+                f"{reperto} e che, dopo essere stata vinta mediante mobilizzazione forzata, "
+                "si fosse nuovamente formata. Secondo i limiti minimi e massimi segnalati "
+                "in letteratura scientifica, questo suggerisce che fossero trascorsi "
+                f"tra {minimo_testo} e {massimo:g} ore dal decesso."
+            )
         if testo_rigidita:
             _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
     for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
