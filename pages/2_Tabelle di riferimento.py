@@ -618,7 +618,7 @@ def _render_henssge_weight_table(language: str) -> None:
     _reference_caption(f"{text['adapted']}: {_HENSSGE_WEIGHT_REFERENCE}")
 
 
-render_page_heading("Tabelle di riferimento")
+render_page_heading("Metodi e tabelle di riferimento")
 if st.session_state.get("__fc_tables_return"):
     _reference_caption("I richiami bibliografici aprono la sezione «Riferimenti bibliografici», con le citazioni complete. I numeri tra parentesi quadre si riferiscono alle fonti elencate sotto ciascuna tabella.")
 
@@ -833,22 +833,57 @@ st.markdown(
     if table_language == "it" else
     "### Methods based on body cooling"
 )
+st.markdown("**Metodo di Henssge**" if table_language == "it" else "**Henssge method**")
 st.caption(
-    "Henssge stima il tempo dal decesso utilizzando temperatura rettale, "
-    "temperatura ambientale media, peso corporeo e fattore di correzione (FC). "
-    "Potente et al. precisano i limiti di attendibilità in funzione della temperatura "
-    "ambientale e del grado di raffreddamento (Q): fino a 23 °C, Q ≤ 0.2 "
-    "non consente un intervallo attendibile e 0.2 < Q < 0.3 richiede cautela; "
-    "oltre 23 °C, la soglia di esclusione è Q ≤ 0.5. "
-    "Quando il metodo non è attendibile, l’app indica soltanto un tempo minimo."
+    "Il metodo di Henssge permette di stimare il tempo trascorso dal decesso sulla base della "
+    "temperatura rettale, della temperatura ambientale media, del peso corporeo e di un fattore "
+    "di correzione (FC) che tiene conto delle condizioni del cadavere. La stima viene espressa "
+    "mediante un intervallo temporale, la cui attendibilità diminuisce con il progredire del "
+    "raffreddamento corporeo. Il parametro Q esprime il grado di raffreddamento: rapporta la "
+    "differenza tra temperatura rettale e ambientale alla differenza tra temperatura corporea "
+    "iniziale presunta e ambientale, diminuendo progressivamente da 1 verso 0. "
+    "Per temperature ambientali fino a 23 °C, l’incertezza aumenta sensibilmente quando Q scende "
+    "sotto 0.3 e l’intervallo non è più considerato attendibile per Q ≤ 0.2. Per temperature "
+    "ambientali superiori a 23 °C, il limite critico è Q ≤ 0.5, anche in considerazione della "
+    "limitata numerosità delle casistiche utilizzate da Henssge in tali condizioni."
     if table_language == "it" else
-    "Henssge estimates time since death from rectal temperature, mean ambient "
-    "temperature, body weight and correction factor (FC). "
-    "Potente et al. define reliability limits according to ambient temperature "
-    "and degree of cooling (Q): at or below 23 °C, Q ≤ 0.2 is outside the "
-    "reliable interval range and 0.2 < Q < 0.3 warrants caution; above 23 °C, "
-    "the exclusion threshold is Q ≤ 0.5. "
-    "When the method is unreliable, the app reports only a minimum elapsed time."
+    "Henssge's method estimates time since death using rectal temperature, mean ambient temperature, "
+    "body weight and a correction factor (FC) accounting for the body's conditions. The resulting "
+    "time interval becomes less reliable as cooling progresses. Q describes the degree of cooling "
+    "as the difference between rectal and ambient temperature divided by the difference between "
+    "assumed initial body temperature and ambient temperature, falling from 1 towards 0. "
+    "At ambient temperatures up to 23 °C, uncertainty increases substantially below Q = 0.3, "
+    "and the interval is considered unreliable for Q ≤ 0.2. Above 23 °C, the critical "
+    "threshold is Q ≤ 0.5, also reflecting the limited size of Henssge's case series under these conditions."
+)
+st.latex(r"Q=\frac{T_r-T_a}{T_0-T_a}=Ae^{Bt}+(1-A)e^{\frac{A}{A-1}Bt}")
+st.caption(
+    "Tr: temperatura rettale; Ta: temperatura ambientale media; T0: temperatura corporea "
+    "iniziale presunta; t: tempo dal decesso; A e B: coefficienti del modello."
+    if table_language == "it" else
+    "Tr: rectal temperature; Ta: mean ambient temperature; T0: assumed initial body temperature; "
+    "t: time since death; A and B: model coefficients."
+)
+st.caption(
+    "Riferimento: Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. Forensic Sci Int. 1988."
+    if table_language == "it" else
+    "Reference: Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. Forensic Sci Int. 1988."
+)
+st.markdown("**Metodo di Potente et al.**" if table_language == "it" else "**Potente et al. method**")
+st.caption(
+    "Quando il grado di raffreddamento corporeo non consente di ottenere un intervallo temporale "
+    "sufficientemente attendibile mediante il metodo di Henssge, Potente et al. propongono "
+    "di stimare soltanto un tempo minimo trascorso dal decesso, corrispondente al tempo necessario "
+    "per raggiungere il grado critico di raffreddamento."
+    if table_language == "it" else
+    "When the degree of body cooling does not allow a sufficiently reliable time interval "
+    "using Henssge's method, Potente et al. propose reporting only a minimum time since death, "
+    "corresponding to the time needed to reach the critical degree of cooling."
+)
+st.caption(
+    "Riferimento: Potente et al. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. Forensic Sci Int. 2017."
+    if table_language == "it" else
+    "Reference: Potente et al. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. Forensic Sci Int. 2017."
 )
 st.markdown("## Fattore di correzione (FC)" if table_language == "it" else "## Correction factor (FC)")
 st.markdown(
