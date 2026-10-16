@@ -74,14 +74,14 @@ def render_livor_pressure_input(livor_id, label):
         return PRESSURE_NOT_ASSESSED
     # L'etichetta è una caption come il range di temperatura; il gruppo è
     # leggermente rientrato rispetto alla selezione principale delle ipostasi.
-    st.html("""
-    <style>
-    [class*="st-key-livor_pressure_subquestion"] {
-        padding-left: 0.75rem !important;
-    }
-    </style>
-    """)
-    with st.container(key="livor_pressure_subquestion", gap="xsmall"):
+    with st.container(key="livor_pressure_subquestion", gap=None):
+        st.html("""
+        <style>
+        [class*="st-key-livor_pressure_subquestion"] {
+            padding-left: 0.75rem !important;
+        }
+        </style>
+        """)
         st.caption(label)
         return st.selectbox(
             label,
