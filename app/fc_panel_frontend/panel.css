@@ -69,6 +69,10 @@
 #fc-full #blanket-counts > .category{display:flex;align-items:center;justify-content:space-between;gap:4px}
 #fc-full .covering-icons{display:inline-flex;align-items:center;gap:3px;flex:none;color:var(--fc-muted)}
 #fc-full .covering-icons svg{width:16px;height:16px}
+/* Legenda nativa: gli stessi simboli restano visibili anche sul desktop,
+   dove le categorie mobile sono nascoste per i sei contatori compatti. */
+#fc-full .desktop-coverings-legend{display:none}
+#fc-full[data-desktop=true] .desktop-coverings-legend{display:block;padding:0 5px;line-height:0}
 #fc-full #counts .counter{display:flex;align-items:center;gap:6px;min-width:0;margin-top:3px}
 #fc-full #counts label{font-size:12px;line-height:1.2}
 #fc-full #clothing-counts label{width:45px;flex:none}
