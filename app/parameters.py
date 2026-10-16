@@ -23,7 +23,7 @@ INF_HOURS = 200  # usato per “infinito” sui range aperti
 opzioni_macchie = {
     "Non valutate": None,
     "Non ancora comparse": (0, 3),
-    "In via di confluenza": (1, 4),
+    "In via di confluenza": (0, 4),
     "Completamente migrabili": (0, 6),
     "Parzialmente migrabili": (4, 24),
     "Migrabili perlomeno parzialmente": (0, 24),
