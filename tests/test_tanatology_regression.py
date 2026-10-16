@@ -6,7 +6,11 @@ import unittest
 
 import numpy as np
 
-from app.locales.it import LIVOR_DESCRIPTION_IT_BY_ID, RIGOR_DESCRIPTION_IT_BY_ID, SPECIAL_DESCRIPTION_IT_BY_ID
+from app.locales.it import (
+    LIVOR_DESCRIPTION_IT_BY_ID, LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID,
+    RIGOR_DESCRIPTION_IT_BY_ID, SPECIAL_DESCRIPTION_IT_BY_ID,
+)
+from app.livor_digitopressione import PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING
 from app.locales.it_supra import SUPRA_GRID_DETAIL_BY_ID
 from app.parameters import INF_HOURS, dati_parametri_aggiuntivi, opzioni_macchie, macchie_medi
 from app.special_tanatology_states import (
@@ -54,6 +58,14 @@ class ScientificRangeRegressionTests(unittest.TestCase):
         self.assertIsNone(macchie_medi["Confluenti e completamente migrabili"])
         self.assertIn("almeno 1 ora", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT])
         self.assertIn("da 1 a 6 ore", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT_FULLY_MIGRATABLE])
+
+    def test_livor_pressure_descriptions_explain_scientific_bounds(self):
+        full = LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID[PRESSURE_COMPLETE_FADING]
+        incomplete = LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID[PRESSURE_INCOMPLETE_FADING]
+        self.assertIn("completamente", full)
+        self.assertIn("limite massimo di 20 ore", full)
+        self.assertIn("non scomparivano completamente", incomplete)
+        self.assertIn("limite minimo di 1 ora", incomplete)
 
     def test_supraciliary_ranges_match_integrated_limits(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica sopraciliare"]["range"]
