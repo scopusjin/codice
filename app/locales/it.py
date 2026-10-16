@@ -165,7 +165,7 @@ SPECIAL_DESCRIPTION_IT_BY_ID = {
         SUPRA_PHASE_V: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione generalizzata "
             "dei muscoli della fronte e dell’orbita. Tale reazione di eccitabilità muscolare elettrica residua suggerisce "
-            "che il decesso fosse avvenuto tra le 2 e le 7 ore prima della valutazione del dato tanatologico."
+            "che il decesso fosse avvenuto più di 1 ora e meno di 7 ore prima della valutazione del dato tanatologico."
         ),
         SUPRA_PHASE_VI: (
             "L’applicazione di uno stimolo elettrico in regione sopraciliare ha prodotto una contrazione "
