@@ -16,7 +16,7 @@ from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
 from app.livor_digitopressione import PRESSURE_NOT_ASSESSED
-from app.rigor_reformation import REFORMATION_NOT_ASSESSED, REFORMATION_YES, REFORMATION_NO
+from app.rigor_reformation import REFORMATION_NOT_ASSESSED, REFORMATION_YES
 from app.graphing_tanatology import (
     FAMILY_LIVOR,
     FAMILY_RIGOR,
@@ -853,17 +853,6 @@ def aggiorna_grafico(
                 "si fosse nuovamente formata. Secondo i limiti minimi e massimi segnalati "
                 "in letteratura scientifica, questo suggerisce che fossero trascorsi "
                 f"tra {minimo_testo} e {massimo:g} ore dal decesso."
-            )
-        elif (
-            rigor_reformation == REFORMATION_NO
-            and base_tanatology.rigor_id in ("rigor_developing", "rigor_full")
-            and testo_rigidita
-        ):
-            testo_rigidita = (
-                testo_rigidita
-                + " Dopo essere stata vinta mediante mobilizzazione forzata, "
-                "la rigidità non si è nuovamente formata; questo reperto non aggiunge "
-                "un limite temporale autonomo alla stima."
             )
         if testo_rigidita:
             _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
