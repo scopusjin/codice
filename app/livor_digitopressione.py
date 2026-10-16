@@ -32,8 +32,11 @@ def pressure_is_enabled(state):
 
 
 def effective_livor_pressure(state):
-    """Esclude dal calcolo un rilievo nascosto senza modificare il dato preesistente."""
+    """Ignora una risposta quando il controllo è disabilitato o non informativo."""
     if not pressure_is_enabled(state):
+        return PRESSURE_NOT_ASSESSED
+    livor_id = state.get("selettore_macchie_id")
+    if livor_id is not None and not pressure_can_change_range(livor_id):
         return PRESSURE_NOT_ASSESSED
     chosen = state.get(PRESSURE_KEY, PRESSURE_NOT_ASSESSED)
     return chosen if chosen in PRESSURE_OPTIONS else PRESSURE_NOT_ASSESSED
@@ -42,6 +45,19 @@ def effective_livor_pressure(state):
 def pressure_is_applicable(livor_id):
     """La domanda ha senso solo quando le ipostasi sono presenti e attendibili."""
     return livor_id not in (None, LIVOR_NOT_ASSESSED, LIVOR_ABSENT, LIVOR_UNRELIABLE)
+
+
+def pressure_can_change_range(livor_id):
+    """Mostra il controllo solo se almeno una risposta restringe i limiti."""
+    if not pressure_is_applicable(livor_id):
+        return False
+    # Import locale: evita dipendenze circolari durante l'inizializzazione.
+    from app.tanatology_data import LIVOR_RANGES_BY_ID
+    interval = LIVOR_RANGES_BY_ID.get(livor_id)
+    if interval is None:
+        return False
+    lo, hi = interval
+    return lo < 1 or hi > 20
 
 
 def intersect_livor_pressure(livor_range, pressure_option):
@@ -67,8 +83,8 @@ def render_livor_pressure_input(livor_id, label):
 
     if not pressure_is_enabled(st.session_state):
         return PRESSURE_NOT_ASSESSED
-    if not pressure_is_applicable(livor_id):
-        # Quando le ipostasi non sono valutabili/presenti, non usare un vecchio
+    if not pressure_can_change_range(livor_id):
+        # Quando nessuna risposta può restringere il range, non usare un vecchio
         # risultato di digitopressione eventualmente rimasto nella sessione.
         st.session_state[PRESSURE_KEY] = PRESSURE_NOT_ASSESSED
         return PRESSURE_NOT_ASSESSED
