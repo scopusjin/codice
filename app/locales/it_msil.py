@@ -6,6 +6,11 @@ from __future__ import annotations
 from app.tanatology_states import (
     LIVOR_NOT_ASSESSED,
     LIVOR_ABSENT,
+    LIVOR_CONFLUING,
+    LIVOR_CONFLUENT,
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE,
+    LIVOR_FULLY_MIGRATABLE,
+    LIVOR_PARTIALLY_MIGRATABLE,
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
     LIVOR_FIXED,
     RIGOR_NOT_ASSESSED,
@@ -20,6 +25,11 @@ from app.tanatology_states import (
 MSIL_LIVOR_LABEL_IT_BY_ID = {
     LIVOR_NOT_ASSESSED: "🩸 IPOSTASI?",
     LIVOR_ABSENT: "Ipostasi assenti",
+    LIVOR_CONFLUING: "Ipostasi presenti, non confluenti",
+    LIVOR_CONFLUENT: "Ipostasi confluenti",
+    LIVOR_FULLY_MIGRATABLE: "Ipostasi completamente migrabili",
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Ipostasi confluenti e completamente migrabili",
+    LIVOR_PARTIALLY_MIGRATABLE: "Ipostasi parzialmente migrabili",
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Ipostasi almeno in parte migrabili",
     LIVOR_FIXED: "Ipostasi non migrabili",
 }
