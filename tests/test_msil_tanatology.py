@@ -19,6 +19,11 @@ class MSILTanatologyMappingTests(unittest.TestCase):
         expected = {
             "🩸 IPOSTASI?": "Non valutate",
             "Ipostasi assenti": "Non ancora comparse",
+            "Ipostasi presenti, non confluenti": "In via di confluenza",
+            "Ipostasi confluenti": "Confluenti (migrabilità non valutata)",
+            "Ipostasi completamente migrabili": "Completamente migrabili",
+            "Ipostasi confluenti e completamente migrabili": "Confluenti e completamente migrabili",
+            "Ipostasi parzialmente migrabili": "Parzialmente migrabili",
             "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
             "Ipostasi non migrabili": "Fisse",
         }
