@@ -357,7 +357,7 @@ def _render_combined_table(language: str) -> None:
         ("lividity", "[1, 2]", (
             ("Non ancora comparse", "Not yet apparent", "0–3"),
             ("Presenti, ma non ancora confluite", "Present, but not yet confluent", "0–4"),
-            ("Confluite; migrabilità non valutata", "Confluent; shifting not assessed", "≥ 1"),
+            ("Confluite; migrabilità non specificata o non valutata", "Confluent; shifting unspecified or not assessed", "≥ 1"),
             ("Completamente migrabili (confluenza non specificata)", "Fully shiftable; confluence not specified", "0–6"),
             ("Confluite e completamente migrabili", "Confluent and fully shiftable", "1–6"),
             ("Parzialmente migrabili", "Partially shiftable", "4–24"),
@@ -367,21 +367,18 @@ def _render_combined_table(language: str) -> None:
             ("Scomparsa non completa alla digitopressione", "Incomplete fading under finger pressure", "≥ 1"),
         )),
         ("rigor", "[1–4]", (
-            ("Non ancora apprezzabile", "Not yet appreciable", "≤ 7"),
-            ("Presente", "Present", "≥ 0.5"),
-            ("Non ancora completa e generalizzata", "Not yet complete and generalized", "≤ 20"),
-            ("Completa, intensa e generalizzata", "Complete, intense and generalized", "≥ 2"),
-            ("Ricompare dopo mobilizzazione", "Re-establishes after passive mobilization", "≤ 19 [4]"),
-            ("Non ricompare dopo mobilizzazione", "Does not re-establish after passive mobilization", "≥ 2"),
-            ("Risoluzione non ancora iniziata", "Resolution not yet started", "≤ 96"),
-            ("Risoluzione iniziata", "Resolution started", "≥ 24"),
-            ("Non completamente risolta", "Not completely resolved", "≤ 192"),
+            ("Non ancora apprezzabile", "Not yet appreciable", "0–7"),
+            ("Presente, in via di intensificazione e generalizzazione", "Present, developing and spreading", "0,5–20"),
+            ("Presente, intensa e generalizzata", "Present, intense and generalized", "2–96"),
+            ("In via di risoluzione", "Resolving", "24–192"),
             ("Completamente risolta", "Completely resolved", "≥ 24"),
+            ("Si riforma dopo essere stata vinta (se presente e non ancora completa o completa)", "Re-establishes after being broken (if present, developing or fully developed)", "≤ 19 [4]"),
         )),
         ("mechanical", "[1, 5]", (
-            ("Contrazione dell’intero muscolo alla percussione (fenomeno di Zsako)", "Whole-muscle contraction following percussion (Zsako’s phenomenon)", "≤ 2.5"),
-            ("Tumefazione locale alla percussione (contrazione idiomuscolare)", "Local swelling following percussion (idiomuscular contraction)", "≤ 13"),
-            ("Assenza di tumefazione locale alla percussione", "No local swelling following percussion", "≥ 1.5"),
+            ("Contrazione dell’intero muscolo alla percussione (fenomeno di Zsako)", "Whole-muscle contraction following percussion (Zsako’s phenomenon)", "0–2,5"),
+            ("Tumefazione reversibile alla percussione", "Reversible swelling following percussion", "0–5"),
+            ("Piccola tumefazione persistente alla percussione", "Small persistent swelling following percussion", "0–13"),
+            ("Nessuna reazione alla percussione", "No response following percussion", "≥ 1,5"),
         )),
         ("eyebrow", "[1, 3]", (
             ("Fase VI — fronte, orbita e guancia", "Phase VI — forehead, orbicular region and cheek", "0–6"),
@@ -456,6 +453,11 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     _reference_caption(text["intro"])
+    _reference_caption(
+        "Per la rigidità, la ricomparsa dopo mobilizzazione forzata restringe il limite massimo a 19 ore soltanto quando il fenomeno è valutabile; la mancata ricomparsa non aggiunge limiti autonomi. Per ipostasi e rigidità, i risultati delle sottodomande si intersecano con l’intervallo della condizione principale."
+        if language == "it" else
+        "For rigor, re-establishment after passive mobilization limits the maximum to 19 hours only when assessable; lack of re-establishment does not supply an independent time limit. For lividity and rigor, subsidiary findings intersect with the primary condition's interval."
+    )
     _reference_caption(phase_note[language])
     _reference_caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
