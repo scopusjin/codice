@@ -20,6 +20,8 @@ from typing import Dict
 LIVOR_NOT_ASSESSED = "livor_not_assessed"
 LIVOR_ABSENT = "livor_absent"
 LIVOR_CONFLUING = "livor_confluing"
+LIVOR_CONFLUENT = "livor_confluent"
+LIVOR_CONFLUENT_FULLY_MIGRATABLE = "livor_confluent_fully_migratable"
 LIVOR_FULLY_MIGRATABLE = "livor_fully_migratable"
 LIVOR_PARTIALLY_MIGRATABLE = "livor_partially_migratable"
 LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE = "livor_at_least_partially_migratable"
@@ -30,6 +32,8 @@ LIVOR_LABEL_IT: Dict[str, str] = {
     LIVOR_NOT_ASSESSED: "Non valutate",
     LIVOR_ABSENT: "Non ancora comparse",
     LIVOR_CONFLUING: "In via di confluenza",
+    LIVOR_CONFLUENT: "Confluenti (migrabilità non valutata)",
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluenti e completamente migrabili",
     LIVOR_FULLY_MIGRATABLE: "Completamente migrabili",
     LIVOR_PARTIALLY_MIGRATABLE: "Parzialmente migrabili",
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Migrabili perlomeno parzialmente",
@@ -95,6 +99,8 @@ __all__ = [
     "LIVOR_NOT_ASSESSED",
     "LIVOR_ABSENT",
     "LIVOR_CONFLUING",
+    "LIVOR_CONFLUENT",
+    "LIVOR_CONFLUENT_FULLY_MIGRATABLE",
     "LIVOR_FULLY_MIGRATABLE",
     "LIVOR_PARTIALLY_MIGRATABLE",
     "LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE",
