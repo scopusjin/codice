@@ -17,13 +17,13 @@
     display: block;
     width: 100%;
     min-width: 0;
-    min-height: 34px;
-    padding: 4px 6px;
+    min-height: 30px;
+    padding: 3px 6px;
     border: 1px solid var(--line, #dde3e5);
     border-radius: 6px;
     background: var(--bg, #ffffff);
     color: var(--ink, #263238);
-    font: 400 13px/1.35 Arial, sans-serif;
+    font: 400 12px/1.3 Arial, sans-serif;
     /* Il menu nativo del browser si sovrappone alla pagina, senza aumentare
        l'altezza del componente o inserire pulsanti radio in un popover. */
     appearance: auto;
@@ -39,8 +39,8 @@
   }
   @media (pointer: coarse) {
     #livor-choice {
-      min-height: 44px;
-      font-size: 16px;
+      min-height: 40px;
+      font-size: 14px;
     }
   }
 </style>
@@ -72,13 +72,14 @@
     const chosen = choices.includes(args.value) ? args.value : (choices[0] || "");
     if (select.value !== chosen) select.value = chosen;
 
+    select.setAttribute("aria-label", args.aria_label || "Macchie ipostatiche");
     const dark = args.dark === true;
     document.documentElement.style.setProperty("--bg", dark ? "#15191f" : "#ffffff");
     document.documentElement.style.setProperty("--ink", dark ? "#edf1f3" : "#263238");
     document.documentElement.style.setProperty("--line", dark ? "#3b454f" : "#dde3e5");
     select.disabled = choices.length === 0;
     send("streamlit:setFrameHeight", {
-      height: window.matchMedia("(pointer: coarse)").matches ? 46 : 36
+      height: window.matchMedia("(pointer: coarse)").matches ? 42 : 32
     });
   }
 
