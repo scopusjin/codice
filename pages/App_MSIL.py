@@ -12,6 +12,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 from app.graphing import aggiorna_grafico
 from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
+from app.livor_picker import render_livor_picker
 from app.cooling_inputs import finite_number
 from app.fc_scenarios import scenario_temperature_bounds
 from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
@@ -285,10 +286,11 @@ _RIGIDITA_MOBILE = MSIL_RIGOR_STATE_BY_LABEL
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
-    scelta_ipostasi_lbl = st.selectbox(
-        i18n.ui_text("msil.livor_select_label"), ip_keys,
-        index=(ip_keys.index("🩸 IPOSTASI?") if "🩸 IPOSTASI?" in ip_keys else 0),
-        key="selettore_macchie_mobile", label_visibility="collapsed",
+    scelta_ipostasi_lbl = render_livor_picker(
+        ip_keys,
+        state_key="selettore_macchie_mobile",
+        picker_key="livor_picker_msil",
+        default_label="🩸 IPOSTASI?",
     )
     selettore_macchie = msil_livor_legacy_value(scelta_ipostasi_lbl)
     render_livor_pressure_input(
