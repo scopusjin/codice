@@ -26,6 +26,7 @@ from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
+from app.rigor_reformation import effective_rigor_reformation, render_rigor_reformation_input
 from app.livor_picker import render_livor_picker
 from app.cooling_inputs import missing_cooling_inputs
 from app.ambient_temperature import MODE_KEY, render_temperature_inputs
@@ -602,6 +603,7 @@ with primary_cards.container(border=True, key="full_signs_card"):
         st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
         selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
         st.session_state["selettore_rigidita"] = selettore_rigidita
+        render_rigor_reformation_input(st.session_state["selettore_rigidita_id"])
 
 # Parametri aggiuntivi: sezione compatta, chiusa all'avvio e aperta soltanto
 # quando serve. Il toggle conserva la precedente semantica di inclusione.
@@ -779,6 +781,7 @@ def _inputs_signature():
         _freeze(st.session_state.get("input_ora_rilievo")),
         _freeze(st.session_state.get("selettore_macchie") if "selettore_macchie" in st.session_state else None),
         _freeze(effective_livor_pressure(st.session_state)),
+        _freeze(effective_rigor_reformation(st.session_state)),
         _freeze(st.session_state.get("selettore_rigidita") if "selettore_rigidita" in st.session_state else None),
         _freeze(st.session_state.get("rt_val")),
         _freeze(st.session_state.get("ta_base_val") if "ta_base_val" in st.session_state else None),
@@ -1056,6 +1059,7 @@ if st.session_state["show_results"]:
             selettore_macchie=selettore_macchie,
             selettore_rigidita=selettore_rigidita,
             livor_digitopressione=effective_livor_pressure(st.session_state),
+            rigor_reformation=effective_rigor_reformation(st.session_state),
             input_rt=(input_rt if considera_raffreddamento else None),
             input_ta=(input_ta if considera_raffreddamento else None),
             input_tm=(input_tm if considera_raffreddamento else None),
