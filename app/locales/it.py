@@ -13,6 +13,8 @@ from app.tanatology_states import (
     LIVOR_NOT_ASSESSED,
     LIVOR_ABSENT,
     LIVOR_CONFLUING,
+    LIVOR_CONFLUENT,
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE,
     LIVOR_FULLY_MIGRATABLE,
     LIVOR_PARTIALLY_MIGRATABLE,
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE,
@@ -27,6 +29,9 @@ from app.tanatology_states import (
     RIGOR_UNRELIABLE,
     LIVOR_LABEL_IT,
     RIGOR_LABEL_IT,
+)
+from app.livor_digitopressione import (
+    PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING,
 )
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
@@ -69,6 +74,16 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
         "Secondo i limiti massimi segnalati in letteratura scientifica, questo indica che fossero trascorse meno di 4 ore "
         "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
     ),
+    LIVOR_CONFLUENT: (
+        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluenti; "
+        "la migrabilità non è stata valutata. Il criterio della confluenza suggerisce "
+        "che fosse trascorsa almeno 1 ora dal decesso, senza fornire un limite massimo utile."
+    ),
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE: (
+        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluenti e completamente migrabili. "
+        "Combinando i limiti della confluenza e della migrabilità completa, "
+        "si ottiene un intervallo da 1 a 6 ore dal decesso."
+    ),
     LIVOR_FULLY_MIGRATABLE: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
         "si trovassero in una fase di migrabilità totale. Secondo i limiti massimi segnalati in letteratura scientifica, questo indica "
@@ -97,6 +112,18 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
     LIVOR_UNRELIABLE: (
         "Le macchie ipostatiche non sono state valutate o i rilievi non sono considerati attendibili "
         "per la stima dell'epoca della morte."
+    ),
+}
+
+
+LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID = {
+    PRESSURE_COMPLETE_FADING: (
+        "Alla digitopressione le macchie ipostatiche scomparivano completamente; "
+        "questo reperto fornisce un limite massimo di 20 ore post-mortem."
+    ),
+    PRESSURE_INCOMPLETE_FADING: (
+        "Alla digitopressione le macchie ipostatiche non scomparivano completamente; "
+        "questo reperto fornisce un limite minimo di 1 ora post-mortem."
     ),
 }
 
@@ -294,6 +321,10 @@ SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL = {
 
 def livor_description_it(state_id: str):
     return LIVOR_DESCRIPTION_IT_BY_ID.get(state_id)
+
+
+def livor_pressure_description_it(option_id: str):
+    return LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID.get(option_id)
 
 
 def rigor_description_it(state_id: str):
@@ -594,6 +625,7 @@ def cooling_input_paragraph(
 
 __all__ = [
     "LIVOR_DESCRIPTION_IT_BY_ID",
+    "LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
     "SPECIAL_DESCRIPTION_IT_BY_ID",
     "SPECIAL_GRAPH_LABEL_IT_BY_ID",
@@ -602,6 +634,7 @@ __all__ = [
     "SPECIAL_DESCRIPTIONS_LEGACY_BY_PARAM_LABEL",
     "NOMI_BREVI_LEGACY",
     "livor_description_it",
+    "livor_pressure_description_it",
     "rigor_description_it",
     "livor_description_from_legacy_it",
     "rigor_description_from_legacy_it",
