@@ -56,6 +56,9 @@ class CombinedReferencePresentationTests(unittest.TestCase):
         description = " ".join(row[0] for row in self.groups["lividity"][1])
         self.assertNotIn("massima estensione", description.lower())
         self.assertIn("digitopressione", description)
+        self.assertIn("non ancora confluite", description)
+        self.assertIn("Confluite e completamente migrabili", description)
+        self.assertNotIn("confluenti", description.lower())
 
     def test_supraciliary_phase_intervals_match_engine(self):
         references, rows = self.groups["eyebrow"]
