@@ -16,6 +16,7 @@ from app.parameters import dati_parametri_aggiuntivi
 from app.livor_digitopressione import (
     PRESSURE_NOT_ASSESSED, intersect_livor_pressure, pressure_is_applicable,
 )
+from app.rigor_reformation import REFORMATION_NOT_ASSESSED, intersect_rigor_reformation
 from app.tanatology_states import (
     LIVOR_ID_BY_LEGACY_LABEL,
     RIGOR_ID_BY_LEGACY_LABEL,
@@ -79,6 +80,7 @@ def resolve_base_tanatology_ranges(
     livor_legacy_label: str,
     rigor_legacy_label: str,
     livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
+    rigor_reformation: str = REFORMATION_NOT_ASSESSED,
 ) -> BaseTanatologyRanges:
     """Restituisce i range legacy e, se valutata, l'intersezione con la digitopressione.
 
@@ -97,8 +99,8 @@ def resolve_base_tanatology_ranges(
             LIVOR_TYPICAL_RANGES_BY_ID.get(livor_id), livor_digitopressione
         ),
         rigor_id=rigor_id,
-        rigor_range=RIGOR_RANGES_BY_ID.get(rigor_id),
-        rigor_typical_range=RIGOR_TYPICAL_RANGES_BY_ID.get(rigor_id),
+        rigor_range=intersect_rigor_reformation(RIGOR_RANGES_BY_ID.get(rigor_id), rigor_reformation),
+        rigor_typical_range=intersect_rigor_reformation(RIGOR_TYPICAL_RANGES_BY_ID.get(rigor_id), rigor_reformation),
     )
 
 
