@@ -60,6 +60,15 @@ from app.special_tanatology_states import (
 )
 
 
+# Etichette mostrate nella pagina completa: le chiavi legacy, usate dal motore
+# e dai file già salvati, restano in LIVOR_LABEL_IT.
+LIVOR_LABEL_BY_ID = {
+    **LIVOR_LABEL_IT,
+    LIVOR_CONFLUENT: "Confluite (migrabilità non valutata)",
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluite e completamente migrabili",
+}
+
+
 LIVOR_DESCRIPTION_IT_BY_ID = {
     LIVOR_NOT_ASSESSED: (
         "Le macchie ipostatiche non sono state valutate."
@@ -75,12 +84,12 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
         "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
     ),
     LIVOR_CONFLUENT: (
-        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluenti; "
+        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluite; "
         "la migrabilità non è stata valutata. Il criterio della confluenza suggerisce "
         "che fosse trascorsa almeno 1 ora dal decesso, senza fornire un limite massimo utile."
     ),
     LIVOR_CONFLUENT_FULLY_MIGRATABLE: (
-        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluenti e completamente migrabili. "
+        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluite e completamente migrabili. "
         "Combinando i limiti della confluenza e della migrabilità completa, "
         "si ottiene un intervallo da 1 a 6 ore dal decesso."
     ),
@@ -624,6 +633,7 @@ def cooling_input_paragraph(
 
 
 __all__ = [
+    "LIVOR_LABEL_BY_ID",
     "LIVOR_DESCRIPTION_IT_BY_ID",
     "LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID",
     "RIGOR_DESCRIPTION_IT_BY_ID",
