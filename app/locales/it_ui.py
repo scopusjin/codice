@@ -96,7 +96,7 @@ UI_TEXT = {
         "<b>“Aggiungi data/ora rilievi”</b>."
         "</div>"
     ),
-    "full.livor_pressure_label": "Alla digitopressione le macchie ipostatiche scompaiono completamente?",
+    "full.livor_pressure_label": "Scomparsa alla digitopressione?",
     "full.assessed_different_time": "Valutato ad un'ora diversa?",
     "full.measurement_date": "Data rilievo:",
     "full.measurement_time": "Ora rilievo:",
@@ -118,7 +118,7 @@ UI_TEXT = {
     "msil.inspection_date": "Data ispezione legale",
     "msil.inspection_time": "Ora ispezione legale (HH:MM)",
     "msil.livor_select_label": "Macchie ipostatiche",
-    "msil.livor_pressure_label": "Alla digitopressione scompaiono completamente?",
+    "msil.livor_pressure_label": "Scomparsa alla digitopressione?",
     "msil.rigor_select_label": "Rigidità cadaverica",
     "msil.rectal_temp": "T. rettale (°C)",
     "msil.ta_mean": "T. ambientale media (°C)",
