@@ -58,6 +58,7 @@ class CombinedReferencePresentationTests(unittest.TestCase):
         self.assertIn("digitopressione", description)
         self.assertIn("non ancora confluite", description)
         self.assertIn("Confluite e completamente migrabili", description)
+        self.assertIn("Completamente migrabili (confluenza non specificata)", description)
         self.assertNotIn("confluenti", description.lower())
 
     def test_supraciliary_phase_intervals_match_engine(self):
