@@ -1,42 +1,26 @@
-"""Scelta compatta degli stati delle ipostasi, condivisa dalle due interfacce.
+"""Menu nativo compatto per le ipostasi, condiviso da Full e sopralluogo.
 
-Le opzioni restano tutte visibili all'interno dell'elenco aperto; il valore
-selezionato usa le chiavi UI esistenti per i casi salvati e il motore.
+La selezione usa sempre le chiavi logiche preesistenti; il componente HTML
+visualizza un <select> nativo, come quello per la superficie di appoggio FC.
 """
 
-_STYLE = """
-<style>
-/* Come la tendina Appoggio dell'helper FC: testo compatto da 13 px.
-   Il popover e la radio nativi gestiscono apertura e selezione. */
-[class*="st-key-livor_picker_"] [data-testid="stPopoverButton"] p,
-[class*="st-key-livor_picker_"] button p {
-    font-size: 13px !important;
-    line-height: 1.2 !important;
-    font-weight: 400 !important;
-    white-space: normal !important;
-    text-align: left !important;
-}
-[class*="st-key-livor_options_"] [role="radiogroup"] {
-    gap: 0.12rem !important;
-}
-[class*="st-key-livor_options_"] [role="radiogroup"] > label {
-    min-height: 23px;
-    margin: 0 !important;
-    padding: 0.1rem 0.2rem !important;
-}
-[class*="st-key-livor_options_"] [role="radiogroup"] > label p {
-    font-size: 13px !important;
-    line-height: 1.2 !important;
-}
-</style>
-"""
+from pathlib import Path
+
+import streamlit.components.v1 as components
+
+
+_FRONTEND = (Path(__file__).resolve().parent / "livor_picker_frontend").absolute()
+_native_select = components.declare_component(
+    "mortem_livor_native_select",
+    path=str(_FRONTEND),
+)
 
 
 def render_livor_picker(options, *, state_key, picker_key, default_label=None):
-    """Popover compatto con tutte le risposte e la chiave di selezione storica.
+    """Menu browser sovrapposto alla pagina senza espandere il contenitore.
 
-    La scelta si scrive soltanto nel widget originale; nessuna nuova copia
-    indipendente dello stato tanatologico viene introdotta.
+    La sorgente di verità resta st.session_state[state_key], così i casi
+    salvati, il motore e gli ID delle ipostasi restano compatibili.
     """
     import streamlit as st
 
@@ -47,15 +31,20 @@ def render_livor_picker(options, *, state_key, picker_key, default_label=None):
     selected = st.session_state.get(state_key)
     if selected not in choices:
         selected = default_label if default_label in choices else choices[0]
-        st.session_state[state_key] = selected
 
-    st.html(_STYLE)
-    with st.popover(selected, key=picker_key, width="stretch"):
-        with st.container(key="livor_options_" + picker_key, gap="xsmall"):
-            selected = st.radio(
-                "Macchie ipostatiche",
-                options=choices,
-                key=state_key,
-                label_visibility="collapsed",
-            )
+    # Un caso JSON appena importato deve avere un nuovo stato del componente,
+    # senza riproporre la scelta del caso precedente durante il primo render.
+    case_instance = st.session_state.get("__case_ui_id", "")
+    component_key = f"{picker_key}_{case_instance}" if case_instance else picker_key
+    dark = str(st.get_option("theme.base") or "light").lower() == "dark"
+    from_browser = _native_select(
+        options=list(choices),
+        value=selected,
+        dark=dark,
+        key=component_key,
+        default=selected,
+    )
+    if from_browser in choices:
+        selected = from_browser
+    st.session_state[state_key] = selected
     return selected
