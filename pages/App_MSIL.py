@@ -286,17 +286,19 @@ _RIGIDITA_MOBILE = MSIL_RIGOR_STATE_BY_LABEL
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
-    scelta_ipostasi_lbl = render_livor_picker(
-        ip_keys,
-        state_key="selettore_macchie_mobile",
-        picker_key="livor_picker_msil",
-        default_label="🩸 IPOSTASI?",
-    )
-    selettore_macchie = msil_livor_legacy_value(scelta_ipostasi_lbl)
-    render_livor_pressure_input(
-        _IPOSTASI_MOBILE[scelta_ipostasi_lbl],
-        i18n.ui_text("msil.livor_pressure_label"),
-    )
+    # Riduce la separazione tra ipostasi e digitopressione su mobile.
+    with st.container(gap=None, key="msil_livor_input_stack"):
+        scelta_ipostasi_lbl = render_livor_picker(
+            ip_keys,
+            state_key="selettore_macchie_mobile",
+            picker_key="livor_picker_msil",
+            default_label="🩸 IPOSTASI?",
+        )
+        selettore_macchie = msil_livor_legacy_value(scelta_ipostasi_lbl)
+        render_livor_pressure_input(
+            _IPOSTASI_MOBILE[scelta_ipostasi_lbl],
+            i18n.ui_text("msil.livor_pressure_label"),
+        )
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
