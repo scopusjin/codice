@@ -589,14 +589,19 @@ def parameter_summary(labels: list[str]) -> str:
 def potente_paragraph(duration: str, days: str, high_temperature: bool = False) -> str:
     if high_temperature:
         return (
-            "<ul><li>Per temperature ambientali &gt;23 °C, il metodo di Henssge utilizza un modello derivato da casistiche numericamente limitate. "
-            "Secondo Potente et al., quando Q ≤0.5, l’intervallo post-mortale calcolato non dispone di limiti di confidenza adeguatamente validati e deve pertanto essere considerato poco affidabile. "
-            "In tali condizioni gli Autori propongono, in via prudenziale, di indicare soltanto il tempo minimo trascorso dal decesso. "
-            f"Applicato al caso specifico, il metodo proposto da Potente et al. suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} (≈ {days} giorni) dal decesso.</li></ul>"
+            "<ul><li>Per temperature ambientali superiori a 23 °C, il metodo di Henssge "
+            "si basa su casistiche numericamente limitate. Il grado di raffreddamento corporeo "
+            "rilevato non consente di ottenere un intervallo temporale sufficientemente attendibile. "
+            "In tali condizioni, secondo il metodo proposto da Potente et al., è possibile stimare "
+            "soltanto un tempo minimo trascorso dal decesso. "
+            f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso.</li></ul>"
         )
     return (
-        "<ul><li>Il metodo proposto da Potente et al., basato sul modello di raffreddamento di Henssge, consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
-        f"Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} (≈ {days} giorni) dal decesso.</li></ul>"
+        "<ul><li>Il grado di raffreddamento corporeo rilevato non consente di ottenere un intervallo "
+        "temporale sufficientemente attendibile mediante il metodo di Henssge. "
+        "In tali condizioni, secondo il metodo proposto da Potente et al., è possibile stimare "
+        "soltanto un tempo minimo trascorso dal decesso. "
+        f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso.</li></ul>"
     )
 
 
