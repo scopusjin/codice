@@ -837,8 +837,9 @@ st.markdown(
     "<div class='method-section-title'>Metodi basati sul raffreddamento cadaverico</div>"
     if table_language == "it" else
     "<div class='method-section-title'>Methods based on body cooling</div>"
+    , unsafe_allow_html=True
 )
-st.markdown("<div class='method-subtitle'>Metodo di Henssge</div>" if table_language == "it" else "<div class='method-subtitle'>Henssge method</div>")
+st.markdown("<div class='method-subtitle'>Metodo di Henssge</div>" if table_language == "it" else "<div class='method-subtitle'>Henssge method</div>", unsafe_allow_html=True)
 st.caption(
     "Il metodo di Henssge permette di stimare il tempo trascorso dal decesso sulla base della "
     "temperatura rettale, della temperatura ambientale media, del peso corporeo e di un fattore "
@@ -870,7 +871,7 @@ st.caption(
     "t: time since death; A and B: model coefficients."
 )
 _reference_caption("Henssge, 1988.")
-st.markdown("<div class='method-subtitle'>Metodo di Potente et al.</div>" if table_language == "it" else "<div class='method-subtitle'>Potente et al. method</div>")
+st.markdown("<div class='method-subtitle'>Metodo di Potente et al.</div>" if table_language == "it" else "<div class='method-subtitle'>Potente et al. method</div>", unsafe_allow_html=True)
 st.caption(
     "Quando il grado di raffreddamento corporeo non consente di ottenere un intervallo temporale "
     "sufficientemente attendibile mediante il metodo di Henssge, Potente et al. propongono "
@@ -882,7 +883,7 @@ st.caption(
     "corresponding to the time needed to reach the critical degree of cooling."
 )
 _reference_caption("Potente et al., 2017.")
-st.markdown("<div class='method-subtitle'>Fattore di correzione (FC)</div>" if table_language == "it" else "<div class='method-subtitle'>Correction factor (FC)</div>")
+st.markdown("<div class='method-subtitle'>Fattore di correzione (FC)</div>" if table_language == "it" else "<div class='method-subtitle'>Correction factor (FC)</div>", unsafe_allow_html=True)
 st.markdown(
     "<div class='henssge-table-title'>"
     + ("FC di base" if table_language == "it" else "Basic FC")
@@ -912,6 +913,7 @@ st.markdown(
     "<div class='method-section-title'>Altri criteri tanatologici</div>"
     if table_language == "it" else
     "<div class='method-section-title'>Other postmortem criteria</div>"
+    , unsafe_allow_html=True
 )
 st.caption(
     "Ipostasi, rigidità ed eccitabilità residua forniscono limiti temporali "
