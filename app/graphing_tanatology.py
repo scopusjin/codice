@@ -13,7 +13,9 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from app.parameters import dati_parametri_aggiuntivi
-from app.livor_digitopressione import PRESSURE_NOT_ASSESSED, intersect_livor_pressure
+from app.livor_digitopressione import (
+    PRESSURE_NOT_ASSESSED, intersect_livor_pressure, pressure_is_applicable,
+)
 from app.tanatology_states import (
     LIVOR_ID_BY_LEGACY_LABEL,
     RIGOR_ID_BY_LEGACY_LABEL,
@@ -85,6 +87,8 @@ def resolve_base_tanatology_ranges(
     """
     livor_id = LIVOR_ID_BY_LEGACY_LABEL.get(livor_legacy_label)
     rigor_id = RIGOR_ID_BY_LEGACY_LABEL.get(rigor_legacy_label)
+    if not pressure_is_applicable(livor_id):
+        livor_digitopressione = PRESSURE_NOT_ASSESSED
 
     return BaseTanatologyRanges(
         livor_id=livor_id,
