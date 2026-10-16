@@ -375,7 +375,7 @@ def _render_combined_table(language: str) -> None:
             ("Si riforma dopo essere stata vinta", "Re-establishes after being broken", "≤ 19 [4]"),
         )),
         ("mechanical", "[1, 5]", (
-            ("Contrazione dell’intero muscolo alla percussione (fenomeno di Zsako)", "Whole-muscle contraction following percussion (Zsako’s phenomenon)", "0–2,5"),
+            ("Contrazione dell’intero muscolo alla percussione", "Whole-muscle contraction following percussion", "0–2,5"),
             ("Tumefazione reversibile alla percussione", "Reversible swelling following percussion", "0–5"),
             ("Piccola tumefazione persistente alla percussione", "Small persistent swelling following percussion", "0–13"),
             ("Nessuna reazione alla percussione", "No response following percussion", "≥ 1,5"),
