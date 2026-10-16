@@ -27,7 +27,7 @@ MSIL_LIVOR_LABEL_IT_BY_ID = {
     LIVOR_ABSENT: "Ipostasi assenti",
     LIVOR_CONFLUING: "Ipostasi presenti, non confluite",
     LIVOR_CONFLUENT: "Ipostasi confluite",
-    LIVOR_FULLY_MIGRATABLE: "Ipostasi completamente migrabili",
+    LIVOR_FULLY_MIGRATABLE: "Ipostasi completamente migrabili (confluenza non specificata)",
     LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Ipostasi confluite e completamente migrabili",
     LIVOR_PARTIALLY_MIGRATABLE: "Ipostasi parzialmente migrabili",
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Ipostasi almeno in parte migrabili",
