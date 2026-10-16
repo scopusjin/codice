@@ -793,7 +793,18 @@ def aggiorna_grafico(
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
     if not macchie_non_valutate:
         testo_macchie = i18n.livor_description(base_tanatology.livor_id)
-        if macchie_range_valido and livor_digitopressione != PRESSURE_NOT_ASSESSED and testo_macchie:
+        if (
+            base_tanatology.livor_id == "livor_partially_migratable"
+            and livor_digitopressione == "complete_fading"
+            and macchie_range == (4, 20)
+        ):
+            testo_macchie = (
+                "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+                "si trovassero in una fase di migrabilità parziale e fossero improntabili. "
+                "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, "
+                "questo suggerisce che fossero trascorse tra 4 e 20 ore dal decesso."
+            )
+        elif macchie_range_valido and livor_digitopressione != PRESSURE_NOT_ASSESSED and testo_macchie:
             # Una sola descrizione e un solo intervallo, già intersecato dal motore.
             descrizione_reperto = testo_macchie.split(". ", 1)[0].rstrip(".")
             scomparsa = (
