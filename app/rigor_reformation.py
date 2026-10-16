@@ -68,7 +68,7 @@ def render_rigor_reformation_input(rigor_id):
     """)
     with st.container(key="rigor_reformation_subquestion", gap=None):
         return st.selectbox(
-            "La rigidità si riforma dopo essere stata vinta?",
+            "Si riforma dopo essere stata vinta?",
             options=REFORMATION_OPTIONS,
             format_func=lambda value: REFORMATION_LABELS[value],
             key=REFORMATION_KEY,
