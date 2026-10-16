@@ -72,23 +72,30 @@ def render_livor_pressure_input(livor_id, label):
         # risultato di digitopressione eventualmente rimasto nella sessione.
         st.session_state[PRESSURE_KEY] = PRESSURE_NOT_ASSESSED
         return PRESSURE_NOT_ASSESSED
-    # L'etichetta è una caption come il range di temperatura; il gruppo è
-    # leggermente rientrato rispetto alla selezione principale delle ipostasi.
+    # Un solo widget elimina lo spazio fra caption e risposta.
+    # L'etichetta conserva il formato ridotto e il rientro da sottodomanda.
+    st.html("""
+    <style>
+    [class*="st-key-livor_pressure_subquestion"] {
+        padding-left: 0.75rem !important;
+    }
+    [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] > label,
+    [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] > label p {
+        font-size: 0.8rem !important;
+        line-height: 1.1 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-weight: 400 !important;
+    }
+    </style>
+    """)
     with st.container(key="livor_pressure_subquestion", gap=None):
-        st.html("""
-        <style>
-        [class*="st-key-livor_pressure_subquestion"] {
-            padding-left: 0.75rem !important;
-        }
-        </style>
-        """)
-        st.caption(label)
         return st.selectbox(
             label,
             options=PRESSURE_OPTIONS,
             format_func=lambda value: PRESSURE_LABEL_IT[value],
             key=PRESSURE_KEY,
-            label_visibility="collapsed",
+            label_visibility="visible",
             help=(
                 "Valuta lo sbiancamento delle macchie ipostatiche con una digitopressione. "
                 "Non equivale alla migrabilità dopo cambiamento di posizione. "
