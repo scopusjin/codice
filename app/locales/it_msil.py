@@ -25,10 +25,10 @@ from app.tanatology_states import (
 MSIL_LIVOR_LABEL_IT_BY_ID = {
     LIVOR_NOT_ASSESSED: "🩸 IPOSTASI?",
     LIVOR_ABSENT: "Ipostasi assenti",
-    LIVOR_CONFLUING: "Ipostasi presenti, non confluenti",
-    LIVOR_CONFLUENT: "Ipostasi confluenti",
+    LIVOR_CONFLUING: "Ipostasi presenti, non confluite",
+    LIVOR_CONFLUENT: "Ipostasi confluite",
     LIVOR_FULLY_MIGRATABLE: "Ipostasi completamente migrabili",
-    LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Ipostasi confluenti e completamente migrabili",
+    LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Ipostasi confluite e completamente migrabili",
     LIVOR_PARTIALLY_MIGRATABLE: "Ipostasi parzialmente migrabili",
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Ipostasi almeno in parte migrabili",
     LIVOR_FIXED: "Ipostasi non migrabili",
