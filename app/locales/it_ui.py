@@ -143,7 +143,7 @@ UI_TEXT = {
         "      • Fattore di correzione non stimabile<br><br>\n"
         "      <b>DA RICORDARE:</b><br><br>\n"
         "      • Non usare direttamente la temperatura ambientale misurata, ma ragiona su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stima la temperatura media in cui potrebbe essersi trovato il corpo. Tieni conto di eventuali dati meteorologici.<br>\n"
-        "      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambia posizione al cadavere e valuta se si modificano le ipostasi dopo 20 minuti.<br>\n"
+        "      • Migrabilità e sbiancamento alla digitopressione sono reperti distinti. La migrabilità si valuta dopo il cambiamento di posizione del cadavere; alla digitopressione si verifica se le macchie ipostatiche scompaiono completamente.<br>\n"
         "      • Per il fattore di correzione, considera solo gli indumenti e le coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è indicativo. Prova varie combinazioni e un range di fattori.<br>\n"
         "      • L'applicazione considera di default, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> \n"
         "    </div>"
