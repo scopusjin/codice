@@ -355,17 +355,16 @@ def _render_combined_table(language: str) -> None:
     # Le fasi sopraciliari combinano i limiti di due risposte consecutive.
     groups = (
         ("lividity", "[1, 2]", (
-            ("Non ancora comparse", "Not yet apparent", "≤ 3"),
-            ("Confluenti", "Confluent", "≥ 1"),
-            ("Non ancora confluenti", "Not yet confluent", "≤ 4"),
-            ("Massima estensione e intensità raggiunte", "Maximum extent and intensity reached", "≥ 3"),
-            ("Massima estensione e intensità non ancora raggiunte", "Maximum extent and intensity not yet reached", "≤ 16"),
-            ("Scomparsa completa alla digitopressione", "Fades completely under finger pressure", "≤ 20"),
-            ("Scomparsa non completa alla digitopressione", "Does not fade completely under finger pressure", "≥ 1"),
-            ("Completamente migrabili", "Fully shiftable", "≤ 6"),
-            ("Non completamente migrabili", "Not fully shiftable", "≥ 2"),
-            ("Almeno parzialmente migrabili", "At least partially shiftable", "≤ 24"),
-            ("Non migrabili nemmeno parzialmente", "Not shiftable, even partially", "≥ 4"),
+            ("Non ancora comparse", "Not yet apparent", "0–3"),
+            ("Presenti, ma non ancora confluenti", "Present, but not yet confluent", "0–4"),
+            ("Confluenti; migrabilità non valutata", "Confluent; shifting not assessed", "≥ 1"),
+            ("Completamente migrabili; confluenza non precisata", "Fully shiftable; confluence not specified", "0–6"),
+            ("Confluenti e completamente migrabili", "Confluent and fully shiftable", "1–6"),
+            ("Parzialmente migrabili", "Partially shiftable", "4–24"),
+            ("Migrabili almeno parzialmente, senza precisarne il grado", "Shiftable at least partially, degree unspecified", "0–24"),
+            ("Completamente fisse", "Completely fixed", "≥ 4"),
+            ("Scomparsa completa alla digitopressione", "Complete fading under finger pressure", "0–20"),
+            ("Scomparsa non completa alla digitopressione", "Incomplete fading under finger pressure", "≥ 1"),
         )),
         ("rigor", "[1–4]", (
             ("Non ancora apprezzabile", "Not yet appreciable", "≤ 7"),
