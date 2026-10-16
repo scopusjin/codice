@@ -569,19 +569,21 @@ with primary_cards.container(border=True, key="full_signs_card"):
     with col1:
         livor_heading = i18n.ui_text("full.livor_heading")
         st.markdown(f"<div class='mortem-section-title'>{livor_heading}</div>", unsafe_allow_html=True)
-        scelta_macchie_lbl = render_livor_picker(
-            livor_labels,
-            state_key="selettore_macchie_ui",
-            picker_key="livor_picker_full",
-            default_label=st.session_state.get("selettore_macchie"),
-        )
-        st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
-        selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
-        st.session_state["selettore_macchie"] = selettore_macchie
-        render_livor_pressure_input(
-            st.session_state["selettore_macchie_id"],
-            i18n.ui_text("full.livor_pressure_label"),
-        )
+        # Selettore e sottodomanda costituiscono un unico blocco compatto.
+        with st.container(gap=None, key="full_livor_input_stack"):
+            scelta_macchie_lbl = render_livor_picker(
+                livor_labels,
+                state_key="selettore_macchie_ui",
+                picker_key="livor_picker_full",
+                default_label=st.session_state.get("selettore_macchie"),
+            )
+            st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
+            selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
+            st.session_state["selettore_macchie"] = selettore_macchie
+            render_livor_pressure_input(
+                st.session_state["selettore_macchie_id"],
+                i18n.ui_text("full.livor_pressure_label"),
+            )
 
     with col2:
         rigor_heading = i18n.ui_text("full.rigor_heading")
