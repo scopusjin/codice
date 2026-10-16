@@ -16,7 +16,7 @@ _native_select = components.declare_component(
 )
 
 
-def render_livor_picker(options, *, state_key, picker_key, default_label=None):
+def render_livor_picker(options, *, state_key, picker_key, default_label=None, aria_label="Macchie ipostatiche"):
     """Menu browser sovrapposto alla pagina senza espandere il contenitore.
 
     La sorgente di verità resta st.session_state[state_key], così i casi
@@ -41,6 +41,7 @@ def render_livor_picker(options, *, state_key, picker_key, default_label=None):
         options=list(choices),
         value=selected,
         dark=dark,
+        aria_label=aria_label,
         key=component_key,
         default=selected,
     )
