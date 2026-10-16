@@ -66,7 +66,7 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
     ),
     LIVOR_CONFLUING: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
-        "Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica che fossero trascorse più di 1 ora ma meno di 4 ore "
+        "Secondo i limiti massimi segnalati in letteratura scientifica, questo indica che fossero trascorse meno di 4 ore "
         "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
     ),
     LIVOR_FULLY_MIGRATABLE: (
