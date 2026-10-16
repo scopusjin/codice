@@ -11,7 +11,7 @@ from app.mobile_shell import install_minimal_mobile_shell
 
 
 from app.graphing import aggiorna_grafico
-from app.livor_digitopressione import PRESSURE_KEY, render_livor_pressure_input
+from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
 from app.cooling_inputs import finite_number
 from app.fc_scenarios import scenario_temperature_bounds
 from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
@@ -415,7 +415,7 @@ def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
         selettore_macchie,
-        st.session_state.get(PRESSURE_KEY),
+        effective_livor_pressure(st.session_state),
         selettore_rigidita,
         _sig_val(st.session_state.get("rt_val")),
         _sig_val(st.session_state.get("ta_base_val")),
@@ -482,7 +482,7 @@ if st.session_state.get("run_stima_mobile"):
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        livor_digitopressione=st.session_state.get(PRESSURE_KEY),
+        livor_digitopressione=effective_livor_pressure(st.session_state),
         input_rt=input_rt,
         input_ta=input_ta,
         input_tm=37.2,
