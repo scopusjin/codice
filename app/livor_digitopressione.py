@@ -112,9 +112,4 @@ def render_livor_pressure_input(livor_id, label):
             format_func=lambda value: PRESSURE_LABEL_IT[value],
             key=PRESSURE_KEY,
             label_visibility="visible",
-            help=(
-                "Valuta lo sbiancamento delle macchie ipostatiche con una digitopressione. "
-                "Non equivale alla migrabilità dopo cambiamento di posizione. "
-                "Se il reperto non è stato valutato, lascia «Non valutata»."
-            ),
         )
