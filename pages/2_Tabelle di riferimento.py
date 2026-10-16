@@ -66,7 +66,7 @@ _COMBINED_TABLE_TEXT = {
         "no": "No",
         "lividity": "Macchie ipostatiche",
         "lividity_beginning": "Sono già comparse?",
-        "confluence": "Sono confluenti?",
+        "confluence": "Sono confluite?",
         "thumb_pressure": "Scompaiono completamente alla digitopressione?",
         "complete_shifting": "Sono completamente migrabili?",
         "maximum_row": "Hanno raggiunto la massima estensione e intensità?",
@@ -356,10 +356,10 @@ def _render_combined_table(language: str) -> None:
     groups = (
         ("lividity", "[1, 2]", (
             ("Non ancora comparse", "Not yet apparent", "0–3"),
-            ("Presenti, ma non ancora confluenti", "Present, but not yet confluent", "0–4"),
-            ("Confluenti; migrabilità non valutata", "Confluent; shifting not assessed", "≥ 1"),
+            ("Presenti, ma non ancora confluite", "Present, but not yet confluent", "0–4"),
+            ("Confluite; migrabilità non valutata", "Confluent; shifting not assessed", "≥ 1"),
             ("Completamente migrabili; confluenza non precisata", "Fully shiftable; confluence not specified", "0–6"),
-            ("Confluenti e completamente migrabili", "Confluent and fully shiftable", "1–6"),
+            ("Confluite e completamente migrabili", "Confluent and fully shiftable", "1–6"),
             ("Parzialmente migrabili", "Partially shiftable", "4–24"),
             ("Migrabili almeno parzialmente, senza precisarne il grado", "Shiftable at least partially, degree unspecified", "0–24"),
             ("Completamente fisse", "Completely fixed", "≥ 4"),
