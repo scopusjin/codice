@@ -76,55 +76,58 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
     ),
     LIVOR_ABSENT: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "non fossero ancora comparse. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
-        "che fossero trascorse meno di 3 ore dal decesso (generalmente compaiono entro 15-20 minuti)."
+        "non fossero ancora comparse. Secondo i limiti massimi segnalati in letteratura scientifica, "
+        "questo suggerisce che fossero trascorse meno di 3 ore dal decesso "
+        "(generalmente compaiono entro 15–20 minuti)."
     ),
     LIVOR_CONFLUING: (
-        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, fossero comparse ma ancora in via di confluenza. "
-        "Secondo i limiti massimi segnalati in letteratura scientifica, questo indica che fossero trascorse meno di 4 ore "
-        "dal decesso (generalmente tale fase si verifica tra 1 ora 30 minuti e 3 ore 30 minuti)."
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+        "fossero presenti ma ancora in via di confluenza. Secondo i limiti massimi segnalati "
+        "in letteratura scientifica, questo suggerisce che fossero trascorse meno di 4 ore "
+        "dal decesso (generalmente questa fase si osserva tra 1 ora e 30 minuti e 3 ore e 30 minuti)."
     ),
     LIVOR_CONFLUENT: (
-        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluite; "
-        "la migrabilità non è stata valutata. Il criterio della confluenza suggerisce "
-        "che fosse trascorsa almeno 1 ora dal decesso, senza fornire un limite massimo utile."
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+        "fossero presenti e confluite (non è stata specificata o valutata la migrabilità). "
+        "Questo suggerisce soltanto che fosse trascorsa almeno un’ora dal decesso."
     ),
     LIVOR_CONFLUENT_FULLY_MIGRATABLE: (
-        "Le macchie ipostatiche, al momento dell’ispezione legale, erano confluite e completamente migrabili. "
-        "Combinando i limiti della confluenza e della migrabilità completa, "
-        "si ottiene un intervallo da 1 a 6 ore dal decesso."
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+        "fossero presenti, confluite e completamente migrabili. Secondo i limiti minimi e massimi "
+        "segnalati in letteratura scientifica, questo suggerisce che fossero trascorse "
+        "tra 1 e 6 ore dal decesso."
     ),
     LIVOR_FULLY_MIGRATABLE: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "si trovassero in una fase di migrabilità totale. Secondo i limiti massimi segnalati in letteratura scientifica, questo indica "
-        "che fossero trascorse meno di 6 ore dal decesso. "
-        "Generalmente le ipostasi compaiono dopo 20 minuti dal decesso."
+        "fossero completamente migrabili (grado di confluenza non specificato). "
+        "Secondo i limiti massimi segnalati in letteratura scientifica, questo suggerisce "
+        "che fossero trascorse meno di 6 ore dal decesso."
     ),
     LIVOR_PARTIALLY_MIGRATABLE: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "si trovassero in una fase di migrabilità parziale. Secondo i limiti minimi e massimi segnalati in letteratura scientifica, questo indica "
-        "che fossero trascorse tra le 4 ore e le 24 ore dal decesso."
+        "si trovassero in una fase di migrabilità parziale. Secondo i limiti minimi e massimi "
+        "segnalati in letteratura scientifica, questo suggerisce che fossero trascorse "
+        "tra 4 e 24 ore dal decesso."
     ),
     LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: (
-        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
-        "in una fase di migrabilità perlomeno parziale (modificando la posizione del cadavere si sono "
-        "modificate le macchie ipostatiche, ma, per le modalità e le tempistiche di esecuzione "
-        "dell’ispezione legale, non è stato possibile dettagliare l’entità del fenomeno). "
-        "Sulla base di tali caratteristiche e dei limiti massimi e minimi indicati in letteratura scientifica, questo indica che fossero trascorse "
-        "meno di 24 ore dal decesso."
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+        "fossero migrabili perlomeno parzialmente (modificando la posizione del cadavere, "
+        "le macchie ipostatiche si sono modificate, ma non è stato possibile precisare "
+        "l’entità del fenomeno). Secondo i limiti massimi segnalati in letteratura scientifica, "
+        "questo suggerisce che fossero trascorse meno di 24 ore dal decesso."
     ),
     LIVOR_FIXED: (
-        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, si trovassero "
-        "in una fase di fissità assoluta. Secondo i limiti minimi segnalati in letteratura scientifica, questo indica "
-        "che fossero trascorse più di 4 ore dal decesso (fino a 30 ore le macchie possono non "
-        "modificare la loro posizione alla movimentazione del corpo, ma la loro intensità può affievolirsi)."
+        "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
+        "si trovassero in una fase di fissità assoluta. Secondo i limiti minimi segnalati "
+        "in letteratura scientifica, questo suggerisce che fossero trascorse più di 4 ore "
+        "dal decesso (fino a 30 ore le macchie possono non modificare la loro posizione "
+        "alla movimentazione del corpo, ma la loro intensità può affievolirsi)."
     ),
     LIVOR_UNRELIABLE: (
         "Le macchie ipostatiche non sono state valutate o i rilievi non sono considerati attendibili "
         "per la stima dell'epoca della morte."
     ),
 }
-
 
 LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID = {
     PRESSURE_COMPLETE_FADING: (
