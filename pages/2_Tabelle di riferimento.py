@@ -372,7 +372,7 @@ def _render_combined_table(language: str) -> None:
             ("Presente, intensa e generalizzata", "Present, intense and generalized", "2–96"),
             ("In via di risoluzione", "Resolving", "24–192"),
             ("Completamente risolta", "Completely resolved", "≥ 24"),
-            ("Si riforma dopo essere stata vinta (se presente e non ancora completa o completa)", "Re-establishes after being broken (if present, developing or fully developed)", "≤ 19 [4]"),
+            ("Si riforma dopo essere stata vinta", "Re-establishes after being broken", "≤ 19 [4]"),
         )),
         ("mechanical", "[1, 5]", (
             ("Contrazione dell’intero muscolo alla percussione (fenomeno di Zsako)", "Whole-muscle contraction following percussion (Zsako’s phenomenon)", "0–2,5"),
@@ -432,7 +432,7 @@ def _render_combined_table(language: str) -> None:
             if finding.startswith(("Fase ", "Phase ")):
                 phase, separator, detail = finding.partition(" — ")
                 finding = f"<strong>{phase}</strong>{separator}{detail}"
-            display_interval = interval.replace(".", ",") if language == "it" else interval.replace(",", ".")
+            display_interval = interval.replace(",", ".")
             rows.append(
                 f'<tr><td class="combined-criterion">{finding}</td>'
                 f'<td class="combined-limit">{_reference_numbers_html(display_interval)}</td></tr>'
