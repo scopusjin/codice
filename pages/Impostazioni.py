@@ -1,6 +1,7 @@
 # pages/Impostazioni.py
 import streamlit as st
 
+from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
 from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
 from app.page_navigation import SETTINGS_PAGE, record_page_visit, render_back_button
@@ -27,6 +28,19 @@ st.session_state["henssge_round_minutes"] = {
 }[scelta]
 
 st.success(f"Impostato a {st.session_state['henssge_round_minutes']} minuti.")
+
+# Preferenza distinta dal widget: rimane valida anche dopo il cambio pagina.
+st.session_state.setdefault(PRESSURE_VISIBILITY_KEY, True)
+mostra_digitopressione = st.toggle(
+    "Mostra digitopressione nelle ipostasi",
+    value=bool(st.session_state[PRESSURE_VISIBILITY_KEY]),
+    key="__setting_digitopressione_toggle",
+    help=(
+        "Se disattivata, la sottodomanda non comparirà nei pannelli delle ipostasi "
+        "e non verrà considerata nel calcolo."
+    ),
+)
+st.session_state[PRESSURE_VISIBILITY_KEY] = mostra_digitopressione
 
 render_back_button(SETTINGS_PAGE, key="back_home")
 
