@@ -25,7 +25,7 @@ from app.parameters import (
     dati_parametri_aggiuntivi,
 )
 from app.locales.it import LIVOR_LABEL_BY_ID
-from app.tanatology_states import LIVOR_LABEL_IT, LIVOR_CONFLUENT, LIVOR_CONFLUENT_FULLY_MIGRATABLE
+from app.tanatology_states import LIVOR_LABEL_IT, LIVOR_CONFLUENT, LIVOR_CONFLUENT_FULLY_MIGRATABLE, LIVOR_FULLY_MIGRATABLE
 from app.special_tanatology_states import (
     PARAM_ELECTRICAL_SUPRACILIARY,
     SPECIAL_PARAM_LABEL_IT,
@@ -58,6 +58,12 @@ class FullTanatologyMappingTests(unittest.TestCase):
             "Confluenti e completamente migrabili",
         )
         self.assertEqual(opzioni_macchie["Confluenti e completamente migrabili"], (1, 6))
+
+    def test_complete_migrability_without_confluence_keeps_existing_range(self):
+        label = "Completamente migrabili (confluenza non specificata)"
+        self.assertEqual(LIVOR_LABEL_BY_ID[LIVOR_FULLY_MIGRATABLE], label)
+        self.assertEqual(full_livor_legacy_value(label), "Completamente migrabili")
+        self.assertEqual(opzioni_macchie["Completamente migrabili"], (0, 6))
 
     def test_full_rigor_ui_matches_current_labels_and_legacy_values(self):
         current_labels = (
