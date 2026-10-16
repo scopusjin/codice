@@ -26,6 +26,7 @@ from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.graphing import aggiorna_grafico
 from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
+from app.livor_picker import render_livor_picker
 from app.cooling_inputs import missing_cooling_inputs
 from app.ambient_temperature import MODE_KEY, render_temperature_inputs
 from app.fc_input_mode import initialize_fc_mode, render_fc_inputs
@@ -559,7 +560,6 @@ with primary_cards.container(border=True, key="full_cooling_card"):
             )
 
 # Ipostasi e rigidità: dopo il raffreddamento, prima dei parametri aggiuntivi.
-full_select_filter_mode = None if full_device_is_mobile() else "fuzzy"
 with primary_cards.container(border=True, key="full_signs_card"):
     col1, col2 = st.columns(2, gap="small")
 
@@ -569,16 +569,11 @@ with primary_cards.container(border=True, key="full_signs_card"):
     with col1:
         livor_heading = i18n.ui_text("full.livor_heading")
         st.markdown(f"<div class='mortem-section-title'>{livor_heading}</div>", unsafe_allow_html=True)
-        prev_livor = st.session_state.get("selettore_macchie", livor_labels[0])
-        if prev_livor not in livor_labels:
-            prev_livor = livor_labels[0]
-        scelta_macchie_lbl = st.selectbox(
-            i18n.ui_text("full.livor_select_label"),
-            options=livor_labels,
-            index=livor_labels.index(prev_livor),
-            key="selettore_macchie_ui",
-            label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
+        scelta_macchie_lbl = render_livor_picker(
+            livor_labels,
+            state_key="selettore_macchie_ui",
+            picker_key="livor_picker_full",
+            default_label=st.session_state.get("selettore_macchie"),
         )
         st.session_state["selettore_macchie_id"] = FULL_LIVOR_STATE_BY_LABEL[scelta_macchie_lbl]
         selettore_macchie = full_livor_legacy_value(scelta_macchie_lbl)
@@ -600,7 +595,7 @@ with primary_cards.container(border=True, key="full_signs_card"):
             index=rigor_labels.index(prev_rigor),
             key="selettore_rigidita_ui",
             label_visibility="collapsed",
-            filter_mode=full_select_filter_mode,
+            filter_mode=None if full_device_is_mobile() else "fuzzy",
         )
         st.session_state["selettore_rigidita_id"] = FULL_RIGOR_STATE_BY_LABEL[scelta_rigidita_lbl]
         selettore_rigidita = full_rigor_legacy_value(scelta_rigidita_lbl)
