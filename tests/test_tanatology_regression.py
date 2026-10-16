@@ -29,7 +29,9 @@ from app.special_tanatology_states import (
     SUPRA_PHASE_V,
     SUPRA_PHASE_VI,
 )
-from app.tanatology_states import LIVOR_CONFLUING, RIGOR_ABSENT
+from app.tanatology_states import (
+    LIVOR_CONFLUING, LIVOR_CONFLUENT, LIVOR_CONFLUENT_FULLY_MIGRATABLE, RIGOR_ABSENT,
+)
 from app.textgen import (
     build_final_sentence,
     build_final_sentence_simple,
@@ -45,6 +47,13 @@ class ScientificRangeRegressionTests(unittest.TestCase):
         description = LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUING]
         self.assertIn("meno di 4 ore", description)
         self.assertNotIn("più di 1 ora", description)
+
+    def test_confluent_livor_text_matches_combined_interval(self):
+        self.assertEqual(opzioni_macchie["Confluenti (migrabilità non valutata)"][:1], (1,))
+        self.assertEqual(opzioni_macchie["Confluenti e completamente migrabili"], (1, 6))
+        self.assertIsNone(macchie_medi["Confluenti e completamente migrabili"])
+        self.assertIn("almeno 1 ora", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT])
+        self.assertIn("da 1 a 6 ore", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT_FULLY_MIGRATABLE])
 
     def test_supraciliary_ranges_match_integrated_limits(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica sopraciliare"]["range"]
