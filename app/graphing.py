@@ -807,10 +807,10 @@ def aggiorna_grafico(
         elif macchie_range_valido and livor_digitopressione != PRESSURE_NOT_ASSESSED and testo_macchie:
             # Una sola descrizione e un solo intervallo, già intersecato dal motore.
             descrizione_reperto = testo_macchie.split(". ", 1)[0].rstrip(".")
-            scomparsa = (
-                "scomparivano completamente"
+            improntabilita = (
+                "improntabili"
                 if livor_digitopressione == "complete_fading"
-                else "non scomparivano completamente"
+                else "non completamente improntabili"
             )
             minimo, massimo = macchie_range
             if massimo >= INF_HOURS:
@@ -825,8 +825,8 @@ def aggiorna_grafico(
             else:
                 limite = f"fossero trascorse tra {minimo:g} e {massimo:g} ore dal decesso"
             testo_macchie = (
-                f"{descrizione_reperto}; alla digitopressione le macchie ipostatiche "
-                f"{scomparsa}. Secondo i limiti segnalati in letteratura scientifica, "
+                f"{descrizione_reperto} e fossero {improntabilita}. "
+                f"Secondo i limiti segnalati in letteratura scientifica, "
                 f"questo suggerisce che {limite}."
             )
         if testo_macchie:
