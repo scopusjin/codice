@@ -8,6 +8,7 @@ aggiungere una seconda famiglia di dati nel metodo combinato.
 from app.tanatology_states import LIVOR_ABSENT, LIVOR_NOT_ASSESSED, LIVOR_UNRELIABLE
 
 PRESSURE_KEY = "livor_digitopressione"
+PRESSURE_VISIBILITY_KEY = "livor_digitopressione_visible"
 PRESSURE_NOT_ASSESSED = "not_assessed"
 PRESSURE_COMPLETE_FADING = "complete_fading"
 PRESSURE_INCOMPLETE_FADING = "incomplete_fading"
@@ -23,6 +24,19 @@ PRESSURE_LABEL_IT = {
     PRESSURE_COMPLETE_FADING: "Sì",
     PRESSURE_INCOMPLETE_FADING: "No",
 }
+
+
+def pressure_is_enabled(state):
+    """La preferenza è di sessione; il default mantiene la domanda visibile."""
+    return bool(state.get(PRESSURE_VISIBILITY_KEY, True))
+
+
+def effective_livor_pressure(state):
+    """Esclude dal calcolo un rilievo nascosto senza modificare il dato preesistente."""
+    if not pressure_is_enabled(state):
+        return PRESSURE_NOT_ASSESSED
+    chosen = state.get(PRESSURE_KEY, PRESSURE_NOT_ASSESSED)
+    return chosen if chosen in PRESSURE_OPTIONS else PRESSURE_NOT_ASSESSED
 
 
 def pressure_is_applicable(livor_id):
@@ -51,6 +65,8 @@ def render_livor_pressure_input(livor_id, label):
     """Stessa sottodomanda nella pagina completa e nel sopralluogo."""
     import streamlit as st
 
+    if not pressure_is_enabled(st.session_state):
+        return PRESSURE_NOT_ASSESSED
     if not pressure_is_applicable(livor_id):
         # Quando le ipostasi non sono valutabili/presenti, non usare un vecchio
         # risultato di digitopressione eventualmente rimasto nella sessione.
