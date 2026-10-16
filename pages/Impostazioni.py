@@ -2,6 +2,7 @@
 import streamlit as st
 
 from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
+from app.rigor_reformation import REFORMATION_VISIBILITY_KEY
 from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
 from app.page_navigation import SETTINGS_PAGE, record_page_visit, render_back_button
@@ -41,6 +42,14 @@ mostra_digitopressione = st.toggle(
     ),
 )
 st.session_state[PRESSURE_VISIBILITY_KEY] = mostra_digitopressione
+
+st.session_state.setdefault(REFORMATION_VISIBILITY_KEY, True)
+mostra_ricomparsa = st.toggle(
+    "Mostra ricomparsa della rigidità dopo mobilizzazione",
+    value=bool(st.session_state[REFORMATION_VISIBILITY_KEY]),
+    key="__setting_rigor_reformation_toggle",
+)
+st.session_state[REFORMATION_VISIBILITY_KEY] = mostra_ricomparsa
 
 render_back_button(SETTINGS_PAGE, key="back_home")
 
