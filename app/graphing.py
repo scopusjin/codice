@@ -793,10 +793,31 @@ def aggiorna_grafico(
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
     if not macchie_non_valutate:
         testo_macchie = i18n.livor_description(base_tanatology.livor_id)
-        if macchie_range_valido:
-            testo_digitopressione = i18n.livor_pressure_description(livor_digitopressione)
-            if testo_digitopressione:
-                testo_macchie = (testo_macchie or "").strip() + " " + testo_digitopressione
+        if macchie_range_valido and livor_digitopressione != PRESSURE_NOT_ASSESSED and testo_macchie:
+            # Una sola descrizione e un solo intervallo, già intersecato dal motore.
+            descrizione_reperto = testo_macchie.split(". ", 1)[0].rstrip(".")
+            scomparsa = (
+                "scomparivano completamente"
+                if livor_digitopressione == "complete_fading"
+                else "non scomparivano completamente"
+            )
+            minimo, massimo = macchie_range
+            if massimo >= INF_HOURS:
+                limite = (
+                    f"fossero trascorse più di {minimo:g} ore dal decesso"
+                    if base_tanatology.livor_id == "livor_fixed"
+                    else f"fosse trascorsa almeno {minimo:g} ora dal decesso"
+                    if minimo == 1 else f"fossero trascorse almeno {minimo:g} ore dal decesso"
+                )
+            elif minimo <= 0:
+                limite = f"fossero trascorse meno di {massimo:g} ore dal decesso"
+            else:
+                limite = f"fossero trascorse tra {minimo:g} e {massimo:g} ore dal decesso"
+            testo_macchie = (
+                f"{descrizione_reperto}; alla digitopressione le macchie ipostatiche "
+                f"{scomparsa}. Secondo i limiti segnalati in letteratura scientifica, "
+                f"questo suggerisce che {limite}."
+            )
         if testo_macchie:
             _add_det(f"<ul><li>{testo_macchie.strip()}</li></ul>")
     if not rigidita_non_valutata:
