@@ -827,14 +827,29 @@ if st.session_state[_TABLE_LANGUAGE_KEY] not in ("it", "en"):
     st.session_state[_TABLE_LANGUAGE_KEY] = "it"
 table_language = st.session_state[_TABLE_LANGUAGE_KEY]
 
-# Scientific synthesis of the compound method.
+# --- Metodi basati sul raffreddamento cadaverico ---
 st.markdown(
-    f"<div class='henssge-table-title'>{_COMBINED_TABLE_TEXT[table_language]['caption']}</div>",
-    unsafe_allow_html=True,
+    "### Metodi basati sul raffreddamento cadaverico"
+    if table_language == "it" else
+    "### Methods based on body cooling"
 )
-_render_combined_table(table_language)
-
-# --- Sezione 2: Tabelle Henssge ---
+st.caption(
+    "Henssge stima il tempo dal decesso utilizzando temperatura rettale, "
+    "temperatura ambientale media, peso corporeo e fattore di correzione (FC). "
+    "Potente et al. precisano i limiti di attendibilità in funzione della temperatura "
+    "ambientale e del grado di raffreddamento (Q): fino a 23 °C, Q ≤ 0.2 "
+    "non consente un intervallo attendibile e 0.2 < Q < 0.3 richiede cautela; "
+    "oltre 23 °C, la soglia di esclusione è Q ≤ 0.5. "
+    "Quando il metodo non è attendibile, l’app indica soltanto un tempo minimo."
+    if table_language == "it" else
+    "Henssge estimates time since death from rectal temperature, mean ambient "
+    "temperature, body weight and correction factor (FC). "
+    "Potente et al. define reliability limits according to ambient temperature "
+    "and degree of cooling (Q): at or below 23 °C, Q ≤ 0.2 is outside the "
+    "reliable interval range and 0.2 < Q < 0.3 warrants caution; above 23 °C, "
+    "the exclusion threshold is Q ≤ 0.5. "
+    "When the method is unreliable, the app reports only a minimum elapsed time."
+)
 st.markdown("## Fattore di correzione (FC)" if table_language == "it" else "## Correction factor (FC)")
 st.markdown(
     "<div class='henssge-table-title'>"
@@ -859,6 +874,25 @@ st.markdown(
     unsafe_allow_html=True,
 )
 _render_henssge_weight_table(table_language)
+
+# --- Altri criteri tanatologici utilizzati nel metodo combinato ---
+st.markdown(
+    "### Altri criteri tanatologici"
+    if table_language == "it" else
+    "### Other postmortem criteria"
+)
+st.caption(
+    "Ipostasi, rigidità ed eccitabilità residua forniscono limiti temporali "
+    "minimi e/o massimi, combinabili fra loro e con il raffreddamento."
+    if table_language == "it" else
+    "Lividity, rigor and residual excitability provide minimum and/or maximum "
+    "time limits, which can be combined with each other and with body cooling."
+)
+st.markdown(
+    f"<div class='henssge-table-title'>{_COMBINED_TABLE_TEXT[table_language]['caption']}</div>",
+    unsafe_allow_html=True,
+)
+_render_combined_table(table_language)
 
 # Il controllo in fondo aggiorna tutte le tabelle nella stessa esecuzione;
 # non cambia la lingua del resto dell'app.
