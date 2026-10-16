@@ -124,12 +124,14 @@ class CompactLivorPickerTests(unittest.TestCase):
                 LIVOR_FULLY_MIGRATABLE, "Scomparsa alla digitopressione?",
             )
         self.assertEqual(value, PRESSURE_COMPLETE_FADING)
-        self.assertEqual(fake.captions, ["Scomparsa alla digitopressione?"])
+        self.assertEqual(fake.captions, [])  # Nessun elemento separato sopra al campo.
         self.assertEqual(fake.containers[0]["key"], "livor_pressure_subquestion")
         self.assertIsNone(fake.containers[0]["gap"])
         self.assertIn("padding-left: 0.75rem", fake.css[0])
+        self.assertIn("font-size: 0.8rem", fake.css[0])
+        self.assertEqual(fake.selectboxes[0][0], "Scomparsa alla digitopressione?")
         self.assertEqual(fake.selectboxes[0][2]["key"], PRESSURE_KEY)
-        self.assertEqual(fake.selectboxes[0][2]["label_visibility"], "collapsed")
+        self.assertEqual(fake.selectboxes[0][2]["label_visibility"], "visible")
 
     def test_digitopressione_remains_hidden_when_disabled(self):
         fake = FakeStreamlit({PRESSURE_VISIBILITY_KEY: False})
