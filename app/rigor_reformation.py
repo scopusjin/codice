@@ -53,6 +53,12 @@ def render_rigor_reformation_input(rigor_id):
     st.html("""
     <style>
     [class*="st-key-rigor_reformation_subquestion"] {padding-left: 0.75rem !important;}
+    [class*="st-key-rigor_reformation_subquestion"] [data-testid="stSelectbox"] {
+        gap: 0 !important;
+    }
+    [class*="st-key-rigor_reformation_subquestion"] [data-testid="stSelectbox"] > div {
+        margin-top: 0 !important;
+    }
     [class*="st-key-rigor_reformation_subquestion"] [data-testid="stSelectbox"] > label,
     [class*="st-key-rigor_reformation_subquestion"] [data-testid="stSelectbox"] > label p {
         font-size: 0.8rem !important; line-height: 1.1 !important;
