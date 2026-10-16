@@ -350,69 +350,104 @@ _HENSSGE_WEIGHT_TABLE_TEXT = {
 
 def _render_combined_table(language: str) -> None:
     text = _COMBINED_TABLE_TEXT[language]
-    # Scientific reference data: these limits are not read from application ranges.
-    # A missing useful bound is shown as a dash, not as an artificial zero.
+    # Limiti bibliografici, indipendenti dai range del motore.
+    # Ogni risposta delle domande originali diventa un reperto esplicito.
+    # Le fasi sopraciliari combinano i limiti di due risposte consecutive.
     groups = (
         ("lividity", "[1, 2]", (
-            ("lividity_beginning", "—", "≤ 3"),
-            ("confluence", "≥ 1", "≤ 4"),
-            ("maximum_row", "≥ 3", "≤ 16"),
-            ("thumb_pressure", "≤ 20", "≥ 1"),
-            ("complete_shifting", "≤ 6", "≥ 2"),
-            ("incomplete_shifting", "≤ 24", "≥ 4"),
+            ("Non ancora comparse", "Not yet apparent", "≤ 3"),
+            ("Confluenti", "Confluent", "≥ 1"),
+            ("Non ancora confluenti", "Not yet confluent", "≤ 4"),
+            ("Massima estensione e intensità raggiunte", "Maximum extent and intensity reached", "≥ 3"),
+            ("Massima estensione e intensità non ancora raggiunte", "Maximum extent and intensity not yet reached", "≤ 16"),
+            ("Scomparsa completa alla digitopressione", "Fades completely under finger pressure", "≤ 20"),
+            ("Scomparsa non completa alla digitopressione", "Does not fade completely under finger pressure", "≥ 1"),
+            ("Completamente migrabili", "Fully shiftable", "≤ 6"),
+            ("Non completamente migrabili", "Not fully shiftable", "≥ 2"),
+            ("Almeno parzialmente migrabili", "At least partially shiftable", "≤ 24"),
+            ("Non migrabili nemmeno parzialmente", "Not shiftable, even partially", "≥ 4"),
         )),
         ("rigor", "[1–4]", (
-            ("rigor_beginning", "≥ 0.5", "≤ 7"),
-            ("rigor_complete", "≥ 2", "≤ 20"),
-            # Observed upper extreme in Anders et al. (2013), not a universal cutoff.
-            ("reestablishment", "≤ 19 [4]", "≥ 2"),
-            # Agreed adaptation of the descriptive course limits in [2].
-            ("rigor_persistence", "≥ 24", "≤ 96"),
-            ("rigor_resolution", "≥ 24", "≤ 192"),
+            ("Non ancora apprezzabile", "Not yet appreciable", "≤ 7"),
+            ("Presente", "Present", "≥ 0.5"),
+            ("Non ancora completa e generalizzata", "Not yet complete and generalized", "≤ 20"),
+            ("Completa, intensa e generalizzata", "Complete, intense and generalized", "≥ 2"),
+            ("Ricompare dopo mobilizzazione", "Re-establishes after passive mobilization", "≤ 19 [4]"),
+            ("Non ricompare dopo mobilizzazione", "Does not re-establish after passive mobilization", "≥ 2"),
+            ("Risoluzione non ancora iniziata", "Resolution not yet started", "≤ 96"),
+            ("Risoluzione iniziata", "Resolution started", "≥ 24"),
+            ("Non completamente risolta", "Not completely resolved", "≤ 192"),
+            ("Completamente risolta", "Completely resolved", "≥ 24"),
         )),
         ("mechanical", "[1, 5]", (
-            ("whole_muscle", "≤ 2.5", "—"),
-            # Compound-method criterion: local idiomuscular contraction, not a
-            # cumulative question mixing it with propagated whole-muscle excitation.
-            # Do not insert the descriptive reversible phase (≤5 h) into this criterion.
-            ("mechanical_response", "≤ 13", "≥ 1.5"),
+            ("Contrazione dell’intero muscolo alla percussione (fenomeno di Zsako)", "Whole-muscle contraction following percussion (Zsako’s phenomenon)", "≤ 2.5"),
+            ("Tumefazione locale alla percussione (contrazione idiomuscolare)", "Local swelling following percussion (idiomuscular contraction)", "≤ 13"),
+            ("Assenza di tumefazione locale alla percussione", "No local swelling following percussion", "≥ 1.5"),
         )),
-        # Table 10.4 and Figure 10.7 in [3]: each question is cumulative.
-        # A negative response concerns this extent, not absence of all contraction.
         ("eyebrow", "[1, 3]", (
-            ("supra_cheek", "≤ 6", "≥ 1"),
-            ("supra_forehead", "≤ 7", "≥ 2"),
-            ("supra_lower_lid", "≤ 8", "≥ 3"),
-            ("supra_whole_upper_lid", "≤ 13", "≥ 3.5"),
-            ("supra_partial_upper_lid", "≤ 16", "≥ 5"),
-            ("supra_nasal", "≤ 22", "≥ 5"),
+            ("Fase VI — fronte, orbita e guancia", "Phase VI — forehead, orbicular region and cheek", "0–6"),
+            ("Fase V — fronte e orbita", "Phase V — forehead and orbicular region", "1–7"),
+            ("Fase IV — palpebre superiore e inferiore", "Phase IV — upper and lower eyelids", "2–8"),
+            ("Fase III — intera palpebra superiore", "Phase III — entire upper eyelid", "3–13"),
+            ("Fase II — contrazione parziale della palpebra superiore", "Phase II — partial contraction of the upper eyelid", "3,5–16"),
+            ("Fase I — contrazione minima della palpebra superiore", "Phase I — minimal contraction of the upper eyelid", "5–22"),
+            ("Nessuna contrazione", "No contraction", "≥ 5"),
         )),
-        ("mouth", "[1]", (("muscle_response", "≤ 11", "≥ 3"),)),
+        ("mouth", "[1]", (
+            ("Contrazione presente, indipendentemente dall’estensione", "Contraction present, regardless of its extent", "≤ 11"),
+            ("Nessuna contrazione", "No contraction", "≥ 3"),
+        )),
         ("chemical", "[1, 5]", (
-            ("atropin", "≤ 10", "≥ 3"),
-            ("tropicamide", "≤ 30", "≥ 5"),
-            ("acetylcholine", "≤ 46", "≥ 14"),
+            ("Dilatazione pupillare con atropina", "Pupillary dilation after atropine", "≤ 10"),
+            ("Nessuna variazione con atropina", "No change after atropine", "≥ 3"),
+            ("Dilatazione pupillare con tropicamide", "Pupillary dilation after tropicamide", "≤ 30"),
+            ("Nessuna variazione con tropicamide", "No change after tropicamide", "≥ 5"),
+            ("Restringimento pupillare con acetilcolina", "Pupillary constriction after acetylcholine", "≤ 46"),
+            ("Nessuna variazione con acetilcolina", "No change after acetylcholine", "≥ 14"),
         )),
     )
+    headings = {
+        "it": ("Reperto osservato", "Limite/intervallo (h)"),
+        "en": ("Observed finding", "Time limit / interval (h)"),
+    }
+    phase_note = {
+        "it": (
+            "Per l’eccitabilità sopraciliare ciascuna fase indica la massima estensione "
+            "della contrazione osservata. L’intervallo combina il limite massimo della "
+            "risposta presente e il limite minimo derivato dall’assenza di una risposta "
+            "più estesa; per la fase VI non è disponibile un limite minimo utile."
+        ),
+        "en": (
+            "For supraciliary excitability, each phase denotes the greatest observed "
+            "extent of contraction. The interval combines the maximum for the observed "
+            "response and the minimum from the absence of a more extensive response; "
+            "for phase VI no useful minimum is available."
+        ),
+    }
     rows = []
-    for parameter, reference, criteria in groups:
-        for index, (criterion, yes, no) in enumerate(criteria):
-            group_cell = (
-                f'<th scope="rowgroup" rowspan="{len(criteria)}" class="combined-group">'
-                f'{text[parameter]} {_reference_link(reference)}</th>' if index == 0 else ""
-            )
+    for parameter, reference, findings in groups:
+        rows.append(
+            '<tr class="combined-section">'
+            f'<th scope="rowgroup" colspan="2" class="combined-group">'
+            f'{escape(text[parameter])} {_reference_link(reference)}</th></tr>'
+        )
+        for italian, english, interval in findings:
+            finding = escape(italian if language == "it" else english)
+            if finding.startswith(("Fase ", "Phase ")):
+                phase, separator, detail = finding.partition(" — ")
+                finding = f"<strong>{phase}</strong>{separator}{detail}"
             rows.append(
-                f'<tr>{group_cell}<td class="combined-criterion">{text[criterion]}</td>'
-                f'<td class="combined-limit">{_reference_numbers_html(yes)}</td><td class="combined-limit">{_reference_numbers_html(no)}</td></tr>'
+                f'<tr><td class="combined-criterion">{finding}</td>'
+                f'<td class="combined-limit">{_reference_numbers_html(interval)}</td></tr>'
             )
     st.markdown(
         f"""
         <div class="mallach-table-wrap">
           <table class="mallach-table combined-table">
-            <colgroup><col style="width:24%"><col style="width:46%"><col style="width:15%"><col style="width:15%"></colgroup>
+            <colgroup><col style="width:74%"><col style="width:26%"></colgroup>
             <thead>
-              <tr><th scope="col">{text['parameter']}</th><th scope="col">{text['criterion']}</th>
-              <th scope="col">{text['yes']}</th><th scope="col">{text['no']}</th></tr>
+              <tr><th scope="col">{headings[language][0]}</th>
+              <th scope="col">{headings[language][1]}</th></tr>
             </thead>
             <tbody>{''.join(rows)}</tbody>
           </table>
@@ -421,6 +456,7 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     _reference_caption(text["intro"])
+    _reference_caption(phase_note[language])
     _reference_caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         _reference_caption(reference)
