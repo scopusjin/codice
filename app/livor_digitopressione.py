@@ -95,6 +95,12 @@ def render_livor_pressure_input(livor_id, label):
     [class*="st-key-livor_pressure_subquestion"] {
         padding-left: 0.75rem !important;
     }
+    [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] {
+        gap: 0 !important;
+    }
+    [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] > div {
+        margin-top: 0 !important;
+    }
     [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] > label,
     [class*="st-key-livor_pressure_subquestion"] [data-testid="stSelectbox"] > label p {
         font-size: 0.8rem !important;
