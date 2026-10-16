@@ -14,22 +14,22 @@ from test_fc_scenarios import temperature_payload
 
 class CaseFileTests(unittest.TestCase):
     def test_confluite_visible_labels_round_trip_with_original_state_ids(self):
-        for view, widget_key, ui_label in (
-            ("full", "selettore_macchie_ui", "Confluite e completamente migrabili"),
-            ("msil", "selettore_macchie_mobile", "Ipostasi confluite e completamente migrabili"),
+        for view, widget_key, ui_label, state_id, legacy_label in (
+            ("full", "selettore_macchie_ui", "Confluite e completamente migrabili",
+             "livor_confluent_fully_migratable", "Confluenti e completamente migrabili"),
+            ("msil", "selettore_macchie_mobile", "Ipostasi confluite e completamente migrabili",
+             "livor_confluent_fully_migratable", "Confluenti e completamente migrabili"),
+            ("full", "selettore_macchie_ui", "Completamente migrabili (confluenza non specificata)",
+             "livor_fully_migratable", "Completamente migrabili"),
+            ("msil", "selettore_macchie_mobile", "Ipostasi completamente migrabili (confluenza non specificata)",
+             "livor_fully_migratable", "Completamente migrabili"),
         ):
             with self.subTest(view=view):
                 case = snapshot_case({"case_code": "IL26-10", widget_key: ui_label}, view)
-                self.assertEqual(
-                    case["signs"]["livor"],
-                    "livor_confluent_fully_migratable",
-                )
+                self.assertEqual(case["signs"]["livor"], state_id)
                 restored = restored_inputs(decode_case(encode_case(case)))
                 self.assertEqual(restored[widget_key], ui_label)
-                self.assertEqual(
-                    restored["selettore_macchie"],
-                    "Confluenti e completamente migrabili",
-                )
+                self.assertEqual(restored["selettore_macchie"], legacy_label)
 
     def test_ambient_temperature_mode_survives_export(self):
         for interval in (False, True):
