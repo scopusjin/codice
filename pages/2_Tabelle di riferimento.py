@@ -15,7 +15,7 @@ record_page_visit(st.session_state, TABLES_PAGE)
 # All short citations lead to the internal bibliography page.
 _CITATION_PATTERN = re.compile(
     r"(?:Henssge(?: et al\.| e Madea)?|Anders et al\.|Althaus et al\.|"
-    r"Henriksson et al\.|Madea)(?:, in Madea)?, \d{4}|\[\d+(?:\s*[,–-]\s*\d+)*\]"
+    r"Henriksson et al\.|Potente et al\.|Madea)(?:, in Madea)?, \d{4}|\[\d+(?:\s*[,–-]\s*\d+)*\]"
 )
 
 
@@ -819,6 +819,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+st.markdown("""<style>
+.method-section-title {font-size:1.0rem;font-weight:650;line-height:1.2;margin:0.3rem 0 0.06rem;}
+.method-subtitle {font-size:0.86rem;font-weight:600;line-height:1.2;margin:0.15rem 0 0.04rem;}
+</style>""", unsafe_allow_html=True)
+
 # Un solo selettore per tutte le tabelle. La preferenza resta limitata
 # a questa pagina, in attesa di estendere e verificare la traduzione dell'app.
 _TABLE_LANGUAGE_KEY = "reference_tables_language"
@@ -829,11 +834,11 @@ table_language = st.session_state[_TABLE_LANGUAGE_KEY]
 
 # --- Metodi basati sul raffreddamento cadaverico ---
 st.markdown(
-    "### Metodi basati sul raffreddamento cadaverico"
+    "<div class='method-section-title'>Metodi basati sul raffreddamento cadaverico</div>"
     if table_language == "it" else
-    "### Methods based on body cooling"
+    "<div class='method-section-title'>Methods based on body cooling</div>"
 )
-st.markdown("**Metodo di Henssge**" if table_language == "it" else "**Henssge method**")
+st.markdown("<div class='method-subtitle'>Metodo di Henssge</div>" if table_language == "it" else "<div class='method-subtitle'>Henssge method</div>")
 st.caption(
     "Il metodo di Henssge permette di stimare il tempo trascorso dal decesso sulla base della "
     "temperatura rettale, della temperatura ambientale media, del peso corporeo e di un fattore "
@@ -864,12 +869,8 @@ st.caption(
     "Tr: rectal temperature; Ta: mean ambient temperature; T0: assumed initial body temperature; "
     "t: time since death; A and B: model coefficients."
 )
-st.caption(
-    "Riferimento: Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. Forensic Sci Int. 1988."
-    if table_language == "it" else
-    "Reference: Henssge C. Death time estimation in case work. I. The rectal temperature time of death nomogram. Forensic Sci Int. 1988."
-)
-st.markdown("**Metodo di Potente et al.**" if table_language == "it" else "**Potente et al. method**")
+_reference_caption("Henssge, 1988.")
+st.markdown("<div class='method-subtitle'>Metodo di Potente et al.</div>" if table_language == "it" else "<div class='method-subtitle'>Potente et al. method</div>")
 st.caption(
     "Quando il grado di raffreddamento corporeo non consente di ottenere un intervallo temporale "
     "sufficientemente attendibile mediante il metodo di Henssge, Potente et al. propongono "
@@ -880,12 +881,8 @@ st.caption(
     "using Henssge's method, Potente et al. propose reporting only a minimum time since death, "
     "corresponding to the time needed to reach the critical degree of cooling."
 )
-st.caption(
-    "Riferimento: Potente et al. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. Forensic Sci Int. 2017."
-    if table_language == "it" else
-    "Reference: Potente et al. Minimum time since death when the body has either reached or closely approximated equilibrium with ambient temperature. Forensic Sci Int. 2017."
-)
-st.markdown("## Fattore di correzione (FC)" if table_language == "it" else "## Correction factor (FC)")
+_reference_caption("Potente et al., 2017.")
+st.markdown("<div class='method-subtitle'>Fattore di correzione (FC)</div>" if table_language == "it" else "<div class='method-subtitle'>Correction factor (FC)</div>")
 st.markdown(
     "<div class='henssge-table-title'>"
     + ("FC di base" if table_language == "it" else "Basic FC")
@@ -912,9 +909,9 @@ _render_henssge_weight_table(table_language)
 
 # --- Altri criteri tanatologici utilizzati nel metodo combinato ---
 st.markdown(
-    "### Altri criteri tanatologici"
+    "<div class='method-section-title'>Altri criteri tanatologici</div>"
     if table_language == "it" else
-    "### Other postmortem criteria"
+    "<div class='method-section-title'>Other postmortem criteria</div>"
 )
 st.caption(
     "Ipostasi, rigidità ed eccitabilità residua forniscono limiti temporali "
