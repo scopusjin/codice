@@ -66,6 +66,7 @@ LIVOR_LABEL_BY_ID = {
     **LIVOR_LABEL_IT,
     LIVOR_CONFLUENT: "Confluite (migrabilità non valutata)",
     LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluite e completamente migrabili",
+    LIVOR_FULLY_MIGRATABLE: "Completamente migrabili (confluenza non specificata)",
 }
 
 
