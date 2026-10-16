@@ -436,9 +436,10 @@ def _render_combined_table(language: str) -> None:
             if finding.startswith(("Fase ", "Phase ")):
                 phase, separator, detail = finding.partition(" — ")
                 finding = f"<strong>{phase}</strong>{separator}{detail}"
+            display_interval = interval.replace(".", ",") if language == "it" else interval.replace(",", ".")
             rows.append(
                 f'<tr><td class="combined-criterion">{finding}</td>'
-                f'<td class="combined-limit">{_reference_numbers_html(interval)}</td></tr>'
+                f'<td class="combined-limit">{_reference_numbers_html(display_interval)}</td></tr>'
             )
     st.markdown(
         f"""
