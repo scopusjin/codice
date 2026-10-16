@@ -819,84 +819,56 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Un solo selettore per tutte le tabelle. La preferenza resta limitata
+# a questa pagina, in attesa di estendere e verificare la traduzione dell'app.
+_TABLE_LANGUAGE_KEY = "reference_tables_language"
+st.session_state.setdefault(_TABLE_LANGUAGE_KEY, "it")
+if st.session_state[_TABLE_LANGUAGE_KEY] not in ("it", "en"):
+    st.session_state[_TABLE_LANGUAGE_KEY] = "it"
+table_language = st.session_state[_TABLE_LANGUAGE_KEY]
+
 # Scientific synthesis of the compound method.
-_combined_language_before = st.session_state.get("combined_table_language", "Italiano")
-_combined_text_before = _COMBINED_TABLE_TEXT["it" if _combined_language_before == "Italiano" else "en"]
 st.markdown(
-    f"<div class='henssge-table-title'>{_combined_text_before['caption']}</div>",
+    f"<div class='henssge-table-title'>{_COMBINED_TABLE_TEXT[table_language]['caption']}</div>",
     unsafe_allow_html=True,
 )
-combined_language = st.radio(
-    "Lingua tabella metodi combinati",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="combined_table_language",
-    label_visibility="collapsed",
-)
-_render_combined_table("it" if combined_language == "Italiano" else "en")
+_render_combined_table(table_language)
 
 # --- Sezione 2: Tabelle Henssge ---
-_base_language_before = st.session_state.get("henssge_base_table_language", "Italiano")
-st.markdown("## Fattore di correzione (FC)" if _base_language_before == "Italiano" else "## Correction factor (FC)")
-
+st.markdown("## Fattore di correzione (FC)" if table_language == "it" else "## Correction factor (FC)")
 st.markdown(
     "<div class='henssge-table-title'>"
-    + (
-        "FC di base"
-        if _base_language_before == "Italiano"
-        else "Basic FC"
-    )
+    + ("FC di base" if table_language == "it" else "Basic FC")
     + "</div>",
     unsafe_allow_html=True,
 )
-henssge_base_language = st.radio(
-    "Lingua tabella FC di base",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="henssge_base_table_language",
-    label_visibility="collapsed",
-)
-_render_henssge_base_table("it" if henssge_base_language == "Italiano" else "en")
+_render_henssge_base_table(table_language)
 
-_special_language_before = st.session_state.get("henssge_special_table_language", "Italiano")
 st.markdown(
     "<div class='henssge-table-title'>"
-    + (
-        "Situazioni speciali"
-        if _special_language_before == "Italiano"
-        else "Special situations"
-    )
+    + ("Situazioni speciali" if table_language == "it" else "Special situations")
     + "</div>",
     unsafe_allow_html=True,
 )
-henssge_special_language = st.radio(
-    "Lingua tabella situazioni speciali",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="henssge_special_table_language",
-    label_visibility="collapsed",
-)
-_render_henssge_special_table("it" if henssge_special_language == "Italiano" else "en")
+_render_henssge_special_table(table_language)
 
-_weight_language_before = st.session_state.get("henssge_weight_table_language", "Italiano")
 st.markdown(
     "<div class='henssge-table-title'>"
-    + (
-        "Adattamento per peso corporeo"
-        if _weight_language_before == "Italiano"
-        else "Body-weight adjustment"
-    )
+    + ("Adattamento per peso corporeo" if table_language == "it" else "Body-weight adjustment")
     + "</div>",
     unsafe_allow_html=True,
 )
-henssge_weight_language = st.radio(
-    "Lingua tabella adattamento per peso corporeo",
-    ["Italiano", "English"],
-    horizontal=True,
-    key="henssge_weight_table_language",
-    label_visibility="collapsed",
+_render_henssge_weight_table(table_language)
+
+# Il controllo in fondo aggiorna tutte le tabelle nella stessa esecuzione;
+# non cambia la lingua del resto dell'app.
+st.segmented_control(
+    "Lingua delle tabelle / Table language",
+    options=["it", "en"],
+    format_func=lambda value: "🇮🇹 Italiano" if value == "it" else "🇬🇧 English",
+    selection_mode="single",
+    key=_TABLE_LANGUAGE_KEY,
 )
-_render_henssge_weight_table("it" if henssge_weight_language == "Italiano" else "en")
 
 render_back_button(TABLES_PAGE, key="back_home")
 
