@@ -10,6 +10,7 @@ from app.case_file import (
     restored_inputs, snapshot_case,
 )
 from app.case_browser import render_browser_cases
+from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
 
 
 def _queue_import(case, ui_id):
@@ -39,6 +40,12 @@ def prepare_case_import(home):
         return
     # Keep the receiving device's layout, never the exporting device's layout.
     mobile = st.session_state.get("__full_device_mobile")
+    # Le preferenze di visualizzazione appartengono alla sessione, non al caso.
+    ui_preferences = {
+        key: st.session_state[key]
+        for key in (PRESSURE_VISIBILITY_KEY,)
+        if key in st.session_state
+    }
     # A fresh numeric sync token also updates already mounted custom controls.
     sync = {k: int(v) + 1 for k, v in st.session_state.items()
             if k.startswith("__decimal_component_sync_") and type(v) is int}
@@ -46,6 +53,7 @@ def prepare_case_import(home):
         del st.session_state[key]
     st.session_state.update(values)
     st.session_state.update(sync)
+    st.session_state.update(ui_preferences)
     # Fresh menu controls prevent a late update from the old case (including
     # an empty identifier) from overwriting the case that has just been loaded.
     st.session_state["__case_ui_id"] = uuid4().hex
