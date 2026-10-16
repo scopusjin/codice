@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 from app.full_tanatology import FULL_LIVOR_STATE_BY_LABEL, FULL_RIGOR_STATE_BY_LABEL
 from app.msil_tanatology import MSIL_LIVOR_STATE_BY_LABEL, MSIL_RIGOR_STATE_BY_LABEL
 from app.special_tanatology_states import SPECIAL_PARAM_LABEL_IT, SPECIAL_OPTION_LABEL_IT
+from app.livor_digitopressione import PRESSURE_KEY, PRESSURE_OPTIONS
 
 FORMAT = "mortem-case"
 SCHEMA_VERSION = 1
@@ -28,7 +29,7 @@ __prudent_explicit_ranges_initialized ta_range_toggle_beta fc_manual_range_beta"
 TEXT_KEYS = {"input_ora_rilievo", "fattori_condizioni_testo", "fattori_condizioni_parentetica"}
 DATE_KEYS = {"input_data_rilievo"}
 LIST_KEYS = {"fc_suggested_vals", "__msil_fc_chosen_range"}
-SELECTORS = {}
+SELECTORS = {PRESSURE_KEY: set(PRESSURE_OPTIONS)}
 for param, label in SPECIAL_PARAM_LABEL_IT.items():
     SELECTORS[label + "_selector"] = set(SPECIAL_OPTION_LABEL_IT[param].values())
     BOOL_KEYS.update({label + "_diversa", label + "_ora__manual"})
