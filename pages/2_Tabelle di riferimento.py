@@ -406,20 +406,6 @@ def _render_combined_table(language: str) -> None:
         "it": ("Reperto osservato", "Limite/intervallo (h)"),
         "en": ("Observed finding", "Time limit / interval (h)"),
     }
-    phase_note = {
-        "it": (
-            "Per l’eccitabilità sopraciliare ciascuna fase indica la massima estensione "
-            "della contrazione osservata. L’intervallo combina il limite massimo della "
-            "risposta presente e il limite minimo derivato dall’assenza di una risposta "
-            "più estesa; per la fase VI non è disponibile un limite minimo utile."
-        ),
-        "en": (
-            "For supraciliary excitability, each phase denotes the greatest observed "
-            "extent of contraction. The interval combines the maximum for the observed "
-            "response and the minimum from the absence of a more extensive response; "
-            "for phase VI no useful minimum is available."
-        ),
-    }
     rows = []
     for parameter, reference, findings in groups:
         rows.append(
@@ -453,12 +439,6 @@ def _render_combined_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     _reference_caption(text["intro"])
-    _reference_caption(
-        "Per la rigidità, la ricomparsa dopo mobilizzazione forzata restringe il limite massimo a 19 ore soltanto quando il fenomeno è valutabile; la mancata ricomparsa non aggiunge limiti autonomi. Per ipostasi e rigidità, i risultati delle sottodomande si intersecano con l’intervallo della condizione principale."
-        if language == "it" else
-        "For rigor, re-establishment after passive mobilization limits the maximum to 19 hours only when assessable; lack of re-establishment does not supply an independent time limit. For lividity and rigor, subsidiary findings intersect with the primary condition's interval."
-    )
-    _reference_caption(phase_note[language])
     _reference_caption(text["variation_note"])
     for reference in _COMBINED_BIBLIOGRAPHY:
         _reference_caption(reference)
