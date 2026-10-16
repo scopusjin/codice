@@ -52,6 +52,7 @@
   "use strict";
   const select = document.getElementById("livor-choice");
   let optionsSignature = "";
+  let pendingSelection = null;
 
   function send(type, data) {
     window.parent.postMessage(Object.assign({
@@ -68,9 +69,14 @@
     if (signature !== optionsSignature) {
       select.replaceChildren(...choices.map(value => new Option(value, value)));
       optionsSignature = signature;
+      pendingSelection = null;
     }
     const chosen = choices.includes(args.value) ? args.value : (choices[0] || "");
-    if (select.value !== chosen) select.value = chosen;
+    // Preserve a recent user choice while Streamlit acknowledges the change.
+    if (pendingSelection === chosen) pendingSelection = null;
+    if (pendingSelection === null && select.value !== chosen) {
+      select.value = chosen;
+    }
 
     select.setAttribute("aria-label", args.aria_label || "Macchie ipostatiche");
     const dark = args.dark === true;
@@ -90,6 +96,7 @@
   });
 
   select.addEventListener("change", () => {
+    pendingSelection = select.value;
     send("streamlit:setComponentValue", {value: select.value});
   });
 
