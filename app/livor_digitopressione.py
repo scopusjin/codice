@@ -72,14 +72,26 @@ def render_livor_pressure_input(livor_id, label):
         # risultato di digitopressione eventualmente rimasto nella sessione.
         st.session_state[PRESSURE_KEY] = PRESSURE_NOT_ASSESSED
         return PRESSURE_NOT_ASSESSED
-    return st.selectbox(
-        label,
-        options=PRESSURE_OPTIONS,
-        format_func=lambda value: PRESSURE_LABEL_IT[value],
-        key=PRESSURE_KEY,
-        help=(
-            "Valuta lo sbiancamento delle macchie ipostatiche con una digitopressione. "
-            "Non equivale alla migrabilità dopo cambiamento di posizione. "
-            "Se il reperto non è stato valutato, lascia «Non valutata»."
-        ),
-    )
+    # L'etichetta è una caption come il range di temperatura; il gruppo è
+    # leggermente rientrato rispetto alla selezione principale delle ipostasi.
+    st.html("""
+    <style>
+    [class*="st-key-livor_pressure_subquestion"] {
+        padding-left: 0.75rem !important;
+    }
+    </style>
+    """)
+    with st.container(key="livor_pressure_subquestion", gap="xsmall"):
+        st.caption(label)
+        return st.selectbox(
+            label,
+            options=PRESSURE_OPTIONS,
+            format_func=lambda value: PRESSURE_LABEL_IT[value],
+            key=PRESSURE_KEY,
+            label_visibility="collapsed",
+            help=(
+                "Valuta lo sbiancamento delle macchie ipostatiche con una digitopressione. "
+                "Non equivale alla migrabilità dopo cambiamento di posizione. "
+                "Se il reperto non è stato valutato, lascia «Non valutata»."
+            ),
+        )
