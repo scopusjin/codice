@@ -94,6 +94,13 @@ class ItalianTextRegressionTests(unittest.TestCase):
         self.assertIn("senza aumento del diametro della pupilla", text)
         self.assertNotIn("(con aumento del diametro della pupilla)", text)
 
+    def test_supraciliary_phase_v_description_matches_engine(self):
+        interval = dati_parametri_aggiuntivi["Eccitabilità elettrica sopraciliare"]["range"]["Fase V"]
+        self.assertEqual(interval, (1, 7))
+        description = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_ELECTRICAL_SUPRACILIARY][SUPRA_PHASE_V]
+        self.assertIn("più di 1 ora e meno di 7 ore", description)
+        self.assertNotIn("tra le 2 e le 7 ore", description)
+
     def test_supraciliary_no_reaction_ends_with_period(self):
         text = SPECIAL_DESCRIPTION_IT_BY_ID[PARAM_ELECTRICAL_SUPRACILIARY][OPTION_NO_REACTION]
         self.assertTrue(text.endswith("."))
