@@ -6,9 +6,9 @@ import unittest
 
 import numpy as np
 
-from app.locales.it import RIGOR_DESCRIPTION_IT_BY_ID, SPECIAL_DESCRIPTION_IT_BY_ID
+from app.locales.it import LIVOR_DESCRIPTION_IT_BY_ID, RIGOR_DESCRIPTION_IT_BY_ID, SPECIAL_DESCRIPTION_IT_BY_ID
 from app.locales.it_supra import SUPRA_GRID_DETAIL_BY_ID
-from app.parameters import INF_HOURS, dati_parametri_aggiuntivi
+from app.parameters import INF_HOURS, dati_parametri_aggiuntivi, opzioni_macchie, macchie_medi
 from app.special_tanatology_states import (
     OPTION_NO_REACTION,
     PARAM_CHEMICAL_PUPILLARY,
@@ -29,7 +29,7 @@ from app.special_tanatology_states import (
     SUPRA_PHASE_V,
     SUPRA_PHASE_VI,
 )
-from app.tanatology_states import RIGOR_ABSENT
+from app.tanatology_states import LIVOR_CONFLUING, RIGOR_ABSENT
 from app.textgen import (
     build_final_sentence,
     build_final_sentence_simple,
@@ -39,6 +39,13 @@ from app.textgen import (
 
 
 class ScientificRangeRegressionTests(unittest.TestCase):
+    def test_livor_confluence_has_no_positive_lower_bound(self):
+        self.assertEqual(opzioni_macchie["In via di confluenza"], (0, 4))
+        self.assertEqual(macchie_medi["In via di confluenza"], (1.5, 3.5))
+        description = LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUING]
+        self.assertIn("meno di 4 ore", description)
+        self.assertNotIn("più di 1 ora", description)
+
     def test_supraciliary_ranges_match_integrated_limits(self):
         ranges = dati_parametri_aggiuntivi["Eccitabilità elettrica sopraciliare"]["range"]
         self.assertEqual(ranges["Fase VI"], (0, 6))
