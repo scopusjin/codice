@@ -411,7 +411,70 @@ function exampleWeightRelevant(e){
 }
 function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
 function exampleConditions(e){return exampleDecimalText(e.conditions.replace(/\s+sul tronco inferiore/gi,'').replace(/\s+del tronco inferiore/gi,'').replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
-function exampleMatches(c){if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
+
+const BLANKET_EXAMPLE_PROFILES=[
+  {id:'t6_6-B62',support:'neutral',clothed:false,count:1,insulating:false},
+  {id:'t6_6-B51',support:'neutral',clothed:false,count:2,insulating:false},
+  {id:'t6_6-B52',support:'neutral',clothed:true,count:1,insulating:false},
+  {id:'blanket-B56',support:'neutral',clothed:true,count:1,insulating:false},
+  {id:'blanket-H08',support:'mattress',clothed:false,count:2,insulating:true},
+  {id:'t6_6-H07',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'t6_6-H10',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'t6_6-H06',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'blanket-B33',support:'mattress',clothed:true,count:2,insulating:true},
+  {id:'case-6',support:'mattress',clothed:true,count:2,insulating:true}
+];
+function blanketExampleMatches(c){
+  const clothed=Number.isInteger(c.garmentThin)&&Number.isInteger(c.garmentThick)
+    ? c.garmentThin+c.garmentThick>0 : c.s+c.p>0;
+  const count=c.m+c.h+(c.lightCover||0);
+  const support=c.surf===2?'mattress':c.surf<=1?'neutral':'other';
+  const highlyInsulating=c.h>0||c.volume==='yes'||c.feather==='yes';
+  const wideRange=!!result?.range&&result.range[1]-result.range[0]>.25;
+  const limit=(wideRange||count>1||highlyInsulating)?6:3;
+  const ranked=BLANKET_EXAMPLE_PROFILES.map(profile=>{
+    const e=EXAMPLES.find(item=>item.id===profile.id);
+    if(!e)return null;
+    let score=(profile.clothed===clothed?9:-4)+(profile.support===support?4:-2);
+    if(profile.count===count)score+=3;
+    else if(profile.count!==null&&profile.count>1&&count>1)score+=2;
+    if(highlyInsulating&&profile.insulating===true)score+=4;
+    if(!highlyInsulating&&profile.insulating===false)score+=2;
+    if(c.volume==='yes'&&profile.id==='case-6')score+=5;
+    if(!highlyInsulating&&profile.id==='case-6')score-=2;
+    return {e,profile,score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score);
+  // Documented highly insulating conditions must not disappear behind simpler covers.
+  if(highlyInsulating)for(const id of ['case-6','blanket-B33']){
+    const at=ranked.findIndex(item=>item.e.id===id);
+    if(at>=limit)ranked.splice(limit-1,0,ranked.splice(at,1)[0]);
+  }
+  return ranked.slice(0,limit).map(({e,profile})=>{
+    const differences=[];
+    if(c.wind)differences.push('correnti d’aria non equivalenti a quelle della prova');
+    if(profile.support!==support){
+      differences.push(profile.support==='mattress'
+        ? 'nella prova il corpo era su materasso'
+        : 'nella prova l’appoggio era termicamente indifferente');
+    }
+    if(profile.clothed!==clothed){
+      differences.push(profile.clothed?'nella prova erano presenti anche indumenti':'nella prova il corpo era nudo');
+    }
+    if(profile.count===null)differences.push('numero e spessore delle coperture non precisati nella descrizione della prova');
+    else if(profile.count!==count)differences.push('numero di coperture differente');
+    if(c.feather==='yes')differences.push('la prova non documenta un piumone di piume equivalente');
+    else if(highlyInsulating&&profile.insulating===false)
+      differences.push('copertura non descritta come particolarmente isolante');
+    return {...e,comparisonNote:differences.length?'Per confronto: '+differences.join('; ')+'.':''};
+  });
+}
+
+function exampleMatches(c){
+  if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];
+  if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];
+  if(c.state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0))return blanketExampleMatches(c);
+  return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));
+}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
   if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
@@ -500,6 +563,7 @@ function showSource(){
   q('#weight-source').hidden=!active;
   q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+String(Number(w.toFixed(2)))+' kg = '+rangeText(suggestion)+').':'';
   if(active&&!result.sources.includes('weight'))sourceDetails(citations,SOURCES.weight);
+  q('#source-examples .hint').textContent=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Esempi sulle coperture dalla letteratura, anche per confronto: differenze di indumenti, appoggio e coperture sono segnalate quando presenti.':'Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:';
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
     const item=document.createElement('div');item.className='source-example';
@@ -507,6 +571,7 @@ function showSource(){
     const prefix=exampleWeightRelevant(e)?(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(String).join(' / ')+' kg · ':'';
     paragraph(item,prefix+exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
     if(e.notes&&e.title!=='Caso 33')paragraph(item,exampleDecimalText(e.notes));
+    if(e.comparisonNote)paragraph(item,e.comparisonNote);
     list.append(item);
   }
 }
