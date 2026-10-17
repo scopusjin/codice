@@ -597,8 +597,8 @@ function showSource(){
     item.append(title,document.createTextNode(' — '+prefix+exampleConditions(e)+' '));
     const value=document.createElement('strong');value.textContent=exampleDecimalText(exampleFCText(e));
     item.append(value);
-    const redundantNote=e.archive?.table==='6.6'&&e.notes?.startsWith('La copertura è valutata insieme agli indumenti');
-    if(e.notes&&e.title!=='Caso 33'&&!redundantNote)item.append(document.createTextNode(' · '+exampleDecimalText(e.notes)));
+    const note=(e.notes||'').replaceAll('La copertura è valutata insieme agli indumenti su appoggio neutro.','').trim();
+    if(note&&e.title!=='Caso 33')item.append(document.createTextNode(' · '+exampleDecimalText(note)));
     if(e.comparisonNote)item.append(document.createTextNode(' · '+e.comparisonNote));
     list.append(item);
   }
