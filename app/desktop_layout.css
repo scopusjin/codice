@@ -223,17 +223,6 @@
     margin-bottom: 0.25rem !important;
   }
   /* Same label line and field gap for temperature, weight and correction factor. */
-  /* V1 numeric controls have a 40px intrinsic height. Reserve it immediately,
-     as already done in the mobile layout, instead of waiting for iframe JS. */
-  html body:has(#mortem-page-title) [class*="st-key-mortem_decimal_"] {
-    min-height: 40px !important;
-  }
-  html body:has(#mortem-page-title) [class*="st-key-mortem_decimal_"] iframe[data-testid="stCustomComponentV1"] {
-    display: block !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    max-height: 40px !important;
-  }
   /* Remove the inline iframe baseline gap beside the 40px V2 controls. */
   html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) iframe[data-testid="stCustomComponentV1"] {
     display: block !important;
