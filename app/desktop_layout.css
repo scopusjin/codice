@@ -78,10 +78,10 @@
   #mortem-page-title {
     margin: 0 !important;
     padding: 0 0 0 2.5rem !important;
-    min-height: 2rem !important;
+    min-height: 2.6rem !important;
     display: flex !important;
     align-items: center !important;
-    font-size: clamp(1.2rem, 1.25vw, 1.5rem) !important;
+    font-size: clamp(1.5rem, 1.75vw, 2rem) !important;
     font-weight: 650 !important;
     line-height: 1.25 !important;
     text-align: left !important;
@@ -319,10 +319,10 @@
       display: none !important;
     }
   }
-  @container mortem-desktop (min-width: 70rem) {
+  @container mortem-desktop (min-width: 60rem) {
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
       max-width: none !important;
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
       column-gap: clamp(1rem, 2vw, 2rem) !important;
     }
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has(#mortem-page-title) {
@@ -334,10 +334,18 @@
       grid-row: 2 !important;
       top: 3rem !important;
       bottom: auto !important;
+      width: 100% !important;
+      max-width: 34rem !important;
     }
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-mortem_result_box, *:has(.st-key-mortem_result_box), .st-key-mortem_no_data_box, *:has(.st-key-mortem_no_data_box)) {
       grid-column: 2 !important;
       grid-row: 3 / span 12 !important;
+      position: sticky !important;
+      top: 5.2rem !important;
+      width: 100% !important;
+      max-width: 34rem !important;
+      align-self: start !important;
+      z-index: 3 !important;
     }
     /* Keep case actions visible at the bottom of the existing right-hand column. */
     html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-full_case_footer, *:has(.st-key-full_case_footer)) {
