@@ -1,5 +1,10 @@
 <!doctype html>
-<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consiglia FC</title><style>body{margin:0;background:transparent;color:light-dark(#24332c,#e8eee9)}#fc-full .case-table-scroll{overflow-x:auto;max-width:100%}
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consiglia FC</title><style>
+.fc-provenance-green{color:#238044;font-weight:600}
+.fc-provenance-yellow{color:#b58a11;font-weight:600}
+.fc-provenance-red{color:#b6483b;font-weight:600}
+#fc-provenance p{margin:.2rem 0 .4rem;font-size:.88em}
+body{margin:0;background:transparent;color:light-dark(#24332c,#e8eee9)}#fc-full .case-table-scroll{overflow-x:auto;max-width:100%}
 #fc-full .case-table{border-collapse:collapse;width:100%;min-width:620px;font-size:12px;text-align:left}
 #fc-full .case-table th,#fc-full .case-table td{padding:6px;border:1px solid var(--fc-line);vertical-align:top;overflow-wrap:anywhere}
 #fc-full .case-table th{background:var(--fc-soft);font-weight:500}
@@ -63,6 +68,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div class="hint" id="origin"></div>
 <div id="detail" hidden></div>
 <details id="source-panel"><summary>Come viene consigliato il FC</summary>
+<div id="fc-provenance" aria-label="Origine del fattore di correzione"></div>
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><div id="example-list"></div></div>
@@ -422,10 +428,45 @@ function sourceDetails(parent,source){
   link.addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('reference',source);});
   const row=document.createElement('p');row.append(link);parent.append(row);
 }
+function renderFCProvenance(r){
+  const host=q('#fc-provenance');host.replaceChildren();
+  if(!r||!r.range)return;
+  const line=(text,kind)=>{
+    const p=document.createElement('p');p.className='fc-provenance-'+kind;
+    p.textContent=text;host.append(p);
+  };
+  const originalRanges={
+    'dry-two-thin':['1.10','1.20'],
+    'dry-three-thin':['1.20','1.30'],
+    'dry-mixed':['1.20','1.40'],
+    'wet-mixed-wind':['0.70','0.90'],
+    'wet-many-thick':['1.20'],
+    'wet-mixed-heavy':['1.20'],
+    'dry-many':['1.40'],
+    'dry-insulating':['1.40']
+  };
+  if(r.kind==='Tabella Henssge'){
+    line('FC direttamente riportato nella tabella originale di Henssge.','green');
+  }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
+    line('FC ricavato da uno studio sperimentale pubblicato, non direttamente riportato come tale nella tabella generale di Henssge.','yellow');
+  }else{
+    const ends=originalRanges[r.id];
+    if(ends&&ends.length===2){
+      line('Gli estremi '+ends.join(' e ')+' corrispondono a condizioni differenti previste nella tabella di Henssge.','green');
+      line('La scelta di considerare l’intervallo compreso tra queste condizioni è una deduzione dell’app, adattabile dall’operatore.','red');
+    }else if(ends&&ends.length===1){
+      line('Il valore '+ends[0]+' è riportato nella tabella originale di Henssge.','green');
+      line('L’estensione dell’intervallo alle condizioni selezionate è una deduzione dell’app.','red');
+    }else{
+      line('L’intervallo suggerito deriva da una valutazione per analogia dell’app e non è direttamente tabulato per questa combinazione.','red');
+    }
+  }
+}
 function showSource(){
   let c={...data(),state,water:q('#water').value};
   if(q('#air-row').hidden)c={...c,air:'still',wind:false};
   const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
+  renderFCProvenance(result);
   q('#reference').textContent=referenceLabel(result,c);
   const showOrigin=result.kind!=='Tabella Henssge'&&originLabel(result)!=='Ragionamento dell’app';
   q('#source-kind').hidden=!showOrigin;
