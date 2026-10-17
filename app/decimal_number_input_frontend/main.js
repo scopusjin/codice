@@ -285,6 +285,7 @@ function onRender(event) {
 
   updateCompactLayout();
   updateButtons();
+  control.classList.remove('pending-initial-render');
   Streamlit.setFrameHeight(40);
 }
 
