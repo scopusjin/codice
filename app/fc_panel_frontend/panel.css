@@ -51,6 +51,7 @@
 #fc-full .body-state-label{display:none}
 #fc-full[data-desktop=true] .states{align-items:center;flex-wrap:nowrap}
 #fc-full[data-desktop=true] .body-state-label{display:inline;flex:none;white-space:nowrap;margin-right:3px}
+#fc-full[data-desktop=true] .scenario-toggle{font-size:15px}
 #fc-full .states button[aria-pressed=true]{background:var(--fc-selected);border-color:var(--fc-selected)}
 #fc-full #environment-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px}
 #fc-full #water-fields{display:flex;align-items:center;gap:5px;font-size:12px}
