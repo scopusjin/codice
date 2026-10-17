@@ -15,6 +15,16 @@ _FULL_MOBILE_COMPONENT_KEYS = {
     "mortem_decimal_fattore_correzione",
     "mortem_decimal_fc_min_val",
     "mortem_decimal_fc_other_val",
+    # Full desktop uses mode-scoped logical keys for these four controls.
+    # The same V2 renderer already handles FC and unscoped temperature ranges.
+    "mortem_decimal_rt_val_single",
+    "mortem_decimal_rt_val_range",
+    "mortem_decimal_tm_val_single",
+    "mortem_decimal_tm_val_range",
+    "mortem_decimal_peso_single",
+    "mortem_decimal_peso_range",
+    "mortem_decimal_ta_base_val_single",
+    "mortem_decimal_ta_base_val_range",
     "mortem_decimal_fcpanel_std_strati_sottili",
     "mortem_decimal_fcpanel_std_strati_spessi",
     "mortem_decimal_fcpanel_std_coperte_medie",
