@@ -363,7 +363,7 @@ const EXAMPLE_MATCHERS={
   'still-B63':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
   'still-B58':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf<=1,
   'still-H6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===3&&c.surf<=1,
-  'still-B54':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6&&c.surf<=1,
+  'still-B54':c=>c.state==='Asciutto'&&c.m+c.h===0&&c.surf<=1&&((!c.wind&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6)||(isMany(c)&&c.isolation==='yes')),
   'wind-H15':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
   'wind-H14':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0,
   'blanket-B33':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf===2&&(c.m>=2||c.h>=1),
