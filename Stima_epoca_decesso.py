@@ -265,7 +265,8 @@ else:
         )
 
 # Stile bottone
-st.markdown("""
+# Un blocco composto soltanto da stili non deve occupare una cella della griglia.
+st.html("""
     <style>
     div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)) {
         border: 2px solid #2196F3 !important;
@@ -370,7 +371,7 @@ st.markdown("""
     }
 
     </style>
-""", unsafe_allow_html=True)
+""")
 
 # --- Definizione Widget (Streamlit) ---
 
