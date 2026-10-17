@@ -458,14 +458,6 @@ function blanketExampleMatches(c){
   return selected.map(({e,profile})=>{
     const differences=[];
     if(c.wind)differences.push('correnti d’aria non equivalenti a quelle della prova');
-    if(profile.support!==support){
-      differences.push(profile.support==='mattress'
-        ? 'nella prova il corpo era su materasso'
-        : 'nella prova l’appoggio era termicamente indifferente');
-    }
-    if(profile.clothed!==clothed){
-      differences.push(profile.clothed?'nella prova erano presenti anche indumenti':'nella prova il corpo era nudo');
-    }
     if(profile.count===null)differences.push('numero e spessore delle coperture non precisati nella descrizione della prova');
     else if(profile.count!==count)differences.push('numero di coperture differente');
     if(c.feather==='yes')differences.push('la prova non documenta un piumone di piume equivalente');
