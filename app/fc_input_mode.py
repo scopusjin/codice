@@ -47,7 +47,7 @@ def render_fc_inputs(*, mobile, render_label, normalize, help_text):
         )
     fields = ([("fc_min_val", "full.fc_min_input"), ("fc_other_val", "full.fc_max_input")]
               if interval else [("fattore_correzione", "full.fc_input_label")])
-    slots = [st.container() for _ in fields] if mobile else st.columns(2 if not interval else 3, gap="xsmall")
+    slots = [st.container() for _ in fields] if mobile else st.columns(3, gap="xsmall")
     for slot, (key, label) in zip(slots, fields):
         with slot:
             st.number_input(i18n.ui_text(label), value=state.get(key), step=0.05, format="%.2f",
