@@ -916,8 +916,7 @@ _GUIDE_ROWS = {
             ("4 leggeri","1.30","1.30","g","g"),
             ("1–2 pesanti","1.20","1.20","g","g"),
             ("1–2 pesanti + 1–2 leggeri","1.20–1.40","1.20–1.40","r","r"),
-            ("Molti strati ordinari","1.40","1.40","g","g"),
-            ("Molti strati, uno o più capi particolarmente isolanti","1.40–1.70","1.40–1.70","r","r"),
+            ("Molti strati, anche particolarmente isolanti","1.40–1.80","1.40–1.80","g","g"),
         ]),
         ("Corpo bagnato — indumenti", [
             ("Nudo","0.75","0.70","y","g"),
@@ -939,8 +938,7 @@ _GUIDE_ROWS = {
             ("2 light layers","1.10–1.20","0.90","g","g"),("3 light layers","1.20–1.30","1.30","g","g"),
             ("4 light layers","1.30","1.30","g","g"),("1–2 heavy layers","1.20","1.20","g","g"),
             ("1–2 heavy + 1–2 light layers","1.20–1.40","1.20–1.40","r","r"),
-            ("Many ordinary layers","1.40","1.40","g","g"),
-            ("Many layers, one or more highly insulating items","1.40–1.70","1.40–1.70","r","r"),
+            ("Many layers, including highly insulating items","1.40–1.80","1.40–1.80","g","g"),
         ]),
         ("Wet body — clothing", [
             ("Naked","0.75","0.70","y","g"),("1 light layer","0.90–1.00","0.70","r","g"),
