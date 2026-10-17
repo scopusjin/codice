@@ -71,7 +71,8 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <div id="fc-provenance" aria-label="Origine del fattore di correzione"></div>
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
-<div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><div id="example-list"></div></div>
+<p id="h08-notice" hidden></p>
+<div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><ul id="example-list"></ul></div>
 
 
 <div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
@@ -241,7 +242,7 @@ function blanketDecision(c){
       // The whole-case analogy is evaluated on a bed; another support replaces its allowance.
       r.referenceSurface=2;return r;
     }
-    return decision('blankets-ordinary',[1.8,2.4],'Ragionamento dell’app','Coperture sovrapposte.',['henssge'],'L’app propone un intervallo tenendo conto dei valori riportati nelle tabelle di Henssge per le coperture spesse e per l’associazione tra coperte e indumenti. Il numero delle coperture non determina incrementi fissi.');
+    return decision('blankets-ordinary',[1.8,2.4],'Ragionamento dell’app','Coperture sovrapposte.',['henssge'],'L’app propone un intervallo tenendo conto dei valori riportati nelle tabelle di Henssge per le coperture spesse e per l’associazione tra coperte e indumenti.');
   }
   if(c.h===1)return decision('heavy-blanket',clothed?[1.8,2.4]:[1.8,2.2],'Ragionamento dell’app','Copertura molto pesante.',['henssge','clothes'],'L’app considera la categoria della coperta spessa e i dati sperimentali sulle coperture più isolanti. Gli estremi sono adattabili al piumone e agli indumenti effettivamente presenti.');
   return decision('thick-blanket',clothed?[1.8,2.4]:[1.8,1.8],clothed?'Ragionamento dell’app':'Tabella Henssge','Coperta spessa.',['henssge'],clothed?'L’app propone un intervallo tenendo conto dei valori riportati nelle tabelle di Henssge per le coperture spesse e per l’associazione tra coperte e indumenti. Gli estremi sono adattabili al numero e al tipo degli strati.':'Valore riportato nella tabella di Henssge per una coperta spessa che copre il tronco inferiore.');
@@ -503,7 +504,7 @@ function sourceDetails(parent,source){
   link.addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('reference',source);});
   const row=document.createElement('p');row.append(link);parent.append(row);
 }
-function renderFCProvenance(r,examples=[]){
+function renderFCProvenance(r,examples=[],c=null){
   const host=q('#fc-provenance');host.replaceChildren();
   if(!r||!r.range)return;
   const line=(text,kind)=>{
@@ -520,7 +521,15 @@ function renderFCProvenance(r,examples=[]){
     'dry-many':['1.40'],
     'dry-insulating':['1.40']
   };
-  if(r.kind==='Tabella Henssge'){
+  if(c&&c.state==='Asciutto'&&c.m+c.h>0){
+    line('Nella tabella generale di Henssge: FC 1.80 per coperte spesse e FC 2.40 per coperte spesse associate a indumenti.','green');
+    if(r.id==='feather-duvet'){
+      line('Per coperture di piume particolarmente isolanti, Henssge (1992; Madea, 2016, tabella 6.20) riporta anche FC 2.80 e 3.00.','green');
+    }
+    if(r.kind!=='Tabella Henssge'){
+      line('L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.','red');
+    }
+  }else if(r.kind==='Tabella Henssge'){
     // The existing explanatory sentence below already identifies the Henssge table.
   }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
     line('FC ricavato da uno studio sperimentale pubblicato, non direttamente riportato come tale nella tabella generale di Henssge.','yellow');
@@ -541,15 +550,25 @@ function showSource(){
   let c={...data(),state,water:q('#water').value};
   if(q('#air-row').hidden)c={...c,air:'still',wind:false};
   const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
-  renderFCProvenance(result,examples);
+  renderFCProvenance(result,examples,c);
   q('#reference').textContent=referenceLabel(result,c);
   const showOrigin=result.kind!=='Tabella Henssge'&&originLabel(result)!=='Ragionamento dell’app';
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
-  const h08Notice=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Segnalazione dalla letteratura: nel caso sperimentale H08 (Henssge e Madea, 1988; Madea, 2016, tabella 6.6), un corpo nudo con addosso due coperte spesse, adagiato su materasso presentava FC 1.44. Il caso documenta la variabilità dell’isolamento effettivo delle coperture. Valutare se il caso reale richiede quindi di modificare/perfezionare l’intervallo suggerito dall’app.':'';
-  q('#rule-source').textContent=[result.detail,coverConvention(c),h08Notice].filter(Boolean).join(' ');
-  q('#rule-source').classList.toggle('fc-provenance-green',result.kind==='Tabella Henssge');
+  const dryBlankets=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0);
+  const repeatedBlanketDetail=c.m+c.h>0&&['blankets-ordinary','thick-blanket','heavy-blanket','feather-duvet'].includes(result.id);
+  q('#rule-source').textContent=[repeatedBlanketDetail?'':result.detail,coverConvention(c)].filter(Boolean).join(' ');
+  q('#rule-source').classList.toggle('fc-provenance-green',result.kind==='Tabella Henssge'&&!dryBlankets);
+  const notice=q('#h08-notice');notice.replaceChildren();notice.hidden=!dryBlankets;
+  if(dryBlankets){
+    const bold=document.createElement('strong');bold.textContent='Attenzione:';
+    const link=document.createElement('a');
+    link.href='https://drive.google.com/file/d/1mobrXHixi1aEEOPU2WC9H5i3rm-5E6rv/view';
+    link.target='_blank';link.rel='noopener noreferrer';link.textContent='tabella 6.6';
+    notice.append(bold,document.createTextNode(' nel caso sperimentale H08 (Henssge e Madea, 1988; Madea, 2016, '),link,
+      document.createTextNode('), un corpo nudo con addosso due coperte spesse, adagiato su materasso presentava FC 1.44. Il caso documenta la variabilità dell’isolamento effettivo delle coperture. Tenerne conto ed eventualmente modificare/perfezionare l’intervallo suggerito.'));
+  }
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
   if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
@@ -571,12 +590,16 @@ function showSource(){
   q('#source-examples .hint').textContent=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Esempi sulle coperture dalla letteratura, anche per confronto: differenze di indumenti, appoggio e coperture sono segnalate quando presenti.':'Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:';
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
   for(const e of examples){
-    const item=document.createElement('div');item.className='source-example';
-    paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
+    const item=document.createElement('li');
+    const title=document.createElement('strong');
+    title.textContent=e.title+(e.type==='Caso operativo'?' (pratica medico-legale)':'');
     const prefix=exampleWeightRelevant(e)?(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(String).join(' / ')+' kg · ':'';
-    paragraph(item,prefix+exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
-    if(e.notes&&e.title!=='Caso 33')paragraph(item,exampleDecimalText(e.notes));
-    if(e.comparisonNote)paragraph(item,e.comparisonNote);
+    item.append(title,document.createTextNode(' — '+prefix+exampleConditions(e)+' '));
+    const value=document.createElement('strong');value.textContent=exampleDecimalText(exampleFCText(e));
+    item.append(value);
+    const redundantNote=e.archive?.table==='6.6'&&e.notes?.startsWith('La copertura è valutata insieme agli indumenti');
+    if(e.notes&&e.title!=='Caso 33'&&!redundantNote)item.append(document.createTextNode(' · '+exampleDecimalText(e.notes)));
+    if(e.comparisonNote)item.append(document.createTextNode(' · '+e.comparisonNote));
     list.append(item);
   }
 }
