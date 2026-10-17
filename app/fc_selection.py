@@ -22,10 +22,10 @@ def validate_choice(payload):
     if not isinstance(values, list) or len(values) != 2:
         raise ValueError("Inserire minimo e massimo.")
     lo, hi = map(float, values)
-    weight = float(payload.get("weight"))
-    if not all(isfinite(v) for v in (lo, hi, weight)):
+    weight = None if payload.get("weight") is None else float(payload["weight"])
+    if not all(isfinite(v) for v in (lo, hi)) or (weight is not None and not isfinite(weight)):
         raise ValueError("Valori non validi.")
-    if lo < 0.35 or hi < lo or not 4 <= weight <= 150:
+    if lo < 0.35 or hi < lo or (weight is not None and not 4 <= weight <= 150):
         raise ValueError("Verificare FC e peso.")
     if any(abs(v - rounded_fc(v)) > 1e-8 for v in (lo, hi)):
         raise ValueError("Il FC deve essere espresso in passi di 0.05.")
@@ -72,7 +72,7 @@ def apply_choice(state, payload, *, msil=False, sync_weight=True):
         state["__full_standard_fattore_correzione"] = state.get("fattore_correzione", None)
         for key in ("ta_other_val", "Ta_min_beta", "Ta_max_beta"):
             state[key] = ta
-    if sync_weight:
+    if sync_weight and weight is not None:
         sync_fc_weight(state, weight)
     state["fattore_correzione"] = rounded_fc((lo + hi) / 2)
     for key in ("fc_min_val", "FC_min_beta", "__full_interval_fc_min_val"):
@@ -151,7 +151,7 @@ def refresh_fc_for_weight(state, *, msil=False):
     # Old manual edits retained the helper's bounds, not the operator's values.
     if choice.get("manual") is True and "manual_weight_adjusted" not in choice:
         return False
-    pending_weight = choice.get("manual") is True and choice.get("weight") is None
+    pending_weight = choice.get("weight") is None
     if not pending_weight and not fc_weight_needs_review(state):
         return False
     if choice.get("scenarios"):
@@ -165,13 +165,12 @@ def refresh_fc_for_weight(state, *, msil=False):
         state["__full_standard_fattore_correzione"] = state["fattore_correzione"]
         return True
     try:
-        lo, hi, previous_weight = validate_choice(
-            {**choice, "weight": state.get("peso")} if pending_weight else choice
-        )
+        lo, hi, previous_weight = validate_choice(choice)
+        reference_weight = 70.0 if pending_weight else previous_weight
         base = choice.get("base_range")
         # Older sessions have no base range. Never infer it from rounded bounds.
         original_manual = choice.get("manual") is True and base == [lo, hi]
-        if not original_manual and adapt_fc_range(base, previous_weight) != [lo, hi]:
+        if not original_manual and adapt_fc_range(base, reference_weight) != [lo, hi]:
             return False
         weight = float(state.get("peso"))
         bounds = adapt_fc_range(base, weight)
