@@ -465,7 +465,7 @@ def _render_henssge_base_table(language: str) -> None:
               <tr><td></td><td></td><td>0.50</td><td>{text['naked']}</td><td></td><td>{text['water_still']}</td></tr>
               <tr><td></td><td></td><td>0.70</td><td>{text['naked']}</td><td>{text['moving']}</td><td></td></tr>
               <tr><td></td><td></td><td>0.70</td><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td></td></tr>
-              <tr><td>{text['naked']}</td><td>{text['moving']}</td><td>0.75</td><td></td><td></td><td></td></tr>
+              <tr><td>{text['naked']}</td><td>{text['moving']}</td><td>0.75</td><td class="fc-experimental">{text['naked']}</td><td class="fc-experimental">{text['still']}</td><td></td></tr>
               <tr><td>{text['thin_1_2']}</td><td>{text['moving']}</td><td>0.90</td><td>{text['thicker_2_plus']}</td><td>{text['moving']}</td><td></td></tr>
               <tr><td>{text['naked']}</td><td>{text['still']}</td><td>1.00</td><td></td><td></td><td></td></tr>
               <tr><td>{text['thin_1_2']}</td><td>{text['still']}</td><td>1.10</td><td>{text['thicker_2']}</td><td>{text['still']}</td><td></td></tr>
@@ -482,6 +482,16 @@ def _render_henssge_base_table(language: str) -> None:
         unsafe_allow_html=True,
     )
     _reference_caption(text['note'])
+    st.caption(
+        ("In rosso-bruno: FC 0.75 per corpo nudo bagnato, in aria ferma, "
+         "ricavato da dati sperimentali su casistiche numericamente limitate ("
+         if language == "it" else
+         "In reddish brown: FC 0.75 for a naked wet body in still air, "
+         "based on experimental data from a small case series (")
+        + _reference_link("Henssge e Brinkmann, 1984")
+        + ").",
+        unsafe_allow_html=True,
+    )
     _reference_caption(text['lower_trunk'])
     _reference_caption(text['thermal_foil'])
     _reference_caption(text['body_bag'])
@@ -673,6 +683,10 @@ st.markdown(
         font-weight: 650;
         background: rgba(128,128,128,.05);
         text-align: center;
+    }
+    .henssge-base-table .fc-experimental {
+        color: #994738;
+        font-weight: 650;
     }
     .mallach-table .subcriterion {
         padding-left: 0.10rem;
