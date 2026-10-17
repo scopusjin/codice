@@ -147,19 +147,13 @@ def decimal_number_input(
         help_text = _FC_RANGE_NOTE
     help_enabled = help_state_key is not None
 
-    # Pilot desktop: render only rectal temperature without a V1 iframe.
-    # Other desktop fields and all existing mobile routing stay unchanged.
-    desktop_rectal_v2 = (
-        not st.session_state.get("__full_device_mobile", False)
-        and key in {"mortem_decimal_rt_val_single", "mortem_decimal_rt_val_range"}
-    )
-    use_v2 = bool(
+    use_v2_mobile = bool(
         compact_mobile
-        and (is_full_mobile_v2_key(key) or desktop_rectal_v2)
+        and is_full_mobile_v2_key(key)
         and mobile_decimal_v2_available()
     )
 
-    if use_v2:
+    if use_v2_mobile:
         result = render_mobile_decimal_v2(
             value=current,
             step=float(step),
