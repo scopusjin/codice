@@ -430,7 +430,8 @@ function showSource(){
   q('#source-kind').hidden=!showOrigin;
   q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
   q('#source-body').textContent='';q('#source-extra').textContent='';
-  q('#rule-source').textContent=[result.detail,coverConvention(c)].filter(Boolean).join(' ');
+  const h08Notice=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Segnalazione dalla letteratura: nel caso sperimentale H08 (Henssge e Madea, 1988; Madea, 2016, tabella 6.6), un corpo nudo coperto da due coperte spesse e adagiato su materasso presentava FC 1.44. Il materasso era incluso nella prova: il caso documenta la variabilità dell’isolamento effettivo delle coperture e non modifica l’intervallo suggerito dall’app.':'';
+  q('#rule-source').textContent=[result.detail,coverConvention(c),h08Notice].filter(Boolean).join(' ');
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
   if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
