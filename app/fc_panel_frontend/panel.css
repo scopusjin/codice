@@ -129,12 +129,8 @@
 #fc-full #environment-row[data-immersed=true] #scenario-temperature[data-needs-value=true]+#scenario-temperature-unit{
   border-color:light-dark(#b33b32,#dc877d);
 }
-#fc-full #body-state-row[data-needs-value=true] button{
-  border-color:light-dark(#b33b32,#dc877d);
-}
-#fc-full #body-state-row[data-needs-value=true]::after{
-  content:'…';color:light-dark(#a32822,#ffb4ab);font-weight:600;align-self:center;
-}
+#fc-full .state-required{display:inline-flex;align-items:center;justify-content:center;align-self:center;flex:none;width:22px;height:24px;box-sizing:border-box;border:1px solid light-dark(#b33b32,#dc877d);border-radius:5px;background:light-dark(#fff0ee,#492c2b);color:light-dark(#a32822,#ffb4ab);font-weight:650}
+#fc-full .state-required[hidden]{display:none}
 
 @container fc-panel (max-width:480px){#fc-full #counts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#fc-full #counts .counter{flex-wrap:wrap;gap:3px}#fc-full #counts label{width:100%;white-space:normal}#fc-full #counts .step{margin-bottom:3px}}
 @media(max-width:360px){#fc-full{padding:8px}#fc-full #scenario-editor{padding:6px}#fc-full #counts{padding:6px;gap:8px}}
