@@ -904,6 +904,134 @@ st.markdown(
     + "</div>",
     unsafe_allow_html=True,
 )
+
+# Guida operativa preliminare: la tabella originale rimane sotto, invariata.
+_GUIDE_ROWS = {
+    "it": [
+        ("Corpo asciutto — indumenti", [
+            ("Nudo","1.00","0.75","g","g"),
+            ("1 leggero","1.10","0.90","g","g"),
+            ("2 leggeri","1.10–1.20","0.90","g","g"),
+            ("3 leggeri","1.20–1.30","1.30","g","g"),
+            ("4 leggeri","1.30","1.30","g","g"),
+            ("1–2 pesanti","1.20","1.20","g","g"),
+            ("1–2 pesanti + 1–2 leggeri","1.20–1.40","1.20–1.40","r","r"),
+            ("Molti strati ordinari","1.40","1.40","g","g"),
+            ("Molti strati, un capo particolarmente isolante","1.40–1.60","1.40–1.60","r","r"),
+            ("Molti strati, più capi particolarmente isolanti","1.50–1.70","1.50–1.70","r","r"),
+        ]),
+        ("Corpo bagnato — indumenti", [
+            ("Nudo","0.75","0.70","y","g"),
+            ("1 leggero","0.90–1.00","0.70","r","g"),
+            ("2 leggeri","1.00–1.10","0.70","r","g"),
+            ("3 leggeri","1.00–1.10","0.70–0.90","r","r"),
+            ("4 leggeri","1.05–1.10","0.70–0.90","r","r"),
+            ("1 pesante","1.00–1.05","0.70–0.90","r","r"),
+            ("2 pesanti","1.10","0.90","g","g"),
+            ("Più di 2 pesanti","1.20","0.90","g","g"),
+            ("1 pesante + 1 leggero","1.00–1.10","0.70–0.90","r","r"),
+            ("1 pesante + 2 leggeri","1.05–1.10","0.70–0.90","r","r"),
+            ("Vestizione multistrato molto consistente","1.20–1.30","—","r",""),
+        ]),
+    ],
+    "en": [
+        ("Dry body — clothing", [
+            ("Naked","1.00","0.75","g","g"),("1 light layer","1.10","0.90","g","g"),
+            ("2 light layers","1.10–1.20","0.90","g","g"),("3 light layers","1.20–1.30","1.30","g","g"),
+            ("4 light layers","1.30","1.30","g","g"),("1–2 heavy layers","1.20","1.20","g","g"),
+            ("1–2 heavy + 1–2 light layers","1.20–1.40","1.20–1.40","r","r"),
+            ("Many ordinary layers","1.40","1.40","g","g"),
+            ("Many layers, one highly insulating item","1.40–1.60","1.40–1.60","r","r"),
+            ("Many layers, several highly insulating items","1.50–1.70","1.50–1.70","r","r"),
+        ]),
+        ("Wet body — clothing", [
+            ("Naked","0.75","0.70","y","g"),("1 light layer","0.90–1.00","0.70","r","g"),
+            ("2 light layers","1.00–1.10","0.70","r","g"),("3 light layers","1.00–1.10","0.70–0.90","r","r"),
+            ("4 light layers","1.05–1.10","0.70–0.90","r","r"),("1 heavy layer","1.00–1.05","0.70–0.90","r","r"),
+            ("2 heavy layers","1.10","0.90","g","g"),("More than 2 heavy layers","1.20","0.90","g","g"),
+            ("1 heavy + 1 light layer","1.00–1.10","0.70–0.90","r","r"),
+            ("1 heavy + 2 light layers","1.05–1.10","0.70–0.90","r","r"),
+            ("Substantial multilayer clothing","1.20–1.30","—","r",""),
+        ]),
+    ],
+}
+def _fc_guide_cell(value, category):
+    return f'<td class="guide-fc guide-{category}">{escape(value)}</td>'
+
+def _render_fc_guide(language):
+    is_it = language == "it"
+    title = "Guida alla scelta del FC di base" if is_it else "Guide to choosing the base FC"
+    legend = (
+        "Verde: tabella originale di Henssge · Giallo: dati sperimentali/casi pubblicati · Rosso-bruno: intervalli proposti per analogia dall’app."
+        if is_it else
+        "Green: original Henssge table · Yellow: experimental/published cases · Reddish brown: intervals proposed by analogy."
+    )
+    st.markdown(f'<div class="henssge-table-title">{title}</div>', unsafe_allow_html=True)
+    st.caption(legend)
+    st.markdown("""
+    <style>
+    .guide-fc{font-weight:650;white-space:nowrap}
+    .guide-g{color:#237a48}.guide-y{color:#a27600}.guide-r{color:#ad4640}
+    .fc-guide-table{width:100%;border-collapse:collapse;font-size:.76rem;line-height:1.2}
+    .fc-guide-table th,.fc-guide-table td{border:1px solid rgba(128,128,128,.3);padding:.23rem .32rem}
+    .fc-guide-table th{background:rgba(128,128,128,.08);text-align:left}
+    .fc-guide-table td:not(:first-child),.fc-guide-table th:not(:first-child){text-align:center}
+    </style>
+    """,unsafe_allow_html=True)
+    for heading, rows in _GUIDE_ROWS[language]:
+        body = "".join(
+            "<tr><td>"+escape(label)+"</td>"+_fc_guide_cell(still,cs)+_fc_guide_cell(wind,cw)+"</tr>"
+            for label,still,wind,cs,cw in rows
+        )
+        st.markdown(
+            '<div class="henssge-table-title">'+escape(heading)+'</div>'
+            '<div class="mallach-table-wrap"><table class="fc-guide-table"><thead><tr>'
+            + ('<th>Indumenti</th><th>Aria ferma</th><th>Correnti d’aria</th>' if is_it
+               else '<th>Clothing</th><th>Still air</th><th>Moving air</th>')
+            + '</tr></thead><tbody>'+body+'</tbody></table></div>',
+            unsafe_allow_html=True,
+        )
+    covering = [
+        ("1 coperta spessa, senza indumenti","1.80","g"),
+        ("1 coperta spessa + indumenti","1.80–2.40","r"),
+        ("1 coperta molto pesante, senza indumenti","1.80–2.20","r"),
+        ("1 coperta molto pesante + indumenti","1.80–2.40","r"),
+        ("Più coperte non molto voluminose","1.80–2.40","r"),
+        ("Più coperte molto voluminose, senza indumenti","1.80–2.80","r"),
+        ("Più coperte molto voluminose + indumenti","2.00–2.80","r"),
+        ("Piumone di piume molto voluminoso e avvolgente","2.80–3.00","r"),
+    ]
+    covering_en = [
+        ("1 thick blanket, no clothing","1.80","g"),("1 thick blanket + clothing","1.80–2.40","r"),
+        ("1 very heavy blanket, no clothing","1.80–2.20","r"),("1 very heavy blanket + clothing","1.80–2.40","r"),
+        ("Multiple blankets, not very bulky","1.80–2.40","r"),("Multiple bulky blankets, no clothing","1.80–2.80","r"),
+        ("Multiple bulky blankets + clothing","2.00–2.80","r"),("Very bulky enveloping feather duvet","2.80–3.00","r"),
+    ]
+    groups = [
+        ("Coperte e piumoni" if is_it else "Blankets and duvets",covering if is_it else covering_en),
+        ("Corpo immerso" if is_it else "Immersed body", [
+            ("Acqua corrente" if is_it else "Flowing water","0.35","g"),
+            ("Acqua stagnante" if is_it else "Still water","0.50","g"),
+            ("Acqua stagnante prossima a 0 °C" if is_it else "Still water near 0 °C","0.50–1.00","r"),
+        ]),
+    ]
+    for title, rows in groups:
+        body="".join("<tr><td>"+escape(label)+"</td>"+_fc_guide_cell(value,category)+"</tr>" for label,value,category in rows)
+        st.markdown('<div class="henssge-table-title">'+escape(title)+'</div>'
+                    '<div class="mallach-table-wrap"><table class="fc-guide-table"><thead><tr>'
+                    + ('<th>Condizione</th><th>FC</th>' if is_it else '<th>Condition</th><th>FC</th>')
+                    + '</tr></thead><tbody>'+body+'</tbody></table></div>',unsafe_allow_html=True)
+    st.caption(
+        "Valori per superfici termicamente indifferenti, prima degli adattamenti per appoggio e peso. "
+        "Gli intervalli per analogia non sono intervalli statistici di confidenza."
+        if is_it else
+        "Values for thermally indifferent surfaces, before support and weight adjustments. "
+        "Analogical ranges are not statistical confidence intervals."
+    )
+    _reference_caption("Henssge, 1988; Henssge e Brinkmann, 1984; Henssge et al., 2000.")
+
+_render_fc_guide(table_language)
+
 _render_henssge_base_table(table_language)
 
 st.markdown(
