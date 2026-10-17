@@ -72,7 +72,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <strong id="source-kind"></strong>
 <p id="rule-source"></p>
 <div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><div id="example-list"></div></div>
-<details id="all-fc-examples"><summary>Archivio completo degli esempi della letteratura</summary><p class="hint">Casi e prove consultabili a titolo documentale; non tutti corrispondono alle condizioni selezionate. Il FC riportato non rappresenta un suggerimento automatico.</p><div id="all-example-list"></div></details>
+
 
 <div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
 </div>
@@ -669,15 +669,6 @@ window.FCPanel={
   },
   setExamples(examples){
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
-    const list=q('#all-example-list');list.replaceChildren();
-    for(const e of EXAMPLES){
-      const item=document.createElement('div');item.className='source-example';
-      paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
-      paragraph(item,exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
-      if(e.notes)paragraph(item,exampleDecimalText(e.notes));
-      if(e.sourceText)paragraph(item,e.sourceText);
-      list.append(item);
-    }
   },
   snapshot(){
     return {state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
