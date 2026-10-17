@@ -264,6 +264,183 @@ else:
             f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
         )
 
+# Stile bottone
+st.markdown("""
+    <style>
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)) {
+        border: 2px solid #2196F3 !important;
+        color: black !important;
+        background-color: white !important;
+        font-weight: bold;
+        border-radius: 8px !important;
+        padding: 0.6em 2em !important;
+    }
+    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
+
+    /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
+       automatica di Streamlit altera centratura e larghezza del cerchio. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] button [data-testid="stIconMaterial"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] button [data-testid="stIconMaterial"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] button [data-testid="stIconMaterial"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Centratura tardiva degli helper: prevale anche sugli stili conservati
+       da Streamlit durante un aggiornamento a caldo. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_prudent"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_henssge"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-electrical_title_help_row_"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_"] {
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_prudent"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_row_henssge"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-electrical_title_help_row_"] {
+        gap: 4px !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"],
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        max-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        max-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_henssge"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-mortem_help_prudent_electrical_"] button,
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [class*="st-key-ta_native_help_button_"] button {
+        box-sizing: border-box !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 18px !important;
+        min-width: 18px !important;
+        max-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        max-height: 18px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+    }
+
+    /* Il riquadro di raffreddamento usa un intervallo verticale uniforme e
+       più compatto tra intestazione, toggle e righe dei parametri. */
+    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
+    [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
+    > [data-testid="stVerticalBlock"] {
+        gap: 0.45rem !important;
+    }
+
+    /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
+       garantisce il layout a due colonne anche durante gli hot reload. */
+    @media (min-width: 1024px) {
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] {
+            box-sizing: border-box !important;
+            width: min(100%, 82rem) !important;
+            max-width: 82rem !important;
+            margin-left: 0 !important;
+            margin-right: auto !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+            display: grid !important;
+            position: relative !important;
+            grid-template-columns: minmax(38rem, 2fr) minmax(19rem, 1fr) !important;
+            grid-auto-flow: row !important;
+            justify-content: start !important;
+            column-gap: 1rem !important;
+            row-gap: 0.30rem !important;
+            align-items: start !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+            grid-column: 1 !important;
+            grid-row: auto !important;
+            min-width: 0 !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has(.mortem-full-title) {
+            grid-column: 1 / -1 !important;
+            grid-row: 1 !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-btn_stima"]) {
+            grid-column: 2 !important;
+            grid-row: 3 !important;
+            position: sticky !important;
+            top: 1rem !important;
+            width: 100% !important;
+            max-width: 34rem !important;
+            align-self: start !important;
+            margin: 0 !important;
+            z-index: 4 !important;
+        }
+
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-mortem_result_box"]),
+        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
+        > *:has([class*="st-key-mortem_no_data_box"]) {
+            grid-column: 2 !important;
+            grid-row: 4 / span 12 !important;
+            position: sticky !important;
+            top: 5.2rem !important;
+            width: 100% !important;
+            max-width: 34rem !important;
+            align-self: start !important;
+            margin: 0 !important;
+            z-index: 3 !important;
+        }
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Definizione Widget (Streamlit) ---
 
 # --- Data/Ora ispezione legale ---
@@ -823,182 +1000,6 @@ if "last_run_sig" not in st.session_state:
 if "show_results" not in st.session_state:
     st.session_state["show_results"] = False
 
-# Stile bottone
-st.markdown("""
-    <style>
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)) {
-        border: 2px solid #2196F3 !important;
-        color: black !important;
-        background-color: white !important;
-        font-weight: bold;
-        border-radius: 8px !important;
-        padding: 0.6em 2em !important;
-    }
-    div.stButton > button:not(:where(.st-key-btn_fc_scenarios *, .st-key-ambient_temperature_action *)):hover { background-color: #E3F2FD !important; cursor: pointer; }
-
-    /* I popover di aiuto usano soltanto il punto interrogativo: la freccia
-       automatica di Streamlit altera centratura e larghezza del cerchio. */
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_prudent"] button [data-testid="stIconMaterial"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_henssge"] button [data-testid="stIconMaterial"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-ta_native_help_button_"] button [data-testid="stIconMaterial"] {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        min-width: 0 !important;
-        max-width: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Centratura tardiva degli helper: prevale anche sugli stili conservati
-       da Streamlit durante un aggiornamento a caldo. */
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_row_prudent"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_row_henssge"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-electrical_title_help_row_"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-ta_native_help_"] {
-        align-items: center !important;
-        gap: 4px !important;
-    }
-
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_row_prudent"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_row_henssge"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-electrical_title_help_row_"] {
-        gap: 4px !important;
-    }
-
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_prudent"] [data-testid="stPopover"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_henssge"] [data-testid="stPopover"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_prudent_electrical_"] [data-testid="stPopover"],
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-ta_native_help_button_"] [data-testid="stPopover"] {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 18px !important;
-        min-width: 18px !important;
-        max-width: 18px !important;
-        height: 18px !important;
-        min-height: 18px !important;
-        max-height: 18px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_prudent"] button,
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_henssge"] button,
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-mortem_help_prudent_electrical_"] button,
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [class*="st-key-ta_native_help_button_"] button {
-        box-sizing: border-box !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: 18px !important;
-        min-width: 18px !important;
-        max-width: 18px !important;
-        height: 18px !important;
-        min-height: 18px !important;
-        max-height: 18px !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1 !important;
-    }
-
-    /* Il riquadro di raffreddamento usa un intervallo verticale uniforme e
-       più compatto tra intestazione, toggle e righe dei parametri. */
-    html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title)
-    [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]):has([class*="st-key-stima_cautelativa_beta"])
-    > [data-testid="stVerticalBlock"] {
-        gap: 0.45rem !important;
-    }
-
-    /* Override tardivo: viene emesso a ogni rerun dopo i dati speciali e
-       garantisce il layout a due colonne anche durante gli hot reload. */
-    @media (min-width: 1024px) {
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] {
-            box-sizing: border-box !important;
-            width: min(100%, 82rem) !important;
-            max-width: 82rem !important;
-            margin-left: 0 !important;
-            margin-right: auto !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
-            display: grid !important;
-            position: relative !important;
-            grid-template-columns: minmax(38rem, 2fr) minmax(19rem, 1fr) !important;
-            grid-auto-flow: row !important;
-            justify-content: start !important;
-            column-gap: 1rem !important;
-            row-gap: 0.30rem !important;
-            align-items: start !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
-            grid-column: 1 !important;
-            grid-row: auto !important;
-            min-width: 0 !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-        > *:has(.mortem-full-title) {
-            grid-column: 1 / -1 !important;
-            grid-row: 1 !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-        > *:has([class*="st-key-btn_stima"]) {
-            grid-column: 2 !important;
-            grid-row: 3 !important;
-            position: sticky !important;
-            top: 1rem !important;
-            width: 100% !important;
-            max-width: 34rem !important;
-            align-self: start !important;
-            margin: 0 !important;
-            z-index: 4 !important;
-        }
-
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-        > *:has([class*="st-key-mortem_result_box"]),
-        html body:has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has(.mortem-full-title):has([class*="st-key-stima_cautelativa_beta"])
-        [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]
-        > *:has([class*="st-key-mortem_no_data_box"]) {
-            grid-column: 2 !important;
-            grid-row: 4 / span 12 !important;
-            position: sticky !important;
-            top: 5.2rem !important;
-            width: 100% !important;
-            max-width: 34rem !important;
-            align-self: start !important;
-            margin: 0 !important;
-            z-index: 3 !important;
-        }
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # --- Bottone: esegue il calcolo SOLO su click ---
 col1, col2, col3 = st.columns([1, 2, 1])
