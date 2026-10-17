@@ -539,7 +539,7 @@ function update(){
     &&reference.every(Number.isFinite)&&[a,b].every(Number.isFinite)
     &&[a,b].some((v,i)=>v!==roundFC(reference[i]));
   const missingWeight=q('#weight').value.trim()===''&&Array.isArray(reference)&&reference.some(v=>v>=1.4);
-  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':missingWeight?'FC di base: inserire il peso per verificare se è necessario un adattamento.':'';
+  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':missingWeight?'FC previsto per un cadavere del peso di circa 70 kg. Se verrà inserito un peso diverso nella pagina principale, il FC o il suo range verranno adattati di conseguenza.':'';
   q('#manual-state').textContent=weightNote&&manual?weightNote+' Se desideri valori diversi, reinseriscili manualmente.':weightNote;
   q('#editable-note').hidden=!manual&&!preset;
   q('#editable-note').textContent=manual?manualSelectionNote(a,b):preset?'FC preimpostato, non ancora modificato.':'';
