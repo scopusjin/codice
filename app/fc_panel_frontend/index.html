@@ -410,7 +410,7 @@ function exampleWeightRelevant(e){
   return maximum>=1.4&&weights.some(w=>Number.isFinite(Number(w))&&weightApplies(Number(w)));
 }
 function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
-function exampleConditions(e){return exampleDecimalText(e.conditions.replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
+function exampleConditions(e){return exampleDecimalText(e.conditions.replace(/\s+sul tronco inferiore/gi,'').replace(/\s+del tronco inferiore/gi,'').replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
 function exampleMatches(c){if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));}
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
@@ -530,7 +530,7 @@ function update(){
   else if(!Number.isFinite(a)||!Number.isFinite(b))error=result.range&&suggestion?(rangeExpanded?'Inserire entrambi gli estremi.':'Inserire il FC o selezionare le condizioni del corpo.'):result.summary;
   else if(a<.35||b<a)error='Minimo ≥ 0.35 e massimo ≥ minimo.';
   else if(!onFCGrid(a)||!onFCGrid(b))error='Passi di 0.05: arrotondamento all’uscita dal campo.';
-  else if(!Number.isFinite(w)||w<4||w>150)error='Inserire un peso tra 4 e 150 kg.';
+  else if(q('#weight').value.trim()!==''&&(!Number.isFinite(w)||w<4||w>150))error='Inserire un peso tra 4 e 150 kg.';
   q('#error').textContent=error;
   q('#use').disabled=!!error;
   
@@ -538,7 +538,8 @@ function update(){
   const adapted=Number.isFinite(w)&&Array.isArray(reference)&&reference.length===2
     &&reference.every(Number.isFinite)&&[a,b].every(Number.isFinite)
     &&[a,b].some((v,i)=>v!==roundFC(reference[i]));
-  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':'';
+  const missingWeight=q('#weight').value.trim()===''&&Array.isArray(reference)&&reference.some(v=>v>=1.4);
+  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':missingWeight?'FC di base: inserire il peso per verificare se è necessario un adattamento.':'';
   q('#manual-state').textContent=weightNote&&manual?weightNote+' Se desideri valori diversi, reinseriscili manualmente.':weightNote;
   q('#editable-note').hidden=!manual&&!preset;
   q('#editable-note').textContent=manual?manualSelectionNote(a,b):preset?'FC preimpostato, non ancora modificato.':'';
@@ -597,7 +598,8 @@ function recalc(){
   result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});
   const w=num(q('#weight'));
   lastWeight=w;
-  const adapted=result.range&&Number.isFinite(w)&&w>=4&&w<=150?bounds(...result.range,w):null;
+  const validWeight=Number.isFinite(w)&&w>=4&&w<=150;
+  const adapted=result.range?(validWeight?bounds(...result.range,w):result.range):null;
   suggestion=adapted&&adapted.every(Number.isFinite)?roundRange(adapted):null;
   if(result.range&&!suggestion&&Number.isFinite(w)&&w>=4&&w<=150)result={...result,summary:'Adattamento al peso non calcolabile: verificare i valori.',detail:result.detail+' Il calcolo non restituisce valori validi.'};
   manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;
@@ -671,7 +673,7 @@ window.FCPanel={
     for(const e of EXAMPLES){
       const item=document.createElement('div');item.className='source-example';
       paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
-      paragraph(item,(e.conditions||'')+' '+exampleDecimalText(exampleFCText(e)));
+      paragraph(item,exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
       if(e.notes)paragraph(item,exampleDecimalText(e.notes));
       if(e.sourceText)paragraph(item,e.sourceText);
       list.append(item);
