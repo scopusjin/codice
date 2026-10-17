@@ -446,7 +446,7 @@ function renderFCProvenance(r){
     'dry-insulating':['1.40']
   };
   if(r.kind==='Tabella Henssge'){
-    line('FC direttamente riportato nella tabella originale di Henssge.','green');
+    // The existing explanatory sentence below already identifies the Henssge table.
   }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
     line('FC ricavato da uno studio sperimentale pubblicato, non direttamente riportato come tale nella tabella generale di Henssge.','yellow');
   }else{
@@ -474,6 +474,7 @@ function showSource(){
   q('#source-body').textContent='';q('#source-extra').textContent='';
   const h08Notice=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Segnalazione dalla letteratura: nel caso sperimentale H08 (Henssge e Madea, 1988; Madea, 2016, tabella 6.6), un corpo nudo con addosso due coperte spesse, adagiato su materasso presentava FC 1.44. Il caso documenta la variabilità dell’isolamento effettivo delle coperture. Valutare se il caso reale richiede quindi di modificare/perfezionare l’intervallo suggerito dall’app.':'';
   q('#rule-source').textContent=[result.detail,coverConvention(c),h08Notice].filter(Boolean).join(' ');
+  q('#rule-source').classList.toggle('fc-provenance-green',result.kind==='Tabella Henssge');
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
   if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
