@@ -59,7 +59,7 @@ def adapt_scenarios(choice, weight):
     for item in choice["scenarios"]:
         base, previous = item.get("base_range"), item["range"]
         original_manual = item.get("manual") is True and base == previous
-        if not original_manual and adapt_fc_range(base, item["weight"]) != previous:
+        if not original_manual and adapt_fc_range(base, 70.0 if item.get("weight") is None else item["weight"]) != previous:
             raise ValueError("Base del FC dello scenario non coerente.")
         bounds = adapt_fc_range(base, weight)
         changed = bounds != adapt_fc_range(base, 70.0)
