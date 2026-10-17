@@ -288,7 +288,7 @@ function blanketOrClothingBase(c){
   if(rule.id==='wet-thick-wind'&&c.s>0){r.kind='Ragionamento dell’app';r.detail='L’app mantiene il valore riportato nella tabella di Henssge per almeno due strati pesanti bagnati esposti a correnti d’aria. L’estensione agli ulteriori strati leggeri selezionati è un ragionamento dell’app.';}
   if(['wet-many-thick','wet-mixed-heavy'].includes(rule.id))r.detail='La tabella di Henssge indica 1.20 per più di due strati pesanti bagnati senza correnti d’aria. L’app amplia il massimo a 1.30 considerando anche gli esperimenti con più indumenti bagnati.';
   if(rule.id==='dry-insulating')r.detail='L’app parte dalla categoria dei numerosi strati descritta nella tabella di Henssge e considera gli esperimenti sull’abbigliamento più isolante. Il range viene ampliato in presenza di uno o più indumenti particolarmente isolanti.';
-  if(rule.id==='dry-mixed')r.detail='L’app propone un intervallo tra le categorie degli strati pesanti e dei numerosi strati. La tabella di Henssge non riporta un valore specifico per questa combinazione di indumenti.';
+  if(rule.id==='dry-mixed')r.detail='';
   return r;
 }
 function evaluateFixedAir(c){
@@ -435,7 +435,7 @@ function sourceDetails(parent,source){
   link.addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('reference',source);});
   const row=document.createElement('p');row.append(link);parent.append(row);
 }
-function renderFCProvenance(r){
+function renderFCProvenance(r,examples=[]){
   const host=q('#fc-provenance');host.replaceChildren();
   if(!r||!r.range)return;
   const line=(text,kind)=>{
@@ -460,7 +460,7 @@ function renderFCProvenance(r){
     const ends=originalRanges[r.id];
     if(ends&&ends.length===2){
       line('Gli estremi '+ends.join(' e ')+' corrispondono a condizioni differenti previste nella tabella di Henssge.','green');
-      line('La scelta di considerare l’intervallo compreso tra queste condizioni è una deduzione dell’app, adattabile dall’operatore.','red');
+      line('In assenza di un riferimento specifico nelle tabelle di Henssge per la condizione indicata, l’app propone un intervallo compreso tra i valori previsti per condizioni differenti'+(examples.length?' e presenta alcuni esempi di casi pubblicati in letteratura e citati da Henssge':'')+'. L’intervallo può essere adattato dall’operatore.','red');
     }else if(ends&&ends.length===1){
       line('Il valore '+ends[0]+' è riportato nella tabella originale di Henssge.','green');
       line('L’estensione dell’intervallo alle condizioni selezionate è una deduzione dell’app.','red');
@@ -473,7 +473,7 @@ function showSource(){
   let c={...data(),state,water:q('#water').value};
   if(q('#air-row').hidden)c={...c,air:'still',wind:false};
   const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
-  renderFCProvenance(result);
+  renderFCProvenance(result,examples);
   q('#reference').textContent=referenceLabel(result,c);
   const showOrigin=result.kind!=='Tabella Henssge'&&originLabel(result)!=='Ragionamento dell’app';
   q('#source-kind').hidden=!showOrigin;
