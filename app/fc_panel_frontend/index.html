@@ -406,7 +406,7 @@ function exampleWeightRelevant(e){
   if(e.weightNote)return true;
   const values=String(e.fc||'').match(/\d+(?:[.,]\d+)?/g)||[];
   const maximum=Math.max(...values.map(v=>Number(v.replace(',','.'))));
-  const weights=e.weights||[e.weight];
+  const weights=e.weights||[e.virtualWeight??e.weight];
   return maximum>=1.4&&weights.some(w=>Number.isFinite(Number(w))&&weightApplies(Number(w)));
 }
 function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
@@ -504,7 +504,7 @@ function showSource(){
   for(const e of examples){
     const item=document.createElement('div');item.className='source-example';
     paragraph(item,(e.type==='Caso operativo'?'Caso della pratica medico-legale':e.type==='Simulatore'?'Prova su simulatore':'Esperimento su cadavere')+' · '+e.title);
-    const prefix=exampleWeightRelevant(e)?'Peso: '+(e.weights||[e.weight]).map(String).join(' / ')+' kg · ':'';
+    const prefix=exampleWeightRelevant(e)?(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(String).join(' / ')+' kg · ':'';
     paragraph(item,prefix+exampleConditions(e)+' '+exampleDecimalText(exampleFCText(e)));
     if(e.notes&&e.title!=='Caso 33')paragraph(item,exampleDecimalText(e.notes));
     list.append(item);
