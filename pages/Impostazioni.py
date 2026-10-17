@@ -51,6 +51,11 @@ mostra_ricomparsa = st.toggle(
 )
 st.session_state[REFORMATION_VISIBILITY_KEY] = mostra_ricomparsa
 
+st.markdown(
+    "[Archivio completo dei casi FC — Google Drive]"
+    "(https://docs.google.com/spreadsheets/d/134cUMee2Uot64lJQ2ocIsqvNkTCKkdM-kJHAaLY6je0/edit)"
+)
+
 render_back_button(SETTINGS_PAGE, key="back_home")
 
 st.markdown(
