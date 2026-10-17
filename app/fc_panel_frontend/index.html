@@ -431,25 +431,30 @@ function blanketExampleMatches(c){
   const support=c.surf===2?'mattress':c.surf<=1?'neutral':'other';
   const highlyInsulating=c.h>0||c.volume==='yes'||c.feather==='yes';
   const wideRange=!!result?.range&&result.range[1]-result.range[0]>.25;
-  const limit=(wideRange||count>1||highlyInsulating)?6:3;
+  const limit=(wideRange||count>1)?6:3;
   const ranked=BLANKET_EXAMPLE_PROFILES.map(profile=>{
     const e=EXAMPLES.find(item=>item.id===profile.id);
     if(!e)return null;
     let score=(profile.clothed===clothed?9:-4)+(profile.support===support?4:-2);
     if(profile.count===count)score+=3;
     else if(profile.count!==null&&profile.count>1&&count>1)score+=2;
-    if(highlyInsulating&&profile.insulating===true)score+=4;
-    if(!highlyInsulating&&profile.insulating===false)score+=2;
+    if(highlyInsulating&&profile.insulating===true)score+=10;
+    else if(highlyInsulating&&profile.insulating===false)score-=4;
+    else if(!highlyInsulating&&profile.insulating===false)score+=2;
     if(c.volume==='yes'&&profile.id==='case-6')score+=5;
     if(!highlyInsulating&&profile.id==='case-6')score-=2;
     return {e,profile,score};
   }).filter(Boolean).sort((a,b)=>b.score-a.score);
-  // Documented highly insulating conditions must not disappear behind simpler covers.
-  if(highlyInsulating)for(const id of ['case-6','blanket-B33']){
-    const at=ranked.findIndex(item=>item.e.id===id);
-    if(at>=limit)ranked.splice(limit-1,0,ranked.splice(at,1)[0]);
+  // Include both published higher-isolation comparisons without losing either one.
+  let selected=ranked.slice(0,limit);
+  if(highlyInsulating){
+    const requiredIds=['case-6','blanket-B33'];
+    const required=ranked.filter(item=>requiredIds.includes(item.e.id));
+    selected=ranked.filter(item=>!requiredIds.includes(item.e.id))
+      .slice(0,Math.max(0,limit-required.length)).concat(required)
+      .sort((a,b)=>b.score-a.score);
   }
-  return ranked.slice(0,limit).map(({e,profile})=>{
+  return selected.map(({e,profile})=>{
     const differences=[];
     if(c.wind)differences.push('correnti d’aria non equivalenti a quelle della prova');
     if(profile.support!==support){
