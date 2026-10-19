@@ -34,6 +34,7 @@ from app.tanatology_times import format_tanatology_measurement_datetime
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
     build_final_sentence, paragrafo_raffreddamento_dettaglio, paragrafo_potente,
+    paragrafo_raffreddamento_misto, nota_potente_condizioni_critiche,
     paragrafo_raffreddamento_input, paragrafi_descrizioni_base,
     paragrafi_parametri_aggiuntivi, paragrafo_putrefattive,
     frase_riepilogo_parametri_usati, avvisi_raffreddamento_henssge,
@@ -708,7 +709,10 @@ def aggiorna_grafico(
             and _is_num(Qd_val_check)
             and float(Qd_val_check) <= qd_threshold
         )
-        if henssge_non_applicabile_singolo:
+        raffreddamento_misto = condizioni_variabili and qd_range_status == "mixed" and usa_potente
+        if raffreddamento_misto:
+            _add_det(paragrafo_raffreddamento_misto(minimum_hours=raff_plot_start))
+        elif henssge_non_applicabile_singolo:
             _add_det("<ul><li>Nel caso in esame, il grado di raffreddamento corporeo, calcolabile sulla base della temperatura rettale e ambientale, ricade al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>")
         else:
             par_h = paragrafo_raffreddamento_dettaglio(
@@ -728,11 +732,12 @@ def aggiorna_grafico(
                     )
                 _add_det(par_h)
 
-        qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
-        par_p = paragrafo_potente(
-            mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
-        )
-        _add_det(par_p)
+        if not raffreddamento_misto:
+            qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
+            par_p = paragrafo_potente(
+                mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
+            )
+            _add_det(par_p)
 
         # --- frase finale complessiva ---
         frase_finale_html: str = ""
@@ -958,6 +963,9 @@ def aggiorna_grafico(
     elif overlap and frase_finale_html and (not single_parameter or usa_orario_custom):
         # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
+
+    if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
+        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore))))
 
     # 3) frase blu di riepilogo dei parametri usati.
     if overlap and len(nomi_usati) > 0:

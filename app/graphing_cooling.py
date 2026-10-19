@@ -320,10 +320,6 @@ def compute_cooling_state(
                 detail_blocks.append(
                     "<ul><li>Nelle condizioni considerate, il grado di raffreddamento corporeo, calcolato sulla base della temperatura rettale e dei diversi valori di temperatura ambientale considerati, ricade in tutti i casi al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>"
                 )
-            elif qd_range_status == "mixed":
-                detail_blocks.append(
-                    "<ul><li>Nelle condizioni considerate, il grado di raffreddamento corporeo, calcolato sulla base della temperatura rettale e dei diversi valori di temperatura ambientale considerati, ricade per una parte delle possibili combinazioni al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; per tali condizioni, la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>"
-                )
 
         else:
             # Henssge escluso
