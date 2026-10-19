@@ -200,7 +200,12 @@ def validate_case(case):
              "Versione del file non supportata. Nessun dato è stato modificato.")
     required = {"format", "schema_version", "app_version", "saved_at", "case_code", "view", "inputs",
                 "signs", "fc_choice", "fc_draft", "editor_open"}
-    _require(required <= case.keys() <= required | {"report"})
+    _require(required <= case.keys() <= required | {"report", "word_return"})
+    if "word_return" in case:
+        link = case["word_return"]
+        _require(isinstance(link, dict) and link.keys() == {"request_id", "case_code"})
+        _require(isinstance(link["request_id"], str) and re.fullmatch(r"[a-f0-9]{32}", link["request_id"]) is not None)
+        _require(link["case_code"] == case["case_code"])
     report = case.get("report")
     if report is not None:
         _require(isinstance(report, dict) and {"detailed_text", "detailed_html"} <= report.keys()

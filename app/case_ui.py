@@ -38,6 +38,9 @@ def prepare_case_import(home):
     except CaseFileError as exc:
         st.error(str(exc))
         return
+    word_link = st.session_state.pop("__word_launch_pending", None) or st.session_state.get("__word_return")
+    if word_link and word_link.get("case_code") != pending["case_code"]:
+        word_link = None
     # Keep the receiving device's layout, never the exporting device's layout.
     mobile = st.session_state.get("__full_device_mobile")
     # Le preferenze di visualizzazione appartengono alla sessione, non al caso.
@@ -52,6 +55,8 @@ def prepare_case_import(home):
     for key in list(st.session_state):
         del st.session_state[key]
     st.session_state.update(values)
+    if word_link:
+        st.session_state["__word_return"] = word_link
     st.session_state.update(sync)
     st.session_state.update(ui_preferences)
     # Fresh menu controls prevent a late update from the old case (including

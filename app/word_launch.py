@@ -12,6 +12,9 @@ def launch_values(params):
     code = params.get('mt_case', '')
     if not re.fullmatch(r'X\d{2}\.\d{1,8}', code):
         raise ValueError('Numero X non valido.')
+    request = params.get('mt_request', '')
+    if request and not re.fullmatch(r'[a-f0-9]{32}', request):
+        raise ValueError('Codice di collegamento Word non valido.')
     values = {'case_code': code}
     for source, target, low, high in [('mt_weight', 'peso', 0, 1000),
                                       ('mt_ta', 'ta_base_val', -100, 100),
@@ -43,6 +46,41 @@ def prepare_word_launch():
         st.stop()
     from app.case_file import snapshot_case
     st.session_state['__case_pending_import'] = snapshot_case(values, 'full')
+    if params.get('mt_request'):
+        st.session_state['__word_launch_pending'] = {
+            'request_id': params['mt_request'], 'case_code': values['case_code']}
+    else:
+        st.session_state.pop('__word_launch_pending', None)
+        st.session_state.pop('__word_return', None)
     for key in list(st.query_params):
         if key.startswith(PREFIX):
             del st.query_params[key]
+
+
+def word_result(state, view):
+    """Return only a current result bound to the explicitly launched Word case."""
+    context = state.get('__word_return')
+    if not context or state.get('case_code') != context['case_code']:
+        return None
+    from app.case_file import snapshot_case, encode_case
+    case = snapshot_case(state, view)
+    if not case.get('report') or not case['report'].get('word_blocks'):
+        return None
+    case['word_return'] = dict(context)
+    filename = f"mortem_{context['case_code']}_{context['request_id']}.json"
+    return encode_case(case), filename
+
+
+def render_word_download(view):
+    import streamlit as st
+    if not st.session_state.get('__word_return'):
+        return
+    result = word_result(st.session_state, view)
+    if result is None:
+        st.caption('Esegui la stima con i dati attuali per scaricare il riepilogo per Word.')
+        return
+    data, filename = result
+    st.download_button('Scarica riepilogo per Word', data, file_name=filename,
+                       mime='application/json', key='word_result_download',
+                       on_click='ignore', icon=':material/download:')
+    st.caption('Il collegamento Word trasferisce il file nella cartella del documento e aggiorna la valutazione quando torni alla sua finestra.')

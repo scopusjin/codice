@@ -518,6 +518,8 @@ if st.session_state.get("run_stima_mobile"):
     from app.case_report import capture_report
     capture_report(st.session_state, "msil")
 render_case_menu(MSIL_PAGE)
+from app.word_launch import render_word_download
+render_word_download("msil")
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)

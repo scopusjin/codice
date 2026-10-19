@@ -1007,3 +1007,6 @@ if st.session_state["show_results"]:
 
     from app.case_report import capture_report
     capture_report(st.session_state, "full")
+
+from app.word_launch import render_word_download
+render_word_download("full")
