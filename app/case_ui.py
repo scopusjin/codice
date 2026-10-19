@@ -9,7 +9,6 @@ from app.case_file import (
     CaseFileError, PAGES, app_version, case_filename, decode_case, encode_case,
     restored_inputs, snapshot_case,
 )
-from app.case_browser import render_browser_cases
 from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
 
 
@@ -89,7 +88,7 @@ def _case_dialog(view, suffix):
     st.text_input("Sigla / numero del caso", key=code_key, max_chars=80,
                   placeholder="Es. x26-05 oppure IL26-10", on_change=_store_case_code,
                   args=(code_key, suffix))
-    mode = st.segmented_control("Operazione", ["Salva", "Carica"], default="Salva",
+    mode = st.segmented_control("Operazione", ["Scarica", "Carica"], default="Scarica",
                                 key=widget_key("__case_dialog_mode"),
                                 selection_mode="single", label_visibility="collapsed")
     data = None
@@ -98,37 +97,31 @@ def _case_dialog(view, suffix):
         data = encode_case(case)
     except CaseFileError as exc:
         st.error(str(exc))
-    imported = render_browser_cases(data.decode("utf-8") if data else None,
-                                   enabled=True, mode="load" if mode == "Carica" else "save")
-    if imported is not None:
-        _queue_import(imported, suffix)
-        st.rerun()
     if mode != "Carica":
         if data is not None:
             if case.get("report") is None:
                 st.caption("Per includere le descrizioni, esegui la stima con i dati attuali prima di salvare.")
-            st.download_button("Scarica file", data, file_name=case_filename(case),
+            st.download_button("Scarica JSON", data, file_name=case_filename(case),
                                mime="application/json", key=widget_key("case_download"),
                                on_click="ignore", icon=":material/download:")
     else:
-        with st.expander("Apri da file", expanded=False):
-            uploaded = st.file_uploader("File del caso", type=["json"], max_upload_size=1,
-                                        key=widget_key("case_upload"), label_visibility="collapsed")
-            if uploaded is not None:
-                try:
-                    imported = decode_case(uploaded.getvalue())
-                except CaseFileError as exc:
-                    st.error(str(exc))
-                else:
-                    name = imported["case_code"] or "Senza sigla"
-                    saved_mode = "Completa" if imported["view"] == "full" else "Sopralluogo"
-                    st.text(f"{name} · {saved_mode}")
-                    if imported["app_version"] != app_version():
-                        st.caption("File salvato con una versione diversa dell’app: verificare la stima ricalcolata.")
-                    st.caption("L’apertura sostituisce i dati attuali. Il file originale resta invariato.")
-                    if st.button("Sostituisci e apri", key=widget_key("case_open")):
-                        _queue_import(imported, suffix)
-                        st.rerun()
+        uploaded = st.file_uploader("File del caso", type=["json"], max_upload_size=1,
+                                    key=widget_key("case_upload"), label_visibility="collapsed")
+        if uploaded is not None:
+            try:
+                imported = decode_case(uploaded.getvalue())
+            except CaseFileError as exc:
+                st.error(str(exc))
+            else:
+                name = imported["case_code"] or "Senza sigla"
+                saved_mode = "Completa" if imported["view"] == "full" else "Sopralluogo"
+                st.text(f"{name} · {saved_mode}")
+                if imported["app_version"] != app_version():
+                    st.caption("File salvato con una versione diversa dell’app: verificare la stima ricalcolata.")
+                st.caption("L’apertura sostituisce i dati attuali. Il file originale resta invariato.")
+                if st.button("Sostituisci e apri", key=widget_key("case_open")):
+                    _queue_import(imported, suffix)
+                    st.rerun()
 
 
 def render_case_menu(home, slot=None):

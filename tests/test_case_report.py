@@ -39,11 +39,10 @@ class ReportTests(unittest.TestCase):
         self.assertFalse(app.exception)
         app.button(key='case_menu').click().run()
         self.assertFalse(app.exception)
-        import json
-        component = next(c for c in app.get('component_instance') if c.proto.component_name.endswith('mortem_browser_cases'))
-        args = json.loads(component.proto.json_args)
-        # The actual browser/download payload must contain the displayed report.
-        payload = next(json.loads(v) for v in args.values() if isinstance(v, str) and v.startswith('{') and 'mortem-case' in v)
+        self.assertTrue(app.get('download_button'))
+        self.assertFalse(any(c.proto.component_name.endswith('mortem_browser_cases')
+                             for c in app.get('component_instance')))
+        payload = decode_case(encode_case(snapshot_case(app.session_state._state.filtered_state, 'full')))
         self.assertEqual(payload['report']['detailed_html'], app.session_state['__desc_dettagliate_html'])
         self.assertIn('ipostatiche', payload['report']['detailed_text'])
 

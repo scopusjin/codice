@@ -26,16 +26,15 @@ class CasePageTests(unittest.TestCase):
         app.button(key="case_menu").click().run()
         self.assertTrue(app.get("dialog"))
         app.text_input(key="__case_code_input").set_value("CASE-MODAL").run()
-        component = next(c for c in app.get("component_instance")
-                         if c.proto.component_name.endswith("mortem_browser_cases"))
-        self.assertEqual(json.loads(component.proto.json_args)["mode"], "save")
+        self.assertTrue(app.get("download_button"))
+        self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
+                             for c in app.get("component_instance")))
         self.assertFalse(app.get("file_uploader"))
         app.session_state["__case_dialog_mode"] = "Carica"
         app.run()
         self.assertEqual(list(app.exception), [])
-        component = next(c for c in app.get("component_instance")
-                         if c.proto.component_name.endswith("mortem_browser_cases"))
-        self.assertEqual(json.loads(component.proto.json_args)["mode"], "load")
+        self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
+                             for c in app.get("component_instance")))
         self.assertTrue(app.get("file_uploader"))
         self.assertFalse(app.get("download_button"))
         app.session_state["__case_dialog_open"] = False
@@ -134,11 +133,10 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(app.session_state["__fc_draft"]["temperature"], "8")
         next(b for b in app.button if b.label == "Caso").click().run()
         self.assertEqual(next(w.value for w in app.text_input if w.label == "Sigla / numero del caso"), "x26-05")
-        browser_component = next(c for c in app.get("component_instance")
-                                 if c.proto.component_name.endswith("mortem_browser_cases"))
-        browser_saved = decode_case(json.loads(browser_component.proto.json_args)["data"].encode())
-        self.assertEqual(browser_saved["fc_draft"]["temperature"], "8")
-        self.assertEqual(browser_saved["fc_choice"], saved["fc_choice"])
+        self.assertTrue(app.get("download_button"))
+        downloaded = decode_case(encode_case(snapshot_case(app.session_state._state.filtered_state, "full")))
+        self.assertEqual(downloaded["fc_draft"]["temperature"], "8")
+        self.assertEqual(downloaded["fc_choice"], saved["fc_choice"])
         app.session_state["__case_dialog_open"] = False
         app.run()
         app.button(key="btn_fc_scenarios").click().run()
@@ -162,7 +160,7 @@ class CasePageTests(unittest.TestCase):
                 key = "btn_stima_mobile" if source_msil else "btn_stima"
                 self.assertIn(key, [b.key for b in target.button])
 
-    def test_browser_component_restores_case_and_does_not_replay(self):
+    def test_file_import_restores_case_and_does_not_replay(self):
         import json
         for msil in (False, True):
             with self.subTest(msil=msil):
@@ -170,16 +168,10 @@ class CasePageTests(unittest.TestCase):
                 saved = snapshot_case({"case_code": "BROWSER-TEST", "peso": 91., "rt_val": 28.},
                                       "msil" if msil else "full")
                 app.button(key="case_menu").click().run()
-                component = next(c for c in app.get("component_instance")
-                                 if c.proto.component_name.endswith("mortem_browser_cases"))
-                args = json.loads(component.proto.json_args)
-                self.assertEqual(json.loads(args["data"])["format"], "mortem-case")
-                widgets = app._tree.get_widget_states()
-                widget = widgets.widgets.add()
-                widget.id = component.proto.id
-                widget.json_value = json.dumps({"instance": args["instance"], "event_id": "browser-open",
-                                               "action": "open", "data": encode_case(saved).decode()})
-                app._run(widgets)
+                self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
+                                     for c in app.get("component_instance")))
+                app.session_state["__case_pending_import"] = decode_case(encode_case(saved))
+                app.run()
                 self.assertEqual(list(app.exception), [])
                 self.assertEqual(app.session_state["case_code"], "BROWSER-TEST")
                 self.assertEqual(app.session_state["peso"], 91.)
