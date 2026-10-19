@@ -964,9 +964,6 @@ def aggiorna_grafico(
         # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
-    if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
-        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore))))
-
     # 3) frase blu di riepilogo dei parametri usati.
     if overlap and len(nomi_usati) > 0:
         nomi_finali = []
@@ -987,9 +984,12 @@ def aggiorna_grafico(
         if fc_note := manual_fc_note(options, note_bounds, W_val):
             chunks.append(_wrap_final("<p style='color:blue;font-size:8pt;'>" + fc_note + "</p>"))
 
-    # 4) frase blu Qd sempre in fondo alle descrizioni dettagliate.
+    # 4) nota blu Qd, seguita dalla precisazione Potente per il caso in esame.
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
+
+    if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
+        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore))))
 
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])

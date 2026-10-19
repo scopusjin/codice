@@ -26,13 +26,14 @@ class MixedCoolingDescriptionTests(unittest.TestCase):
         self.assertFalse(app.exception)
         html = app.session_state['__desc_dettagliate_html']
         self.assertIn('più di 16 ore e 30 minuti dal decesso', html)
-        self.assertIn('applicabile soltanto a una parte', html)
+        self.assertIn('risultati sufficientemente attendibili soltanto per una parte', html)
         self.assertNotIn("Applicando l'equazione di Henssge", html)
         self.assertNotIn('30 ore 30 minuti', html)
         self.assertNotIn('fossero trascorse almeno 43', html)
-        note = re.search(r"<p[^>]*color:blue[^>]*>Per le condizioni.*?</p>", html)
+        note = re.search(r"<p[^>]*color:blue[^>]*>Nel caso in esame, per le condizioni.*?</p>", html)
         self.assertIsNotNone(note)
         self.assertIn('43 ore prima', note.group())
+        self.assertGreater(note.start(), html.index('Il parametro Qd'))
         self.assertIn('16 ore', app.session_state['frase_breve'])
 
     def test_combined_conclusion_keeps_livor_upper_limit(self):

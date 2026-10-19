@@ -299,9 +299,9 @@ def paragrafo_raffreddamento_misto(*, minimum_hours: float) -> str:
     """Descrive il limite aperto già utilizzato dal grafico, senza ricalcolarlo."""
     minimum_text = i18n.prudent_hours_text(float(minimum_hours))
     return (
-        "<ul><li>Nelle condizioni considerate, il metodo di Henssge è applicabile soltanto "
-        "a una parte delle possibili combinazioni. Per quelle in cui il grado di raffreddamento "
-        "raggiunge la soglia critica, il metodo proposto da Potente et al. consente di stimare "
+        "<ul><li>Nelle condizioni considerate, il metodo di Henssge può fornire risultati sufficientemente attendibili soltanto "
+        "per una parte delle possibili combinazioni dei sopracitati parametri. Per le altre, secondo "
+        "il metodo proposto da Potente et al., è possibile stimare "
         "soltanto un tempo minimo trascorso dal decesso. Considerando complessivamente tali "
         "condizioni, si può stimare che, al momento dell’ispezione legale, fossero trascorse "
         f"più di {minimum_text} dal decesso.</li></ul>"
@@ -311,7 +311,7 @@ def paragrafo_raffreddamento_misto(*, minimum_hours: float) -> str:
 def nota_potente_condizioni_critiche(*, minimum_hours: float) -> str:
     minimum_text = i18n.prudent_hours_text(float(minimum_hours))
     return (
-        "<p style='color:blue;font-size:8pt;'>Per le condizioni in cui il grado di raffreddamento "
+        "<p style='color:blue;font-size:8pt;'>Nel caso in esame, per le condizioni in cui il grado di raffreddamento "
         "supera i limiti di applicabilità di Henssge, il metodo di Potente indica un tempo minimo "
         f"di {minimum_text} prima dell’ispezione legale.</p>"
     )

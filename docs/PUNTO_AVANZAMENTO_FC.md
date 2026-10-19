@@ -22,3 +22,7 @@ Controllo sintattico e diff; test integrati Streamlit del dettaglio e della conc
 
 Attendere il test manuale dell'utente sull'app di test. Nessuna ulteriore modifica autorizzata.
 L'ipotesi iniziale di un errore numerico (43 anziché 50.5 ore) è stata smentita dalla conferma del range 1.20–1.40 nel secondo scenario: non riproporla. L'utente ha respinto la proposta di esporre risultati separati per scenario.
+
+## Precisazione successiva autorizzata
+
+Base verificata: 14bd0f8e0e1c36438d0319babdbfd713d471f74a. Testo principale allineato alla formulazione Potente standard: Henssge può fornire risultati sufficientemente attendibili soltanto per una parte delle combinazioni dei sopracitati parametri. Nota blu Potente introdotta da «Nel caso in esame» e spostata dopo il paragrafo Qd. Test di regressione aggiornato per verificare anche l'ordine. Test manuale ancora da eseguire; calcoli invariati.
