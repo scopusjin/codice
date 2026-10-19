@@ -149,6 +149,10 @@ def aggiorna_grafico(
     if "skip_warnings" in kwargs and not skip_warnings:
         skip_warnings = bool(kwargs.pop("skip_warnings"))
 
+    st.session_state.pop("__word_report_blocks", None)
+    st.session_state["__desc_dettagliate_html"] = ""
+    word_cooling = []
+    testo_macchie = testo_rigidita = ""
     avvisi: List[str] = []
     dettagli: List[str] = []
     frase_finale_html: str = ""
@@ -694,6 +698,7 @@ def aggiorna_grafico(
                     (CF_val, CF_val), W_val, (Ta_val, Ta_val)),
             ))
 
+        word_cooling_start = len(dettagli)
         if temperatures_equal:
             _add_det(i18n.ui_text(
                 "graph.henssge_equal_temperature_detail",
@@ -738,6 +743,8 @@ def aggiorna_grafico(
                 mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
             )
             _add_det(par_p)
+
+        word_cooling = dettagli[word_cooling_start:]
 
         # --- frase finale complessiva ---
         frase_finale_html: str = ""
@@ -990,6 +997,14 @@ def aggiorna_grafico(
 
     if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
         chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore))))
+
+    # Separate Word fields: use the same generated prose, without the blue notes.
+    from app.case_report import build_word_blocks
+    st.session_state["__word_report_blocks"] = build_word_blocks(
+        input_html="\n".join(dettagli), cooling_html="\n".join(word_cooling),
+        livor=testo_macchie, rigor=testo_rigidita,
+        conclusion=(frase_finale_html if overlap and not discordanti else ""),
+    )
 
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])

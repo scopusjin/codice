@@ -203,8 +203,16 @@ def validate_case(case):
     _require(required <= case.keys() <= required | {"report"})
     report = case.get("report")
     if report is not None:
-        _require(isinstance(report, dict) and report.keys() == {"detailed_text", "detailed_html"})
-        _require(all(_text(value, 100000) for value in report.values()))
+        _require(isinstance(report, dict) and {"detailed_text", "detailed_html"} <= report.keys()
+                 <= {"detailed_text", "detailed_html", "word_blocks"})
+        _require(all(_text(report[key], 100000) for key in ("detailed_text", "detailed_html")))
+        from app.case_report import WORD_BLOCK_KEYS
+        blocks = report.get("word_blocks", {})
+        _require(isinstance(blocks, dict) and blocks.keys() <= WORD_BLOCK_KEYS)
+        for block in blocks.values():
+            _require(isinstance(block, dict) and block.keys() == {"html", "text", "insert_when"})
+            _require(_text(block["html"], 100000) and _text(block["text"], 100000))
+            _require(block["insert_when"] in {"always", "different_from_msil"})
     _require(_text(case["case_code"], 80) and "\n" not in case["case_code"] and "\t" not in case["case_code"])
     _require(_text(case["app_version"], 100) and _text(case["saved_at"], 100))
     try:

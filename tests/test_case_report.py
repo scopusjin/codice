@@ -46,3 +46,24 @@ class ReportTests(unittest.TestCase):
         payload = next(json.loads(v) for v in args.values() if isinstance(v, str) and v.startswith('{') and 'mortem-case' in v)
         self.assertEqual(payload['report']['detailed_html'], app.session_state['__desc_dettagliate_html'])
         self.assertIn('ipostatiche', payload['report']['detailed_text'])
+
+    def test_mixed_word_blocks_and_underlining(self):
+        from test_mixed_cooling_description import SCRIPT
+        from streamlit.testing.v1 import AppTest
+        script = SCRIPT.replace('selettore_macchie="Non valutate"',
+            'selettore_macchie="Migrabili perlomeno parzialmente"').replace(
+            'selettore_rigidita="Non valutata"', 'selettore_rigidita="Presente, intensa e generalizzata"')
+        app = AppTest.from_string(script, default_timeout=30).run()
+        self.assertFalse(app.exception)
+        blocks = app.session_state['__word_report_blocks']
+        self.assertEqual(set(blocks), {'ambient_temperature', 'correction_factor', 'cooling', 'livor', 'rigor', 'conclusion'})
+        self.assertEqual(blocks['ambient_temperature']['insert_when'], 'different_from_msil')
+        self.assertIn('11.0', blocks['ambient_temperature']['text'])
+        self.assertIn('1.40', blocks['correction_factor']['text'])
+        self.assertIn('più di 16 ore e 30 minuti', blocks['cooling']['text'])
+        self.assertIn('<u>macchie ipostatiche</u>', blocks['livor']['html'])
+        self.assertIn('<u>rigidità cadaverica</u>', blocks['rigor']['html'])
+        self.assertTrue(blocks['conclusion']['html'].startswith('<p>&nbsp;</p><p>'))
+        self.assertNotIn('<li>', blocks['conclusion']['html'])
+        self.assertNotIn('43 ore', str(blocks))
+        self.assertNotIn('Il parametro Qd', str(blocks))
