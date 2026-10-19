@@ -1002,3 +1002,6 @@ if st.session_state["show_results"]:
             alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
             skip_warnings=True,
         )
+
+    from app.case_report import capture_report
+    capture_report(st.session_state, "full")

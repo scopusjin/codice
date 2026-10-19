@@ -100,6 +100,8 @@ def _case_dialog(view, suffix):
         st.rerun()
     if mode != "Carica":
         if data is not None:
+            if case.get("report") is None:
+                st.caption("Per includere le descrizioni, esegui la stima con i dati attuali prima di salvare.")
             st.download_button("Scarica file", data, file_name=case_filename(case),
                                mime="application/json", key=widget_key("case_download"),
                                on_click="ignore", icon=":material/download:")

@@ -75,7 +75,7 @@ def _json_tree(value, depth=0):
         for item in value:
             _json_tree(item, depth + 1)
     else:
-        _require(value is None or type(value) is bool or _number(value) or _text(value))
+        _require(value is None or type(value) is bool or _number(value) or _text(value, 100000))
 
 
 def _pair(value, *, nullable=False):
@@ -163,7 +163,7 @@ def app_version():
     return digest.hexdigest()
 
 
-def snapshot_case(state, view, *, now=None):
+def snapshot_case(state, view, *, now=None, include_report=True):
     _require(view in PAGES)
     current = dict(state)
     editor_open = bool(current.get("__fc_active"))
@@ -186,6 +186,9 @@ def snapshot_case(state, view, *, now=None):
             "case_code": str(state.get("case_code", "")).strip(), "view": view,
             "inputs": values, "signs": signs, "fc_choice": _clean_choice(current.get("__fc_applied_choice")),
             "fc_draft": deepcopy(state.get("__fc_draft")), "editor_open": editor_open}
+    if include_report:
+        from app.case_report import current_report
+        case["report"] = current_report(state, case)
     validate_case(case)
     return case
 
@@ -197,7 +200,11 @@ def validate_case(case):
              "Versione del file non supportata. Nessun dato è stato modificato.")
     required = {"format", "schema_version", "app_version", "saved_at", "case_code", "view", "inputs",
                 "signs", "fc_choice", "fc_draft", "editor_open"}
-    _require(case.keys() == required)
+    _require(required <= case.keys() <= required | {"report"})
+    report = case.get("report")
+    if report is not None:
+        _require(isinstance(report, dict) and report.keys() == {"detailed_text", "detailed_html"})
+        _require(all(_text(value, 100000) for value in report.values()))
     _require(_text(case["case_code"], 80) and "\n" not in case["case_code"] and "\t" not in case["case_code"])
     _require(_text(case["app_version"], 100) and _text(case["saved_at"], 100))
     try:

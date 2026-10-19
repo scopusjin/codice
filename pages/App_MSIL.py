@@ -514,6 +514,9 @@ if st.session_state.get("run_stima_mobile"):
 
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
+if st.session_state.get("run_stima_mobile"):
+    from app.case_report import capture_report
+    capture_report(st.session_state, "msil")
 render_case_menu(MSIL_PAGE)
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
