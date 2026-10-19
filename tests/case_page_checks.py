@@ -19,12 +19,40 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         return app
 
+    def test_modal_modes_and_identifier_survive_close(self):
+        import json
+        app = self.start()
+        self.assertFalse(app.get("dialog"))
+        app.button(key="case_menu").click().run()
+        self.assertTrue(app.get("dialog"))
+        app.text_input(key="__case_code_input").set_value("CASE-MODAL").run()
+        component = next(c for c in app.get("component_instance")
+                         if c.proto.component_name.endswith("mortem_browser_cases"))
+        self.assertEqual(json.loads(component.proto.json_args)["mode"], "save")
+        self.assertFalse(app.get("file_uploader"))
+        app.session_state["__case_dialog_mode"] = "Carica"
+        app.run()
+        self.assertEqual(list(app.exception), [])
+        component = next(c for c in app.get("component_instance")
+                         if c.proto.component_name.endswith("mortem_browser_cases"))
+        self.assertEqual(json.loads(component.proto.json_args)["mode"], "load")
+        self.assertTrue(app.get("file_uploader"))
+        self.assertFalse(app.get("download_button"))
+        app.session_state["__case_dialog_open"] = False
+        app.run()
+        self.assertEqual(app.session_state["case_code"], "CASE-MODAL")
+        app.button(key="case_menu").click().run()
+        self.assertEqual(app.text_input(key="__case_code_input").value, "CASE-MODAL")
+
     def test_round_trip_between_devices_and_replacement_of_existing_case(self):
         for msil in (False, True):
             with self.subTest(msil=msil):
                 app = self.start(False, msil)
+                app.button(key="case_menu").click().run()
                 app.text_input(key="__case_code_input").set_value("IL26-10").run()
-                app.selectbox[0].select(app.selectbox[0].options[-1]).run()
+                app.session_state["__case_dialog_open"] = False
+                app.run()  # Close the dialog with a full rerun.
+                app.session_state["selettore_macchie"] = "Non valutate"
                 app.session_state["rt_val"] = 30.
                 app.session_state["peso"] = 82.5
                 app.session_state["ta_base_val"] = 15.
@@ -104,12 +132,15 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         self.assertFalse(app.session_state["__fc_active"])
         self.assertEqual(app.session_state["__fc_draft"]["temperature"], "8")
+        next(b for b in app.button if b.label == "Caso").click().run()
         self.assertEqual(next(w.value for w in app.text_input if w.label == "Sigla / numero del caso"), "x26-05")
         browser_component = next(c for c in app.get("component_instance")
                                  if c.proto.component_name.endswith("mortem_browser_cases"))
         browser_saved = decode_case(json.loads(browser_component.proto.json_args)["data"].encode())
         self.assertEqual(browser_saved["fc_draft"]["temperature"], "8")
         self.assertEqual(browser_saved["fc_choice"], saved["fc_choice"])
+        app.session_state["__case_dialog_open"] = False
+        app.run()
         app.button(key="btn_fc_scenarios").click().run()
         self.assertEqual(app.session_state["case_code"], "x26-05")
 
@@ -138,6 +169,7 @@ class CasePageTests(unittest.TestCase):
                 app = self.start(msil=msil)
                 saved = snapshot_case({"case_code": "BROWSER-TEST", "peso": 91., "rt_val": 28.},
                                       "msil" if msil else "full")
+                app.button(key="case_menu").click().run()
                 component = next(c for c in app.get("component_instance")
                                  if c.proto.component_name.endswith("mortem_browser_cases"))
                 args = json.loads(component.proto.json_args)
@@ -151,7 +183,7 @@ class CasePageTests(unittest.TestCase):
                 self.assertEqual(list(app.exception), [])
                 self.assertEqual(app.session_state["case_code"], "BROWSER-TEST")
                 self.assertEqual(app.session_state["peso"], 91.)
-                self.assertNotEqual(app.session_state["__case_browser"]["instance"], args["instance"])
+                self.assertNotIn("__case_browser", app.session_state)
                 app.session_state["peso"] = 72.
                 app.run()
                 self.assertEqual(app.session_state["peso"], 72.)

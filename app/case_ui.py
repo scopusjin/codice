@@ -69,52 +69,73 @@ def prepare_case_import(home):
         st.switch_page(PAGES[pending["view"]])
 
 
+def _close_case_dialog():
+    st.session_state["__case_dialog_open"] = False
+
+
+@st.dialog("Caso", width="small", on_dismiss=_close_case_dialog)
+def _case_dialog(view, suffix):
+    def widget_key(name):
+        return name + ("_" + suffix if suffix else "")
+
+    code_key = widget_key("__case_code_input")
+    if code_key not in st.session_state:
+        st.session_state[code_key] = st.session_state.get("case_code", "")
+    st.text_input("Sigla / numero del caso", key=code_key, max_chars=80,
+                  placeholder="Es. x26-05 oppure IL26-10", on_change=_store_case_code,
+                  args=(code_key, suffix))
+    mode = st.segmented_control("Operazione", ["Salva", "Carica"], default="Salva",
+                                key=widget_key("__case_dialog_mode"),
+                                selection_mode="single", label_visibility="collapsed")
+    data = None
+    try:
+        case = snapshot_case(st.session_state, view)
+        data = encode_case(case)
+    except CaseFileError as exc:
+        st.error(str(exc))
+    imported = render_browser_cases(data.decode("utf-8") if data else None,
+                                   enabled=True, mode="load" if mode == "Carica" else "save")
+    if imported is not None:
+        _queue_import(imported, suffix)
+        st.rerun()
+    if mode != "Carica":
+        if data is not None:
+            st.download_button("Scarica file", data, file_name=case_filename(case),
+                               mime="application/json", key=widget_key("case_download"),
+                               on_click="ignore", icon=":material/download:")
+    else:
+        with st.expander("Apri da file", expanded=False):
+            uploaded = st.file_uploader("File del caso", type=["json"], max_upload_size=1,
+                                        key=widget_key("case_upload"), label_visibility="collapsed")
+            if uploaded is not None:
+                try:
+                    imported = decode_case(uploaded.getvalue())
+                except CaseFileError as exc:
+                    st.error(str(exc))
+                else:
+                    name = imported["case_code"] or "Senza sigla"
+                    saved_mode = "Completa" if imported["view"] == "full" else "Sopralluogo"
+                    st.text(f"{name} · {saved_mode}")
+                    if imported["app_version"] != app_version():
+                        st.caption("File salvato con una versione diversa dell’app: verificare la stima ricalcolata.")
+                    st.caption("L’apertura sostituisce i dati attuali. Il file originale resta invariato.")
+                    if st.button("Sostituisci e apri", key=widget_key("case_open")):
+                        _queue_import(imported, suffix)
+                        st.rerun()
+
+
 def render_case_menu(home, slot=None):
     view = next(name for name, page in PAGES.items() if page == home)
     suffix = st.session_state.get("__case_ui_id", "")
-    def widget_key(name):
-        return name + ("_" + suffix if suffix else "")
+    menu_key = "case_menu" + ("_" + suffix if suffix else "")
     target = slot.container() if slot is not None else st.container()
     with target:
         with st.container(horizontal=True, horizontal_alignment="right", gap="xsmall", key="case_menu_row"):
-            code_slot = st.empty()
             if code := st.session_state.get("case_code", ""):
-                code_slot.text(code, width="content")
-            with st.popover("Caso", icon=":material/folder_open:", width="content", key=widget_key("case_menu"), on_change="rerun"):
-                code_key = widget_key("__case_code_input")
-                st.session_state[code_key] = st.session_state.get("case_code", "")
-                st.text_input("Sigla / numero del caso", key=code_key, max_chars=80,
-                              placeholder="Es. x26-05 oppure IL26-10", on_change=_store_case_code, args=(code_key, suffix))
-                data = None
-                try:
-                    case = snapshot_case(st.session_state, view)
-                    data = encode_case(case)
-                except CaseFileError as exc:
-                    st.error(str(exc))
-                imported = render_browser_cases(data.decode("utf-8") if data else None,
-                                               enabled=bool(st.session_state.get(widget_key("case_menu"), False)))
-                if imported is not None:
-                    _queue_import(imported, suffix)
-                    st.rerun()
-                if data is not None:
-                    st.download_button("Scarica file", data, file_name=case_filename(case),
-                                       mime="application/json", key=widget_key("case_download"), on_click="ignore",
-                                       disabled=not st.session_state.get(widget_key("case_menu"), False),
-                                       icon=":material/download:")
-                uploaded = st.file_uploader("Apri da file", type=["json"], max_upload_size=1,
-                                            key=widget_key("case_upload"), help="Seleziona un file del caso salvato da Mor-tem.")
-                if uploaded is not None:
-                    try:
-                        imported = decode_case(uploaded.getvalue())
-                    except CaseFileError as exc:
-                        st.error(str(exc))
-                    else:
-                        name = imported["case_code"] or "Senza sigla"
-                        mode = "Completa" if imported["view"] == "full" else "Sopralluogo"
-                        st.text(f"{name} · {mode}")
-                        if imported["app_version"] != app_version():
-                            st.caption("File salvato con una versione diversa dell’app: verificare la stima ricalcolata.")
-                        st.caption("L’apertura sostituisce i dati attuali. Il file originale resta invariato.")
-                        st.button("Sostituisci e apri", key=widget_key("case_open"), on_click=_queue_import, args=(imported, suffix))
+                st.text(code, width="content")
+            if st.button("Caso", icon=":material/folder_open:", width="content", key=menu_key):
+                st.session_state["__case_dialog_open"] = True
+            if st.session_state.get("__case_dialog_open", False):
+                _case_dialog(view, suffix)
         if st.session_state.pop("__case_loaded_notice", False):
             st.toast("Caso caricato. I risultati saranno ricalcolati con Procedi con la stima.")

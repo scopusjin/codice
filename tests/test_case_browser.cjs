@@ -19,7 +19,7 @@ assert.throws(() => makeRecord(JSON.stringify({...caseData, schema_version:999})
 assert.throws(() => makeRecord('x'.repeat(1024 * 1024 + 1), 'id'));
 
 // Exercise the UI against a storage boundary, including failed writes and concurrent updates.
-const ids = ['save','open','replace-note','status','saved','archive-title','empty',
+const ids = ['save-controls','save','open','replace-note','status','saved','archive-title','empty',
   'saved-controls','version-note','archive'];
 const nodes = Object.fromEntries(ids.map(id => [id, {textContent:'', value:'', hidden:false,
   disabled:false, events:{}, addEventListener(type, fn) { this.events[type] = fn; },

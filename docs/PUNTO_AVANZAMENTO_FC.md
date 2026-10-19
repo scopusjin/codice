@@ -26,3 +26,9 @@ L'ipotesi iniziale di un errore numerico (43 anziché 50.5 ore) è stata smentit
 ## Precisazione successiva autorizzata
 
 Base verificata: 14bd0f8e0e1c36438d0319babdbfd713d471f74a. Testo principale allineato alla formulazione Potente standard: Henssge può fornire risultati sufficientemente attendibili soltanto per una parte delle combinazioni dei sopracitati parametri. Nota blu Potente introdotta da «Nel caso in esame» e spostata dopo il paragrafo Qd. Test di regressione aggiornato per verificare anche l'ordine. Test manuale ancora da eseguire; calcoli invariati.
+
+## Finestra Caso — intervento autorizzato 19.10.2026
+
+Base verificata: 0b4166a2e6c9918630d427b119fbfa77e9c4dfbe. Il pulsante Caso apre ora un dialogo Streamlit piccolo, con sigla in alto e selettore Salva/Carica. Una sola sezione attiva: salvataggio nel browser e download, oppure archivio browser e caricamento JSON richiudibile. Elenco nativo a quattro righe con scorrimento interno. Chiusura nativa del dialogo. Le chiavi UI aggiunte __case_dialog_open e __case_dialog_mode gestiscono esclusivamente apertura e scheda; nessuna chiave dati esistente rinominata. Importazione differita e archivio IndexedDB conservati.
+
+File coinvolti: app/case_ui.py, app/case_browser.py, app/case_browser_frontend/index.html e main.js; test case_page_checks.py e test_case_browser.cjs. Verificati sintassi Python/JS, diff, test Python dei casi (13 test, inclusa suite integrata), successiva suite integrata con test aggiuntivo apertura/modalità/chiusura/sigla, e test Node dell'archivio browser. Verifica visiva locale non completata perché Chromium non è disponibile e il download non riesce. Prossimo passo: test manuale desktop/mobile dell'utente. Nessuna modifica a formule, risultati, serializzazione dei casi o dati memorizzati.

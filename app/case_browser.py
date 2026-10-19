@@ -23,11 +23,11 @@ def consume_open_event(event, control):
     return decode_case(raw.encode("utf-8"))
 
 
-def render_browser_cases(data, *, enabled):
+def render_browser_cases(data, *, enabled, mode="all"):
     control = st.session_state.setdefault("__case_browser", {"instance": uuid4().hex})
     component = components.declare_component(
         "mortem_browser_cases", path=str(Path(__file__).with_name("case_browser_frontend")))
-    event = component(data=data, enabled=enabled, instance=control["instance"],
+    event = component(data=data, enabled=enabled, mode=mode, instance=control["instance"],
                       app_version=app_version(), key="__case_browser_" + control["instance"], default=None)
     try:
         return consume_open_event(event, control)

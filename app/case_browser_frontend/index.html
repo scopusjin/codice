@@ -23,15 +23,17 @@
   </style>
 </head>
 <body>
+  <div id="save-controls">
   <button id="save" type="button" disabled>Salva nel browser</button>
   <p id="replace-note" class="note" hidden>Aggiorna il salvataggio con la stessa sigla.</p>
+  </div>
   <p id="status" role="status" aria-live="polite"></p>
   <details id="archive">
     <summary id="archive-title">Casi salvati</summary>
     <p id="empty" class="note">Nessun caso salvato in questo browser.</p>
     <div id="saved-controls" hidden>
       <label for="saved">Caso da aprire</label>
-      <select id="saved"></select>
+      <select id="saved" size="4" aria-label="Casi salvati"></select>
       <p id="version-note" class="note" hidden>Salvato con una versione diversa dell’app: verificare la stima ricalcolata.</p>
       <p class="note">L’apertura sostituisce i dati attuali.</p>
       <button id="open" type="button">Apri caso salvato</button>

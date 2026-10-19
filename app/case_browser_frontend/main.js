@@ -13,6 +13,9 @@ function update() {
   const existing = code && entries.some(record => record.code === code);
   $('save').textContent = existing ? 'Aggiorna nel browser' : 'Salva nel browser';
   $('replace-note').hidden = !existing;
+  $('save-controls').hidden = args.mode === 'load';
+  $('archive').hidden = args.mode === 'save';
+  if (args.mode === 'load') $('archive').open = true;
   $('save').disabled = !available || !args.enabled || !args.data || busy;
   $('open').disabled = !available || !args.enabled || !entries.length || busy;
   const selected = entries.find(record => record.id === $('saved').value);
