@@ -67,3 +67,17 @@ class ReportTests(unittest.TestCase):
         self.assertNotIn('<li>', blocks['conclusion']['html'])
         self.assertNotIn('43 ore', str(blocks))
         self.assertNotIn('Il parametro Qd', str(blocks))
+
+    def test_optional_word_blocks_round_trip(self):
+        from app.case_report import build_word_blocks
+        from app.textgen import paragrafo_putrefattive
+        blocks = build_word_blocks(input_html="", cooling_html="", livor="", rigor="",
+            conclusion="Conclusione", additional_html="<ul><li>Primo dato.</li><li>Secondo dato.</li></ul>",
+            putrefaction_html=paragrafo_putrefattive(True))
+        self.assertEqual(blocks['additional']['text'].count('•'), 2)
+        self.assertIn('putref', blocks['putrefaction']['text'].lower())
+        state = {'show_results': True, '__desc_dettagliate_html': '<p>Descrizioni.</p>',
+                 '__word_report_blocks': blocks}
+        capture_report(state, 'full')
+        case = decode_case(encode_case(snapshot_case(state, 'full')))
+        self.assertEqual(case['report']['word_blocks'], blocks)

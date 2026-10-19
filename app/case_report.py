@@ -55,10 +55,10 @@ def current_report(state, case):
     return {key: saved[key] for key in ("detailed_text", "detailed_html", "word_blocks")}
 
 
-WORD_BLOCK_KEYS = {"ambient_temperature", "correction_factor", "cooling", "livor", "rigor", "conclusion"}
+WORD_BLOCK_KEYS = {"ambient_temperature", "correction_factor", "cooling", "livor", "rigor", "putrefaction", "additional", "conclusion"}
 
 
-def build_word_blocks(*, input_html, cooling_html, livor, rigor, conclusion):
+def build_word_blocks(*, input_html, cooling_html, livor, rigor, conclusion, additional_html="", putrefaction_html=""):
     """Temperature comparison is deferred to Word, which has the original MSIL value."""
     blocks = {}
 
@@ -80,6 +80,8 @@ def build_word_blocks(*, input_html, cooling_html, livor, rigor, conclusion):
         if text:
             text = text.replace(phrase, "<u>" + phrase + "</u>", 1)
             add(key, "<ul><li>" + text + "</li></ul>")
+    add("putrefaction", putrefaction_html)
+    add("additional", additional_html)
     if conclusion:
         add("conclusion", "<p>&nbsp;</p><p>" + conclusion + "</p>")
     return blocks

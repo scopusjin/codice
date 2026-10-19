@@ -868,9 +868,11 @@ def aggiorna_grafico(
             )
         if testo_rigidita:
             _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
-    for blocco in paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare):
+    word_additional = paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare)
+    word_putrefaction = paragrafo_putrefattive(alterazioni_putrefattive)
+    for blocco in word_additional:
         _add_det(blocco)
-    _add_det(paragrafo_putrefattive(alterazioni_putrefattive))
+    _add_det(word_putrefaction)
 
     # ⛔️ Niente parentetica extra accodata alla frase finale
     st.session_state["parentetica_extra"] = ""
@@ -1003,6 +1005,7 @@ def aggiorna_grafico(
     st.session_state["__word_report_blocks"] = build_word_blocks(
         input_html="\n".join(dettagli), cooling_html="\n".join(word_cooling),
         livor=testo_macchie, rigor=testo_rigidita,
+        additional_html="\n".join(word_additional), putrefaction_html=word_putrefaction,
         conclusion=(frase_finale_html if overlap and not discordanti else ""),
     )
 
