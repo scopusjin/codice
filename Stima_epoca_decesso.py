@@ -125,6 +125,8 @@ install_minimal_mobile_shell()
 
 from app.fc_page import render_fc_route_if_requested, render_scenarios_button, FULL_PAGE
 from app.case_ui import prepare_case_import, render_case_menu
+from app.word_launch import prepare_word_launch
+prepare_word_launch()
 prepare_case_import(FULL_PAGE)
 render_fc_route_if_requested(FULL_PAGE)
 
