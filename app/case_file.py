@@ -287,6 +287,8 @@ def decode_case(raw):
 def case_filename(case):
     code = re.sub(r"[^\w.-]+", "_", case["case_code"], flags=re.UNICODE).strip("._-")
     suffix = code or datetime.fromisoformat(case["saved_at"]).strftime("%Y-%m-%d_%H%M")
+    if re.fullmatch(r"X\d{2}\.\d{1,8}", code, re.IGNORECASE):
+        return f"stima{code.upper()}.json"
     return f"mortem_{suffix}.json"
 
 

@@ -70,3 +70,7 @@ Base f05616e9669ede9750dccd92d6291aa5a1104b56. Su autorizzazione: pulsante «Sca
 ### Word: ritorno con Fatto — 20 ottobre 2026
 
 Avviso download allineato alla nuova macro fornita separatamente: salvare nella cartella del documento e premere Fatto. Dopo segnalazione antivirus eliminati nella macro script esterni, polling e timer. Fatto legge esclusivamente mortem_<caso>_<richiesta>.json e verifica i metadati; non sceglie il primo JSON della cartella. File assente: avviso e finestra aperta. Il modulo DatiCasoJSON originale fornito il 19 ottobre usa il nome fisso _dati_caso.json; eventuali versioni successive restano da controllare. Verificati sintassi Python, struttura VBA, corrispondenza filename app/macro; Word e rete da provare dall’utente.
+
+### Nome stabile stimaX — 20 ottobre 2026
+
+Download Word e menu Caso per codici Xnn.numero: stimaXnn.numero.json, senza token nel nome. Metadati caso invariati. Macro consegnata separatamente: Fatto cerca nome esatto e duplicati browser numerati nella cartella del documento, verifica formato/numero X/presenza dei blocchi; se più compatibili richiede selezione, senza preferire automaticamente il più recente. Nessuna copia, rinomina o cancellazione; importazione solo su clic. Vecchi file mortem_* non vengono scelti automaticamente. Ripristino automatico del caso nell’app ancora non implementato.

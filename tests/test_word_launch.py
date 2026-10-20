@@ -44,7 +44,7 @@ class WordLaunchTests(unittest.TestCase):
         state['__word_return'] = {'request_id':token, 'case_code':'X26.115'}
         raw, filename = word_result(state, 'full')
         case = decode_case(raw)
-        self.assertEqual(filename, 'mortem_X26.115_' + token + '.json')
+        self.assertEqual(filename, 'stimaX26.115.json')
         self.assertEqual(case['word_return']['request_id'], token)
         self.assertNotIn('__word_return', restored_inputs(case))
         state['peso'] = 90

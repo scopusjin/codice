@@ -62,12 +62,12 @@ def word_result(state, view):
     context = state.get('__word_return')
     if not context or state.get('case_code') != context['case_code']:
         return None
-    from app.case_file import snapshot_case, encode_case
+    from app.case_file import snapshot_case, encode_case, case_filename
     case = snapshot_case(state, view)
     if not case.get('report') or not case['report'].get('word_blocks'):
         return None
     case['word_return'] = dict(context)
-    filename = f"mortem_{context['case_code']}_{context['request_id']}.json"
+    filename = case_filename(case)
     return encode_case(case), filename
 
 
