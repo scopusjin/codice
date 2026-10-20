@@ -99,3 +99,8 @@ Base GitHub 78e346cd190468668b6ba71d8c7e03eefb56f082 verificata. Su richiesta: �
 ### Descrizione della coperta impregnata — 20 ottobre 2026
 
 Base bb55e7b verificata. Correzione autorizzata in app/fc_panel_frontend/descriptions.js: stato della coperta unito alla sua descrizione, con accordo singolare/plurale («sotto una coperta spessa impregnata d’acqua»), senza ripetizione separata. Esteso alle sole coperture spesse/molto pesanti anche quando parzialmente bagnate; combinazioni con teli mantenute distinte. Verificati singolare, plurale, parziale e test wet_ranges. Nessuna modifica dei range.
+
+
+### Precisazioni testuali esempi bagnati — 20 ottobre 2026
+
+Base c4f02b9 verificata. Su richiesta esplicita: «due camici bagnati 1.10» e «tre camici bagnati, FC 1.10–1.30» nel riepilogo delle fonti. Solo due stringhe di presentazione, nessuna modifica delle regole o dei dati sperimentali di dettaglio.
