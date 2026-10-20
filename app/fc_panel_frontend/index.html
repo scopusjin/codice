@@ -170,15 +170,10 @@ function decision(id,range,kind,summary,sources,detail='',reference=null){return
 function rangeText(range){return range[0]===range[1]?fmt(range[0]):range.map(fmt).join(' - ');}
 function pending(reason,sources=['henssge'],reference='Non definito'){return decision('manual',null,'Valutazione manuale',reason,sources,'Inserire entrambi gli estremi. Non viene usata una formula sostitutiva.',reference);}
 function wetCoverExplanation(c,extended=false){
-  const reference=c.air==='continuous'||c.wind
-    ? 'Con correnti d’aria, la tabella di Henssge indica FC 0.90 per almeno due strati pesanti completamente impregnati d’acqua; per il corpo nudo o con uno o due strati leggeri indica 0.70.'
-    : ['intermittent','unknown'].includes(c.air)
-      ? 'Per gli strati pesanti completamente impregnati d’acqua, la tabella di Henssge indica FC 1.10 con due strati e 1.20 con più di due in assenza di correnti; con correnti indica 0.90 per almeno due strati.'
-      : 'In assenza di correnti d’aria, la tabella di Henssge indica FC 1.10 per due strati pesanti completamente impregnati d’acqua e 1.20 per più di due strati.';
-  const partial=extended
-    ? 'Se le coperture sono solo umide o parzialmente bagnate, oppure non è possibile precisarlo, il range suggerito da questa app comprende i riferimenti per le coperture bagnate e per quelle asciutte.'
+  const basis=extended
+    ? 'Per le coperture umide, parzialmente bagnate o di condizioni incerte, questa app propone un range tra i riferimenti del bagnato e dell’asciutto.'
     : 'Per le coperte fradicie, questa app propone un range basato sui riferimenti degli strati bagnati.';
-  return reference+' '+partial+' Alcuni materiali possono conservare parte dell’isolamento anche quando sono bagnati. Mancano dati specifici per quantificare questo effetto nelle coperte. Il range può essere perfezionato dall’operatore in base al caso specifico.';
+  return basis+' Alcuni materiali possono conservare parte dell’isolamento anche da bagnati, ma mancano dati specifici per quantificarlo nelle coperte. L’operatore può perfezionare il range in base al caso.';
 }
 function wetBlanketDecision(c){
   const substantial=c.h>0||c.m>=2||c.p>=1||c.s>=2;
@@ -347,7 +342,7 @@ function evaluateFC(c){
   const range=[Math.min(wet.range[0],...dry.map(r=>r.range[0])),Math.max(wet.range[1],...dry.map(r=>r.range[1]))];
   const covers=wetGroups(c).covers&&['partial','unknown'].includes(c.wetCovers);
   const detail=covers?wetCoverExplanation(c,true):'Il range suggerito comprende gli scenari bagnato e asciutto, perché gli indumenti o i teli sono solo parzialmente bagnati oppure non è chiaro quanto siano impregnati d’acqua.';
-  return decision('wet-dry-envelope',range,'Ragionamento dell’app','Intervallo tra lo scenario bagnato e quello asciutto.',[...new Set([...wet.sources,...dry.flatMap(r=>r.sources),'wetInsulation'])],detail+' Il confronto riguarda l’intera configurazione; gli estremi sono adattabili dall’operatore.');
+  return decision('wet-dry-envelope',range,'Ragionamento dell’app','Intervallo tra lo scenario bagnato e quello asciutto.',[...new Set([...wet.sources,...dry.flatMap(r=>r.sources),'wetInsulation'])],detail+' Il confronto riguarda l’intera configurazione.');
 }
 function evaluateAirFC(c){
   if(!['Asciutto','Bagnato','Immerso'].includes(c.state))return pending('Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.');
@@ -551,11 +546,8 @@ function renderFCProvenance(r,examples=[],c=null){
       line('L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.','red');
     }
   }else if(c&&c.state==='Bagnato'){
-    line('Henssge · aria ferma: due strati pesanti bagnati 1.10; più di due 1.20.','green');
-    line('Henssge · correnti d’aria: nudo o 1–2 leggeri bagnati 0.70; almeno due pesanti 0.90.','green');
-    line('Henssge e Brinkmann, 1984 · aria ferma: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici bagnati 1.10.','yellow');
-    line('Altri esempi della stessa fonte: indumento intimo contenitivo, pantaloni e tre camici bagnati, FC 1.10–1.30.','yellow');
-    if(r.kind!=='Tabella Henssge')line('Il suggerimento è un ragionamento dell’app tra i riferimenti disponibili.','red');
+    line('Tabella di Henssge · strati completamente impregnati d’acqua. Aria ferma: due pesanti 1.10, più di due 1.20. Con correnti: nudo o 1–2 leggeri 0.70, almeno due pesanti 0.90.','green');
+    line('Henssge e Brinkmann, 1984 · esperimenti in aria ferma: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici bagnati 1.10; indumento intimo contenitivo, pantaloni e tre camici bagnati 1.10–1.30.','yellow');
   }else if(r.kind==='Tabella Henssge'){
     // The existing explanatory sentence below already identifies the Henssge table.
   }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){

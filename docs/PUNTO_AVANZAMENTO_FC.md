@@ -104,3 +104,8 @@ Base bb55e7b verificata. Correzione autorizzata in app/fc_panel_frontend/descrip
 ### Precisazioni testuali esempi bagnati — 20 ottobre 2026
 
 Base c4f02b9 verificata. Su richiesta esplicita: «due camici bagnati 1.10» e «tre camici bagnati, FC 1.10–1.30» nel riepilogo delle fonti. Solo due stringhe di presentazione, nessuna modifica delle regole o dei dati sperimentali di dettaglio.
+
+
+### Unificazione spiegazione bagnati — 20 ottobre 2026
+
+Su richiesta: riferimenti tabellari riuniti in un paragrafo; esempi Henssge/Brinkmann in un secondo paragrafo; eliminati richiamo generico ripetuto e ripetizione dei valori tabellari in wetCoverExplanation. Spiegazione breve specifica per fradicie/parzialmente bagnate con isolamento residuo e adattabilità al caso. Range invariati; test wet_ranges superato (162 confronti e persistenza), diff verificato. Resa da confermare dall’utente.
