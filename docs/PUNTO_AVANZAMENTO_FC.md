@@ -62,3 +62,7 @@ Test parsing/validazione, isolamento sessione normale, download effettivo UI, fi
 Base verificata 405a2aba8c1bedbbce868a03994a9c4807092b7b. Il menu Caso espone soltanto Scarica JSON e Carica da file, con uploader immediatamente visibile. Il componente IndexedDB non viene più importato né montato: nessuna nuova persistenza dei casi nel browser. I precedenti archivi non vengono cancellati automaticamente. Sessione temporanea necessaria al calcolo e flusso Word separato invariati.
 Controllo del TXT Word: se non arriva il JSON univoco non sono eseguite copia/importazione; il watcher termina dopo due ore o quando non trova più il documento originale. La chiusura della sola scheda browser non è rilevata immediatamente. Nessuna modifica VBA necessaria per evitare aggiornamenti in caso di abbandono; esecuzione reale Windows/Word ancora da verificare dall'utente.
 Verifica: 17 test Python dei casi superati (inclusa suite integrata Streamlit), 4 test del flusso Word superati; diff senza errori di whitespace. Controlli delle due modalità del dialogo aggiornati per verificare assenza del componente browser, download e caricamento da file.
+
+### Testi menu Caso — 20 ottobre 2026
+
+Base f05616e9669ede9750dccd92d6291aa5a1104b56. Su autorizzazione: pulsante «Scarica caso» e nota «Esegui la stima per includere anche le valutazioni.». La nota resta condizionata all’assenza di un report corrente; serializzazione e flusso Word invariati. Verificati sostituzioni puntuali e sintassi Python.
