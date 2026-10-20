@@ -2,7 +2,7 @@
 """Adattatori localizzati per il pannello FC dell'interfaccia MSIL.
 
 Il modulo mantiene distinta la presentazione MSIL dalla UI completa e converte
-le etichette mostrate negli stessi valori legacy già attesi da ``factor_calc``.
+le etichette mostrate negli stessi valori legacy attesi dal precedente motore FC.
 Non contiene formule, soglie o regole di calcolo.
 """
 

@@ -2,7 +2,7 @@
 """Adattatori localizzati per il pannello del fattore di correzione completo.
 
 Il modulo separa le etichette mostrate dalla UI dai valori legacy ancora attesi
-da ``app.factor_calc``. Non contiene formule, soglie o regole di calcolo.
+dal precedente motore FC. Non contiene formule, soglie o regole di calcolo.
 """
 
 from __future__ import annotations

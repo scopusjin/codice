@@ -2,7 +2,7 @@
 """Identificatori UI stabili per le superfici di appoggio del pannello FC.
 
 Le etichette italiane e i valori legacy sono mantenuti identici a quelli
-attualmente esposti da ``app.factor_calc.SURF_DISPLAY_ORDER``. Il modulo non
+esposti dal precedente motore FC. Il modulo non
 contiene né modifica regole di calcolo o classificazione delle superfici.
 """
 
@@ -46,7 +46,7 @@ def surface_state_id(ui_label: str) -> str:
 
 
 def surface_legacy_value(ui_label: str) -> str:
-    """Restituisce la stringa legacy attualmente attesa da factor_calc."""
+    """Restituisce la stringa legacy usata nei dati storici."""
     return SURFACE_LABEL_IT[surface_state_id(ui_label)]
 
 

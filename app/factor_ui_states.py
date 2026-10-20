@@ -2,7 +2,7 @@
 """Identificatori UI stabili per il pannello del fattore di correzione.
 
 Questo modulo separa le etichette mostrate all'utente dai valori legacy che
-``app.factor_calc`` riceve attualmente. Non contiene formule, soglie o regole
+il precedente motore FC riceveva. Non contiene formule, soglie o regole
 di calcolo.
 """
 

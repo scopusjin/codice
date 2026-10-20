@@ -2,7 +2,7 @@
 """Testi italiani per la descrizione del fattore di correzione.
 
 Il modulo contiene soltanto rendering testuale/presentazionale. Le regole di
-calcolo del fattore di correzione restano in ``app.factor_calc``.
+calcolo del fattore di correzione sono implementati nel pannello FC attivo.
 """
 
 from __future__ import annotations

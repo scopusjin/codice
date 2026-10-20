@@ -43,7 +43,7 @@ Per aggiungere un esempio, aggiornare il JSON e il criterio in `EXAMPLE_MATCHERS
 
 Ogni modifica parte dalla verifica della fonte nell’archivio di manutenzione. Pubblicare solo la sintesi necessaria alla spiegazione pertinente, con riferimento bibliografico e condizioni essenziali. Il foglio privato non aggiorna automaticamente il codice o i calcoli. I casi 22 (bagnato, pioggia e correnti continue) e 62 (nudo sul letto) sono ora richiamati nelle condizioni corrispondenti, senza modificare le regole numeriche. Ulteriori esempi selezionati documentano immersione, correnti continue, indumenti bagnati, appoggi e foglie. Le schede distinguono peso corporeo e peso virtuale del simulatore; ogni richiamo include la fonte e i limiti del confronto. Gli esempi in acqua quasi ferma non compaiono per l’acqua corrente, che ha un richiamo bibliografico dedicato.
 
-Le descrizioni dei risultati sono in `app/fc_description.py`. `app/factor_calc.py` conserva il vecchio motore esclusivamente per compatibilità storica e riesporta la descrizione: nessun modulo applicativo lo importa. Le vecchie formule non sono usate per i suggerimenti attuali. I test storici in `tests/test_wet_naked_surface_ranges.py` riguardano solo quel modulo; le regole attive sono verificate dai test JavaScript.
+Le descrizioni dei risultati sono in `app/fc_description.py`. Il vecchio motore `app/factor_calc.py` e i suoi test esclusivamente storici sono stati rimossi il 20 ottobre 2026: nessun modulo applicativo lo importava. Le regole attive sono in `app/fc_panel_frontend/index.html`, verificate dai test JavaScript.
 
 ## Spazi desktop
 
