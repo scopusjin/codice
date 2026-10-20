@@ -29,8 +29,13 @@
       return 'coperto con '+(thin?counted(thin,'un telo sottile','teli sottili'):counted(thick,'un telo spesso','teli spessi'));
     }
     if(blankets){
-      if(medium&&heavy)return 'sotto più coperte di diverso spessore';
-      return 'sotto '+(medium?counted(medium,'una coperta spessa','coperte spesse'):counted(heavy,'una coperta molto pesante','coperte molto pesanti'));
+      const wet=c.state==='Bagnato'?({
+        full:blankets===1?' impregnata d’acqua':' impregnate d’acqua',
+        partial:blankets===1?' umida o parzialmente bagnata':' umide o parzialmente bagnate',
+        unknown:' (condizioni di umidità non determinabili)'
+      }[c.wetCovers]||''):'';
+      if(medium&&heavy)return 'sotto più coperte di diverso spessore'+wet;
+      return 'sotto '+(medium?counted(medium,'una coperta spessa','coperte spesse'):counted(heavy,'una coperta molto pesante','coperte molto pesanti'))+wet;
     }
     return '';
   }
@@ -57,7 +62,8 @@
       const garmentText={full:'indumenti e teli completamente impregnati d’acqua',partial:'indumenti e teli umidi o parzialmente bagnati',unknown:'condizioni di umidità di indumenti e teli non determinabili'};
       const coverText={full:'coperte completamente impregnate d’acqua',partial:'coperte umide o parzialmente bagnate',unknown:'condizioni di umidità delle coperte non determinabili'};
       if(hasClothes)parts.push(garmentText[c.wetClothes]||'');
-      if(hasCovers)parts.push(coverText[c.wetCovers]||'');
+      const coverConditionIncluded=c.m-Number(!!c.thermalFoil)+c.h>0&&!(c.teli||c.lightCover);
+      if(hasCovers&&!coverConditionIncluded)parts.push(coverText[c.wetCovers]||'');
     }
     const many = c.p >= 3 || (c.p >= 1 && c.s >= 3) || (!c.p && c.s >= 5);
     if (c.state === 'Asciutto') {

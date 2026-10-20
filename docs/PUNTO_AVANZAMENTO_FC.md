@@ -94,3 +94,8 @@ Su autorizzazione esplicita rimosso app/factor_calc.py, privo di import applicat
 ### Testi dei controlli bagnati — 20 ottobre 2026
 
 Base GitHub 78e346cd190468668b6ba71d8c7e03eefb56f082 verificata. Su richiesta: «Quanto sono bagnate le coperte?» con Fradicie / Solo in parte (Da precisare come segnaposto); stessa semplificazione per indumenti/teli. Eliminati i due avvisi sotto i controlli. Spiegazione in «Come viene consigliato il FC»: riferimenti Henssge secondo il movimento dell’aria, confronto bagnato/asciutto, isolamento residuo dei materiali e adattabilità al caso. Modifiche solo in app/fc_panel_frontend/index.html, wetCoverExplanation e presentazione; range invariati. Test wet_ranges (162 confronti e persistenza), field_controls e diff superati. Da provare su desktop/mobile.
+
+
+### Descrizione della coperta impregnata — 20 ottobre 2026
+
+Base bb55e7b verificata. Correzione autorizzata in app/fc_panel_frontend/descriptions.js: stato della coperta unito alla sua descrizione, con accordo singolare/plurale («sotto una coperta spessa impregnata d’acqua»), senza ripetizione separata. Esteso alle sole coperture spesse/molto pesanti anche quando parzialmente bagnate; combinazioni con teli mantenute distinte. Verificati singolare, plurale, parziale e test wet_ranges. Nessuna modifica dei range.
