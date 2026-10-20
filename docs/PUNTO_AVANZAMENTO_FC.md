@@ -90,3 +90,7 @@ Verifiche: tests/test_fc_wet_ranges.cjs superato (esempi concordati, 162 confron
 ### Rimozione separata del vecchio motore FC
 
 Su autorizzazione esplicita rimosso app/factor_calc.py, privo di import applicativi, e il test esclusivo delle vecchie regole tests/test_wet_naked_surface_ranges.py. Il test delle etichette delle superfici conserva l’elenco storico come riferimento indipendente; moduli di compatibilità UI mantenuti. Documentazione aggiornata. Nessuna formula attiva eliminata. Controllo AST degli import, sintassi Python e test JS mirati superati; esecuzione Python con Streamlit da verificare nell’ambiente applicativo.
+
+### Testi dei controlli bagnati — 20 ottobre 2026
+
+Base GitHub 78e346cd190468668b6ba71d8c7e03eefb56f082 verificata. Su richiesta: «Quanto sono bagnate le coperte?» con Fradicie / Solo in parte (Da precisare come segnaposto); stessa semplificazione per indumenti/teli. Eliminati i due avvisi sotto i controlli. Spiegazione in «Come viene consigliato il FC»: riferimenti Henssge secondo il movimento dell’aria, confronto bagnato/asciutto, isolamento residuo dei materiali e adattabilità al caso. Modifiche solo in app/fc_panel_frontend/index.html, wetCoverExplanation e presentazione; range invariati. Test wet_ranges (162 confronti e persistenza), field_controls e diff superati. Da provare su desktop/mobile.
