@@ -50,6 +50,15 @@
   function conditions(c, fields) {
     if (c.state === 'Immerso') return 'corpo immerso in acqua ' + (c.water === 'corrente' ? 'corrente' : 'ferma');
     const parts = ['corpo ' + c.state.toLowerCase(), clothing(c), coverings(c), specialCoverings(c)];
+    if(c.state==='Bagnato'){
+      const details=Number.isFinite(c.garmentThin)&&Number.isFinite(c.garmentThick);
+      const hasClothes=details?c.garmentThin+c.garmentThick+(c.teli||0)>0:c.s+c.p-Number(!!c.bodyBag)>0;
+      const hasCovers=c.m-Number(!!c.thermalFoil)+c.h+(c.lightCover||0)>0;
+      const garmentText={full:'indumenti e teli completamente impregnati d’acqua',partial:'indumenti e teli umidi o parzialmente bagnati',unknown:'condizioni di umidità di indumenti e teli non determinabili'};
+      const coverText={full:'coperte completamente impregnate d’acqua',partial:'coperte umide o parzialmente bagnate',unknown:'condizioni di umidità delle coperte non determinabili'};
+      if(hasClothes)parts.push(garmentText[c.wetClothes]||'');
+      if(hasCovers)parts.push(coverText[c.wetCovers]||'');
+    }
     const many = c.p >= 3 || (c.p >= 1 && c.s >= 3) || (!c.p && c.s >= 5);
     if (c.state === 'Asciutto') {
       if (!c.m && !c.h && many && c.isolation === 'one') parts.push('un capo particolarmente isolante');

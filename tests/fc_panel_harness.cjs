@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/index.html'),'utf8'),nodes={},buttons=[],inputs=[];
 class El{
-  constructor(id){this.events={};this.dataset={};this.style={};this.children=[];this.value='';this.hidden=false;this.open=false;this.textContent='';if(id)this.id=id;}
+  constructor(id){this.classList={toggle(){}};this.events={};this.dataset={};this.style={};this.children=[];this.value='';this.hidden=false;this.open=false;this.textContent='';if(id)this.id=id;}
   set id(v){this._id=v;nodes[v]=this;}get id(){return this._id;}
   set value(v){this._value=String(v);}get value(){return this._value;}
   set innerHTML(s){parseInputs(s);parseButtons(s);}
@@ -20,7 +20,7 @@ class El{
     }
     this.events.click?.();
   }
-  querySelector(s){if(s.startsWith('label['))return new El();assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
+  querySelector(s){if(s.startsWith('label['))return new El();if(s==='#source-examples .hint')return nodes['example-hint']||(nodes['example-hint']=new El());assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
   querySelectorAll(s){if(s==='input')return inputs;const map={'[data-input]':'input','[data-state]':'state','[data-weight]':'weight','[data-temperature]':'temperature'};assert(map[s],'Unexpected selector '+s);return buttons.filter(b=>b.dataset[map[s]]!==undefined);}
 }
 function parseInputs(s){for(const m of s.matchAll(/<input\b([^>]*)>/g)){const id=m[1].match(/id="([^"]+)"/);if(!id)continue;const e=nodes[id[1]]||new El(id[1]);const val=m[1].match(/value="([^"]*)"/);if(val)e.value=val[1];inputs.push(e);}}
@@ -33,7 +33,7 @@ nodes['weight-data'].textContent=html.match(/id="weight-data">(.*?)<\/script>/s)
 nodes.surface.value='0';nodes.water.value='stagnante';nodes.air.value='still';
 const code=html.match(/<script>(.*?)<\/script>/s)[1].replace('})();','globalThis.api={evaluateFC,exampleMatches,adjust,bounds,referenceLabel,wetSupportDecision,roundFC,roundRange,onFCGrid,airChangesSuggestion,RULES,EXAMPLES,EXAMPLE_MATCHERS,exampleFCText,exampleConditions,SOURCES,table,sourceDetails};})();');
 const media={matches:false,events:{},addEventListener(event,handler){this.events[event]=handler;}};
-const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El()},console,
+const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El(),createTextNode:text=>({textContent:text,children:[]})},console,
   window:{innerWidth:420,innerHeight:800,matchMedia:()=>media}};
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/descriptions.js'),'utf8'),ctx);
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/counters.js'),'utf8'),ctx);

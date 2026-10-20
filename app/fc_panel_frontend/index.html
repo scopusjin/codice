@@ -51,6 +51,10 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <label class="check"><input id="body-bag" type="checkbox">Sacco mortuario</label>
 </div>
 
+<div class="conditional" id="wet-clothes-row" hidden><label for="wet-clothes">Indumenti e teli: quanto sono bagnati?</label><select id="wet-clothes"><option value="unknown">Non determinabile</option><option value="full">Completamente impregnati d’acqua</option><option value="partial">Solo in parte o umidi</option></select></div>
+<div class="conditional" id="wet-covers-row" hidden><label for="wet-covers">Coperte: quanto sono bagnate?</label><select id="wet-covers"><option value="unknown">Non determinabile</option><option value="full">Completamente impregnate d’acqua</option><option value="partial">Solo in parte o umide</option></select></div>
+<div class="hint" id="wet-alert" role="status" hidden>I valori del bagnato presuppongono indumenti e coperte completamente impregnati d’acqua. Se sono solo umidi o parzialmente bagnati, il range comprende anche lo scenario asciutto.</div>
+<div class="hint" id="wet-insulation-alert" hidden>Le imbottiture, soprattutto sintetiche, possono conservare isolamento anche se bagnate. Se restano voluminose, valutare anche i valori dell’asciutto.</div>
 </fieldset>
 
 
@@ -110,7 +114,7 @@ for(const id of ['lo','hi']){
 }
 function temperatureValue(){const raw=q('#scenario-temperature').value.trim().replace(',','.');return /^-?\d+(\.\d{1,2})?$/.test(raw)?Number(raw):NaN;}
 function waterNearZero(){const temperature=temperatureValue();return state==='Immerso'&&q('#water').value==='stagnante'&&Number.isFinite(temperature)&&temperature<=1;}
-function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
+function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),wetClothes:q('#wet-clothes').value,wetCovers:q('#wet-covers').value,thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h,...(c.garmentThin===undefined?[]:[c.garmentThin,c.garmentThick,c.teli,c.lightCover])].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
   thermalCover: {short:'Henriksson et al., 2009 · studio su manichino, analogia per le coperture.',full:'Henriksson O, Lundgren JP, Kuklane K, Holmér I, Bjornstig U. Protection against cold in prehospital care—thermal insulation properties of blankets and rescue bags in different wind conditions. Prehosp Disaster Med. 2009;24(5):408–415. doi:10.1017/S1049023X00007238. L’assimilazione del sacco mortuario a un telo pesante è una valutazione degli autori dell’app; lo studio non attribuisce un FC cadaverico al sacco mortuario.',url:'https://doi.org/10.1017/S1049023X00007238'},
@@ -121,9 +125,10 @@ const SOURCES = {
   wetNakedAccelerating: {short:'App · nudo bagnato su appoggio disperdente.',full:'Intervallo convenzionale dell’app: 0.60–0.75 per il nudo bagnato su cemento/pietra, piastrelle molto fredde o PVC, sia in aria ferma sia mobile. Nelle fonti consultate non sono state individuate indicazioni specifiche sufficienti per quantificare separatamente queste combinazioni. Il minimo 0.60 non è un limite sperimentale né deriva dai valori dell’immersione.'},
   coldWater: {"short": "Henssge, Brinkmann e Püschel, 1984 · esperimenti in acqua.", "full": "Henssge C, Brinkmann B, Püschel K. Z Rechtsmed. 1984;92(4):255–276. doi:10.1007/BF00200284. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.7. Il range 0.50–1.00 per acqua stagnante prossima a 0 °C è la proposta dell’app basata sulla variabilità sperimentale; non è una nuova categoria della tabella originale. L’attivazione automatica a temperatura ≤ 1 °C è una soglia scelta per l’app.", "url": "https://doi.org/10.1007/BF00200284"},
   soakedMattress: {short:'App · imbottiture impregnate, analogia con Althaus et al., 2007.',full:'Per analogia con le foglie bagnate, nessuna maggiorazione isolante per materasso o divano impregnati. L’assimilazione non è stata verificata sperimentalmente sulle imbottiture.'},
-  wetMixed: {short:'App · classificazione degli strati bagnati.',full:'Classificazione proposta dall’app: due strati leggeri sono considerati simili a uno pesante. Non è una relazione di Henssge. Riferimenti: tab. 6.8, un camice bagnato 1.00; tab. 6.18, due strati pesanti bagnati 1.10 e più di due 1.20 in aria ferma, almeno due 0.90 in aria mobile. I range intermedi sono ipotesi dell’app, non intervalli pubblicati.'},
-  wetBlankets: {short:'App · coperture completamente bagnate.',full:'Nelle fonti consultate non sono state individuate indicazioni specifiche per tutte le combinazioni di coperture selezionabili. L’app le assimila alle classi di isolamento bagnato. Un piumone è assimilato a più di due strati pesanti; una coperta singola ha un intervallo più ampio. L’assimilazione non è dimostrata sperimentalmente. Non vengono sommati incrementi per ciascuna coperta.'},
-  wetLayers: {short:'Henssge e Brinkmann, 1984 · casi 51 e 44.',full:'Stessa descrizione: mutanda contenitiva, pantaloni e tre camici bagnati. FC 1.10 a 69.5 kg e 1.30 a 65 kg. Questi risultati non identificano il numero di strati pesanti e non validano direttamente le coperture.'},
+  wetInsulation: {short:'Wang et al., 2016; Farnworth e Dolhan, 1983 · isolamento dei tessuti bagnati.',full:'Wang et al. Textile Research Journal 2016;86:57–63. doi:10.1177/0040517515580527. Farnworth e Dolhan. Heat Loss through Wet Clothing Insulation, 1983. L’isolamento dipende dall’acqua trattenuta e dallo spessore conservato. Questi studi non forniscono FC di Henssge per le coperte bagnate.',url:'https://doi.org/10.1177/0040517515580527'},
+  wetMixed: {short:'App · classificazione degli strati bagnati.',full:'Due strati leggeri orientano il confronto con uno pesante, senza equivalenza fissa. È una classificazione dell’app. Riferimenti: tab. 6.8, un camice bagnato 1.00; tab. 6.18, due strati pesanti bagnati 1.10 e più di due 1.20 in aria ferma, almeno due 0.90 in aria mobile. I range intermedi sono ipotesi dell’app, non intervalli pubblicati.'},
+  wetBlankets: {short:'App · coperture completamente bagnate.',full:'Nelle fonti consultate non sono state individuate indicazioni specifiche per tutte le combinazioni di coperture selezionabili. L’app le assimila alle classi di isolamento bagnato. Per coperte spesse e piumoni si usano intervalli tra i riferimenti degli strati bagnati. L’assimilazione non è dimostrata sperimentalmente. Non vengono sommati incrementi per ciascuna coperta.'},
+  wetLayers: {short:'Henssge e Brinkmann, 1984 · casi 51 e 44.',full:'Stessa descrizione: indumento intimo contenitivo, pantaloni e tre camici bagnati. FC 1.10 a 69.5 kg e 1.30 a 65 kg. Questi risultati non identificano il numero di strati pesanti e non validano direttamente le coperture.'},
   wetGarments: {short:'Henssge e Brinkmann, 1984 · esperimenti con indumenti bagnati.',full:'Madea, 3ª ed., 2016, cap. 6.1, tab. 6.8, Henssge e Brinkmann, 1984: caso 41, un camice bagnato, FC 1.00; caso 42, due camici bagnati, FC 1.10. Un camice sperimentale non equivale a qualsiasi strato leggero. Il range 0.90–1.00 è una proposta dell’app.'},
   wetCasework: {"short": "Henssge et al., 2000 · casi della pratica medico-legale 15 e 22.", "full": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.17: caso 15, pantaloni da tuta e slip fradici, su strada, pioggia e correnti d’aria, 76 kg; caso 22, pantaloni da lavoro e slip fradici, su terreno, vento e pioggia, 93 kg. Entrambi: FC scelto 0.70, range 0.60–0.80. L’appoggio è già compreso. Sono scelte documentate in casi reali, non valori misurati sperimentalmente.", "url": "https://doi.org/10.1007/s004149900089"},
   wetSupport: {short:'Henssge · aggiustamento per appoggio; classificazione app.',full:'Con indumenti o coperture, l’app applica la correzione della tabella 6.19 a entrambi gli estremi del FC di partenza: materasso/tappeto +0.10; supporto molto imbottito +0.30 con vestizione leggera, +0.10 con isolamento maggiore; superficie accelerante −0.20 con vestizione molto leggera, −0.10 con isolamento maggiore. La traduzione dei conteggi nelle classi e l’assimilazione del PVC sono scelte dell’app, non esperimenti specifici su ogni combinazione. Per il nudo valgono riferimenti o proposte separati.'},
@@ -154,32 +159,23 @@ const RULES = [
   {id:'wet-thick-wind', label:'Bagnato, almeno 2 spessi, corrente', values:'0.90, anche con leggeri ordinari, senza coperte', kind:'Tabella Henssge', sources:['henssge','wet'], match:c=>c.state==='Bagnato'&&c.wind&&c.p>=2, range:()=>[.9,.9]},
   {id:'wet-mixed-wind', label:'Bagnato, un pesante o almeno tre leggeri, corrente', values:'0.70 - 0.90', kind:'Ragionamento dell’app', sources:['henssge','wetMixed'], match:c=>c.state==='Bagnato'&&c.wind&&(c.p===1||(c.p===0&&c.s>=3)), range:()=>[.7,.9]},
   {id:'wet-two-light', label:'Bagnato, due leggeri, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetGarments','wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===0&&c.s===2, range:()=>[1,1.10]},
-  {id:'wet-one-heavy', label:'Bagnato, un pesante, aria ferma', values:'1.00 - 1.05', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===1&&c.s===0, range:()=>[1,1.05]},
+  {id:'wet-one-heavy', label:'Bagnato, un pesante, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===1&&c.s===0, range:()=>[1,1.1]},
   {id:'wet-three-light-equivalent', label:'Bagnato, tre leggeri oppure un pesante e un leggero, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s===3)||(c.p===1&&c.s===1)), range:()=>[1,1.1]},
-  {id:'wet-four-light-equivalent', label:'Bagnato, quattro leggeri oppure un pesante e due leggeri, aria ferma', values:'1.05 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s===4)||(c.p===1&&c.s===2)), range:()=>[1.05,1.1]},
+  {id:'wet-four-light-equivalent', label:'Bagnato, quattro leggeri oppure un pesante e due leggeri, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s===4)||(c.p===1&&c.s===2)), range:()=>[1,1.1]},
   {id:'wet-mixed-substantial', label:'Bagnato, almeno cinque leggeri o vestizione mista consistente, aria ferma', values:'1.10 - 1.20', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s>=5)||(c.p===1&&c.s>=3)||(c.p===2&&c.s>=1)), range:()=>[1.1,1.2]},
-  {id:'wet-mixed-heavy', label:'Bagnato, almeno tre pesanti e leggeri, aria ferma', values:'1.20 - 1.30', kind:'Ragionamento dell’app', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>=3&&c.s>=1, range:()=>[1.2,1.3]},
+  {id:'wet-mixed-heavy', label:'Bagnato, almeno tre pesanti e leggeri, aria ferma', values:'1.20', kind:'Ragionamento dell’app', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>=3&&c.s>=1, range:()=>[1.2,1.2]},
   {id:'wet-two-thick', label:'Bagnato, 2 spessi, aria ferma', values:'1.10, senza altri strati o coperte', kind:'Tabella Henssge', sources:['henssge','wet'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===2&&c.s===0, range:()=>[1.1,1.1]},
-  {id:'wet-many-thick', label:'Bagnato, più di 2 spessi, aria ferma', values:'1.20 - 1.30', kind:'Ragionamento dell’app', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>2&&c.s===0, range:()=>[1.2,1.3]}
+  {id:'wet-many-thick', label:'Bagnato, più di 2 spessi, aria ferma', values:'1.20', kind:'Tabella Henssge', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>2&&c.s===0, range:()=>[1.2,1.2]}
 ];
 function isMany(c){return c.p>=3||(c.p>=1&&c.s>=3)||(c.p===0&&c.s>=5);}
 function decision(id,range,kind,summary,sources,detail='',reference=null){return {id,range,kind,summary,sources,detail,reference:reference||(range?rangeText(range):'Non definito')};}
 function rangeText(range){return range[0]===range[1]?fmt(range[0]):range.map(fmt).join(' - ');}
 function pending(reason,sources=['henssge'],reference='Non definito'){return decision('manual',null,'Valutazione manuale',reason,sources,'Inserire entrambi gli estremi. Non viene usata una formula sostitutiva.',reference);}
 function wetBlanketDecision(c){
-  let range,reason;
-  if(c.wind){
-    const substantial=c.h>0||c.m>=2||c.p>=1||c.s>=2;
-    range=substantial?[.9,.9]:[.7,.9];
-    reason=substantial?'L’app assimila la copertura e gli eventuali indumenti alla categoria bagnata di almeno due strati pesanti in aria mobile, con riferimento 0.90.':'L’app propone l’intervallo fra 0.70, riferimento per protezione scarsa, e 0.90, riferimento per almeno due strati pesanti bagnati in aria mobile.';
-  }else if(c.h>0||c.m>=3||(c.m===2&&(c.p>=1||c.s>=2))||(c.m===1&&c.p>=2)){
-    range=[1.2,1.3];reason='L’app parte dal valore 1.20 riportato nella tabella di Henssge per più di due strati pesanti bagnati e amplia il massimo a 1.30 per la variabilità dell’isolamento. L’assimilazione delle coperture è un ragionamento dell’app.';
-  }else if(c.m===2||c.p>=1||c.s>=2){
-    range=[1.1,1.2];reason='L’app propone l’intervallo tra i valori riportati nella tabella di Henssge per due strati pesanti bagnati (1.10) e per più di due (1.20), senza correnti d’aria.';
-  }else{
-    range=[1,1.1];reason='L’app propone l’intervallo tra il valore 1.00 osservato con un camice bagnato negli esperimenti descritti da Henssge e il valore 1.10 riportato nella tabella di Henssge per due strati pesanti bagnati senza correnti d’aria.';
-  }
-  return decision('wet-blanket'+(c.wind?'-wind':'-still'),range,'Ragionamento dell’app','Coperture completamente bagnate: classificazione proposta dall’app.',['henssge','wetGarments','wetBlankets','wetLayers'],'Nelle fonti consultate non sono state individuate indicazioni specifiche per questa combinazione di indumenti e coperture. '+reason);
+  const substantial=c.h>0||c.m>=2||c.p>=1||c.s>=2;
+  const range=c.wind?(c.p>=2?[.9,.9]:[.7,.9]):substantial?[1.1,1.2]:[1,1.1];
+  const detail=c.wind?'Il range considera i riferimenti 0.70 e 0.90 per gli strati bagnati con correnti d’aria.':substantial?'Il range considera i riferimenti 1.10 e 1.20 per due o più strati pesanti bagnati.':'Il range considera il camice bagnato (1.00) e due strati pesanti bagnati (1.10).';
+  return decision('wet-blanket'+(c.wind?'-wind':'-still'),range,'Ragionamento dell’app','Coperture completamente impregnate d’acqua.',['henssge','wetGarments','wetBlankets','wetLayers'],detail+' L’app estende questi riferimenti alle coperte; non sono valori verificati per questa copertura.');
 }
 // Extend an already classified wet configuration; count its supporting base once.
 function clothedSupportDelta(c){
@@ -284,10 +280,10 @@ function blanketOrClothingBase(c){
   if(!matches.length)return pending(isMany(c)&&c.state==='Asciutto'?'Precisare la presenza di capi particolarmente isolanti.':'Combinazione da precisare.',c.state==='Bagnato'?['wet']:['henssge','clothes']);
   const rule=matches[0],r=decision(rule.id,rule.range(c),rule.kind,rule.note||'Suggerimento per la configurazione selezionata.',rule.sources,rule.note||'Fattore di correzione indicato nella tabella riepilogativa degli studi di Henssge, in base a indumenti, coperture, condizioni del corpo e movimento dell’aria o dell’acqua.');
   if(rule.id==='wet-naked-still')r.detail='Intervallo tra due risultati sperimentali per il corpo nudo bagnato, senza correnti d’aria. I valori osservati sono 0.75 e 0.77; non costituiscono un intervallo di confidenza.';
-  if(rule.sources.includes('wetMixed')&&!c.wind)r.detail='L’app considera due strati leggeri simili a uno pesante per scegliere tra i riferimenti degli strati bagnati. Questa equivalenza serve alla classificazione e non è una relazione sperimentale di Henssge.';
+  if(rule.sources.includes('wetMixed')&&!c.wind)r.detail='Il range colloca la combinazione tra i riferimenti disponibili per gli strati bagnati. Due leggeri orientano il confronto con un pesante, senza equivalenza fissa.';
   if(rule.id==='wet-mixed-wind')r.detail='L’app propone l’intervallo fra i riferimenti per scarsa protezione e per almeno due strati pesanti bagnati, esposti a correnti d’aria. Questa combinazione non è riportata nella tabella di Henssge.';
   if(rule.id==='wet-thick-wind'&&c.s>0){r.kind='Ragionamento dell’app';r.detail='L’app mantiene il valore riportato nella tabella di Henssge per almeno due strati pesanti bagnati esposti a correnti d’aria. L’estensione agli ulteriori strati leggeri selezionati è un ragionamento dell’app.';}
-  if(['wet-many-thick','wet-mixed-heavy'].includes(rule.id))r.detail='La tabella di Henssge indica 1.20 per più di due strati pesanti bagnati senza correnti d’aria. L’app amplia il massimo a 1.30 considerando anche gli esperimenti con più indumenti bagnati.';
+  if(['wet-many-thick','wet-mixed-heavy'].includes(rule.id))r.detail='La tabella indica 1.20 per più di due strati pesanti bagnati. Ulteriori strati non comportano aumenti automatici.';
   if(rule.id==='dry-insulating')r.detail='L’app parte dalla categoria dei numerosi strati descritta nella tabella di Henssge e considera gli esperimenti sull’abbigliamento più isolante. Il range viene ampliato in presenza di uno o più indumenti particolarmente isolanti.';
   if(rule.id==='dry-mixed')r.detail='';
   return r;
@@ -320,7 +316,32 @@ function evaluateFixedAir(c){
   return decision('dry-naked-support',range,c.wind||c.surf===10?'Ragionamento dell’app':'Tabella Henssge','Corpo nudo sulla superficie selezionata.',['henssge','support',...(c.surf===10?['pvc']:[])],detail);
 }
 
+function wetGroups(c){
+  const detailed=Number.isFinite(c.garmentThin)&&Number.isFinite(c.garmentThick);
+  return {clothes:detailed?c.garmentThin+c.garmentThick+(c.teli||0)>0:c.s+c.p-Number(!!c.bodyBag)>0,
+    covers:c.m-Number(!!c.thermalFoil)+c.h+(c.lightCover||0)>0};
+}
+function needsDryEnvelope(c){
+  if(c.state!=='Bagnato')return false;
+  const groups=wetGroups(c);
+  return (groups.clothes&&['partial','unknown'].includes(c.wetClothes))||(groups.covers&&['partial','unknown'].includes(c.wetCovers));
+}
 function evaluateFC(c){
+  const wet=evaluateAirFC(c);
+  if(!needsDryEnvelope(c)||!wet.range)return wet;
+  // If a dry-only qualifier is unknown, include both existing dry categories.
+  const dry=[];
+  for(const feather of (c.h>0&&!['yes','no'].includes(c.feather)?['no','yes']:[c.feather]))
+    for(const volume of (c.m+c.h>1&&!['yes','no'].includes(c.volume)?['no','yes']:[c.volume]))
+      for(const isolation of (isMany(c)&&!['none','yes'].includes(c.isolation)?['none','yes']:[c.isolation]))
+        dry.push(evaluateAirFC({...c,state:'Asciutto',feather,volume,isolation,wetCase:false}));
+  if(dry.some(r=>!r.range))return pending('Precisare le condizioni dello scenario asciutto.',wet.sources);
+  const range=[Math.min(wet.range[0],...dry.map(r=>r.range[0])),Math.max(wet.range[1],...dry.map(r=>r.range[1]))];
+  const covers=wetGroups(c).covers&&['partial','unknown'].includes(c.wetCovers);
+  const detail=covers?'Il range suggerito considera i riferimenti per le coperture sia bagnate sia asciutte, poiché mancano dati di letteratura che permettano di quantificare l’isolamento offerto dalle coperte parzialmente impregnate d’acqua.':'Il range suggerito comprende gli scenari bagnato e asciutto, perché gli indumenti o i teli sono solo parzialmente bagnati oppure non è chiaro quanto siano impregnati d’acqua.';
+  return decision('wet-dry-envelope',range,'Ragionamento dell’app','Intervallo tra lo scenario bagnato e quello asciutto.',[...new Set([...wet.sources,...dry.flatMap(r=>r.sources),'wetInsulation'])],detail+' Il confronto riguarda l’intera configurazione; gli estremi sono adattabili dall’operatore.');
+}
+function evaluateAirFC(c){
   if(!['Asciutto','Bagnato','Immerso'].includes(c.state))return pending('Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.');
   if(c.state==='Immerso')return evaluateFixedAir(c);
   if(!validCounts(c))return pending('Correggere i conteggi.');
@@ -521,6 +542,12 @@ function renderFCProvenance(r,examples=[],c=null){
     if(r.kind!=='Tabella Henssge'){
       line('L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.','red');
     }
+  }else if(c&&c.state==='Bagnato'){
+    line('Henssge · aria ferma: due strati pesanti bagnati 1.10; più di due 1.20.','green');
+    line('Henssge · correnti d’aria: nudo o 1–2 leggeri bagnati 0.70; almeno due pesanti 0.90.','green');
+    line('Henssge e Brinkmann, 1984 · aria ferma: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici 1.10.','yellow');
+    line('Altri esempi della stessa fonte: indumento intimo contenitivo, pantaloni e tre camici bagnati, FC 1.10 e 1.30.','yellow');
+    if(r.kind!=='Tabella Henssge')line('Il suggerimento è un ragionamento dell’app tra i riferimenti disponibili.','red');
   }else if(r.kind==='Tabella Henssge'){
     // The existing explanatory sentence below already identifies the Henssge table.
   }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
@@ -563,6 +590,7 @@ function showSource(){
   }
   const citations=q('#source-full-citations');citations.replaceChildren();
   const sourceIds=new Set(result.sources);
+  if(state==='Bagnato')for(const id of ['henssge','wet','wetGarments','wetLayers'])sourceIds.add(id);
   if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
   if(sourceIds.has('wetMixed')){sourceIds.add('henssge');sourceIds.add('wetGarments');}
   if(sourceIds.has('wetSupport'))sourceIds.add('support');
@@ -653,8 +681,8 @@ function airChangesSuggestion(c){
   if(c.state==='Immerso')return false;
   // Two undefined scenarios do not establish equivalence.
   if(!validCounts(c))return true;
-  const still=evaluateFixedAir({...c,air:'still',wind:false});
-  const moving=evaluateFixedAir({...c,air:'continuous',wind:true});
+  const still=evaluateFC({...c,air:'still',wind:false});
+  const moving=evaluateFC({...c,air:'continuous',wind:true});
   return !still.range||!moving.range||still.range.some((v,i)=>Math.abs(v-moving.range[i])>1e-8);
 }
 function recalc(){
@@ -668,9 +696,15 @@ function recalc(){
   q('#air-fields').hidden=state==='Immerso';
   q('#water-fields').hidden=state!=='Immerso';
   q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
-  q('#isolation-row').hidden=state!=='Asciutto'||c.m+c.h>0||!isMany(c);
-  q('#blanket-volume-row').hidden=state!=='Asciutto'||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
-  q('#feather-row').hidden=state!=='Asciutto'||c.h===0;
+  const dryRelevant=state==='Asciutto'||needsDryEnvelope({...c,state});
+  const wetGroupsVisible=wetGroups(c);
+  q('#wet-clothes-row').hidden=state!=='Bagnato'||!wetGroupsVisible.clothes;
+  q('#wet-covers-row').hidden=state!=='Bagnato'||!wetGroupsVisible.covers;
+  q('#wet-alert').hidden=state!=='Bagnato'||!(wetGroupsVisible.clothes||wetGroupsVisible.covers);
+  q('#wet-insulation-alert').hidden=state!=='Bagnato'||!wetGroupsVisible.covers;
+  q('#isolation-row').hidden=!dryRelevant||c.m+c.h>0||!isMany(c);
+  q('#blanket-volume-row').hidden=!dryRelevant||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
+  q('#feather-row').hidden=!dryRelevant||c.h===0;
   q('#leaf-row').hidden=state==='Immerso'||c.surf!==8;
   q('#leaf-cover-row').hidden=state==='Immerso'||c.surf!==8;
   q('#support-soaked-row').hidden=state!=='Bagnato'||![2,3].includes(c.surf);
@@ -727,7 +761,7 @@ function onWeightChange(){
   update();
 }
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['wet-clothes','wet-covers','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#expand-range').addEventListener('click',()=>{
   const expanded=q('#choice-row').dataset.range==='true';
   if(expanded){
@@ -744,7 +778,7 @@ q('#use').addEventListener('click',()=>{
 q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
 recalc();
 q('#lo').value=q('#hi').value='';rangeExpanded=false;update();
-const savedFields=['teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
+const savedFields=['wet-clothes','wet-covers','teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
   setDesktop: counters.setDesktop,
   temperatureValue,
@@ -757,12 +791,14 @@ window.FCPanel={
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
   },
   snapshot(){
-    return {state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
+    return {wetRulesVersion:2,state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:waterNearZero(),wetCase:q('#wet-case').checked,
       lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,preset,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
       sourceOpen:q('#source-panel').open};
   },
   restore(draft,weight){
+    q('#wet-clothes').value=draft?.fields?.['wet-clothes']||'unknown';
+    q('#wet-covers').value=draft?.fields?.['wet-covers']||'unknown';
     q('#thermal-foil').checked=!!draft?.thermalFoil;
     q('#body-bag').checked=!!draft?.bodyBag;
     state=['Asciutto','Bagnato','Immerso'].includes(draft?.state)?draft.state:'';
@@ -777,8 +813,9 @@ window.FCPanel={
     recalc();
     if(!draft){q('#lo').value=q('#hi').value='';rangeExpanded=false;update();}
     const waterCategoryChanged=state==='Immerso'&&q('#water').value==='stagnante'&&(!Number.isFinite(temperatureValue())||!!draft?.waterNearZero!==waterNearZero());
+    const wetRulesChanged=state==='Bagnato'&&draft?.wetRulesVersion!==2;
     const emptySelection=draft?.lo===''&&draft?.hi==='';
-    if(draft&&(emptySelection||!waterCategoryChanged&&(draft.manual||draft.selectedBase||Number(draft.weight)===weight))){
+    if(draft&&(emptySelection||!waterCategoryChanged&&(draft.manual||!wetRulesChanged&&(draft.selectedBase||Number(draft.weight)===weight)))){
       q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;preset=!!draft.preset&&!manual;
       if(manual){
         recordManualEdit();
