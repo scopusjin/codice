@@ -83,4 +83,4 @@ def render_word_download(view):
     st.download_button('Scarica riepilogo per Word', data, file_name=filename,
                        mime='application/json', key='word_result_download',
                        on_click='ignore', icon=':material/download:')
-    st.caption('Il collegamento Word trasferisce il file nella cartella del documento e aggiorna la valutazione quando torni alla sua finestra.')
+    st.caption('Salva il file nella stessa cartella del documento Word, senza cambiarne il nome. Poi torna alla finestrella in Word e premi Fatto.')

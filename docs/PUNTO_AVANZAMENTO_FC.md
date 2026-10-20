@@ -66,3 +66,7 @@ Verifica: 17 test Python dei casi superati (inclusa suite integrata Streamlit), 
 ### Testi menu Caso — 20 ottobre 2026
 
 Base f05616e9669ede9750dccd92d6291aa5a1104b56. Su autorizzazione: pulsante «Scarica caso» e nota «Esegui la stima per includere anche le valutazioni.». La nota resta condizionata all’assenza di un report corrente; serializzazione e flusso Word invariati. Verificati sostituzioni puntuali e sintassi Python.
+
+### Word: ritorno con Fatto — 20 ottobre 2026
+
+Avviso download allineato alla nuova macro fornita separatamente: salvare nella cartella del documento e premere Fatto. Dopo segnalazione antivirus eliminati nella macro script esterni, polling e timer. Fatto legge esclusivamente mortem_<caso>_<richiesta>.json e verifica i metadati; non sceglie il primo JSON della cartella. File assente: avviso e finestra aperta. Il modulo DatiCasoJSON originale fornito il 19 ottobre usa il nome fisso _dati_caso.json; eventuali versioni successive restano da controllare. Verificati sintassi Python, struttura VBA, corrispondenza filename app/macro; Word e rete da provare dall’utente.
