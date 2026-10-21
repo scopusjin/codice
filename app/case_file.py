@@ -39,11 +39,11 @@ STATE_KEYS = NUMBER_KEYS | BOOL_KEYS | TEXT_KEYS | DATE_KEYS | LIST_KEYS | SELEC
 CHOICE_KEYS = set("""range weight base_range manual manual_weight_adjusted weight_adjusted
 manual_center conditions description rule explanation sources draft scenarios temperature""".split())
 DRAFT_FIELDS = set("""teli light-cover thin thick medium heavy surface metal-type leaf leaf-cover feather air water
-isolation blanket-volume support-soaked""".split())
+isolation blanket-volume support-soaked wet-textiles wet-clothes wet-covers""".split())
 DRAFT_BOOLS = set("""thermalFoil bodyBag clothingDetailed waterNearZero wetCase manual preset manualWeightAdjusted weightAdjusted
 rangeExpanded sourceOpen multiple scenarioWeightAdjusted temperatureEdited""".split())
 DRAFT_KEYS = DRAFT_BOOLS | {"state", "fields", "lo", "hi", "weight", "manualBase", "selectedBase",
-                            "temperature", "activeScenario", "scenarios", "initialScenarioTemperatures"}
+                            "temperature", "activeScenario", "scenarios", "initialScenarioTemperatures", "wetRulesVersion"}
 
 
 class CaseFileError(ValueError):
@@ -87,6 +87,8 @@ def _validate_draft(draft, *, nested=False):
     for key, value in draft.items():
         if key in DRAFT_BOOLS:
             _require(type(value) is bool)
+        elif key == "wetRulesVersion":
+            _require(type(value) is int and 1 <= value <= 100)
         elif key == "fields":
             _require(isinstance(value, dict) and value.keys() <= DRAFT_FIELDS)
             _require(all(_text(v, 100) for v in value.values()))

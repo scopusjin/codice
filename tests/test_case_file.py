@@ -98,6 +98,21 @@ class CaseFileTests(unittest.TestCase):
         for key, value in draft.items():
             self.assertEqual(restored["__fc_applied_choice"]["scenarios"][0]["draft"][key], value)
 
+    def test_wet_textile_answers_survive_case_export(self):
+        for answer in ("full", "partial", "unknown"):
+            draft = {"state": "Bagnato", "wetRulesVersion": 3,
+                     "fields": {"wet-textiles": answer, "wet-clothes": answer, "wet-covers": answer}}
+            state = self.example()
+            state["__fc_applied_choice"]["scenarios"][0]["draft"].update(draft)
+            state["__fc_draft"] = deepcopy(draft)
+            restored = restored_inputs(decode_case(encode_case(snapshot_case(state, "full"))))
+            self.assertEqual(restored["__fc_draft"], draft)
+            self.assertEqual(restored["__fc_applied_choice"], state["__fc_applied_choice"])
+        for version in (True, "3", 0, None):
+            state["__fc_draft"]["wetRulesVersion"] = version
+            with self.assertRaises(CaseFileError):
+                snapshot_case(state, "full")
+
     def test_incomplete_inputs_and_fc_draft_are_distinct_from_applied_values(self):
         state = self.example()
         applied = deepcopy(state["__fc_applied_choice"])

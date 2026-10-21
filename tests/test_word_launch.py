@@ -3,6 +3,20 @@ from app.word_launch import launch_values
 
 
 class WordLaunchTests(unittest.TestCase):
+    def test_invalid_export_does_not_stop_the_page(self):
+        from streamlit.testing.v1 import AppTest
+        app = AppTest.from_string('''
+import streamlit as st
+from app.word_launch import render_word_download
+st.session_state.update(case_code="X26.117", __word_return={"case_code":"X26.117"},
+    __fc_applied_choice={"draft":{"unexpected":True}})
+render_word_download("full")
+st.button("Procedi con la stima")
+''').run()
+        self.assertFalse(app.exception)
+        self.assertTrue(app.error)
+        self.assertEqual(app.button[0].label, "Procedi con la stima")
+
     def test_example_and_missing_data(self):
         v = launch_values(dict(mt_open='1', mt_case='X26.115', mt_date='17.10.2026',
             mt_time='14:25', mt_weight='85', mt_ta='11', mt_tr='17.1'))

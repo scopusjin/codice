@@ -73,9 +73,14 @@ def word_result(state, view):
 
 def render_word_download(view):
     import streamlit as st
+    from app.case_file import CaseFileError
     if not st.session_state.get('__word_return'):
         return
-    result = word_result(st.session_state, view)
+    try:
+        result = word_result(st.session_state, view)
+    except CaseFileError as exc:
+        st.error('Impossibile preparare il file per Word: ' + str(exc))
+        return
     if result is None:
         st.caption('Esegui la stima con i dati attuali per scaricare il riepilogo per Word.')
         return
