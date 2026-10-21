@@ -205,3 +205,8 @@
 #fc-full .conditional:has(select[data-needs-value=true]) label,
 #fc-full .cover-required{color:light-dark(#a32822,#ffb4ab)}
 #fc-full .cover-required{font-weight:700;font-size:16px;line-height:1;margin-left:3px}
+
+#fc-full #counts .counter[data-question-pending=true] > label,
+#fc-full #counts [data-question-pending=true] > .category{color:light-dark(#a32822,#ffb4ab)}
+#fc-full #wet-textiles-row{grid-template-columns:minmax(0,1fr) minmax(140px,170px)}
+#fc-full[data-desktop=true] #counts > #wet-textiles-row{grid-template-columns:minmax(0,1fr) 170px}

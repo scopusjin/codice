@@ -43,7 +43,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <legend class="desktop-coverings-legend" aria-label="Indumenti e coperture"><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></legend>
 <div id="counts" role="group" aria-label="Vestiti e coperture"><div id="desktop-counts"></div><div id="clothing-counts"><div class="category">Vestiti/teli</div></div><div id="blanket-counts"><div class="category"><span>Coperte</span><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></div></div>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti uno o più indumenti particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="yes">Sì</option></select></div>
-<div class="conditional" id="wet-covers-row" hidden><label for="wet-covers">Quanto sono bagnate le coperte?</label><select id="wet-covers"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradicie</option><option value="partial">Solo in parte</option></select></div>
+<div class="conditional" id="wet-textiles-row" hidden><label for="wet-textiles">Quanto sono bagnati i tessuti sul corpo?</label><select id="wet-textiles"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Tutti fradici</option><option value="partial">Solo in parte intrisi</option></select></div>
 <div class="conditional" id="feather-row" hidden><label for="feather">Piumone imbottito molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 <div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 </div>
@@ -52,7 +52,8 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <label class="check"><input id="body-bag" type="checkbox">Sacco mortuario</label>
 </div>
 
-<div class="conditional" id="wet-clothes-row" hidden><label for="wet-clothes">Quanto sono bagnati indumenti e teli?</label><select id="wet-clothes"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradici</option><option value="partial">Solo in parte</option></select></div>
+<!-- Legacy fields remain synchronized for saved cases. -->
+<input id="wet-clothes" type="hidden" value="unknown"><input id="wet-covers" type="hidden" value="unknown">
 </fieldset>
 
 
@@ -692,6 +693,7 @@ function airChangesSuggestion(c){
   return !still.range||!moving.range||still.range.some((v,i)=>Math.abs(v-moving.range[i])>1e-8);
 }
 function recalc(){
+  q('#wet-clothes').value=q('#wet-covers').value=q('#wet-textiles').value;
   q('#body-state-required').hidden=!!state;
   let c=data();
   const showAir=airChangesSuggestion({...c,state});
@@ -704,25 +706,32 @@ function recalc(){
   q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
   const dryRelevant=state==='Asciutto'||needsDryEnvelope({...c,state});
   const wetGroupsVisible=wetGroups(c);
-  q('#wet-clothes-row').hidden=state!=='Bagnato'||!wetGroupsVisible.clothes;
-  q('#wet-covers-row').hidden=state!=='Bagnato'||!wetGroupsVisible.covers;
+  q('#wet-textiles-row').hidden=state!=='Bagnato'||!(wetGroupsVisible.clothes||wetGroupsVisible.covers);
   q('#isolation-row').hidden=!dryRelevant||c.m+c.h>0||!isMany(c);
   q('#blanket-volume-row').hidden=!dryRelevant||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
   q('#feather-row').hidden=!dryRelevant||c.h===0;
   q('#leaf-row').hidden=state==='Immerso'||c.surf!==8;
   q('#leaf-cover-row').hidden=state==='Immerso'||c.surf!==8;
   q('#support-soaked-row').hidden=state!=='Bagnato'||![2,3].includes(c.surf);
-  for(const [id,row] of [['wet-covers','wet-covers-row'],['wet-clothes','wet-clothes-row'],['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
+  for(const [id,row] of [['wet-textiles','wet-textiles-row'],['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
     const el=q('#'+id),required=state!=='Immerso'&&!q('#'+row).hidden,missing=required&&(el.value===''||el.value==='unknown');
     el.setAttribute('data-needs-value',String(missing));
     el.setAttribute('aria-invalid',String(missing));
     el.setAttribute('aria-required',String(required));
   }
-  const coverQuestions=['wet-covers','feather','blanket-volume'];
-  const missingCoverAnswer=coverQuestions.some(id=>q('#'+id).getAttribute('data-needs-value')==='true');
+  const missing=id=>q('#'+id).getAttribute('data-needs-value')==='true';
+  const missingCoverAnswer=['wet-textiles','feather','blanket-volume'].some(missing);
+  const missingClothesAnswer=['wet-textiles','isolation'].some(missing);
   for(const id of ['light-cover','medium','heavy']){
-    q('#'+id+'-required').hidden=state==='Immerso'||num(q('#'+id))<=0||!missingCoverAnswer;
+    const needsAnswer=state!=='Immerso'&&num(q('#'+id))>0&&missingCoverAnswer;
+    q('#'+id+'-required').hidden=!needsAnswer;
+    q('#'+id+'-control').setAttribute('data-question-pending',String(needsAnswer));
   }
+  for(const id of ['thin','thick','garment-thin','garment-thick','teli']){
+    q('#'+id+'-control').setAttribute('data-question-pending',String(state!=='Immerso'&&num(q('#'+id))>0&&missingClothesAnswer));
+  }
+  q('#clothing-counts').setAttribute('data-question-pending',String(state!=='Immerso'&&wetGroupsVisible.clothes&&missingClothesAnswer));
+  q('#blanket-counts').setAttribute('data-question-pending',String(state!=='Immerso'&&wetGroupsVisible.covers&&missingCoverAnswer));
   q('#wet-case-row').hidden=state!=='Bagnato'||c.air!=='continuous'||c.surf!==1||c.m+c.h>0||c.s+c.p!==2;
   result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});
   const w=num(q('#weight'));
@@ -770,7 +779,7 @@ function onWeightChange(){
   update();
 }
 root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
-root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['wet-clothes','wet-covers','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['wet-textiles','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
 q('#expand-range').addEventListener('click',()=>{
   const expanded=q('#choice-row').dataset.range==='true';
   if(expanded){
@@ -787,7 +796,7 @@ q('#use').addEventListener('click',()=>{
 q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
 recalc();
 q('#lo').value=q('#hi').value='';rangeExpanded=false;update();
-const savedFields=['wet-clothes','wet-covers','teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
+const savedFields=['wet-textiles','wet-clothes','wet-covers','teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
 window.FCPanel={
   setDesktop: counters.setDesktop,
   temperatureValue,
@@ -800,7 +809,7 @@ window.FCPanel={
     EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
   },
   snapshot(){
-    return {wetRulesVersion:2,state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
+    return {wetRulesVersion:3,state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
       waterNearZero:waterNearZero(),wetCase:q('#wet-case').checked,
       lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,preset,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
       sourceOpen:q('#source-panel').open};
@@ -818,11 +827,18 @@ window.FCPanel={
       root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
     }
     counters.restore(draft);
+    const groups=wetGroups(data()),oldAnswers=[];
+    if(groups.clothes)oldAnswers.push(q('#wet-clothes').value);
+    if(groups.covers)oldAnswers.push(q('#wet-covers').value);
+    const unified=draft?.fields?.['wet-textiles'];
+    q('#wet-textiles').value=['full','partial','unknown'].includes(unified)?unified:
+      !oldAnswers.length||oldAnswers.some(v=>!['full','partial'].includes(v))?'unknown':
+      oldAnswers.every(v=>v==='full')?'full':'partial';
     setWeight(weight);
     recalc();
     if(!draft){q('#lo').value=q('#hi').value='';rangeExpanded=false;update();}
     const waterCategoryChanged=state==='Immerso'&&q('#water').value==='stagnante'&&(!Number.isFinite(temperatureValue())||!!draft?.waterNearZero!==waterNearZero());
-    const wetRulesChanged=state==='Bagnato'&&draft?.wetRulesVersion!==2;
+    const wetRulesChanged=state==='Bagnato'&&draft?.wetRulesVersion!==3;
     const emptySelection=draft?.lo===''&&draft?.hi==='';
     if(draft&&(emptySelection||!waterCategoryChanged&&(draft.manual||!wetRulesChanged&&(draft.selectedBase||Number(draft.weight)===weight)))){
       q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;preset=!!draft.preset&&!manual;

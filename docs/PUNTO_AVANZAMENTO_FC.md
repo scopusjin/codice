@@ -115,3 +115,10 @@ Su richiesta: riferimenti tabellari riuniti in un paragrafo; esempi Henssge/Brin
 - Domande da completare in rosso e ! accanto ai contatori delle coperte presenti finché manca una risposta visibile.
 - Testo semplificato: «Le coperture formano uno strato molto voluminoso?»; specificato «correnti d’aria» nei riferimenti.
 - Verificati range bagnati, 162 confronti bagnato/asciutto, persistenza e comparsa/scomparsa dell’avviso; test controlli FC superato. Verifica visiva non eseguita: browser Playwright non installato.
+
+### Domanda unica sui tessuti — 21 ottobre 2026
+- Unificate le domande: «Quanto sono bagnati i tessuti sul corpo?» — «Tutti fradici» / «Solo in parte intrisi».
+- Mantenuti i criteri del range: tutti fradici usa il bagnato; condizioni parziali estendono verso l’asciutto dell’intera configurazione.
+- Etichette degli indumenti e delle coperte selezionati rosse finché mancano risposte pertinenti; conservato ! per le coperte.
+- Recupero delle vecchie risposte dei soli gruppi presenti, conservazione delle scelte manuali e sincronizzazione dei campi precedenti per compatibilità.
+- Superati test range bagnati (162 confronti), migrazione, persistenza, avvisi ed editor FC. Verifica visiva ancora da eseguire nell’app.

@@ -35,21 +35,36 @@ for(const air of ['still','continuous','intermittent'])for(const surf of [0,2,4]
 }
 // Old automatic choices recompute, but an explicit manual choice is preserved.
 const old={state:'Bagnato',fields:{thin:'0',thick:'0',medium:'1',heavy:'0',surface:'0',air:'still'},weight:70,lo:'1.00',hi:'1.10'};
-panel.restore(old,70);assert.equal(nodes['wet-covers'].value,'unknown');assert.deepEqual([...panel.payload().range],[1,1.8]);
-nodes['wet-covers'].value='full';nodes['wet-covers'].events.change();assert.deepEqual([...panel.payload().range],[1,1.1]);
-const saved=panel.snapshot();panel.restore(null,70);panel.restore(saved,70);assert.equal(nodes['wet-covers'].value,'full');assert.deepEqual([...panel.payload().range],[1,1.1]);
+panel.restore(old,70);assert.equal(nodes['wet-textiles'].value,'unknown');assert.deepEqual([...panel.payload().range],[1,1.8]);
+nodes['wet-textiles'].value='full';nodes['wet-textiles'].events.change();assert.deepEqual([...panel.payload().range],[1,1.1]);
+const saved=panel.snapshot();panel.restore(null,70);panel.restore(saved,70);assert.equal(nodes['wet-textiles'].value,'full');assert.deepEqual([...panel.payload().range],[1,1.1]);
 panel.restore({...old,manual:true,lo:'1.45',hi:'1.55'},70);assert.deepEqual([...panel.payload().range],[1.45,1.55]);
 // Separate groups and visibility; absent groups must not extend the range.
 panel.restore({...old,fields:{...old.fields,medium:'0',thin:'1','wet-clothes':'full','wet-covers':'partial'}},70);
-assert.equal(nodes['wet-covers-row'].hidden,true);assert.deepEqual([...panel.payload().range],[.9,1]);
+assert.equal(nodes['wet-textiles-row'].hidden,false);assert.deepEqual([...panel.payload().range],[.9,1]);
 console.log('Wet FC ranges, '+count+' envelopes and persistence: passed');
 
 panel.restore({...old,fields:{...old.fields,medium:'2'}},70);
-assert.equal(nodes['wet-covers']['data-needs-value'],'true');
+assert.equal(nodes['wet-textiles']['data-needs-value'],'true');
 assert.equal(nodes['medium-required'].hidden,false);
-nodes['wet-covers'].value='partial';nodes['wet-covers'].events.change();
+nodes['wet-textiles'].value='partial';nodes['wet-textiles'].events.change();
 assert.equal(nodes['medium-required'].hidden,false);
 nodes['blanket-volume'].value='no';nodes['blanket-volume'].events.change();
 assert.equal(nodes['medium-required'].hidden,true);
 panel.restore({...old,fields:{...old.fields,medium:'0'}},70);
 assert.equal(nodes['medium-required'].hidden,true);
+
+panel.restore({...old,fields:{...old.fields,thin:'1','wet-clothes':'full','wet-covers':'partial'}},70);
+assert.equal(nodes['wet-textiles'].value,'partial');
+assert.equal(nodes['medium-control']['data-question-pending'],'false');
+panel.restore({...old,fields:{...old.fields,thin:'1'}},70);
+assert.equal(nodes['thin-control']['data-question-pending'],'true');
+assert.equal(nodes['medium-control']['data-question-pending'],'true');
+nodes['wet-textiles'].value='full';nodes['wet-textiles'].events.change();
+assert.equal(nodes['thin-control']['data-question-pending'],'false');
+assert.equal(nodes['medium-control']['data-question-pending'],'false');
+assert.equal(panel.snapshot().fields['wet-clothes'],'full');
+assert.equal(panel.snapshot().fields['wet-covers'],'full');
+const unifiedSaved=panel.snapshot();panel.restore(null,70);panel.restore(unifiedSaved,70);
+assert.equal(nodes['wet-textiles'].value,'full');
+console.log('Unified textile question, legacy migration and red labels: passed');
