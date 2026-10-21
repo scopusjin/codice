@@ -208,5 +208,6 @@
 
 #fc-full #counts .counter[data-question-pending=true] > label,
 #fc-full #counts [data-question-pending=true] > .category{color:light-dark(#a32822,#ffb4ab)}
-#fc-full #wet-textiles-row{grid-template-columns:minmax(0,1fr) minmax(140px,170px)}
-#fc-full[data-desktop=true] #counts > #wet-textiles-row{grid-template-columns:minmax(0,1fr) 170px}
+#fc-full #counts > #wet-textiles-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:4px 8px}
+#fc-full #counts > #wet-textiles-row label{width:auto}
+#fc-full #counts > #wet-textiles-row select{width:190px;max-width:100%}

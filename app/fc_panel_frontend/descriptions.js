@@ -52,10 +52,23 @@
   function specialCoverings(c){
     return c.bodyBag?'avvolto in un sacco mortuario':'';
   }
+  function partiallyWetTextiles(c){
+    const wear=clothing(c),cover=ordinaryCoverings({...c,wetCovers:''});
+    const dressed=wear.startsWith('con ');
+    const textiles=[dressed?wear:'',cover].filter(Boolean).join(' e ');
+    const sheets=(c.teli||0)+(c.lightCover||0);
+    const coverCount=sheets+c.m-Number(!!c.thermalFoil)+c.h;
+    const ending=dressed?(wear.startsWith('con un indumento o telo ')&&!cover?'o':'i')
+      :sheets?(coverCount===1?'o':'i'):(coverCount===1?'a':'e');
+    return [dressed?'':wear,textiles?textiles+' parzialmente bagnat'+ending:'',
+      c.thermalFoil?'coperto con una mantellina termica':''];
+  }
   function conditions(c, fields) {
     if (c.state === 'Immerso') return 'corpo immerso in acqua ' + (c.water === 'corrente' ? 'corrente' : 'ferma');
-    const parts = ['corpo ' + c.state.toLowerCase(), clothing(c), coverings(c), specialCoverings(c)];
-    if(c.state==='Bagnato'){
+    const partial=c.state==='Bagnato'&&c.wetClothes==='partial'&&c.wetCovers==='partial';
+    const parts = ['corpo ' + c.state.toLowerCase(),
+      ...(partial?partiallyWetTextiles(c):[clothing(c),coverings(c)]),specialCoverings(c)];
+    if(c.state==='Bagnato'&&!partial){
       const details=Number.isFinite(c.garmentThin)&&Number.isFinite(c.garmentThick);
       const hasClothes=details?c.garmentThin+c.garmentThick+(c.teli||0)>0:c.s+c.p-Number(!!c.bodyBag)>0;
       const hasCovers=c.m-Number(!!c.thermalFoil)+c.h+(c.lightCover||0)>0;
