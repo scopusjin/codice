@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{--text:#31333f;--background:#fff;--primary:#ff4b4b;--font:"Source Sans Pro",sans-serif}
+*{box-sizing:border-box}body{margin:0;padding:2px;font:14px var(--font);color:var(--text)}
+button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px;border:1px solid color-mix(in srgb,var(--text) 22%,transparent);border-radius:8px;background:var(--background);color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
+button:hover{border-color:var(--primary);color:var(--primary)}button:focus-visible{outline:2px solid var(--primary);outline-offset:1px}button:disabled{opacity:.5;cursor:default}
+svg{width:16px;height:16px}p{margin:6px 0 0;font-size:13px;color:var(--text)}[hidden]{display:none}
+</style>
+</head>
+<body>
+<button id="open" type="button" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 18V6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v2M3 18l3-7h16l-3 9H5a2 2 0 0 1-2-2Z"/></svg>Apri caso</button>
+<input id="file" type="file" accept=".json,application/json" hidden>
+<p id="status" role="status" hidden></p>
+<script src="main.js"></script>
+</body>
+</html>

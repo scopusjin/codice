@@ -19,8 +19,7 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(list(app.exception), [])
         return app
 
-    def test_modal_modes_and_identifier_survive_close(self):
-        import json
+    def test_direct_actions_and_identifier_survive_close(self):
         app = self.start()
         self.assertFalse(app.get("dialog"))
         app.button(key="case_menu").click().run()
@@ -30,13 +29,10 @@ class CasePageTests(unittest.TestCase):
         self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
                              for c in app.get("component_instance")))
         self.assertFalse(app.get("file_uploader"))
-        app.session_state["__case_dialog_mode"] = "Carica"
-        app.run()
+        self.assertTrue(any(c.proto.component_name.endswith("mortem_case_file_picker")
+                            for c in app.get("component_instance")))
+        self.assertFalse(app.get("button_group"))
         self.assertEqual(list(app.exception), [])
-        self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
-                             for c in app.get("component_instance")))
-        self.assertTrue(app.get("file_uploader"))
-        self.assertFalse(app.get("download_button"))
         app.session_state["__case_dialog_open"] = False
         app.run()
         self.assertEqual(app.session_state["case_code"], "CASE-MODAL")
@@ -170,8 +166,14 @@ class CasePageTests(unittest.TestCase):
                 app.button(key="case_menu").click().run()
                 self.assertFalse(any(c.proto.component_name.endswith("mortem_browser_cases")
                                      for c in app.get("component_instance")))
-                app.session_state["__case_pending_import"] = decode_case(encode_case(saved))
-                app.run()
+                picker = next(c for c in app.get("component_instance")
+                              if c.proto.component_name.endswith("mortem_case_file_picker"))
+                widgets = app._tree.get_widget_states()
+                widget = widgets.widgets.add()
+                widget.id = picker.proto.id
+                widget.json_value = json.dumps({"instance": "", "event_id": "file-selected",
+                    "action": "open", "data": encode_case(saved).decode("utf-8")})
+                app._run(widgets)
                 self.assertEqual(list(app.exception), [])
                 self.assertEqual(app.session_state["case_code"], "BROWSER-TEST")
                 self.assertEqual(app.session_state["peso"], 91.)
@@ -180,6 +182,25 @@ class CasePageTests(unittest.TestCase):
                 app.run()
                 self.assertEqual(app.session_state["peso"], 72.)
                 self.assertEqual(list(app.exception), [])
+
+    def test_invalid_file_does_not_replace_current_case(self):
+        import json
+        app = self.start()
+        app.session_state["case_code"] = "KEEP-ME"
+        app.session_state["peso"] = 83.
+        app.button(key="case_menu").click().run()
+        picker = next(c for c in app.get("component_instance")
+                      if c.proto.component_name.endswith("mortem_case_file_picker"))
+        widgets = app._tree.get_widget_states()
+        widget = widgets.widgets.add()
+        widget.id = picker.proto.id
+        widget.json_value = json.dumps({"instance": "", "event_id": "invalid-file",
+            "action": "open", "data": '{"format":"other"}'})
+        app._run(widgets)
+        self.assertFalse(app.exception)
+        self.assertTrue(app.error)
+        self.assertEqual(app.session_state["case_code"], "KEEP-ME")
+        self.assertEqual(app.session_state["peso"], 83.)
 
 
 if __name__ == "__main__":

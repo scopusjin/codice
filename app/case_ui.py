@@ -6,10 +6,11 @@ from uuid import uuid4
 import streamlit as st
 
 from app.case_file import (
-    CaseFileError, PAGES, app_version, case_filename, decode_case, encode_case,
+    CaseFileError, PAGES, app_version, case_filename, encode_case,
     restored_inputs, snapshot_case,
 )
 from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
+from app.case_file_picker import render_case_file_picker
 
 
 def _queue_import(case, ui_id):
@@ -68,7 +69,10 @@ def prepare_case_import(home):
         st.session_state["__fc_active"] = True
         st.session_state["__fc_home"] = PAGES[pending["view"]]
         st.session_state["__fc_instance"] = uuid4().hex
-    st.session_state["__case_loaded_notice"] = True
+    st.session_state["__case_loaded_notice"] = (
+        "File salvato con una versione diversa dell’app: verificare la stima ricalcolata."
+        if pending["app_version"] != app_version() else
+        "Caso caricato. I risultati saranno ricalcolati con Procedi con la stima.")
     if home != PAGES[pending["view"]]:
         st.switch_page(PAGES[pending["view"]])
 
@@ -88,40 +92,23 @@ def _case_dialog(view, suffix):
     st.text_input("Sigla / numero del caso", key=code_key, max_chars=80,
                   placeholder="Es. x26-05 oppure IL26-10", on_change=_store_case_code,
                   args=(code_key, suffix))
-    mode = st.segmented_control("Operazione", ["Scarica", "Carica"], default="Scarica",
-                                key=widget_key("__case_dialog_mode"),
-                                selection_mode="single", label_visibility="collapsed")
     data = None
     try:
         case = snapshot_case(st.session_state, view)
         data = encode_case(case)
     except CaseFileError as exc:
         st.error(str(exc))
-    if mode != "Carica":
-        if data is not None:
-            if case.get("report") is None:
-                st.caption("Esegui la stima per includere anche le valutazioni.")
-            st.download_button("Scarica caso", data, file_name=case_filename(case),
-                               mime="application/json", key=widget_key("case_download"),
-                               on_click="ignore", icon=":material/download:")
-    else:
-        uploaded = st.file_uploader("File del caso", type=["json"], max_upload_size=1,
-                                    key=widget_key("case_upload"), label_visibility="collapsed")
-        if uploaded is not None:
-            try:
-                imported = decode_case(uploaded.getvalue())
-            except CaseFileError as exc:
-                st.error(str(exc))
-            else:
-                name = imported["case_code"] or "Senza sigla"
-                saved_mode = "Completa" if imported["view"] == "full" else "Sopralluogo"
-                st.text(f"{name} · {saved_mode}")
-                if imported["app_version"] != app_version():
-                    st.caption("File salvato con una versione diversa dell’app: verificare la stima ricalcolata.")
-                st.caption("L’apertura sostituisce i dati attuali. Il file originale resta invariato.")
-                if st.button("Sostituisci e apri", key=widget_key("case_open")):
-                    _queue_import(imported, suffix)
-                    st.rerun()
+    with st.container(horizontal=True, vertical_alignment="center", gap="small"):
+        st.download_button("Scarica caso", data or b"", file_name=case_filename(case) if data else "caso.json",
+                           mime="application/json", key=widget_key("case_download"),
+                           disabled=data is None, on_click="ignore", icon=":material/download:")
+        with st.container(width=150):
+            imported = render_case_file_picker(suffix, widget_key("case_upload"))
+    if data is not None and case.get("report") is None:
+        st.caption("Esegui la stima per includere anche le valutazioni.")
+    if imported is not None:
+        _queue_import(imported, suffix)
+        st.rerun()
 
 
 def render_case_menu(home, slot=None):
@@ -137,5 +124,6 @@ def render_case_menu(home, slot=None):
                 st.session_state["__case_dialog_open"] = True
             if st.session_state.get("__case_dialog_open", False):
                 _case_dialog(view, suffix)
-        if st.session_state.pop("__case_loaded_notice", False):
-            st.toast("Caso caricato. I risultati saranno ricalcolati con Procedi con la stima.")
+        if notice := st.session_state.pop("__case_loaded_notice", False):
+            st.toast(notice if isinstance(notice, str) else
+                     "Caso caricato. I risultati saranno ricalcolati con Procedi con la stima.")
