@@ -43,8 +43,9 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <legend class="desktop-coverings-legend" aria-label="Indumenti e coperture"><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></legend>
 <div id="counts" role="group" aria-label="Vestiti e coperture"><div id="desktop-counts"></div><div id="clothing-counts"><div class="category">Vestiti/teli</div></div><div id="blanket-counts"><div class="category"><span>Coperte</span><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></div></div>
 <div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti uno o più indumenti particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="yes">Sì</option></select></div>
+<div class="conditional" id="wet-covers-row" hidden><label for="wet-covers">Quanto sono bagnate le coperte?</label><select id="wet-covers"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradicie</option><option value="partial">Solo in parte</option></select></div>
 <div class="conditional" id="feather-row" hidden><label for="feather">Piumone imbottito molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
-<div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato complessivamente molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
+<div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
 </div>
 <div id="special-covers" role="group" aria-label="Coperture aggiuntive">
 <label class="check"><input id="thermal-foil" type="checkbox">Mantellina termica</label>
@@ -52,7 +53,6 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 </div>
 
 <div class="conditional" id="wet-clothes-row" hidden><label for="wet-clothes">Quanto sono bagnati indumenti e teli?</label><select id="wet-clothes"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradici</option><option value="partial">Solo in parte</option></select></div>
-<div class="conditional" id="wet-covers-row" hidden><label for="wet-covers">Quanto sono bagnate le coperte?</label><select id="wet-covers"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradicie</option><option value="partial">Solo in parte</option></select></div>
 </fieldset>
 
 
@@ -101,6 +101,12 @@ specs.forEach(([id,l,v],i)=>{
   step(id,l,v,1,i<2?'#clothing-counts':'#blanket-counts');q('#'+id).setAttribute('inputmode','numeric');
 });
 const counters=window.FCCounters({root,q,num,step,recalc});
+for(const id of ['light-cover','medium','heavy']){
+  const marker=document.createElement('span');marker.id=id+'-required';marker.className='cover-required';
+  marker.textContent='!';marker.hidden=true;marker.setAttribute('role','status');
+  marker.setAttribute('aria-label','Completa le domande sulle coperte');
+  q('#'+id+'-control .step').append(marker);
+}
 step('lo','FC minimo','1.80',.05,'#range-fields');
 step('hi','FC massimo','2.00',.05,'#range-fields');
 q('label[for="lo"]').textContent='min';q('#lo').setAttribute('aria-label','FC minimo');
@@ -546,8 +552,8 @@ function renderFCProvenance(r,examples=[],c=null){
       line('L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.','red');
     }
   }else if(c&&c.state==='Bagnato'){
-    line('Tabella di Henssge · strati completamente impregnati d’acqua. Aria ferma: due pesanti 1.10, più di due 1.20. Con correnti: nudo o 1–2 leggeri 0.70, almeno due pesanti 0.90.','green');
-    line('Henssge e Brinkmann, 1984 · esperimenti in aria ferma: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici bagnati 1.10; indumento intimo contenitivo, pantaloni e tre camici bagnati 1.10–1.30.','yellow');
+    line('Tabella di Henssge · strati completamente impregnati d’acqua. Senza correnti d’aria: due pesanti 1.10, più di due 1.20. Con correnti d’aria: nudo o 1–2 leggeri 0.70, almeno due pesanti 0.90.','green');
+    line('Henssge e Brinkmann, 1984 · esperimenti senza correnti d’aria: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici bagnati 1.10; indumento intimo contenitivo, pantaloni e tre camici bagnati 1.10–1.30.','yellow');
   }else if(r.kind==='Tabella Henssge'){
     // The existing explanatory sentence below already identifies the Henssge table.
   }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
@@ -706,11 +712,16 @@ function recalc(){
   q('#leaf-row').hidden=state==='Immerso'||c.surf!==8;
   q('#leaf-cover-row').hidden=state==='Immerso'||c.surf!==8;
   q('#support-soaked-row').hidden=state!=='Bagnato'||![2,3].includes(c.surf);
-  for(const [id,row] of [['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
+  for(const [id,row] of [['wet-covers','wet-covers-row'],['wet-clothes','wet-clothes-row'],['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
     const el=q('#'+id),required=state!=='Immerso'&&!q('#'+row).hidden,missing=required&&(el.value===''||el.value==='unknown');
     el.setAttribute('data-needs-value',String(missing));
     el.setAttribute('aria-invalid',String(missing));
     el.setAttribute('aria-required',String(required));
+  }
+  const coverQuestions=['wet-covers','feather','blanket-volume'];
+  const missingCoverAnswer=coverQuestions.some(id=>q('#'+id).getAttribute('data-needs-value')==='true');
+  for(const id of ['light-cover','medium','heavy']){
+    q('#'+id+'-required').hidden=state==='Immerso'||num(q('#'+id))<=0||!missingCoverAnswer;
   }
   q('#wet-case-row').hidden=state!=='Bagnato'||c.air!=='continuous'||c.surf!==1||c.m+c.h>0||c.s+c.p!==2;
   result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});

@@ -109,3 +109,9 @@ Base c4f02b9 verificata. Su richiesta esplicita: «due camici bagnati 1.10» e �
 ### Unificazione spiegazione bagnati — 20 ottobre 2026
 
 Su richiesta: riferimenti tabellari riuniti in un paragrafo; esempi Henssge/Brinkmann in un secondo paragrafo; eliminati richiamo generico ripetuto e ripetizione dei valori tabellari in wetCoverExplanation. Spiegazione breve specifica per fradicie/parzialmente bagnate con isolamento residuo e adattabilità al caso. Range invariati; test wet_ranges superato (162 confronti e persistenza), diff verificato. Resa da confermare dall’utente.
+
+### Domande sulle coperte — 21 ottobre 2026
+- Domanda sulle coperte bagnate accanto alle altre domande delle coperture; sul desktop ogni domanda usa tutta la larghezza dei contatori.
+- Domande da completare in rosso e ! accanto ai contatori delle coperte presenti finché manca una risposta visibile.
+- Testo semplificato: «Le coperture formano uno strato molto voluminoso?»; specificato «correnti d’aria» nei riferimenti.
+- Verificati range bagnati, 162 confronti bagnato/asciutto, persistenza e comparsa/scomparsa dell’avviso; test controlli FC superato. Verifica visiva non eseguita: browser Playwright non installato.

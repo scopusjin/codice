@@ -7,7 +7,7 @@ class El{
   set innerHTML(s){parseInputs(s);parseButtons(s);}
   append(...els){for(const e of els){e.parent=this;this.children.push(e);}}
   replaceChildren(...els){this.children=[];this.append(...els);}
-  addEventListener(e,f){this.events[e]=f;}setAttribute(k,v){this[k]=v;}focus(){}
+  addEventListener(e,f){this.events[e]=f;}setAttribute(k,v){this[k]=v;}getAttribute(k){return this[k]??null;}focus(){}
   showPopover(){this._popoverOpen=true;this.events.toggle?.({newState:'open'});}
   hidePopover(){this._popoverOpen=false;this.events.toggle?.({newState:'closed'});}
   matches(selector){return selector===':popover-open'&&!!this._popoverOpen;}
@@ -20,7 +20,7 @@ class El{
     }
     this.events.click?.();
   }
-  querySelector(s){if(s.startsWith('label['))return new El();if(s==='#source-examples .hint')return nodes['example-hint']||(nodes['example-hint']=new El());assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
+  querySelector(s){if(s.endsWith('-control .step')){const id=s.slice(1).split(' ')[0];assert(nodes[id]);return nodes[id].step||(nodes[id].step=new El());}if(s.startsWith('label['))return new El();if(s==='#source-examples .hint')return nodes['example-hint']||(nodes['example-hint']=new El());assert(nodes[s.slice(1)],'Missing DOM element '+s);return nodes[s.slice(1)];}
   querySelectorAll(s){if(s==='input')return inputs;const map={'[data-input]':'input','[data-state]':'state','[data-weight]':'weight','[data-temperature]':'temperature'};assert(map[s],'Unexpected selector '+s);return buttons.filter(b=>b.dataset[map[s]]!==undefined);}
 }
 function parseInputs(s){for(const m of s.matchAll(/<input\b([^>]*)>/g)){const id=m[1].match(/id="([^"]+)"/);if(!id)continue;const e=nodes[id[1]]||new El(id[1]);const val=m[1].match(/value="([^"]*)"/);if(val)e.value=val[1];inputs.push(e);}}

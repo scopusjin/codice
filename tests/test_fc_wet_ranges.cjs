@@ -43,3 +43,13 @@ panel.restore({...old,manual:true,lo:'1.45',hi:'1.55'},70);assert.deepEqual([...
 panel.restore({...old,fields:{...old.fields,medium:'0',thin:'1','wet-clothes':'full','wet-covers':'partial'}},70);
 assert.equal(nodes['wet-covers-row'].hidden,true);assert.deepEqual([...panel.payload().range],[.9,1]);
 console.log('Wet FC ranges, '+count+' envelopes and persistence: passed');
+
+panel.restore({...old,fields:{...old.fields,medium:'2'}},70);
+assert.equal(nodes['wet-covers']['data-needs-value'],'true');
+assert.equal(nodes['medium-required'].hidden,false);
+nodes['wet-covers'].value='partial';nodes['wet-covers'].events.change();
+assert.equal(nodes['medium-required'].hidden,false);
+nodes['blanket-volume'].value='no';nodes['blanket-volume'].events.change();
+assert.equal(nodes['medium-required'].hidden,true);
+panel.restore({...old,fields:{...old.fields,medium:'0'}},70);
+assert.equal(nodes['medium-required'].hidden,true);
