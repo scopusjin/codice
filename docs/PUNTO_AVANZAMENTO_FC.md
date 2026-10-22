@@ -1,5 +1,36 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Traduzione inglese — primo blocco, 22.10.2026
+
+- Richiesta autorizzata: traduzione dell'intera app con terminologia scientifica,
+  in particolare secondo il capitolo raffreddamento sul Drive; attuazione per
+  blocchi con verifica manuale prima della fase successiva.
+- Base GitHub verificata: `b15a18b17aa77f688393e96617fac7c2a4487efe`, branch
+  `refactor-tanatology-keys`. Commit corrente: quello che contiene questa sezione.
+- Aggiunte sette risorse inglesi in `app/locales/en*.py` e registrata la lingua
+  esplicita `en` in `app/i18n.py`. Coperti tutti gli ID delle etichette, tutte le
+  chiavi del catalogo UI esistente, descrizioni dei reperti, testi Henssge/Qd,
+  Potente e conclusioni. Inclusi i sei esiti pupillari correnti specifici per
+  farmaco. L'italiano resta il default; nessun selettore globale ancora attivato.
+- Nessuna modifica alle risorse italiane, alle formule, ai valori scientifici,
+  al motore FC, ai file dei casi o alle chiavi di sessione. Le stringhe ancora
+  incorporate nelle pagine e nel JavaScript richiedono il blocco di integrazione.
+- Terminologia, fonti consultate e attività residue in `docs/TRANSLATION_EN.md`.
+  Confronto bilingue: `docs/translation_review_en.html`, rigenerabile con
+  `scripts/preview_translation_en.py` (192 confronti, dati dimostrativi).
+- Verifiche locali: sintassi Python e diff; 21 test i18n superati, di cui 12 nuovi
+  per inglese, copertura delle chiavi/segnaposto, ID, formati, soglie e round-trip
+  MSIL verso i valori legacy. Suite complessiva: 361 test, 19 failure e 11 error;
+  sul commit iniziale 349 test con gli stessi 19 failure e 11 error e le medesime
+  identità dei test non superati. Nessuna nuova failure/error osservata. Non
+  dichiarare la suite interamente verde. Python 3.12 / Streamlit 1.64.0; le altre
+  dipendenze locali non riproducono integralmente le versioni bloccate della CI.
+- Resa verificata strutturalmente nell'HTML (coppie IT/EN); nessuna verifica in
+  browser reale. Prossimo passo: revisione manuale del confronto bilingue e
+  prova di regressione dell'app italiana, quindi selettore e integrazione delle
+  schermate, FC/scenari/esempi e report/Word. L'intera app non è ancora tradotta.
+
+
 - Repository: scopusjin/codice.
 - Branch app di test, confermata dall'utente: refactor-tanatology-keys.
 - Commit di partenza verificato: 8e619f6ccf3746884e8b8e93f208d19bb63e9e4b.

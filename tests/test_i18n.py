@@ -24,10 +24,10 @@ from app.special_tanatology_states import (
 from app.tanatology_states import LIVOR_ABSENT, RIGOR_FULL
 
 
-class I18nItalianOnlyTests(unittest.TestCase):
+class I18nItalianDefaultTests(unittest.TestCase):
     def test_default_and_supported_languages(self):
         self.assertEqual(i18n.DEFAULT_LANGUAGE, "it")
-        self.assertEqual(i18n.SUPPORTED_LANGUAGES, ("it",))
+        self.assertEqual(i18n.SUPPORTED_LANGUAGES, ("it", "en"))
         self.assertEqual(i18n.normalize_language(), "it")
         self.assertEqual(i18n.normalize_language(""), "it")
         self.assertEqual(i18n.normalize_language("IT"), "it")
@@ -151,7 +151,7 @@ class I18nItalianOnlyTests(unittest.TestCase):
 
     def test_unsupported_language_is_rejected(self):
         with self.assertRaises(ValueError):
-            i18n.get_locale("en")
+            i18n.get_locale("de")
 
 
 if __name__ == "__main__":

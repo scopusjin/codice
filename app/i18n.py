@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """Accesso centralizzato alle risorse localizzate dell'applicazione.
 
-In questa fase è registrata esclusivamente la lingua italiana. Il modulo non
-contiene testi e non dipende da Streamlit: seleziona una locale e offre helper
-neutri rispetto alla lingua per testi ed etichette già separati dai dati e
+Sono registrate le risorse italiane e inglesi; la lingua predefinita resta
+l'italiano. Il modulo non contiene testi e non dipende da Streamlit: seleziona
+una locale e offre helper neutri per testi ed etichette già separati dai dati e
 dalla logica scientifica.
 """
 
@@ -13,6 +13,7 @@ from types import ModuleType
 from typing import Dict, Mapping, Optional, Tuple
 
 from app.locales import it, it_factor, it_henssge, it_ui
+from app.locales import en, en_factor, en_henssge, en_ui
 from app.factor_ui_states import (
     BODY_LABEL_IT,
     WATER_LABEL_IT,
@@ -26,22 +27,27 @@ DEFAULT_LANGUAGE = "it"
 
 _LANGUAGE_LABELS: Dict[str, str] = {
     "it": "Italiano",
+    "en": "English",
 }
 
 _LOCALES: Dict[str, ModuleType] = {
     "it": it,
+    "en": en,
 }
 
 _HENSSGE_LOCALES: Dict[str, ModuleType] = {
     "it": it_henssge,
+    "en": en_henssge,
 }
 
 _FACTOR_LOCALES: Dict[str, ModuleType] = {
     "it": it_factor,
+    "en": en_factor,
 }
 
 _UI_LOCALES: Dict[str, ModuleType] = {
     "it": it_ui,
+    "en": en_ui,
 }
 
 SUPPORTED_LANGUAGES: Tuple[str, ...] = tuple(_LOCALES.keys())
@@ -573,29 +579,34 @@ def factor_correction_description(
     )
 
 
+def _localized_renderer(locale: ModuleType, name: str):
+    """Mantiene gli entry point italiani storici, senza imporli ad altre lingue."""
+    return getattr(locale, name + "_it" if locale is it else name)
+
+
 def livor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato delle ipostasi."""
-    return get_locale(language).livor_description_it(state_id)
+    return _localized_renderer(get_locale(language), "livor_description")(state_id)
 
 
 def livor_pressure_description(option_id: str, language: Optional[str] = None):
     """Descrizione localizzata del risultato alla digitopressione."""
-    return get_locale(language).livor_pressure_description_it(option_id)
+    return _localized_renderer(get_locale(language), "livor_pressure_description")(option_id)
 
 
 def rigor_description(state_id: str, language: Optional[str] = None):
     """Descrizione localizzata dello stato della rigidità cadaverica."""
-    return get_locale(language).rigor_description_it(state_id)
+    return _localized_renderer(get_locale(language), "rigor_description")(state_id)
 
 
 def special_description(param_id: str, option_id: str, language: Optional[str] = None):
     """Descrizione localizzata di un parametro tanatologico speciale."""
-    return get_locale(language).special_description_it(param_id, option_id)
+    return _localized_renderer(get_locale(language), "special_description")(param_id, option_id)
 
 
 def special_graph_label(param_id: str, language: Optional[str] = None):
     """Etichetta breve localizzata per il grafico."""
-    return get_locale(language).special_graph_label_it(param_id)
+    return _localized_renderer(get_locale(language), "special_graph_label")(param_id)
 
 
 __all__ = [
