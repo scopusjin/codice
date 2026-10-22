@@ -19,10 +19,10 @@ LIVOR_LABEL_BY_ID = {
     ts.LIVOR_ABSENT: "Not yet present",
     ts.LIVOR_CONFLUING: "Developing confluence",
     ts.LIVOR_CONFLUENT: "Confluent (shifting not assessed)",
-    ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluent and fully shiftable",
-    ts.LIVOR_FULLY_MIGRATABLE: "Fully shiftable (confluence unspecified)",
-    ts.LIVOR_PARTIALLY_MIGRATABLE: "Partially shiftable",
-    ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "At least partially shiftable",
+    ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluent, with complete shifting",
+    ts.LIVOR_FULLY_MIGRATABLE: "Complete shifting (confluence unspecified)",
+    ts.LIVOR_PARTIALLY_MIGRATABLE: "Incomplete shifting",
+    ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Shifting present (extent unspecified)",
     ts.LIVOR_FIXED: "Fixed",
     ts.LIVOR_UNRELIABLE: "Not assessable / unreliable",
 }
@@ -137,24 +137,27 @@ LIVOR_DESCRIPTION_BY_ID = {
         "had elapsed since death."
     ),
     ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have been present, confluent and fully shiftable at the time "
-        "of the medico-legal examination. According to the minimum and maximum time limits reported in "
+        "Postmortem lividity is considered to have been present and confluent, with complete shifting "
+        "after repositioning the body, at the time of the medico-legal examination. "
+        "According to the minimum and maximum time limits reported in "
         "the scientific literature, this suggests that between 1 and 6 hours had elapsed since death."
     ),
     ts.LIVOR_FULLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have been fully shiftable at the time of the medico-legal "
-        "examination (degree of confluence unspecified). According to the maximum time limits reported "
+        "Postmortem lividity is considered to have shown complete shifting after repositioning the body "
+        "at the time of the medico-legal examination (degree of confluence unspecified). "
+        "According to the maximum time limits reported "
         "in the scientific literature, this suggests that less than 6 hours had elapsed since death."
     ),
     ts.LIVOR_PARTIALLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have been partially shiftable at the time of the medico-legal "
-        "examination. According to the minimum and maximum time limits reported in the scientific literature, "
+        "Postmortem lividity is considered to have shown incomplete shifting after repositioning the body "
+        "at the time of the medico-legal examination. According to the minimum and maximum time limits "
+        "reported in the scientific literature, "
         "this suggests that between 4 and 24 hours had elapsed since death."
     ),
     ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have been at least partially shiftable at the time of the "
-        "medico-legal examination (lividity changed after repositioning the body, but the extent of shifting "
-        "could not be determined). According to the maximum time limits reported in the scientific literature, "
+        "Postmortem lividity is considered to have shown shifting after repositioning the body at the time "
+        "of the medico-legal examination, but whether shifting was complete or incomplete could not be "
+        "determined. According to the maximum time limits reported in the scientific literature, "
         "this suggests that less than 24 hours had elapsed since death."
     ),
     ts.LIVOR_FIXED: (
@@ -406,15 +409,15 @@ _EXAMINATION = "the observations made during the medico-legal examination"
 
 
 def simple_sentence_no_dt_not_over(duration: str) -> str:
-    return f"<p><b>ESTIMATED TIME OF DEATH:</b> <b>no more than {duration} before</b> {_EXAMINATION}.</p>"
+    return f"<p><b>ESTIMATED TIME SINCE DEATH:</b> <b>no more than {duration}</b> at the time of {_EXAMINATION}.</p>"
 
 
 def simple_sentence_no_dt_over(duration: str) -> str:
-    return f"<p><b>ESTIMATED TIME OF DEATH:</b> <b>more than {duration} before</b> {_EXAMINATION}.</p>"
+    return f"<p><b>ESTIMATED TIME SINCE DEATH:</b> <b>more than {duration}</b> at the time of {_EXAMINATION}.</p>"
 
 
 def simple_sentence_no_dt_range(interval: str) -> str:
-    return f"<p><b>ESTIMATED TIME OF DEATH:</b> <b>{interval} before</b> {_EXAMINATION}.</p>"
+    return f"<p><b>ESTIMATED TIME SINCE DEATH:</b> <b>{interval}</b> at the time of {_EXAMINATION}.</p>"
 
 
 def _available_data_conclusion(window: str) -> str:

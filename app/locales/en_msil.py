@@ -8,10 +8,10 @@ MSIL_LIVOR_LABEL_BY_ID = {
     ts.LIVOR_ABSENT: "Lividity absent",
     ts.LIVOR_CONFLUING: "Lividity present, not yet confluent",
     ts.LIVOR_CONFLUENT: "Confluent lividity",
-    ts.LIVOR_FULLY_MIGRATABLE: "Fully shiftable lividity (confluence unspecified)",
-    ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluent and fully shiftable lividity",
-    ts.LIVOR_PARTIALLY_MIGRATABLE: "Partially shiftable lividity",
-    ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "At least partially shiftable lividity",
+    ts.LIVOR_FULLY_MIGRATABLE: "Complete shifting of livores (confluence unspecified)",
+    ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: "Confluent lividity, with complete shifting",
+    ts.LIVOR_PARTIALLY_MIGRATABLE: "Incomplete shifting of livores",
+    ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: "Shifting of livores (extent unspecified)",
     ts.LIVOR_FIXED: "Fixed lividity",
 }
 

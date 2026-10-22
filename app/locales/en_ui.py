@@ -10,7 +10,7 @@ _TA_HELP = (
 )
 
 UI_TEXT = {
-    "full.title": "ESTIMATION OF THE TIME OF DEATH",
+    "full.title": "ESTIMATION OF THE TIME SINCE DEATH",
     "full.add_datetime": "Add date/time of postmortem observations",
     "full.inspection_date": "Date of medico-legal examination:",
     "full.inspection_time": "Time of medico-legal examination (HH:MM):",
@@ -78,10 +78,10 @@ UI_TEXT = {
     "full.measurement_time": "Observation time:",
     "full.measurement_time_input": "Observation time (HH:MM):",
     "full.putrefactive_changes": "Putrefactive changes?",
-    "full.estimate_button": "Calculate estimate",
+    "full.estimate_button": "Estimate time since death",
     "full.no_data_warning": "No data entered for estimation",
     "full.henssge_incoherent_warning": "Henssge’s method could not be applied (inconsistent or out-of-range temperatures).",
-    "msil.page_title": "ESTIMATION OF THE TIME OF DEATH — MSIL",
+    "msil.page_title": "ESTIMATION OF THE TIME SINCE DEATH — MSIL",
     "msil.no_description": "<p style='opacity:.7'>No description available.</p>",
     "msil.add_datetime": "Add date/time of postmortem observations",
     "msil.inspection_date": "Date of medico-legal examination",
@@ -99,7 +99,7 @@ UI_TEXT = {
     "msil.count_column": "Number?",
     "msil.support_surface": "Supporting surface",
     "msil.air_currents": "Moving air?",
-    "msil.estimate_button": "ESTIMATE TIME OF DEATH",
+    "msil.estimate_button": "ESTIMATE TIME SINCE DEATH",
     "msil.recommendations_button": "ℹ️ Recommendations",
     "msil.recommendations_html": (
         '<div style="font-size:0.9rem; line-height:1.45; color:#444;">\n'

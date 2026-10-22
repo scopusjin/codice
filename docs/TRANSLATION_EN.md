@@ -22,6 +22,8 @@ di sessione, opzione memorizzata, formula o regola FC viene modificata.
 |---|---|---|
 | Raffreddamento cadaverico | Postmortem body cooling | Denominazione del capitolo di riferimento |
 | Tempo trascorso dal decesso | Time since death | Durata, distinta dalla data/ora del decesso |
+| Stima del tempo trascorso dal decesso | Estimation of the time since death | Titolo; il pulsante usa il verbo “Estimate time since death” |
+| Tempo trascorso dal decesso stimato | Estimated time since death | Riepilogo espresso soltanto come durata |
 | Epoca del decesso stimata | Estimated time of death | Momento o finestra temporale del decesso |
 | Fattore di correzione | Corrective factor (CF) | Terminologia della tabella 6.18; “correction factor” compare anche nella fonte |
 | Temperatura ambientale media | Mean ambient temperature | Non coincide necessariamente con il rilievo puntuale |
@@ -32,6 +34,9 @@ di sessione, opzione memorizzata, formula o regola FC viene modificata.
 | Piano termicamente indifferente | Thermally indifferent base | Terminologia del capitolo; nessuna nuova classificazione |
 | Ipostasi | Postmortem lividity | “Lividity” nelle etichette brevi |
 | Migrabilità | Shifting | Variazione dopo riposizionamento del corpo |
+| Ipostasi completamente migrabili | Complete shifting (of livores) | Termine della figura 6.33; conservare separata l'informazione sulla confluenza |
+| Ipostasi parzialmente migrabili | Incomplete shifting (of livores) | Termine della figura 6.33 |
+| Ipostasi migrabili perlomeno parzialmente | Shifting present (extent unspecified) | Voce dell'app: migrazione presente, estensione non determinabile; non equivale a migrazione incompleta |
 | Scomparsa alla digitopressione | Blanching under finger pressure | Reperto distinto dalla migrabilità |
 | Rigidità cadaverica | Rigor mortis | Termine scientifico corrente |
 | Metodo integrato | Compound method | Testi relativi all'integrazione dei reperti secondo Henssge |
@@ -41,6 +46,12 @@ Inglese britannico coerente (`generalised`, `dilatation`). Punto decimale,
 unità, date numeriche e formato 24 ore conservati. I nomi delle chiavi restano
 italiani o inglesi come nel codice di partenza; CF è soltanto una sigla visibile.
 
+Revisione terminologica approvata il 22.10.2026: adottati `complete shifting`
+e `incomplete shifting` nelle etichette e nelle descrizioni. `Estimation` indica
+il procedimento, `estimate` resta corretto come verbo o per il risultato della
+stima. I riepiloghi brevi senza data usano `Estimated time since death`; quelli
+con data/ora mantengono `Estimated time of death`. Limiti temporali e ID invariati.
+
 ## Fonti e limiti della revisione
 
 - Henssge, capitolo 6.1 in B. Madea (ed.), *Estimation of the Time Since Death*,
@@ -48,6 +59,13 @@ italiani o inglesi come nel codice di partenza; CF è soltanto una sigla visibil
   [Capitolo raffreddamento](https://drive.google.com/drive/folders/149ynmZeFt9GlxvafByBJ4jjQ--ZhzgnN),
   compresa la tabella 6.18 (file `187TYLditJonh7fyWVhUyeFLzX4-2FDNW`) e i passaggi
   sulle condizioni standard, sul peso e sulla temperatura ambientale media.
+  Per la revisione terminologica, consultate anche le figure 6.32 e 6.33
+  ([pagina sul Drive](https://drive.google.com/file/d/1k8uFSBZNmy9Xa3kM5_aYadfRmFJSQz0w/view)):
+  `Estimated time of death`, `complete shifting of livores` e
+  `incomplete shifting of livores`. Nel capitolo introduttivo, sezione 1.1,
+  `Estimation of the time since death`; a p. 2 compare anche il sostantivo
+  `estimate` per il risultato della valutazione
+  ([anteprima dell'editore](https://api.pageplace.de/preview/DT0400.9781444181777_A36323142/preview-9781444181777_A36323142.pdf)).
 - Potente et al. (2017), DOI `10.1016/j.forsciint.2017.09.012`,
   [PubMed](https://pubmed.ncbi.nlm.nih.gov/29102846/): terminologia relativa al
   **minimum time since death**, con cautela per temperature ambientali >23 °C.

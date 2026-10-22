@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app import i18n, special_tanatology_states as ss  # noqa: E402
-from app.locales import en, it, en_ui, it_ui  # noqa: E402
+from app.locales import en, it, en_ui, it_ui, en_msil, it_msil  # noqa: E402
 
 
 def card(label, italian, english):
@@ -52,6 +52,14 @@ def build():
         i18n.format_hours_range(2, 0, 4, 0, lang), "10:25", "21.10.2026", "12:25", "21.10.2026", True, lang))
     example("Conclusione — solo limite minimo", lambda lang: i18n.final_sentence_simple_over(
         i18n.format_hours_minutes(16, 30, lang), language=lang))
+    example("Riepilogo breve — durata senza data", lambda lang: i18n.simple_sentence_no_dt_range(
+        i18n.format_hours_range(2, 0, 4, 0, lang), language=lang))
+    example("Riepilogo breve — durata con solo limite minimo", lambda lang: i18n.simple_sentence_no_dt_over(
+        i18n.format_hours_minutes(16, 30, lang), language=lang))
+    example("Riepilogo breve — durata con solo limite massimo", lambda lang: i18n.simple_sentence_no_dt_not_over(
+        i18n.format_hours_minutes(6, 0, lang), language=lang))
+    example("Riepilogo breve — data e ora", lambda lang: i18n.simple_sentence_dt_range(
+        i18n.format_hours_range(2, 0, 4, 0, lang), "10:25", "21.10.2026", "12:25", "21.10.2026", True, lang))
     example("Alterazioni putrefattive", lambda lang: i18n.putrefactive_paragraph(lang))
 
     findings = []
@@ -78,6 +86,8 @@ def build():
     ):
         for key, text in source.items():
             labels.append(card(key, paragraph(text), paragraph(translated[key])))
+    for key, text in it_msil.MSIL_LIVOR_LABEL_BY_ID.items():
+        labels.append(card("MSIL · " + key, paragraph(text), paragraph(en_msil.MSIL_LIVOR_LABEL_BY_ID[key])))
     ui = [card(key, it_ui.UI_TEXT[key], en_ui.UI_TEXT[key]) for key in it_ui.UI_TEXT]
 
     return """<!doctype html><html lang="it"><meta charset="utf-8">
