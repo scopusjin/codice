@@ -23,7 +23,6 @@ UI_TEXT = {
 
     # UI completa — raffreddamento / fattore di correzione
     "full.cooling_heading": "Raffreddamento cadaverico",
-    "full.prudent_toggle": "Condizioni variabili?",
     "full.henssge_not_applicable": "Henssge non applicabile",
     "full.henssge_not_applicable_help": (
         "Il metodo di Henssge non può essere applicato nelle seguenti circostanze:\n"

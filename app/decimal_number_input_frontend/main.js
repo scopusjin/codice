@@ -239,6 +239,12 @@ function setTheme(args) {
 function onRender(event) {
   const args = event.detail.args || {};
   setTheme(args);
+  const english = args.language === 'en';
+  document.documentElement.lang = english ? 'en' : 'it';
+  minusButton.setAttribute('aria-label', english ? 'Decrease' : 'Diminuisci');
+  plusButton.setAttribute('aria-label', english ? 'Increase' : 'Aumenta');
+  helpButton.setAttribute('aria-label', english ? 'Information about ambient temperature' : 'Informazioni sulla temperatura ambientale');
+  suggestButton.setAttribute('aria-label', english ? 'Suggest corrective factor' : 'Consiglia fattore di correzione');
 
   step = finiteNumber(args.step) ?? 1;
   decimals = Number.isInteger(args.decimals) ? Math.max(0, Math.min(8, args.decimals)) : 0;
@@ -256,14 +262,14 @@ function onRender(event) {
   input.disabled = disabled;
   input.readOnly = editOnClick;
   input.setAttribute("inputmode", editOnClick ? "none" : "decimal");
-  input.title = editOnClick ? "Modifica nel pannello FC" : "";
+  input.title = editOnClick ? (english ? "Edit in the CF panel" : "Modifica nel pannello FC") : "";
   input.style.cursor = editOnClick ? "pointer" : "";
   control.classList.toggle("is-disabled", disabled);
   control.classList.toggle("review-required", Boolean(args.review_required));
   control.classList.toggle("desktop-external-label", Boolean(args.desktop_external_label));
   input.setAttribute("aria-label", args.aria_label || "Valore numerico");
-  helpButton.title = helpEnabled ? "Informazioni sulla temperatura ambientale" : "";
-  suggestButton.title = suggestLabelText ? `${suggestLabelText} fattore di correzione` : "";
+  helpButton.title = helpEnabled ? (english ? "Information about ambient temperature" : "Informazioni sulla temperatura ambientale") : "";
+  suggestButton.title = suggestLabelText ? (english ? "Suggest corrective factor" : `${suggestLabelText} fattore di correzione`) : "";
 
   const incomingToken = Number.isInteger(args.sync_token) ? args.sync_token : 0;
   const incomingValue = finiteNumber(args.value);

@@ -327,6 +327,10 @@ def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
     # CSS-only HTML is installed before any visual element, without adding
     # a Markdown spacer above the mobile header on the first page load.
+    from app.presentation_translation import install_presentation_translation
+    from app.language import render_language_selector, current_language
+    install_presentation_translation()
+    render_language_selector()
     is_mobile = _request_is_mobile()
     if is_mobile:
         st.html(_MINIMAL_MOBILE_SHELL_CSS)
@@ -335,7 +339,7 @@ def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
     _install_compact_cooling_help_labels()
     if is_mobile:
         st.iframe(
-            _MOBILE_HEADER_HTML,
+            _MOBILE_HEADER_HTML.replace("Apri menu", "Open menu") if current_language() == "en" else _MOBILE_HEADER_HTML,
             height=46 if msil_title and not st.session_state.get("__fc_active") else 34,
         )
     else:

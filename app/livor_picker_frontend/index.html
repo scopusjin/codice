@@ -65,9 +65,9 @@
     const choices = Array.isArray(args.options)
       ? args.options.filter(value => typeof value === "string")
       : [];
-    const signature = JSON.stringify(choices);
+    const signature = JSON.stringify([choices, args.labels]);
     if (signature !== optionsSignature) {
-      select.replaceChildren(...choices.map(value => new Option(value, value)));
+      select.replaceChildren(...choices.map(value => new Option(args.labels?.[value] || value, value)));
       optionsSignature = signature;
       pendingSelection = null;
     }

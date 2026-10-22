@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-const elements = Object.fromEntries(['open','file','status'].map(id => [id, {
+const elements = Object.fromEntries(['open','open-label','file','status'].map(id => [id, {
   events:{}, files:[], value:'', disabled:true,
   addEventListener(name, handler){this.events[name]=handler;},
   click(){this.clicks=(this.clicks||0)+1;}

@@ -416,6 +416,15 @@ function commitDraft() {
 
 function onRender(event) {
   const args = event.detail.args || {};
+  const en = args.language === 'en';
+  document.documentElement.lang = en ? 'en' : 'it';
+  timeInput.setAttribute('aria-label', en ? 'Time' : 'Ora');
+  pickerToggle.setAttribute('aria-label', en ? 'Open time picker' : 'Apri selezione orario');
+  document.querySelectorAll('.wheel-label').forEach((el, index) => {
+    el.textContent = en ? (index ? 'Minutes' : 'Hours') : (index ? 'Minuti' : 'Ore');
+  });
+  document.getElementById('cancel-button').textContent = en ? 'Cancel' : 'Annulla';
+  document.getElementById('set-button').textContent = en ? 'Set' : 'Imposta';
   setTheme(args);
   setInheritedState(args.inherited);
 

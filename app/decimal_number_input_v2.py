@@ -514,6 +514,11 @@ _CSS = r"""
 
 _JS = r"""
 export default function({ parentElement, data, setStateValue, setTriggerValue }) {
+  const tr = value => data?.translations?.[value] ?? value;
+  for (const el of parentElement.querySelectorAll("[aria-label]")) {
+    const source = el.dataset.sourceLabel || el.getAttribute("aria-label");
+    el.dataset.sourceLabel = source; el.setAttribute("aria-label", tr(source));
+  }
   const shell = parentElement.querySelector('.decimal-control-shell');
   const desktopLabelRow = parentElement.querySelector('.desktop-label-row');
   const desktopLabel = parentElement.querySelector('.desktop-label');
@@ -670,7 +675,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
     const portal = document.createElement('div');
     portal.setAttribute('data-mortem-decimal-help-portal', '1');
     portal.setAttribute('role', 'tooltip');
-    portal.textContent = text;
+    portal.textContent = tr(text);
     portal.style.cssText = [
       'position:absolute',
       'box-sizing:border-box',
@@ -742,8 +747,8 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   const desktopExternalLabel = Boolean(data?.desktop_external_label);
   const desktopLabelVisible = Boolean(data?.desktop_label_visible ?? desktopExternalLabel);
   const desktopLabelText = String(data?.desktop_label ?? compactLabel);
-  label.textContent = compactLabel;
-  desktopLabel.textContent = desktopLabelText;
+  label.textContent = tr(compactLabel);
+  desktopLabel.textContent = tr(desktopLabelText);
   unit.textContent = String(data?.unit || '');
   const showHelp = Boolean(data?.help_enabled);
   const showSuggest = Boolean(data?.suggest_enabled);
@@ -781,7 +786,7 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   helpButton.classList.toggle('is-visible', showHelp && !desktopExternalLabel);
   desktopHelpButton.classList.toggle('is-visible', showHelp && desktopLabelVisible);
   desktopHelpPopover.classList.remove('mobile-help-popover');
-  desktopHelpPopover.textContent = desktopExternalLabel ? desktopHelpText : '';
+  desktopHelpPopover.textContent = desktopExternalLabel ? tr(desktopHelpText) : '';
   if (!(showHelp && desktopExternalLabel && desktopHelpText)) {
     desktopHelpPopover.classList.remove('is-open');
   }
@@ -794,9 +799,11 @@ export default function({ parentElement, data, setStateValue, setTriggerValue })
   input.disabled = disabled;
   input.readOnly = editOnClick;
   input.setAttribute('inputmode', editOnClick ? 'none' : 'decimal');
-  input.title = editOnClick ? 'Modifica nel pannello FC' : '';
+  input.title = editOnClick ? tr('Modifica nel pannello FC') : '';
   input.style.cursor = editOnClick ? 'pointer' : '';
-  input.setAttribute('aria-label', String(data?.aria_label || 'Valore numerico'));
+  input.setAttribute('aria-label', tr(String(data?.aria_label || 'Valore numerico')));
+  suggestButton.textContent = tr(suggestButton.textContent);
+  suggestButton.setAttribute('aria-label', tr(suggestButton.getAttribute('aria-label')));
 
   const syncToken = String(data?.sync_token ?? 0);
   if (control.dataset.initialized !== '1' || control.dataset.syncToken !== syncToken) {
@@ -1048,8 +1055,16 @@ def render_mobile_decimal_v2(
         if not disabled and callable(on_edit):
             on_edit()
 
+    from app.presentation_translation import translate_text
+    import re
+    labels = [aria_label, compact_label, desktop_label, suggest_label, help_text,
+              "Informazioni", "Diminuisci", "Aumenta", "Consiglia FC", "Consiglia fattore di correzione",
+              "Modifica nel pannello FC", "Valore numerico"]
+    labels += re.findall(r"return '([^']+)';", _JS)
+    translations = {label: translate_text(label) for label in labels if label}
     result = renderer(
         data={
+            "translations": translations,
             "value": value,
             "step": float(step),
             "decimals": int(decimals),

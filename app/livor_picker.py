@@ -37,11 +37,13 @@ def render_livor_picker(options, *, state_key, picker_key, default_label=None, a
     case_instance = st.session_state.get("__case_ui_id", "")
     component_key = f"{picker_key}_{case_instance}" if case_instance else picker_key
     dark = str(st.get_option("theme.base") or "light").lower() == "dark"
+    from app.presentation_translation import translate
     from_browser = _native_select(
         options=list(choices),
+        labels={value: translate(value) for value in choices},
         value=selected,
         dark=dark,
-        aria_label=aria_label,
+        aria_label=translate(aria_label),
         key=component_key,
         default=selected,
     )

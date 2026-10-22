@@ -838,13 +838,8 @@ st.markdown("""<style>
 .method-subtitle {font-size:0.86rem;font-weight:600;line-height:1.2;margin:0.15rem 0 0.04rem;}
 </style>""", unsafe_allow_html=True)
 
-# Un solo selettore per tutte le tabelle. La preferenza resta limitata
-# a questa pagina, in attesa di estendere e verificare la traduzione dell'app.
-_TABLE_LANGUAGE_KEY = "reference_tables_language"
-st.session_state.setdefault(_TABLE_LANGUAGE_KEY, "it")
-if st.session_state[_TABLE_LANGUAGE_KEY] not in ("it", "en"):
-    st.session_state[_TABLE_LANGUAGE_KEY] = "it"
-table_language = st.session_state[_TABLE_LANGUAGE_KEY]
+from app.language import current_language
+table_language = current_language()
 
 # --- Metodi basati sul raffreddamento cadaverico ---
 st.markdown(
@@ -897,10 +892,10 @@ st.caption(
     "corresponding to the time needed to reach the critical degree of cooling."
 )
 _reference_caption("Potente et al., 2017.")
-st.markdown("<div class='method-subtitle'>Fattore di correzione (FC)</div>" if table_language == "it" else "<div class='method-subtitle'>Correction factor (FC)</div>", unsafe_allow_html=True)
+st.markdown("<div class='method-subtitle'>Fattore di correzione (FC)</div>" if table_language == "it" else "<div class='method-subtitle'>Corrective factor (CF)</div>", unsafe_allow_html=True)
 st.markdown(
     "<div class='henssge-table-title'>"
-    + ("FC di base" if table_language == "it" else "Basic FC")
+    + ("FC di base" if table_language == "it" else "Base CF")
     + "</div>",
     unsafe_allow_html=True,
 )
@@ -1067,16 +1062,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 _render_combined_table(table_language)
-
-# Il controllo in fondo aggiorna tutte le tabelle nella stessa esecuzione;
-# non cambia la lingua del resto dell'app.
-st.segmented_control(
-    "Lingua delle tabelle / Table language",
-    options=["it", "en"],
-    format_func=lambda value: "🇮🇹 Italiano" if value == "it" else "🇬🇧 English",
-    selection_mode="single",
-    key=_TABLE_LANGUAGE_KEY,
-)
 
 render_back_button(TABLES_PAGE, key="back_home")
 

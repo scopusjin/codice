@@ -177,7 +177,13 @@ def decimal_number_input(
             key=key,
         )
     else:
+        from app.presentation_translation import translate_text
+        aria_label = translate_text(aria_label)
+        compact_label = translate_text(compact_label)
+        suggest_label = translate_text(suggest_label)
+        from app.language import current_language
         result = _component(
+            language=current_language(),
             value=current,
             step=float(step),
             decimals=decimals,

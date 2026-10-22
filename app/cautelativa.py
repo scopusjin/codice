@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-from app import i18n
+from app.language import presentation_i18n as i18n
 from app.henssge import calcola_raffreddamento, cooling_coefficient
 from app.parameters import INF_HOURS
 from app.cooling_inputs import checked_interval, checked_weight, finite_number

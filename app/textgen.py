@@ -6,7 +6,7 @@ import datetime
 from typing import List, Optional, Tuple, Iterable, Dict, Any
 import numpy as np
 
-from app import i18n
+from app.language import presentation_i18n as i18n
 from app.utils_time import split_hours_minutes
 from app.textgen_tanatology import special_description_is_reportable
 

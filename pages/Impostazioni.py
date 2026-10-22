@@ -7,7 +7,8 @@ from app.mobile_shell import install_minimal_mobile_shell
 from app.page_heading import render_page_heading
 from app.page_navigation import SETTINGS_PAGE, record_page_visit, render_back_button
 
-st.set_page_config(page_title="Impostazioni", layout="centered")
+from app.language import current_language
+st.set_page_config(page_title="Settings" if current_language() == "en" else "Impostazioni", layout="centered")
 install_minimal_mobile_shell()
 record_page_visit(st.session_state, SETTINGS_PAGE)
 

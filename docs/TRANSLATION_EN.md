@@ -1,20 +1,24 @@
-# Traduzione inglese — blocco 1: risorse linguistiche
+# Traduzione inglese — attivazione nell’app
 
-Base verificata: `b15a18b17aa77f688393e96617fac7c2a4487efe`, branch
+Base dell’integrazione: `4c862d08d359542006f9059ce9ed38fc7aa613e9`, branch
 `refactor-tanatology-keys`, repository `scopusjin/codice`.
 
 ## Stato
 
-Disponibili tramite chiamate esplicite `language="en"`: etichette per ID,
-descrizioni tanatologiche, conclusioni con/senza data, testi Henssge/Qd e
-Potente, descrizioni FC legacy e tutte le chiavi del catalogo `it_ui`.
-Le griglie sopraciliare/peribuccale e le etichette MSIL hanno risorse inglesi.
-Il menu pupillare inglese include i sei esiti specifici per farmaco presenti
-in `app/parameters.py`, oltre alle opzioni storiche conservate per compatibilità.
+Attivazione del 22.10.2026 nel branch `refactor-tanatology-keys`.
+Il selettore unico **Italiano / English** mantiene la preferenza nella sessione
+su Full, Sopralluogo, pannello FC, impostazioni, tabelle e riferimenti.
+Sono tradotti anche gli aiuti, i componenti mobili, gli esempi FC e i blocchi
+per Word. Il cambio lingua rigenera i report a partire dagli stessi input.
 
-L'app continua a usare l'italiano. Questo blocco **non attiva il selettore**
-e non costituisce una versione interamente tradotta dell'app. Nessuna chiave
-di sessione, opzione memorizzata, formula o regola FC viene modificata.
+Rimossa dal catalogo la voce obsoleta **Condizioni variabili**. Restano
+l’inserimento di range e la gestione di più scenari. I nomi tecnici storici
+come `stima_cautelativa_beta` non vengono rinominati: appartengono allo stato
+e ai casi salvati, non alle etichette visibili.
+
+Le formule scientifiche, i limiti temporali, le regole FC, i dati dei 152
+esempi e i valori memorizzati delle opzioni restano quelli della versione di
+partenza. Non viene eseguita una migrazione dei casi.
 
 ## Terminologia
 
@@ -29,7 +33,7 @@ di sessione, opzione memorizzata, formula o regola FC viene modificata.
 | Temperatura ambientale media | Mean ambient temperature | Non coincide necessariamente con il rilievo puntuale |
 | Aria ferma / correnti d'aria | Still air / moving air | Categoria termica, senza soglie di velocità aggiunte |
 | Acqua stagnante / corrente | Still water / flowing water | “Stagnante” qui indica assenza di flusso |
-| Tessuti fradici | Wet-through clothing and coverings | Da usare nel pannello FC nel blocco successivo |
+| Tessuti fradici | Wet-through clothing and coverings | Terminologia del pannello FC |
 | Tessuti parzialmente bagnati | Partially wet clothing and coverings | Distinti dai tessuti completamente impregnati |
 | Piano termicamente indifferente | Thermally indifferent base | Terminologia del capitolo; nessuna nuova classificazione |
 | Ipostasi | Postmortem lividity | “Lividity” nelle etichette brevi |
@@ -85,25 +89,39 @@ legacy su atropina e limiti 30/5 ore; non sono nel menu corrente. Non riutilizza
 al posto degli esiti specifici `atropine_*`, `tropicamide_*`, `acetylcholine_*`.
 La distinzione è preesistente e non viene corretta implicitamente traducendo.
 
-## Integrazione ancora da eseguire dopo verifica del blocco
+## Integrazione e verifiche
 
-1. Selettore unico Italiano / English con preferenza per sessione; mantenimento
-   di tutti i dati e delle selezioni attraverso i valori stabili, senza migrare
-   o duplicare le chiavi di sessione. Non impostare una lingua globale di processo.
-2. Testi ancora incorporati nelle pagine, intestazioni mobile, impostazioni,
-   dialoghi Caso/Word, dettagli con orari diversi e paragrafi misti Henssge/Potente.
-3. Pannello FC JavaScript: etichette, spiegazioni, condizioni grammaticalmente
-   corrette, scenari e 152 schede di esempio. Conservare i valori interni italiani.
-4. Tabelle/riferimenti: collegare il selettore esistente a quello unico,
-   uniformare la sigla CF; mantenere i titoli bibliografici originali.
-5. Ricalcolo dei testi al cambio lingua e invalidazione dei report obsoleti.
-   `build_word_blocks` riconosce ancora prefissi italiani: aggiornarlo prima di
-   esporre l'esportazione inglese. Un testo libero passato come fallback deve
-   già essere nella lingua richiesta: il renderer non lo traduce automaticamente.
-6. Prove integrate desktop/mobile, cambio lingua IT→EN→IT con dati e risultati
-   invariati, importazione dei vecchi casi e download Word nella lingua corrente.
+- `app/language.py`: preferenza per sessione e proxy linguistico per i renderer
+  scientifici. Nessuna lingua globale condivisa fra gli utenti.
+- `app/presentation_translation.py`: testo di presentazione localizzato dopo
+  il calcolo dell’identità dei widget. Streamlit 1.64 trasmette le selezioni
+  come stringhe formattate: il ponte di serializzazione converte le etichette
+  inglesi nei valori originali prima di callback e calcoli. I valori dei campi
+  di testo, gli URL e gli identificatori non vengono tradotti.
+- Pannello FC: traduzione reversibile dei nodi di testo e delle etichette
+  accessibili; valori delle opzioni, condizioni, regole e bozze invariati.
+  I cataloghi distinguono dati sperimentali, scelte nei casi pubblicati e
+  ragionamenti per analogia dell’app.
+- I report sono associati anche alla lingua. Al cambio lingua vengono
+  rigenerati e Word riceve soltanto i blocchi nella lingua corrente.
 
-La verifica del presente blocco avviene sul confronto bilingue generato da
-`scripts/preview_translation_en.py` e con un controllo di regressione dell'app
-italiana. La revisione manuale precede il blocco di integrazione, secondo il
-metodo di lavoro richiesto dall'utente.
+Test mirati: 32 test superati nel gruppo composto da
+`test_language_presentation`, `test_language_page`, `test_i18n_english`,
+`test_case_report` e `test_case_file`; il controllo di pagina esegue a sua
+volta tre prove integrate. Ulteriori sette prove di importazione/esportazione
+casi (`case_page_checks.py`) superate.
+
+Verificati Full desktop/mobile e Sopralluogo: IT → EN → IT, mantenimento di
+input e scelte FC, ripristino dello stesso report italiano, importazione dei
+vecchi casi, selezioni native inglesi, blocchi Word, digitopressione,
+ricomparsa del rigor e reperti rilevati in orari diversi. Il test JavaScript
+confronta decisioni numeriche e bozze FC prima e dopo il cambio lingua.
+
+La suite generale contiene già errori e aspettative non aggiornate nella
+base di partenza; non viene dichiarata interamente verde. Il controllo dei
+componenti è automatico (AppTest e ambiente DOM simulato): in questa sessione
+non è stato possibile installare Chromium per una verifica visiva completa.
+La compatibilità del ponte dei widget è legata alla versione Streamlit
+vincolata dal repository; va ricontrollata se tale dipendenza cambia.
+
+Il confronto bilingue è rigenerabile con `scripts/preview_translation_en.py`.

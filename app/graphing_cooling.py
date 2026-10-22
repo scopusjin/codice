@@ -15,7 +15,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import numpy as np
 import streamlit as st
 
-from app import i18n
+from app.language import presentation_i18n as i18n
 from app.cautelativa import compute_raffreddamento_cautelativo
 from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
 from app.parameters import INF_HOURS

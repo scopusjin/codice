@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
 
-from app import i18n
+from app.language import presentation_i18n as i18n
 
 
 # Formatter numerico: "7.0" -> "7", "7.5" -> "7.5"

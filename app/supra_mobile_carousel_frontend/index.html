@@ -345,6 +345,7 @@
       document.documentElement.style.setProperty("--bg", args.background_color || "#F0F2F6");
       document.documentElement.style.setProperty("--text", args.text_color || "#31333F");
 
+      viewport.setAttribute("aria-label", args.aria_label || "Eccitabilità elettrica sopraciliare");
       const nextItems = Array.isArray(args.items) ? args.items : [];
       const signature = nextItems.map((item) => `${item.value}|${item.label}|${(item.image || "").length}`).join(";");
       items = nextItems;

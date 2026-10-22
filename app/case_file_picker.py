@@ -28,7 +28,8 @@ def consume_file_event(event, ui_id, state):
 def render_case_file_picker(ui_id, key):
     component = components.declare_component(
         "mortem_case_file_picker", path=str(Path(__file__).with_name("case_file_picker_frontend")))
-    event = component(instance=ui_id, max_bytes=MAX_BYTES, key=key, default=None)
+    from app.language import current_language
+    event = component(language=current_language(), instance=ui_id, max_bytes=MAX_BYTES, key=key, default=None)
     try:
         return consume_file_event(event, ui_id, st.session_state)
     except CaseFileError as exc:

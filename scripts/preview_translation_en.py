@@ -43,7 +43,7 @@ def build():
         qd_min_text="0.18", qd_max_text="0.32", status="mixed", single_value=False, language=lang))
     example("Potente — minimo, temperatura ambientale >23 °C", lambda lang: i18n.potente_paragraph(
         i18n.format_hours_minutes(43, 0, lang), "1.8", high_temperature=True, language=lang))
-    example("Riepilogo delle condizioni variabili", lambda lang: i18n.prudent_graphing_detail_list(
+    example("Riepilogo dei range di temperatura e FC", lambda lang: i18n.prudent_graphing_detail_list(
         header=i18n.prudent_header(lang), ta_text="11–15 °C", cf_text="0.70–1.40", weight_text="85 kg", language=lang))
     example("Dati termometrici", lambda lang: i18n.cooling_input_paragraph(
         inspection_time="14:25", inspection_date="21.10.2026", ta_text="15", tr_text="28.1",

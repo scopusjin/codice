@@ -252,7 +252,8 @@ if "show_img_peribuccale" not in st.session_state:
     st.session_state["show_img_peribuccale"] = False
 
 # Titolo
-page_title = i18n.ui_text("full.title")
+from app.language import current_language
+page_title = i18n.ui_text("full.title", language=current_language())
 if full_device_is_mobile():
     st.markdown(
         f"<h5 class='mortem-full-title' style='margin-top:0; margin-bottom:0;'>{page_title}</h5>",

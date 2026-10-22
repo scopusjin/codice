@@ -11,7 +11,8 @@ from app.theme import frase_breve_box
 import numpy as np
 import streamlit as st
 
-from app import i18n
+from app.language import presentation_i18n as i18n, current_language
+from app.presentation_translation import translate
 from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
@@ -161,7 +162,7 @@ def aggiorna_grafico(
     _dettagli_seen: set[str] = set()
     def _add_det(blocco: str | None):
         if isinstance(blocco, str):
-            key = blocco.strip()
+            key = translate(blocco.strip())
             if key and key not in _dettagli_seen:
                 dettagli.append(key)
                 _dettagli_seen.add(key)
@@ -303,6 +304,8 @@ def aggiorna_grafico(
         range_valori = parametro_risolto.range_value
         if range_valori:
             descrizione = (
+                i18n.special_description(parametro_risolto.parameter_id, parametro_risolto.option_id)
+                if current_language() == "en" and parametro_risolto.parameter_id and parametro_risolto.option_id else
                 parametro_risolto.description
                 if parametro_risolto.description is not None
                 else i18n.ui_text("graph.missing_special_description", state=stato_selezionato)
@@ -378,6 +381,8 @@ def aggiorna_grafico(
             nota_globale_range_adattato = len(diffs) == 1
         else:
             descrizione = (
+                i18n.special_description(parametro_risolto.parameter_id, parametro_risolto.option_id)
+                if current_language() == "en" and parametro_risolto.parameter_id and parametro_risolto.option_id else
                 parametro_risolto.description
                 if parametro_risolto.description is not None
                 else i18n.ui_text(
@@ -730,6 +735,12 @@ def aggiorna_grafico(
             )
             if par_h:
                 if usa_orario_custom:
+                    if current_language() == "en":
+                        par_h = par_h.replace(
+                            "before the observations made during the medico-legal examination.",
+                            f"before the observations made during the medico-legal examination at {data_ora_ispezione_raw:%H:%M}.",
+                            1,
+                        )
                     par_h = par_h.replace(
                         "prima dei rilievi effettuati nel corso dell’ispezione legale.",
                         f"prima dei rilievi effettuati nel corso dell’ispezione legale, alle ore {data_ora_ispezione_raw:%H:%M}.",
@@ -803,6 +814,15 @@ def aggiorna_grafico(
         elif intro_semplice in frase_finale_html:
             frase_finale_html = frase_finale_html.replace(intro_semplice, intro_orari_diversi, 1)
 
+    if current_language() == "en" and orari_parametri_differenti and frase_finale_html:
+        for prefix in ("Combined assessment of the postmortem findings, integrating their minimum and maximum time limits,",
+                       "Combined assessment of the postmortem findings, integrating their time limits,",
+                       "Combined assessment of the postmortem findings"):
+            if prefix in frase_finale_html:
+                frase_finale_html = frase_finale_html.replace(prefix,
+                    "Combined assessment of the postmortem findings, integrating their time limits and accounting for their different observation times,", 1)
+                break
+
     # Descrizioni tanatologiche: includi solo rilievi effettivamente valutati.
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
     if not macchie_non_valutate:
@@ -843,6 +863,10 @@ def aggiorna_grafico(
                 f"Secondo i limiti segnalati in letteratura scientifica, "
                 f"questo suggerisce che {limite}."
             )
+        if current_language() == "en" and macchie_range_valido and livor_digitopressione != PRESSURE_NOT_ASSESSED:
+            from app.locales.en_combined_findings import livor_with_pressure
+            testo_macchie = livor_with_pressure(base_tanatology.livor_id, livor_digitopressione,
+                                               *macchie_range, macchie_range[1] >= INF_HOURS)
         if testo_macchie:
             _add_det(f"<ul><li>{testo_macchie.strip()}</li></ul>")
     if not rigidita_non_valutata:
@@ -866,6 +890,11 @@ def aggiorna_grafico(
                 "in letteratura scientifica, questo suggerisce che fossero trascorsi "
                 f"tra {minimo_testo} e {massimo:g} ore dal decesso."
             )
+        if (current_language() == "en" and rigor_reformation == REFORMATION_YES
+                and isinstance(rigidita_range, tuple)
+                and base_tanatology.rigor_id in ("rigor_developing", "rigor_full")):
+            from app.locales.en_combined_findings import rigor_with_reformation
+            testo_rigidita = rigor_with_reformation(base_tanatology.rigor_id, *rigidita_range)
         if testo_rigidita:
             _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
     word_additional = paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare)
@@ -1010,7 +1039,7 @@ def aggiorna_grafico(
     )
 
     # salva per popover
-    st.session_state["__desc_dettagliate_html"] = "\n".join([c for c in chunks if c])
+    st.session_state["__desc_dettagliate_html"] = translate("\n".join([c for c in chunks if c]))
 
     # Riepilogo verde prima dei comandi di dettaglio.
     frase_breve_html = st.session_state.get("frase_breve")

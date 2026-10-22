@@ -46,19 +46,19 @@ def prepare_case_import(home):
     # Le preferenze di visualizzazione appartengono alla sessione, non al caso.
     ui_preferences = {
         key: st.session_state[key]
-        for key in (PRESSURE_VISIBILITY_KEY,)
+        for key in (PRESSURE_VISIBILITY_KEY, "mortem_language", "mortem_language_widget")
         if key in st.session_state
     }
     # A fresh numeric sync token also updates already mounted custom controls.
     sync = {k: int(v) + 1 for k, v in st.session_state.items()
             if k.startswith("__decimal_component_sync_") and type(v) is int}
     for key in list(st.session_state):
-        del st.session_state[key]
+        if key not in ui_preferences:
+            del st.session_state[key]
     st.session_state.update(values)
     if word_link:
         st.session_state["__word_return"] = word_link
     st.session_state.update(sync)
-    st.session_state.update(ui_preferences)
     # Fresh menu controls prevent a late update from the old case (including
     # an empty identifier) from overwriting the case that has just been loaded.
     st.session_state["__case_ui_id"] = uuid4().hex

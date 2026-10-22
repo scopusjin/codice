@@ -9,6 +9,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 from PIL import ImageEnhance, ImageOps
 
+from app.presentation_translation import translate
+
 from app.electrical_grid_geometry import neutral_electrical_tile, normalize_electrical_tile
 
 
@@ -132,7 +134,7 @@ def render_perioral_mobile_carousel(
     items = [
         {
             "value": option,
-            "label": _single_line_label(option, label_for_option(option)),
+            "label": translate(_single_line_label(option, label_for_option(option))),
             "image": _image_data_uri(option, tiles[option]),
         }
         for option in carousel_options
@@ -140,6 +142,7 @@ def render_perioral_mobile_carousel(
 
     result = _component(
         items=items,
+        aria_label=translate("Eccitabilità elettrica peribuccale"),
         value=selected,
         primary_color=_theme_value("theme.primaryColor", "#168AC1"),
         background_color=_theme_value("theme.secondaryBackgroundColor", "#F0F2F6"),

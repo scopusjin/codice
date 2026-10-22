@@ -31,7 +31,7 @@ class CasePageTests(unittest.TestCase):
         self.assertFalse(app.get("file_uploader"))
         self.assertTrue(any(c.proto.component_name.endswith("mortem_case_file_picker")
                             for c in app.get("component_instance")))
-        self.assertFalse(app.get("button_group"))
+        self.assertEqual([group.key for group in app.get("button_group")], ["mortem_language_widget"])
         self.assertEqual(list(app.exception), [])
         app.session_state["__case_dialog_open"] = False
         app.run()

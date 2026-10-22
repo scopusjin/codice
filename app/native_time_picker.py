@@ -84,7 +84,9 @@ def native_time_picker(
 
     inherited_state = bool(inherited) or (main_datetime and value == "")
 
+    from app.language import current_language
     result = _component(
+        language=current_language(),
         value=value,
         mobile=mobile,
         picker_enabled=picker_enabled,

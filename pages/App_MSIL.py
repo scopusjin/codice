@@ -3,6 +3,7 @@
 import datetime
 import textwrap
 import streamlit as st
+from app.language import current_language
 from app import i18n
 from app.theme import apply_theme
 from app.theme import fc_panel_start
@@ -26,7 +27,7 @@ from app.msil_tanatology import (
 # Config pagina
 # ------------------------------------------------------------
 st.set_page_config(
-    page_title=i18n.ui_text("msil.page_title"),
+    page_title=i18n.ui_text("msil.page_title", language=current_language()),
     layout="centered",
     initial_sidebar_state="collapsed",
 )

@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Optional
 
-from app import i18n
+from app.language import presentation_i18n as i18n
 
 def build_cf_description(
     cf_value: float,

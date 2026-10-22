@@ -19,7 +19,6 @@ UI_TEXT = {
     "full.rigor_heading": "Rigor mortis",
     "full.rigor_select_label": "Rigor mortis:",
     "full.cooling_heading": "Postmortem body cooling",
-    "full.prudent_toggle": "Variable conditions?",
     "full.henssge_not_applicable": "Henssge’s method not applicable",
     "full.henssge_not_applicable_help": (
         "Henssge’s method cannot be applied in the following circumstances:\n"

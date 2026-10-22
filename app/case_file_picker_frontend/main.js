@@ -6,7 +6,7 @@ let args = {}, busy = false;
 const send = (type, data) => window.parent.postMessage({isStreamlitMessage:true, type, ...data}, '*');
 const resize = () => send('streamlit:setFrameHeight', {height:document.body.scrollHeight});
 function message(text) {
-  status.textContent = text;
+  status.textContent = args.language === 'en' ? ({'Dimensione massima: 1 MB.':'Maximum size: 1 MB.','File non valido o non leggibile.':'Invalid or unreadable file.'}[text] || text) : text;
   status.hidden = !text;
   resize();
 }
@@ -38,6 +38,7 @@ fileInput.addEventListener('change', async () => {
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.data?.type !== 'streamlit:render') return;
   args = event.data.args || {};
+  document.getElementById('open-label').textContent = args.language === 'en' ? 'Open case' : 'Apri caso';
   const theme = event.data.theme || {};
   for (const [name, value] of Object.entries({'--text':theme.textColor, '--background':theme.backgroundColor,
       '--primary':theme.primaryColor, '--font':theme.font})) {

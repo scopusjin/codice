@@ -563,5 +563,5 @@ def cooling_input_paragraph(*, inspection_time, inspection_date, ta_text: str, t
         f"<li>Measured body weight: {weight_text} kg.</li>"
         f"<li>Assumed body temperature at death: {t0_text} °C.</li>"
         "<li>Corrective factor assumed on the basis of the known environmental conditions: "
-        f"{correction_description}.</li></ul></li></ul>"
+        f"{correction_description.rstrip('.')}.</li></ul></li></ul>"
     )

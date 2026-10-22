@@ -3,6 +3,7 @@
 import unittest
 
 from app import i18n
+from app.locales import it_ui
 
 
 class FullUiTextCompatibilityTests(unittest.TestCase):
@@ -32,7 +33,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
                 self.assertEqual(i18n.ui_text(key), value)
 
     def test_henssge_labels_and_help_match_current_ui(self):
-        self.assertEqual(i18n.ui_text("full.prudent_toggle"), "Condizioni variabili?")
+        self.assertNotIn("full.prudent_toggle", it_ui.UI_TEXT)
         self.assertEqual(
             i18n.ui_text("full.henssge_not_applicable"),
             "Henssge non applicabile",
