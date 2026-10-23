@@ -93,7 +93,9 @@ def _validate_draft(draft, *, nested=False):
             _require(isinstance(value, dict) and value.keys() <= DRAFT_FIELDS)
             _require(all(_text(v, 100) for v in value.values()))
         elif key == "state":
-            _require(value in {"Asciutto", "Bagnato", "Immerso"})
+            # The FC editor uses an empty string for an unselected condition,
+            # including manual choices and unfinished scenario drafts.
+            _require(isinstance(value, str) and value in {"", "Asciutto", "Bagnato", "Immerso"})
         elif key in {"lo", "hi"}:
             _require(_text(value, 100))
         elif key in {"manualBase", "selectedBase"}:
