@@ -21,6 +21,22 @@ aggiorna_grafico(selettore_macchie="Non valutate", selettore_rigidita="Non valut
 
 
 class MixedCoolingDescriptionTests(unittest.TestCase):
+    def test_english_report_keeps_open_minimum_and_word_blocks(self):
+        script = SCRIPT.replace('import streamlit as st',
+                                'import streamlit as st\nst.session_state["mortem_language"] = "en"')
+        app = AppTest.from_string(script, default_timeout=30).run()
+        self.assertFalse(app.exception)
+        from app.case_report import plain_text
+        report = plain_text(app.session_state['__desc_dettagliate_html'])
+        self.assertIn('only some parameter combinations', report)
+        self.assertIn('The combined estimate at examination is more than 16 hours 30 minutes since death.', report)
+        self.assertIn('Potente’s method gives a minimum of 43 hours before the medico-legal examination.', report)
+        blocks = app.session_state['__word_report_blocks']
+        self.assertIn('more than 16 hours 30 minutes since death', blocks['cooling']['text'])
+        self.assertNotIn('43 hours', blocks['cooling']['text'])
+        self.assertEqual(blocks['ambient_temperature']['insert_when'], 'different_from_msil')
+        self.assertIn('1.40', blocks['correction_factor']['text'])
+
     def test_report_uses_graph_minimum_and_moves_potente_to_blue_note(self):
         app = AppTest.from_string(SCRIPT, default_timeout=30).run()
         self.assertFalse(app.exception)

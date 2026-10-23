@@ -39,7 +39,7 @@ class LanguagePageTests(unittest.TestCase):
                 self.assertEqual(app.session_state['mortem_language'],'en')
                 current=snapshot_case(app.session_state._state.filtered_state,view)
                 for key in ('inputs','signs','fc_choice'):self.assertEqual(current[key],saved[key],key)
-                self.assertIn('Applying Henssge',app.session_state['__desc_dettagliate_html'])
+                self.assertIn("Henssge’s method",app.session_state['__desc_dettagliate_html'])
                 self.assertIn('corrective factor',app.session_state['__word_report_blocks']['correction_factor']['text'].lower())
                 self.assertIn('ambient temperature',app.session_state['__word_report_blocks']['ambient_temperature']['text'].lower())
                 browser_run(app,language='it');self.assertEqual(list(app.exception),[])
@@ -48,7 +48,7 @@ class LanguagePageTests(unittest.TestCase):
                 app.session_state['__case_pending_import']=saved
                 browser_run(app);self.assertEqual(list(app.exception),[])
                 self.assertEqual(app.session_state['mortem_language'],'en')
-                browser_run(app,click=button);self.assertIn('Applying Henssge',app.session_state['__desc_dettagliate_html'])
+                browser_run(app,click=button);self.assertIn("Henssge’s method",app.session_state['__desc_dettagliate_html'])
 
     def test_combined_findings_and_different_observation_times(self):
         app=self.start(language='en',extra={
@@ -66,6 +66,11 @@ class LanguagePageTests(unittest.TestCase):
         report=app.session_state['__desc_dettagliate_html']
         for text in ['incomplete shifting','blanched completely','between 4 and 20 hours','re-established','between 30 minutes and 19 hours','at 14:30 on 22.10.2026','temperature measurements at 15:30 on 22.10.2026']:
             self.assertIn(text,report)
+        self.assertIn('before temperature measurement at 15:30',report)
+        blocks=app.session_state['__word_report_blocks']
+        self.assertIn('<u>Postmortem lividity</u>',blocks['livor']['html'])
+        self.assertIn('<u>Rigor mortis</u>',blocks['rigor']['html'])
+        self.assertIn('before temperature measurement at 15:30',blocks['cooling']['text'])
         self.assertNotIn('Rigor mortis mortis',report)
         self.assertNotIn('valutazioni del',report)
         from app.presentation_translation import translate
@@ -73,6 +78,8 @@ class LanguagePageTests(unittest.TestCase):
         choice.select(translate('Nessuna reazione','en')).run()
         self.assertEqual(list(app.exception),[])
         self.assertEqual(app.session_state['Eccitabilità muscolare meccanica_selector'],'Nessuna reazione')
+        browser_run(app,click='btn_stima');self.assertEqual(list(app.exception),[])
+        self.assertIn('accounting for their different observation times',app.session_state['__desc_dettagliate_html'])
         for key in ('livor','rigor','additional'):self.assertTrue(app.session_state['__word_report_blocks'][key])
 
     def test_subpages_share_language_and_keep_reference_links(self):

@@ -14,14 +14,11 @@ def livor_with_pressure(state_id, pressure, lower, upper, open_upper):
     else:
         limit = f"between {lower:g} and {upper:g} hours"
     return (f"{finding}; it {blanching} under finger pressure. "
-            "According to the time limits reported in the scientific literature, "
-            f"this suggests that {limit} had elapsed since death.")
+            f"The combined findings suggest {limit} since death, based on published time limits.")
 
 
 def rigor_with_reformation(state_id, lower, upper):
-    finding = "developing, increasing in intensity and becoming generalised" if state_id == "rigor_developing" else "present and generalised"
+    finding = "developing, with increasing intensity and extent" if state_id == "rigor_developing" else "fully developed and generalised"
     minimum = "30 minutes" if lower == 0.5 else f"{lower:g} hours"
-    return (f"Rigor mortis is considered to have been {finding} at the time of the medico-legal examination, "
-            "and to have re-established after being broken by forced manipulation. "
-            "According to the minimum and maximum time limits reported in the scientific literature, "
-            f"this suggests that between {minimum} and {upper:g} hours had elapsed since death.")
+    return (f"Rigor mortis was {finding}. It re-established after being broken by forced manipulation. "
+            f"Published limits suggest a postmortem interval between {minimum} and {upper:g} hours.")

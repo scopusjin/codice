@@ -737,8 +737,8 @@ def aggiorna_grafico(
                 if usa_orario_custom:
                     if current_language() == "en":
                         par_h = par_h.replace(
-                            "before the observations made during the medico-legal examination.",
-                            f"before the observations made during the medico-legal examination at {data_ora_ispezione_raw:%H:%M}.",
+                            "before temperature measurement.",
+                            f"before temperature measurement at {data_ora_ispezione_raw:%H:%M}.",
                             1,
                         )
                     par_h = par_h.replace(
@@ -820,7 +820,7 @@ def aggiorna_grafico(
                        "Combined assessment of the postmortem findings"):
             if prefix in frase_finale_html:
                 frase_finale_html = frase_finale_html.replace(prefix,
-                    "Combined assessment of the postmortem findings, integrating their time limits and accounting for their different observation times,", 1)
+                    "Combined assessment of the postmortem findings, accounting for their different observation times,", 1)
                 break
 
     # Descrizioni tanatologiche: includi solo rilievi effettivamente valutati.

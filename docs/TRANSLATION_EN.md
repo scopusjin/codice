@@ -57,6 +57,24 @@ il procedimento, `estimate` resta corretto come verbo o per il risultato della
 stima. I riepiloghi brevi senza data usano `Estimated time since death`; quelli
 con data/ora mantengono `Estimated time of death`. Limiti temporali e ID invariati.
 
+## Descrizioni dettagliate — revisione del 23.10.2026
+
+L'inglese è una riscrittura concisa, non una traduzione parola per parola:
+prima il reperto, poi il significato temporale e le precisazioni necessarie.
+Eliminate introduzioni ripetitive e perifrasi; mantenuta la terminologia sopra
+indicata. La stessa versione alimenta la schermata e i blocchi per Word.
+
+Conservati valori, unità, limiti aperti/chiusi, riferimenti agli orari,
+confluenza, migrabilità e digitopressione come informazioni distinte.
+Potente resta una stima del solo minimo. Le note Qd conservano soglie e
+avvertenze; il range Swisswuff resta orientativo e privo di fondamento
+statistico specifico. I testi italiani e il motore di calcolo sono invariati.
+
+Verifica della revisione: risorse linguistiche, round-trip IT → EN → IT su
+Full desktop/mobile e Sopralluogo, casi con orari differenti, scenari misti
+Henssge/Potente e blocchi Word (riconoscimento temperatura/FC, sottolineature,
+esclusione delle note blu). Non è una nuova validazione dei limiti scientifici.
+
 ## Fonti e limiti della revisione
 
 - Henssge, capitolo 6.1 in B. Madea (ed.), *Estimation of the Time Since Death*,

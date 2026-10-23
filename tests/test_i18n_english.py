@@ -116,8 +116,8 @@ class EnglishResourcesTests(unittest.TestCase):
             self.assertIn("outside the range", text)
             self.assertIn("equals 1", text)
             self.assertIn("approaches 0", text)
-        for status, phrase in (("all_optimal", "allow a sufficiently reliable estimate"),
-                               ("mixed", "For some of the conditions"),
+        for status, phrase in (("all_optimal", "All conditions fall within"),
+                               ("mixed", "Some conditions fall outside"),
                                ("no_optimal_intermediate", "close to the lower limit"),
                                ("all_outside", "outside the range")):
             for single in (True, False):
@@ -133,7 +133,8 @@ class EnglishResourcesTests(unittest.TestCase):
         text = i18n.final_sentence_dt_range("between 2 and 4 hours", "10:25", "21.10.2026",
                                             "12:25", "21.10.2026", True, "en")
         self.assertIn("between 10:25 and 12:25 on 21.10.2026", text)
-        self.assertIn("minimum and maximum time limits", text)
+        self.assertIn("Combined assessment of the postmortem findings", text)
+        self.assertIn("between 2 and 4 hours", text)
         for hours in (0, 0.5, 1, 1.5, 2, 2.999, 43):
             import re
             for formatter in ("prudent_hours_text", "prudent_graphing_hours_text"):

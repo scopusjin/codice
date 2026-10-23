@@ -108,8 +108,8 @@ def factor_correction_description(*, cf_value: float, summary: Optional[Dict[str
         return cf_text
     if not summary:
         return (
-            f"{cf_text} (based on the selected factors: {fallback_text})." if fallback_text
-            else f"{cf_text} (to be adjusted on the basis of the selected factors)."
+            f"{cf_text} (based on: {fallback_text})." if fallback_text
+            else f"{cf_text} (to be adjusted for the selected conditions)."
         )
 
     state = summary.get("stato")
@@ -125,13 +125,13 @@ def factor_correction_description(*, cf_value: float, summary: Optional[Dict[str
         _format_state(state), _format_clothing(thin, thick, state),
         _format_blankets(medium, heavy, thin == 0 and thick == 0), surface_text, current_text,
     ) if part]
-    weight_note = "The corrective factor has been adjusted for body weight." if summary.get("peso_adattato") else None
+    weight_note = "Corrective factor adjusted for body weight." if summary.get("peso_adattato") else None
     if parts or weight_note:
         inner = ", ".join(parts)
         if weight_note:
             inner = (inner + ". " + weight_note) if inner else weight_note
         return f"{cf_text} ({inner})"
     return (
-        f"{cf_text} (based on the selected factors: {fallback_text})." if fallback_text
-        else f"{cf_text} (to be adjusted on the basis of the selected factors)."
+        f"{cf_text} (based on: {fallback_text})." if fallback_text
+        else f"{cf_text} (to be adjusted for the selected conditions)."
     )

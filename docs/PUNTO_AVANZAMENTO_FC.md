@@ -1,5 +1,29 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Descrizioni inglesi più dirette — 23.10.2026
+
+- Revisione approvata dall'utente: inglese più sintetico e naturale, senza
+  corrispondenza obbligatoria parola per parola con l'italiano.
+- Base GitHub verificata `aa1d0bd23d939be46f387414b4af5feded643d43`, branch
+  `refactor-tanatology-keys`, repository `scopusjin/codice`.
+- Riscritti i testi di raffreddamento, Qd, Potente, ipostasi/digitopressione,
+  rigor/ricomparsa, eccitabilità elettrica/meccanica/farmacologica, putrefazione,
+  dati utilizzati e conclusioni. Le formule introduttive ripetitive diventano
+  frasi che collegano direttamente reperto e indicazione temporale.
+- Mantenuti tutti i numeri delle descrizioni dei reperti, i limiti aperti/chiusi
+  e le precisazioni cliniche. La sola modifica in `app/graphing.py` riguarda
+  tre stringhe inglesi per inserire l'orario termometrico e il contesto dei
+  rilievi effettuati in orari diversi. Nessuna modifica al motore scientifico,
+  ai testi italiani o al formato dei casi. Footer e assunzioni rosse invariati.
+- Verifiche mirate: 12 test risorse, 7 test lingua (di cui uno esegue 5 controlli
+  integrati di pagina), 4 test report/Word e 3 test raffreddamento misto.
+  Verificati i limiti numerici, la parità dei risultati IT/EN, il riconoscimento
+  dei blocchi Word, le sottolineature e l'esclusione delle note blu dai blocchi.
+  Questi controlli non equivalgono all'esecuzione della macro dentro Word.
+- Confronto bilingue rigenerato con `scripts/preview_translation_en.py`.
+  Commit corrente: quello contenente questa nota. Main invariato.
+
+
 ## Selettore non fisso e assunzioni sulle coperture — 23.10.2026
 
 - Ultima indicazione dell’utente: selettore lingua piccolo in fondo alla pagina,

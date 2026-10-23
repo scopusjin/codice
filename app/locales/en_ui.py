@@ -139,15 +139,14 @@ UI_TEXT = {
     "graph.henssge_equal_temperature_warning": "Rectal and ambient temperatures are equal: Henssge’s method is not applicable because there is no thermal gradient.",
     "graph.henssge_equal_temperature_detail": (
         "<ul><li>Rectal and ambient temperatures are both <b>{temperature} °C</b>. This suggests that the body "
-        "has reached thermal equilibrium with its surroundings, which precludes application of Henssge’s method.</li></ul>"
+        "has reached thermal equilibrium with its surroundings, so Henssge’s method cannot be applied.</li></ul>"
     ),
     "graph.henssge_below_ambient_warning": "Rectal temperature is below ambient temperature: Henssge’s method is not applicable. Check the entered data.",
     "graph.henssge_below_ambient_detail": (
-        "<ul><li>The mean ambient temperature exceeds the rectal temperature; therefore, an estimate of the time "
-        "of death based on postmortem body cooling cannot be made. Check that the measurements and entered data "
-        "are correct; alternatively, the body may have reached thermal equilibrium with its surroundings, followed "
-        "by a change in environmental conditions. Remember to use the mean ambient temperature (which may be lower "
-        "than the temperature measured during the medico-legal examination).</li></ul>"
+        "<ul><li>Mean ambient temperature exceeds rectal temperature, so body cooling cannot provide a time-since-death "
+        "estimate. Check the measurements and entered data. The body may have reached thermal equilibrium before "
+        "environmental conditions changed. Use the mean ambient temperature, which may be lower than the temperature "
+        "measured at examination.</li></ul>"
     ),
     "graph.high_ambient_factor_warning": "At ambient temperatures &gt; 25 °C, changes in the corrective factor may substantially affect the results.",
     "graph.low_ambient_factor_warning": "At ambient temperatures &lt; 18 °C, selecting a corrective factor other than 1 may substantially affect the results.",

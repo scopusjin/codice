@@ -121,238 +121,189 @@ SURFACE_LABEL_BY_ID = {
 LIVOR_DESCRIPTION_BY_ID = {
     ts.LIVOR_NOT_ASSESSED: "Postmortem lividity was not assessed.",
     ts.LIVOR_ABSENT: (
-        "Postmortem lividity is considered not to have developed at the time of the medico-legal examination. "
-        "According to the maximum time limits reported in the scientific literature, this suggests that "
-        "less than 3 hours had elapsed since death (lividity generally appears within 15–20 minutes)."
+        "Postmortem lividity had not yet developed. Published limits suggest less than 3 hours "
+        "since death (usual onset: 15–20 minutes)."
     ),
     ts.LIVOR_CONFLUING: (
-        "Postmortem lividity is considered to have been present but still developing confluence at the time of the "
-        "medico-legal examination. According to the maximum time limits reported in the scientific literature, "
-        "this suggests that less than 4 hours had elapsed since death (this stage is generally observed "
-        "between 1 hour 30 minutes and 3 hours 30 minutes after death)."
+        "Postmortem lividity was becoming confluent. Published limits suggest less than 4 hours "
+        "since death (this stage is usually seen between 1 hour 30 minutes and 3 hours 30 minutes)."
     ),
     ts.LIVOR_CONFLUENT: (
-        "Postmortem lividity is considered to have been present and confluent at the time of the medico-legal "
-        "examination (shifting was not specified or assessed). This suggests only that at least 1 hour "
-        "had elapsed since death."
+        "Postmortem lividity was confluent (shifting not assessed or specified). "
+        "This suggests at least 1 hour since death, without an upper time limit."
     ),
     ts.LIVOR_CONFLUENT_FULLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have been present and confluent, with complete shifting "
-        "after repositioning the body, at the time of the medico-legal examination. "
-        "According to the minimum and maximum time limits reported in "
-        "the scientific literature, this suggests that between 1 and 6 hours had elapsed since death."
+        "Postmortem lividity was confluent and shifted completely after repositioning. "
+        "Published limits suggest a postmortem interval between 1 and 6 hours."
     ),
     ts.LIVOR_FULLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have shown complete shifting after repositioning the body "
-        "at the time of the medico-legal examination (degree of confluence unspecified). "
-        "According to the maximum time limits reported "
-        "in the scientific literature, this suggests that less than 6 hours had elapsed since death."
+        "Postmortem lividity shifted completely after repositioning (confluence unspecified). "
+        "Published limits suggest less than 6 hours since death."
     ),
     ts.LIVOR_PARTIALLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have shown incomplete shifting after repositioning the body "
-        "at the time of the medico-legal examination. According to the minimum and maximum time limits "
-        "reported in the scientific literature, "
-        "this suggests that between 4 and 24 hours had elapsed since death."
+        "Postmortem lividity showed incomplete shifting after repositioning. "
+        "Published limits suggest a postmortem interval between 4 and 24 hours."
     ),
     ts.LIVOR_AT_LEAST_PARTIALLY_MIGRATABLE: (
-        "Postmortem lividity is considered to have shown shifting after repositioning the body at the time "
-        "of the medico-legal examination, but whether shifting was complete or incomplete could not be "
-        "determined. According to the maximum time limits reported in the scientific literature, "
-        "this suggests that less than 24 hours had elapsed since death."
+        "Postmortem lividity shifted after repositioning, but whether shifting was complete "
+        "or incomplete could not be determined. Published limits suggest less than 24 hours since death."
     ),
     ts.LIVOR_FIXED: (
-        "Postmortem lividity is considered to have been completely fixed at the time of the medico-legal "
-        "examination. According to the minimum time limits reported in the scientific literature, this "
-        "suggests that more than 4 hours had elapsed since death (up to 30 hours, lividity may fade in "
-        "intensity without shifting after repositioning the body)."
+        "Postmortem lividity was fixed. Published limits suggest more than 4 hours since death "
+        "(lividity may fade without shifting after repositioning for up to 30 hours)."
     ),
-    ts.LIVOR_UNRELIABLE: (
-        "Postmortem lividity was not assessed, or the findings are not considered reliable for estimating the time of death."
-    ),
+    ts.LIVOR_UNRELIABLE: "Postmortem lividity was not assessed or was unreliable for time-since-death estimation.",
 }
 
 LIVOR_PRESSURE_DESCRIPTION_BY_ID = {
     PRESSURE_COMPLETE_FADING: (
-        "Postmortem lividity blanched completely under finger pressure; "
-        "this finding provides an upper time limit of 20 hours after death."
+        "Postmortem lividity blanched completely under finger pressure, "
+        "providing an upper postmortem time limit of 20 hours."
     ),
     PRESSURE_INCOMPLETE_FADING: (
-        "Postmortem lividity did not blanch completely under finger pressure; "
-        "this finding provides a lower time limit of 1 hour after death."
+        "Postmortem lividity did not blanch completely under finger pressure, "
+        "providing a lower postmortem time limit of 1 hour."
     ),
 }
 
 RIGOR_DESCRIPTION_BY_ID = {
     ts.RIGOR_NOT_ASSESSED: "Rigor mortis was not assessed.",
     ts.RIGOR_ABSENT: (
-        "Rigor mortis is considered not to have developed at the time of the medico-legal examination. "
-        "According to the maximum time limits reported in the scientific literature, this indicates that "
-        "less than 7 hours had elapsed since death (rigor mortis appears within 2–3 hours after death on average)."
+        "Rigor mortis had not yet developed. Published limits suggest less than 7 hours "
+        "since death (mean onset: 2–3 hours)."
     ),
     ts.RIGOR_DEVELOPING: (
-        "Rigor mortis is considered to have been developing, increasing in intensity and becoming generalised "
-        "at the time of the medico-legal examination. According to the minimum and maximum time limits "
-        "reported in the scientific literature, this indicates that at least 30 minutes but less than 20 hours "
-        "had elapsed since death (rigor mortis generally becomes fully developed within 6–10 hours)."
+        "Rigor mortis was developing, increasing in intensity and extent. Published limits suggest "
+        "at least 30 minutes but less than 20 hours since death (usually fully developed within 6–10 hours)."
     ),
     ts.RIGOR_FULL: (
-        "Rigor mortis is considered to have been present and generalised at the time of the medico-legal "
-        "examination. According to the minimum and maximum time limits reported in the scientific literature, "
-        "this indicates that at least 2 hours but less than 96 hours, i.e. less than 4 days, had elapsed "
-        "since death (resolution begins after 57 hours on average, approximately 2 and a half days after death)."
+        "Rigor mortis was fully developed and generalised. Published limits suggest at least 2 hours "
+        "but less than 96 hours (4 days) since death. Resolution begins after 57 hours on average "
+        "(approximately 2 and a half days)."
     ),
     ts.RIGOR_RESOLVING: (
-        "Rigor mortis is considered to have been resolving at the time of the medico-legal examination. "
-        "According to the minimum and maximum time limits reported in the scientific literature, this "
-        "indicates that at least 24 hours but less than 192 hours, i.e. less than 8 days, had elapsed since "
-        "death (on average, resolution begins after 57 hours, approximately 2 and a half days, and rigor "
-        "mortis disappears within 76 hours, just over 3 days after death)."
+        "Rigor mortis was resolving. Published limits suggest at least 24 hours but less than "
+        "192 hours (8 days) since death. On average, resolution begins after 57 hours "
+        "(approximately 2 and a half days) and is complete within 76 hours (just over 3 days)."
     ),
     ts.RIGOR_RESOLVED: (
-        "Rigor mortis is considered to have resolved at the time of the medico-legal examination. According "
-        "to the minimum and maximum time limits reported in the scientific literature, this indicates that "
-        "at least 24 hours had elapsed since death (rigor mortis disappears within 76 hours on average, "
-        "just over 3 days after death)."
+        "Rigor mortis had resolved. Published limits suggest at least 24 hours since death "
+        "(mean time to disappearance: 76 hours, just over 3 days)."
     ),
-    ts.RIGOR_UNRELIABLE: (
-        "Rigor mortis was not assessed, or the findings are not considered reliable for estimating the time of death."
-    ),
+    ts.RIGOR_UNRELIABLE: "Rigor mortis was not assessed or was unreliable for time-since-death estimation.",
 }
 
 SPECIAL_DESCRIPTION_BY_ID = {
     ss.PARAM_ELECTRICAL_SUPRACILIARY: {
         ss.OPTION_NOT_ASSESSED: None,
         ss.SUPRA_PHASE_I: (
-            "Electrical stimulation in the supraciliary region produced a slight contraction of a small "
-            "part of the upper eyelid (less than 1/3). This residual electrical excitability of skeletal "
-            "muscle suggests that death occurred more than 5 hours but less than 22 hours before assessment."
+            "Supraciliary electrical stimulation produced a slight contraction of less than 1/3 of "
+            "the upper eyelid, consistent with a postmortem interval of more than 5 hours but less than 22 hours."
         ),
         ss.SUPRA_PHASE_II: (
-            "Electrical stimulation in the supraciliary region produced contraction of less than 2/3 of "
-            "the upper eyelid. This residual electrical excitability of skeletal muscle suggests that "
-            "death occurred more than 3 hours 30 minutes but less than 16 hours before assessment."
+            "Supraciliary electrical stimulation produced contraction of less than 2/3 of the upper eyelid, "
+            "consistent with a postmortem interval of more than 3 hours 30 minutes but less than 16 hours."
         ),
         ss.SUPRA_PHASE_III: (
-            "Electrical stimulation in the supraciliary region produced contraction of the entire upper "
-            "eyelid. This residual electrical excitability of skeletal muscle suggests that death occurred "
-            "more than 3 hours but less than 13 hours before assessment."
+            "Supraciliary electrical stimulation produced contraction of the entire upper eyelid, "
+            "consistent with a postmortem interval of more than 3 hours but less than 13 hours."
         ),
         ss.SUPRA_PHASE_IV: (
-            "Electrical stimulation in the supraciliary region produced generalised contraction of the "
-            "upper and lower parts of the orbicularis oculi. This residual electrical excitability of skeletal "
-            "muscle suggests that death occurred more than 2 hours but less than 8 hours before assessment."
+            "Supraciliary electrical stimulation produced generalised contraction of the upper and lower "
+            "orbicularis oculi, consistent with a postmortem interval of more than 2 hours but less than 8 hours."
         ),
         ss.SUPRA_PHASE_V: (
-            "Electrical stimulation in the supraciliary region produced generalised contraction of the "
-            "forehead and orbital muscles. This residual electrical excitability of skeletal muscle "
-            "suggests that death occurred more than 1 hour but less than 7 hours before assessment."
+            "Supraciliary electrical stimulation produced generalised contraction of the forehead and orbital "
+            "muscles, consistent with a postmortem interval of more than 1 hour but less than 7 hours."
         ),
         ss.SUPRA_PHASE_VI: (
-            "Electrical stimulation in the supraciliary region produced generalised contraction of the "
-            "forehead, orbital and cheek muscles. This residual electrical excitability of skeletal "
-            "muscle suggests that death occurred less than 6 hours before assessment."
+            "Supraciliary electrical stimulation produced generalised contraction of the forehead, orbital "
+            "and cheek muscles, consistent with a postmortem interval of less than 6 hours."
         ),
         ss.OPTION_NO_REACTION: (
-            "Electrical stimulation in the supraciliary region produced no muscular contraction. "
-            "This finding allows only the inference that more than 5 hours had elapsed since death at assessment."
+            "Supraciliary electrical stimulation produced no muscular contraction. "
+            "This suggests only a lower time limit: more than 5 hours since death."
         ),
-        ss.OPTION_UNRELIABLE: (
-            "Residual electrical excitability following supraciliary stimulation could not be assessed, "
-            "or the finding is not considered reliable."
-        ),
+        ss.OPTION_UNRELIABLE: "Supraciliary electrical excitability could not be assessed or was unreliable.",
     },
     ss.PARAM_ELECTRICAL_PERIORAL: {
         ss.OPTION_NOT_ASSESSED: None,
         ss.PERIORAL_MARKED: (
-            "Electrical stimulation in the perioral region produced generalised contraction of the facial "
-            "muscles. For estimating the time since death, Henssge’s compound method considers a perioral "
-            "response irrespective of its extent; this finding suggests that no more than 11 hours had elapsed since death."
+            "Perioral electrical stimulation produced generalised facial muscle contraction. "
+            "In Henssge’s compound method, any perioral response suggests no more than 11 hours "
+            "since death, regardless of its extent."
         ),
         ss.PERIORAL_MODERATE: (
-            "Electrical stimulation in the perioral region produced contraction confined to the perioral "
-            "muscles. For estimating the time since death, Henssge’s compound method considers a perioral "
-            "response irrespective of its extent; this finding suggests that no more than 11 hours had elapsed since death."
+            "Perioral electrical stimulation produced contraction confined to the perioral muscles. "
+            "In Henssge’s compound method, any perioral response suggests no more than 11 hours "
+            "since death, regardless of its extent."
         ),
         ss.PERIORAL_SLIGHT: (
-            "Electrical stimulation in the perioral region produced a focal response near the electrodes. "
-            "For estimating the time since death, Henssge’s compound method considers a perioral response "
-            "irrespective of its extent; this finding suggests that no more than 11 hours had elapsed since death."
+            "Perioral electrical stimulation produced a focal response near the electrodes. "
+            "In Henssge’s compound method, any perioral response suggests no more than 11 hours "
+            "since death, regardless of its extent."
         ),
         ss.OPTION_NO_REACTION: (
-            "Electrical stimulation in the perioral region produced no appreciable muscular contraction. "
-            "According to Henssge’s compound method, this finding suggests that more than 3 hours had elapsed since death."
+            "Perioral electrical stimulation produced no appreciable muscular contraction. "
+            "Henssge’s compound method associates this finding with more than 3 hours since death."
         ),
-        ss.OPTION_UNRELIABLE: (
-            "Residual electrical excitability following perioral stimulation could not be assessed, "
-            "or the findings are not reliable for estimating the time of death."
-        ),
+        ss.OPTION_UNRELIABLE: "Perioral electrical excitability could not be assessed or was unreliable for time-since-death estimation.",
     },
     ss.PARAM_MECHANICAL_MUSCLE: {
         ss.OPTION_NOT_ASSESSED: None,
         ss.MECH_WHOLE_MUSCLE: (
-            "At the medico-legal examination, residual mechanical excitability was demonstrated by "
-            "contraction of the whole biceps brachii muscle in response to percussion. This finding "
-            "suggests that no more than 2 hours 30 minutes had elapsed since death."
+            "Percussion of the biceps brachii produced contraction of the whole muscle, "
+            "consistent with no more than 2 hours 30 minutes since death."
         ),
         ss.MECH_REVERSIBLE_SWELLING: (
-            "At the medico-legal examination, residual mechanical excitability was demonstrated by "
-            "reversible swelling of the biceps brachii muscle in response to percussion. This finding "
-            "suggests that no more than 5 hours had elapsed since death."
+            "Percussion of the biceps brachii produced reversible muscular swelling, "
+            "consistent with no more than 5 hours since death."
         ),
         ss.MECH_SMALL_PERSISTENT_SWELLING: (
-            "At the medico-legal examination, residual mechanical excitability was demonstrated by a "
-            "small persistent swelling of the biceps brachii muscle in response to percussion. This "
-            "finding suggests that no more than 13 hours had elapsed since death."
+            "Percussion of the biceps brachii produced a small persistent muscular swelling, "
+            "consistent with no more than 13 hours since death."
         ),
         ss.OPTION_NO_REACTION: (
-            "Percussion of the arm muscle produced no appreciable muscular response. This finding "
-            "suggests that more than 1 hour 30 minutes had elapsed since death."
+            "Percussion of the arm muscle produced no appreciable response, "
+            "suggesting more than 1 hour 30 minutes since death."
         ),
-        ss.OPTION_UNRELIABLE: (
-            "Mechanical excitability of skeletal muscle could not be assessed, or the findings are "
-            "not reliable for estimating the time of death."
-        ),
+        ss.OPTION_UNRELIABLE: "Mechanical muscle excitability could not be assessed or was unreliable for time-since-death estimation.",
     },
     ss.PARAM_CHEMICAL_PUPILLARY: {
         ss.OPTION_NOT_ASSESSED: None,
-        ss.OPTION_UNRELIABLE: (
-            "Pharmacological excitability of the iris could not be assessed, or the findings are "
-            "not considered reliable for estimating the time of death."
-        ),
+        ss.OPTION_UNRELIABLE: "Pharmacological iris excitability could not be assessed or was unreliable for time-since-death estimation.",
         # Historical options retained for compatibility, not the current drug-specific menu.
         ss.PUPILLARY_POSITIVE: (
-            "At the medico-legal examination, residual pharmacological excitability of the iris was "
-            "demonstrated by pupillary dilatation in response to atropine injection. This response "
-            "suggests that death occurred less than 30 hours before the medico-legal assessment."
+            "Atropine injection produced pupillary dilatation, "
+            "consistent with a postmortem interval of less than 30 hours."
         ),
         ss.PUPILLARY_NEGATIVE: (
-            "At the medico-legal examination, no residual pharmacological response of the iris was "
-            "observed following atropine injection (no increase in pupillary diameter). This response "
-            "suggests that death occurred more than 5 hours before the medico-legal assessment."
+            "Atropine injection produced no increase in pupillary diameter, "
+            "suggesting more than 5 hours since death."
         ),
         ss.PUPILLARY_ATROPINE_DILATION: (
-            "Atropine injection produced pupillary dilatation. This persistence of pharmacological "
-            "excitability of the iris suggests that death occurred less than 10 hours before assessment."
+            "Atropine injection produced pupillary dilatation, "
+            "consistent with a postmortem interval of less than 10 hours."
         ),
         ss.PUPILLARY_ATROPINE_NO_CHANGE: (
-            "Atropine injection produced no appreciable change in pupillary diameter. The absence of "
-            "a response suggests that at least 3 hours had elapsed since death at assessment."
+            "Atropine injection produced no appreciable change in pupillary diameter, "
+            "suggesting at least 3 hours since death."
         ),
         ss.PUPILLARY_TROPICAMIDE_DILATION: (
-            "Tropicamide injection produced pupillary dilatation. This persistence of pharmacological "
-            "excitability of the iris suggests that death occurred less than 30 hours before assessment."
+            "Tropicamide injection produced pupillary dilatation, "
+            "consistent with a postmortem interval of less than 30 hours."
         ),
         ss.PUPILLARY_TROPICAMIDE_NO_CHANGE: (
-            "Tropicamide injection produced no appreciable change in pupillary diameter. The absence "
-            "of a response suggests that at least 5 hours had elapsed since death at assessment."
+            "Tropicamide injection produced no appreciable change in pupillary diameter, "
+            "suggesting at least 5 hours since death."
         ),
         ss.PUPILLARY_ACETYLCHOLINE_REDUCTION: (
-            "Acetylcholine injection produced pupillary constriction. This persistence of pharmacological "
-            "excitability of the iris suggests that death occurred less than 46 hours before assessment."
+            "Acetylcholine injection produced pupillary constriction, "
+            "consistent with a postmortem interval of less than 46 hours."
         ),
         ss.PUPILLARY_ACETYLCHOLINE_NO_CHANGE: (
-            "Acetylcholine injection produced no appreciable change in pupillary diameter. The absence "
-            "of a response suggests that at least 14 hours had elapsed since death at assessment."
+            "Acetylcholine injection produced no appreciable change in pupillary diameter, "
+            "suggesting at least 14 hours since death."
         ),
     },
 }
@@ -405,7 +356,7 @@ def format_hours_range(h1: int, m1: int, h2: int, m2: int) -> str:
     return f"between {format_hours_minutes(h1, m1)} and {format_hours_minutes(h2, m2)}"
 
 
-_EXAMINATION = "the observations made during the medico-legal examination"
+_EXAMINATION = "the medico-legal examination"
 
 
 def simple_sentence_no_dt_not_over(duration: str) -> str:
@@ -421,12 +372,12 @@ def simple_sentence_no_dt_range(interval: str) -> str:
 
 
 def _available_data_conclusion(window: str) -> str:
-    return f"<p>Assessment of the available findings suggests that death occurred approximately {window}.</p>"
+    return f"<p>The available findings suggest that death occurred approximately {window}.</p>"
 
 
 def _combined_conclusion(window: str) -> str:
     return (
-        "<p>Combined assessment of the postmortem findings, integrating their time limits, "
+        "<p>Combined assessment of the postmortem findings "
         f"suggests that death occurred approximately {window}.</p>"
     )
 
@@ -493,7 +444,7 @@ def final_sentence_dt_not_over(duration: str, lower_time: str, lower_date: str,
     if single_parameter:
         return _available_data_conclusion(window)
     return (
-        "<p>Combined assessment of the postmortem findings, integrating their minimum and maximum time limits, "
+        "<p>Combined assessment of the postmortem findings "
         f"suggests that death occurred approximately <b>no more than {duration} before</b> {_EXAMINATION}, "
         f"i.e. {window}.</p>"
     )
@@ -505,46 +456,42 @@ def final_sentence_dt_range(interval: str, start_time: str, start_date: str,
     if single_parameter:
         return _available_data_conclusion(f"<b>{window}</b>")
     return (
-        "<p>Combined assessment of the postmortem findings, integrating their minimum and maximum time limits, "
+        "<p>Combined assessment of the postmortem findings "
         f"suggests that death occurred approximately <b>{interval} before</b> {_EXAMINATION}, "
-        f"i.e. approximately <b>{window}</b>.</p>"
+        f"i.e. <b>{window}</b>.</p>"
     )
 
 
 def putrefactive_paragraph() -> str:
     return (
-        "<ul><li>The onset of postmortem decomposition, including putrefaction, is influenced by numerous "
-        "external factors (e.g. ambient temperature and exposure to weather) and internal factors "
-        "(e.g. body temperature, infection before death and the presence of wounds). As these changes "
-        "may appear over a highly variable period, from a few hours to several weeks after death, "
-        "their assessment does not allow the estimated time of death to be further refined.</li></ul>"
+        "<ul><li>Putrefactive changes cannot refine this estimate: their onset varies from a few hours "
+        "to several weeks after death. Relevant factors include ambient temperature, weather exposure, "
+        "body temperature, infection before death and wounds.</li></ul>"
     )
 
 
 def parameter_summary(labels: list[str]) -> str:
     if len(labels) == 1:
         label = labels[0]
-        return f"<p style='color:blue;font-size:8pt;'>The overall estimate is based on the following parameter: {label[0].lower() + label[1:]}.</p>"
+        return f"<p style='color:blue;font-size:8pt;'>Estimate based on: {label[0].lower() + label[1:]}.</p>"
     joined = ", ".join(x[0].lower() + x[1:] for x in labels[:-1])
     joined += f" and {labels[-1][0].lower() + labels[-1][1:]}"
-    return f"<p style='color:blue;font-size:8pt;'>The overall estimate is based on the following parameters: {joined}.</p>"
+    return f"<p style='color:blue;font-size:8pt;'>Estimate based on: {joined}.</p>"
 
 
 def potente_paragraph(duration: str, days: str, high_temperature: bool = False) -> str:
     if high_temperature:
         opening = (
             "At ambient temperatures above 23 °C, Henssge’s method is based on limited case series. "
-            "The observed degree of body cooling does not permit a sufficiently reliable time interval to be estimated. "
+            "The observed degree of cooling does not support a sufficiently reliable time interval. "
         )
     else:
         opening = (
-            "The observed degree of body cooling does not permit a sufficiently reliable time interval "
-            "to be estimated using Henssge’s method. "
+            "At this degree of cooling, Henssge’s method cannot provide a sufficiently reliable time interval. "
         )
     return (
-        f"<ul><li>{opening}Under these conditions, the method proposed by Potente et al. allows only "
-        "the minimum time since death to be estimated. Applied to this case, it suggests that at least "
-        f"{duration} had elapsed since death at the time of the medico-legal examination.</li></ul>"
+        f"<ul><li>{opening}The method of Potente et al. estimates only the minimum time since death. "
+        f"Here, it suggests that at least {duration} had elapsed at examination.</li></ul>"
     )
 
 
@@ -552,16 +499,16 @@ def cooling_input_paragraph(*, inspection_time, inspection_date, ta_text: str, t
                             weight_text: str, t0_text: str, correction_description: str,
                             ambient_temperature_text: str | None = None) -> str:
     if inspection_time is None or inspection_date is None:
-        title = "Temperatures measured during the medico-legal examination:"
+        title = "Temperatures measured at examination:"
     else:
-        title = f"Temperatures measured during the medico-legal examination at approximately {inspection_time} on {inspection_date}:"
+        title = f"Temperatures measured at approximately {inspection_time} on {inspection_date}:"
     return (
-        "<ul><li>The following information was considered in the assessment of postmortem body cooling."
+        "<ul><li>Postmortem body cooling was assessed using:"
         f"<ul><li>{title}<ul>"
         f"<li>Ambient temperature: {ambient_temperature_text or ta_text + ' °C'}.</li>"
         f"<li>Rectal temperature: {tr_text} °C.</li></ul></li>"
         f"<li>Measured body weight: {weight_text} kg.</li>"
         f"<li>Assumed body temperature at death: {t0_text} °C.</li>"
-        "<li>Corrective factor assumed on the basis of the known environmental conditions: "
+        "<li>Corrective factor (assumed from the known conditions): "
         f"{correction_description.rstrip('.')}.</li></ul></li></ul>"
     )

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
     return (
-        "<ul><li>Applying Henssge’s equation suggests that death occurred approximately "
-        f"{interval} before the observations made during the medico-legal examination.{extra}</li></ul>"
+        "<ul><li>Henssge’s method suggests that death occurred approximately "
+        f"{interval} before temperature measurement.{extra}</li></ul>"
     )
 
 
@@ -32,14 +32,14 @@ def henssge_qd_range_intermediate_warning() -> str:
 
 def henssge_over_thirty_warning(mean_hours: str) -> str:
     return (
-        f"The mean estimate obtained from postmortem body cooling ({mean_hours} h) exceeds 30 hours. "
+        f"The mean cooling-based estimate ({mean_hours} h) exceeds 30 hours. "
         "The reliability of Henssge’s method decreases significantly beyond this interval."
     )
 
 
 _QD_EXPLANATION = (
-    "Qd expresses the degree of body cooling in this case: it equals 1 at the initial body "
-    "temperature and approaches 0 as the rectal temperature approaches the ambient temperature."
+    "Qd expresses relative body cooling: it equals 1 at the initial body temperature "
+    "and approaches 0 as rectal and ambient temperatures converge."
 )
 
 
@@ -50,48 +50,45 @@ def qd_summary(*, qd_text: str, ambient_at_most_23: bool, threshold_text: str,
     resolved_status = status or ("optimal" if within_limits else "outside")
     if resolved_status == "intermediate":
         sentence = (
-            "In this case, the parameters permit application of Henssge’s method, although Qd is close "
-            "to the lower limit and therefore results in a wider estimated time interval"
+            "Henssge’s method remains applicable, but Qd is close to the lower limit, "
+            "giving a wider estimated interval"
         )
     elif resolved_status == "outside":
         sentence = (
-            "In this case, Qd falls outside the range in which Henssge’s method provides a sufficiently reliable estimate"
+            "Qd is outside the range for a sufficiently reliable Henssge estimate"
         )
     else:
-        sentence = "In this case, the parameters allow a sufficiently reliable estimate using Henssge’s method"
+        sentence = "Qd is within the range for a sufficiently reliable Henssge estimate"
     return (
         f"<p style='color:blue;font-size:8pt;'> {sentence} "
-        f"(with {condition}, Qd should be > {threshold}; in this case it is {qd_text}). {_QD_EXPLANATION}</p>"
+        f"({condition}: Qd should be > {threshold}; Qd = {qd_text}). {_QD_EXPLANATION}</p>"
     )
 
 
 def qd_range_summary(*, qd_min_text: str, qd_max_text: str, status: str, single_value: bool) -> str:
     qd_value = f"is {qd_min_text}" if single_value else f"ranges from {qd_min_text} to {qd_max_text}"
     limits = (
-        "with ambient temperature ≤ 23 °C, Qd should be > 0.2, whereas with ambient temperature > 23 °C "
-        "it should be > 0.5"
+        "Qd should be > 0.2 at ambient temperature ≤ 23 °C, or > 0.5 at ambient temperature > 23 °C"
     )
     if status == "all_optimal":
-        sentence = "Under the conditions considered, the parameters allow a sufficiently reliable estimate using Henssge’s method"
+        sentence = "All conditions fall within the range for a sufficiently reliable Henssge estimate"
     elif status == "mixed":
         sentence = (
-            "For some of the conditions considered, Qd falls outside the range in which Henssge’s "
-            "method provides a sufficiently reliable estimate"
+            "Some conditions fall outside the range for a sufficiently reliable Henssge estimate"
         )
     elif status == "no_optimal_intermediate":
         sentence = (
-            "Under the conditions considered, the parameters permit application of Henssge’s method, "
-            "although Qd is close to the lower limit and therefore results in a wider estimated time interval"
+            "Henssge’s method remains applicable, but Qd is close to the lower limit, "
+            "giving a wider estimated interval"
         )
-        limits = "with ambient temperature ≤ 23 °C, Qd should be > 0.2"
+        limits = "Qd should be > 0.2 at ambient temperature ≤ 23 °C"
     else:
         sentence = (
-            "Under the conditions considered, Qd falls outside the range in which Henssge’s method "
-            "provides a sufficiently reliable estimate"
+            "All conditions fall outside the range for a sufficiently reliable Henssge estimate"
         )
     return (
         f"<p style='color:blue;font-size:8pt;'> {sentence} "
-        f"({limits}; under the conditions considered, Qd {qd_value}). {_QD_EXPLANATION}</p>"
+        f"({limits}; Qd {qd_value}). {_QD_EXPLANATION}</p>"
     )
 
 
@@ -115,7 +112,7 @@ def prudent_hours_text(hours: float) -> str:
         parts.append(f"{m} {'minute' if m == 1 else 'minutes'}")
     if not parts:
         return "0 hours"
-    return " and ".join(parts)
+    return " ".join(parts)
 
 
 def prudent_parenthetical(*, ta_text: str, cf_text: str, weight_text: str, estimated_weight: bool) -> str:
@@ -136,15 +133,15 @@ def prudent_result_text(*, minimum_text: str, maximum_text: str | None, beyond: 
 
 
 def prudent_header() -> str:
-    return "The following parameters were considered in the assessment of postmortem body cooling."
+    return "Postmortem body cooling was assessed using:"
 
 
 def prudent_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> str:
     return (
-        "<ul><li>Range of mean ambient temperatures, allowing for possible temperature fluctuations "
-        f"between death and the medico-legal examination: <b>{ta_text}</b>.</li>"
-        "<li>Estimated range of corrective factors, considering the various conditions to which the "
-        f"body may have been exposed: <b>{cf_text}</b>.</li>"
+        "<ul><li>Range of mean ambient temperatures between death and examination, allowing for "
+        f"possible fluctuations: <b>{ta_text}</b>.</li>"
+        "<li>Estimated range of corrective factors for the possible exposure conditions: "
+        f"<b>{cf_text}</b>.</li>"
         f"<li>Body weight: <b>{weight_text}</b>.</li></ul>"
     )
 
@@ -159,8 +156,7 @@ def prudent_simple_bullets(*, ta_text: str, cf_text: str, weight_text: str) -> s
 
 def prudent_conclusion(result_text: str) -> str:
     return (
-        f"Applying Henssge’s equation suggests that death occurred {result_text} before the "
-        "observations made during the medico-legal examination."
+        f"Henssge’s method suggests that death occurred {result_text} before temperature measurement."
     )
 
 
@@ -202,14 +198,14 @@ def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, wei
 
     ta_label = "Range of mean ambient temperatures" if ta_is_range else "Mean ambient temperature"
     cf_label = (
-        "Estimated range of corrective factors, considering the various conditions to which the body may have been exposed"
-        if cf_is_range else "Corrective factor considered"
+        "Estimated range of corrective factors for the possible exposure conditions"
+        if cf_is_range else "Corrective factor"
     )
     fc_item = (f"<li>{escape(scenario_description)}.</li>" if scenario_description else
                f"<li>{cf_label}: <b>{cf_text}</b>.</li>")
     return (
         f"<ul><li>{header}<ul style='list-style-type: circle; margin-left: 20px;'>"
-        f"<li>{ta_label}, allowing for possible temperature fluctuations between death and the "
-        f"medico-legal examination: <b>{ta_text}</b>.</li>{fc_item}"
+        f"<li>{ta_label} between death and examination, allowing for possible fluctuations: "
+        f"<b>{ta_text}</b>.</li>{fc_item}"
         f"<li>Body weight: <b>{weight_text}</b>.</li></ul></li></ul>"
     )
