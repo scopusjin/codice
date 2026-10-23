@@ -197,11 +197,16 @@ def install_presentation_translation():
         from importlib import import_module
         for name in ("selectbox", "radio", "button_group", "multiselect"):
             module = import_module("streamlit.elements.widgets." + name)
-            if not getattr(module.register_widget, "_mortem_translation", False):
-                module.register_widget = _selection_registration(module.register_widget)
+            original_register = module.register_widget
+            if getattr(original_register, "_mortem_translation", False):
+                original_register = original_register.__wrapped__
+            module.register_widget = _selection_registration(original_register)
         original = delta._enqueue_message
         if getattr(original, "_mortem_translation", False):
-            return
+            # Streamlit reloads application modules after deployment but keeps
+            # its own modules alive. Replace our old hook, whose globals still
+            # point at the previous catalogue; never stack translation hooks.
+            original = original.__wrapped__
         @wraps(original)
         def enqueue(message):
             translate_display_message(message)

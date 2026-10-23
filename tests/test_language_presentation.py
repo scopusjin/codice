@@ -12,6 +12,29 @@ from app.presentation_translation import catalogue, translate, translate_display
 ROOT=Path(__file__).resolve().parents[1]
 
 class LanguagePresentationTests(unittest.TestCase):
+    def test_deployment_replaces_previous_translation_hook(self):
+        import importlib.util
+        from unittest.mock import patch
+        import streamlit.delta_generator as delta
+        from app.presentation_translation import install_presentation_translation
+
+        # A source reload creates a new application module while the Streamlit
+        # output hook can still retain globals from the previous module.
+        spec=importlib.util.spec_from_file_location('previous_translation',ROOT/'app/presentation_translation.py')
+        previous=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(previous)
+        previous.translate_display_message=lambda message: setattr(message.delta.new_element.markdown,'body','previous catalogue')
+        emitted=[]
+        with patch.object(delta,'_enqueue_message',lambda message: emitted.append(message.delta.new_element.markdown.body)):
+            previous.install_presentation_translation()
+            install_presentation_translation()
+            install_presentation_translation()  # A rerun must not stack hooks.
+            message=ForwardMsg()
+            message.delta.new_element.markdown.body='Ecc. elettrica sopraciliare'
+            with using_language('en'):
+                delta._enqueue_message(message)
+        self.assertEqual(emitted,['Electrical excitability — supraciliary'])
+
     def test_widget_indices_values_and_ids_are_unchanged(self):
         message=ForwardMsg()
         widget=message.delta.new_element.selectbox

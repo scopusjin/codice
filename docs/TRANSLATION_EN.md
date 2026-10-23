@@ -6,7 +6,8 @@ Base dell’integrazione: `4c862d08d359542006f9059ce9ed38fc7aa613e9`, branch
 ## Stato
 
 Attivazione del 22.10.2026 nel branch `refactor-tanatology-keys`.
-Il selettore unico **Italiano / English** mantiene la preferenza nella sessione
+Il selettore unico **🇮🇹 IT / 🇬🇧 EN**, piccolo e fissato nel contenitore nativo
+inferiore `st.bottom` su richiesta finale del 23.10.2026, mantiene la preferenza nella sessione
 su Full, Sopralluogo, pannello FC, impostazioni, tabelle e riferimenti.
 Sono tradotti anche gli aiuti, i componenti mobili, gli esempi FC e i blocchi
 per Word. Il cambio lingua rigenera i report a partire dagli stessi input.

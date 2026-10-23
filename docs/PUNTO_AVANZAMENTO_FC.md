@@ -2,6 +2,17 @@
 
 ## Selettore lingua e diciture inglesi — 23.10.2026
 
+**Decisione finale aggiornata durante lo stesso intervento:** l'utente ha
+sostituito l'indicazione «in alto» con «sempre in basso, in piccolo, abbreviato,
+con bandiere». Posizione finale: contenitore nativo Streamlit `st.bottom`,
+selettore `🇮🇹 IT / 🇬🇧 EN`, allineato a destra e disponibile anche scorrendo
+la pagina e nei pannelli FC. Rimosso il raggruppamento temporaneo col titolo;
+la pagina principale recupera il suo contenitore titolo originario. Il CSS
+aggiunto regola soltanto font e padding del selettore; il posizionamento è nativo.
+L'abbreviazione `Mean amb. T.` riguarda i campi compatti/mobile; sul desktop
+resta `Mean ambient temperature`. La cronologia seguente documenta il primo
+passaggio, superato per quanto riguarda la posizione del selettore.
+
 - Repository `scopusjin/codice`; branch dell'app di test `refactor-tanatology-keys`.
   Base GitHub verificata `1c4a7dbb62e07d23036b56a0fa9d76ee23abd88a`; commit
   corrente: quello contenente questa sezione. Ultimo commit integralmente
@@ -36,6 +47,27 @@
   distribuita, poi test dell'utente sul proprio desktop/telefono, soprattutto
   spazio per `Mean amb. T.` e parametri aggiuntivi. Nessun ulteriore intervento
   funzionale concordato.
+
+### Verifica pubblicazione e aggiornamento del traduttore in memoria
+
+- Primo commit `652e992`: intestazione e titolo verificati nel browser pubblico;
+  le etichette elettriche restavano invece italiane, pur essendo corrette in una
+  nuova esecuzione locale. Registrato come tentativo incompleto per la parte
+  traduzioni, non come risultato già verificato sul server.
+- Causa individuata in `app/presentation_translation.py`,
+  `install_presentation_translation`: dopo il ricaricamento dei moduli applicativi
+  Streamlit conservava i wrapper già installati nei propri moduli, con i vecchi
+  cataloghi. Il controllo `_mortem_translation` impediva di aggiornarli.
+- Correzione nello stesso blocco funzionale: sostituzione dei soli wrapper di
+  traduzione, recuperando le funzioni originali con `__wrapped__`; nessuna
+  sovrapposizione di wrapper a ogni rerun. Aggiornati sia l'output sia le
+  etichette trasmesse dai selettori. Formule, stato e valori legacy invariati.
+- Test mirato di ricaricamento fallisce sulla base e passa con la correzione;
+  superati tutti i 7 test `test_language_*`, compresi 4 controlli integrati di
+  pagina, cambio lingua ripetuto, casi, report e confronto dei risultati FC.
+  Sintassi e diff superati. Base del secondo commit: `652e9927f722d7f09da10524f774e46e1250da22`.
+  Commit corrente: quello contenente questa nota. Restano da confermare le
+  etichette nell'app distribuita e la resa sul telefono dell'utente.
 
 ## Traduzione inglese — primo blocco, 22.10.2026
 

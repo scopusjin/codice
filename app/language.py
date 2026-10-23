@@ -64,11 +64,25 @@ def render_language_selector():
         for key in ("__case_report", "__desc_dettagliate_html", "__word_report_blocks", "frase_breve"):
             st.session_state.pop(key, None)
 
-    with st.container(horizontal=True, horizontal_alignment="right", key="mortem_language_row"):
-        st.segmented_control("Lingua / Language", ["it", "en"],
-                             format_func=lambda code: "Italiano" if code == "it" else "English",
-                             selection_mode="single", key="mortem_language_widget",
-                             on_change=change, label_visibility="collapsed", width="content")
+    st.html("""<style>
+      .st-key-mortem_language_row button {
+        min-height: 1.55rem !important;
+        padding: 0.1rem 0.4rem !important;
+      }
+      .st-key-mortem_language_row button,
+      .st-key-mortem_language_row button p {
+        font-size: 0.72rem !important;
+        line-height: 1.15 !important;
+      }
+    </style>""")
+    # Native pinned footer: visible while scrolling, outside the page grid.
+    with st.bottom:
+        with st.container(horizontal=True, horizontal_alignment="right", gap=None,
+                          key="mortem_language_row"):
+            st.segmented_control("Lingua / Language", ["it", "en"],
+                                 format_func=lambda code: "🇮🇹 IT" if code == "it" else "🇬🇧 EN",
+                                 selection_mode="single", key="mortem_language_widget",
+                                 on_change=change, label_visibility="collapsed", width="content")
     _translate_navigation()
 
 
