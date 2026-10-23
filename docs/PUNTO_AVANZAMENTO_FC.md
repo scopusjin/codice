@@ -66,8 +66,14 @@ passaggio, superato per quanto riguarda la posizione del selettore.
   superati tutti i 7 test `test_language_*`, compresi 4 controlli integrati di
   pagina, cambio lingua ripetuto, casi, report e confronto dei risultati FC.
   Sintassi e diff superati. Base del secondo commit: `652e9927f722d7f09da10524f774e46e1250da22`.
-  Commit corrente: quello contenente questa nota. Restano da confermare le
-  etichette nell'app distribuita e la resa sul telefono dell'utente.
+  Commit funzionale pubblicato: `1ecb07b962b8b49138890ae3c496908d2f7e8ea0`.
+- Verifica nel browser pubblico dopo la pubblicazione: titolo
+  `TIME SINCE DEATH ESTIMATION`, etichette `Electrical excitability — supraciliary`
+  e `Electrical excitability — perioral` correttamente inglesi, selettore
+  piccolo `🇮🇹 IT / 🇬🇧 EN` nella fascia inferiore nativa. Sul desktop la
+  temperatura conserva `Mean ambient temperature`. App:
+  `https://mortem-test.streamlit.app/`. Resta il test manuale dell'utente sul
+  proprio telefono per lo spazio della dicitura compatta `Mean amb. T.`.
 
 ## Traduzione inglese — primo blocco, 22.10.2026
 
