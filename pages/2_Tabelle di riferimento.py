@@ -4,6 +4,7 @@ from html import escape
 import streamlit as st
 
 from app.mobile_shell import install_minimal_mobile_shell
+from app.language import render_language_selector
 from app.page_heading import render_page_heading
 from app.page_navigation import TABLES_PAGE, record_page_visit, render_back_button
 
@@ -188,7 +189,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "e le coperte sul tronco inferiore."
         ),
         "thermal_foil": (
-            "Una mantellina termica metallizzata che avvolge bene il corpo è assimilata per analogia a una coperta spessa: uno studio su manichino ha riscontrato un isolamento termico comparabile a quello di una coperta di lana. Henriksson et al., 2009."
+            "Assunzione degli autori dell’app: mantellina termica assimilata a una coperta spessa (riferimento Henssge: FC 1.8). Henriksson et al., 2009 hanno studiato l’isolamento su manichino, senza attribuire un FC cadaverico alla mantellina."
         ),
         "body_bag": "Un sacco mortuario in plastica semplice in questa app viene assimilato per analogia a un telo pesante. Lo studio su manichino di Henriksson et al., 2009 documenta l’effetto isolante di un telo plastico. L’assimilazione proposta è una valutazione degli autori dell’app, non essendo stati individuati in letteratura dati sufficientemente affidabili per attribuire un FC specifico al sacco mortuario.",
         "adapted": "Adattato da",
@@ -226,7 +227,7 @@ _HENSSGE_BASE_TABLE_TEXT = {
             "or covering of the lower trunk is relevant."
         ),
         "thermal_foil": (
-            "A metallized emergency blanket wrapped securely around the body is treated by analogy as a thick blanket: a manikin study found thermal insulation comparable to that of a wool blanket. Henriksson et al., 2009."
+            "Assumption by the app authors: a thermal foil blanket is treated as one thick blanket (Henssge reference: CF 1.8). Henriksson et al., 2009 studied insulation on a manikin without assigning a postmortem CF to the thermal foil blanket."
         ),
         "body_bag": "In this app, a simple plastic body bag is treated by analogy as a thick sheet. The manikin study by Henriksson et al., 2009 documents the insulating effect of a plastic sheet. This classification is an assessment by the app authors, as sufficiently reliable data to assign a specific FC to a body bag were not identified in the literature.",
         "adapted": "Adapted from",
@@ -1130,3 +1131,5 @@ with st.container(key="tables_navigation_bridge"):
         </script>""".replace("SCROLL_TO_FC", "true" if _scroll_to_fc else "false"),
         unsafe_allow_javascript=True,
     )
+
+render_language_selector()

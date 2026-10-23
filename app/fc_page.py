@@ -9,7 +9,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from app.fc_catalog import load_examples
-from app.language import current_language
+from app.language import current_language, render_language_selector
 from app.presentation_translation import catalogue
 from app.fc_selection import apply_choice, sync_fc_weight, validate_choice
 from app.fc_scenarios import scenario_draft
@@ -220,6 +220,7 @@ def render_fc_route_if_requested(home=FULL_PAGE):
         default=None,
     )
     _consume_event(event)
+    render_language_selector()
     st.stop()
 
 

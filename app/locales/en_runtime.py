@@ -393,8 +393,11 @@ numero e spessore delle coperture non precisati nella descrizione della prova	nu
 numero di coperture differente	different number of coverings
 la prova non documenta un piumone di piume equivalente	the experiment does not document an equivalent feather duvet
 copertura non descritta come particolarmente isolante	covering not described as highly insulating
-La mantellina termica è conteggiata come una coperta spessa per convenzione dell’app (FC di riferimento 1.8).	The thermal foil blanket is counted as a thick blanket by convention in the app (reference CF 1.8).
-Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.	The body bag is counted as a thick sheet by convention in the app.
+Assunzione degli autori dell’app: sacco mortuario assimilato a un telo pesante.	Assumption by the app authors: a body bag is treated as one heavy sheet.
+Assunzione degli autori dell’app: mantellina termica assimilata a una coperta spessa.	Assumption by the app authors: a thermal foil blanket is treated as one thick blanket.
+Riferimento Henssge: FC 1.2 per 1–2 strati pesanti asciutti.	Henssge reference: CF 1.2 for 1–2 thick, dry layers.
+Riferimento Henssge: FC 1.8 per una coperta spessa.	Henssge reference: CF 1.8 for one thick blanket.
+L’assimilazione del sacco mortuario a un telo pesante e della mantellina termica a una coperta spessa sono assunzioni degli autori dell’app; lo studio non attribuisce un FC cadaverico a questi dispositivi.	Treating a body bag as one heavy sheet and a thermal foil blanket as one thick blanket are assumptions by the app authors; the study does not assign a postmortem CF to either device.
 Nella tabella generale di Henssge: FC 1.80 per coperte spesse e FC 2.40 per coperte spesse associate a indumenti.	In Henssge’s general table: CF 1.80 for thick blankets and CF 2.40 for thick blankets combined with clothing.
 Per coperture di piume particolarmente isolanti, Henssge (1992; Madea, 2016, tabella 6.20) riporta anche FC 2.80 e 3.00.	For highly insulating feather coverings, Henssge (1992; Madea, 2016, table 6.20) also reports CF 2.80 and 3.00.
 L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.	The app proposes the suggested range for this combination by analogy; the examiner may adjust it.

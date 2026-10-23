@@ -9,6 +9,7 @@ from app.theme import apply_theme
 from app.theme import fc_panel_start
 from app.full_factor_panel import pannello_suggerisci_fc_mobile
 from app.mobile_shell import install_minimal_mobile_shell
+from app.language import render_language_selector
 
 
 from app.graphing import aggiorna_grafico
@@ -524,3 +525,5 @@ render_word_download("msil")
 
 with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
+render_language_selector()

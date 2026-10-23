@@ -122,7 +122,7 @@ function waterNearZero(){const temperature=temperatureValue();return state==='Im
 function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),wetClothes:q('#wet-clothes').value,wetCovers:q('#wet-covers').value,thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
 function validCounts(c){return [c.s,c.p,c.m,c.h,...(c.garmentThin===undefined?[]:[c.garmentThin,c.garmentThick,c.teli,c.lightCover])].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
 const SOURCES = {
-  thermalCover: {short:'Henriksson et al., 2009 · studio su manichino, analogia per le coperture.',full:'Henriksson O, Lundgren JP, Kuklane K, Holmér I, Bjornstig U. Protection against cold in prehospital care—thermal insulation properties of blankets and rescue bags in different wind conditions. Prehosp Disaster Med. 2009;24(5):408–415. doi:10.1017/S1049023X00007238. L’assimilazione del sacco mortuario a un telo pesante è una valutazione degli autori dell’app; lo studio non attribuisce un FC cadaverico al sacco mortuario.',url:'https://doi.org/10.1017/S1049023X00007238'},
+  thermalCover: {short:'Henriksson et al., 2009 · studio su manichino, analogia per le coperture.',full:'Henriksson O, Lundgren JP, Kuklane K, Holmér I, Bjornstig U. Protection against cold in prehospital care—thermal insulation properties of blankets and rescue bags in different wind conditions. Prehosp Disaster Med. 2009;24(5):408–415. doi:10.1017/S1049023X00007238. L’assimilazione del sacco mortuario a un telo pesante e della mantellina termica a una coperta spessa sono assunzioni degli autori dell’app; lo studio non attribuisce un FC cadaverico a questi dispositivi.',url:'https://doi.org/10.1017/S1049023X00007238'},
   waterExperiments: {"short": "Henssge, Brinkmann e Püschel, 1984 · immersione in acqua quasi ferma.", "full": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. doi:10.1007/BF00200284. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.7. Le prove distinguono acqua a circa 10–20 °C e prossima a 0 °C. Riguardano corpi nudi sospesi in acqua quasi ferma; non verificano tutte le condizioni di immersione.", "url": "https://doi.org/10.1007/BF00200284"},
   flowingWater: {"short": "Henssge in Madea, 2016 · acqua corrente.", "full": "Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, sezione sull’immersione. Henssge discute una prova di Brown e Marshall su un corpo molto piccolo, in acqua in movimento a circa 5 m/ora, ricondotta a un FC di circa 0.35. È un’osservazione limitata, distinta dalla serie in acqua quasi ferma della tab. 6.7; non consente di generalizzare a ogni corrente."},
 
@@ -520,7 +520,11 @@ function referenceLabel(r,c){
   const references={'dry-two-thin':'1.10 / 1.20','dry-three-thin':'1.20 / 1.30','dry-mixed':'1.20 / 1.40','dry-many':'1.40','dry-insulating':'1.40'};
   return references[r.id]||(r.sources.includes('support')?'Vedi fonte':'Non univoco');
 }
-function coverConvention(c){if(c.state==='Immerso')return '';return [c.thermalFoil?'La mantellina termica è conteggiata come una coperta spessa per convenzione dell’app (FC di riferimento 1.8).':'',c.bodyBag?'Il sacco mortuario è conteggiato come un telo pesante per convenzione dell’app.':''].filter(Boolean).join(' ');}
+function coverConvention(c){if(c.state==='Immerso')return '';return [c.bodyBag?'Assunzione degli autori dell’app: sacco mortuario assimilato a un telo pesante.':'',c.thermalFoil?'Assunzione degli autori dell’app: mantellina termica assimilata a una coperta spessa.':''].filter(Boolean).join(' ');}
+function sourceExplanation(r,c){
+  const convention=coverConvention(c);
+  return [convention,convention&&r.kind==='Tabella Henssge'?'':r.detail].filter(Boolean).join(' ');
+}
 function paragraph(parent,text){const p=document.createElement('p');p.textContent=text;parent.append(p);return p;}
 function sourceDetails(parent,source){
   const link=document.createElement('a');link.textContent=source.short;link.href='#reference-page';
@@ -529,11 +533,19 @@ function sourceDetails(parent,source){
 }
 function renderFCProvenance(r,examples=[],c=null){
   const host=q('#fc-provenance');host.replaceChildren();
-  if(!r||!r.range)return;
+  if(!r)return;
   const line=(text,kind)=>{
     const p=document.createElement('p');p.className='fc-provenance-'+kind;
     p.textContent=text;host.append(p);
   };
+  const convention=c&&coverConvention(c);
+  if(convention){
+    line(convention,'red');
+    if(c.bodyBag)line('Riferimento Henssge: FC 1.2 per 1–2 strati pesanti asciutti.','reference');
+    if(c.thermalFoil)line('Riferimento Henssge: FC 1.8 per una coperta spessa.','reference');
+    return;
+  }
+  if(!r.range)return;
   const originalRanges={
     'dry-two-thin':['1.10','1.20'],
     'dry-three-thin':['1.20','1.30'],
@@ -584,10 +596,12 @@ function showSource(){
   q('#source-body').textContent='';q('#source-extra').textContent='';
   const dryBlankets=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0);
   const repeatedBlanketDetail=c.m+c.h>0&&['blankets-ordinary','thick-blanket','heavy-blanket','feather-duvet'].includes(result.id);
-  q('#rule-source').textContent=[repeatedBlanketDetail?'':result.detail,coverConvention(c)].filter(Boolean).join(' ');
-  q('#rule-source').classList.toggle('fc-provenance-green',result.kind==='Tabella Henssge'&&!dryBlankets);
-  const notice=q('#h08-notice');notice.replaceChildren();notice.hidden=!dryBlankets;
-  if(dryBlankets){
+  const specialCover=!!coverConvention(c);
+  q('#rule-source').textContent=repeatedBlanketDetail||(specialCover&&result.kind==='Tabella Henssge')?'':result.detail;
+  q('#rule-source').classList.toggle('fc-provenance-green',!specialCover&&result.kind==='Tabella Henssge'&&!dryBlankets);
+  q('#rule-source').classList.toggle('fc-provenance-red',specialCover);
+  const notice=q('#h08-notice');notice.replaceChildren();notice.hidden=!dryBlankets||specialCover;
+  if(dryBlankets&&!specialCover){
     const bold=document.createElement('strong');bold.textContent='Attenzione:';
     const link=document.createElement('a');
     link.href='https://drive.google.com/file/d/1mobrXHixi1aEEOPU2WC9H5i3rm-5E6rv/view';
@@ -862,7 +876,7 @@ window.FCPanel={
     const description=window.FCDescriptions.conditions(c,this.snapshot().fields);
     return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
       base_range:manual?manualBase:selectedBase||result.range,manual_weight_adjusted:manualWeightAdjusted,weight_adjusted:weightAdjusted,
-      conditions:c,manual,description,rule:result.id,explanation:[result.detail,coverConvention(c)].filter(Boolean).join(' '),sources:result.sources};
+      conditions:c,manual,description,rule:result.id,explanation:sourceExplanation(result,c),sources:result.sources};
   }
 };
 

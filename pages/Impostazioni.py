@@ -4,6 +4,7 @@ import streamlit as st
 from app.livor_digitopressione import PRESSURE_VISIBILITY_KEY
 from app.rigor_reformation import REFORMATION_VISIBILITY_KEY
 from app.mobile_shell import install_minimal_mobile_shell
+from app.language import render_language_selector
 from app.page_heading import render_page_heading
 from app.page_navigation import SETTINGS_PAGE, record_page_visit, render_back_button
 
@@ -78,3 +79,5 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+render_language_selector()

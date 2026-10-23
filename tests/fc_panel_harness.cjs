@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/index.html'),'utf8'),nodes={},buttons=[],inputs=[];
 class El{
-  constructor(id){this.classList={toggle(){}};this.events={};this.dataset={};this.style={};this.children=[];this.value='';this.hidden=false;this.open=false;this.textContent='';if(id)this.id=id;}
+  constructor(id){this.classList={values:new Set(),toggle(name,force){const active=force===undefined?!this.values.has(name):force;active?this.values.add(name):this.values.delete(name);},contains(name){return this.values.has(name);}};this.events={};this.dataset={};this.style={};this.children=[];this.value='';this.hidden=false;this.open=false;this.textContent='';if(id)this.id=id;}
   set id(v){this._id=v;nodes[v]=this;}get id(){return this._id;}
   set value(v){this._value=String(v);}get value(){return this._value;}
   set innerHTML(s){parseInputs(s);parseButtons(s);}

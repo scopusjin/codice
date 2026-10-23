@@ -24,6 +24,7 @@ from app.full_factor_panel import pannello_suggerisci_fc
 from app.device_mode import full_device_is_mobile
 from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
+from app.language import render_language_selector
 from app.graphing import aggiorna_grafico
 from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
 from app.rigor_reformation import effective_rigor_reformation, render_rigor_reformation_input
@@ -979,6 +980,7 @@ if st.session_state["show_results"]:
                 options=st.session_state)
             st.warning(("Per la stima del raffreddamento: " + missing[0].lower() + missing[1:]) if missing
                        else i18n.ui_text("full.no_data_warning"))
+        render_language_selector()
         st.stop()
 
     # The cooling layer validates incomplete/invalid inputs and reports the
@@ -1011,3 +1013,4 @@ if st.session_state["show_results"]:
 
 from app.word_launch import render_word_download
 render_word_download("full")
+render_language_selector()

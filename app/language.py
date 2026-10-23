@@ -75,14 +75,13 @@ def render_language_selector():
         line-height: 1.15 !important;
       }
     </style>""")
-    # Native pinned footer: visible while scrolling, outside the page grid.
-    with st.bottom:
-        with st.container(horizontal=True, horizontal_alignment="right", gap=None,
-                          key="mortem_language_row"):
-            st.segmented_control("Lingua / Language", ["it", "en"],
-                                 format_func=lambda code: "🇮🇹 IT" if code == "it" else "🇬🇧 EN",
-                                 selection_mode="single", key="mortem_language_widget",
-                                 on_change=change, label_visibility="collapsed", width="content")
+    # Ordinary page footer: scrolls with the content, without a pinned overlay.
+    with st.container(horizontal=True, horizontal_alignment="right", gap=None,
+                      key="mortem_language_row"):
+        st.segmented_control("Lingua / Language", ["it", "en"],
+                             format_func=lambda code: "🇮🇹 IT" if code == "it" else "🇬🇧 EN",
+                             selection_mode="single", key="mortem_language_widget",
+                             on_change=change, label_visibility="collapsed", width="content")
     _translate_navigation()
 
 

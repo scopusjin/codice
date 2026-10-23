@@ -93,7 +93,7 @@ class LanguagePageTests(unittest.TestCase):
                 self.assertIn('https://doi.org/10.1007/s004149900089',text)
                 self.assertNotIn('above.',text)
 
-    def test_pinned_footer_and_compact_labels_survive_language_switches(self):
+    def test_scrolling_footer_and_compact_labels_survive_language_switches(self):
         for mobile in (False, True):
             with self.subTest(mobile=mobile):
                 app=self.start(mobile=mobile,language='en',extra={'mostra_parametri_aggiuntivi':True})
@@ -107,15 +107,28 @@ class LanguagePageTests(unittest.TestCase):
                         self.assertIn('Electrical excitability — perioral',headings)
                     else:
                         self.assertIn('Ecc. elettrica sopraciliare',headings)
-                    # The selector stays in Streamlit's native bottom root,
-                    # never among form fields or previous-run layout anchors.
-                    footer=app._tree[3]
-                    self.assertEqual(footer.get('button_group')[0].value,language)
-                    self.assertEqual(footer.get('button_group')[0].options,['IT','EN'])
-                    self.assertFalse(any(group.key=='mortem_language_widget' for group in app.main.get('button_group')))
+                    # Ordinary content footer, after the form; no pinned bottom root.
+                    footer=app.main.get('button_group')[-1]
+                    self.assertEqual(footer.key,'mortem_language_widget')
+                    self.assertEqual(footer.value,language)
+                    self.assertEqual(footer.options,['IT','EN'])
+                    self.assertNotIn(3,app._tree.children)
                     title='\n'.join(item.proto.body for kind in ('html','markdown') for item in app.main.get(kind))
                     self.assertIn('TIME SINCE DEATH ESTIMATION' if language=='en' else 'STIMA EPOCA DECESSO',title)
                 from app.presentation_translation import translate
                 self.assertEqual(translate('T. amb. media','en'),'Mean amb. T.')
+
+    def test_footer_survives_fc_route_and_missing_data_stop(self):
+        for mobile,msil in ((False,False),(True,False),(True,True)):
+            app=self.start(mobile,msil,extra={'__fc_active':True,'__fc_instance':'footer-check'})
+            self.assertEqual(app.main.get('button_group')[-1].key,'mortem_language_widget')
+            self.assertNotIn(3,app._tree.children)
+            browser_run(app,language='en')
+            self.assertEqual(list(app.exception),[])
+            self.assertEqual(app.session_state['mortem_language'],'en')
+        app=self.start(extra={'rt_val':None})
+        browser_run(app,click='btn_stima')
+        self.assertEqual(list(app.exception),[])
+        self.assertEqual(app.main.get('button_group')[-1].key,'mortem_language_widget')
 
 if __name__=='__main__':unittest.main()

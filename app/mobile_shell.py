@@ -328,7 +328,7 @@ def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
     # CSS-only HTML is installed before any visual element, without adding
     # a Markdown spacer above the mobile header on the first page load.
     from app.presentation_translation import install_presentation_translation
-    from app.language import render_language_selector, current_language
+    from app.language import current_language
     install_presentation_translation()
     # Clear previous-run layout anchors before emitting any header widgets.
     reset_render_contexts()
@@ -337,7 +337,6 @@ def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
         st.html(_MINIMAL_MOBILE_SHELL_CSS)
     install_minimal_app_chrome()
     _install_compact_cooling_help_labels()
-    render_language_selector()
     if is_mobile:
         st.iframe(
             _MOBILE_HEADER_HTML.replace("Apri menu", "Open menu") if current_language() == "en" else _MOBILE_HEADER_HTML,

@@ -1,5 +1,35 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Selettore non fisso e assunzioni sulle coperture — 23.10.2026
+
+- Ultima indicazione dell’utente: selettore lingua piccolo in fondo alla pagina,
+  **non sticky**; sacco mortuario e mantellina devono risultare chiaramente
+  assunzioni degli autori, in rosso, con riferimento Henssge sintetico.
+- Base verificata su GitHub: `fe08554276b0a185cde032df6c720a2e5d5dd228`,
+  repository `scopusjin/codice`, branch `refactor-tanatology-keys`; main invariato.
+- Rimosso `st.bottom`: selettore nel normale flusso alla fine di Full, MSIL,
+  FC/scenari, impostazioni, tabelle e riferimenti, anche prima degli stop previsti.
+  Restano bandiere, sigle, dimensione compatta e chiavi della lingua.
+- Nel pannello FC: assunzioni in rosso per entrambi i dispositivi; riferimento
+  separato e neutro a FC 1.2 per 1–2 strati pesanti asciutti e FC 1.8 per una
+  coperta spessa. Soppressa la generica attribuzione verde del FC alla tabella
+  per questi dispositivi. Testi italiani/inglesi allineati; chiarita anche la
+  nota sulla mantellina nelle tabelle. Le normali coperte conservano i dettagli
+  e il confronto H08; l’avviso esteso non compare per le equivalenze dei dispositivi.
+- Nessuna modifica a categorie numeriche, formule, valori FC, peso o input.
+  La spiegazione salvata nel caso precisa l’assunzione anche quando la categoria
+  utilizzata nel calcolo proviene dalla tabella.
+- Superati 7 test `test_language_*` (inclusi 5 controlli integrati di pagina,
+  cambio IT/EN, FC, stop per dati mancanti, report e casi) e il nuovo controllo
+  JavaScript delle assunzioni, dei colori e della parità numerica per condizioni
+  asciutte/bagnate, pesi 50/70/100 kg e tre appoggi. Sintassi e diff superati.
+- Quattro verifiche JavaScript preesistenti (`test_fc_counters`,
+  `test_fc_panel_engine`, `test_fc_panel_ui`, `test_fc_scenarios`) non passano:
+  riprodotti gli stessi errori sulla base precedente in worktree separato.
+  Non dichiarare verde l’intera suite.
+- Commit corrente: quello contenente questa nota. Dopo la pubblicazione,
+  verificare la resa sul server; resta il riscontro dell’utente sul telefono.
+
 ## Selettore lingua e diciture inglesi — 23.10.2026
 
 **Decisione finale aggiornata durante lo stesso intervento:** l'utente ha
