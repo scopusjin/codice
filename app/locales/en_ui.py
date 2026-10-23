@@ -10,7 +10,7 @@ _TA_HELP = (
 )
 
 UI_TEXT = {
-    "full.title": "ESTIMATION OF THE TIME SINCE DEATH",
+    "full.title": "TIME SINCE DEATH ESTIMATION",
     "full.add_datetime": "Add date/time of postmortem observations",
     "full.inspection_date": "Date of medico-legal examination:",
     "full.inspection_time": "Time of medico-legal examination (HH:MM):",
@@ -80,7 +80,7 @@ UI_TEXT = {
     "full.estimate_button": "Estimate time since death",
     "full.no_data_warning": "No data entered for estimation",
     "full.henssge_incoherent_warning": "Henssge’s method could not be applied (inconsistent or out-of-range temperatures).",
-    "msil.page_title": "ESTIMATION OF THE TIME SINCE DEATH — MSIL",
+    "msil.page_title": "TIME SINCE DEATH ESTIMATION — MSIL",
     "msil.no_description": "<p style='opacity:.7'>No description available.</p>",
     "msil.add_datetime": "Add date/time of postmortem observations",
     "msil.inspection_date": "Date of medico-legal examination",

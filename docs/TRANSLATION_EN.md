@@ -26,11 +26,11 @@ partenza. Non viene eseguita una migrazione dei casi.
 |---|---|---|
 | Raffreddamento cadaverico | Postmortem body cooling | Denominazione del capitolo di riferimento |
 | Tempo trascorso dal decesso | Time since death | Durata, distinta dalla data/ora del decesso |
-| Stima del tempo trascorso dal decesso | Estimation of the time since death | Titolo; il pulsante usa il verbo “Estimate time since death” |
+| Stima del tempo trascorso dal decesso | Time since death estimation | Titolo compatto richiesto il 23.10.2026; il pulsante usa il verbo “Estimate time since death” |
 | Tempo trascorso dal decesso stimato | Estimated time since death | Riepilogo espresso soltanto come durata |
 | Epoca del decesso stimata | Estimated time of death | Momento o finestra temporale del decesso |
 | Fattore di correzione | Corrective factor (CF) | Terminologia della tabella 6.18; “correction factor” compare anche nella fonte |
-| Temperatura ambientale media | Mean ambient temperature | Non coincide necessariamente con il rilievo puntuale |
+| Temperatura ambientale media | Mean ambient temperature | “Mean amb. T.” nei campi compatti; non coincide necessariamente con il rilievo puntuale |
 | Aria ferma / correnti d'aria | Still air / moving air | Categoria termica, senza soglie di velocità aggiunte |
 | Acqua stagnante / corrente | Still water / flowing water | “Stagnante” qui indica assenza di flusso |
 | Tessuti fradici | Wet-through clothing and coverings | Terminologia del pannello FC |

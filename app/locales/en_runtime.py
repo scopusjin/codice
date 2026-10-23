@@ -5,8 +5,8 @@ Source strings are lookup keys only, never translated calculation/state values.
 
 TEXT = dict(line.split("\t", 1) for line in """
 ESTIMA EPOCA DECESSO	ESTIMATE TIME SINCE DEATH
-STIMA EPOCA DECESSO	ESTIMATE TIME SINCE DEATH
-STIMA DELL’EPOCA DEL DECESSO	ESTIMATION OF THE TIME SINCE DEATH
+STIMA EPOCA DECESSO	TIME SINCE DEATH ESTIMATION
+STIMA DELL’EPOCA DEL DECESSO	TIME SINCE DEATH ESTIMATION
 Stima epoca decesso	Time since death estimation
 Stima epoca decesso — MSIL	Time since death estimation — MSIL
 Versione completa	Full version
@@ -88,7 +88,7 @@ Come viene consigliato il FC	How the CF is suggested
 Origine del fattore di correzione	Basis of the corrective factor
 T. ambientale media	Mean ambient temperature
 T. ambientale	Ambient temperature
-T. amb. media	Mean ambient T.
+T. amb. media	Mean amb. T.
 T. amb.	Ambient T.
 T. rettale	Rectal temperature
 T. ante-mortem stimata	Estimated antemortem temperature
@@ -350,7 +350,7 @@ Acqua	Water
 Ferma	Still
 Corrente	Flowing
 T. acqua	Water temperature
-T amb media	Mean ambient T.
+T amb media	Mean amb. T.
 Temperatura dell’acqua in gradi Celsius	Water temperature in degrees Celsius
 Temperatura ambientale media in gradi Celsius	Mean ambient temperature in degrees Celsius
 Scenari considerati:	Scenarios considered:
@@ -616,6 +616,12 @@ Informazioni sulla temperatura ambientale	Information about ambient temperature
 """.strip("\n").splitlines()))
 
 TEXT.update({
+    "Ecc. elettrica sopraciliare": "Electrical excitability — supraciliary",
+    "Ecc. elettrica peribuccale": "Electrical excitability — perioral",
+    "Ecc. muscolare meccanica": "Mechanical muscle excitability",
+    "Ecc. chimica pupillare": "Pharmacological iris excitability",
+    "Ecc. meccanica": "Mechanical excitability",
+    "Ecc. pupillare": "Pupillary excitability",
     "aria ferma": "still air",
     "aria in movimento": "moving air",
     "FC impostato manualmente negli scenari": "CF entered manually in scenarios",

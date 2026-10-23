@@ -323,20 +323,31 @@ def _install_compact_cooling_help_labels() -> None:
     st.markdown = markdown_with_compact_cooling_help
 
 
-def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
+def install_minimal_mobile_shell(*, msil_title: bool = False, reserve_title: bool = False):
     """Installa la testata mobile o gli adattamenti dedicati al desktop."""
     # CSS-only HTML is installed before any visual element, without adding
     # a Markdown spacer above the mobile header on the first page load.
     from app.presentation_translation import install_presentation_translation
     from app.language import render_language_selector, current_language
     install_presentation_translation()
-    render_language_selector()
+    # Clear previous-run layout anchors before emitting any header widgets.
+    reset_render_contexts()
     is_mobile = _request_is_mobile()
     if is_mobile:
         st.html(_MINIMAL_MOBILE_SHELL_CSS)
     install_minimal_app_chrome()
-    reset_render_contexts()
     _install_compact_cooling_help_labels()
+    title_container = None
+    if reserve_title and not is_mobile:
+        # Keep language and title inside the same native header, so the desktop
+        # grid cannot auto-place the language selector among the input cards.
+        with st.container(horizontal=True, wrap=True, vertical_alignment="center",
+                          gap="small", key="full_page_title_desktop"):
+            title_container = st.container(width="stretch")
+            with st.container(width="content"):
+                render_language_selector()
+    else:
+        render_language_selector()
     if is_mobile:
         st.iframe(
             _MOBILE_HEADER_HTML.replace("Apri menu", "Open menu") if current_language() == "en" else _MOBILE_HEADER_HTML,
@@ -344,3 +355,4 @@ def install_minimal_mobile_shell(*, msil_title: bool = False) -> None:
         )
     else:
         install_desktop_datetime_ui()
+    return title_container

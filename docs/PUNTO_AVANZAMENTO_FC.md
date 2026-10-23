@@ -1,5 +1,42 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Selettore lingua e diciture inglesi — 23.10.2026
+
+- Repository `scopusjin/codice`; branch dell'app di test `refactor-tanatology-keys`.
+  Base GitHub verificata `1c4a7dbb62e07d23036b56a0fa9d76ee23abd88a`; commit
+  corrente: quello contenente questa sezione. Ultimo commit integralmente
+  confermato dal test manuale dell'utente: non identificato.
+- Richiesta autorizzata: selettore Italiano/English in alto, traduzioni mancanti
+  delle etichette dell'eccitabilità, temperatura media compatta e titolo
+  `Time since death estimation`.
+- `app/mobile_shell.py`, `install_minimal_mobile_shell`: reset dei contesti di
+  layout prima di emettere i controlli; sulla Full desktop un unico contenitore
+  nativo con titolo e lingua. `Stima_epoca_decesso.py` riempie lo slot del titolo
+  riservato nell'intestazione. Su mobile il selettore resta prima del titolo e
+  dei dati; nessun nuovo CSS o stato duplicato.
+- `app/locales/en_runtime.py`: tradotte le etichette abbreviate elettriche,
+  meccaniche e pupillari, che erano effettivamente rimaste italiane negli output
+  AppTest; `Mean amb. T.` nelle etichette compatte, significato esteso mantenuto
+  negli helper. `app/locales/en_ui.py`: titolo compatto nella Full e in MSIL.
+  Allineati `docs/TRANSLATION_EN.md` e il confronto bilingue rigenerato.
+- Nessuna modifica a formule, motore FC, soglie, peso, temperature, chiavi di
+  sessione, valori legacy o testi dei risultati. Le funzioni della pagina
+  principale sono identiche alla base, verificato tramite AST.
+- Superati sintassi e diff; 6 test del gruppo `test_language_*` (la prova di
+  pagina esegue 4 controlli integrati, inclusi i cicli IT/EN con parametri
+  aggiuntivi aperti), più 12 test delle risorse inglesi. Verificati permanenza
+  del selettore nell'intestazione dopo rerun, traduzione delle etichette
+  desktop/mobile, identità degli input e risultati, round-trip dei report,
+  riapertura casi e decisioni/bozze FC JavaScript.
+- Suite `test_full_mobile_flow`: 7 successi, 2 failure e 1 error; gli stessi
+  tre test non passano sul commit iniziale, verificato in worktree separato.
+  Nessuna nuova failure osservata. Non dichiarare l'intera suite verde.
+- App pubblica osservata nel browser prima dell'intervento: titolo esteso e
+  selettore separato sulla riga successiva. Prossimo controllo: intestazione
+  distribuita, poi test dell'utente sul proprio desktop/telefono, soprattutto
+  spazio per `Mean amb. T.` e parametri aggiuntivi. Nessun ulteriore intervento
+  funzionale concordato.
+
 ## Traduzione inglese — primo blocco, 22.10.2026
 
 - Richiesta autorizzata: traduzione dell'intera app con terminologia scientifica,

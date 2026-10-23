@@ -92,4 +92,30 @@ class LanguagePageTests(unittest.TestCase):
                 self.assertIn('https://doi.org/10.1007/s004149900089',text)
                 self.assertNotIn('above.',text)
 
+    def test_header_and_compact_labels_survive_language_switches(self):
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app=self.start(mobile=mobile,language='en',extra={'mostra_parametri_aggiuntivi':True})
+                for language in ('en','it','en'):
+                    browser_run(app,language=language)
+                    self.assertEqual(list(app.exception),[])
+                    headings='\n'.join(item.value for item in app.markdown if 'section-title' in item.value and '<style' not in item.value)
+                    if language=='en':
+                        self.assertNotIn('Ecc.',headings)
+                        self.assertIn('Electrical excitability — supraciliary',headings)
+                        self.assertIn('Electrical excitability — perioral',headings)
+                    else:
+                        self.assertIn('Ecc. elettrica sopraciliare',headings)
+                    # The selector must remain in the main header after reruns,
+                    # never inside the previously rendered additional findings.
+                    top=list(app.main.children.values())
+                    header=next(item for item in top if getattr(item,'type',None)=='flex_container' and item.proto.id.endswith(
+                        '-mortem_language_row' if mobile else '-full_page_title_desktop'))
+                    self.assertEqual(header.get('button_group')[0].value,language)
+                    if not mobile:
+                        title='\n'.join(item.proto.body for item in header.get('html'))
+                        self.assertIn('TIME SINCE DEATH ESTIMATION' if language=='en' else 'STIMA EPOCA DECESSO',title)
+                from app.presentation_translation import translate
+                self.assertEqual(translate('T. amb. media','en'),'Mean amb. T.')
+
 if __name__=='__main__':unittest.main()

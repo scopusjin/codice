@@ -121,7 +121,7 @@ def _render_desktop_cooling_label(text: str, help_text: str | None = None, help_
 # Stato e costanti globali
 # =========================
 st.set_page_config(page_title="Mor-tem", layout="wide", initial_sidebar_state="collapsed")
-install_minimal_mobile_shell()
+_page_title_container = install_minimal_mobile_shell(reserve_title=True)
 
 from app.fc_page import render_fc_route_if_requested, render_scenarios_button, FULL_PAGE
 from app.case_ui import prepare_case_import, render_case_menu
@@ -262,7 +262,7 @@ if full_device_is_mobile():
 else:
     # Read the stylesheet each run: imported constants can stay stale after deployment.
     st.html(Path(__file__).resolve().parent / "app" / "desktop_layout.css")
-    with st.container(gap=None, key="full_page_title_desktop"):
+    with _page_title_container:
         st.html(
             f"<h1 id='mortem-page-title' class='mortem-full-title'>{page_title}</h1>"
         )
