@@ -13,8 +13,8 @@ def round_hours_to_minutes(x: float, minutes: int) -> float:
 def round_datetime_to_minutes(dt: datetime.datetime, minutes: int) -> datetime.datetime:
     """Arrotonda un datetime al multiplo di 'minutes' minuti più vicino."""
     step = minutes
-    tot = dt.hour * 60 + dt.minute
-    rounded = int(round(tot / step)) * step
+    tot = dt.hour * 60 + dt.minute + dt.second / 60 + dt.microsecond / 60_000_000
+    rounded = int(np.floor(tot / step + 0.5)) * step
     dh, dm = divmod(rounded, 60)
     base = dt.replace(minute=0, second=0, microsecond=0)
     return base.replace(hour=0) + datetime.timedelta(hours=dh, minutes=dm)

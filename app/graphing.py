@@ -34,6 +34,7 @@ from app.utils_time import round_quarter_hour
 from app.tanatology_times import format_tanatology_measurement_datetime
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
+    nota_limiti_stima, nota_arrotondamento_orari,
     build_final_sentence, paragrafo_raffreddamento_dettaglio, paragrafo_potente,
     paragrafo_raffreddamento_misto, nota_potente_condizioni_critiche,
     paragrafo_raffreddamento_input, paragrafi_descrizioni_base,
@@ -1002,6 +1003,11 @@ def aggiorna_grafico(
         # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
         chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
 
+    if overlap and not discordanti:
+        chunks.append(_wrap_final(nota_limiti_stima()))
+        if usa_orario_custom:
+            chunks.append(_wrap_final(nota_arrotondamento_orari()))
+
     # 3) frase blu di riepilogo dei parametri usati.
     if overlap and len(nomi_usati) > 0:
         nomi_finali = []
@@ -1035,7 +1041,7 @@ def aggiorna_grafico(
         input_html="\n".join(dettagli), cooling_html="\n".join(word_cooling),
         livor=testo_macchie, rigor=testo_rigidita,
         additional_html="\n".join(word_additional), putrefaction_html=word_putrefaction,
-        conclusion=(frase_finale_html if overlap and not discordanti else ""),
+        conclusion=((frase_finale_html + nota_limiti_stima()) if overlap and not discordanti and frase_finale_html else ""),
     )
 
     # salva per popover
@@ -1045,6 +1051,8 @@ def aggiorna_grafico(
     frase_breve_html = st.session_state.get("frase_breve")
     if frase_breve_html:
         render_frase_breve(frase_breve_html, key="fb_before_details")
+        if overlap and not discordanti:
+            st.markdown(nota_limiti_stima(), unsafe_allow_html=True)
 
     if mobile_result_figure is not None:
         with st.expander(i18n.ui_text("graph.plot_expander"), expanded=False):

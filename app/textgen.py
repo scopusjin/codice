@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple, Iterable, Dict, Any
 import numpy as np
 
 from app.language import presentation_i18n as i18n
-from app.utils_time import split_hours_minutes
+from app.utils_time import split_hours_minutes, arrotonda_quarto_dora
 from app.textgen_tanatology import special_description_is_reportable
 
 # ------------------------------------------------------------
@@ -66,7 +66,7 @@ def build_final_sentence(
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
         start = mt_ore if (mt_ore is not None and not np.isnan(mt_ore) and abs(comune_inizio - mt_ore) < 0.25) else comune_inizio
         h1, m1 = _hm_from_hours(start)
-        decesso_dt = isp_dt - datetime.timedelta(hours=start)
+        decesso_dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=start))
         hh_d, dd_d = _fmt_dt(decesso_dt)
         return i18n.final_sentence_dt_over(
             _fmt_hm_full(h1, m1), hh_d, dd_d, single_parameter=single_parameter,
@@ -75,7 +75,7 @@ def build_final_sentence(
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
         h2, m2 = _hm_from_hours(comune_fine)
-        lim_inf_dt = isp_dt - datetime.timedelta(hours=comune_fine)
+        lim_inf_dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine))
         hh_lo, dd_lo = _fmt_dt(lim_inf_dt)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
         return i18n.final_sentence_dt_not_over(
@@ -91,8 +91,8 @@ def build_final_sentence(
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
         h1, m1 = _hm_from_hours(comune_inizio)
         h2, m2 = _hm_from_hours(comune_fine)
-        dt_da = isp_dt - datetime.timedelta(hours=comune_fine)
-        dt_aa = isp_dt - datetime.timedelta(hours=comune_inizio)
+        dt_da = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine))
+        dt_aa = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_inizio))
         hh_da, dd_da = _fmt_dt(dt_da)
         hh_aa, dd_aa = _fmt_dt(dt_aa)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
@@ -125,7 +125,7 @@ def build_simple_sentence(
     limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
 
     def _ora_data(h_dec):
-        dt = isp_dt - datetime.timedelta(hours=h_dec)
+        dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=h_dec))
         return _fmt_dt(dt)
 
     # 0–X
@@ -160,8 +160,8 @@ def build_simple_sentence(
             dd_da,
             hh_aa,
             dd_aa,
-            (isp_dt - datetime.timedelta(hours=comune_fine)).date()
-            == (isp_dt - datetime.timedelta(hours=comune_inizio)).date(),
+            arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine)).date()
+            == arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_inizio)).date(),
         )
     return None
 
@@ -472,3 +472,30 @@ def frase_qd(
         within_limits=status == "optimal",
         status=status,
     )
+
+
+def nota_limiti_stima() -> str:
+    """Cautela conclusiva condivisa da interfaccia e report Word."""
+    from app.language import current_language
+    if current_language() == "en":
+        return (
+            "<p><i>The methods commonly used and available in forensic medicine cannot precisely determine the time of death "
+            "from postmortem findings alone. Even when interpreted in the light of available scientific knowledge and studies, "
+            "these findings are influenced by numerous variables that cannot always be verified, controlled or reproduced.</i></p>"
+            "<p><i>The estimated time of death must therefore be regarded as approximate and theoretical, checked against the other "
+            "findings of the investigation, and revised if new information relevant to the assessment becomes available.</i></p>"
+        )
+    return (
+        "<p><i>Va ricordato che i metodi comunemente utilizzati e utilizzabili in medicina legale non consentono di definire con precisione "
+        "l’epoca del decesso sulla base dei soli dati tanatocronologici. Tali dati, pur interpretati alla luce delle conoscenze e dei lavori "
+        "scientifici disponibili, sono infatti influenzati da numerose variabili, non sempre verificabili, controllabili o riproducibili.</i></p>"
+        "<p><i>La stima dell’epoca della morte deve pertanto essere considerata necessariamente approssimativa e teorica, deve esser verificata "
+        "rispetto agli altri elementi emersi nel corso dell’indagine, ed è suscettibile di revisione qualora sopravvengano nuovi dati utili alle valutazioni.</i></p>"
+    )
+
+
+def nota_arrotondamento_orari() -> str:
+    from app.language import current_language
+    text = ("Estimated times of death are rounded to the nearest quarter hour." if current_language() == "en"
+            else "Gli orari stimati del decesso sono arrotondati al quarto d’ora più vicino.")
+    return "<p style='color:blue;font-size:8pt;'>" + text + "</p>"
