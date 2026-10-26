@@ -317,3 +317,10 @@ Su richiesta: riferimenti tabellari riuniti in un paragrafo; esempi Henssge/Brin
 - `app/graphing.py`: nota blu nelle descrizioni con orari, cautela dopo conclusione dettagliata e riepilogo visibile, inclusa nel blocco conclusivo Word. Italiano conservato integralmente; corrispondente inglese disponibile. Nessuna macro Word modificata.
 - Superati 14 test mirati (formattazione e nuovi casi: secondi, mezzo passo, cambio giorno, lingue, rilievi esatti, corsivo nel blocco Word) e 4 test case_report, compreso il percorso reale della pagina completa. Sintassi/import e diff verificati. La suite presentational_i18n contiene una discrepanza sul paragrafo Potente non interessato dall’intervento: non dichiarata superata. Nessuna verifica grafica in browser o esecuzione Word.
 - Prossimo passo: test utente nell’app aggiornata, controllando orari non multipli di 15 minuti, nota blu e corsivo nelle descrizioni e nel riepilogo. Nessun ulteriore intervento concordato.
+
+
+### Selettore lingua discreto e bandiere incorporate — 26 ottobre 2026
+
+- Base GitHub verificata `e462a3ae7a4d02ce644ccd312070695c30b07449`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Richiesta esplicita: bandierine visibili e selezione meno marcata.
+- Solo presentazione in `app/language.py`: `render_language_selector` usa piccole bandiere SVG incorporate tramite Markdown supportato dal controllo nativo, al posto delle emoji dipendenti dal sistema. Sigle IT/EN, posizione in basso non fissa, chiavi di stato, callback e traduzioni invariati. Selezione grigio tenue e bordo neutro; CSS circoscritto al selettore, senza cambiamenti strutturali. Usato anche il testid Active verificato nel frontend Streamlit installato.
+- Sintassi/import, diff e 6 test language_presentation superati. Verificato con AppTest il passaggio IT/EN, le etichette con immagini e l’invalidazione dei report. Da confermare nell’app la resa visiva su desktop/mobile; nessun test in browser reale dichiarato. Prossimo passo: test utente delle bandiere e dell’evidenziazione. Nessuna modifica a calcoli o FC.

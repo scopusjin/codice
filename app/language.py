@@ -53,6 +53,24 @@ class _PresentationLocale:
 presentation_i18n = _PresentationLocale()
 
 
+@lru_cache(maxsize=2)
+def _language_option_label(code):
+    """Embedded flags avoid platform-dependent emoji rendering."""
+    from base64 import b64encode
+    if code == "it":
+        drawing = '<path fill="#009246" d="M0 0h10v20H0z"/><path fill="#fff" d="M10 0h10v20H10z"/><path fill="#ce2b37" d="M20 0h10v20H20z"/>'
+    else:
+        drawing = ('<path fill="#012169" d="M0 0h30v20H0z"/>'
+                   '<path stroke="#fff" stroke-width="4" d="m0 0 30 20M30 0 0 20"/>'
+                   '<path stroke="#c8102e" stroke-width="1.5" d="m0 0 30 20M30 0 0 20"/>'
+                   '<path stroke="#fff" stroke-width="7" d="M15 0v20M0 10h30"/>'
+                   '<path stroke="#c8102e" stroke-width="4" d="M15 0v20M0 10h30"/>')
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="20" viewBox="0 0 30 20">' + drawing + '</svg>'
+    uri = "data:image/svg+xml;base64," + b64encode(svg.encode()).decode()
+    name = "Italia" if code == "it" else "United Kingdom"
+    return f"![{name}]({uri}) {code.upper()}"
+
+
 def render_language_selector():
     import streamlit as st
     st.session_state.setdefault(LANGUAGE_KEY, "it")
@@ -74,12 +92,30 @@ def render_language_selector():
         font-size: 0.72rem !important;
         line-height: 1.15 !important;
       }
+      .st-key-mortem_language_row button {
+        background: transparent !important;
+        color: #64748b !important;
+        border-color: #d8dee5 !important;
+        box-shadow: none !important;
+      }
+      .st-key-mortem_language_row button[aria-pressed="true"],
+      .st-key-mortem_language_row button[aria-checked="true"],
+      .st-key-mortem_language_row button[data-testid="stBaseButton-segmented_controlActive"] {
+        background: #eef1f4 !important;
+        color: #334155 !important;
+        border-color: #b8c2cc !important;
+      }
+      .st-key-mortem_language_row button img {
+        width: 1.1rem;
+        height: 0.75rem;
+        object-fit: contain;
+      }
     </style>""")
     # Ordinary page footer: scrolls with the content, without a pinned overlay.
     with st.container(horizontal=True, horizontal_alignment="right", gap=None,
                       key="mortem_language_row"):
         st.segmented_control("Lingua / Language", ["it", "en"],
-                             format_func=lambda code: "🇮🇹 IT" if code == "it" else "🇬🇧 EN",
+                             format_func=_language_option_label,
                              selection_mode="single", key="mortem_language_widget",
                              on_change=change, label_visibility="collapsed", width="content")
     _translate_navigation()
