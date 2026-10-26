@@ -40,3 +40,22 @@ __all__ = [
     "round_hours_to_minutes", "round_datetime_to_minutes",
     "round_quarter_hour",
 ]
+
+
+def round_display_hours(hours: float, minutes: int = 15, *, upper: bool = False) -> float:
+    """Round one displayed bound outward, never a computational intermediate."""
+    if not np.isfinite(hours):
+        return hours
+    units = float(hours) * 60.0 / minutes
+    nearest = round(units)
+    if abs(units - nearest) <= 1e-10:
+        units = nearest
+    bound = np.ceil(units) if upper else np.floor(units)
+    return float(bound * minutes / 60.0)
+
+
+def round_display_datetime(dt: datetime.datetime, minutes: int = 15, *, upper: bool = False) -> datetime.datetime:
+    """Round a calendar bound outward; retain midnight/day transitions."""
+    midnight = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    hours = (dt - midnight).total_seconds() / 3600.0
+    return midnight + datetime.timedelta(hours=round_display_hours(hours, minutes, upper=upper))

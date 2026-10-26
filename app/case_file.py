@@ -174,7 +174,7 @@ def snapshot_case(state, view, *, now=None, include_report=True):
     if editor_open:
         current.update(state.get("__fc_form", {}))
     values = {k: deepcopy(current[k]) for k in STATE_KEYS if k in current}
-    values.setdefault("henssge_round_minutes", 30)
+    values.setdefault("henssge_round_minutes", 15)
     for key in DATE_KEYS & values.keys():
         if isinstance(values[key], date):
             values[key] = values[key].isoformat()

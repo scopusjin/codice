@@ -416,7 +416,7 @@ clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile"
 # ------------------------------------------------------------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
-        int(st.session_state.get("henssge_round_minutes", 30)),
+        int(st.session_state.get("henssge_round_minutes", 15)),
         bool(st.session_state.get("usa_orario_custom", False)),
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
@@ -509,7 +509,7 @@ if st.session_state.get("run_stima_mobile"):
             "Ta_max_beta": st.session_state.get("Ta_max_beta"),
             "FC_min_beta": st.session_state.get("FC_min_beta"),
             "FC_max_beta": st.session_state.get("FC_max_beta"),
-            "henssge_round_minutes": st.session_state.get("henssge_round_minutes", 30),
+            "henssge_round_minutes": st.session_state.get("henssge_round_minutes", 15),
             "__fc_applied_choice": st.session_state.get("__fc_applied_choice"),
         },
     )

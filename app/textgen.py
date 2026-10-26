@@ -7,7 +7,7 @@ from typing import List, Optional, Tuple, Iterable, Dict, Any
 import numpy as np
 
 from app.language import presentation_i18n as i18n
-from app.utils_time import split_hours_minutes, arrotonda_quarto_dora
+from app.utils_time import split_hours_minutes, round_display_hours, round_display_datetime
 from app.textgen_tanatology import special_description_is_reportable
 
 # ------------------------------------------------------------
@@ -27,6 +27,10 @@ def _hm_from_hours(ore_float: float) -> tuple[int, int]:
     """Converte ore decimali in (ore, minuti) interi non negativi."""
     h, m = split_hours_minutes(ore_float) or (0, 0)
     return int(h), int(m)
+
+def _display_hm(hours: float, minutes: int, *, upper: bool = False) -> tuple[int, int]:
+    return _hm_from_hours(round_display_hours(hours, minutes, upper=upper))
+
 
 def _fmt_hm_full(h: int, m: int) -> str:
     """'1 ora e 30 minuti' / '2 ore' / '45 minuti' / '1 minuto'."""
@@ -56,6 +60,7 @@ def build_final_sentence(
     ta_val: Optional[float] = None,
     inf_hours: float = np.inf,
     single_parameter: bool = False,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
@@ -64,9 +69,9 @@ def build_final_sentence(
 
     # Caso: limite superiore infinito → “oltre X”
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        start = mt_ore if (mt_ore is not None and not np.isnan(mt_ore) and abs(comune_inizio - mt_ore) < 0.25) else comune_inizio
-        h1, m1 = _hm_from_hours(start)
-        decesso_dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=start))
+        start = comune_inizio
+        h1, m1 = _display_hm(start, round_minutes)
+        decesso_dt = min(isp_dt, round_display_datetime(isp_dt - datetime.timedelta(hours=start), round_minutes, upper=True))
         hh_d, dd_d = _fmt_dt(decesso_dt)
         return i18n.final_sentence_dt_over(
             _fmt_hm_full(h1, m1), hh_d, dd_d, single_parameter=single_parameter,
@@ -74,8 +79,8 @@ def build_final_sentence(
 
     # Caso: 0–X → “non oltre X”
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2 = _hm_from_hours(comune_fine)
-        lim_inf_dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine))
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
+        lim_inf_dt = round_display_datetime(isp_dt - datetime.timedelta(hours=comune_fine), round_minutes)
         hh_lo, dd_lo = _fmt_dt(lim_inf_dt)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
         return i18n.final_sentence_dt_not_over(
@@ -89,10 +94,10 @@ def build_final_sentence(
 
     # Caso: A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        h2, m2 = _hm_from_hours(comune_fine)
-        dt_da = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine))
-        dt_aa = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_inizio))
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
+        dt_da = round_display_datetime(isp_dt - datetime.timedelta(hours=comune_fine), round_minutes)
+        dt_aa = min(isp_dt, round_display_datetime(isp_dt - datetime.timedelta(hours=comune_inizio), round_minutes, upper=True))
         hh_da, dd_da = _fmt_dt(dt_da)
         hh_aa, dd_aa = _fmt_dt(dt_aa)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
@@ -117,20 +122,23 @@ def build_simple_sentence(
     comune_fine: Optional[float],
     isp_dt: datetime.datetime,
     *,
-    inf_hours: float = np.inf
+    inf_hours: float = np.inf,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     """Versione breve con data/ora. HTML con intestazione in grassetto."""
     if _safe_is_nan(comune_inizio) and _safe_is_nan(comune_fine):
         return None
     limite_sup_inf = _safe_is_nan(comune_fine) or comune_fine == inf_hours
 
-    def _ora_data(h_dec):
-        dt = arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=h_dec))
+    def _ora_data(h_dec, *, upper=False):
+        dt = round_display_datetime(isp_dt - datetime.timedelta(hours=h_dec), round_minutes, upper=upper)
+        if upper:
+            dt = min(dt, isp_dt)
         return _fmt_dt(dt)
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2 = _hm_from_hours(comune_fine)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         hh_lo, dd_lo = _ora_data(comune_fine)
         hh_isp, dd_isp = _fmt_dt(isp_dt)
         return i18n.simple_sentence_dt_not_over(
@@ -143,16 +151,16 @@ def build_simple_sentence(
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        hh_d, dd_d = _ora_data(comune_inizio)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
+        hh_d, dd_d = _ora_data(comune_inizio, upper=True)
         return i18n.simple_sentence_dt_over(_fmt_hm_full(h1, m1), hh_d, dd_d)
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        h2, m2 = _hm_from_hours(comune_fine)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         hh_da, dd_da = _ora_data(comune_fine)
-        hh_aa, dd_aa = _ora_data(comune_inizio)
+        hh_aa, dd_aa = _ora_data(comune_inizio, upper=True)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
         return i18n.simple_sentence_dt_range(
             intervallo_txt,
@@ -160,8 +168,8 @@ def build_simple_sentence(
             dd_da,
             hh_aa,
             dd_aa,
-            arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_fine)).date()
-            == arrotonda_quarto_dora(isp_dt - datetime.timedelta(hours=comune_inizio)).date(),
+            round_display_datetime(isp_dt - datetime.timedelta(hours=comune_fine), round_minutes).date()
+            == min(isp_dt, round_display_datetime(isp_dt - datetime.timedelta(hours=comune_inizio), round_minutes, upper=True)).date(),
         )
     return None
 
@@ -169,7 +177,8 @@ def build_simple_sentence_no_dt(
     comune_inizio: Optional[float],
     comune_fine: Optional[float],
     *,
-    inf_hours: float = np.inf
+    inf_hours: float = np.inf,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     """
     Versione breve senza data/ora. HTML con intestazione in grassetto.
@@ -180,18 +189,18 @@ def build_simple_sentence_no_dt(
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2 = _hm_from_hours(comune_fine)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         return i18n.simple_sentence_no_dt_not_over(_fmt_hm_full(h2, m2))
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        h1, m1 = _hm_from_hours(comune_inizio)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
         return i18n.simple_sentence_no_dt_over(_fmt_hm_full(h1, m1))
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        h2, m2 = _hm_from_hours(comune_fine)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
         return i18n.simple_sentence_no_dt_range(intervallo_txt)
     return None
@@ -202,6 +211,7 @@ def build_final_sentence_simple(
     *,
     inf_hours: float = np.inf,
     single_parameter: bool = False,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     """
     Conclusione dettagliata senza data/ora, adeguata ai parametri disponibili.
@@ -213,22 +223,22 @@ def build_final_sentence_simple(
 
     # oltre X
     if limite_sup_inf and not _safe_is_nan(comune_inizio):
-        h1, m1 = _hm_from_hours(comune_inizio)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
         return i18n.final_sentence_simple_over(
             _fmt_hm_full(h1, m1), single_parameter=single_parameter,
         )
 
     # 0–X
     if not _safe_is_nan(comune_fine) and (comune_inizio == 0 or _safe_is_nan(comune_inizio)):
-        h2, m2 = _hm_from_hours(comune_fine)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         return i18n.final_sentence_simple_not_over(
             _fmt_hm_full(h2, m2), single_parameter=single_parameter,
         )
 
     # A–B
     if not _safe_is_nan(comune_inizio) and not _safe_is_nan(comune_fine):
-        h1, m1 = _hm_from_hours(comune_inizio)
-        h2, m2 = _hm_from_hours(comune_fine)
+        h1, m1 = _display_hm(comune_inizio, round_minutes)
+        h2, m2 = _display_hm(comune_fine, round_minutes, upper=True)
         intervallo_txt = _fmt_range_hm(h1, m1, h2, m2)
         return i18n.final_sentence_simple_range(
             intervallo_txt, single_parameter=single_parameter,
@@ -248,6 +258,7 @@ def paragrafo_raffreddamento_dettaglio(
     qd_val: Optional[float],
     ta_val: Optional[float],
     qd_range_status: Optional[str] = None,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     """
     Paragrafo Henssge con note su Qd e >30h.
@@ -256,8 +267,8 @@ def paragrafo_raffreddamento_dettaglio(
     if _safe_is_nan(t_min_visual) or _safe_is_nan(t_max_visual):
         return None
 
-    h1, m1 = _hm_from_hours(t_min_visual)
-    h2, m2 = _hm_from_hours(t_max_visual)
+    h1, m1 = _display_hm(t_min_visual, round_minutes)
+    h2, m2 = _display_hm(t_max_visual, round_minutes, upper=True)
 
     # Se il limite inferiore è 0 → “non oltre X”
     intervallo_txt = (
@@ -295,9 +306,9 @@ def paragrafo_raffreddamento_dettaglio(
     return i18n.henssge_detail_paragraph(intervallo_txt, extra)
 
 
-def paragrafo_raffreddamento_misto(*, minimum_hours: float) -> str:
+def paragrafo_raffreddamento_misto(*, minimum_hours: float, round_minutes: int = 15) -> str:
     """Descrive il limite aperto già utilizzato dal grafico, senza ricalcolarlo."""
-    minimum_text = i18n.prudent_hours_text(float(minimum_hours))
+    minimum_text = i18n.prudent_hours_text(round_display_hours(minimum_hours, round_minutes))
     return (
         "<ul><li>Nelle condizioni considerate, il metodo di Henssge può fornire risultati sufficientemente attendibili soltanto "
         "per una parte delle possibili combinazioni dei sopracitati parametri. Per le altre, secondo "
@@ -308,8 +319,8 @@ def paragrafo_raffreddamento_misto(*, minimum_hours: float) -> str:
     )
 
 
-def nota_potente_condizioni_critiche(*, minimum_hours: float) -> str:
-    minimum_text = i18n.prudent_hours_text(float(minimum_hours))
+def nota_potente_condizioni_critiche(*, minimum_hours: float, round_minutes: int = 15) -> str:
+    minimum_text = i18n.prudent_hours_text(round_display_hours(minimum_hours, round_minutes))
     return (
         "<p style='color:blue;font-size:8pt;'>Nel caso in esame, per le condizioni in cui il grado di raffreddamento "
         "supera i limiti di applicabilità di Henssge, il metodo di Potente indica un tempo minimo "
@@ -323,7 +334,8 @@ def paragrafo_potente(
     mt_giorni: Optional[float],
     qd_val: Optional[float],
     ta_val: Optional[float],
-    qd_threshold: float
+    qd_threshold: float,
+    round_minutes: int = 15,
 ) -> Optional[str]:
     """
     Paragrafo Potente et al. se applicabile. HTML <ul><li>...</li></ul>.
@@ -337,7 +349,7 @@ def paragrafo_potente(
     if not (qd_val <= qd_threshold):
         return None
 
-    h, m = _hm_from_hours(mt_ore)
+    h, m = _display_hm(mt_ore, round_minutes)
     return i18n.potente_paragraph(
         _fmt_hm_full(h, m),
         f"{mt_giorni:.1f}",
@@ -494,8 +506,18 @@ def nota_limiti_stima() -> str:
     )
 
 
-def nota_arrotondamento_orari() -> str:
+def nota_arrotondamento_orari(round_minutes: int = 15) -> str:
     from app.language import current_language
-    text = ("Estimated times of death are rounded to the nearest quarter hour." if current_language() == "en"
-            else "Gli orari stimati del decesso sono arrotondati al quarto d’ora più vicino.")
+    if current_language() == "en":
+        text = (
+            f"Estimated postmortem intervals and times of death are rounded to {round_minutes}-minute increments "
+            "(lower bounds downwards and upper bounds upwards). The rounding interval can be changed in Settings."
+        )
+    else:
+        unit = "al quarto d’ora" if round_minutes == 15 else f"a {round_minutes} minuti"
+        text = (
+            f"Gli intervalli temporali e gli orari stimati del decesso sono arrotondati {unit} "
+            "(per difetto al limite inferiore e per eccesso al limite superiore). "
+            "L’ampiezza dell’arrotondamento è modificabile nelle Impostazioni."
+        )
     return "<p style='color:blue;font-size:8pt;'>" + text + "</p>"

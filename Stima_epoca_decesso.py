@@ -883,7 +883,7 @@ def _inputs_signature():
         return str(v)
 
     base = [
-        int(st.session_state.get("henssge_round_minutes", 30)),
+        int(st.session_state.get("henssge_round_minutes", 15)),
         bool(st.session_state.get("usa_orario_custom", False)),
         bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
         bool(st.session_state.get("henssge_non_applicabile", False)),

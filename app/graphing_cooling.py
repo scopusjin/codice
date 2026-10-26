@@ -17,7 +17,7 @@ import streamlit as st
 
 from app.language import presentation_i18n as i18n
 from app.cautelativa import compute_raffreddamento_cautelativo
-from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
+from app.henssge import calcola_raffreddamento, cooling_coefficient
 from app.parameters import INF_HOURS
 from app.cooling_inputs import checked_interval, checked_weight, finite_number, missing_cooling_inputs
 from app.fc_scenarios import matching_scenario_description, matching_temperature_scenarios, temperature_description
@@ -72,7 +72,7 @@ def _potente_limit_for_combination(ta, cf, peso) -> float | None:
     mt_ore = ln_term / B
     if not np.isfinite(mt_ore):
         return None
-    return float(np.round(float(mt_ore) * 2.0) / 2.0)
+    return float(mt_ore)
 
 
 @dataclass(frozen=True)
@@ -217,7 +217,7 @@ def compute_cooling_state(
                 solver_kwargs={
                     "Tr": float(Tr_val),
                     "T0": float(T0_val),
-                    "round_minutes": int(options.get("henssge_round_minutes", 30)),
+                    "round_minutes": None,
                 },
                 **({"temperature_scenarios": temperature_scenarios}
                    if temperature_scenarios is not None else {}),
@@ -234,8 +234,7 @@ def compute_cooling_state(
                 else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
             )
             t_med_raff_henssge_rounded_raw = float(_tmed_raw)
-            t_med_raff_henssge_rounded = round_to_step_minutes(
-                _tmed_raw, int(options.get("henssge_round_minutes", 30)))
+            t_med_raff_henssge_rounded = float(_tmed_raw)
             Qd_min = float(res.qd_min) if res.qd_min is not None else np.nan
             Qd_max = float(res.qd_max) if res.qd_max is not None else np.nan
             Qd_val_check = Qd_min
@@ -326,7 +325,7 @@ def compute_cooling_state(
             pass
     else:
         if raffreddamento_calcolabile:
-            round_minutes = int(options.get("henssge_round_minutes", 30))
+            round_minutes = None
             (
                 t_med_raff_henssge_rounded,
                 t_min_raff_henssge,

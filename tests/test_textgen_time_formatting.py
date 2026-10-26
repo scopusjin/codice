@@ -75,9 +75,9 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
         isp_dt = datetime.datetime(2026, 10, 14, 11, 28)
         intro = "<p>La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa "
         cases = [
-            (2, 13.5, "tra le ore 22:00 del 13.10.2026 e le ore 09:30 del 14.10.2026"),
-            (2, 4, "tra le ore 07:30 e le ore 09:30 del 14.10.2026"),
-            (0, 13.5, "successivamente alle ore 22:00 del 13.10.2026 (ma prima delle ore 11:28 del 14.10.2026)"),
+            (2, 13.5, "tra le ore 21:45 del 13.10.2026 e le ore 09:30 del 14.10.2026"),
+            (2, 4, "tra le ore 07:15 e le ore 09:30 del 14.10.2026"),
+            (0, 13.5, "successivamente alle ore 21:45 del 13.10.2026 (ma prima delle ore 11:28 del 14.10.2026)"),
             (2, np.inf, "prima delle ore 09:30 del 14.10.2026"),
         ]
         for lower, upper, window in cases:

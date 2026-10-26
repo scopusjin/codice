@@ -30,7 +30,7 @@ class MixedCoolingDescriptionTests(unittest.TestCase):
         report = plain_text(app.session_state['__desc_dettagliate_html'])
         self.assertIn('only some parameter combinations', report)
         self.assertIn('The combined estimate at examination is more than 16 hours 30 minutes since death.', report)
-        self.assertIn('Potente’s method gives a minimum of 43 hours before the medico-legal examination.', report)
+        self.assertIn('Potente’s method gives a minimum of 42 hours 45 minutes before the medico-legal examination.', report)
         blocks = app.session_state['__word_report_blocks']
         self.assertIn('more than 16 hours 30 minutes since death', blocks['cooling']['text'])
         self.assertNotIn('43 hours', blocks['cooling']['text'])
@@ -48,7 +48,7 @@ class MixedCoolingDescriptionTests(unittest.TestCase):
         self.assertNotIn('fossero trascorse almeno 43', html)
         note = re.search(r"<p[^>]*color:blue[^>]*>Nel caso in esame, per le condizioni.*?</p>", html)
         self.assertIsNotNone(note)
-        self.assertIn('43 ore prima', note.group())
+        self.assertIn('42 ore e 45 minuti prima', note.group())
         self.assertGreater(note.start(), html.index('Il parametro Qd'))
         self.assertIn('16 ore', app.session_state['frase_breve'])
 

@@ -20,14 +20,14 @@ class FinalTimeTests(unittest.TestCase):
             with using_language(language):
                 for build in (build_final_sentence, build_simple_sentence):
                     text = build(2, 3, inspection)
-                    self.assertIn("00:00", text)
+                    self.assertIn("23:45", text)
                     self.assertIn("01:00", text)
                     self.assertIn("27.10.2026", text)
-                    self.assertNotIn("26.10.2026", text)
+                    self.assertIn("26.10.2026", text)
 
     def test_inspection_time_is_preserved(self):
         text = build_final_sentence(0, 4, dt.datetime(2026, 10, 27, 11, 28))
-        self.assertIn("07:30", text)
+        self.assertIn("07:15", text)
         self.assertIn("11:28", text)
 
     def test_caution_keeps_italics_in_word(self):

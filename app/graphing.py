@@ -30,7 +30,7 @@ from app.special_tanatology_states import PARAM_ELECTRICAL_PERIORAL
 from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combination
 from app.cooling_inputs import missing_cooling_inputs
 from app.fc_scenarios import temperature_description
-from app.utils_time import round_quarter_hour
+from app.utils_time import round_display_hours
 from app.tanatology_times import format_tanatology_measurement_datetime
 from app.plotting import compute_plot_data, render_ranges_plot
 from app.textgen import (
@@ -267,6 +267,7 @@ def aggiorna_grafico(
     qd_threshold = cooling.qd_threshold
     gate_fail = cooling.gate_fail
     options = st.session_state if cooling_options is None else cooling_options
+    round_minutes = int(options.get("henssge_round_minutes", 15))
     condizioni_variabili = bool(options.get("stima_cautelativa_beta", False))
     for blocco in cooling.detail_blocks:
         _add_det(blocco)
@@ -385,15 +386,15 @@ def aggiorna_grafico(
                 range_trasl = (range_valori[0] - diff_h, INF_HOURS)
             else:
                 range_trasl = (range_valori[0] - diff_h, range_valori[1] - diff_h)
-            lo, hi = round_quarter_hour(range_trasl[0]), round_quarter_hour(range_trasl[1])
+            lo, hi = range_trasl
             lo = max(0, lo)
 
             green_range_traslato = None
             if parametro_risolto.parameter_id == PARAM_ELECTRICAL_PERIORAL:
                 pp_range = peribuccale_popwassilew_palm_ranges.get(stato_selezionato)
                 if pp_range is not None:
-                    pp_lo = max(0, round_quarter_hour(pp_range[0] - diff_h))
-                    pp_hi = max(0, round_quarter_hour(pp_range[1] - diff_h))
+                    pp_lo = max(0, pp_range[0] - diff_h)
+                    pp_hi = max(0, pp_range[1] - diff_h)
                     if pp_hi >= pp_lo:
                         green_range_traslato = (pp_lo, pp_hi)
 
@@ -671,6 +672,7 @@ def aggiorna_grafico(
                     comune_fine=comune_fine,
                     isp_dt=data_ora_ispezione,
                     inf_hours=INF_HOURS,
+                    round_minutes=round_minutes,
                 )
                 if frase_semplice:
                     st.session_state["frase_breve"] = frase_semplice
@@ -679,6 +681,7 @@ def aggiorna_grafico(
                     comune_inizio=comune_inizio,
                     comune_fine=comune_fine,
                     inf_hours=INF_HOURS,
+                    round_minutes=round_minutes,
                 )
                 if frase_semplice_no_dt:
                     st.session_state["frase_breve"] = frase_semplice_no_dt
@@ -749,7 +752,7 @@ def aggiorna_grafico(
         )
         raffreddamento_misto = condizioni_variabili and qd_range_status == "mixed" and usa_potente
         if raffreddamento_misto:
-            _add_det(paragrafo_raffreddamento_misto(minimum_hours=raff_plot_start))
+            _add_det(paragrafo_raffreddamento_misto(minimum_hours=raff_plot_start, round_minutes=round_minutes))
         elif henssge_non_applicabile_singolo:
             _add_det("<ul><li>Nel caso in esame, il grado di raffreddamento corporeo, calcolabile sulla base della temperatura rettale e ambientale, ricade al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>")
         else:
@@ -760,6 +763,7 @@ def aggiorna_grafico(
                 qd_val=Qd_val_check,
                 ta_val=Ta_val,
                 qd_range_status=qd_range_status,
+                round_minutes=round_minutes,
             )
             if par_h:
                 if usa_orario_custom:
@@ -780,6 +784,7 @@ def aggiorna_grafico(
             qd_for_potente = 0.0 if temperatures_equal else Qd_val_check
             par_p = paragrafo_potente(
                 mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
+                round_minutes=round_minutes,
             )
             _add_det(par_p)
 
@@ -792,6 +797,7 @@ def aggiorna_grafico(
                 comune_inizio, comune_fine, data_ora_ispezione,
                 qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS,
                 single_parameter=single_parameter,
+                round_minutes=round_minutes,
             )
         else:
             _tmp = build_final_sentence_simple(
@@ -799,6 +805,7 @@ def aggiorna_grafico(
                 comune_fine=comune_fine,
                 inf_hours=INF_HOURS,
                 single_parameter=single_parameter,
+                round_minutes=round_minutes,
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
@@ -810,6 +817,7 @@ def aggiorna_grafico(
                 comune_inizio, comune_fine, data_ora_ispezione,
                 qd_val=Qd_val_check, mt_ore=mt_ore, ta_val=Ta_val, inf_hours=INF_HOURS,
                 single_parameter=single_parameter,
+                round_minutes=round_minutes,
             )
         else:
             _tmp = build_final_sentence_simple(
@@ -817,6 +825,7 @@ def aggiorna_grafico(
                 comune_fine=comune_fine,
                 inf_hours=INF_HOURS,
                 single_parameter=single_parameter,
+                round_minutes=round_minutes,
             )
         if isinstance(_tmp, str):
             frase_finale_html = _tmp
@@ -988,8 +997,8 @@ def aggiorna_grafico(
         and _is_num(swisswuff_min_ore)
         and _is_num(swisswuff_max_ore)
     ):
-        swiss_min_txt = i18n.prudent_hours_text(float(swisswuff_min_ore))
-        swiss_max_txt = i18n.prudent_hours_text(float(swisswuff_max_ore))
+        swiss_min_txt = i18n.prudent_hours_text(round_display_hours(swisswuff_min_ore, round_minutes))
+        swiss_max_txt = i18n.prudent_hours_text(round_display_hours(swisswuff_max_ore, round_minutes, upper=True))
 
         if swisswuff_mode == "high_temp":
             swiss_note = (
@@ -1032,8 +1041,7 @@ def aggiorna_grafico(
 
     if overlap and not discordanti:
         chunks.append(_wrap_final(nota_limiti_stima()))
-        if usa_orario_custom:
-            chunks.append(_wrap_final(nota_arrotondamento_orari()))
+        chunks.append(_wrap_final(nota_arrotondamento_orari(round_minutes)))
 
     # 3) frase blu di riepilogo dei parametri usati.
     if overlap and len(nomi_usati) > 0:
@@ -1060,7 +1068,7 @@ def aggiorna_grafico(
         chunks.append(_wrap_final(frase_qd_html))
 
     if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
-        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore))))
+        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore), round_minutes=round_minutes)))
 
     # Separate Word fields: use the same generated prose, without the blue notes.
     from app.case_report import build_word_blocks

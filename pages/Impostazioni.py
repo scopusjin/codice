@@ -17,10 +17,11 @@ render_page_heading("⚙️ Impostazioni")
 
 # Default se non c'è ancora
 if "henssge_round_minutes" not in st.session_state:
-    st.session_state["henssge_round_minutes"] = 30
+    st.session_state["henssge_round_minutes"] = 15
 
 scelta = st.radio(
-    "Specifica con quale arrotondamento vuoi che sia fornito l'output per il raffreddamento cadaverico (metodo di Henssge)",
+    ("Final rounding interval for estimated postmortem intervals and times of death" if current_language() == "en" else
+     "Ampiezza dell’arrotondamento finale degli intervalli temporali e degli orari stimati del decesso"),
     ["6 minuti", "15 minuti", "30 minuti"],
     index={6: 0, 15: 1, 30: 2}[st.session_state["henssge_round_minutes"]],
 )
@@ -30,7 +31,16 @@ st.session_state["henssge_round_minutes"] = {
     "30 minuti": 30,
 }[scelta]
 
-st.success(f"Impostato a {st.session_state['henssge_round_minutes']} minuti.")
+st.caption(
+    "Rounding is applied only when displaying results: lower bounds downwards and upper bounds upwards. "
+    "Durations and calendar times are derived separately from unrounded values, without successive rounding. "
+    "The examination time remains unchanged." if current_language() == "en" else
+    "L’arrotondamento viene applicato solo alla presentazione dei risultati, per difetto al limite inferiore "
+    "e per eccesso al limite superiore. Intervalli temporali e orari sono ricavati separatamente dai valori "
+    "non arrotondati, senza arrotondamenti in successione. L’orario dei rilievi resta invariato."
+)
+st.success(f"Final rounding interval: {st.session_state['henssge_round_minutes']} minutes." if current_language() == "en"
+           else f"Arrotondamento finale: {st.session_state['henssge_round_minutes']} minuti.")
 
 # Preferenza distinta dal widget: rimane valida anche dopo il cambio pagina.
 st.session_state.setdefault(PRESSURE_VISIBILITY_KEY, True)

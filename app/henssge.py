@@ -34,11 +34,12 @@ def cooling_coefficient(weight: float, fc: float) -> float:
 
 def calcola_raffreddamento(
     Tr: float, Ta: float, T0: float, W: float, CF: float, *,
-    round_minutes: int = 30   # default 30 min
+    round_minutes: int | None = 30   # default 30 min
 ) -> Tuple[float, float, float, float, float]:
     """
     Ritorna: (t_med, t_min, t_max, t_med_raw, Qd)
-    t_min/max/med sono arrotondati allo step scelto.
+    Con round_minutes=None conserva i valori non arrotondati, usati dall’app.
+    L’opzione numerica mantiene l’API storica con arrotondamento allo step scelto.
     """
     # Validazioni base
     if not all(finite_number(v) for v in (Tr, Ta, T0, W, CF)):
@@ -97,6 +98,9 @@ def calcola_raffreddamento(
         Dt_raw = 2.8 if Qd > 0.5 else 3.2 if Qd > 0.3 else 4.5
     else:
         Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7.0
+
+    if round_minutes is None:
+        return t_med_raw, max(0.0, t_med_raw - Dt_raw), t_med_raw + Dt_raw, t_med_raw, Qd
 
     # Arrotondamento configurabile
     t_med = round_to_step_minutes(t_med_raw, round_minutes)
