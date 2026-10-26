@@ -7,15 +7,16 @@ class WordLaunchTests(unittest.TestCase):
         from streamlit.testing.v1 import AppTest
         app = AppTest.from_string('''
 import streamlit as st
-from app.word_launch import render_word_download
+from app.case_ui import render_case_menu
 st.session_state.update(case_code="X26.117", __word_return={"case_code":"X26.117"},
     __fc_applied_choice={"draft":{"unexpected":True}})
-render_word_download("full")
+render_case_menu("Stima_epoca_decesso.py")
 st.button("Procedi con la stima")
 ''').run()
+        next(b for b in app.button if b.label == "Caso").click().run()
         self.assertFalse(app.exception)
         self.assertTrue(app.error)
-        self.assertEqual(app.button[0].label, "Procedi con la stima")
+        self.assertTrue(any(b.label == "Procedi con la stima" for b in app.button))
 
     def test_example_and_missing_data(self):
         v = launch_values(dict(mt_open='1', mt_case='X26.115', mt_date='17.10.2026',
@@ -69,13 +70,16 @@ st.button("Procedi con la stima")
             with self.assertRaises(ValueError):
                 launch_values(dict(mt_open='1', mt_case='X26.115', mt_request=invalid))
 
-    def test_word_button_only_in_explicit_session(self):
+    def test_normal_case_download_contains_report_in_word_session(self):
         from pathlib import Path
+        from unittest.mock import patch
         from streamlit.testing.v1 import AppTest
+        from app.case_file import encode_case
         import app.decimal_number_input_v2 as decimal_v2
         decimal_v2._renderer = None
         path = str(Path(__file__).resolve().parents[1] / 'Stima_epoca_decesso.py')
         app = AppTest.from_file(path, default_timeout=30).run()
+        self.assertFalse(app.exception)
         with self.assertRaises(KeyError):
             app.session_state['__word_return']
         app.query_params.update(mt_open='1', mt_case='X26.115', mt_request='b'*32)
@@ -85,6 +89,16 @@ st.button("Procedi con la stima")
         app.session_state['selettore_macchie_ui'] = 'Fisse'
         app.run()
         app.button(key='btn_stima').click().run()
+        next(b for b in app.button if b.label == 'Caso').click()
+        captured=[]
+        def export(case):
+            captured.append(case)
+            return encode_case(case)
+        with patch('app.case_ui.encode_case',side_effect=export):
+            app.run()
         self.assertFalse(app.exception)
-        buttons = app.get('download_button')
-        self.assertTrue(any(b.proto.label == 'Scarica riepilogo per Word' for b in buttons))
+        self.assertTrue(captured)
+        self.assertTrue(captured[-1]['report']['word_blocks'])
+        labels=[b.proto.label for b in app.get('download_button')]
+        self.assertIn('Scarica caso',labels)
+        self.assertNotIn('Scarica riepilogo per Word',labels)

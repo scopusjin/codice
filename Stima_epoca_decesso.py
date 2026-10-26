@@ -950,8 +950,9 @@ if st.session_state["show_results"] and st.session_state["last_run_sig"] != curr
 
 # --- Mostra risultati SOLO se richiesti e firma invariata ---
 result_slot = st.empty()
-with st.container(gap=None, key="full_case_footer"):
-    render_case_menu(FULL_PAGE)
+# Reserve the same footer position, but prepare downloads only after
+# the report for the current calculation has been captured.
+case_footer_slot = st.container(gap=None, key="full_case_footer")
 
 if st.session_state["show_results"]:
     input_rt = st.session_state.get("rt_val")
@@ -1011,6 +1012,6 @@ if st.session_state["show_results"]:
     from app.case_report import capture_report
     capture_report(st.session_state, "full")
 
-from app.word_launch import render_word_download
-render_word_download("full")
+with case_footer_slot:
+    render_case_menu(FULL_PAGE)
 render_language_selector()

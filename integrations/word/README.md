@@ -7,8 +7,7 @@ e `app/word_launch.py` presenti nello stesso branch: non installare il modulo pr
 dell'aggiornamento dell'app.
 
 All'apertura controlla i file stimaX*.json nella cartella del documento. Riutilizza
-l'unico caso completo con lo stesso numero X, oppure chiede quale usare quando
-esistono piu' risultati. Il ripristino include tutti i campi serializzati nel JSON,
+il caso piu' recente con lo stesso numero X, senza finestre di scelta. Il ripristino include tutti i campi serializzati nel JSON,
 segni tanatologici, scelta FC, bozza e scenari. I risultati vengono ricalcolati con
 il comando della stima; il riepilogo salvato non viene presentato come ricalcolato.
 
@@ -31,3 +30,17 @@ L'errore di importazione Word precedentemente segnalato resta da localizzare tra
 la diagnostica di fase mantenuta nel modulo.
 
 L'apertura ordinaria non istanzia il componente Word. Nessun accesso del sito alla cartella locale: la pagina locale contiene soltanto il file scelto da Word e ne trasmette il contenuto all'app, come un caricamento del file.
+
+## Download unico e importazione
+
+Usare il normale pulsante Scarica caso nel menu Caso. Non viene aggiunto un secondo
+pulsante per Word. Le descrizioni appena calcolate vengono acquisite prima di
+preparare il download normale.
+
+Fatto cerca automaticamente nella cartella del documento la stima piu recente che
+contenga report.word_blocks validi e corrisponda al numero X. Usa saved_at, con data
+di modifica come spareggio; nei file senza data interpretabile usa la modifica.
+Il lettore JSON privato Mortem elimina la dipendenza dal codec dei moduli anagrafici.
+
+Sono stati controllati separatamente i JSON allegati: il file stimaX26.84(2).json
+contiene effettivamente report e word_blocks. Nessun dato dei casi e incluso nel repository.

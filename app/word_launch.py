@@ -83,20 +83,5 @@ def word_result(state, view):
 
 
 def render_word_download(view):
-    import streamlit as st
-    from app.case_file import CaseFileError
-    if not st.session_state.get('__word_return'):
-        return
-    try:
-        result = word_result(st.session_state, view)
-    except CaseFileError as exc:
-        st.error('Impossibile preparare il file per Word: ' + str(exc))
-        return
-    if result is None:
-        st.caption('Esegui la stima con i dati attuali per scaricare il riepilogo per Word.')
-        return
-    data, filename = result
-    st.download_button('Scarica riepilogo per Word', data, file_name=filename,
-                       mime='application/json', key='word_result_download',
-                       on_click='ignore', icon=':material/download:')
-    st.caption('Salva il file nella stessa cartella del documento Word, senza cambiarne il nome. Poi torna alla finestrella in Word e premi Fatto.')
+    """Compatibility hook: the ordinary Case menu owns the only download."""
+    return None

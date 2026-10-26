@@ -1,9 +1,9 @@
 Option Explicit
 
-' MORTEM - RIPRESA COMPLETA - 26.10.2026
+' MORTEM - RIPRESA COMPLETA E LETTORE PRIVATO - 26.10.2026
 ' La ripresa completa richiede anche app/word_resume.py e il relativo frontend nell'app.
 ' Installare insieme al supporto di ripresa Word nell'app.
-' Richiede DatiCaso_Salva, DatiCaso_LeggiJSONFile e frmMortemAttesa.
+' Richiede DatiCaso_Salva e frmMortemAttesa. Lettore JSON privato incluso.
 ' Il form mantiene Collega e ImpostaOccupato e richiama
 ' Mortem_ImportaRiepilogo / Mortem_AnnullaOperazione.
 ' Nessun gestore SGB, timer, polling o script esterno.
@@ -24,6 +24,9 @@ Private mNomeDocumento As String
 Private mWindow As frmMortemAttesa
 Private mImportazione As Boolean
 Private mFase As String
+Private mMortemJSONText As String
+Private mMortemJSONPos As Long
+Private mFileImportato As String
 
 Private Type MortemGuid
     a As Long
@@ -50,6 +53,7 @@ End Sub
 Public Sub Mortem_ApriApp()
     Dim Doc As Word.Document, root As Object, campi As Object
     Dim percorso As String, url As String, messaggio As String, ripresa As String, token As String, avvio As String
+    Dim controllo As Object
     On Error GoTo Errore
     If mImportazione Or Application.Documents.Count = 0 Then Exit Sub
     Set Doc = ActiveDocument
@@ -78,6 +82,11 @@ Public Sub Mortem_ApriApp()
     url = url & "&mt_ta=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "tambiente"))
     url = url & "&mt_tr=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "trettale"))
     Set mWindow = New frmMortemAttesa
+    For Each controllo In mWindow.Controls
+        If TypeName(controllo) = "Label" Then
+            controllo.Caption = Replace(controllo.Caption, "Scarica riepilogo per Word", "Scarica caso", 1, -1, vbTextCompare)
+        End If
+    Next controllo
     mWindow.Collega Doc
     mWindow.Show vbModeless
     If ripresa <> "" Then
@@ -346,10 +355,13 @@ Private Function ImportaCaso(ByVal Doc As Word.Document, ByVal originale As Stri
     misurata = LeggiParametroDocumento(Doc, Oggetto(root, "campi"), "tambiente")
     If risultato = "" Then risultato = ScegliJSON("Seleziona il JSON Mortem di " & atteso, Doc.Path)
     If risultato = "" Then Exit Function
+    mFileImportato = risultato
     Set saved = LeggiJSON(risultato)
     If TestoJSON(saved, "format") <> "mortem-case" Then Err.Raise vbObjectError + 760, , "Non e' un JSON Mortem."
     If StrComp(TestoJSON(saved, "case_code"), atteso, vbTextCompare) <> 0 Then Err.Raise vbObjectError + 761, , "Il JSON appartiene a " & TestoJSON(saved, "case_code") & ", mentre il documento e' collegato a " & atteso & "."
     mFase = "Lettura blocchi Word nel JSON"
+    If Not saved.Exists("report") Then Err.Raise vbObjectError + 784, , "Il file selezionato non contiene report: " & risultato
+    If Not IsObject(saved("report")) Then Err.Raise vbObjectError + 784, , "Il file selezionato contiene i dati ma non le descrizioni calcolate: " & risultato
     Set blocchi = Oggetto(Oggetto(saved, "report"), "word_blocks")
     chiavi = Array("ambient_temperature", "correction_factor", "cooling", "livor", "rigor", "putrefaction", "additional", "conclusion")
     mFase = "Preparazione testi"
@@ -434,7 +446,7 @@ Errore:
         Doc.TrackRevisions = track: Application.ScreenUpdating = screen
     End If
     On Error GoTo 0
-    MsgBox "Importazione non completata: " & messaggio, vbExclamation, "Mortem"
+    MsgBox "Importazione non completata: " & messaggio & vbCrLf & "File: " & mFileImportato, vbExclamation, "Mortem"
 End Function
 
 Private Sub FormattaRiga(ByVal area As Word.Range, ByVal fontBase As Word.Font, ByVal livello As Long, ByVal elenco As Word.ListTemplate, ByVal numeroRiga As Long)
@@ -525,26 +537,57 @@ Private Function StessaTemperatura(ByVal s As String, ByVal misurata As String) 
 End Function
 
 Private Function TrovaRiepilogo(ByVal cartella As String, ByVal codice As String) As String
-    Dim files As New Collection, validi As New Collection
-    Dim nome As String, percorso As Variant, re As Object
-    Set re = CreateObject("VBScript.RegExp")
-    re.Pattern = "^(\s?\([0-9]+\))?\.json$": re.IgnoreCase = True
-    If cartella <> "" Then
-        nome = Dir$(cartella & Application.PathSeparator & "stima" & codice & "*.json", vbNormal Or vbHidden Or vbSystem Or vbReadOnly)
-        Do While nome <> ""
-            If re.Test(Mid$(nome, Len("stima" & codice) + 1)) Then files.Add cartella & Application.PathSeparator & nome
-            nome = Dir$()
-        Loop
-    End If
+    Dim files As New Collection, nome As String, percorso As Variant
+    Dim root As Object, dataCaso As Date, migliore As Date
+    Dim modifica As Date, miglioreModifica As Date, scelto As String
+    nome = Dir$(cartella & Application.PathSeparator & "stima" & codice & "*.json", vbNormal Or vbHidden Or vbSystem Or vbReadOnly)
+    Do While nome <> ""
+        files.Add cartella & Application.PathSeparator & nome
+        nome = Dir$()
+    Loop
     For Each percorso In files
-        If RiepilogoCompatibile(CStr(percorso), codice) Then validi.Add CStr(percorso)
+        If RiepilogoCompatibile(CStr(percorso), codice) Then
+            Set root = LeggiJSON(CStr(percorso))
+            modifica = FileDateTime(CStr(percorso))
+            dataCaso = DataSalvataggioMortem(TestoJSON(root, "saved_at"), modifica)
+            If scelto = "" Or dataCaso > migliore Or _
+                (dataCaso = migliore And modifica > miglioreModifica) Then
+                scelto = CStr(percorso)
+                migliore = dataCaso
+                miglioreModifica = modifica
+            End If
+        End If
     Next percorso
-    mFase = "Selezione del riepilogo trovato"
-    If validi.Count = 1 Then
-        TrovaRiepilogo = CStr(validi(1))
-    Else
-        TrovaRiepilogo = ScegliJSON("Seleziona il JSON Mortem di " & codice, cartella)
+    mFase = "Ricerca automatica ultima stima valida"
+    If scelto = "" Then
+        Err.Raise vbObjectError + 785, , _
+            "Non trovo una stima con descrizioni valide per " & codice & "." & vbCrLf & _
+            "Nell'app esegui la stima e usa Scarica caso. Salva il JSON in:" & vbCrLf & cartella & vbCrLf & _
+            "Poi premi nuovamente Fatto. Nessun file e' stato modificato."
     End If
+    TrovaRiepilogo = scelto
+End Function
+
+Private Function DataSalvataggioMortem(ByVal valore As String, ByVal ripiego As Date) As Date
+    Dim data As Date, segno As Long, posizione As Long, minuti As Long
+    On Error GoTo UsaRipiego
+    If Len(valore) < 19 Then GoTo UsaRipiego
+    data = DateSerial(CInt(Left$(valore, 4)), CInt(Mid$(valore, 6, 2)), CInt(Mid$(valore, 9, 2))) + _
+        TimeSerial(CInt(Mid$(valore, 12, 2)), CInt(Mid$(valore, 15, 2)), CInt(Mid$(valore, 18, 2)))
+    posizione = InStr(20, valore, "+")
+    segno = 1
+    If posizione = 0 Then
+        posizione = InStr(20, valore, "-")
+        segno = -1
+    End If
+    If posizione > 0 Then
+        minuti = CInt(Mid$(valore, posizione + 1, 2)) * 60 + CInt(Mid$(valore, posizione + 4, 2))
+        data = DateAdd("n", -segno * minuti, data)
+    End If
+    DataSalvataggioMortem = data
+    Exit Function
+UsaRipiego:
+    DataSalvataggioMortem = ripiego
 End Function
 
 Private Function RiepilogoCompatibile(ByVal percorso As String, ByVal codice As String) As Boolean
@@ -578,11 +621,26 @@ Private Function ScegliJSON(ByVal titolo As String, ByVal cartella As String) As
 End Function
 
 Private Function LeggiJSON(ByVal percorso As String) As Object
-    Dim risultato As Object
+    Dim stm As Object, contenuto As String, numero As Long, messaggio As String
+    On Error GoTo Errore
     mFase = "Lettura JSON: " & percorso
-    Set risultato = DatiCaso_LeggiJSONFile(percorso)
-    If risultato Is Nothing Then Err.Raise vbObjectError + 770, , "Impossibile leggere il JSON: " & percorso
-    Set LeggiJSON = risultato
+    Set stm = CreateObject("ADODB.Stream")
+    stm.Type = 2: stm.Charset = "utf-8": stm.Open
+    stm.LoadFromFile percorso
+    If stm.Size > 1048576 Then Err.Raise vbObjectError + 783, , "Il JSON supera 1 MB."
+    contenuto = stm.ReadText(-1)
+    stm.Close
+    If Left$(contenuto, 1) = ChrW(-257) Then contenuto = Mid$(contenuto, 2)
+    Set LeggiJSON = MortemJSON_ParseObjectRoot(contenuto)
+    mMortemJSONText = "": mMortemJSONPos = 0
+    Exit Function
+Errore:
+    numero = Err.Number: messaggio = Err.Description
+    On Error Resume Next
+    If Not stm Is Nothing Then stm.Close
+    mMortemJSONText = "": mMortemJSONPos = 0
+    On Error GoTo 0
+    Err.Raise numero, "Lettura JSON Mortem", messaggio
 End Function
 
 Private Function Oggetto(ByVal parent As Object, ByVal chiave As String) As Object
@@ -749,27 +807,29 @@ End Function
 
 
 
-' Ripresa: un solo file valido nella cartella viene usato automaticamente.
-' Con piu' file e' sempre richiesta una scelta, senza selezionare il piu' recente.
+' Ripresa automatica del caso piu' recente nella cartella del documento.
 Private Function CercaCasoDaRiprendere(ByVal cartella As String, ByVal codice As String) As String
-    Dim files As New Collection, validi As New Collection
-    Dim nome As String, percorso As Variant, root As Object, scelto As String
+    Dim files As New Collection, nome As String, percorso As Variant
+    Dim root As Object, dataCaso As Date, migliore As Date
+    Dim modifica As Date, miglioreModifica As Date, scelto As String
     nome = Dir$(cartella & Application.PathSeparator & "stima" & codice & "*.json", vbNormal Or vbHidden Or vbSystem Or vbReadOnly)
     Do While nome <> ""
         files.Add cartella & Application.PathSeparator & nome
         nome = Dir$()
     Loop
     For Each percorso In files
-        If CasoRipresaCompatibile(CStr(percorso), codice) Then validi.Add CStr(percorso)
+        If CasoRipresaCompatibile(CStr(percorso), codice) Then
+            Set root = LeggiJSON(CStr(percorso))
+            modifica = FileDateTime(CStr(percorso))
+            dataCaso = DataSalvataggioMortem(TestoJSON(root, "saved_at"), modifica)
+            If scelto = "" Or dataCaso > migliore Or _
+                (dataCaso = migliore And modifica > miglioreModifica) Then
+                scelto = CStr(percorso)
+                migliore = dataCaso
+                miglioreModifica = modifica
+            End If
+        End If
     Next percorso
-    If validi.Count = 0 Then Exit Function
-    If validi.Count = 1 Then
-        CercaCasoDaRiprendere = CStr(validi(1))
-        Exit Function
-    End If
-    scelto = ScegliJSON("Piu' stime salvate per " & codice & ": scegli quella da riaprire", cartella)
-    If scelto = "" Then Err.Raise vbObjectError + 779, , "Apertura annullata: nessuna stima selezionata."
-    If Not CasoRipresaCompatibile(scelto, codice) Then Err.Raise vbObjectError + 779, , "Il file scelto non e' un caso Mortem completo del documento collegato."
     CercaCasoDaRiprendere = scelto
 End Function
 
@@ -941,4 +1001,255 @@ Private Function CreaElencoMortem(ByVal Doc As Word.Document) As Word.ListTempla
         End With
     Next livello
     Set CreaElencoMortem = elenco
+End Function
+
+
+' Lettore privato Mortem: indipendente dalle versioni dei moduli anagrafici.
+Private Function MortemJSON_ParseObjectRoot(ByVal testo As String) As Object
+    mMortemJSONText = testo
+    mMortemJSONPos = 1
+    MortemJSON_SkipWhitespace
+
+    If MortemJSON_Peek() <> "{" Then Err.Raise vbObjectError + 510, , "Il JSON non inizia con un oggetto."
+    Set MortemJSON_ParseObjectRoot = MortemJSON_ParseObject()
+
+    MortemJSON_SkipWhitespace
+    If mMortemJSONPos <= Len(mMortemJSONText) Then
+        Err.Raise vbObjectError + 511, , "Caratteri inattesi dopo la fine del JSON."
+    End If
+End Function
+
+Private Function MortemJSON_ParseObject() As Object
+    Dim d As Object
+    Dim key As String
+    Dim objValue As Object
+    Dim scalarValue As Variant
+    Dim isObject As Boolean
+
+    Set d = CreateObject("Scripting.Dictionary")
+    d.CompareMode = vbTextCompare
+
+    MortemJSON_Expect "{"
+    MortemJSON_SkipWhitespace
+
+    If MortemJSON_Peek() = "}" Then
+        mMortemJSONPos = mMortemJSONPos + 1
+        Set MortemJSON_ParseObject = d
+        Exit Function
+    End If
+
+    Do
+        MortemJSON_SkipWhitespace
+        key = MortemJSON_ParseString()
+        MortemJSON_SkipWhitespace
+        MortemJSON_Expect ":"
+        MortemJSON_SkipWhitespace
+
+        Set objValue = Nothing
+        scalarValue = Empty
+        isObject = False
+        MortemJSON_ParseAny objValue, scalarValue, isObject
+
+        If d.Exists(key) Then Err.Raise vbObjectError + 782, , "Chiave JSON duplicata: " & key
+        If isObject Then
+            d.Add key, objValue
+        Else
+            d.Add key, scalarValue
+        End If
+
+        MortemJSON_SkipWhitespace
+        Select Case MortemJSON_Peek()
+            Case ","
+                mMortemJSONPos = mMortemJSONPos + 1
+            Case "}"
+                mMortemJSONPos = mMortemJSONPos + 1
+                Exit Do
+            Case Else
+                Err.Raise vbObjectError + 512, , "Oggetto JSON non valido in posizione " & mMortemJSONPos
+        End Select
+    Loop
+
+    Set MortemJSON_ParseObject = d
+End Function
+
+Private Function MortemJSON_ParseArray() As Collection
+    Dim c As New Collection
+    Dim objValue As Object
+    Dim scalarValue As Variant
+    Dim isObject As Boolean
+
+    MortemJSON_Expect "["
+    MortemJSON_SkipWhitespace
+
+    If MortemJSON_Peek() = "]" Then
+        mMortemJSONPos = mMortemJSONPos + 1
+        Set MortemJSON_ParseArray = c
+        Exit Function
+    End If
+
+    Do
+        Set objValue = Nothing
+        scalarValue = Empty
+        isObject = False
+        MortemJSON_ParseAny objValue, scalarValue, isObject
+
+        If isObject Then
+            c.Add objValue
+        Else
+            c.Add scalarValue
+        End If
+
+        MortemJSON_SkipWhitespace
+        Select Case MortemJSON_Peek()
+            Case ","
+                mMortemJSONPos = mMortemJSONPos + 1
+                MortemJSON_SkipWhitespace
+            Case "]"
+                mMortemJSONPos = mMortemJSONPos + 1
+                Exit Do
+            Case Else
+                Err.Raise vbObjectError + 513, , "Array JSON non valido in posizione " & mMortemJSONPos
+        End Select
+    Loop
+
+    Set MortemJSON_ParseArray = c
+End Function
+
+Private Sub MortemJSON_ParseAny(ByRef objValue As Object, ByRef scalarValue As Variant, ByRef isObject As Boolean)
+    Dim ch As String
+
+    MortemJSON_SkipWhitespace
+    ch = MortemJSON_Peek()
+
+    Select Case ch
+        Case "{"
+            Set objValue = MortemJSON_ParseObject()
+            isObject = True
+        Case "["
+            Set objValue = MortemJSON_ParseArray()
+            isObject = True
+        Case """"
+            scalarValue = MortemJSON_ParseString()
+        Case "t"
+            MortemJSON_ExpectLiteral "true"
+            scalarValue = True
+        Case "f"
+            MortemJSON_ExpectLiteral "false"
+            scalarValue = False
+        Case "n"
+            MortemJSON_ExpectLiteral "null"
+            scalarValue = Null
+        Case "-", "0" To "9"
+            scalarValue = MortemJSON_ParseNumber()
+        Case Else
+            Err.Raise vbObjectError + 514, , "Valore JSON non valido in posizione " & mMortemJSONPos
+    End Select
+End Sub
+
+Private Function MortemJSON_ParseString() As String
+    Dim sb As String
+    Dim ch As String
+    Dim hex4 As String
+    Dim code As Long
+
+    MortemJSON_Expect """"
+
+    Do While mMortemJSONPos <= Len(mMortemJSONText)
+        ch = Mid$(mMortemJSONText, mMortemJSONPos, 1)
+        mMortemJSONPos = mMortemJSONPos + 1
+
+        If ch = """" Then
+            MortemJSON_ParseString = sb
+            Exit Function
+        ElseIf ch = "\" Then
+            If mMortemJSONPos > Len(mMortemJSONText) Then Err.Raise vbObjectError + 515, , "Escape JSON incompleto."
+            ch = Mid$(mMortemJSONText, mMortemJSONPos, 1)
+            mMortemJSONPos = mMortemJSONPos + 1
+
+            Select Case ch
+                Case """", "\", "/": sb = sb & ch
+                Case "b": sb = sb & Chr$(8)
+                Case "f": sb = sb & Chr$(12)
+                Case "n": sb = sb & vbLf
+                Case "r": sb = sb & vbCr
+                Case "t": sb = sb & vbTab
+                Case "u"
+                    If mMortemJSONPos + 3 > Len(mMortemJSONText) Then Err.Raise vbObjectError + 516, , "Escape Unicode incompleto."
+                    hex4 = Mid$(mMortemJSONText, mMortemJSONPos, 4)
+                    mMortemJSONPos = mMortemJSONPos + 4
+                    If Not MortemJSON_EHex4(hex4) Then Err.Raise vbObjectError + 517, , "Escape Unicode non valido: " & hex4
+                    code = CLng("&H" & hex4)
+                    sb = sb & ChrW$(code)
+                Case Else
+                    Err.Raise vbObjectError + 518, , "Escape JSON non riconosciuto: \" & ch
+            End Select
+        Else
+            sb = sb & ch
+        End If
+    Loop
+
+    Err.Raise vbObjectError + 519, , "Stringa JSON non terminata."
+End Function
+
+Private Function MortemJSON_ParseNumber() As Variant
+    Dim startPos As Long
+    Dim ch As String
+    Dim token As String
+    Dim n As Double
+
+    startPos = mMortemJSONPos
+
+    Do While mMortemJSONPos <= Len(mMortemJSONText)
+        ch = Mid$(mMortemJSONText, mMortemJSONPos, 1)
+        If InStr(1, "-+0123456789.eE", ch, vbBinaryCompare) = 0 Then Exit Do
+        mMortemJSONPos = mMortemJSONPos + 1
+    Loop
+
+    token = Mid$(mMortemJSONText, startPos, mMortemJSONPos - startPos)
+    If Len(token) = 0 Then Err.Raise vbObjectError + 520, , "Numero JSON mancante."
+
+    n = Val(token)   ' Val usa sempre il punto come separatore decimale.
+
+    If InStr(1, token, ".", vbBinaryCompare) = 0 And _
+       InStr(1, token, "e", vbTextCompare) = 0 And _
+       n >= -2147483648# And n <= 2147483647# Then
+        MortemJSON_ParseNumber = CLng(n)
+    Else
+        MortemJSON_ParseNumber = n
+    End If
+End Function
+
+Private Sub MortemJSON_SkipWhitespace()
+    Dim ch As String
+    Do While mMortemJSONPos <= Len(mMortemJSONText)
+        ch = Mid$(mMortemJSONText, mMortemJSONPos, 1)
+        If ch <> " " And ch <> vbTab And ch <> vbCr And ch <> vbLf Then Exit Do
+        mMortemJSONPos = mMortemJSONPos + 1
+    Loop
+End Sub
+
+Private Function MortemJSON_Peek() As String
+    If mMortemJSONPos <= Len(mMortemJSONText) Then MortemJSON_Peek = Mid$(mMortemJSONText, mMortemJSONPos, 1)
+End Function
+
+Private Sub MortemJSON_Expect(ByVal token As String)
+    If Mid$(mMortemJSONText, mMortemJSONPos, Len(token)) <> token Then
+        Err.Raise vbObjectError + 521, , "Atteso '" & token & "' in posizione " & mMortemJSONPos
+    End If
+    mMortemJSONPos = mMortemJSONPos + Len(token)
+End Sub
+
+Private Sub MortemJSON_ExpectLiteral(ByVal token As String)
+    MortemJSON_Expect token
+End Sub
+
+Private Function MortemJSON_EHex4(ByVal s As String) As Boolean
+    Dim i As Long
+    Dim ch As String
+    If Len(s) <> 4 Then Exit Function
+    For i = 1 To 4
+        ch = Mid$(s, i, 1)
+        If InStr(1, "0123456789abcdefABCDEF", ch, vbBinaryCompare) = 0 Then Exit Function
+    Next i
+    MortemJSON_EHex4 = True
 End Function
