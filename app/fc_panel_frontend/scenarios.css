@@ -1,0 +1,47 @@
+#fc-full .scenario-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:3px 0 10px}
+#fc-full .scenario-toggle{font-size:13px;white-space:nowrap}
+#fc-full .scenario-tools{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+#fc-full #scenario-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#fc-full #scenario-tabs{display:contents}
+#fc-full #scenario-tabs button,#fc-full #add-scenario,#fc-full #remove-scenario{width:32px;min-height:32px;padding:4px;font-variant-numeric:tabular-nums}
+#fc-full .scenario-tone-0{--fc-scenario-fill:light-dark(#edf5fa,#1c2d38);--fc-scenario-accent:light-dark(#347496,#95c4df);--fc-scenario-contrast:light-dark(#fff,#182932)}
+#fc-full .scenario-tone-1{--fc-scenario-fill:light-dark(#f1f4e3,#30361f);--fc-scenario-accent:light-dark(#657a32,#c2d491);--fc-scenario-contrast:light-dark(#fff,#29301a)}
+#fc-full .scenario-tone-2{--fc-scenario-fill:light-dark(#eef5ef,#223128);--fc-scenario-accent:light-dark(#52775c,#aed3b7);--fc-scenario-contrast:light-dark(#fff,#213126)}
+#fc-full .scenario-tone-3{--fc-scenario-fill:light-dark(#faf4e9,#352d20);--fc-scenario-accent:light-dark(#927035,#dfc08a);--fc-scenario-contrast:light-dark(#fff,#302718)}
+#fc-full #scenario-tabs button{color:var(--fc-scenario-accent);background:var(--fc-scenario-fill);border-color:transparent}
+#fc-full #scenario-tabs button[aria-pressed=true]{background:var(--fc-scenario-accent);color:var(--fc-scenario-contrast);border-color:var(--fc-scenario-accent);font-weight:500}
+#fc-full #scenario-editor{background:var(--fc-bg);border-radius:8px;padding:10px;margin:0 -2px}
+#fc-full[data-multiple=true] #scenario-editor{background:var(--fc-scenario-fill)}
+#fc-full #add-scenario,#fc-full #remove-scenario{font-size:18px}
+#fc-full #scenario-result{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0 0 10px;border-radius:8px;background:var(--fc-estimate-bg)}
+#fc-full #scenario-result strong{font-size:13px;font-weight:500}
+#fc-full .scenario-totals{display:flex;align-items:center;flex-wrap:wrap;gap:8px 24px;min-width:0}
+#fc-full #scenario-output,#fc-full #scenario-temperature-output{display:block;font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+#fc-full #use-scenarios{min-width:66px}
+#fc-full #scenario-error{white-space:pre-line}
+#fc-full[data-multiple=true] #error{display:none}
+#fc-full[data-multiple=false] #choice-row{display:grid;grid-template-columns:max-content minmax(0,1fr) 90px max-content;align-items:center;gap:6px;width:100%;padding:8px;border-color:transparent;background:var(--fc-estimate-bg)}
+#fc-full[data-multiple=false] .choice-heading{display:contents}
+#fc-full[data-multiple=false] #fc-heading{grid-column:1;grid-row:1;white-space:nowrap}
+#fc-full[data-multiple=false] #range-fields{grid-column:2;grid-row:1;column-gap:14px;row-gap:6px}
+#fc-full[data-multiple=false] #range-fields>div{grid-template-columns:24px minmax(0,1fr)}
+#fc-full[data-multiple=false] #range-fields .step{grid-template-columns:minmax(0,1fr) 22px 22px;background:var(--fc-bg)}
+#fc-full[data-multiple=false] #choice-row[data-range=false] #range-fields{grid-template-columns:minmax(0,1fr);max-width:144px}
+#fc-full[data-multiple=false] #choice-row[data-range=false] #lo-control{grid-template-columns:minmax(0,1fr)}
+#fc-full[data-multiple=false] #choice-row[data-range=false] #lo-control label{display:none}
+#fc-full[data-multiple=false] #expand-range{grid-column:3;grid-row:1;width:90px}
+#fc-full[data-multiple=false] .selected-actions{grid-column:4;grid-row:1}
+@container fc-panel (max-width:500px){
+  #fc-full[data-multiple=false] #choice-row{grid-template-columns:max-content minmax(0,1fr)}
+  #fc-full[data-multiple=false] #expand-range{grid-column:1;grid-row:2;justify-self:start}
+  #fc-full[data-multiple=false] .selected-actions{grid-column:2;grid-row:2;justify-self:end}
+  #fc-full[data-multiple=false] #range-fields .step{grid-template-columns:minmax(0,1fr) 28px 28px}
+}
+@container fc-panel (max-width:400px){
+  #fc-full[data-multiple=false] #choice-row[data-range=true] #range-fields>div{grid-template-columns:minmax(0,1fr)}
+  #fc-full[data-multiple=false] #choice-row[data-range=true] #range-fields{grid-column:1 / -1;grid-row:2}
+  #fc-full[data-multiple=false] #choice-row[data-range=true] #expand-range,#fc-full[data-multiple=false] #choice-row[data-range=true] .selected-actions{grid-row:3}
+}
+@media(max-width:768px){#fc-full .scenario-toolbar{margin:0 0 6px}}
+@media(pointer:coarse){#fc-full #scenario-tabs button,#fc-full #add-scenario,#fc-full #remove-scenario{width:44px;min-height:44px}}
+@media(max-width:360px){#fc-full #scenario-editor{padding:6px}}

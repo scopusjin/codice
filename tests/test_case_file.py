@@ -1,0 +1,182 @@
+from copy import deepcopy
+from datetime import date, datetime
+import json
+import unittest
+
+from app.case_file import (CaseFileError, MAX_BYTES, case_filename, decode_case,
+                           encode_case, restored_inputs, snapshot_case)
+from app.fc_selection import apply_choice, refresh_fc_for_weight
+from app.livor_digitopressione import (
+    PRESSURE_KEY, PRESSURE_VISIBILITY_KEY, PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING,
+)
+from test_fc_scenarios import temperature_payload
+
+
+class CaseFileTests(unittest.TestCase):
+    def test_confluite_visible_labels_round_trip_with_original_state_ids(self):
+        for view, widget_key, ui_label, state_id, legacy_label in (
+            ("full", "selettore_macchie_ui", "Confluite e completamente migrabili",
+             "livor_confluent_fully_migratable", "Confluenti e completamente migrabili"),
+            ("msil", "selettore_macchie_mobile", "Ipostasi confluite e completamente migrabili",
+             "livor_confluent_fully_migratable", "Confluenti e completamente migrabili"),
+            ("full", "selettore_macchie_ui", "Completamente migrabili (confluenza non specificata)",
+             "livor_fully_migratable", "Completamente migrabili"),
+            ("msil", "selettore_macchie_mobile", "Ipostasi completamente migrabili (confluenza non specificata)",
+             "livor_fully_migratable", "Completamente migrabili"),
+        ):
+            with self.subTest(view=view):
+                case = snapshot_case({"case_code": "IL26-10", widget_key: ui_label}, view)
+                self.assertEqual(case["signs"]["livor"], state_id)
+                restored = restored_inputs(decode_case(encode_case(case)))
+                self.assertEqual(restored[widget_key], ui_label)
+                self.assertEqual(restored["selettore_macchie"], legacy_label)
+
+    def test_ambient_temperature_mode_survives_export(self):
+        for interval in (False, True):
+            state = self.example()
+            state['ambient_temperature_range'] = interval
+            restored = restored_inputs(decode_case(encode_case(snapshot_case(state, 'full'))))
+            self.assertEqual(restored['ambient_temperature_range'], interval)
+
+    def example(self):
+        state = {"case_code": "IL26-10", "rt_val": 30., "tm_val": 37.2, "peso": 70.,
+                 "input_data_rilievo": date(2026, 10, 10), "input_ora_rilievo": "09:15",
+                 "selettore_macchie_ui": "Fisse", "selettore_rigidita_ui": "Presente, in aumento",
+                 "mostra_parametri_aggiuntivi": True,
+                 "Eccitabilità muscolare meccanica_selector": "Tumefazione reversibile",
+                 "Eccitabilità muscolare meccanica_diversa": True,
+                 "Eccitabilità muscolare meccanica_data": date(2026, 10, 9),
+                 "Eccitabilità muscolare meccanica_ora": "23:45",
+                 "Eccitabilità muscolare meccanica_ora__manual": True}
+        apply_choice(state, temperature_payload())
+        return state
+
+    def test_complete_round_trip_and_subsequent_weight_adaptation(self):
+        state = self.example()
+        case = snapshot_case(state, "full")
+        restored = restored_inputs(decode_case(encode_case(case)))
+        for key in ("peso", "input_data_rilievo", "input_ora_rilievo", "__fc_applied_choice",
+                    "Eccitabilità muscolare meccanica_selector", "Eccitabilità muscolare meccanica_data",
+                    "Eccitabilità muscolare meccanica_ora", "Eccitabilità muscolare meccanica_ora__manual"):
+            self.assertEqual(restored[key], state[key], key)
+        self.assertEqual(restored["selettore_macchie_ui"], "Fisse")
+        for weight in (100., 110., 70.):
+            state["peso"] = restored["peso"] = weight
+            refresh_fc_for_weight(state)
+            refresh_fc_for_weight(restored)
+            self.assertEqual(restored["__fc_applied_choice"], state["__fc_applied_choice"])
+
+    def test_digitopressione_is_saved_and_old_cases_remain_readable(self):
+        for pressure in (PRESSURE_COMPLETE_FADING, PRESSURE_INCOMPLETE_FADING):
+            state = self.example()
+            state[PRESSURE_KEY] = pressure
+            saved = snapshot_case(state, "full")
+            restored = restored_inputs(decode_case(encode_case(saved)))
+            self.assertEqual(saved["inputs"][PRESSURE_KEY], pressure)
+            self.assertEqual(restored[PRESSURE_KEY], pressure)
+
+        # Un file precedente non conteneva la digitopressione: la domanda resta non valutata.
+        old_case = snapshot_case(self.example(), "full")
+        self.assertNotIn(PRESSURE_KEY, old_case["inputs"])
+        restored_old = restored_inputs(decode_case(encode_case(old_case)))
+        self.assertNotIn(PRESSURE_KEY, restored_old)
+
+        corrupted = deepcopy(old_case)
+        corrupted["inputs"][PRESSURE_KEY] = "invalid"
+        with self.assertRaises(CaseFileError):
+            decode_case(json.dumps(corrupted).encode())
+
+    def test_cover_details_and_special_options_survive_export(self):
+        state = self.example()
+        draft = {"state": "Asciutto", "clothingDetailed": True,
+                 "thermalFoil": True, "bodyBag": True,
+                 "fields": {"thin": "3", "thick": "1", "teli": "1", "light-cover": "1"}}
+        state["__fc_applied_choice"]["scenarios"][0]["draft"].update(draft)
+        state["__fc_draft"] = deepcopy(draft)
+        restored = restored_inputs(decode_case(encode_case(snapshot_case(state, "full"))))
+        self.assertEqual(restored["__fc_draft"], draft)
+        for key, value in draft.items():
+            self.assertEqual(restored["__fc_applied_choice"]["scenarios"][0]["draft"][key], value)
+
+    def test_wet_textile_answers_survive_case_export(self):
+        for answer in ("full", "partial", "unknown"):
+            draft = {"state": "Bagnato", "wetRulesVersion": 3,
+                     "fields": {"wet-textiles": answer, "wet-clothes": answer, "wet-covers": answer}}
+            state = self.example()
+            state["__fc_applied_choice"]["scenarios"][0]["draft"].update(draft)
+            state["__fc_draft"] = deepcopy(draft)
+            restored = restored_inputs(decode_case(encode_case(snapshot_case(state, "full"))))
+            self.assertEqual(restored["__fc_draft"], draft)
+            self.assertEqual(restored["__fc_applied_choice"], state["__fc_applied_choice"])
+        for version in (True, "3", 0, None):
+            state["__fc_draft"]["wetRulesVersion"] = version
+            with self.assertRaises(CaseFileError):
+                snapshot_case(state, "full")
+
+    def test_incomplete_inputs_and_fc_draft_are_distinct_from_applied_values(self):
+        state = self.example()
+        applied = deepcopy(state["__fc_applied_choice"])
+        state.update(__fc_active=True, __fc_form=deepcopy(state),
+                     __fc_draft={"state": "Immerso", "lo": "", "hi": "", "temperature": "",
+                                 "fields": {"water": "stagnante"}, "weight": None, "manualBase": [None, None]},
+                     case_code="x26-05")
+        # Widget cleanup while the editor is open must not lose the home form.
+        state.pop("input_data_rilievo")
+        case = decode_case(encode_case(snapshot_case(state, "full")))
+        self.assertTrue(case["editor_open"])
+        self.assertEqual(case["fc_choice"], applied)
+        self.assertEqual(case["fc_draft"]["temperature"], "")
+        self.assertEqual(case["inputs"]["input_data_rilievo"], "2026-10-10")
+        self.assertEqual(case["case_code"], "x26-05")
+        incomplete = snapshot_case({"rt_val": None, "peso": None, "input_ora_rilievo": ""}, "msil")
+        self.assertIsNone(restored_inputs(decode_case(encode_case(incomplete)))["peso"])
+
+    def test_only_case_data_is_exported_and_case_code_is_preserved(self):
+        for code in ("x26-05", "IL26-10", "12345", "IL26/10", ""):
+            state = {**self.example(), "case_code": code, "secret": "not a case input",
+                     "__full_device_mobile": True, "__fc_instance": "old", "mortem_decimal_peso": {"edit": True},
+                     PRESSURE_VISIBILITY_KEY: False}
+            case = decode_case(encode_case(snapshot_case(state, "full")))
+            self.assertEqual(case["case_code"], code)
+            self.assertNotIn("not a case input", encode_case(case).decode())
+            self.assertNotIn("__full_device_mobile", case["inputs"])
+            self.assertNotIn(PRESSURE_VISIBILITY_KEY, case["inputs"])
+            self.assertNotIn("__fc_instance", case["inputs"])
+            self.assertNotIn("/", case_filename(case))
+            if code in ("x26-05", "IL26-10", "12345"):
+                self.assertEqual(case_filename(case), f"mortem_{code}.json")
+
+    def test_invalid_files_fail_before_any_restore(self):
+        valid = snapshot_case(self.example(), "full")
+        mutations = [lambda c: c.update(schema_version=999), lambda c: c.update(format="other"),
+                     lambda c: c["inputs"].update(__fc_active=True),
+                     lambda c: c["inputs"].update(peso=float("nan")),
+                     lambda c: c["inputs"].update(input_data_rilievo="2026-99-99"),
+                     lambda c: c["inputs"].update(henssge_round_minutes=7),
+                     lambda c: c["signs"].update(livor="unknown"),
+                     lambda c: c["fc_choice"]["scenarios"][0].update(temperature=None),
+                     lambda c: c["fc_choice"].update(description="<script>bad()</script>"),
+                     lambda c: c.update(fc_draft={"fields": {"water": []}})]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                bad = deepcopy(valid)
+                mutate(bad)
+                with self.assertRaises(CaseFileError):
+                    decode_case(json.dumps(bad).encode())
+        for raw in (b"not json", b"\xff", b"{" + b" " * MAX_BYTES, b'{"format":"mortem-case","format":"other"}'):
+            with self.assertRaises(CaseFileError):
+                decode_case(raw)
+
+    def test_same_calculation_after_serialization(self):
+        from app.graphing_cooling import compute_cooling_state
+        original = self.example()
+        restored = restored_inputs(decode_case(encode_case(snapshot_case(original, "full"))))
+        def compute(state):
+            return compute_cooling_state(input_rt=state["rt_val"], input_ta=state["ta_base_val"],
+                input_tm=state["tm_val"], input_w=state["peso"], fattore_correzione=state["fattore_correzione"],
+                data_ora_ispezione=datetime(2026, 10, 10, 9, 15), skip_warnings=True, cooling_options=state)
+        self.assertEqual(compute(original), compute(restored))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <style>
+    :root {
+      --primary: #168AC1;
+      --bg: #F0F2F6;
+      --text: #31333F;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+    .shell {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .viewport {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-inline: contain;
+      touch-action: pan-x;
+    }
+    .viewport::-webkit-scrollbar { display: none; }
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 0.22rem;
+      padding-inline: 18%;
+      min-width: 100%;
+    }
+    .card {
+      position: relative;
+      flex: 0 0 64%;
+      height: 106px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 0.50rem;
+      background: #FFFFFF;
+      scroll-snap-align: center;
+      scroll-snap-stop: normal;
+      opacity: 0.68;
+      transform: scale(0.94);
+      transition: transform 110ms ease, opacity 110ms ease, border-color 110ms ease;
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+    }
+    .card.active {
+      opacity: 1;
+      transform: scale(1);
+      border: 2px solid var(--primary);
+    }
+    .card img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #FFFFFF;
+      pointer-events: none;
+    }
+    .card-counter {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      z-index: 2;
+      padding: 1px 4px;
+      border-radius: 0.55rem;
+      background: rgba(255, 255, 255, 0.88);
+      font-size: 0.56rem;
+      line-height: 1.15;
+      font-weight: 650;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .card.active .card-counter {
+      opacity: 0.72;
+    }
+    .meta {
+      min-height: 17px;
+      padding: 0.04rem 0.18rem 0;
+      text-align: center;
+    }
+    .label {
+      min-height: 16px;
+      margin: 0;
+      white-space: normal;
+      overflow: visible;
+      overflow-wrap: normal;
+      text-overflow: clip;
+      line-height: 1.05;
+      font-size: clamp(0.68rem, 3vw, 0.78rem);
+      font-weight: 650;
+    }
+  </style>
+</head>
+<body>
+  <div id="shell" class="shell">
+    <div id="viewport" class="viewport" role="listbox" aria-label="Eccitabilità elettrica sopraciliare">
+      <div id="track" class="track"></div>
+    </div>
+    <div class="meta">
+      <div id="label" class="label"></div>
+    </div>
+  </div>
+
+  <script>
+    function sendMessageToStreamlitClient(type, data) {
+      const outData = Object.assign({ isStreamlitMessage: true, type }, data);
+      window.parent.postMessage(outData, "*");
+    }
+
+    const Streamlit = {
+      setComponentReady() {
+        sendMessageToStreamlitClient("streamlit:componentReady", { apiVersion: 1 });
+      },
+      setFrameHeight(height) {
+        sendMessageToStreamlitClient("streamlit:setFrameHeight", { height });
+      },
+      setComponentValue(value) {
+        sendMessageToStreamlitClient("streamlit:setComponentValue", { value });
+      },
+      RENDER_EVENT: "streamlit:render",
+      events: {
+        addEventListener(type, callback) {
+          window.addEventListener("message", (event) => {
+            if (event.data.type === type) {
+              event.detail = event.data;
+              callback(event);
+            }
+          });
+        }
+      }
+    };
+
+    const MIN_FRAME_HEIGHT = 124;
+    const shell = document.getElementById("shell");
+    const viewport = document.getElementById("viewport");
+    const track = document.getElementById("track");
+    const label = document.getElementById("label");
+
+    let items = [];
+    let activeIndex = 0;
+    let activePhysicalIndex = 0;
+    let committedValue = null;
+    let pendingValue = null;
+    let initialized = false;
+    let renderSignature = "";
+    let settleTimer = null;
+    let ignoreScrollUntil = 0;
+    const supportsScrollEnd = "onscrollend" in viewport;
+
+    function syncFrameHeight() {
+      requestAnimationFrame(() => {
+        const height = Math.max(MIN_FRAME_HEIGHT, Math.ceil(shell.scrollHeight));
+        Streamlit.setFrameHeight(height);
+      });
+    }
+
+    function cards() {
+      return Array.from(track.querySelectorAll(".card"));
+    }
+
+    function logicalFromPhysical(index) {
+      if (!items.length) return 0;
+      return ((index % items.length) + items.length) % items.length;
+    }
+
+    function middlePhysicalIndex(logicalIndex) {
+      return items.length + logicalIndex;
+    }
+
+    function updateMeta() {
+      const item = items[activeIndex];
+      label.textContent = item ? item.label || "" : "";
+      syncFrameHeight();
+    }
+
+    function paintActive() {
+      cards().forEach((card, index) => {
+        const active = index === activePhysicalIndex;
+        card.classList.toggle("active", active);
+        card.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      updateMeta();
+    }
+
+    function scrollToPhysical(index, behavior = "smooth") {
+      const card = cards()[index];
+      if (!card) return;
+      const left = card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
+      viewport.scrollTo({ left, behavior });
+    }
+
+    function setActivePhysical(index) {
+      const list = cards();
+      if (!list.length || !items.length) return;
+      activePhysicalIndex = Math.max(0, Math.min(list.length - 1, index));
+      activeIndex = logicalFromPhysical(activePhysicalIndex);
+      paintActive();
+    }
+
+    function nearestPhysicalIndex() {
+      const list = cards();
+      if (!list.length) return 0;
+      const center = viewport.scrollLeft + viewport.clientWidth / 2;
+      let bestIndex = 0;
+      let bestDistance = Infinity;
+      list.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(cardCenter - center);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestIndex = index;
+        }
+      });
+      return bestIndex;
+    }
+
+    function commitLogical(index) {
+      const item = items[index];
+      if (!item || item.value === committedValue) return;
+      committedValue = item.value;
+      pendingValue = item.value;
+      Streamlit.setComponentValue(item.value);
+    }
+
+    function recenterIfNeeded(physicalIndex) {
+      if (!items.length) return;
+      const n = items.length;
+      if (physicalIndex >= n && physicalIndex < n * 2) return;
+
+      const logicalIndex = logicalFromPhysical(physicalIndex);
+      const target = middlePhysicalIndex(logicalIndex);
+      activePhysicalIndex = target;
+      activeIndex = logicalIndex;
+      paintActive();
+      ignoreScrollUntil = performance.now() + 100;
+      requestAnimationFrame(() => scrollToPhysical(target, "auto"));
+    }
+
+    function settleCurrentPosition() {
+      window.clearTimeout(settleTimer);
+      settleTimer = null;
+      if (performance.now() < ignoreScrollUntil || !items.length) return;
+
+      const physicalIndex = nearestPhysicalIndex();
+      setActivePhysical(physicalIndex);
+      const logicalIndex = activeIndex;
+      recenterIfNeeded(physicalIndex);
+      commitLogical(logicalIndex);
+    }
+
+    function scheduleFallbackSettle() {
+      if (supportsScrollEnd || performance.now() < ignoreScrollUntil) return;
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(settleCurrentPosition, 170);
+    }
+
+    viewport.addEventListener("scroll", () => {
+      if (performance.now() < ignoreScrollUntil) return;
+      setActivePhysical(nearestPhysicalIndex());
+      scheduleFallbackSettle();
+    }, { passive: true });
+
+    if (supportsScrollEnd) {
+      viewport.addEventListener("scrollend", settleCurrentPosition, { passive: true });
+    }
+
+    function rebuildCards() {
+      track.replaceChildren();
+      if (!items.length) return;
+
+      for (let cycle = 0; cycle < 3; cycle += 1) {
+        items.forEach((item, logicalIndex) => {
+          const physicalIndex = cycle * items.length + logicalIndex;
+          const card = document.createElement("div");
+          card.className = "card";
+          card.setAttribute("role", "option");
+          card.dataset.logical = String(logicalIndex);
+          card.dataset.physical = String(physicalIndex);
+          card.setAttribute("aria-label", item.label || item.value || "");
+
+          const image = document.createElement("img");
+          image.src = item.image;
+          image.alt = "";
+          image.draggable = false;
+          card.appendChild(image);
+
+          const cardCounter = document.createElement("span");
+          cardCounter.className = "card-counter";
+          cardCounter.textContent = `${logicalIndex + 1}/${items.length}`;
+          card.appendChild(cardCounter);
+
+          card.addEventListener("click", () => {
+            window.clearTimeout(settleTimer);
+            setActivePhysical(physicalIndex);
+            scrollToPhysical(physicalIndex, "smooth");
+            if (!supportsScrollEnd) {
+              settleTimer = window.setTimeout(settleCurrentPosition, 210);
+            }
+          });
+          track.appendChild(card);
+        });
+      }
+    }
+
+    function moveToLogical(logicalIndex, shouldScroll) {
+      if (!items.length) return;
+      activeIndex = Math.max(0, Math.min(items.length - 1, logicalIndex));
+      activePhysicalIndex = middlePhysicalIndex(activeIndex);
+      paintActive();
+      if (shouldScroll) {
+        ignoreScrollUntil = performance.now() + 220;
+        requestAnimationFrame(() => scrollToPhysical(activePhysicalIndex, "auto"));
+      }
+    }
+
+    function applyIncomingValue(incoming, shouldScroll) {
+      const incomingIndex = items.findIndex((item) => item.value === incoming);
+      if (incomingIndex < 0) return false;
+      committedValue = incoming;
+      moveToLogical(incomingIndex, shouldScroll);
+      return true;
+    }
+
+    function onRender(event) {
+      const args = event.detail.args || {};
+      document.documentElement.style.setProperty("--primary", args.primary_color || "#168AC1");
+      document.documentElement.style.setProperty("--bg", args.background_color || "#F0F2F6");
+      document.documentElement.style.setProperty("--text", args.text_color || "#31333F");
+
+      viewport.setAttribute("aria-label", args.aria_label || "Eccitabilità elettrica sopraciliare");
+      const nextItems = Array.isArray(args.items) ? args.items : [];
+      const signature = nextItems.map((item) => `${item.value}|${item.label}|${(item.image || "").length}`).join(";");
+      items = nextItems;
+
+      const rebuilt = signature !== renderSignature;
+      if (rebuilt) {
+        renderSignature = signature;
+        rebuildCards();
+      }
+
+      const incoming = typeof args.value === "string" ? args.value : null;
+
+      if (!initialized) {
+        initialized = true;
+        if (!applyIncomingValue(incoming, true)) {
+          committedValue = items[0] ? items[0].value : null;
+          moveToLogical(0, true);
+        }
+      } else if (pendingValue !== null) {
+        if (incoming === pendingValue) {
+          pendingValue = null;
+          committedValue = incoming;
+        }
+        paintActive();
+        if (rebuilt) {
+          moveToLogical(activeIndex, true);
+        }
+      } else if (incoming !== null && incoming !== committedValue) {
+        applyIncomingValue(incoming, true);
+      } else {
+        paintActive();
+        if (rebuilt) {
+          moveToLogical(activeIndex, true);
+        }
+      }
+
+      syncFrameHeight();
+    }
+
+    Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender);
+    Streamlit.setComponentReady();
+    Streamlit.setFrameHeight(MIN_FRAME_HEIGHT);
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Tuple
 import numpy as np
 from scipy.optimize import root_scalar
+from app.cooling_inputs import finite_number
 
 INF_HOURS = 200.0  # opzionale
 
@@ -17,16 +18,34 @@ def round_quarter_hour(x: float) -> float:
     """Compat: quarto d’ora (15 min)."""
     return round_to_step_minutes(x, 15)
 
+def cooling_coefficient(weight: float, fc: float) -> float:
+    """Require the decreasing cooling branch; there is no fixed FC ceiling."""
+    message = "La combinazione di FC e peso non consente il calcolo con questa formula. Verificare i valori."
+    if not all(finite_number(v) and float(v) > 0 for v in (weight, fc)):
+        raise ValueError(message)
+    product = float(weight) * float(fc)
+    if not np.isfinite(product) or product <= 0:
+        raise ValueError(message)
+    coefficient = -1.2815 * product ** (-5 / 8) + 0.0284
+    if not np.isfinite(coefficient) or coefficient >= 0:
+        raise ValueError(message)
+    return coefficient
+
+
 def calcola_raffreddamento(
     Tr: float, Ta: float, T0: float, W: float, CF: float, *,
-    round_minutes: int = 30   # default 30 min
+    round_minutes: int | None = 30   # default 30 min
 ) -> Tuple[float, float, float, float, float]:
     """
     Ritorna: (t_med, t_min, t_max, t_med_raw, Qd)
-    t_min/max/med sono arrotondati allo step scelto.
+    Con round_minutes=None conserva i valori non arrotondati, usati dall’app.
+    L’opzione numerica mantiene l’API storica con arrotondamento allo step scelto.
     """
     # Validazioni base
-    if Tr is None or Ta is None or T0 is None or W is None or CF is None:
+    if not all(finite_number(v) for v in (Tr, Ta, T0, W, CF)):
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+    Tr, Ta, T0, W, CF = map(float, (Tr, Ta, T0, W, CF))
+    if W <= 0 or CF <= 0:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
     temp_tolerance = 1e-6
@@ -39,8 +58,18 @@ def calcola_raffreddamento(
     if np.isnan(Qd) or Qd <= 0 or Qd > 1:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
+    # Evita che l'errore floating-point sposti valori matematicamente esatti
+    # dall'altro lato delle soglie Qd usate dal metodo e dalla presentazione.
+    for qd_boundary in (0.2, 0.3, 0.5):
+        if np.isclose(Qd, qd_boundary, rtol=0.0, atol=1e-12):
+            Qd = qd_boundary
+            break
+
     A = 1.25 if Ta <= 23 else 10/9
-    B = -1.2815 * (CF * W)**(-5/8) + 0.0284
+    try:
+        B = cooling_coefficient(W, CF)
+    except ValueError:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
 
     def Qp(t: float) -> float:
         if t < 0:
@@ -70,6 +99,9 @@ def calcola_raffreddamento(
     else:
         Dt_raw = 2.8 if Qd > 0.5 else 4.5 if Qd > 0.3 else 7.0
 
+    if round_minutes is None:
+        return t_med_raw, max(0.0, t_med_raw - Dt_raw), t_med_raw + Dt_raw, t_med_raw, Qd
+
     # Arrotondamento configurabile
     t_med = round_to_step_minutes(t_med_raw, round_minutes)
     t_min = round_to_step_minutes(max(0.0, t_med_raw - Dt_raw), round_minutes)
@@ -93,5 +125,6 @@ __all__ = [
     "round_quarter_hour",
     "round_to_step_minutes",
     "calcola_raffreddamento",
+    "cooling_coefficient",
     "ranges_in_disaccordo_completa",
 ]

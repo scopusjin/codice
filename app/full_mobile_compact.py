@@ -1,0 +1,735 @@
+# -*- coding: utf-8 -*-
+"""Regole di compattezza aggiuntive per la sola Full mobile."""
+
+import streamlit as st
+
+
+_FULL_MOBILE_COMPACT_CSS = r"""
+<style>
+@media (max-width: 768px) {
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [data-testid="stVerticalBlockBorderWrapper"]:has([class*="st-key-henssge_non_applicabile"]) {
+    padding: 0.42rem 0.34rem !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_mobile"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_title_mobile"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_actions_mobile"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] {
+    width: max-content !important;
+    min-width: max-content !important;
+    gap: 0.10rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    justify-content: flex-end !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    max-width: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    height: 1.55rem !important;
+    min-height: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
+    content: "⦸";
+    position: static !important;
+    display: block !important;
+    font-size: 1.22rem !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+    opacity: 0.58;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label:has(input:checked)::after {
+    opacity: 1 !important;
+    color: #c62828 !important;
+    font-weight: 700 !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0.34rem 0.24rem !important;
+    border: 0 !important;
+    border-radius: 0.55rem !important;
+    box-shadow: none !important;
+    background: rgba(33, 150, 243, 0.055) !important;
+  }
+
+  /* Il pannello FC mobile usa meno spazio verticale tra stato del corpo,
+     switch e superficie di appoggio. */
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"][data-testid="stVerticalBlock"],
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] > [data-testid="stVerticalBlock"] {
+    gap: 0.16rem !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_std_switch_row"],
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-full_fc_panel_mobile"] [class*="st-key-fcpanel_caut_switch_row"] {
+    margin-top: 0.12rem !important;
+    margin-bottom: -0.08rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* I quattro stepper vestiti sono volutamente più bassi degli altri V2. */
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_decimal_fcpanel_"] iframe {
+    display: block !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_help_slot"] button,
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_help_slot"] button {
+    width: 1.42rem !important;
+    min-width: 1.42rem !important;
+    height: 1.42rem !important;
+    min-height: 1.42rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+  }
+
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_help_slot"] button p,
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_help_slot"] button p {
+    margin: 0 !important;
+    font-size: 0.74rem !important;
+    line-height: 1 !important;
+  }
+
+  /* La superficie resta un controllo distinto dal conteggio degli strati. */
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+  body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    background: color-mix(in srgb, var(--st-secondary-background-color) 86%, var(--st-primary-color) 14%) !important;
+    border-color: color-mix(in srgb, var(--st-primary-color) 38%, transparent) !important;
+  }
+
+
+/* Rifiniture finali pannello FC Full mobile. */
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_switch_row"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_switch_row"] {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_corr_slot"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_corr_slot"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  margin-left: auto !important;
+  overflow: visible !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_corr_slot"] [data-testid="stToggle"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_corr_slot"] [data-testid="stToggle"] {
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: max-content !important;
+  margin-left: 0 !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_vest_group"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_vest_group"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+/* I V2 della Full occupano l'intera larghezza disponibile nel wrapper. */
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stElementContainer"]:has([class*="st-key-mortem_decimal_"]),
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_decimal_"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-mortem_decimal_"] iframe {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stHorizontalBlock"]:has([class*="st-key-mortem_decimal_"]) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Modalità Condizioni variabili: V2 a piena larghezza. */
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-cooling_prudent_v2_stack_mobile"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 0.18rem !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_row_mobile"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 0.28rem !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_value_mobile"] {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-prudent_weight_uncertainty_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+}
+
+/* Risultato FC standard mobile: valore, azione e nota peso in un solo blocco. */
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_block_mobile"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0.08rem 0.10rem 0.10rem !important;
+  border: 1px solid color-mix(in srgb, var(--st-primary-color) 70%, transparent) !important;
+  border-radius: 0.58rem !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 82%, var(--st-primary-color) 18%) !important;
+  overflow: hidden !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_block_mobile"] > [data-testid="stVerticalBlock"] {
+  gap: 0.02rem !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_row_mobile"] {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
+  gap: 0.14rem !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_value_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mortem-fc-inline-result {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 1.90rem;
+  min-height: 1.90rem;
+  max-height: 1.90rem;
+  padding: 0 0.48rem;
+  font-size: 0.88rem;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--st-text-color);
+  white-space: nowrap;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
+  margin: 0 !important;
+  padding: 0 0.62rem !important;
+  border: 1.5px solid var(--st-primary-color, #168AC1) !important;
+  border-radius: 0.44rem !important;
+  background: color-mix(in srgb, var(--st-primary-color, #168AC1) 10%, #ffffff) !important;
+  color: var(--st-text-color, #31333F) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-primary-color, #168AC1) 14%, transparent) !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] button p,
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] button span {
+  color: var(--st-text-color, #31333F) !important;
+  font-weight: 700 !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] > [data-testid="stVerticalBlock"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="fc_apply_action_mobile"] [data-testid="stButton"] {
+  height: 1.90rem !important;
+  min-height: 1.90rem !important;
+  max-height: 1.90rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.mortem-fc-weight-note-mobile {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0 0.48rem 0.12rem !important;
+  font-size: 0.76rem;
+  line-height: 1.20;
+  white-space: normal;
+  overflow: visible;
+  color: var(--st-text-color);
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[data-testid="stElementContainer"]:has(.mortem-fc-weight-note-mobile) {
+  width: 100% !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Il selettore della superficie deve distinguersi chiaramente dagli stepper. */
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_surface_select_mobile"],
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_surface_select_mobile"] {
+  padding: 0.07rem !important;
+  border: 1px solid color-mix(in srgb, #d79a00 72%, transparent) !important;
+  border-radius: 0.58rem !important;
+  background: color-mix(in srgb, var(--st-secondary-background-color) 78%, #ffc107 22%) !important;
+}
+
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_std_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+body:not(:has(#mortem-page-title)):has([class*="st-key-stima_cautelativa_beta"])
+[class*="st-key-fcpanel_caut_surface_select_mobile"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+  background: color-mix(in srgb, var(--st-secondary-background-color) 82%, #ffc107 18%) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+}
+
+@media (min-width: 769px) {
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_row_desktop"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_title_desktop"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-cooling_heading_actions_desktop"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] {
+    width: max-content !important;
+    min-width: max-content !important;
+    gap: 0.12rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    justify-content: flex-end !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] {
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    max-width: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.55rem !important;
+    min-width: 1.55rem !important;
+    height: 1.55rem !important;
+    min-height: 1.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label > * {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label::after {
+    content: "⦸";
+    position: static !important;
+    display: block !important;
+    font-size: 1.22rem !important;
+    line-height: 1 !important;
+    font-weight: 500 !important;
+    opacity: 0.58;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-mortem_help_row_henssge"] [data-testid="stCheckbox"] label:has(input:checked)::after {
+    opacity: 1 !important;
+    color: #c62828 !important;
+    font-weight: 700 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-prudent_weight_row_desktop"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-prudent_weight_value_desktop"] {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-prudent_weight_uncertainty_desktop"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_switch_row"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_switch_row"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_corr_slot"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_corr_slot"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    margin-left: auto !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_group"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_group"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_vest_help_slot"] button,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_vest_help_slot"] button {
+    width: 1.45rem !important;
+    min-width: 1.45rem !important;
+    height: 1.45rem !important;
+    min-height: 1.45rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_desktop"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_desktop"] {
+    padding: 0.10rem !important;
+    border: 1px solid color-mix(in srgb, #d79a00 58%, transparent) !important;
+    border-radius: 0.58rem !important;
+    background: color-mix(in srgb, var(--st-secondary-background-color) 86%, #ffc107 14%) !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_std_surface_select_desktop"] [data-testid="stSelectbox"] [data-baseweb="select"] > div,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="st-key-fcpanel_caut_surface_select_desktop"] [data-testid="stSelectbox"] [data-baseweb="select"] > div {
+    background: color-mix(in srgb, var(--st-secondary-background-color) 90%, #ffc107 10%) !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_block_mobile"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0.10rem 0.12rem !important;
+    border: 1px solid color-mix(in srgb, var(--st-primary-color, #168AC1) 62%, transparent) !important;
+    border-radius: 0.58rem !important;
+    background: color-mix(in srgb, var(--st-secondary-background-color, #F0F2F6) 86%, var(--st-primary-color, #168AC1) 14%) !important;
+    overflow: hidden !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_block_mobile"] > [data-testid="stVerticalBlock"] {
+    gap: 0.03rem !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_row_mobile"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    max-height: 2.05rem !important;
+    gap: 0.28rem !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_value_mobile"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .mortem-fc-inline-result {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    height: 2.05rem;
+    min-height: 2.05rem;
+    max-height: 2.05rem;
+    padding: 0 0.55rem;
+    font-size: 0.92rem;
+    line-height: 1.1;
+    font-weight: 600;
+    color: var(--st-text-color, #31333F);
+    white-space: nowrap;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    max-height: 2.05rem !important;
+    margin: 0 !important;
+    padding: 0 0.72rem !important;
+    border: 1.5px solid var(--st-primary-color, #168AC1) !important;
+    border-radius: 0.46rem !important;
+    background: color-mix(in srgb, var(--st-primary-color, #168AC1) 10%, #ffffff) !important;
+    color: var(--st-text-color, #31333F) !important;
+    box-shadow: none !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] button p,
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] button span {
+    color: var(--st-text-color, #31333F) !important;
+    font-weight: 700 !important;
+  }
+
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] > [data-testid="stVerticalBlock"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] [data-testid="stElementContainer"],
+  body:has([class*="st-key-stima_cautelativa_beta"])
+  [class*="fc_apply_action_mobile"] [data-testid="stButton"] {
+    height: 2.05rem !important;
+    min-height: 2.05rem !important;
+    max-height: 2.05rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .mortem-fc-weight-note-mobile {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 0.55rem 0.18rem !important;
+    font-size: 0.80rem;
+    line-height: 1.22;
+    white-space: normal;
+    color: var(--st-text-color, #31333F);
+  }
+}
+</style>
+"""
+
+
+def install_full_mobile_compact_css() -> None:
+    """Allega le regole al CSS iniziale della Full, senza render tardivi."""
+    if getattr(st, "_full_mobile_compact_css_installed", False):
+        return
+
+    original_markdown = st.markdown
+
+    def markdown_with_full_mobile_compact_css(body, *args, **kwargs):
+        if isinstance(body, str) and ".final-text{" in body:
+            body = body + _FULL_MOBILE_COMPACT_CSS
+            kwargs["unsafe_allow_html"] = True
+            # The Full's initial style block is CSS only. On mobile, render
+            # the complete existing bundle as st.html so Streamlit places it
+            # outside the page's vertical flow, avoiding an empty spacer
+            # between the header and the inspection controls.
+            if st.session_state.get("__full_device_mobile", False) and not args:
+                return st.html(body)
+        return original_markdown(body, *args, **kwargs)
+
+    st.markdown = markdown_with_full_mobile_compact_css
+    st._full_mobile_compact_css_installed = True

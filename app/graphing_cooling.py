@@ -1,0 +1,384 @@
+# -*- coding: utf-8 -*-
+"""Orchestrazione del raffreddamento cadaverico usata da ``app.graphing``.
+
+Il modulo separa la gestione Henssge standard/prudente dal rendering e dalla
+combinazione con gli altri parametri tanatologici. Formule, soglie e testi
+restano quelli già utilizzati dal motore grafico.
+"""
+
+from __future__ import annotations
+
+import datetime
+from dataclasses import dataclass
+from decimal import Decimal, ROUND_HALF_UP
+
+import numpy as np
+import streamlit as st
+
+from app.language import presentation_i18n as i18n
+from app.cautelativa import compute_raffreddamento_cautelativo
+from app.henssge import calcola_raffreddamento, cooling_coefficient
+from app.parameters import INF_HOURS
+from app.cooling_inputs import checked_interval, checked_weight, finite_number, missing_cooling_inputs
+from app.fc_scenarios import matching_scenario_description, matching_temperature_scenarios, temperature_description
+
+
+def _is_num(x):
+    return finite_number(x)
+
+
+def _classify_qd_for_ta(ta, qd) -> str | None:
+    """Classifica Qd usando la soglia pertinente alla Ta della combinazione."""
+    if not _is_num(ta) or not _is_num(qd):
+        return None
+
+    ta = float(ta)
+    qd = float(qd)
+    if ta <= 23.0:
+        if qd <= 0.2:
+            return "outside"
+        if qd < 0.3:
+            return "intermediate"
+        return "optimal"
+
+    return "outside" if qd <= 0.5 else "optimal"
+
+
+def _aggregate_qd_status(counts: dict[str, int]) -> str | None:
+    """Riassume la distribuzione delle combinazioni senza produrre testi UI."""
+    total = sum(counts.values())
+    if total == 0:
+        return None
+    if counts["optimal"] == total:
+        return "all_optimal"
+    if counts["outside"] == total:
+        return "all_outside"
+    if counts["outside"] > 0:
+        return "mixed"
+    if counts["intermediate"] > 0:
+        return "no_optimal_intermediate"
+    return "all_outside"
+
+
+def _potente_limit_for_combination(ta, cf, peso) -> float | None:
+    """Limite minimo di Potente per una singola combinazione cautelativa."""
+    if not all(_is_num(v) for v in (ta, cf, peso)) or float(cf) <= 0 or float(peso) <= 0:
+        return None
+    try:
+        B = cooling_coefficient(peso, cf)
+    except ValueError:
+        return None
+    ln_term = np.log(0.16) if float(ta) <= 23.0 else np.log(0.45)
+    mt_ore = ln_term / B
+    if not np.isfinite(mt_ore):
+        return None
+    return float(mt_ore)
+
+
+@dataclass(frozen=True)
+class CoolingState:
+    Tr_val: object
+    Ta_val: object
+    T0_val: object
+    W_val: object
+    CF_val: object
+    t_min_raff_henssge: float
+    t_max_raff_henssge: float
+    t_med_raff_henssge_rounded_raw: float
+    t_med_raff_henssge_rounded: float
+    Qd_val_check: float
+    Qd_min: float
+    Qd_max: float
+    qd_range_status: str | None
+    qd_status_counts: tuple[tuple[str, int], ...]
+    potente_min_ore: float
+    swisswuff_min_ore: float
+    swisswuff_max_ore: float
+    swisswuff_mode: str | None
+    raffreddamento_calcolabile: bool
+    Ta_for_pot: float
+    qd_threshold: float
+    gate_fail: bool
+    detail_blocks: tuple[str, ...]
+    validation_error: str | None = None
+
+
+def compute_cooling_state(
+    *,
+    input_rt,
+    input_ta,
+    input_tm,
+    input_w,
+    fattore_correzione,
+    data_ora_ispezione: datetime.datetime,
+    skip_warnings: bool,
+    cooling_options=None,
+) -> CoolingState:
+    # --- normalizza locali; modalità silenziosa disattiva Henssge se mancano input ---
+    Tr_val, Ta_val, T0_val, W_val, CF_val = input_rt, input_ta, input_tm, input_w, fattore_correzione
+    options = st.session_state if cooling_options is None else cooling_options
+    prudent = bool(options.get("stima_cautelativa_beta", False))
+    estimated_weight = prudent and bool(options.get("peso_stimato_beta", False))
+
+    # placeholder valori calcolati
+    t_min_raff_henssge = np.nan
+    t_max_raff_henssge = np.nan
+    t_med_raff_henssge_rounded_raw = np.nan
+    t_med_raff_henssge_rounded = np.nan
+    Qd_val_check = np.nan
+    Qd_min = np.nan
+    Qd_max = np.nan
+    qd_range_status = None
+    qd_status_counts: tuple[tuple[str, int], ...] = ()
+    potente_min_ore = np.nan
+    swisswuff_min_ore = np.nan
+    swisswuff_max_ore = np.nan
+    swisswuff_mode = None
+    raffreddamento_calcolabile = True
+    detail_blocks: list[str] = []
+
+    validation_error = None
+    Ta_range = CF_range = None
+    temperature_scenarios = None
+    requested = any(v is not None for v in (Tr_val, Ta_val, T0_val, W_val))
+    try:
+        if requested:
+            missing = missing_cooling_inputs(input_rt=Tr_val, input_ta=Ta_val,
+                input_tm=T0_val, input_w=W_val, fattore_correzione=CF_val, options=options)
+            if missing:
+                raise ValueError(missing)
+            if prudent:
+                # Both UI modes supply explicit bounds. An incomplete form is
+                # not permission to reuse old suggestions or invent +/- deltas.
+                Ta_range = checked_interval(
+                    (options.get("Ta_min_beta"), options.get("Ta_max_beta")),
+                    "temperatura ambientale")
+                CF_range = checked_interval(
+                    (options.get("FC_min_beta"), options.get("FC_max_beta")),
+                    "FC", positive=True)
+                temperature_scenarios = matching_temperature_scenarios(
+                    options, CF_range, W_val, Ta_range)
+                # Canonical values also keep downstream warnings and Potente
+                # independent of the order of the two input fields.
+                Ta_val = Ta_range[0]
+                CF_val = sum(CF_range) / 2
+            elif not finite_number(CF_val) or float(CF_val) <= 0:
+                raise ValueError("Inserire un FC valido, maggiore di zero.")
+            W_val = checked_weight(W_val, estimated=estimated_weight)
+            cooling_coefficient(W_val + (3 if estimated_weight else 0),
+                                CF_range[1] if prudent else CF_val)
+            if not all(finite_number(v) for v in (Tr_val, Ta_val, T0_val)):
+                raise ValueError("Completare le temperature per calcolare il raffreddamento.")
+            Tr_val, Ta_val, T0_val, CF_val = map(float, (Tr_val, Ta_val, T0_val, CF_val))
+    except ValueError as exc:
+        validation_error = str(exc)
+    if not requested or validation_error:
+        Tr_val = Ta_val = T0_val = W_val = CF_val = np.nan
+        raffreddamento_calcolabile = False
+
+    #
+    # Ta di riferimento e soglia Qd (prudente → usa Ta_max)
+    if _is_num(Ta_val):
+        Ta_for_pot = Ta_range[1] if prudent else float(Ta_val)
+    else:
+        Ta_for_pot = np.nan
+
+    qd_threshold = 0.2 if (_is_num(Ta_for_pot) and Ta_for_pot <= 23) else 0.5
+    # --- Gate fisico: abilita Henssge solo se Tr ≥ Ta (alla 1ª cifra) + 0.10 ---
+    gate_fail = False
+    if _is_num(Tr_val) and _is_num(Ta_val):
+        tr_dec = Decimal(str(Tr_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        ta_dec = Decimal(str(Ta_val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        diff_dec = tr_dec - ta_dec  # differenza arrotondata a 0.1 °C
+        if diff_dec < Decimal("0.1"):
+            raffreddamento_calcolabile = False
+            gate_fail = True
+            t_min_raff_henssge = np.nan
+            t_max_raff_henssge = np.nan
+            t_med_raff_henssge_rounded_raw = np.nan
+            t_med_raff_henssge_rounded = np.nan
+            Qd_val_check = np.nan
+
+    # =========================
+    # Henssge standard / Cautelativa
+    # =========================
+    if prudent:
+        if raffreddamento_calcolabile:
+            # --- calcolo cautelativo ---
+            res = compute_raffreddamento_cautelativo(
+                dt_ispezione=data_ora_ispezione,
+                Ta_value=float(Ta_val),
+                CF_value=float(CF_val),
+                peso_kg=float(W_val),
+                Ta_range=Ta_range,
+                CF_range=CF_range,
+                peso_stimato=estimated_weight,
+                mostra_tabella=True,
+                solver_kwargs={
+                    "Tr": float(Tr_val),
+                    "T0": float(T0_val),
+                    "round_minutes": None,
+                },
+                **({"temperature_scenarios": temperature_scenarios}
+                   if temperature_scenarios is not None else {}),
+            )
+
+            # --- mappa output cautelativa ---
+            t_min_raff_henssge = float(res.ore_min)
+            t_max_raff_henssge = (
+                np.nan if (not np.isfinite(res.ore_max) or res.ore_max >= INF_HOURS - 1e-9)
+                else float(res.ore_max)
+            )
+            _tmed_raw = (
+                t_min_raff_henssge if np.isnan(t_max_raff_henssge)
+                else 0.5 * (t_min_raff_henssge + t_max_raff_henssge)
+            )
+            t_med_raff_henssge_rounded_raw = float(_tmed_raw)
+            t_med_raff_henssge_rounded = float(_tmed_raw)
+            Qd_min = float(res.qd_min) if res.qd_min is not None else np.nan
+            Qd_max = float(res.qd_max) if res.qd_max is not None else np.nan
+            Qd_val_check = Qd_min
+
+            qd_counts = {"optimal": 0, "intermediate": 0, "outside": 0}
+            potente_candidates: list[float] = []
+            swisswuff_mins: list[float] = []
+            swisswuff_maxs: list[float] = []
+            swisswuff_has_q_le_02 = False
+            swisswuff_has_high_temp = False
+            if res.df_combinazioni is not None:
+                for row in res.df_combinazioni.itertuples(index=False):
+                    status = _classify_qd_for_ta(row.Ta, row.Qd)
+                    if status is not None:
+                        qd_counts[status] += 1
+                    if status == "outside":
+                        mt_candidate = _potente_limit_for_combination(row.Ta, row.CF, row.peso_kg)
+                        if mt_candidate is not None:
+                            potente_candidates.append(mt_candidate)
+                        # Swisswuff viene riportato solo a titolo orientativo:
+                        # - per Qd <= 0,20 usa la regola storica ±20%;
+                        # - per Ta > 23 °C e 0,20 < Qd <= 0,50 conserva il normale
+                        #   intervallo Henssge, che Potente considera però non adeguatamente validato.
+                        if _is_num(row.Qd):
+                            qd_row = float(row.Qd)
+                            ta_row = float(row.Ta) if _is_num(row.Ta) else np.nan
+                            include_swisswuff = False
+                            if qd_row <= 0.2:
+                                swisswuff_has_q_le_02 = True
+                                include_swisswuff = True
+                            elif _is_num(ta_row) and ta_row > 23 and qd_row <= 0.5:
+                                swisswuff_has_high_temp = True
+                                include_swisswuff = True
+                            if include_swisswuff:
+                                if _is_num(row.ore_min):
+                                    swisswuff_mins.append(float(row.ore_min))
+                                if _is_num(row.ore_max):
+                                    swisswuff_maxs.append(float(row.ore_max))
+            if potente_candidates:
+                potente_min_ore = float(min(potente_candidates))
+            if swisswuff_mins and swisswuff_maxs:
+                swisswuff_min_ore = float(min(swisswuff_mins))
+                swisswuff_max_ore = float(max(swisswuff_maxs))
+                if swisswuff_has_q_le_02 and swisswuff_has_high_temp:
+                    swisswuff_mode = "mixed"
+                elif swisswuff_has_high_temp:
+                    swisswuff_mode = "high_temp"
+                else:
+                    swisswuff_mode = "q_le_02"
+            qd_range_status = _aggregate_qd_status(qd_counts)
+            qd_status_counts = tuple(
+                (status, qd_counts[status])
+                for status in ("optimal", "intermediate", "outside")
+            )
+            raffreddamento_calcolabile = True
+
+            # --- Range Ta/FC per riepilogo ---
+            ta_lo, ta_hi = Ta_range
+            ta_txt = temperature_description(options, CF_range, W_val, Ta_range)
+
+            cf_lo, cf_hi = CF_range
+            cf_txt = f"{cf_lo:.2f}" if cf_lo == cf_hi else f"{cf_lo:.2f} – {cf_hi:.2f}"
+
+            p_txt = (
+                f"{max(W_val - 3, 1):.0f}–{(W_val + 3):.0f} kg"
+                if estimated_weight
+                else f"{W_val:.0f} kg"
+            )
+
+            elenco_html = i18n.prudent_graphing_detail_list(
+                header=i18n.prudent_header(),
+                ta_text=ta_txt,
+                cf_text=cf_txt,
+                weight_text=p_txt,
+                scenario_description=matching_scenario_description(options, CF_range, W_val),
+                ta_is_range=ta_lo != ta_hi,
+                cf_is_range=cf_lo != cf_hi,
+            )
+            detail_blocks.append(elenco_html)
+
+            if qd_range_status == "all_outside":
+                detail_blocks.append(
+                    "<ul><li>Nelle condizioni considerate, il grado di raffreddamento corporeo, calcolato sulla base della temperatura rettale e dei diversi valori di temperatura ambientale considerati, ricade in tutti i casi al di fuori dei range nei quali il metodo di Henssge consente una stima sufficientemente attendibile del tempo post-mortale; la sua applicazione porterebbe pertanto a formulare stime tendenzialmente inaffidabili.</li></ul>"
+                )
+
+        else:
+            # Henssge escluso
+            pass
+    else:
+        if raffreddamento_calcolabile:
+            round_minutes = None
+            (
+                t_med_raff_henssge_rounded,
+                t_min_raff_henssge,
+                t_max_raff_henssge,
+                t_med_raff_henssge_rounded_raw,
+                Qd_val_check,
+            ) = calcola_raffreddamento(
+                Tr_val, Ta_val, T0_val, W_val, CF_val, round_minutes=round_minutes
+            )
+            Qd_min = Qd_val_check
+            Qd_max = Qd_val_check
+            if _is_num(Qd_val_check):
+                qd_single = float(Qd_val_check)
+                if qd_single <= 0.2:
+                    swisswuff_min_ore = float(t_min_raff_henssge)
+                    swisswuff_max_ore = float(t_max_raff_henssge)
+                    swisswuff_mode = "q_le_02"
+                elif _is_num(Ta_val) and float(Ta_val) > 23 and qd_single <= 0.5:
+                    swisswuff_min_ore = float(t_min_raff_henssge)
+                    swisswuff_max_ore = float(t_max_raff_henssge)
+                    swisswuff_mode = "high_temp"
+            raffreddamento_calcolabile = (
+                not np.isnan(t_med_raff_henssge_rounded) and t_med_raff_henssge_rounded >= 0
+            )
+        else:
+            pass
+
+    return CoolingState(
+        Tr_val=Tr_val,
+        Ta_val=Ta_val,
+        T0_val=T0_val,
+        W_val=W_val,
+        CF_val=CF_val,
+        t_min_raff_henssge=t_min_raff_henssge,
+        t_max_raff_henssge=t_max_raff_henssge,
+        t_med_raff_henssge_rounded_raw=t_med_raff_henssge_rounded_raw,
+        t_med_raff_henssge_rounded=t_med_raff_henssge_rounded,
+        Qd_val_check=Qd_val_check,
+        Qd_min=Qd_min,
+        Qd_max=Qd_max,
+        qd_range_status=qd_range_status,
+        qd_status_counts=qd_status_counts,
+        potente_min_ore=potente_min_ore,
+        swisswuff_min_ore=swisswuff_min_ore,
+        swisswuff_max_ore=swisswuff_max_ore,
+        swisswuff_mode=swisswuff_mode,
+        raffreddamento_calcolabile=raffreddamento_calcolabile,
+        Ta_for_pot=Ta_for_pot,
+        qd_threshold=qd_threshold,
+        gate_fail=gate_fail,
+        detail_blocks=tuple(detail_blocks),
+        validation_error=validation_error,
+    )
+
+
+__all__ = ["CoolingState", "compute_cooling_state"]

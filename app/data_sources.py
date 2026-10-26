@@ -3,6 +3,9 @@ import pandas as pd
 import streamlit as st
 from pathlib import Path
 
+from app import i18n
+
+
 @st.cache_data
 def load_tabelle_correzione():
     """
@@ -12,14 +15,14 @@ def load_tabelle_correzione():
     """
     xlsx_path = Path("data/tabella_secondaria.xlsx")  # ← adatta il percorso se diverso
     if not xlsx_path.exists():
-        st.info("Tabella correttiva del peso non trovata: continuo senza.")
+        st.info(i18n.ui_text("data.weight_table_missing"))
         return None
     try:
         # usa esplicitamente openpyxl per .xlsx
         return pd.read_excel(xlsx_path, engine="openpyxl")
     except ImportError:
-        st.error("Per leggere il file .xlsx serve 'openpyxl'. Installa con: pip install openpyxl")
+        st.error(i18n.ui_text("data.openpyxl_missing"))
         return None
     except Exception as e:
-        st.warning(f"Impossibile leggere l'Excel della tabella peso: {e}")
+        st.warning(i18n.ui_text("data.weight_table_read_error", error=e))
         return None

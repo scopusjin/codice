@@ -13,8 +13,8 @@ def round_hours_to_minutes(x: float, minutes: int) -> float:
 def round_datetime_to_minutes(dt: datetime.datetime, minutes: int) -> datetime.datetime:
     """Arrotonda un datetime al multiplo di 'minutes' minuti più vicino."""
     step = minutes
-    tot = dt.hour * 60 + dt.minute
-    rounded = int(round(tot / step)) * step
+    tot = dt.hour * 60 + dt.minute + dt.second / 60 + dt.microsecond / 60_000_000
+    rounded = int(np.floor(tot / step + 0.5)) * step
     dh, dm = divmod(rounded, 60)
     base = dt.replace(minute=0, second=0, microsecond=0)
     return base.replace(hour=0) + datetime.timedelta(hours=dh, minutes=dm)
@@ -40,3 +40,22 @@ __all__ = [
     "round_hours_to_minutes", "round_datetime_to_minutes",
     "round_quarter_hour",
 ]
+
+
+def round_display_hours(hours: float, minutes: int = 15, *, upper: bool = False) -> float:
+    """Round one displayed bound outward, never a computational intermediate."""
+    if not np.isfinite(hours):
+        return hours
+    units = float(hours) * 60.0 / minutes
+    nearest = round(units)
+    if abs(units - nearest) <= 1e-10:
+        units = nearest
+    bound = np.ceil(units) if upper else np.floor(units)
+    return float(bound * minutes / 60.0)
+
+
+def round_display_datetime(dt: datetime.datetime, minutes: int = 15, *, upper: bool = False) -> datetime.datetime:
+    """Round a calendar bound outward; retain midnight/day transitions."""
+    midnight = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    hours = (dt - midnight).total_seconds() / 3600.0
+    return midnight + datetime.timedelta(hours=round_display_hours(hours, minutes, upper=upper))

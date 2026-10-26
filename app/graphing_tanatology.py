@@ -1,0 +1,166 @@
+# -*- coding: utf-8 -*-
+"""Adattatori tanatologici puri per ``app.graphing``.
+
+Questo modulo traduce le stringhe legacy oggi ricevute dal motore grafico negli
+ID stabili introdotti dal refactoring. I valori scientifici e le descrizioni
+continuano a provenire dalle fonti esistenti; qui non vengono definiti nuovi
+range, soglie o criteri.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Optional, Tuple
+
+from app.parameters import dati_parametri_aggiuntivi
+from app.livor_digitopressione import (
+    PRESSURE_NOT_ASSESSED, intersect_livor_pressure, pressure_is_applicable,
+)
+from app.rigor_reformation import REFORMATION_NOT_ASSESSED, intersect_rigor_reformation
+from app.tanatology_states import (
+    LIVOR_ID_BY_LEGACY_LABEL,
+    RIGOR_ID_BY_LEGACY_LABEL,
+)
+from app.tanatology_data import (
+    LIVOR_RANGES_BY_ID,
+    LIVOR_TYPICAL_RANGES_BY_ID,
+    RIGOR_RANGES_BY_ID,
+    RIGOR_TYPICAL_RANGES_BY_ID,
+)
+from app.special_tanatology_states import (
+    OPTION_NOT_ASSESSED,
+    PARAM_ELECTRICAL_PERIORAL,
+    SPECIAL_PARAM_ID_BY_LEGACY_LABEL,
+    SPECIAL_OPTION_ID_BY_LEGACY_LABEL,
+    special_description,
+    special_range,
+)
+
+RangeValue = Optional[Tuple[float, float]]
+
+
+FAMILY_LIVOR = "livor"
+FAMILY_RIGOR = "rigor"
+FAMILY_COOLING = "cooling"
+
+
+def legacy_family_key(label: str) -> str:
+    """Replica la normalizzazione storica usata per raggruppare i range."""
+    return str(label).lower().split("(")[0].strip()
+
+
+def special_family_id(parameter_id: Optional[str], legacy_label: str) -> str:
+    """ID di famiglia stabile, con fallback compatibile per etichette legacy."""
+    if parameter_id is not None:
+        return f"special:{parameter_id}"
+    return f"legacy:{legacy_family_key(legacy_label)}"
+
+
+@dataclass(frozen=True)
+class BaseTanatologyRanges:
+    livor_id: Optional[str]
+    livor_range: RangeValue
+    livor_typical_range: RangeValue
+    rigor_id: Optional[str]
+    rigor_range: RangeValue
+    rigor_typical_range: RangeValue
+
+
+@dataclass(frozen=True)
+class SpecialTanatologyValue:
+    parameter_id: Optional[str]
+    option_id: Optional[str]
+    legacy_description_key: str
+    range_value: RangeValue
+    description: Optional[str]
+    is_not_assessed: bool
+
+
+def resolve_base_tanatology_ranges(
+    livor_legacy_label: str,
+    rigor_legacy_label: str,
+    livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
+    rigor_reformation: str = REFORMATION_NOT_ASSESSED,
+) -> BaseTanatologyRanges:
+    """Restituisce i range legacy e, se valutata, l'intersezione con la digitopressione.
+
+    Per etichette sconosciute conserva il comportamento permissivo dei vecchi
+    ``dict.get``: ID e range risultano ``None`` invece di sollevare eccezioni.
+    """
+    livor_id = LIVOR_ID_BY_LEGACY_LABEL.get(livor_legacy_label)
+    rigor_id = RIGOR_ID_BY_LEGACY_LABEL.get(rigor_legacy_label)
+    if not pressure_is_applicable(livor_id):
+        livor_digitopressione = PRESSURE_NOT_ASSESSED
+
+    return BaseTanatologyRanges(
+        livor_id=livor_id,
+        livor_range=intersect_livor_pressure(LIVOR_RANGES_BY_ID.get(livor_id), livor_digitopressione),
+        livor_typical_range=intersect_livor_pressure(
+            LIVOR_TYPICAL_RANGES_BY_ID.get(livor_id), livor_digitopressione
+        ),
+        rigor_id=rigor_id,
+        rigor_range=intersect_rigor_reformation(RIGOR_RANGES_BY_ID.get(rigor_id), rigor_reformation),
+        rigor_typical_range=intersect_rigor_reformation(RIGOR_TYPICAL_RANGES_BY_ID.get(rigor_id), rigor_reformation),
+    )
+
+
+def resolve_special_tanatology_value(
+    parameter_legacy_label: str,
+    selected_legacy_label: str,
+) -> SpecialTanatologyValue:
+    """Normalizza un parametro speciale mantenendo la compatibilità legacy.
+
+    La normalizzazione ``split(':')[0]`` per il parametro peribuccale replica
+    esplicitamente il comportamento già presente in ``app.graphing``.
+    """
+    parameter_id = SPECIAL_PARAM_ID_BY_LEGACY_LABEL.get(parameter_legacy_label)
+
+    description_key = (
+        selected_legacy_label.split(":")[0].strip()
+        if parameter_id == PARAM_ELECTRICAL_PERIORAL
+        else selected_legacy_label.strip()
+    )
+
+    option_id = None
+    if parameter_id is not None:
+        option_id = SPECIAL_OPTION_ID_BY_LEGACY_LABEL[parameter_id].get(description_key)
+
+    if option_id is not None:
+        range_value = special_range(parameter_id, option_id)
+        description = special_description(parameter_id, option_id)
+        is_not_assessed = option_id == OPTION_NOT_ASSESSED
+    else:
+        # Fallback per opzioni storiche non ancora rappresentate dagli ID.
+        # L'indicizzazione diretta mantiene il vecchio KeyError se il nome del
+        # parametro stesso è sconosciuto.
+        legacy_data = dati_parametri_aggiuntivi[parameter_legacy_label]
+        range_dict = legacy_data.get("range", {})
+        exact_key = next(
+            (key for key in range_dict if key.strip() == description_key),
+            None,
+        )
+        range_value = range_dict.get(exact_key)
+        description = legacy_data.get("descrizioni", {}).get(description_key)
+        is_not_assessed = selected_legacy_label == "Non valutata"
+
+    return SpecialTanatologyValue(
+        parameter_id=parameter_id,
+        option_id=option_id,
+        legacy_description_key=description_key,
+        range_value=range_value,
+        description=description,
+        is_not_assessed=is_not_assessed,
+    )
+
+
+__all__ = [
+    "FAMILY_LIVOR",
+    "FAMILY_RIGOR",
+    "FAMILY_COOLING",
+    "legacy_family_key",
+    "special_family_id",
+    "BaseTanatologyRanges",
+    "SpecialTanatologyValue",
+    "resolve_base_tanatology_ranges",
+    "resolve_special_tanatology_value",
+]

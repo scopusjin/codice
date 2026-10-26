@@ -11,9 +11,10 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-from app.henssge import calcola_raffreddamento
-from app.utils_time import arrotonda_quarto_dora   # <-- SOLO questa
+from app.language import presentation_i18n as i18n
+from app.henssge import calcola_raffreddamento, cooling_coefficient
 from app.parameters import INF_HOURS
+from app.cooling_inputs import checked_interval, checked_weight, finite_number
 
 # ------------------------
 # Costanti e default range
@@ -55,9 +56,10 @@ def _expand_range(value: float,
                   rng: Optional[Tuple[float, float]],
                   delta_if_none: float) -> Tuple[float, float]:
     if rng is None:
-        return value - delta_if_none, value + delta_if_none
-    a, b = rng
-    return (min(a, b), max(a, b))
+        if not finite_number(value):
+            raise ValueError("Inserire un valore numerico valido per costruire l’intervallo.")
+        return float(value) - delta_if_none, float(value) + delta_if_none
+    return rng
 
 
 def _discretize(lo: float, hi: float, step: float,
@@ -74,6 +76,14 @@ def _discretize(lo: float, hi: float, step: float,
     return [float(round(v, 6)) for v in arr]
 
 
+def _henssge_applicable(ta: float, qd: Optional[float]) -> bool:
+    """True se la combinazione rientra nel campo operativo Henssge."""
+    if qd is None or not math.isfinite(qd):
+        return False
+    threshold = 0.2 if float(ta) <= 23.0 else 0.5
+    return float(qd) > threshold
+
+
 def _to_datetimes(ore_min: float,
                   ore_max: float,
                   dt_ispezione: datetime) -> Tuple[Optional[datetime], Optional[datetime]]:
@@ -81,8 +91,8 @@ def _to_datetimes(ore_min: float,
     def _is_inf(h: Optional[float]) -> bool:
         return (h is None) or (not math.isfinite(h)) or (h >= INF_HOURS - 1e-9)
 
-    dt_min = None if _is_inf(ore_max) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_max)))
-    dt_max = None if _is_inf(ore_min) else arrotonda_quarto_dora(dt_ispezione - timedelta(hours=float(ore_min)))
+    dt_min = None if _is_inf(ore_max) else dt_ispezione - timedelta(hours=float(ore_max))
+    dt_max = None if _is_inf(ore_min) else dt_ispezione - timedelta(hours=float(ore_min))
     return dt_min, dt_max
 
 
@@ -132,35 +142,60 @@ def compute_raffreddamento_cautelativo(
     solver_kwargs: Optional[Dict[str, Any]] = None,
     # Opzioni
     mostra_tabella: bool = True,
+    temperature_scenarios: Optional[List[Tuple[float, Tuple[float, float]]]] = None,
 ) -> CautelativaResult:
     """
     Esegue il prodotto cartesiano delle combinazioni (Ta, CF, peso) e aggrega il range.
     Se Ta_range/CF_range non sono specificati, usa ±1 °C e ±0.1.
     Se peso_stimato=True, usa ±3 kg. Altrimenti peso fisso.
+    Con temperature_scenarios valuta solo i FC associati a ciascuna temperatura.
     """
     solver_kwargs = solver_kwargs or {}
 
     # 1) Costruisci i range effettivi
-    Ta_lo, Ta_hi = _expand_range(Ta_value, Ta_range, DEFAULT_TA_DELTA)
-    CF_lo, CF_hi = _expand_range(CF_value, CF_range, DEFAULT_CF_DELTA)
+    Ta_lo, Ta_hi = checked_interval(
+        _expand_range(Ta_value, Ta_range, DEFAULT_TA_DELTA), "temperatura ambientale")
+    CF_lo, CF_hi = checked_interval(
+        _expand_range(CF_value, CF_range, DEFAULT_CF_DELTA), "FC", positive=True)
+    peso_kg = checked_weight(peso_kg, estimated=peso_stimato)
 
     if peso_stimato:
         p_lo, p_hi = _expand_range(peso_kg, None, DEFAULT_PESO_DELTA)
     else:
         p_lo, p_hi = peso_kg, peso_kg
 
+    # Do not silently drop an invalid part of the requested interval.
+    cooling_coefficient(p_hi, CF_hi)
+
     # 2) Discretizza
     Ta_vals = _discretize(Ta_lo, Ta_hi, Ta_step, max_points_per_dim)
     CF_vals = _discretize(CF_lo, CF_hi, CF_step, max_points_per_dim)
     P_vals = _discretize(p_lo, p_hi, peso_step, max_points_per_dim)
+    pairs = list(itertools.product(Ta_vals, CF_vals))
+    if temperature_scenarios is not None:
+        if not temperature_scenarios:
+            raise ValueError("Specificare almeno uno scenario completo.")
+        pairs = []
+        for temperature, bounds in temperature_scenarios:
+            if not finite_number(temperature):
+                raise ValueError("Specificare la temperatura di ogni scenario.")
+            temperature = float(temperature)
+            lo, hi = checked_interval(bounds, "FC dello scenario", positive=True)
+            if not (Ta_lo <= temperature <= Ta_hi and CF_lo <= lo <= hi <= CF_hi):
+                raise ValueError("Scenario non coerente con gli intervalli selezionati.")
+            pairs.extend((temperature, cf) for cf in
+                         _discretize(lo, hi, CF_step, max_points_per_dim))
+        pairs = list(dict.fromkeys(pairs))
 
     # 3) Itera combinazioni
     recs: List[Dict[str, Any]] = []
     ore_mins: List[float] = []
     ore_maxs: List[float] = []
+    ore_mins_henssge: List[float] = []
+    ore_maxs_henssge: List[float] = []
     qds: List[float] = []
 
-    for Ta, CF, P in itertools.product(Ta_vals, CF_vals, P_vals):
+    for (Ta, CF), P in itertools.product(pairs, P_vals):
         ore_min, ore_max, qd = solver(Ta=Ta, CF=CF, peso_kg=P, **solver_kwargs)
 
         # Normalizzazione
@@ -169,10 +204,18 @@ def compute_raffreddamento_cautelativo(
         if ore_max < ore_min:
             ore_max = ore_min
 
+        # Conserva tutte le combinazioni per tabella/riepiloghi informativi.
         ore_mins.append(ore_min)
         ore_maxs.append(ore_max)
         if qd is not None and math.isfinite(qd):
             qds.append(qd)
+
+        # Il range operativo Henssge usa solo le combinazioni nel suo campo
+        # di applicazione. Le altre restano disponibili per Potente e per le
+        # informazioni approssimative, ma non ampliano l'envelope Henssge.
+        if _henssge_applicable(Ta, qd):
+            ore_mins_henssge.append(ore_min)
+            ore_maxs_henssge.append(ore_max)
 
         if mostra_tabella:
             recs.append({
@@ -185,8 +228,15 @@ def compute_raffreddamento_cautelativo(
             })
 
     # 4) Aggregati
-    agg_min = float(min(ore_mins)) if ore_mins else float("inf")
-    agg_max = float(max(ore_maxs)) if ore_maxs else float("inf")
+    # Tutte le combinazioni restano disponibili per il riepilogo informativo.
+    agg_min_all = float(min(ore_mins)) if ore_mins else float("inf")
+    agg_max_all = float(max(ore_maxs)) if ore_maxs else float("inf")
+
+    # Il risultato operativo Henssge esclude invece le combinazioni fuori campo.
+    # Se nessuna combinazione è applicabile, INF_HOURS funge da sentinella e
+    # consente al livello superiore di lasciare il risultato a Potente.
+    agg_min = float(min(ore_mins_henssge)) if ore_mins_henssge else float(INF_HOURS)
+    agg_max = float(max(ore_maxs_henssge)) if ore_maxs_henssge else float(INF_HOURS)
 
     qd_min = float(min(qds)) if qds else None
     qd_max = float(max(qds)) if qds else None
@@ -198,10 +248,12 @@ def compute_raffreddamento_cautelativo(
     df = pd.DataFrame.from_records(recs) if (mostra_tabella and recs) else None
 
     # 7) Frasi di riepilogo e parentetica
+    # Per ora il riepilogo interno conserva l'envelope completo: il relativo
+    # range ±20% verrà esposto separatamente solo nelle note informative.
     summary = build_summary_html(
         Ta_lo, Ta_hi, CF_lo, CF_hi, p_lo, p_hi,
-        agg_min, agg_max, dt_min, dt_max, qd_min, qd_max,
-        peso_stimato=peso_stimato, agg_max_raw=agg_max,
+        agg_min_all, agg_max_all, dt_min, dt_max, qd_min, qd_max,
+        peso_stimato=peso_stimato,
     )
 
     try:
@@ -218,7 +270,7 @@ def compute_raffreddamento_cautelativo(
         dt_max=dt_max if math.isfinite(agg_max) else None,
         qd_min=qd_min,
         qd_max=qd_max,
-        n_combinazioni=len(recs) if recs else (len(Ta_vals)*len(CF_vals)*len(P_vals)),
+        n_combinazioni=len(pairs) * len(P_vals),
         df_combinazioni=df,
         summary_html=summary,
         parentetica=paren,
@@ -233,18 +285,20 @@ def build_parentetica_cautelativa(
 ) -> str:
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
     cf_txt = _fmt_range(round(CF_lo, 3), round(CF_hi, 3), "")
-    p_txt  = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
-    suffix = ", peso stimato" if peso_stimato else ""
-    return f"(raffreddamento stimato su Ta {ta_txt}, CF {cf_txt}, peso {p_txt}{suffix})"
+    p_txt  = _fmt_range(round(p_lo), round(p_hi), "kg")
+    return i18n.prudent_parenthetical(
+        ta_text=ta_txt,
+        cf_text=cf_txt,
+        weight_text=p_txt,
+        estimated_weight=peso_stimato,
+    )
 
 
 # ------------------------
 # Frasi di riepilogo
 # ------------------------
 def _fmt_range(a: float, b: float, unit: str) -> str:
-    if abs(a - b) < 1e-9:
-        return f"{a:g} {unit}"
-    return f"{a:g}–{b:g} {unit}"
+    return i18n.prudent_range_text(a, b, unit)
 
 
 def _fmt_dt(dt: Optional[datetime]) -> str:
@@ -254,27 +308,7 @@ def _fmt_dt(dt: Optional[datetime]) -> str:
 
 
 def _fmt_ore(ore: float) -> str:
-    """
-    Converte ore decimali in stringa leggibile: es. 1.5 -> '1 ora e 30 minuti'.
-    Gestisce singolare/plurale.
-    """
-    if ore is None or not math.isfinite(ore):
-        return "—"
-    h = int(ore)
-    m = int(round((ore - h) * 60))
-    parts = []
-    if h > 0:
-        parts.append(f"{h} {'ora' if h == 1 else 'ore'}")
-    if m > 0:
-        parts.append(f"{m} {'minuto' if m == 1 else 'minuti'}")
-    if not parts:  # caso 0
-        return "0 ore"
-    return " e ".join(parts)
-
-
-def _lbl_ore(x: float) -> str:
-    """Ritorna 'ora' al singolare se =1, altrimenti 'ore'."""
-    return "ora" if abs(x - 1.0) < 1e-9 else "ore"
+    return i18n.prudent_hours_text(ore)
 
 
 def build_summary_html(
@@ -284,7 +318,7 @@ def build_summary_html(
     ore_min: float, ore_max: float,
     dt_min: Optional[datetime], dt_max: Optional[datetime],
     qd_min: Optional[float], qd_max: Optional[float],
-    *, peso_stimato: bool, agg_max_raw: float
+    *, peso_stimato: bool
 ) -> str:
     # Formattazioni base
     ta_txt = _fmt_range(round(Ta_lo, 2), round(Ta_hi, 2), "°C")
@@ -292,33 +326,32 @@ def build_summary_html(
 
     # Peso
     if peso_stimato:
-        p_txt = _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg") + " (stimato)"
+        p_txt = i18n.prudent_estimated_weight(
+            _fmt_range(round(p_lo), round(p_hi), "kg")
+        )
     else:
-        p_txt = f"{round(p_lo, 1):g} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo, 1), round(p_hi, 1), "kg")
+        p_txt = f"{p_lo:.0f} kg" if abs(p_lo - p_hi) < 1e-9 else _fmt_range(round(p_lo), round(p_hi), "kg")
 
-    # Frase risultato (usando _fmt_ore per ore decimali)
+    # Frase risultato (criteri invariati)
     if ore_max >= INF_HOURS - 1e-9:
-        risultato_txt = f"oltre {_fmt_ore(ore_min)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=None,
+            beyond=True, not_over=False,
+        )
     elif ore_min <= 1e-9:
-        risultato_txt = f"non oltre {_fmt_ore(ore_max)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=_fmt_ore(ore_max),
+            beyond=False, not_over=True,
+        )
     else:
-        risultato_txt = f"tra circa {_fmt_ore(ore_min)} e {_fmt_ore(ore_max)}"
+        risultato_txt = i18n.prudent_result_text(
+            minimum_text=_fmt_ore(ore_min), maximum_text=_fmt_ore(ore_max),
+            beyond=False, not_over=False,
+        )
 
-    header = (
-        "Per quanto attiene la valutazione del raffreddamento cadaverico, "
-        "sono stati stimati i parametri di seguito indicati."
+    return i18n.prudent_summary_html(
+        ta_text=ta_txt,
+        cf_text=cf_txt,
+        weight_text=p_txt,
+        result_text=risultato_txt,
     )
-    bullets = (
-        "<ul>"
-        f"<li>Range di temperature ambientali medie (tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale): <b>{ta_txt}</b>.</li>"
-        f"<li>Range per il fattore di correzione (considerate le possibili condizioni in cui può essersi trovato il corpo): <b>{cf_txt}</b>.</li>"
-        f"<li>Peso corporeo: <b>{p_txt}</b>.</li>"
-        "</ul>"
-    )
-    conclusione = (
-        "Applicando l'equazione di Henssge, è possibile stimare che il decesso "
-        f"sia avvenuto {risultato_txt} prima dei rilievi effettuati al momento "
-        "dell’ispezione legale."
-    )
-
-    return "<br>".join([header, bullets, conclusione])

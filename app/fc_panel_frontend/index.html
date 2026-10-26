@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Consiglia FC</title><style>
+.fc-provenance-green{color:#238044;font-weight:600}
+.fc-provenance-yellow{color:#b58a11;font-weight:600}
+.fc-provenance-red{color:#b6483b;font-weight:600}
+#fc-provenance p{margin:.2rem 0 .4rem;font-size:.88em}
+body{margin:0;background:transparent;color:light-dark(#24332c,#e8eee9)}#fc-full .case-table-scroll{overflow-x:auto;max-width:100%}
+#fc-full .case-table{border-collapse:collapse;width:100%;min-width:620px;font-size:12px;text-align:left}
+#fc-full .case-table th,#fc-full .case-table td{padding:6px;border:1px solid var(--fc-line);vertical-align:top;overflow-wrap:anywhere}
+#fc-full .case-table th{background:var(--fc-soft);font-weight:500}
+#fc-full .case-table caption{text-align:left;font-weight:500;padding:4px 0}
+#fc-full .case-table th:nth-child(2){width:36%}
+#fc-full .case-table td:nth-child(3){min-width:105px;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div id="fc-full">
+<!-- FC: vestizione e aria, poi appoggio, peso e arrotondamento.
+Intervalli dell’app distinti dalle fonti. Componente integrato nell’app.
+Formula peso: Henssge, in Madea, 3a ed., eq. 6.10, trascrizione consultata.
+Coefficiente -3.24596: verificato visivamente nell’equazione 6.10 della 3a edizione (2016).
+FC >= 1.40 e peso < 60 oppure > 80 kg; arrotondamento finale al più vicino 0.05.
+Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. -->
+<link rel="stylesheet" href="panel.css">
+<script src="descriptions.js"></script>
+<script src="counters.js"></script>
+<section id="suggest-page">
+<div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3 id="panel-title">Consiglia FC</h3></div>
+<!-- Peso del caso: sincronizzato dalla schermata principale, senza controlli modificabili qui. -->
+<input id="weight" type="hidden" value="">
+<div id="scenario-result" hidden><div class="scenario-totals"><div><strong>FC complessivo per la stima</strong><output id="scenario-output" aria-live="polite"></output></div><div><strong>Temperature degli scenari</strong><output id="scenario-temperature-output" aria-live="polite"></output></div></div><button id="use-scenarios">Usa</button></div>
+<div class="scenario-toolbar">
+<div id="scenario-help-anchor"><label class="check scenario-toggle"><input type="checkbox" id="multiple-scenarios">Più scenari</label></div>
+<div id="scenario-controls" hidden><div class="scenario-tools"><span id="scenario-label">Scenari</span><div id="scenario-tabs" role="group" aria-labelledby="scenario-label"></div><button id="add-scenario" aria-label="Aggiungi scenario">+</button><button id="remove-scenario" aria-label="Rimuovi lo scenario selezionato">×</button></div></div>
+</div>
+<div id="scenario-editor" role="group" aria-label="Condizioni del corpo">
+<div id="choice-row"><div class="choice-heading"><strong id="fc-heading">FC per la stima:</strong><span class="selected-actions"><button id="use">Usa</button><button id="restore" aria-label="Ripristina il suggerimento per queste condizioni">↺</button></span></div><div id="range-fields"><button id="expand-range" aria-label="Crea range FC" aria-controls="hi-control" aria-expanded="false">Range?</button></div></div>
+<div id="fc-selection-note" aria-live="polite" hidden><span aria-hidden="true">*</span><div><div id="editable-note" hidden></div><div id="manual-state"></div></div></div>
+<div id="error" class="error" role="alert"></div><div id="scenario-error" class="error" role="alert"></div>
+<div class="row states" id="body-state-row" role="group" aria-label="Stato del corpo"><span class="body-state-label">Cadavere:</span><span id="body-state-required" class="state-required" aria-label="Selezionare lo stato del corpo">?</span><button data-state="Asciutto" aria-pressed="false">Asciutto</button><button data-state="Bagnato" aria-pressed="false">Bagnato</button><button data-state="Immerso" aria-pressed="false">Immerso</button></div>
+<div id="environment-row"><div id="water-fields" hidden><label for="water">Acqua</label><select id="water"><option value="stagnante">Ferma</option><option value="corrente">Corrente</option></select></div>
+<div id="scenario-temperature-row" hidden><div id="temperature-help-anchor"><label id="scenario-temperature-label" for="scenario-temperature">Temperatura ambientale media</label></div><div class="temperature-control"><div class="step"><input id="scenario-temperature" type="text" inputmode="decimal" aria-describedby="scenario-temperature-unit"><span id="scenario-temperature-unit">°C</span><button data-temperature="-0.1" aria-label="Riduci temperatura">−</button><button data-temperature="0.1" aria-label="Aumenta temperatura">+</button></div></div></div></div>
+<div id="air-fields">
+<fieldset id="coverings-box" aria-label="Indumenti e coperture">
+<legend class="desktop-coverings-legend" aria-label="Indumenti e coperture"><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></legend>
+<div id="counts" role="group" aria-label="Vestiti e coperture"><div id="desktop-counts"></div><div id="clothing-counts"><div class="category">Vestiti/teli</div></div><div id="blanket-counts"><div class="category"><span>Coperte</span><span class="covering-icons" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="m8 3-6 4 3 5 3-2v11h8V10l3 2 3-5-6-4c0 4-8 4-8 0Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 3h13a2 2 0 0 1 2 2v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2Z"/><path d="M3 16h14V3M7 7h6M7 10h6M7 13h6"/></svg></span></div></div>
+<div class="conditional" id="isolation-row" hidden><label for="isolation">Sono presenti uno o più indumenti particolarmente isolanti, come capi imbottiti, molto spessi o pesantemente foderati?</label><select id="isolation"><option value="">Da precisare</option><option value="none">No</option><option value="yes">Sì</option></select></div>
+<div class="conditional" id="wet-textiles-row" hidden><label for="wet-textiles">Quanto sono bagnati i tessuti sul corpo?</label><select id="wet-textiles"><option value="unknown" hidden disabled>Da precisare</option><option value="full">Fradici</option><option value="partial">Solo in parte bagnati</option></select></div>
+<div class="conditional" id="feather-row" hidden><label for="feather">Piumone imbottito molto voluminoso e avvolgente?</label><select id="feather"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
+<div class="conditional" id="blanket-volume-row" hidden><label for="blanket-volume">Le coperture formano uno strato molto voluminoso?</label><select id="blanket-volume"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
+</div>
+<div id="special-covers" role="group" aria-label="Coperture aggiuntive">
+<label class="check"><input id="thermal-foil" type="checkbox">Mantellina termica</label>
+<label class="check"><input id="body-bag" type="checkbox">Sacco mortuario</label>
+</div>
+
+<!-- Legacy fields remain synchronized for saved cases. -->
+<input id="wet-clothes" type="hidden" value="unknown"><input id="wet-covers" type="hidden" value="unknown">
+</fieldset>
+
+
+<div class="wide"><label for="surface">Appoggio</label><select id="surface"><option value="0">Pavimento</option><option value="wood">Piano di legno</option><option value="1">Asfalto / terreno / prato</option><option value="2">Materasso / tappeto spesso</option><option value="3">Supporto molto imbottito e avvolgente (es. divano, cuscini)</option><option value="4">Cemento / pietra</option><option value="5">Piastrelle molto fredde (es. cantina, all’esterno, …)</option><option value="10">Pavimento rivestito in PVC</option><option value="metal">Piano/lastra metallica</option><option value="8">Foglie</option></select></div>
+<div class="conditional" id="leaf-row" hidden><label for="leaf">Condizione delle foglie</label><select id="leaf"><option value="">Da precisare</option><option value="wet">Bagnate</option><option value="humid">Umide</option><option value="dry">Secche</option></select></div>
+<div class="conditional" id="leaf-cover-row" hidden><label for="leaf-cover">Il corpo era anche coperto dalle foglie?</label><select id="leaf-cover"><option value="">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
+<div class="conditional" id="metal-type-row" hidden><label for="metal-type">Tipo di superficie metallica</label><select id="metal-type"><option value="">Da precisare</option><option value="6">Lamiera/piano metallico sottile</option><option value="7">Piano metallico molto spesso</option></select></div>
+<div class="conditional" id="support-soaked-row" hidden><label for="support-soaked">Appoggio abbondantemente impregnato di liquidi?</label><select id="support-soaked"><option value="unknown">Da precisare</option><option value="no">No</option><option value="yes">Sì</option></select></div>
+<div class="wide" id="air-row"><label for="air">Aria</label><select id="air"><option value="still">Nessuna corrente</option><option value="continuous">Movimento continuo sul corpo</option><option value="intermittent">Movimento intermittente</option><option value="unknown" hidden disabled>Da precisare</option></select></div>
+<label class="check" id="wet-case-row" hidden><input type="checkbox" id="wet-case">Pantaloni e slip fradici, pioggia, su strada o terreno</label>
+</div>
+</div>
+<div class="summary">
+<div id="conditions-summary"><strong id="conditions-title">Condizioni considerate:</strong> <div id="scenario-summary" aria-live="polite"></div></div>
+<div class="hint" id="origin"></div>
+<div id="detail" hidden></div>
+<details id="source-panel"><summary>Come viene consigliato il FC</summary>
+<div id="fc-provenance" aria-label="Origine del fattore di correzione"></div>
+<strong id="source-kind"></strong>
+<p id="rule-source"></p>
+<p id="h08-notice" hidden></p>
+<div id="source-examples" hidden><p class="hint">Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:</p><ul id="example-list"></ul></div>
+
+
+<div id="source-details"><span id="reference" hidden></span><p id="source-body" hidden></p><p id="source-extra" hidden></p><div id="source-full-citations"></div><p id="weight-source"></p>
+</div>
+<a id="open-tables" href="#tables-page">Apri le tabelle di riferimento →</a>
+</details>
+</div>
+</section>
+<script type="application/json" id="weight-data">{"columns":["4","6","8","10","20","30","40","50","60","70","80","90","100","110","120","130","140","150"],"index":[0,1,2,3,4,5,6,7,8],"data":[[1.6,1.6,1.6,1.6,1.5,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.4,1.3,1.2,1.2,1.2],[2.1,2.1,2.0,2.0,1.9,1.8,1.6,1.6,1.6,1.6,1.6,1.6,1.6,1.4,1.4,1.4,1.3,1.3],[2.7,2.7,2.6,2.5,2.3,2.2,2.1,2.0,1.8,1.8,1.8,1.8,1.6,1.6,1.6,1.5,1.4,1.4],[3.5,3.4,3.3,3.2,2.8,2.6,2.4,2.3,2.0,2.0,2.0,1.8,1.8,1.7,1.6,1.6,1.5,1.5],[4.5,4.3,4.1,3.9,3.4,3.0,2.8,2.6,2.4,2.2,2.1,2.0,1.9,1.8,1.7,1.7,1.6,1.6],[5.7,5.3,5.0,4.8,4.0,3.5,3.2,2.9,2.7,2.4,2.3,2.2,2.1,1.9,1.9,1.8,1.7,1.6],[7.1,6.6,6.2,5.8,4.7,4.0,3.6,3.2,2.9,2.6,2.5,2.3,2.2,2.1,2.0,1.9,1.8,1.7],[8.8,8.1,7.5,7.0,5.5,4.6,3.9,3.5,3.2,2.8,2.7,2.5,2.3,2.2,2.0,1.9,1.8,1.7],[10.9,9.8,8.9,8.3,6.2,5.1,4.3,3.8,3.4,3.0,2.8,2.6,2.4,2.3,2.1,2.0,1.9,1.8]]}</script>
+<script>
+(()=>{
+const root=document.getElementById('fc-full'),q=s=>root.querySelector(s),table=JSON.parse(q('#weight-data').textContent);let state='',suggestion=null,result=null,manual=false,preset=false,applied=null,manualBase=null,manualWeightAdjusted=false,lastWeight=null,selectedBase=null,weightAdjusted=false,rangeExpanded=false,weightValue=NaN,weightDisplay=null;
+const fmt=n=>n.toFixed(2);
+// Quantization is an app output convention, never a change to source values.
+function roundFC(v){return Number((Math.round(v*20+1e-10)/20).toFixed(2));}
+function roundRange(r){return r.map(v=>roundFC(v));}
+function onFCGrid(v){return Math.abs(v*20-Math.round(v*20))<1e-8;}
+function normalizeChoice(){for(const id of ['lo','hi']){const el=q('#'+id),v=num(el);if(Number.isFinite(v))el.value=fmt(roundFC(v));}}
+function setWeight(value){weightValue=value;weightDisplay=Number.isFinite(value)?value.toFixed(0):'';q('#weight').value=weightDisplay;}
+const num=el=>{if(el.id==='weight'&&el.value===weightDisplay)return weightValue;const s=el.value.trim().replace(',','.');return /^\d+(\.\d{1,2})?$/.test(s)?Number(s):NaN;};
+const specs=[['thin','Leggeri',0],['thick','Pesanti',0],['medium','Spesse',0],['heavy','Molto pesanti / piumoni',0]];
+function step(id,label,value,delta,group){const wrap=document.createElement('div');wrap.id=id+'-control';wrap.className='counter';wrap.innerHTML='<label for="'+id+'">'+label+'</label><div class="step"><input id="'+id+'" type="text" inputmode="decimal" value="'+value+'"><button data-input="'+id+'" data-step="-'+delta+'" aria-label="Diminuisci '+label+'">−</button><button data-input="'+id+'" data-step="'+delta+'" aria-label="Aumenta '+label+'">+</button></div>';q(group).append(wrap);}
+specs.forEach(([id,l,v],i)=>{
+  step(id,l,v,1,i<2?'#clothing-counts':'#blanket-counts');q('#'+id).setAttribute('inputmode','numeric');
+});
+const counters=window.FCCounters({root,q,num,step,recalc});
+for(const id of ['light-cover','medium','heavy']){
+  const marker=document.createElement('span');marker.id=id+'-required';marker.className='cover-required';
+  marker.textContent='!';marker.hidden=true;marker.setAttribute('role','status');
+  marker.setAttribute('aria-label','Completa le domande sulle coperte');
+  q('#'+id+'-control .step').append(marker);
+}
+step('lo','FC minimo','1.80',.05,'#range-fields');
+step('hi','FC massimo','2.00',.05,'#range-fields');
+q('label[for="lo"]').textContent='min';q('#lo').setAttribute('aria-label','FC minimo');
+q('label[for="hi"]').textContent='max';q('#hi').setAttribute('aria-label','FC massimo');
+for(const id of ['lo','hi']){
+  const marker=document.createElement('sup');marker.id=id+'-note-marker';marker.className='fc-note-marker';
+  marker.textContent='*';marker.hidden=true;marker.setAttribute('aria-hidden','true');q('#'+id+'-control').append(marker);
+  q('#'+id).setAttribute('aria-describedby','fc-selection-note');
+}
+function temperatureValue(){const raw=q('#scenario-temperature').value.trim().replace(',','.');return /^-?\d+(\.\d{1,2})?$/.test(raw)?Number(raw):NaN;}
+function waterNearZero(){const temperature=temperatureValue();return state==='Immerso'&&q('#water').value==='stagnante'&&Number.isFinite(temperature)&&temperature<=1;}
+function data(){const air=q('#air').value,surface=q('#surface').value,metalType=q('#metal-type').value;return {...counters.details(),wetClothes:q('#wet-clothes').value,wetCovers:q('#wet-covers').value,thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,s:num(q('#thin')),p:num(q('#thick'))+Number(!!q('#body-bag').checked),m:num(q('#medium'))+Number(!!q('#thermal-foil').checked),h:num(q('#heavy')),surf:surface==='metal'?(metalType===''?null:Number(metalType)):surface==='wood'?0:Number(surface),waterNearZero:waterNearZero(),air,wind:air==='continuous',isolation:q('#isolation').value,volume:q('#blanket-volume').value,feather:q('#feather').value,leaf:q('#leaf').value,leafCover:q('#leaf-cover').value,supportSoaked:q('#support-soaked').value,wetCase:q('#wet-case').checked};}
+function validCounts(c){return [c.s,c.p,c.m,c.h,...(c.garmentThin===undefined?[]:[c.garmentThin,c.garmentThick,c.teli,c.lightCover])].every(v=>Number.isInteger(v)&&v>=0&&v<=20);}
+const SOURCES = {
+  thermalCover: {short:'Henriksson et al., 2009 · studio su manichino, analogia per le coperture.',full:'Henriksson O, Lundgren JP, Kuklane K, Holmér I, Bjornstig U. Protection against cold in prehospital care—thermal insulation properties of blankets and rescue bags in different wind conditions. Prehosp Disaster Med. 2009;24(5):408–415. doi:10.1017/S1049023X00007238. L’assimilazione del sacco mortuario a un telo pesante e della mantellina termica a una coperta spessa sono assunzioni degli autori dell’app; lo studio non attribuisce un FC cadaverico a questi dispositivi.',url:'https://doi.org/10.1017/S1049023X00007238'},
+  waterExperiments: {"short": "Henssge, Brinkmann e Püschel, 1984 · immersione in acqua quasi ferma.", "full": "Henssge C, Brinkmann B, Püschel K. Determination of time of death by measuring the rectal temperature in corpses suspended in water. Z Rechtsmed. 1984;92:255–276. doi:10.1007/BF00200284. Dati consultati in Henssge, in Madea (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, tab. 6.7. Le prove distinguono acqua a circa 10–20 °C e prossima a 0 °C. Riguardano corpi nudi sospesi in acqua quasi ferma; non verificano tutte le condizioni di immersione.", "url": "https://doi.org/10.1007/BF00200284"},
+  flowingWater: {"short": "Henssge in Madea, 2016 · acqua corrente.", "full": "Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., 2016, cap. 6.1, sezione sull’immersione. Henssge discute una prova di Brown e Marshall su un corpo molto piccolo, in acqua in movimento a circa 5 m/ora, ricondotta a un FC di circa 0.35. È un’osservazione limitata, distinta dalla serie in acqua quasi ferma della tab. 6.7; non consente di generalizzare a ogni corrente."},
+
+  duvet: {"short": "Henssge, 1992 · coperture di piume; Madea, 2016, tab. 6.20.", "full": "Henssge C. Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G. Ripreso in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.20. La tabella riporta i riferimenti 2.80 e 3.00 a 70 kg per le condizioni più isolanti con coperture di piume. Il loro uso come intervallo per la domanda dell’app è un’interpretazione dell’app.", "url": "https://doi.org/10.1016/0379-0738(92)90080-G"},
+  wetNakedAccelerating: {short:'App · nudo bagnato su appoggio disperdente.',full:'Intervallo convenzionale dell’app: 0.60–0.75 per il nudo bagnato su cemento/pietra, piastrelle molto fredde o PVC, sia in aria ferma sia mobile. Nelle fonti consultate non sono state individuate indicazioni specifiche sufficienti per quantificare separatamente queste combinazioni. Il minimo 0.60 non è un limite sperimentale né deriva dai valori dell’immersione.'},
+  coldWater: {"short": "Henssge, Brinkmann e Püschel, 1984 · esperimenti in acqua.", "full": "Henssge C, Brinkmann B, Püschel K. Z Rechtsmed. 1984;92(4):255–276. doi:10.1007/BF00200284. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.7. Il range 0.50–1.00 per acqua stagnante prossima a 0 °C è la proposta dell’app basata sulla variabilità sperimentale; non è una nuova categoria della tabella originale. L’attivazione automatica a temperatura ≤ 1 °C è una soglia scelta per l’app.", "url": "https://doi.org/10.1007/BF00200284"},
+  soakedMattress: {short:'App · imbottiture impregnate, analogia con Althaus et al., 2007.',full:'Per analogia con le foglie bagnate, nessuna maggiorazione isolante per materasso o divano impregnati. L’assimilazione non è stata verificata sperimentalmente sulle imbottiture.'},
+  wetInsulation: {short:'Wang et al., 2016; Farnworth e Dolhan, 1983 · isolamento dei tessuti bagnati.',full:'Wang et al. Textile Research Journal 2016;86:57–63. doi:10.1177/0040517515580527. Farnworth e Dolhan. Heat Loss through Wet Clothing Insulation, 1983. L’isolamento dipende dall’acqua trattenuta e dallo spessore conservato. Questi studi non forniscono FC di Henssge per le coperte bagnate.',url:'https://doi.org/10.1177/0040517515580527'},
+  wetMixed: {short:'App · classificazione degli strati bagnati.',full:'Due strati leggeri orientano il confronto con uno pesante, senza equivalenza fissa. È una classificazione dell’app. Riferimenti: tab. 6.8, un camice bagnato 1.00; tab. 6.18, due strati pesanti bagnati 1.10 e più di due 1.20 in aria ferma, almeno due 0.90 in aria mobile. I range intermedi sono ipotesi dell’app, non intervalli pubblicati.'},
+  wetBlankets: {short:'App · coperture completamente bagnate.',full:'Nelle fonti consultate non sono state individuate indicazioni specifiche per tutte le combinazioni di coperture selezionabili. L’app le assimila alle classi di isolamento bagnato. Per coperte spesse e piumoni si usano intervalli tra i riferimenti degli strati bagnati. L’assimilazione non è dimostrata sperimentalmente. Non vengono sommati incrementi per ciascuna coperta.'},
+  wetLayers: {short:'Henssge e Brinkmann, 1984 · casi 51 e 44.',full:'Stessa descrizione: indumento intimo contenitivo, pantaloni e tre camici bagnati. FC 1.10 a 69.5 kg e 1.30 a 65 kg. Questi risultati non identificano il numero di strati pesanti e non validano direttamente le coperture.'},
+  wetGarments: {short:'Henssge e Brinkmann, 1984 · esperimenti con indumenti bagnati.',full:'Madea, 3ª ed., 2016, cap. 6.1, tab. 6.8, Henssge e Brinkmann, 1984: caso 41, un camice bagnato, FC 1.00; caso 42, due camici bagnati, FC 1.10. Un camice sperimentale non equivale a qualsiasi strato leggero. Il range 0.90–1.00 è una proposta dell’app.'},
+  wetCasework: {"short": "Henssge et al., 2000 · casi della pratica medico-legale 15 e 22.", "full": "Henssge et al. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.17: caso 15, pantaloni da tuta e slip fradici, su strada, pioggia e correnti d’aria, 76 kg; caso 22, pantaloni da lavoro e slip fradici, su terreno, vento e pioggia, 93 kg. Entrambi: FC scelto 0.70, range 0.60–0.80. L’appoggio è già compreso. Sono scelte documentate in casi reali, non valori misurati sperimentalmente.", "url": "https://doi.org/10.1007/s004149900089"},
+  wetSupport: {short:'Henssge · aggiustamento per appoggio; classificazione app.',full:'Con indumenti o coperture, l’app applica la correzione della tabella 6.19 a entrambi gli estremi del FC di partenza: materasso/tappeto +0.10; supporto molto imbottito +0.30 con vestizione leggera, +0.10 con isolamento maggiore; superficie accelerante −0.20 con vestizione molto leggera, −0.10 con isolamento maggiore. La traduzione dei conteggi nelle classi e l’assimilazione del PVC sono scelte dell’app, non esperimenti specifici su ogni combinazione. Per il nudo valgono riferimenti o proposte separati.'},
+  pvc: {"short": "Knörle, 1991, citato in Madea, 2016 · simulatori su PVC.", "full": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne, MD thesis, 1991. Citato in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.10 e riferimento 90. Simulatori nudi: esperimenti 230–232, FC 0.76, 0.76 e 0.77; riferimento approssimato nell’app 0.75. L’estensione a indumenti o corpo bagnato usa la categoria accelerante ed è un’ipotesi dell’app. Il testo integrale della tesi non è stato consultato."},
+  henssge: {short:'Henssge, 1988 · tabella dei fattori empirici.', full:'Henssge C. Death time estimation in case work. I. Forensic Sci Int. 1988;38:209–236. Ripresa: Henssge in Madea, 2016, tab. 6.18.', url:'https://pubmed.ncbi.nlm.nih.gov/3192144/'},
+  support: {short:'Henssge in Madea, 2016 · superfici di appoggio.', full:'Henssge, Post-mortem Body Cooling and Temperature-Based Methods, in Madea, Estimation of the Time Since Death, 3ª ed., 2016, tab. 6.19. Per il corpo nudo, i valori con +/− nell’originale sono interpretati come FC complessivi, non come incrementi o decrementi, in accordo con gli esempi di Henssge. Confronto con il testo del cap. 6.1 e con gli esempi delle tab. 6.10, 6.17 e 6.21.'},
+  wet: {short:'Henssge e Brinkmann, 1984 · casi 50 e 52.', full:'Henssge C, Brinkmann B. Todeszeitbestimmung aus der Rektaltemperatur. Arch Kriminol. 1984;174:96–112. Madea, 3ª ed., 2016, cap. 6.1, tab. 6.8: ambiente chiuso, aria ferma, superficie corporea bagnata; caso 52: 65 kg, FC 0.75; caso 50: 45 kg, FC 0.77.'},
+  clothes: {"short": "Henssge e Madea, 1988, citati in Madea, 2016 · indumenti e coperture.", "full": "Henssge C, Madea B. Methoden zur Bestimmung der Todeszeit an der Leiche. Lübeck: Schmidt-Römhild; 1988. Citato in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.4–6.6. La tab. 6.4 cita anche Stipanits e Henssge, Beitr Gerichtl Med. 1985;43:323–329. I casi individuali sono esperimenti su cadaveri; non convertono ogni indumento in un incremento fisso."},
+  leaves: {"short": "Althaus et al., 2007 · prove su simulatori con foglie.", "full": "Althaus L, Stückradt S, Henssge C, Bajanowski T. Cooling experiments using dummies covered by leaves. Int J Legal Med. 2007;121(2):112–114. doi:10.1007/s00414-006-0108-8. Prove su simulatori: appoggio di circa 2 cm, FC 1.0 con foglie bagnate, 1.3 umide, 1.5 secche; con una copertura aggiuntiva di circa 10 cm, FC 1.8–2.7. Dati riportati anche in Madea, 3ª ed., 2016, cap. 6.1, tab. 6.11–6.12.", "url": "https://doi.org/10.1007/s00414-006-0108-8"},
+  metal: {"short": "Knörle, 1991, citato in Madea, 2016 · simulatori su acciaio.", "full": "Knörle T. Normierungsvarianten für die Wärmeflussmessung an einem Kunstkörper. University of Cologne, MD thesis, 1991. Citato in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.10 e riferimento 90. Simulatore su acciaio appoggiato a calcestruzzo: esperimenti 290–292, FC 0.55, 0.54, 0.53. Non sono valori trasferibili a ogni piano metallico. Il testo integrale della tesi non è stato consultato."},
+  casework: {"short": "Henssge et al., 2000 · casi della pratica medico-legale.", "full": "Henssge et al. Experiences with a compound method for estimating the time since death. I. Rectal temperature nomogram for time since death. Int J Legal Med. 2000;113(6):303–319. doi:10.1007/s004149900089. Dati consultati in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, tab. 6.17 e 6.21. Il FC è scelto valutando la scena. Caso 6: due coperte molto spesse, circa 30 cm complessivi, persona vestita sul letto; FC centrale 2.40, range iniziale 2.00–2.80, adattato a 1.80–2.50 per 89 kg. L’indagine non verificò i tempi di morte della coppia 6/7. Il caso 33 presenta ipertermia e mancato utilizzo del metodo, come precisato nella scheda.", "url": "https://doi.org/10.1007/s004149900089"},
+  weight: {"short": "Henssge, 1992 · adattamento al peso.", "full": "Henssge C. Rectal temperature time of death nomogram: dependence of corrective factors on the body weight under stronger thermic insulation conditions. Forensic Sci Int. 1992;54(1):51–66. doi:10.1016/0379-0738(92)90080-G. Formula consultata in Henssge C. Basics and application of the nomogram method at the scene. In: Madea B (ed.), Estimation of the Time Since Death, 3ª ed., CRC Press, 2016, cap. 6.1, eq. 6.10; coefficiente -3.24596 verificato sulla pagina. Nell’app è applicata da FC 1.40 per peso inferiore a 60 o superiore a 80 kg. Sotto 1.40, incluso 1.35, nessun adattamento. Arrotondamento finale al multiplo di 0.05 più vicino; a metà passo si arrotonda in aumento.", "url": "https://doi.org/10.1016/0379-0738(92)90080-G"}
+};
+const RULES = [
+  {id:'dry-naked', label:'Asciutto, nudo, piano neutro', values:'Aria ferma 1.00; corrente 0.75', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s+c.p===0, range:c=>c.wind?[.75,.75]:[1,1]},
+  {id:'dry-one-thin', label:'Asciutto, 1 sottile', values:'Aria ferma 1.10; corrente 0.90', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===1&&c.p===0, range:c=>c.wind?[.9,.9]:[1.1,1.1]},
+  {id:'dry-two-thin', label:'Asciutto, 2 leggeri, aria ferma', values:'1.10 - 1.20', kind:'Ragionamento dell’app', sources:['henssge'], note:'Le categorie degli strati leggeri descritte nelle tabelle di Henssge si sovrappongono. L’app propone l’intervallo tra i valori 1.10 e 1.20.', match:c=>c.state==='Asciutto'&&!c.wind&&c.s===2&&c.p===0, range:()=>[1.1,1.2]},
+  {id:'dry-two-thin-wind', label:'Asciutto, 2 leggeri, aria mobile', values:'0.90', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.wind&&c.s===2&&c.p===0, range:()=>[.9,.9]},
+  {id:'dry-three-thin', label:'Asciutto, 3 sottili', values:'1.20 - 1.30', kind:'Ragionamento dell’app', sources:['henssge'], note:'L’app propone l’intervallo tra i valori riportati nelle tabelle di Henssge per 2–3 e 3–4 strati leggeri.', match:c=>c.state==='Asciutto'&&c.s===3&&c.p===0, range:()=>[1.2,1.3]},
+  {id:'dry-four-thin', label:'Asciutto, 4 sottili', values:'1.30', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===4&&c.p===0, range:()=>[1.3,1.3]},
+  {id:'dry-thick', label:'Asciutto, 1–2 spessi, nessun sottile', values:'1.20', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===0&&c.p>=1&&c.p<=2, range:()=>[1.2,1.2]},
+  {id:'dry-mixed', label:'Asciutto, 1–2 spessi + 1–2 sottili', values:'1.20 - 1.40', kind:'Ragionamento dell’app', sources:['henssge','clothes'], note:'Intervallo proposto fra strati spessi e abbigliamento multistrato.', match:c=>c.state==='Asciutto'&&c.p>=1&&c.p<=2&&c.s>=1&&c.s<=2, range:()=>[1.2,1.4]},
+  {id:'dry-many', label:'Asciutto, molti strati ordinari', values:'1.40 - 1.60', kind:'Ragionamento dell’app', sources:['henssge','clothes'], note:'L’app amplia a 1.60 il riferimento 1.40 della tabella di Henssge per numerosi strati ordinari.', match:c=>c.state==='Asciutto'&&isMany(c)&&c.isolation==='none', range:()=>[1.4,1.6]},
+  {id:'dry-insulating', label:'Asciutto, molti strati con elementi particolarmente isolanti', values:'1.40 - 1.80', kind:'Ragionamento dell’app', sources:['henssge','clothes'], note:'Intervallo per indumenti multistrato particolarmente isolanti; adattabile in base ai capi effettivi.', match:c=>c.state==='Asciutto'&&isMany(c)&&c.isolation==='yes', range:()=>[1.4,1.8]},
+  {id:'wet-naked-still', label:'Bagnato, nudo, aria ferma, piano neutro', values:'0.75 - 0.77', kind:'Studio sperimentale', sources:['wet'], note:'Intervallo fra due valori sperimentali; non è un intervallo di confidenza.', match:c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p===0, range:()=>[.75,.77]},
+  {id:'wet-one-thin-still', label:'Bagnato, un leggero, aria ferma', values:'0.90 - 1.00', kind:'Ragionamento dell’app', sources:['wetGarments'], note:'L’app propone un intervallo tenendo conto del valore 1.00 osservato con un singolo camice bagnato negli esperimenti descritti da Henssge.', match:c=>c.state==='Bagnato'&&!c.wind&&c.s===1&&c.p===0, range:()=>[.9,1]},
+  {id:'wet-thin-wind', label:'Bagnato, nudo o 1–2 sottili, corrente', values:'0.70', kind:'Tabella Henssge', sources:['henssge','wet'], match:c=>c.state==='Bagnato'&&c.wind&&c.p===0&&c.s<=2, range:()=>[.7,.7]},
+  {id:'wet-thick-wind', label:'Bagnato, almeno 2 spessi, corrente', values:'0.90, anche con leggeri ordinari, senza coperte', kind:'Tabella Henssge', sources:['henssge','wet'], match:c=>c.state==='Bagnato'&&c.wind&&c.p>=2, range:()=>[.9,.9]},
+  {id:'wet-mixed-wind', label:'Bagnato, un pesante o almeno tre leggeri, corrente', values:'0.70 - 0.90', kind:'Ragionamento dell’app', sources:['henssge','wetMixed'], match:c=>c.state==='Bagnato'&&c.wind&&(c.p===1||(c.p===0&&c.s>=3)), range:()=>[.7,.9]},
+  {id:'wet-two-light', label:'Bagnato, due leggeri, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetGarments','wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===0&&c.s===2, range:()=>[1,1.10]},
+  {id:'wet-one-heavy', label:'Bagnato, un pesante, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===1&&c.s===0, range:()=>[1,1.1]},
+  {id:'wet-three-light-equivalent', label:'Bagnato, tre leggeri oppure un pesante e un leggero, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s===3)||(c.p===1&&c.s===1)), range:()=>[1,1.1]},
+  {id:'wet-four-light-equivalent', label:'Bagnato, quattro leggeri oppure un pesante e due leggeri, aria ferma', values:'1.00 - 1.10', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s===4)||(c.p===1&&c.s===2)), range:()=>[1,1.1]},
+  {id:'wet-mixed-substantial', label:'Bagnato, almeno cinque leggeri o vestizione mista consistente, aria ferma', values:'1.10 - 1.20', kind:'Ragionamento dell’app', sources:['wetMixed'], match:c=>c.state==='Bagnato'&&!c.wind&&((c.p===0&&c.s>=5)||(c.p===1&&c.s>=3)||(c.p===2&&c.s>=1)), range:()=>[1.1,1.2]},
+  {id:'wet-mixed-heavy', label:'Bagnato, almeno tre pesanti e leggeri, aria ferma', values:'1.20', kind:'Ragionamento dell’app', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>=3&&c.s>=1, range:()=>[1.2,1.2]},
+  {id:'wet-two-thick', label:'Bagnato, 2 spessi, aria ferma', values:'1.10, senza altri strati o coperte', kind:'Tabella Henssge', sources:['henssge','wet'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p===2&&c.s===0, range:()=>[1.1,1.1]},
+  {id:'wet-many-thick', label:'Bagnato, più di 2 spessi, aria ferma', values:'1.20', kind:'Tabella Henssge', sources:['henssge','wetLayers'], match:c=>c.state==='Bagnato'&&!c.wind&&c.p>2&&c.s===0, range:()=>[1.2,1.2]}
+];
+function isMany(c){return c.p>=3||(c.p>=1&&c.s>=3)||(c.p===0&&c.s>=5);}
+function decision(id,range,kind,summary,sources,detail='',reference=null){return {id,range,kind,summary,sources,detail,reference:reference||(range?rangeText(range):'Non definito')};}
+function rangeText(range){return range[0]===range[1]?fmt(range[0]):range.map(fmt).join(' - ');}
+function pending(reason,sources=['henssge'],reference='Non definito'){return decision('manual',null,'Valutazione manuale',reason,sources,'Inserire entrambi gli estremi. Non viene usata una formula sostitutiva.',reference);}
+function wetCoverExplanation(c,extended=false){
+  const basis=extended
+    ? 'Per le coperture umide, parzialmente bagnate o di condizioni incerte, questa app propone un range tra i riferimenti del bagnato e dell’asciutto.'
+    : 'Per le coperte fradicie, questa app propone un range basato sui riferimenti degli strati bagnati.';
+  return basis+' Alcuni materiali possono conservare parte dell’isolamento anche da bagnati, ma mancano dati specifici per quantificarlo nelle coperte. L’operatore può perfezionare il range in base al caso.';
+}
+function wetBlanketDecision(c){
+  const substantial=c.h>0||c.m>=2||c.p>=1||c.s>=2;
+  const range=c.wind?(c.p>=2?[.9,.9]:[.7,.9]):substantial?[1.1,1.2]:[1,1.1];
+  return decision('wet-blanket'+(c.wind?'-wind':'-still'),range,'Ragionamento dell’app','Coperture completamente impregnate d’acqua.',['henssge','wetGarments','wetBlankets','wetLayers'],wetCoverExplanation(c));
+}
+// Extend an already classified wet configuration; count its supporting base once.
+function clothedSupportDelta(c){
+  const thick=c.p>0||c.s>=3||c.m+c.h>0;
+  if(c.surf<=1||c.surf===6)return 0;
+  if(c.surf===2)return .10;
+  if(c.surf===3)return thick?.10:.30;
+  if([4,5,10].includes(c.surf))return thick?-.10:-.20;
+  if(c.surf===8)return c.leaf==='wet'?0:c.leaf==='humid'?.10:c.leaf==='dry'?(thick?.10:.30):null;
+  return null;
+}
+function supportAdjustmentNote(c,range,delta){
+  return 'Dopo aver considerato gli indumenti, le coperture e le correnti d’aria, l’app applica '+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' a entrambi gli estremi per la superficie di appoggio. La correzione segue la tabella di Henssge; l’associazione dei capi selezionati alla classe di isolamento è un ragionamento dell’app.';
+}
+function shiftedSupport(c,base){
+  if(base.id==='feather-duvet'&&c.surf===2)return decision('feather-duvet-mattress',[base.range[0],base.range[1]+.1],'Ragionamento dell’app','Piumone di piume su materasso.',[...base.sources,'support'],'L’app mantiene il minimo del piumone di piume e aumenta il massimo di 0.10 per l’appoggio isolante. Questa combinazione non ha un intervallo specifico nelle fonti consultate.');
+  const target=clothedSupportDelta(c);
+  if(target===null)return pending('Precisare la superficie di appoggio.',['support']);
+  const included=base.referenceSurface===2?.1:0,delta=target-included;
+  if(!delta&&base.referenceSurface===undefined&&c.surf<=1)return base;
+  let detail=supportAdjustmentNote(c,base.range,delta);
+  if(c.surf===3)detail+=' Con più isolamento degli indumenti, la maggiorazione indicata nella tabella di Henssge scende da +0.30 a +0.10: il passaggio di categoria può ridurre il suggerimento.';
+  if(c.surf===8)detail='L’app assimila le foglie '+(c.leaf==='humid'?'umide al materasso':c.leaf==='dry'?'secche a un supporto molto imbottito':'bagnate a un appoggio neutro')+' e applica '+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' a entrambi gli estremi. Questa combinazione con indumenti o coperture non è stata verificata direttamente negli esperimenti sulle foglie.';
+  if(included)detail=delta===0?'Il range di confronto comprende già il letto: l’app non aggiunge una seconda maggiorazione per l’appoggio. Gli estremi sono adattabili dall’operatore.':'Il caso della pratica medico-legale comprende già il letto. Per confrontarlo con l’appoggio selezionato, l’app sostituisce la maggiorazione del letto con quella del nuovo supporto, modificando entrambi gli estremi di '+(delta>0?'+':'−')+fmt(Math.abs(delta))+'.';
+  let range=base.range.map(v=>Number((v+delta).toFixed(4)));
+  if(delta<0){
+    const naked=evaluateFixedAir({...c,s:0,p:0,m:0,h:0,wetCase:false});
+    if(naked.range){
+      const floor=naked.range[0];
+      if(range.some(v=>v<floor-1e-8))detail+=' L’app non scende sotto il minimo previsto per il corpo nudo nelle stesse condizioni.';
+      range=range.map(v=>Math.max(v,floor));
+    }
+  }
+  return decision(base.id+'-support',range,'Ragionamento dell’app','Intervallo adattato alla superficie di appoggio.',[...base.sources,'support',...(c.surf===8?['leaves']:[]),...(c.surf===10?['pvc']:[])],detail);
+}
+function wetSupportDecision(c,base){
+  if(!base.range)return base;
+  const naked=c.s+c.p+c.m+c.h===0;
+  if([2,3].includes(c.surf)){
+    if(!['yes','no'].includes(c.supportSoaked))return pending('Precisare se l’appoggio è impregnato di liquidi.',['support','leaves']);
+    if(c.supportSoaked==='yes')return decision(base.id+'-soaked',base.range,'Ragionamento dell’app','Appoggio impregnato: nessuna maggiorazione isolante.',[...base.sources,'leaves','soakedMattress'],'L’app non aggiunge l’effetto isolante delle imbottiture impregnate, per analogia con gli esperimenti sulle foglie bagnate. Questa assimilazione non è verificata per le imbottiture; il range è adattabile dall’operatore.');
+  }
+  if(!naked)return shiftedSupport(c,base);
+  if([4,5,10].includes(c.surf))return decision('wet-naked-accelerating',[.6,.75],'Ragionamento dell’app','Corpo bagnato su superficie disperdente.',['wet','support','wetNakedAccelerating',...(c.surf===10?['pvc']:[])],'L’app propone un intervallo considerando il corpo nudo bagnato e l’effetto accelerante dell’appoggio. Il minimo 0.60 è una scelta dell’app, non un valore sperimentale per questa combinazione.');
+  const range=c.surf===2?(c.wind?[.7,.95]:[.75,.95]):c.surf===3?(c.wind?[.7,1.05]:[.75,1.05]):null;
+  if(!range)return pending('Combinazione da precisare.',['wet','support']);
+  return decision('wet-naked-isolating',range,'Ragionamento dell’app','Corpo bagnato su superficie isolante.',['wet','support'],'Il minimo considera il corpo nudo bagnato nelle condizioni d’aria selezionate. Il massimo considera la possibile persistenza dell’isolamento dell’appoggio; questa combinazione non è quantificata direttamente nelle fonti.');
+}
+function blanketDecision(c){
+  const n=c.m+c.h,clothed=c.s+c.p>0;
+  if(c.state==='Bagnato')return wetBlanketDecision(c);
+  if(c.h>0){
+    if(!['no','yes'].includes(c.feather))return pending('Precisare il tipo di piumone.',['henssge','weight']);
+    if(c.feather==='yes')return decision('feather-duvet',[2.8,3],'Ragionamento dell’app','Piumone di piume molto voluminoso e avvolgente.',['duvet'],'Intervallo proposto sulla base della categoria “piumone di piume” di Henssge. Adattabile dall’operatore in base all’isolamento effettivo.');
+  }
+  if(n>1){
+    if(!['no','yes'].includes(c.volume))return pending('Precisare il volume delle coperture.',['henssge','casework']);
+    if(c.volume==='yes'){
+      const r=decision('blankets-voluminous',clothed?[2,2.8]:[1.8,2.8],'Ragionamento dell’app','Coperture sovrapposte molto voluminose.',['henssge','casework'],clothed?'L’app riprende il range del caso con due coperte molto spesse e indumenti, già comprensivo del letto. L’operatore può adattarlo al volume effettivo delle coperture.':'L’app considera il riferimento della coperta spessa e il caso della pratica medico-legale con coperture molto voluminose sul letto. L’estensione al corpo senza indumenti è un ragionamento dell’app.');
+      // The whole-case analogy is evaluated on a bed; another support replaces its allowance.
+      r.referenceSurface=2;return r;
+    }
+    return decision('blankets-ordinary',[1.8,2.4],'Ragionamento dell’app','Coperture sovrapposte.',['henssge'],'L’app propone un intervallo tenendo conto dei valori riportati nelle tabelle di Henssge per le coperture spesse e per l’associazione tra coperte e indumenti.');
+  }
+  if(c.h===1)return decision('heavy-blanket',clothed?[1.8,2.4]:[1.8,2.2],'Ragionamento dell’app','Copertura molto pesante.',['henssge','clothes'],'L’app considera la categoria della coperta spessa e i dati sperimentali sulle coperture più isolanti. Gli estremi sono adattabili al piumone e agli indumenti effettivamente presenti.');
+  return decision('thick-blanket',clothed?[1.8,2.4]:[1.8,1.8],clothed?'Ragionamento dell’app':'Tabella Henssge','Coperta spessa.',['henssge'],clothed?'L’app propone un intervallo tenendo conto dei valori riportati nelle tabelle di Henssge per le coperture spesse e per l’associazione tra coperte e indumenti. Gli estremi sono adattabili al numero e al tipo degli strati.':'Valore riportato nella tabella di Henssge per una coperta spessa che copre il tronco inferiore.');
+}
+function leavesDecision(c){
+  if(!['wet','humid','dry'].includes(c.leaf))return pending('Precisare la condizione delle foglie.',['leaves','support']);
+  if(!['no','yes'].includes(c.leafCover))return pending('Precisare se il corpo era anche coperto dalle foglie.',['leaves','support']);
+  if(c.leafCover==='yes'){
+    const exactDry=c.leaf==='dry'&&c.state==='Asciutto'&&!c.wind&&c.s+c.p+c.m+c.h===0;
+    return decision(
+      'covered-by-leaves',
+      [2.7,2.7],
+      exactDry?'Dati sperimentali':'Riferimento sperimentale da adattare',
+      'Corpo adagiato e coperto da foglie.',
+      ['leaves','support'],
+      'Negli esperimenti su simulatori: FC 1.8–2.7 con circa 2 cm di foglie sotto e 10 cm sopra. L’app propone 2.70 per foglie secche, da adattare a umidità, spessore e condizioni effettive.'
+    );
+  }
+  const base=evaluateFixedAir({...c,surf:0});
+  if(!base.range)return base;
+  const naked=c.s+c.p+c.m+c.h===0;
+  if(c.leaf==='wet')return decision(base.id+'-wet-leaves',base.range,'Ragionamento dell’app','Appoggio di foglie bagnate.',[...base.sources,'leaves'],'Con circa 2 cm di foglie bagnate sotto il simulatore: FC 1.0. L’app considera questo appoggio termicamente indifferente, senza aggiungere isolamento.');
+  if(!naked&&c.state==='Asciutto'&&!c.wind&&c.m+c.h===0){
+    const leafBase=c.leaf==='dry'?1.5:1.3;
+    const range=[Math.max(leafBase,base.range[0]),leafBase+base.range[1]-1];
+    return decision('dry-clothed-leaves',range,'Ragionamento dell’app','Corpo vestito appoggiato sulle foglie.',[...base.sources,'leaves','support'],'L’app considera il riferimento del corpo nudo sulle foglie e quello della vestizione su un appoggio indifferente. Mantiene almeno il maggiore dei due minimi e amplia il massimo considerando l’isolamento degli indumenti. La combinazione non è stata verificata direttamente negli esperimenti sulle foglie.');
+  }
+  if(!naked)return shiftedSupport(c,blanketOrClothingBase(c));
+  const dry=c.leaf==='dry';
+  if(c.state==='Asciutto'&&!c.wind)return decision('naked-leaves',dry?[1.5,1.5]:[1.3,1.3],'Tabella Henssge','Corpo nudo su foglie '+(dry?'secche.':'umide.'),['support','leaves'],'Con circa 2 cm di foglie '+(dry?'secche: FC 1.5.':'umide: FC 1.3.')+' Dati sperimentali su simulatori, riferiti al solo appoggio.');
+  const range=c.state==='Asciutto'?[.75,dry?1.5:1.3]:c.wind?[.7,dry?1.2:1]:[.75,dry?1.25:1.05];
+  const detail=c.state==='Asciutto'?'Intervallo suggerito tenendo conto dei valori per il corpo nudo esposto a correnti d’aria e per il corpo su superficie isolante senza correnti d’aria. Adattabile dall’operatore.':'Il minimo riprende il riferimento del corpo nudo bagnato. Il massimo considera la possibile persistenza dell’effetto isolante documentato per le foglie; questa combinazione non è stata verificata sperimentalmente.';
+  return decision('naked-leaves-range',range,'Ragionamento dell’app','Intervallo per il corpo nudo appoggiato sulle foglie.',[...base.sources,'support','leaves'],detail);
+}
+function blanketOrClothingBase(c){
+  if(c.m+c.h>0)return blanketDecision(c);
+  const matches=RULES.filter(rule=>rule.match(c));
+  if(matches.length>1)throw Error('Regole sovrapposte: '+matches.map(r=>r.id));
+  if(!matches.length)return pending(isMany(c)&&c.state==='Asciutto'?'Precisare la presenza di capi particolarmente isolanti.':'Combinazione da precisare.',c.state==='Bagnato'?['wet']:['henssge','clothes']);
+  const rule=matches[0],r=decision(rule.id,rule.range(c),rule.kind,rule.note||'Suggerimento per la configurazione selezionata.',rule.sources,rule.note||'Fattore di correzione indicato nella tabella riepilogativa degli studi di Henssge, in base a indumenti, coperture, condizioni del corpo e movimento dell’aria o dell’acqua.');
+  if(rule.id==='wet-naked-still')r.detail='Intervallo tra due risultati sperimentali per il corpo nudo bagnato, senza correnti d’aria. I valori osservati sono 0.75 e 0.77; non costituiscono un intervallo di confidenza.';
+  if(rule.sources.includes('wetMixed')&&!c.wind)r.detail='Il range colloca la combinazione tra i riferimenti disponibili per gli strati bagnati. Due leggeri orientano il confronto con un pesante, senza equivalenza fissa.';
+  if(rule.id==='wet-mixed-wind')r.detail='L’app propone l’intervallo fra i riferimenti per scarsa protezione e per almeno due strati pesanti bagnati, esposti a correnti d’aria. Questa combinazione non è riportata nella tabella di Henssge.';
+  if(rule.id==='wet-thick-wind'&&c.s>0){r.kind='Ragionamento dell’app';r.detail='L’app mantiene il valore riportato nella tabella di Henssge per almeno due strati pesanti bagnati esposti a correnti d’aria. L’estensione agli ulteriori strati leggeri selezionati è un ragionamento dell’app.';}
+  if(['wet-many-thick','wet-mixed-heavy'].includes(rule.id))r.detail='La tabella indica 1.20 per più di due strati pesanti bagnati. Ulteriori strati non comportano aumenti automatici.';
+  if(rule.id==='dry-insulating')r.detail='L’app parte dalla categoria dei numerosi strati descritta nella tabella di Henssge e considera gli esperimenti sull’abbigliamento più isolante. Il range viene ampliato in presenza di uno o più indumenti particolarmente isolanti.';
+  if(rule.id==='dry-mixed')r.detail='';
+  return r;
+}
+function evaluateFixedAir(c){
+  if(c.state==='Immerso'){
+    if(c.water==='stagnante'&&c.waterNearZero===true)return decision('water-cold-still',[.5,1],'Ragionamento dell’app','Acqua stagnante prossima a 0 °C.',['henssge','coldWater'],'Vicino a 0 °C, gli esperimenti di Henssge mostrano una maggiore variabilità del raffreddamento, probabilmente perché il tessuto adiposo sottocutaneo molto freddo riduce la dispersione del calore dal nucleo corporeo. La temperatura dell’acqua va usata come temperatura ambientale.');
+    return decision('water',c.water==='corrente'?[.35,.35]:[.5,.5],'Tabella Henssge','Immersione continua.',['henssge'],'Valore riportato nella tabella di Henssge per l’immersione in acqua '+(c.water==='corrente'?'corrente':'stagnante')+'. La temperatura dell’acqua va usata come temperatura ambientale.');
+  }
+  if(!validCounts(c))return pending('Correggere i conteggi.');
+  if(c.surf===null)return pending('Precisare il tipo di superficie metallica.',['metal','support']);
+  if(c.surf===9)return evaluateFixedAir({...c,surf:8,leaf:'dry'});
+  if(c.surf===6){const r=evaluateFixedAir({...c,surf:0});return {...r,id:r.id+'-thin-metal',kind:r.range?'Ragionamento dell’app':r.kind,sources:[...r.sources,'support'],detail:'L’app considera il piano metallico sottile come una superficie termicamente indifferente, per la sua limitata capacità termica. Mantiene quindi il suggerimento per il corpo nelle condizioni selezionate.'};}
+  if(c.surf===7){
+    if(c.state==='Asciutto'&&!c.wind&&c.s+c.p+c.m+c.h===0)return decision('massive-metal-naked',[.55,.55],'Ragionamento dell’app','Corpo nudo su piano metallico molto spesso.',['metal'],'Negli esperimenti su acciaio appoggiato su calcestruzzo sono riportati valori tra 0.53 e 0.55. L’app usa 0.55 per un piano metallico molto spesso.');
+    const neutral=evaluateFixedAir({...c,surf:0});
+    if(!neutral.range)return neutral;
+    return decision('massive-metal-range',[Math.min(.55,neutral.range[0]),Math.max(.55,neutral.range[1])],'Ragionamento dell’app','Intervallo sul piano metallico molto spesso.',['metal',...neutral.sources],'L’app propone un intervallo che comprende il riferimento sperimentale del corpo nudo sul metallo e quello del corpo '+(c.state==='Bagnato'?'bagnato':'asciutto')+' con gli strati selezionati su superficie termicamente indifferente. Questa combinazione non è quantificata direttamente nelle fonti.');
+  }
+  if(c.surf===8)return leavesDecision(c);
+  if(c.state==='Bagnato'&&c.wind&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true)return decision('wet-case-15-22',[.6,.8],'Ragionamento dell’app','Confronto con i casi della pratica medico-legale 15 e 22.',['henssge','wetCasework'],'L’app riprende il range dei casi con pantaloni e slip bagnati, su strada o terreno, con pioggia e correnti d’aria. L’appoggio è già compreso nel confronto.');
+  const base=blanketOrClothingBase(c);if(!base.range)return base;
+  if(c.surf<=1)return base.referenceSurface===undefined?base:shiftedSupport(c,base);
+  if(c.state==='Bagnato')return wetSupportDecision(c,base);
+  if(c.s+c.p+c.m+c.h>0)return shiftedSupport(c,base);
+  const accelerating=[4,5,10].includes(c.surf);
+  const range=c.surf===2?(c.wind?[.75,1.2]:[1.1,1.2]):c.surf===3?(c.wind?[1,1.3]:[1.3,1.3]):accelerating?(c.wind?[.7,.75]:[.75,.75]):null;
+  if(!range)return pending('Precisare la superficie di appoggio.',['support']);
+  const detail=!c.wind?'Riferimento in condizioni asciutte, senza correnti d’aria. Per il corpo nudo, i valori con +/− nell’originale sono interpretati come FC complessivi, non come incrementi o decrementi, in accordo con gli esempi di Henssge.':accelerating?'L’app propone un intervallo considerando il corpo nudo esposto a correnti d’aria e l’appoggio che accelera il raffreddamento. Il minimo 0.70 è una scelta dell’app; questa combinazione non è direttamente quantificata.':'Intervallo suggerito tenendo conto dei valori per il corpo nudo esposto a correnti d’aria e per il corpo su superficie isolante senza correnti d’aria. Adattabile dall’operatore.';
+  return decision('dry-naked-support',range,c.wind||c.surf===10?'Ragionamento dell’app':'Tabella Henssge','Corpo nudo sulla superficie selezionata.',['henssge','support',...(c.surf===10?['pvc']:[])],detail);
+}
+
+function wetGroups(c){
+  const detailed=Number.isFinite(c.garmentThin)&&Number.isFinite(c.garmentThick);
+  return {clothes:detailed?c.garmentThin+c.garmentThick+(c.teli||0)>0:c.s+c.p-Number(!!c.bodyBag)>0,
+    covers:c.m-Number(!!c.thermalFoil)+c.h+(c.lightCover||0)>0};
+}
+function needsDryEnvelope(c){
+  if(c.state!=='Bagnato')return false;
+  const groups=wetGroups(c);
+  return (groups.clothes&&['partial','unknown'].includes(c.wetClothes))||(groups.covers&&['partial','unknown'].includes(c.wetCovers));
+}
+function evaluateFC(c){
+  const wet=evaluateAirFC(c);
+  if(!needsDryEnvelope(c)||!wet.range)return wet;
+  // If a dry-only qualifier is unknown, include both existing dry categories.
+  const dry=[];
+  for(const feather of (c.h>0&&!['yes','no'].includes(c.feather)?['no','yes']:[c.feather]))
+    for(const volume of (c.m+c.h>1&&!['yes','no'].includes(c.volume)?['no','yes']:[c.volume]))
+      for(const isolation of (isMany(c)&&!['none','yes'].includes(c.isolation)?['none','yes']:[c.isolation]))
+        dry.push(evaluateAirFC({...c,state:'Asciutto',feather,volume,isolation,wetCase:false}));
+  if(dry.some(r=>!r.range))return pending('Precisare le condizioni dello scenario asciutto.',wet.sources);
+  const range=[Math.min(wet.range[0],...dry.map(r=>r.range[0])),Math.max(wet.range[1],...dry.map(r=>r.range[1]))];
+  const covers=wetGroups(c).covers&&['partial','unknown'].includes(c.wetCovers);
+  const detail=covers?wetCoverExplanation(c,true):'Il range suggerito comprende gli scenari bagnato e asciutto, perché gli indumenti o i teli sono solo parzialmente bagnati oppure non è chiaro quanto siano impregnati d’acqua.';
+  return decision('wet-dry-envelope',range,'Ragionamento dell’app','Intervallo tra lo scenario bagnato e quello asciutto.',[...new Set([...wet.sources,...dry.flatMap(r=>r.sources),'wetInsulation'])],detail+' Il confronto riguarda l’intera configurazione.');
+}
+function evaluateAirFC(c){
+  if(!['Asciutto','Bagnato','Immerso'].includes(c.state))return pending('Specificare le condizioni in cui si è trovato il cadavere per ricevere suggerimenti basati sui dati di letteratura, oppure inserire direttamente il FC.');
+  if(c.state==='Immerso')return evaluateFixedAir(c);
+  if(!validCounts(c))return pending('Correggere i conteggi.');
+  const air=c.air||(c.wind?'continuous':'still');
+  if(air==='still'||air==='continuous')return evaluateFixedAir({...c,wind:air==='continuous'});
+  if(!['intermittent','unknown'].includes(air))return pending('Precisare il movimento dell’aria.');
+  const still=evaluateFixedAir({...c,wind:false}),moving=evaluateFixedAir({...c,wind:true});
+  const sources=[...new Set([...still.sources,...moving.sources])];
+  if(!still.range||!moving.range)return pending('Almeno uno scenario di ventilazione non è definito: adattare il range.',sources);
+  const limits=[Math.min(still.range[0],moving.range[0]),Math.max(still.range[1],moving.range[1])];
+  const r=decision('air-scenarios',limits,'Ragionamento dell’app',air==='intermittent'?'Intervallo proposto confrontando aria ferma e movimento continuo.':'Intervallo fra gli scenari di ventilazione possibili.',sources,'Il movimento dell’aria non è ricostruibile con continuità. L’app propone l’intervallo che comprende la stessa configurazione in aria ferma ('+rangeText(still.range)+') e in aria mobile ('+rangeText(moving.range)+').');
+  r.scenarios={still,moving};return r;
+}
+
+// Formula transcribed from Henssge in Madea, 3rd ed., p.81, eq.6.10.
+// Do not substitute Potente's 3.2 or the later transcription 3.24696.
+// Source range originally 0.75–3; use above 3 is an agreed app extrapolation.
+function weightApplies(w){return w<60||w>80;}
+function adjust(v,w){
+  if(!Number.isFinite(v)||v<=0||!Number.isFinite(w)||w<4||w>150)return NaN;
+  if(v<1.4||!weightApplies(w))return v;
+  const denominator=(Math.pow(w,-.625)-.028)*(-3.24596*Math.exp(-.89959*v))-.0354;
+  const scaled=Math.pow(-1.2815/denominator,1.6)/w;
+  return Number.isFinite(scaled)&&scaled>0?scaled:NaN;
+}
+function crossesWeightThreshold(a,b,w){return weightApplies(w)&&a<1.4&&b>=1.4;}
+function bounds(a,b,w){
+  if(!Number.isFinite(a)||!Number.isFinite(b)||a>b)return [NaN,NaN];
+  const vals=[adjust(a,w),adjust(b,w)];
+  // The interval is continuous. Include the left-hand limit at the discontinuity
+  // as well as its adjusted value; checking only endpoints loses valid scenarios.
+  if(crossesWeightThreshold(a,b,w))vals.push(1.4,adjust(1.4,w));
+  return [Math.min(...vals),Math.max(...vals)];
+}
+// Documentary examples are independent of the calculation engine.
+// Original experimental FCs remain at the reported body weight, not normalized to 70 kg.
+// Documentary values and sources are supplied from data/fc_examples.json.
+// Only the matching criteria belong to the panel.
+function matchesBlanketExperiments(c){
+  return c.state==='Asciutto'&&!c.wind&&c.m+c.h>=1&&c.m+c.h<=2&&c.s+c.p<=1&&c.surf<=2&&c.feather!=='yes';
+}
+const EXAMPLE_MATCHERS={
+  'wet-51-44':c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.p>=3,
+  'wet-case-15':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true,
+  'wet-41':c=>c.state==='Bagnato'&&c.air==='still'&&c.m+c.h===0&&c.s===1&&c.p===0,
+  'wet-52':c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1,
+  'wet-50':c=>c.state==='Bagnato'&&!c.wind&&c.s+c.p+c.m+c.h===0&&c.surf<=1,
+  'still-B63':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
+  'still-B58':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf<=1,
+  'still-H6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===0&&c.s+c.p===3&&c.surf<=1,
+  'still-B54':c=>c.state==='Asciutto'&&c.m+c.h===0&&c.surf<=1&&((!c.wind&&c.p>=1&&c.s+c.p>=3&&c.s+c.p<=6)||(isMany(c)&&c.isolation==='yes')),
+  'wind-H15':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.p===0&&c.s===1&&c.surf<=1,
+  'wind-H14':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===0,
+  'blanket-B33':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf===2&&(c.m>=2||c.h>=1),
+  'blanket-B56':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf<=1&&c.lightCover===1&&c.teli===0&&c.garmentThin>=1&&c.garmentThin<=2&&c.garmentThick===0&&c.m+c.h===0,
+  'blanket-H08':matchesBlanketExperiments,
+  'case-33':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===1&&c.s+c.p>=2&&c.s+c.p<=4&&c.surf<=2,
+  'case-6':c=>c.state==='Asciutto'&&!c.wind&&c.m+c.h===2&&c.s+c.p>=1&&c.s+c.p<=3&&c.surf<=2,
+  'case-55':c=>c.state==='Asciutto'&&c.wind&&c.m+c.h===0&&c.s+c.p===2&&c.surf===1,
+  'case-22':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf===1&&c.m+c.h===0&&c.s+c.p===2&&c.wetCase===true,
+  'case-62':c=>c.state==='Asciutto'&&c.air==='still'&&c.surf===2&&c.s+c.p+c.m+c.h===0,
+  't6_3-28':c=>c.state==='Asciutto'&&c.air==='continuous'&&c.surf<=1&&c.s+c.p+c.m+c.h===0,
+  't6_7-01':c=>c.state==='Immerso'&&c.water==='stagnante'&&!c.waterNearZero,
+  't6_7-10':c=>c.state==='Immerso'&&c.water==='stagnante'&&!c.waterNearZero,
+  't6_7-15':c=>c.state==='Immerso'&&c.water==='stagnante'&&c.waterNearZero===true,
+  't6_7-16':c=>c.state==='Immerso'&&c.water==='stagnante'&&c.waterNearZero===true,
+  't6_8-55':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf<=1&&c.m+c.h===0&&c.p>=2,
+  't6_8-47':c=>c.state==='Bagnato'&&c.air==='continuous'&&c.surf<=1&&c.m+c.h===0&&c.p===0&&c.s===3,
+  't6_10-200':c=>c.state==='Asciutto'&&c.surf===3,
+  't6_10-230':c=>c.state!=='Immerso'&&c.surf===10,
+  't6_10-260':c=>c.state!=='Immerso'&&c.surf===4,
+  't6_10-290':c=>c.state!=='Immerso'&&c.surf===7,
+  't6_11-riga-1':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='wet'&&c.leafCover==='no',
+  't6_11-riga-2':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='humid'&&c.leafCover==='no',
+  't6_11-riga-5':c=>c.state!=='Immerso'&&c.surf===8&&c.leaf==='dry'&&c.leafCover==='no',
+  't6_12-riga-1':c=>c.state!=='Immerso'&&c.surf===8&&['wet','humid','dry'].includes(c.leaf)&&c.leafCover==='yes',
+  't6_12-riga-13':c=>c.state!=='Immerso'&&c.surf===8&&['wet','humid','dry'].includes(c.leaf)&&c.leafCover==='yes',
+};
+const EXAMPLES=[];
+function exampleFCText(e){
+  return e.observations|| (e.weightNote?'FC iniziale: '+e.fc+'; a '+e.weight.toFixed(1)+' kg: '+e.adjustedFc+'.':'FC: '+e.fc);
+}
+function exampleWeightRelevant(e){
+  if(e.weightNote)return true;
+  const values=String(e.fc||'').match(/\d+(?:[.,]\d+)?/g)||[];
+  const maximum=Math.max(...values.map(v=>Number(v.replace(',','.'))));
+  const weights=e.weights||[e.virtualWeight??e.weight];
+  return maximum>=1.4&&weights.some(w=>Number.isFinite(Number(w))&&weightApplies(Number(w)));
+}
+function exampleDecimalText(text){return text.replace(/(\d),(\d)/g,'$1.$2');}
+function exampleConditions(e){return exampleDecimalText(e.conditions.replace(/\s+sul tronco inferiore/gi,'').replace(/\s+del tronco inferiore/gi,'').replaceAll('aria mobile','correnti d’aria').replaceAll('aria ferma','assenza di correnti d’aria'));}
+
+const BLANKET_EXAMPLE_PROFILES=[
+  {id:'t6_6-B62',support:'neutral',clothed:false,count:1,insulating:false},
+  {id:'t6_6-B51',support:'neutral',clothed:false,count:2,insulating:false},
+  {id:'t6_6-B52',support:'neutral',clothed:true,count:1,insulating:false},
+  {id:'blanket-B56',support:'neutral',clothed:true,count:1,insulating:false},
+  {id:'blanket-H08',support:'mattress',clothed:false,count:2,insulating:true},
+  {id:'t6_6-H07',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'t6_6-H10',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'t6_6-H06',support:'mattress',clothed:true,count:null,insulating:null},
+  {id:'blanket-B33',support:'mattress',clothed:true,count:2,insulating:true},
+  {id:'case-6',support:'mattress',clothed:true,count:2,insulating:true}
+];
+function blanketExampleMatches(c){
+  const clothed=Number.isInteger(c.garmentThin)&&Number.isInteger(c.garmentThick)
+    ? c.garmentThin+c.garmentThick>0 : c.s+c.p>0;
+  const count=c.m+c.h+(c.lightCover||0);
+  const support=c.surf===2?'mattress':c.surf<=1?'neutral':'other';
+  const highlyInsulating=c.h>0||c.volume==='yes'||c.feather==='yes';
+  const wideRange=!!result?.range&&result.range[1]-result.range[0]>.25;
+  const limit=(wideRange||count>1)?6:3;
+  const ranked=BLANKET_EXAMPLE_PROFILES.map(profile=>{
+    const e=EXAMPLES.find(item=>item.id===profile.id);
+    if(!e)return null;
+    let score=(profile.clothed===clothed?9:-4)+(profile.support===support?4:-2);
+    if(profile.count===count)score+=3;
+    else if(profile.count!==null&&profile.count>1&&count>1)score+=2;
+    if(highlyInsulating&&profile.insulating===true)score+=10;
+    else if(highlyInsulating&&profile.insulating===false)score-=4;
+    else if(!highlyInsulating&&profile.insulating===false)score+=2;
+    if(c.volume==='yes'&&profile.id==='case-6')score+=5;
+    if(!highlyInsulating&&profile.id==='case-6')score-=2;
+    return {e,profile,score};
+  }).filter(Boolean).sort((a,b)=>b.score-a.score);
+  // Include both published higher-isolation comparisons without losing either one.
+  let selected=ranked.slice(0,limit);
+  if(highlyInsulating){
+    const requiredIds=['case-6','blanket-B33'];
+    const required=ranked.filter(item=>requiredIds.includes(item.e.id));
+    selected=ranked.filter(item=>!requiredIds.includes(item.e.id))
+      .slice(0,Math.max(0,limit-required.length)).concat(required)
+      .sort((a,b)=>b.score-a.score);
+  }
+  return selected.map(({e,profile})=>{
+    const differences=[];
+    if(c.wind)differences.push('correnti d’aria non equivalenti a quelle della prova');
+    if(profile.count===null)differences.push('numero e spessore delle coperture non precisati nella descrizione della prova');
+    else if(profile.count!==count)differences.push('numero di coperture differente');
+    if(c.feather==='yes')differences.push('la prova non documenta un piumone di piume equivalente');
+    else if(highlyInsulating&&profile.insulating===false)
+      differences.push('copertura non descritta come particolarmente isolante');
+    return {...e,comparisonNote:differences.length?'Per confronto: '+differences.join('; ')+'.':''};
+  });
+}
+
+function exampleMatches(c){
+  if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];
+  if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];
+  if(c.state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0))return blanketExampleMatches(c);
+  return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));
+}
+function originLabel(r){
+  if(!r.range)return 'Nessun suggerimento automatico';
+  if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
+  if(r.kind==='Studio sperimentale')return 'Dati sperimentali citati da Henssge/Madea';
+  return 'Ragionamento dell’app';
+}
+function referenceLabel(r,c){
+  if(r.id==='water-cold-still'||r.id==='massive-metal-naked')return 'Vedi dati sperimentali';
+  if(r.kind==='Tabella Henssge')return r.reference;
+  if(r.id==='wet-naked-still'||r.id==='leaves')return 'Non direttamente tabulato';
+  if(r.id==='air-scenarios'){const values=[referenceLabel(r.scenarios.still,{...c,wind:false}),referenceLabel(r.scenarios.moving,{...c,wind:true})];return [...new Set(values)].join(' · ');}
+  if(r.id.startsWith('heavy-blanket'))return r.reference;
+  if(r.id.startsWith('thick-blanket')||r.id.startsWith('blankets-')||(!r.range&&c.state==='Asciutto'&&c.m+c.h>0))return r.reference;
+  const references={'dry-two-thin':'1.10 / 1.20','dry-three-thin':'1.20 / 1.30','dry-mixed':'1.20 / 1.40','dry-many':'1.40','dry-insulating':'1.40'};
+  return references[r.id]||(r.sources.includes('support')?'Vedi fonte':'Non univoco');
+}
+function coverConvention(c){if(c.state==='Immerso')return '';return [c.bodyBag?'Assunzione degli autori dell’app: sacco mortuario assimilato a un telo pesante.':'',c.thermalFoil?'Assunzione degli autori dell’app: mantellina termica assimilata a una coperta spessa.':''].filter(Boolean).join(' ');}
+function sourceExplanation(r,c){
+  const convention=coverConvention(c);
+  return [convention,convention&&r.kind==='Tabella Henssge'?'':r.detail].filter(Boolean).join(' ');
+}
+function paragraph(parent,text){const p=document.createElement('p');p.textContent=text;parent.append(p);return p;}
+function sourceDetails(parent,source){
+  const link=document.createElement('a');link.textContent=source.short;link.href='#reference-page';
+  link.addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('reference',source);});
+  const row=document.createElement('p');row.append(link);parent.append(row);
+}
+function renderFCProvenance(r,examples=[],c=null){
+  const host=q('#fc-provenance');host.replaceChildren();
+  if(!r)return;
+  const line=(text,kind)=>{
+    const p=document.createElement('p');p.className='fc-provenance-'+kind;
+    p.textContent=text;host.append(p);
+  };
+  const convention=c&&coverConvention(c);
+  if(convention){
+    line(convention,'red');
+    if(c.bodyBag)line('Riferimento Henssge: FC 1.2 per 1–2 strati pesanti asciutti.','reference');
+    if(c.thermalFoil)line('Riferimento Henssge: FC 1.8 per una coperta spessa.','reference');
+    return;
+  }
+  if(!r.range)return;
+  const originalRanges={
+    'dry-two-thin':['1.10','1.20'],
+    'dry-three-thin':['1.20','1.30'],
+    'dry-mixed':['1.20','1.40'],
+    'wet-mixed-wind':['0.70','0.90'],
+    'wet-many-thick':['1.20'],
+    'wet-mixed-heavy':['1.20'],
+    'dry-many':['1.40'],
+    'dry-insulating':['1.40']
+  };
+  if(c&&c.state==='Asciutto'&&c.m+c.h>0){
+    line('Nella tabella generale di Henssge: FC 1.80 per coperte spesse e FC 2.40 per coperte spesse associate a indumenti.','green');
+    if(r.id==='feather-duvet'){
+      line('Per coperture di piume particolarmente isolanti, Henssge (1992; Madea, 2016, tabella 6.20) riporta anche FC 2.80 e 3.00.','green');
+    }
+    if(r.kind!=='Tabella Henssge'){
+      line('L’intervallo suggerito per la combinazione selezionata è proposto dall’app per analogia e può essere adattato dall’operatore.','red');
+    }
+  }else if(c&&c.state==='Bagnato'){
+    line('Tabella di Henssge · strati completamente impregnati d’acqua. Senza correnti d’aria: due pesanti 1.10, più di due 1.20. Con correnti d’aria: nudo o 1–2 leggeri 0.70, almeno due pesanti 0.90.','green');
+    line('Henssge e Brinkmann, 1984 · esperimenti senza correnti d’aria: nudo bagnato 0.75–0.77; un camice bagnato 1.00; due camici bagnati 1.10; indumento intimo contenitivo, pantaloni e tre camici bagnati 1.10–1.30.','yellow');
+  }else if(r.kind==='Tabella Henssge'){
+    // The existing explanatory sentence below already identifies the Henssge table.
+  }else if(r.kind==='Studio sperimentale'||r.kind==='Dati sperimentali'){
+    line('FC ricavato da uno studio sperimentale pubblicato, non direttamente riportato come tale nella tabella generale di Henssge.','yellow');
+  }else{
+    const ends=originalRanges[r.id];
+    if(ends&&ends.length===2){
+      line('Gli estremi '+ends.join(' e ')+' corrispondono a condizioni differenti previste nella tabella di Henssge.','green');
+      line('In assenza di un riferimento specifico nelle tabelle di Henssge per la condizione indicata, l’app propone un intervallo compreso tra i valori previsti per condizioni differenti'+(examples.length?' e presenta alcuni esempi di casi pubblicati in letteratura e citati da Henssge':'')+'. L’intervallo può essere adattato dall’operatore.','red');
+    }else if(ends&&ends.length===1){
+      line('Il valore '+ends[0]+' è riportato nella tabella originale di Henssge.','green');
+      line('L’estensione dell’intervallo alle condizioni selezionate è una deduzione dell’app.','red');
+    }else{
+      line('L’intervallo suggerito deriva da una valutazione per analogia dell’app e non è direttamente tabulato per questa combinazione.','red');
+    }
+  }
+}
+function showSource(){
+  let c={...data(),state,water:q('#water').value};
+  if(q('#air-row').hidden)c={...c,air:'still',wind:false};
+  const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
+  renderFCProvenance(result,examples,c);
+  q('#reference').textContent=referenceLabel(result,c);
+  const showOrigin=result.kind!=='Tabella Henssge'&&originLabel(result)!=='Ragionamento dell’app';
+  q('#source-kind').hidden=!showOrigin;
+  q('#source-kind').textContent=showOrigin?originLabel(result)+':':'';
+  q('#source-body').textContent='';q('#source-extra').textContent='';
+  const dryBlankets=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0);
+  const repeatedBlanketDetail=c.m+c.h>0&&['blankets-ordinary','thick-blanket','heavy-blanket','feather-duvet'].includes(result.id);
+  const specialCover=!!coverConvention(c);
+  q('#rule-source').textContent=repeatedBlanketDetail||(specialCover&&result.kind==='Tabella Henssge')?'':result.detail;
+  q('#rule-source').classList.toggle('fc-provenance-green',!specialCover&&result.kind==='Tabella Henssge'&&!dryBlankets);
+  q('#rule-source').classList.toggle('fc-provenance-red',specialCover);
+  const notice=q('#h08-notice');notice.replaceChildren();notice.hidden=!dryBlankets||specialCover;
+  if(dryBlankets&&!specialCover){
+    const bold=document.createElement('strong');bold.textContent='Attenzione:';
+    const link=document.createElement('a');
+    link.href='https://drive.google.com/file/d/1mobrXHixi1aEEOPU2WC9H5i3rm-5E6rv/view';
+    link.target='_blank';link.rel='noopener noreferrer';link.textContent='tabella 6.6';
+    notice.append(bold,document.createTextNode(' nel caso sperimentale H08 (Henssge e Madea, 1988; Madea, 2016, '),link,
+      document.createTextNode('), un corpo nudo con addosso due coperte spesse, adagiato su materasso presentava FC 1.44. Il caso documenta la variabilità dell’isolamento effettivo delle coperture. Tenerne conto ed eventualmente modificare/perfezionare l’intervallo suggerito.'));
+  }
+  const citations=q('#source-full-citations');citations.replaceChildren();
+  const sourceIds=new Set(result.sources);
+  if(state==='Bagnato')for(const id of ['henssge','wet','wetGarments','wetLayers'])sourceIds.add(id);
+  if(state==='Immerso')sourceIds.add(c.water==='corrente'?'flowingWater':'waterExperiments');
+  if(sourceIds.has('wetMixed')){sourceIds.add('henssge');sourceIds.add('wetGarments');}
+  if(sourceIds.has('wetSupport'))sourceIds.add('support');
+  for(const id of ['wetMixed','wetBlankets','wetSupport','wetNakedAccelerating','soakedMattress'])sourceIds.delete(id);
+  for(const id of sourceIds)sourceDetails(citations,SOURCES[id]);
+  if(state!=='Immerso'&&(c.thermalFoil||c.bodyBag))sourceDetails(citations,SOURCES.thermalCover);
+  const seenExamples=new Set();
+  for(const e of examples)if(!seenExamples.has(e.sourceText)){
+    seenExamples.add(e.sourceText);
+    sourceDetails(citations,{short:(SOURCES[e.source]?.short||'Fonte')+' · '+e.title,full:e.sourceText,url:e.url});
+  }
+  const w=num(q('#weight'));
+  const active=result.range&&suggestion&&Number.isFinite(w)&&suggestion.some((v,i)=>v!==roundFC(result.range[i]));
+  q('#weight-source').hidden=!active;
+  q('#weight-source').textContent=active?'Il fattore di correzione è stato adattato al peso (FC per 70 kg = '+rangeText(result.range)+', per il peso di '+String(Number(w.toFixed(2)))+' kg = '+rangeText(suggestion)+').':'';
+  if(active&&!result.sources.includes('weight'))sourceDetails(citations,SOURCES.weight);
+  q('#source-examples .hint').textContent=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Esempi sulle coperture dalla letteratura, anche per confronto: differenze di indumenti, appoggio e coperture sono segnalate quando presenti.':'Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:';
+  const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
+  for(const e of examples){
+    const item=document.createElement('li');
+    const title=document.createElement('strong');
+    title.textContent=e.title+(e.type==='Caso operativo'?' (pratica medico-legale)':'');
+    const prefix=exampleWeightRelevant(e)?(e.type==='Simulatore'?'Peso virtuale standard: ':'Peso: ')+(e.weights||[e.virtualWeight??e.weight]).map(String).join(' / ')+' kg · ':'';
+    item.append(title,document.createTextNode(' — '+prefix+exampleConditions(e)+' '));
+    const value=document.createElement('strong');value.textContent=exampleDecimalText(exampleFCText(e));
+    item.append(value);
+    const note=(e.notes||'').replaceAll('La copertura è valutata insieme agli indumenti su appoggio neutro.','').trim();
+    if(note&&e.title!=='Caso 33')item.append(document.createTextNode(' · '+exampleDecimalText(note)));
+    if(e.comparisonNote)item.append(document.createTextNode(' · '+e.comparisonNote));
+    list.append(item);
+  }
+}
+function manualSelectionNote(a,b){
+  const prefix='FC compilato manualmente';
+  if(!Number.isFinite(a)||!Number.isFinite(b)||a<.35||b<a)return prefix+'.';
+  if(!suggestion)return prefix+', senza un suggerimento automatico disponibile per le condizioni indicate.';
+  const [lo,hi]=suggestion,reference=rangeText(suggestion);
+  if(a===lo&&b===hi)return '';
+  if(lo===hi){
+    return prefix+', diverso dal valore suggerito dall’app ('+reference+').';
+  }
+  if(a>=lo&&b<=hi)return prefix+', entro l’intervallo suggerito dall’app ('+reference+').';
+  const overlap=b>=lo&&a<=hi;
+  return prefix+(overlap?', in parte al di fuori':', al di fuori')+' dell’intervallo suggerito dall’app ('+reference+').';
+}
+function update(){
+  const c=data(),a=num(q('#lo')),b=num(q('#hi')),w=num(q('#weight'));
+  let error='';
+  if(state!=='Immerso'&&!validCounts(c))error='Inserire conteggi interi da 0 a 20.';
+  else if(!Number.isFinite(a)||!Number.isFinite(b))error=result.range&&suggestion?(rangeExpanded?'Inserire entrambi gli estremi.':'Inserire il FC o selezionare le condizioni del corpo.'):result.summary;
+  else if(a<.35||b<a)error='Minimo ≥ 0.35 e massimo ≥ minimo.';
+  else if(!onFCGrid(a)||!onFCGrid(b))error='Passi di 0.05: arrotondamento all’uscita dal campo.';
+  else if(q('#weight').value.trim()!==''&&(!Number.isFinite(w)||w<4||w>150))error='Inserire un peso tra 4 e 150 kg.';
+  q('#error').textContent=error;
+  q('#use').disabled=!!error;
+  
+  const reference=manual?manualBase:(selectedBase||result.range);
+  const adapted=Number.isFinite(w)&&Array.isArray(reference)&&reference.length===2
+    &&reference.every(Number.isFinite)&&[a,b].every(Number.isFinite)
+    &&[a,b].some((v,i)=>v!==roundFC(reference[i]));
+  const missingWeight=q('#weight').value.trim()===''&&Array.isArray(reference)&&reference.some(v=>v>=1.4);
+  const weightNote=adapted?'FC adattato per il peso ('+String(Number(w.toFixed(2)))+' kg).':missingWeight?'FC previsto per un cadavere del peso di circa 70 kg. Se verrà inserito un peso diverso nella pagina principale, il FC o il suo range verranno adattati di conseguenza.':'';
+  q('#manual-state').textContent=weightNote&&manual?weightNote+' Se desideri valori diversi, reinseriscili manualmente.':weightNote;
+  q('#editable-note').hidden=!manual&&!preset;
+  q('#editable-note').textContent=manual?manualSelectionNote(a,b):preset?'FC preimpostato, non ancora modificato.':'';
+  q('#origin').textContent=result.range&&suggestion?'':result.summary;
+  q('#restore').disabled=!suggestion&&!manual;
+  root.querySelectorAll('[data-input]').forEach(btn=>{
+    const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);
+    if(['lo','hi'].includes(el.id))btn.disabled=!Number.isFinite(v)||v<.35||(rangeExpanded&&el.id==='lo'&&Number.isFinite(b)&&v>b)||(el.id==='hi'&&Number.isFinite(a)&&v<a);
+    else btn.disabled=!Number.isInteger(v)||v<0||v>20;
+  });
+  const expanded=rangeExpanded||(Number.isFinite(a)&&Number.isFinite(b)&&a!==b);
+  const hasNote=!!(q('#editable-note').textContent||q('#manual-state').textContent);
+  q('#fc-selection-note').hidden=!hasNote;
+  q('#lo-note-marker').hidden=!hasNote||expanded;
+  q('#hi-note-marker').hidden=!hasNote||!expanded;
+  q('#choice-row').dataset.range=String(expanded);
+  q('#hi-control').hidden=!expanded;
+  q('#expand-range').textContent=expanded?'Valore singolo?':'Range?';
+  q('#expand-range').setAttribute('aria-label',expanded?'Usa un solo FC, mantenendo il minimo':'Crea range FC');
+  q('#expand-range').setAttribute('aria-expanded',String(expanded));
+  q('#lo').setAttribute('aria-label',expanded?'FC minimo':'FC');
+  showSource();
+  window.FCScenarios?.refresh();
+}
+function airChangesSuggestion(c){
+  if(c.state==='Immerso')return false;
+  // Two undefined scenarios do not establish equivalence.
+  if(!validCounts(c))return true;
+  const still=evaluateFC({...c,air:'still',wind:false});
+  const moving=evaluateFC({...c,air:'continuous',wind:true});
+  return !still.range||!moving.range||still.range.some((v,i)=>Math.abs(v-moving.range[i])>1e-8);
+}
+function recalc(){
+  q('#wet-clothes').value=q('#wet-covers').value=q('#wet-textiles').value;
+  q('#body-state-required').hidden=!!state;
+  let c=data();
+  const showAir=airChangesSuggestion({...c,state});
+  q('#air-row').hidden=!showAir;
+  if(!showAir&&q('#air-help').matches(':popover-open'))q('#air-help').hidePopover();
+  // Preserve the operator's air selection while the control is irrelevant.
+  if(!showAir)c={...c,air:'still',wind:false};
+  q('#air-fields').hidden=state==='Immerso';
+  q('#water-fields').hidden=state!=='Immerso';
+  q('#metal-type-row').hidden=state==='Immerso'||q('#surface').value!=='metal';
+  const dryRelevant=state==='Asciutto'||needsDryEnvelope({...c,state});
+  const wetGroupsVisible=wetGroups(c);
+  q('#wet-textiles-row').hidden=state!=='Bagnato'||!(wetGroupsVisible.clothes||wetGroupsVisible.covers);
+  q('#isolation-row').hidden=!dryRelevant||c.m+c.h>0||!isMany(c);
+  q('#blanket-volume-row').hidden=!dryRelevant||c.m+c.h<=1||(c.h>0&&c.feather!=='no');
+  q('#feather-row').hidden=!dryRelevant||c.h===0;
+  q('#leaf-row').hidden=state==='Immerso'||c.surf!==8;
+  q('#leaf-cover-row').hidden=state==='Immerso'||c.surf!==8;
+  q('#support-soaked-row').hidden=state!=='Bagnato'||![2,3].includes(c.surf);
+  for(const [id,row] of [['wet-textiles','wet-textiles-row'],['isolation','isolation-row'],['feather','feather-row'],['blanket-volume','blanket-volume-row'],['leaf','leaf-row'],['leaf-cover','leaf-cover-row'],['metal-type','metal-type-row'],['support-soaked','support-soaked-row']]){
+    const el=q('#'+id),required=state!=='Immerso'&&!q('#'+row).hidden,missing=required&&(el.value===''||el.value==='unknown');
+    el.setAttribute('data-needs-value',String(missing));
+    el.setAttribute('aria-invalid',String(missing));
+    el.setAttribute('aria-required',String(required));
+  }
+  const missing=id=>q('#'+id).getAttribute('data-needs-value')==='true';
+  const missingCoverAnswer=['wet-textiles','feather','blanket-volume'].some(missing);
+  const missingClothesAnswer=['wet-textiles','isolation'].some(missing);
+  for(const id of ['light-cover','medium','heavy']){
+    const needsAnswer=state!=='Immerso'&&num(q('#'+id))>0&&missingCoverAnswer;
+    q('#'+id+'-required').hidden=!needsAnswer;
+    q('#'+id+'-control').setAttribute('data-question-pending',String(needsAnswer));
+  }
+  for(const id of ['thin','thick','garment-thin','garment-thick','teli']){
+    q('#'+id+'-control').setAttribute('data-question-pending',String(state!=='Immerso'&&num(q('#'+id))>0&&missingClothesAnswer));
+  }
+  q('#clothing-counts').setAttribute('data-question-pending',String(state!=='Immerso'&&wetGroupsVisible.clothes&&missingClothesAnswer));
+  q('#blanket-counts').setAttribute('data-question-pending',String(state!=='Immerso'&&wetGroupsVisible.covers&&missingCoverAnswer));
+  q('#wet-case-row').hidden=state!=='Bagnato'||c.air!=='continuous'||c.surf!==1||c.m+c.h>0||c.s+c.p!==2;
+  result=evaluateFC({...c,state,water:q('#water').value,isolation:q('#isolation').value});
+  const w=num(q('#weight'));
+  lastWeight=w;
+  const validWeight=Number.isFinite(w)&&w>=4&&w<=150;
+  const adapted=result.range?(validWeight?bounds(...result.range,w):result.range):null;
+  suggestion=adapted&&adapted.every(Number.isFinite)?roundRange(adapted):null;
+  if(result.range&&!suggestion&&Number.isFinite(w)&&w>=4&&w<=150)result={...result,summary:'Adattamento al peso non calcolabile: verificare i valori.',detail:result.detail+' Il calcolo non restituisce valori validi.'};
+  manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;
+  q('#lo').value=suggestion?fmt(suggestion[0]):'';
+  q('#hi').value=suggestion?fmt(suggestion[1]):'';
+  rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];
+  update();
+}
+function recordManualEdit(id){
+  if(id==='lo'&&!rangeExpanded)q('#hi').value=q('#lo').value;
+  manual=true;preset=false;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;
+  const values=[num(q('#lo')),num(q('#hi'))];
+  manualBase=values.every(Number.isFinite)&&values[0]>=.35&&values[1]>=values[0]?roundRange(values):null;
+  update();
+}
+function adaptSelectedToWeight(){
+  const w=num(q('#weight'));
+  const base=manual?manualBase:selectedBase;
+  if(!base||!base.every(Number.isFinite)||!Number.isFinite(w)||w<4||w>150)return;
+  const adapted=bounds(...base,w);
+  if(!adapted.every(Number.isFinite))return;
+  const values=roundRange(adapted),previous=[num(q('#lo')),num(q('#hi'))];
+  weightAdjusted=values.some((v,i)=>v!==previous[i]);
+  manualWeightAdjusted=manual&&weightAdjusted;
+  q('#lo').value=fmt(values[0]);q('#hi').value=fmt(values[1]);
+}
+function onWeightChange(){
+  if(num(q('#weight'))===lastWeight)return;
+  if(window.FCScenarios?.weightChanged())return;
+  const saved=window.FCPanel.snapshot();
+  applied=null;recalc();
+  if(saved.manual||saved.selectedBase||(saved.lo===''&&saved.hi==='')){
+    manual=saved.manual;preset=!!saved.preset;manualBase=saved.manualBase;manualWeightAdjusted=saved.manualWeightAdjusted;selectedBase=saved.selectedBase;
+    q('#lo').value=saved.lo;q('#hi').value=saved.hi;
+    adaptSelectedToWeight();rangeExpanded=!!saved.rangeExpanded||(Number.isFinite(num(q('#lo')))&&Number.isFinite(num(q('#hi')))&&num(q('#lo'))!==num(q('#hi')));update();
+  }
+  const previous=[Number(saved.lo),Number(saved.hi)],current=[num(q('#lo')),num(q('#hi'))];
+  weightAdjusted=saved.lo!==''&&saved.hi!==''&&previous.every(Number.isFinite)&&current.every(Number.isFinite)&&current.some((v,i)=>v!==previous[i]);
+  update();
+}
+root.addEventListener('keydown',e=>{if(e.key==='Escape')q('#source-panel').open=false;});
+root.querySelectorAll('[data-state]').forEach(btn=>btn.addEventListener('click',()=>{state=btn.dataset.state;root.querySelectorAll('[data-state]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));recalc();}));root.querySelectorAll('[data-input]').forEach(btn=>btn.addEventListener('click',()=>{const el=q('#'+btn.dataset.input),v=num(el)+Number(btn.dataset.step);el.value=['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(['lo','hi'].includes(el.id)){recordManualEdit(el.id);}else {counters.changed(el.id);recalc();}}));specs.forEach(([id])=>q('#'+id).addEventListener('input',()=>{counters.changed(id);recalc();}));['wet-textiles','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked','wet-case','thermal-foil','body-bag'].forEach(id=>q('#'+id).addEventListener('change',recalc));['lo','hi'].forEach(id=>q('#'+id).addEventListener('input',()=>{recordManualEdit(id);}));q('#weight').addEventListener('input',onWeightChange);root.querySelectorAll('[data-weight]').forEach(btn=>btn.addEventListener('click',()=>{const v=num(q('#weight'))+Number(btn.dataset.weight);if(Number.isFinite(v)&&v>=4&&v<=150)setWeight(v);onWeightChange();}));root.querySelectorAll('input').forEach(el=>el.addEventListener('blur',()=>{const v=num(el);if(Number.isFinite(v))el.value=el.id==='weight'?v.toFixed(0):['lo','hi'].includes(el.id)?fmt(roundFC(v)):String(v);if(el.id==='weight'){setWeight(v);onWeightChange();}if(['lo','hi'].includes(el.id)){if(el.id==='lo'&&!rangeExpanded)q('#hi').value=el.value;update();}}));q('#restore').addEventListener('click',()=>{q('#lo').value=suggestion?fmt(suggestion[0]):'';q('#hi').value=suggestion?fmt(suggestion[1]):'';manual=false;preset=false;manualBase=null;manualWeightAdjusted=false;selectedBase=null;weightAdjusted=false;rangeExpanded=!!suggestion&&suggestion[0]!==suggestion[1];update();});q('#back').addEventListener('click',()=>window.FCBridge.send('back'));
+q('#expand-range').addEventListener('click',()=>{
+  const expanded=q('#choice-row').dataset.range==='true';
+  if(expanded){
+    const changed=q('#hi').value!==q('#lo').value;
+    rangeExpanded=false;q('#hi').value=q('#lo').value;
+    if(changed)recordManualEdit('lo');else update();
+    q('#lo').focus();
+  }else{rangeExpanded=true;update();q('#hi').focus();}
+});
+q('#use').addEventListener('click',()=>{
+  normalizeChoice();update();if(q('#use').disabled)return;
+  window.FCBridge.send('use');
+});
+q('#open-tables').addEventListener('click',event=>{event.preventDefault();window.FCBridge.send('tables');});
+recalc();
+q('#lo').value=q('#hi').value='';rangeExpanded=false;update();
+const savedFields=['wet-textiles','wet-clothes','wet-covers','teli','light-cover','thin','thick','medium','heavy','surface','metal-type','leaf','leaf-cover','feather','air','water','isolation','blanket-volume','support-soaked'];
+window.FCPanel={
+  setDesktop: counters.setDesktop,
+  temperatureValue,
+  temperatureChanged(){
+    // Incomplete typing must not discard a manual choice. A valid change of
+    // cooling category behaves like any other change of the body conditions.
+    if(Number.isFinite(temperatureValue())&&waterNearZero()!==(result.id==='water-cold-still'))recalc();
+  },
+  setExamples(examples){
+    EXAMPLES.splice(0,EXAMPLES.length,...(Array.isArray(examples)?examples:[]));
+  },
+  snapshot(){
+    return {wetRulesVersion:3,state, thermalFoil:!!q('#thermal-foil').checked,bodyBag:!!q('#body-bag').checked,clothingDetailed:counters.known(), fields:Object.fromEntries(savedFields.map(id=>[id,q('#'+id).value])),
+      waterNearZero:waterNearZero(),wetCase:q('#wet-case').checked,
+      lo:q('#lo').value,hi:q('#hi').value,weight:num(q('#weight')),manual,preset,manualBase,manualWeightAdjusted,selectedBase,weightAdjusted,rangeExpanded,
+      sourceOpen:q('#source-panel').open};
+  },
+  restore(draft,weight){
+    q('#wet-clothes').value=draft?.fields?.['wet-clothes']||'unknown';
+    q('#wet-covers').value=draft?.fields?.['wet-covers']||'unknown';
+    q('#thermal-foil').checked=!!draft?.thermalFoil;
+    q('#body-bag').checked=!!draft?.bodyBag;
+    state=['Asciutto','Bagnato','Immerso'].includes(draft?.state)?draft.state:'';
+    root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
+    if(draft){
+      for(const id of savedFields)if(draft.fields&&id in draft.fields)q('#'+id).value=(id==='isolation'&&['one','several'].includes(draft.fields[id]))?'yes':draft.fields[id];
+      q('#wet-case').checked=!!draft.wetCase;
+      root.querySelectorAll('[data-state]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.state===state)));
+    }
+    counters.restore(draft);
+    const groups=wetGroups(data()),oldAnswers=[];
+    if(groups.clothes)oldAnswers.push(q('#wet-clothes').value);
+    if(groups.covers)oldAnswers.push(q('#wet-covers').value);
+    const unified=draft?.fields?.['wet-textiles'];
+    q('#wet-textiles').value=['full','partial','unknown'].includes(unified)?unified:
+      !oldAnswers.length||oldAnswers.some(v=>!['full','partial'].includes(v))?'unknown':
+      oldAnswers.every(v=>v==='full')?'full':'partial';
+    setWeight(weight);
+    recalc();
+    if(!draft){q('#lo').value=q('#hi').value='';rangeExpanded=false;update();}
+    const waterCategoryChanged=state==='Immerso'&&q('#water').value==='stagnante'&&(!Number.isFinite(temperatureValue())||!!draft?.waterNearZero!==waterNearZero());
+    const wetRulesChanged=state==='Bagnato'&&draft?.wetRulesVersion!==3;
+    const emptySelection=draft?.lo===''&&draft?.hi==='';
+    if(draft&&(emptySelection||!waterCategoryChanged&&(draft.manual||!wetRulesChanged&&(draft.selectedBase||Number(draft.weight)===weight)))){
+      q('#lo').value=draft.lo;q('#hi').value=draft.hi;manual=!!draft.manual;preset=!!draft.preset&&!manual;
+      if(manual){
+        recordManualEdit();
+        if('manualBase' in draft)manualBase=draft.manualBase;
+        manualWeightAdjusted=!!draft.manualWeightAdjusted;
+      }
+      selectedBase=draft.selectedBase||null;weightAdjusted=!!draft.weightAdjusted;
+      if(Number(draft.weight)!==weight)adaptSelectedToWeight();
+      rangeExpanded=draft.rangeExpanded===true||(Number.isFinite(num(q('#lo')))&&Number.isFinite(num(q('#hi')))&&num(q('#lo'))!==num(q('#hi')));
+      update();
+    }
+    if(draft)q('#source-panel').open=!!draft.sourceOpen;
+  },
+  payload(){
+    let c={...data(),state,water:q('#water').value};
+    // Hidden air/clothing controls must not leak into the recorded conditions.
+    if(q('#air-row').hidden)c={...c,air:'still',wind:false};
+    if(state==='Immerso')c={state,water:c.water,waterNearZero:c.waterNearZero};
+    const description=window.FCDescriptions.conditions(c,this.snapshot().fields);
+    return {draft:this.snapshot(),range:[num(q('#lo')),num(q('#hi'))],weight:num(q('#weight')),
+      base_range:manual?manualBase:selectedBase||result.range,manual_weight_adjusted:manualWeightAdjusted,weight_adjusted:weightAdjusted,
+      conditions:c,manual,description,rule:result.id,explanation:sourceExplanation(result,c),sources:result.sources};
+  }
+};
+
+})();
+</script>
+</div>
+
+<link rel="stylesheet" href="scenarios.css">
+<script src="scenarios.js"></script>
+<script src="i18n.js"></script>
+<script src="bridge.js"></script>
+</body></html>

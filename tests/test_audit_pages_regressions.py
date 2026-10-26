@@ -1,0 +1,132 @@
+import datetime as dt
+import json
+import unittest
+from uuid import uuid4
+from pathlib import Path
+
+from streamlit.testing.v1 import AppTest
+from streamlit.proto.WidgetStates_pb2 import WidgetStates
+import app.decimal_number_input_v2 as decimal_v2
+from app.henssge import calcola_raffreddamento
+from app.utils_time import round_display_datetime
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class AuditPagesRegressionTests(unittest.TestCase):
+    def start(self, **values):
+        decimal_v2._renderer = None
+        app = AppTest.from_file(str(ROOT / 'Stima_epoca_decesso.py'), default_timeout=30)
+        defaults = dict(__full_device_mobile=False, rt_val=30., ta_base_val=20.,
+                        tm_val=37.2, peso=70., fattore_correzione=1.)
+        for key, value in {**defaults, **values}.items():
+            app.session_state[key] = value
+        app.run()
+        self.assertFalse(app.exception)
+        return app
+
+    def edit_fc(self, app, key, value, other=None):
+        candidates = [e for e in app.get('component_instance')
+                      if json.loads(e.proto.json_args).get('key') in
+                      ('mortem_decimal_' + key, 'mortem_decimal_' + key + '_range')]
+        if candidates:
+            element = candidates[0]
+            data = json.loads(element.proto.json_args)
+            payload = {'edit_token': uuid4().hex}
+        else:
+            element = next(e for e in app.get('bidi_component')
+                           if e.proto.id.endswith('-mortem_decimal_' + key + '-v2'))
+            data = json.loads(element.proto.json)
+            payload = {'edit': True}
+        self.assertEqual(data['step'], .05)
+        states = WidgetStates()
+        widget = states.widgets.add()
+        widget.id = element.proto.id
+        widget.json_value = json.dumps(payload)
+        app._run(states)
+        self.assertFalse(app.exception)
+        self.assertTrue(app.session_state['__fc_active'])
+        draft = app.session_state['__fc_draft']
+        bounds = [value, value] if key == 'fattore_correzione' else [value, other]
+        instance = app.session_state['__fc_instance']
+        app.session_state['__fc_component_' + instance] = {
+            'instance': instance, 'event_id': uuid4().hex, 'action': 'use',
+            'range': bounds, 'base_range': bounds, 'weight': app.session_state['peso'],
+            'manual': True, 'manual_weight_adjusted': False,
+            'draft': {**draft, 'lo': str(bounds[0]), 'hi': str(bounds[1]),
+                      'manual': True, 'manualBase': bounds, 'selectedBase': None,
+                      'manualWeightAdjusted': False, 'weightAdjusted': False},
+        }
+        app.run()
+        self.assertFalse(app.exception)
+        self.assertFalse(app.session_state['__fc_active'])
+
+    def test_auxiliary_pages_return_to_existing_main_page(self):
+        app = self.start()
+        for page in ('Impostazioni', '9_Reference'):
+            with self.subTest(page=page):
+                app.switch_page(f'pages/{page}.py').run()
+                app.button(key='back_home').click().run()
+                self.assertFalse(app.exception)
+                self.assertIsNotNone(app.button(key='btn_stima'))
+
+    def test_manual_fc_panel_selection_survives_rerun_in_main(self):
+        app = self.start()
+        self.edit_fc(app, 'fattore_correzione', 1.25)
+        app.run()
+        self.assertEqual(app.session_state['fattore_correzione'], 1.25)
+        self.edit_fc(app, 'fattore_correzione', 1.30)
+        app.run()
+        self.assertEqual(app.session_state['fattore_correzione'], 1.30)
+        self.assertEqual(app.session_state['FC_max_beta'], 1.30)
+
+    def test_both_full_range_endpoints_are_applied_from_the_panel(self):
+        # The FC interval has its own switch, independent of prudent mode.
+        app = self.start(stima_cautelativa_beta=True, range_unico_beta=True,
+                         fc_input_range=True)
+        self.assertTrue(app.session_state['fc_input_range'])
+        self.edit_fc(app, 'fc_min_val', 1.25, other=1.45)
+        app.run()
+        self.assertEqual((app.session_state['FC_min_beta'], app.session_state['FC_max_beta']),
+                         (1.25, 1.45))
+
+    def test_weight_notice_tracks_manual_adaptation_and_clears_on_new_input(self):
+        app = self.start(__fc_applied_choice={'range': [1., 1.], 'weight': 60.})
+        self.assertTrue(any('Peso modificato' in w.value for w in app.warning))
+        self.edit_fc(app, 'fattore_correzione', 1.25)
+        self.assertFalse(any('Peso modificato' in w.value for w in app.warning))
+        app.session_state['peso'] = 80.
+        app.run()
+        self.assertFalse(any('Peso modificato' in w.value for w in app.warning))
+        self.assertEqual(app.session_state['fattore_correzione'], 1.25)
+        self.edit_fc(app, 'fattore_correzione', 2.)
+        app.session_state['peso'] = 100.
+        app.run()
+        self.assertEqual(app.session_state['fattore_correzione'], 1.75)
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.markdown))
+        app.run()
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.markdown))
+        self.edit_fc(app, 'fattore_correzione', 2.)
+        self.assertFalse(any('FC adattato per il peso' in w.value for w in app.markdown))
+
+    def test_result_rounds_raw_calendar_bounds_and_settings_invalidate_it(self):
+        app = self.start(input_data_rilievo=dt.date(2026, 1, 2), input_ora_rilievo='12:07',
+                         input_ora_rilievo__manual=True, input_ora_rilievo_native='12:07',
+                         henssge_round_minutes=6)
+        app.button(key='btn_stima').click().run()
+        self.assertFalse(app.exception)
+        times = calcola_raffreddamento(30, 20, 37.2, 70, 1, round_minutes=None)
+        inspection = dt.datetime(2026, 1, 2, 12, 7)
+        for hours, upper in ((times[2], False), (times[1], True)):
+            self.assertIn(round_display_datetime(inspection - dt.timedelta(hours=hours), 6, upper=upper).strftime('%H:%M'),
+                          app.session_state['frase_breve'])
+        app.session_state['henssge_round_minutes'] = 15
+        app.run()
+        self.assertFalse(app.session_state['show_results'])
+
+    def test_invalid_weight_fc_domain_reports_without_crashing(self):
+        app = self.start(peso=150., fattore_correzione=3.)
+        app.button(key='btn_stima').click().run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any('combinazione di FC e peso' in w.value for w in app.markdown))
+        self.assertIsNone(app.session_state['frase_breve'])

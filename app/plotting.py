@@ -5,6 +5,8 @@ from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
 
+from app.language import presentation_i18n as i18n
+
 
 # Formatter numerico: "7.0" -> "7", "7.5" -> "7.5"
 def _fmt(x: float) -> str:
@@ -34,14 +36,17 @@ def compute_plot_data(
     labels: List[str] = []
     starts: List[float] = []
     ends: List[float] = []
+    livor_label = i18n.ui_text("plot.livor")
+    rigor_label = i18n.ui_text("plot.rigor")
+    cooling_label = i18n.ui_text("plot.cooling")
 
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
         if macchie_range[1] < INF_HOURS:
-            label_macchie = f"Ipostasi\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
+            label_macchie = f"{livor_label}\n({_fmt(macchie_range[0])}–{_fmt(macchie_range[1])} h)"
             end_val = macchie_range[1]
         else:
-            label_macchie = f"Ipostasi\n(≥ {_fmt(macchie_range[0])} h)"
+            label_macchie = f"{livor_label}\n(≥ {_fmt(macchie_range[0])} h)"
             end_val = INF_HOURS
         labels.append(label_macchie)
         starts.append(macchie_range[0])
@@ -50,10 +55,10 @@ def compute_plot_data(
     # Etichette + range: RIGIDITÀ
     if rigidita_range is not None and not np.isnan(rigidita_range[0]):
         if rigidita_range[1] < INF_HOURS:
-            label_rigidita = f"Rigor\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
+            label_rigidita = f"{rigor_label}\n({_fmt(rigidita_range[0])}–{_fmt(rigidita_range[1])} h)"
             end_val = rigidita_range[1]
         else:
-            label_rigidita = f"Rigor\n(≥ {_fmt(rigidita_range[0])} h)"
+            label_rigidita = f"{rigor_label}\n(≥ {_fmt(rigidita_range[0])} h)"
             end_val = INF_HOURS
         labels.append(label_rigidita)
         starts.append(rigidita_range[0])
@@ -64,7 +69,7 @@ def compute_plot_data(
     if _extra:
         for e in _extra:
             try:
-                lab = str(e.get("label", "Parametro"))
+                lab = str(e.get("label", i18n.ui_text("plot.generic_parameter")))
                 if e.get("adattato", False):
                     lab += "*"
                 s = float(e.get("start", np.nan))
@@ -97,17 +102,16 @@ def compute_plot_data(
 
         # Flag condizioni speciali
         raff_only_lower = (not np.isnan(Qd_val_check)) and (Qd_val_check < qd_threshold)
-        raff_over_48 = False
 
         if raff_only_lower:
             maggiore_di_valore = (
                 float(mt_ore) if (mt_ore is not None and not np.isnan(mt_ore))
                 else float(t_min_raff_henssge)
             )
-            label_h = f"Raffreddamento\n(> {_fmt(maggiore_di_valore)} h)"
+            label_h = f"{cooling_label}\n(> {_fmt(maggiore_di_valore)} h)"
             raff_only_lower_start = maggiore_di_valore
         else:
-            label_h = f"Raffreddamento\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
+            label_h = f"{cooling_label}\n({_fmt(t_min_raff_henssge)}–{_fmt(t_max_raff_henssge)} h)"
             raff_only_lower_start = None
 
         labels.append(label_h)
@@ -116,7 +120,6 @@ def compute_plot_data(
         raffreddamento_idx = len(labels) - 1
     else:
         raff_only_lower = False
-        raff_over_48 = False
         raff_only_lower_start = None
 
     # Calcolo cap e coda
@@ -139,8 +142,6 @@ def compute_plot_data(
     if raffreddamento_calcolabile and (raffreddamento_idx is not None):
         if raff_only_lower and (raff_only_lower_start is not None):
             special_inf_starts_green.append(float(raff_only_lower_start))
-        if raff_over_48:
-            special_inf_starts_green.append(48.0)
 
     if infinite_starts_blue or special_inf_starts_green:
         tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green)
@@ -168,7 +169,6 @@ def compute_plot_data(
     style_flags = dict(
         raff_only_lower=raff_only_lower,
         raff_only_lower_start=raff_only_lower_start,
-        raff_over_48=raff_over_48,
         line_w=LINE_W,
         dash_ls=DASH_LS,
     )
@@ -220,7 +220,6 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
     # 1) Segmenti verdi speciali per RAFFREDDAMENTO (sotto)
     if raff_idx is not None:
-        raff_over_48 = style.get("raff_over_48", False)
         raff_only_lower = style.get("raff_only_lower", False)
         raff_only_lower_start = style.get("raff_only_lower_start")
 
@@ -237,8 +236,6 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
         if raff_only_lower and (raff_only_lower_start is not None):
             _draw_green_segment(raff_idx, float(raff_only_lower_start))
-        if raff_over_48:
-            _draw_green_segment(raff_idx, 48.0)
 
     # 2) Linee blu base (tutti i range)
     for i, (s, e) in enumerate(zip(starts, ends)):
@@ -258,7 +255,7 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     # 3) Mediane verdi per ipostasi/rigidità (sopra)
     # Macchie
     if "Macchie ipostatiche" in medians and medians["Macchie ipostatiche"] is not None:
-        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith("Ipostasi")), None)
+        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith(i18n.ui_text("plot.livor"))), None)
         if y is not None:
             m_s, m_e = medians["Macchie ipostatiche"]
             is_inf = (m_e is None) or (np.isnan(m_e)) or (m_e >= INF_HOURS)
@@ -275,7 +272,7 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
     # Rigidità
     if "Rigidità cadaverica" in medians and medians["Rigidità cadaverica"] is not None:
-        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith("Rigor")), None)
+        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith(i18n.ui_text("plot.rigor"))), None)
         if y is not None:
             r_s, r_e = medians["Rigidità cadaverica"]
             is_inf = (r_e is None) or (np.isnan(r_e)) or (r_e >= INF_HOURS)
@@ -292,9 +289,8 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
 
     # Marker corto verde del punto medio raffreddamento (solo se NON stiamo facendo tratteggiare all'infinito)
     if raff_idx is not None:
-        raff_over_48 = style.get("raff_over_48", False)
         raff_only_lower = style.get("raff_only_lower", False)
-        if (not raff_over_48) and (not raff_only_lower):
+        if not raff_only_lower:
             if not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
                 pm = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2.0
                 off = 0.1
@@ -308,12 +304,9 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     ax.set_yticks(range(len(labels)))
     ax.set_yticklabels(labels, fontsize=18)        # etichette Y più grandi
     ax.invert_yaxis()
-    ax.set_xlabel("Ore dal decesso", fontsize=16)  # titolo asse X leggibile
+    ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=16)  # titolo asse X leggibile
     ax.tick_params(axis="x", labelsize=14)         # numeri asse X leggibili
     ax.grid(True, axis='x', linestyle=':', alpha=0.6)
-
-    plt.tight_layout()
-    return fig
 
     plt.tight_layout()
     return fig

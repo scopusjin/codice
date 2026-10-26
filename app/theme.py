@@ -1,5 +1,7 @@
 # app/theme.py
 # -*- coding: utf-8 -*-
+from contextlib import nullcontext
+
 import streamlit as st
 from streamlit_extras.stylable_container import stylable_container
 
@@ -18,7 +20,6 @@ def _getopt(key, default=None):
 # ------------------------------------------------------------
 def theme_colors():
     base = (_getopt("theme.base", "light") or "light").lower()
-    custom = _getopt(f"theme.custom.{base}", {}) or {}
 
     # Default per Opzione 3 (Acquamarina soft)
     default_out_bg     = "#153A33" if base == "dark" else "#E6F1EF"
@@ -32,20 +33,20 @@ def theme_colors():
 
         # Pulsanti blu unificati
         "Btn":        _getopt("theme.primaryColor", "#0284C7"),
-        "BtnHover":   custom.get("buttonHover",   "#0369A1"),
-        "BtnActive":  custom.get("buttonActive",  "#0C4A6E"),
-        "BtnText":    custom.get("buttonText",    "#FFFFFF"),
-        "FocusRing":  custom.get("focusRing",     "rgba(34,211,238,0.45)"),
+        "BtnHover":   "#0369A1",
+        "BtnActive":  "#0C4A6E",
+        "BtnText":    "#FFFFFF",
+        "FocusRing":  "rgba(34,211,238,0.45)",
 
         # Output verdi soft (Opzione 3) per contenitori dedicati
-        "OutBg":      custom.get("outputBg",      default_out_bg),
-        "OutBorder":  custom.get("outputBorder",  default_out_border),
-        "OutText":    custom.get("outputText",    default_out_text),
+        "OutBg":      default_out_bg,
+        "OutBorder":  default_out_border,
+        "OutText":    default_out_text,
 
         # Avvisi
-        "WarnBg":     custom.get("warnBg",        "#fff3cd"),
-        "WarnText":   custom.get("warnText",      "#664d03"),
-        "WarnBorder": custom.get("warnBorder",    "#ffda6a"),
+        "WarnBg":     "#fff3cd",
+        "WarnText":   "#664d03",
+        "WarnBorder": "#ffda6a",
     }
 
 # ------------------------------------------------------------
@@ -59,6 +60,35 @@ def apply_theme():
     <style>
       :root {{
         --primary-color: {C["Btn"]};
+      }}
+
+      @media (min-width: 769px) {{
+        html {{
+          font-size: 102% !important;
+        }}
+
+        /* Condizioni variabili, nota esplicativa e blocchi successivi sono figli
+           dello stesso stVerticalBlock. La distanza reale è il gap del parent,
+           non il margine interno della riga del toggle. */
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [data-testid="stVerticalBlock"]:has(
+          > [data-testid="stElementContainer"] [class*="st-key-mortem_help_row_prudent"]
+        ) {{
+          gap: 0.28rem !important;
+        }}
+
+        /* Il testo esplicativo non aggiunge margini propri. */
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"] [data-testid="stMarkdownContainer"],
+        body:has([class*="st-key-stima_cautelativa_beta"])
+        [class*="st-key-prudent_explicit_ranges"] p {{
+          margin-top: 0 !important;
+          margin-bottom: 0 !important;
+          padding-top: 0 !important;
+          padding-bottom: 0 !important;
+        }}
       }}
 
       html, body, [data-testid="stAppViewContainer"] {{
@@ -80,16 +110,16 @@ def apply_theme():
       }}
 
       /* Pulsanti */
-      .stButton > button {{
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)) {{
         background: {C["Btn"]} !important;
         color: {C["BtnText"]} !important;
         border: 0 !important;
         border-radius: 10px !important;
         font-weight: 600 !important;
       }}
-      .stButton > button:hover  {{ background: {C["BtnHover"]} !important; }}
-      .stButton > button:active {{ background: {C["BtnActive"]} !important; }}
-      .stButton > button:focus  {{
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):hover  {{ background: {C["BtnHover"]} !important; }}
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):active {{ background: {C["BtnActive"]} !important; }}
+      .stButton > button:not(:where(.st-key-btn_fc_scenarios *)):focus  {{
         outline: 0 !important;
         box-shadow: 0 0 0 3px {C["FocusRing"]} !important;
       }}
@@ -101,6 +131,25 @@ def apply_theme():
         border-radius: 0 !important;
         padding: 0 !important;
         color: #1f1f1f !important;
+      }}
+
+      /* Riepilogo finale: il riquadro visibile è direttamente il div HTML. */
+      .fb-compact {{
+        background: {C["OutBg"]} !important;
+        border: 1px solid {C["OutBorder"]} !important;
+        border-radius: 8px !important;
+        color: {C["OutText"]} !important;
+        margin: 4px 0 !important;
+        padding: 12px 20px !important;
+        line-height: 1.4 !important;
+        width: 100% !important;
+        text-align: justify !important;
+        text-justify: inter-word !important;
+        box-sizing: border-box !important;
+      }}
+      .fb-compact p {{
+        margin: 0 !important;
+        padding: 0 !important;
       }}
 
       /* Contenitore generico eventualmente usato altrove */
@@ -146,40 +195,10 @@ def apply_theme():
 # Box frase breve con sfondo verde soft (come FC)
 # ------------------------------------------------------------
 def frase_breve_box(key: str = "frase_breve"):
-    C = theme_colors()
-    return stylable_container(
-        key=key,
-        css_styles=f"""
-        {{
-          background:{C['OutBg']};
-          border:1px solid {C['OutBorder']};
-          border-radius:8px;
-          padding:14px 18px;
-          margin:4px 0;
-          color:{C['OutText']};
-        }}
-
-        [data-stylable-key="{key}"] .fb-compact {{
-          margin:0 !important;
-          padding:0 !important;
-          line-height:1.4 !important;
-        }}
-
-        [data-stylable-key="{key}"] .fb-compact p {{
-          margin:0 !important;
-          padding:0 !important;
-        }}
-
-        [data-stylable-key="{key}"] div[data-testid="stMarkdownContainer"] {{
-          margin:0 !important;
-          padding:0 !important;
-        }}
-
-        [data-stylable-key="{key}"] div[data-testid="stVerticalBlock"] {{
-          gap:0 !important;
-        }}
-        """
-    )
+    # Il renderer esistente usa ``with frase_breve_box(...):``.
+    # Un contesto neutro lascia il div .fb-compact direttamente nel flusso
+    # Streamlit, evitando wrapper grafici che ne alterano la centratura.
+    return nullcontext()
 
 # ------------------------------------------------------------
 # Helper per pannello FC

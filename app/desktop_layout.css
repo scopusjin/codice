@@ -1,0 +1,395 @@
+@media all {
+  /* The native sidebar command shares the compact title line. */
+  html body:has(#mortem-page-title) [data-testid="stHeader"],
+  html body:has(#mortem-page-title) [data-testid="stToolbar"] {
+    height: 2.5rem !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    pointer-events: none !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stExpandSidebarButton"] {
+    position: fixed !important;
+    top: 0.5rem !important;
+    left: max(clamp(1rem, 2vw, 2.5rem), calc((100vw - 100rem) / 2 + 2.5rem)) !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    pointer-events: auto !important;
+    z-index: 100 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebar"],
+  html body:has(#mortem-page-title) [data-testid="stSidebarContent"] {
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: min(85vw, 20rem) !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebar"][aria-expanded="false"] {
+    display: none !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebarNavItems"] {
+    width: max-content !important;
+    padding-inline: 0.65rem !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebarContent"] {
+    padding-inline: 0 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebarNavLink"] span {
+    width: max-content !important;
+    white-space: nowrap !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stSidebarCollapseButton"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  html body:has(#mortem-page-title) :is([data-baseweb="input"] input, [data-baseweb="select"]) {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    font-size: 16px !important;
+  }
+  /* The ID scopes this layout to Full desktop, above older widget-level CSS. */
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] {
+    box-sizing: border-box !important;
+    container: mortem-desktop / inline-size;
+    width: 100% !important;
+    max-width: 100rem !important;
+    margin-inline: auto !important;
+    padding: 0.5rem clamp(1rem, 2vw, 2.5rem) 1rem !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    display: grid !important;
+    position: static !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-auto-flow: row !important;
+    width: 100% !important;
+    max-width: 52rem !important;
+    gap: 0.45rem !important;
+    align-items: start !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > * {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    z-index: auto !important;
+  }
+  #mortem-page-title {
+    margin: 0 !important;
+    padding: 0 0 0 2.5rem !important;
+    min-height: 2.6rem !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: clamp(1.5rem, 1.75vw, 2rem) !important;
+    font-weight: 650 !important;
+    line-height: 1.25 !important;
+    text-align: left !important;
+  }
+  html body:has(#mortem-page-title):has([data-testid="stSidebar"][aria-expanded="true"]) #mortem-page-title {
+    padding-left: 0 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has(#mortem-page-title) {
+    position: sticky !important;
+    top: 0.5rem !important;
+    z-index: 30 !important;
+    background: var(--background-color, #ffffff) !important;
+  }
+  /* Tight card edges; labels belong visually to the control immediately below. */
+  html body:has(#mortem-page-title) :is(.st-key-full_inspection_card, .st-key-full_signs_card, .st-key-full_cooling_card, .st-key-full_special_card) {
+    padding: 0.5rem 0.7rem !important;
+    gap: 0.5rem !important;
+  }
+  html body:has(#mortem-page-title) .st-key-full_inspection_card,
+  html body:has(#mortem-page-title) .st-key-full_signs_card [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {
+    gap: 2px !important;
+  }
+  html body:has(#mortem-page-title) .st-key-full_inspection_card iframe {
+    display: block !important;
+  }
+  /* In one column the action follows the form and remains near the bottom. */
+  html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
+    grid-row: auto !important;
+    position: sticky !important;
+    top: auto !important;
+    bottom: 0.75rem !important;
+    align-self: start !important;
+    z-index: 20 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button {
+    width: 100% !important;
+    min-height: 3rem !important;
+    padding: 0.65rem 1rem !important;
+    background: #0876a5 !important;
+    border: 1px solid #0876a5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 10px rgb(8 118 165 / 22%) !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button p {
+    color: inherit !important;
+    font-size: 1.05rem !important;
+    font-weight: 650 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button:hover {
+    background: #065f86 !important;
+    border-color: #065f86 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-btn_stima button:focus-visible {
+    outline: 3px solid #0876a5 !important;
+    outline-offset: 3px !important;
+  }
+  /* Streamlit's markdown margin must not pull the FC input over its label. */
+  html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-fc-field-label) {
+    margin-bottom: 0 !important;
+  }
+  /* A help button occupies only its own line, without the default arrow or
+     vertical spacing inherited from generic FC helper containers. */
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_actions_"] {
+    align-items: center !important;
+    gap: 0.25rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    /* A scrollable flex row reserves scrollbar height even for a tiny helper. */
+    overflow: visible !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stVerticalBlock"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stLayoutWrapper"],
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stPopover"] {
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button {
+    box-sizing: border-box !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] [data-testid="stPopover"] > div {
+    display: flex !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button [aria-hidden="true"] {
+    display: none !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button [data-testid="stIconMaterial"] {
+    display: none !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-special_desktop_title_help_"] button p {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) {
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 0 0 0.25rem !important;
+  }
+  /* Reserve the actual width of help/time controls; let long titles wrap. */
+  html body:has(#mortem-page-title) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) > [data-testid="stColumn"]:first-child {
+    flex: 0 1 auto !important;
+    width: max-content !important;
+    min-width: 0 !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [class*="st-key-special_desktop_title_actions_"]) {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: 22px !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-section-title),
+  html body:has(#mortem-page-title) .mortem-section-title {
+    margin: 0 !important;
+  }
+  html body:has(#mortem-page-title) .mortem-section-title {
+    white-space: normal !important;
+    max-width: 100% !important;
+  }
+  /* The image grids no longer need the legacy upward offset beneath titles. */
+  html body:has(#mortem-page-title) :is(.st-key-eccitabilita_sopraciliare_grid, .st-key-eccitabilita_peribuccale_grid) {
+    top: 0 !important;
+    margin-block: 0 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-electrical_title_help_row_"] {
+    margin-bottom: 0.25rem !important;
+  }
+  /* Same label line and field gap for temperature, weight and correction factor. */
+  /* Remove the inline iframe baseline gap beside the 40px V2 controls. */
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) iframe[data-testid="stCustomComponentV1"] {
+    display: block !important;
+  }
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop),
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stVerticalBlock"] {
+    gap: 2px !important;
+  }
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-desktop_cooling_label_"]) {
+    margin-top: 8px !important;
+  }
+  html body:has(#mortem-page-title) .st-key-cooling_conditions_row_desktop {
+    margin-top: 8px !important;
+  }
+  html body:has(#mortem-page-title) .st-key-cooling_conditions_fields_desktop > [data-testid="stLayoutWrapper"]:has(> [class*="st-key-desktop_cooling_label_fc_"]) {
+    margin-top: 8px !important;
+  }
+  /* Centre the action between the inputs, allowing for their label line. */
+  html body:has(#mortem-page-title) .st-key-cooling_scenarios_action_desktop {
+    padding-top: 1.125rem !important;
+  }
+  html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"] {
+    margin-block: 0 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-desktop_cooling_label_"] {
+    min-height: 1.125rem !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  html body:has(#mortem-page-title) [data-testid="stMarkdownContainer"]:has(> .mortem-cooling-field-label),
+  html body:has(#mortem-page-title) .mortem-cooling-field-label {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* All help buttons use the Henssge row's size, with no inline baseline gap. */
+  html body:has(#mortem-page-title) [class*="st-key-fcpanel_std_vest_help_slot_"] [data-testid="stPopover"] > div {
+    display: flex !important;
+    line-height: 1 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-fcpanel_std_vest_help_slot_"] button {
+    width: 1.45rem !important;
+    min-width: 1.45rem !important;
+    max-width: 1.45rem !important;
+    height: 1.45rem !important;
+    min-height: 1.45rem !important;
+    max-height: 1.45rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  html body:has(#mortem-page-title) [class*="st-key-fcpanel_std_vest_help_slot_"] button [aria-hidden="true"] {
+    display: none !important;
+  }
+  html body:has(#mortem-page-title) :is(.st-key-mortem_help_row_henssge, .st-key-mortem_help_row_prudent) {
+    align-items: center !important;
+    gap: 4px !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"],
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+  }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label > * {
+    position: static !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  html body:has(#mortem-page-title) .st-key-mortem_help_row_henssge [data-testid="stCheckbox"] label::after {
+    display: none !important;
+  }
+  @container mortem-desktop (max-width: 45rem) {
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stHorizontalBlock"]:has(> [data-testid="stColumn"]) {
+      flex-wrap: wrap !important;
+      flex-direction: row !important;
+      gap: 0.75rem 0.5rem !important;
+    }
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"] {
+      flex: 1 1 11rem !important;
+      width: auto !important;
+      min-width: 0 !important;
+    }
+    /* Keep nested groups on their own row; their fields may still sit side by side. */
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"] > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]) {
+      flex-basis: 100% !important;
+    }
+    html body:has(#mortem-page-title) :is(.st-key-cooling_standard_v2_grid_desktop, .st-key-cooling_prudent_v2_grid_desktop) [data-testid="stColumn"]:has(> [data-testid="stVerticalBlock"]:empty) {
+      display: none !important;
+    }
+  }
+  @container mortem-desktop (min-width: 60rem) {
+    html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+      max-width: none !important;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
+      column-gap: clamp(1rem, 2vw, 2rem) !important;
+    }
+    html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has(#mortem-page-title) {
+      grid-column: 1 / -1 !important;
+      grid-row: 1 !important;
+    }
+    html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > *:has([class~="st-key-btn_stima"]) {
+      grid-column: 2 !important;
+      grid-row: 2 !important;
+      top: 3rem !important;
+      bottom: auto !important;
+      width: 100% !important;
+      max-width: 34rem !important;
+    }
+    html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-mortem_result_box, *:has(.st-key-mortem_result_box), .st-key-mortem_no_data_box, *:has(.st-key-mortem_no_data_box)) {
+      grid-column: 2 !important;
+      grid-row: 3 / span 12 !important;
+      position: sticky !important;
+      top: 5.2rem !important;
+      width: 100% !important;
+      max-width: 34rem !important;
+      align-self: start !important;
+      z-index: 3 !important;
+    }
+    /* Keep case actions visible at the bottom of the existing right-hand column. */
+    html body:has(#mortem-page-title) [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > :is(.st-key-full_case_footer, *:has(.st-key-full_case_footer)) {
+      grid-column: 2 !important;
+      grid-row: 15 !important;
+      position: sticky !important;
+      top: auto !important;
+      bottom: 0.75rem !important;
+      align-self: end !important;
+      z-index: 20 !important;
+    }
+  }
+}
+
+/* Inline temperature mode action, separate from primary form commands. */
+html body:has(#mortem-page-title) .st-key-ambient_temperature_action button {
+  width: auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 3px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+html body:has(#mortem-page-title) .st-key-ambient_temperature_action button p {
+  font-size: 0.72rem !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+html body:has(#mortem-page-title) .st-key-ambient_temperature_action button:hover p {
+  text-decoration: underline;
+}
+html body:has(#mortem-page-title) .st-key-ambient_temperature_action button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Leave room for the adjacent helper in the fourth cooling column. */
+html body:has(#mortem-page-title) .st-key-btn_fc_scenarios button {
+  padding-inline: 0.4rem !important;
+}
+html body:has(#mortem-page-title) .st-key-btn_fc_scenarios button p {
+  font-size: 0.72rem !important;
+  white-space: nowrap;
+}

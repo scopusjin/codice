@@ -1,30 +1,67 @@
 # pages/app_mobile.py
 # -*- coding: utf-8 -*-
 import datetime
-import pandas as pd
+import textwrap
 import streamlit as st
-from app.theme import apply_theme, warn_box
+from app.language import current_language
+from app import i18n
+from app.theme import apply_theme
 from app.theme import fc_panel_start
+from app.full_factor_panel import pannello_suggerisci_fc_mobile
+from app.mobile_shell import install_minimal_mobile_shell
+from app.language import render_language_selector
 
 
 from app.graphing import aggiorna_grafico
-from app.data_sources import load_tabelle_correzione
-from app.factor_calc import (DressCounts, compute_factor, SURF_DISPLAY_ORDER, fattore_vestiti_coperte, floor_to_step)
-from app.textgen import paragrafi_descrizioni_base, paragrafi_parametri_aggiuntivi
-
+from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
+from app.livor_picker import render_livor_picker
+from app.cooling_inputs import finite_number
+from app.fc_scenarios import scenario_temperature_bounds
+from app.fc_selection import rounded_fc, normalize_fc_input, fc_weight_warning, fc_weight_needs_review, refresh_fc_for_weight
+from app.msil_tanatology import (
+    MSIL_LIVOR_STATE_BY_LABEL,
+    MSIL_RIGOR_STATE_BY_LABEL,
+    msil_livor_legacy_value,
+    msil_rigor_legacy_value,
+)
 # ------------------------------------------------------------
 # Config pagina
 # ------------------------------------------------------------
-st.set_page_config(page_title="STIMA EPOCA DECESSO - MSIL", layout="centered")
+st.set_page_config(
+    page_title=i18n.ui_text("msil.page_title", language=current_language()),
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 apply_theme()
+install_minimal_mobile_shell(msil_title=True)
+
+from app.fc_page import render_fc_route_if_requested, render_scenarios_button, MSIL_PAGE
+from app.case_ui import prepare_case_import, render_case_menu
+prepare_case_import(MSIL_PAGE)
+render_fc_route_if_requested(MSIL_PAGE)
 # ------------------------------------------------------------
 # CSS compatto + nascondi header/footer/badge
 # ------------------------------------------------------------
 st.markdown("""
 <style>
-/* Header e padding pagina */
-header[data-testid="stHeader"]{display:none!important;}
-section.main, div.block-container{padding-top:0!important;margin-top:0!important}
+/* Padding pagina: la cornice mobile condivisa conserva soltanto il comando
+   nativo della sidebar nell'angolo superiore sinistro. */
+section.main, div.block-container{margin-top:0!important}
+
+/* Titolo reale della modalità sopralluogo */
+.mortem-msil-page-title{
+  margin:0 0 .12rem 0!important;
+  padding:0!important;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:clamp(1.2rem,1.25vw,1.5rem)!important;
+  font-weight:650!important;
+  line-height:1.25!important;
+  text-transform:uppercase!important;
+}
+[data-testid="stElementContainer"]:has(.mortem-msil-page-title){
+  margin:0!important;
+  padding:0!important;
+}
 
 /* Layout base */
 div[data-testid="stContainer"], .element-container{padding:0!important;margin:0!important}
@@ -82,47 +119,20 @@ footer{visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown(
+    '<div class="mortem-msil-page-title">Stima epoca decesso durante ispezione legale</div>',
+    unsafe_allow_html=True,
+)
+
 # ------------------------------------------------------------
 # Raccomandazioni helper + stile popover
 # ------------------------------------------------------------
 
-def _descrizioni_html():
-    parts = []
-    try:
-        parts.extend(paragrafi_descrizioni_base(
-            selettore_macchie=st.session_state.get("selettore_macchie"),
-            selettore_rigidita=st.session_state.get("selettore_rigidita"),
-        ))
-    except Exception: pass
-    try:
-        parts.extend(paragrafi_parametri_aggiuntivi(
-            parametri=st.session_state.get("widgets_parametri_aggiuntivi", {})
-        ))
-    except Exception: pass
-    return "\n".join(parts) or "<p style='opacity:.7'>Nessuna descrizione disponibile.</p>"
-
-
-
-def _raccomandazioni_html() -> str:  
-    return """
-    <div style="font-size:0.9rem; line-height:1.45; color:#444;">
-      <b>LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:</b><br><br>
-      • Luogo di ispezione/rinvenimento ≠ luogo del decesso.<br>
-      • Fonti di calore nelle vicinanze del corpo.<br>
-      • Riscaldamento a pavimento sotto il corpo.<br>
-      • Ipotermia certa/sospetta (T iniziale < 35 °C).<br>
-      • Temperatura ambientale media non determinabile o temperatura aumentata molto dopo il decesso.<br>
-      • Fattore di correzione non stimabile<br><br>
-      <b>DA RICORDARE:</b><br><br>
-      • Non usare direttamente la temperatura ambientale misurata, ma ragiona su come è cambiata la temperatura tra decesso e ispezione (è aumentata durante il giorno? vi era più freddo nella notte?). Stima la temperatura media in cui potrebbe essersi trovato il corpo. Tieni conto di eventuali dati meteorologici.<br>
-      • Migrabilità ≠ improntabilità (quest'ultimo dato non serve per questa app). Cambia posizione al cadavere e valuta se si modificano le ipostasi dopo 20 minuti.<br>
-      • Per il fattore di correzione, considera solo gli indumenti e le coperture a livello delle porzioni caudali del tronco del cadavere. Il sistema che suggerisce il fattore di correzione è indicativo. Prova varie combinazioni e un range di fattori.<br>
-      • L'applicazione considera di default, prudentemente, possibili variazioni di ±1 °C per la temperatura ambientale inserita, di ± 0.1 per il fattore di correzione, di ±3 kg per il peso stimato.<br><br> 
-    </div>
-    """
+def _raccomandazioni_html() -> str:
+    return i18n.ui_text("msil.recommendations_html")
 
 st.markdown(
-    """
+    textwrap.dedent("""
     <style>
     /* link popover blu tipo link */
     div[data-testid="stPopover"] button {
@@ -138,7 +148,7 @@ st.markdown(
     /* niente limite di altezza al contenuto del popover */
     div[data-testid="stPopoverContent"] { max-height:none!important; }
     </style>
-    """,
+    """),
     unsafe_allow_html=True
 )
 
@@ -157,7 +167,7 @@ _defaults = {
     # TM fisso e non editabile
     "tm_val": 37.2,
 
-    "fattore_correzione": 1.0,
+    "fattore_correzione": None,
     "usa_orario_custom": False,
     "input_data_rilievo": None,
     "input_ora_rilievo": None,
@@ -182,12 +192,6 @@ st.session_state["__desc_dettagliate_html"] = ""
 # Helpers
 # ------------------------------------------------------------
 
-
-def _safe_int(x):
-    try:
-        return int(x)
-    except Exception:
-        return 0
 
 def _label(text, hint=None):
     if hint:
@@ -247,7 +251,7 @@ except Exception:
 
 now_ch = datetime.datetime.now(_TZ_CH) if _TZ_CH else datetime.datetime.utcnow()
 
-st.toggle("Aggiungi data/ora rilievi tanatologici", key="usa_orario_custom")
+st.toggle(i18n.ui_text("msil.add_datetime"), key="usa_orario_custom")
 
 if not st.session_state["usa_orario_custom"]:
     # rimuovi le chiavi per avere default freschi al prossimo ON
@@ -264,13 +268,13 @@ if st.session_state["usa_orario_custom"]:
     c1, c2 = st.columns(2, gap="small")
     with c1:
         st.date_input(
-            "Data ispezione legale",
+            i18n.ui_text("msil.inspection_date"),
             key="input_data_rilievo",
             label_visibility="collapsed"
         )
     with c2:
         st.text_input(
-            "Ora ispezione legale (HH:MM)",
+            i18n.ui_text("msil.inspection_time"),
             key="input_ora_rilievo",
             label_visibility="collapsed"
         )
@@ -278,39 +282,33 @@ if st.session_state["usa_orario_custom"]:
 # ------------------------------------------------------------
 # Ipostasi e rigidità
 # ------------------------------------------------------------
-_IPOSTASI_MOBILE = {
-    "🩸 IPOSTASI?": "Non valutate",
-    "Ipostasi assenti": "Non ancora comparse",
-    "Ipostasi almeno in parte migrabili": "Migrabili perlomeno parzialmente",
-    "Ipostasi non migrabili": "Fisse",
-    
-}
-_RIGIDITA_MOBILE = {
-    "💪🏻 RIGOR MORTIS?": "Non valutata",
-    "Rigor assente": "Non ancora apprezzabile",
-    "Rigor presente e in aumento": "Presente e in via di intensificazione e generalizzazione",
-    "Rigor ubiquitario e di intensità massima": "Presente, intensa e generalizzata",
-    "Rigor in risoluzione": "In via di risoluzione",
-    "Rigor risolto": "Risolta",
-    
-}
+_IPOSTASI_MOBILE = MSIL_LIVOR_STATE_BY_LABEL
+_RIGIDITA_MOBILE = MSIL_RIGOR_STATE_BY_LABEL
+
 c_ip, c_rg = st.columns(2, gap="small")
 with c_ip:
     ip_keys = list(_IPOSTASI_MOBILE.keys())
-    scelta_ipostasi_lbl = st.selectbox(
-        "Macchie ipostatiche", ip_keys,
-        index=(ip_keys.index("🩸 IPOSTASI?") if "🩸 IPOSTASI?" in ip_keys else 0),
-        key="selettore_macchie_mobile", label_visibility="collapsed",
-    )
-    selettore_macchie = _IPOSTASI_MOBILE[scelta_ipostasi_lbl]
+    # Riduce la separazione tra ipostasi e digitopressione su mobile.
+    with st.container(gap=None, key="msil_livor_input_stack"):
+        scelta_ipostasi_lbl = render_livor_picker(
+            ip_keys,
+            state_key="selettore_macchie_mobile",
+            picker_key="livor_picker_msil",
+            default_label="🩸 IPOSTASI?",
+        )
+        selettore_macchie = msil_livor_legacy_value(scelta_ipostasi_lbl)
+        render_livor_pressure_input(
+            _IPOSTASI_MOBILE[scelta_ipostasi_lbl],
+            i18n.ui_text("msil.livor_pressure_label"),
+        )
 with c_rg:
     rg_keys = list(_RIGIDITA_MOBILE.keys())
     scelta_rigidita_lbl = st.selectbox(
-        "Rigidità cadaverica", rg_keys,
+        i18n.ui_text("msil.rigor_select_label"), rg_keys,
         index=(rg_keys.index("💪🏻 RIGOR MORTIS?") if "💪🏻 RIGOR MORTIS?" in rg_keys else 0),
         key="selettore_rigidita_mobile", label_visibility="collapsed",
     )
-    selettore_rigidita = _RIGIDITA_MOBILE[scelta_rigidita_lbl]
+    selettore_rigidita = msil_rigor_legacy_value(scelta_rigidita_lbl)
 
 # ------------------------------------------------------------
 # 1) Campi di input: RT / TA / Peso con chiavi widget dedicate
@@ -319,7 +317,7 @@ c_rt, c_ta, c_w, c_fc = st.columns(4, gap="small")
 
 with c_rt:
     rt_val_parsed = _number_or_text(
-        "T. rettale (°C)",
+        i18n.ui_text("msil.rectal_temp"),
         state_key="rt_val",
         widget_key="rt_val_widget",
         text_key="rt_val_str",
@@ -329,7 +327,7 @@ with c_rt:
 
 with c_ta:
     ta_val_parsed = _number_or_text(
-        "T. ambientale media (°C)",
+        i18n.ui_text("msil.ta_mean"),
         state_key="ta_base_val",
         widget_key="ta_base_val_widget",
         text_key="ta_base_val_str",
@@ -339,158 +337,33 @@ with c_ta:
 
 with c_w:
     peso_parsed = _number_or_text(
-        "Peso (kg)",
+        i18n.ui_text("msil.weight"),
         state_key="peso",
         widget_key="peso_widget",
         text_key="peso_str",
-        step=1.0, fmt="%.1f",
+        step=1.0, fmt="%.0f",
         min_value=3.0, max_value=160.0
     )
 
 with c_fc:
-    _label("Fattore di correzione (FC)")
+    _label(i18n.ui_text("msil.fc_label"))
     fc_placeholder = st.empty()
 
 # Persisti valori parsati su chiavi logiche
 st.session_state["rt_val"] = rt_val_parsed
 st.session_state["ta_base_val"] = ta_val_parsed
 st.session_state["peso"] = peso_parsed
+refresh_fc_for_weight(st.session_state, msil=True)
 
-# ------------------------------------------------------------
-# 2) Toggle “Suggerisci FC”
-# ------------------------------------------------------------
-st.toggle("Suggerisci FC",
-          value=st.session_state.get("toggle_fattore_inline_mobile", False),
-          key="toggle_fattore_inline_mobile")
 st.session_state["toggle_fattore"] = st.session_state["toggle_fattore_inline_mobile"]
 
 # ------------------------------------------------------------
 # Pannello “Suggerisci FC”
 # ------------------------------------------------------------
-def pannello_suggerisci_fc_mobile(peso_default: float = 70.0, key_prefix: str = "fcpanel_m"):
-    def k(name: str) -> str: return f"{key_prefix}_{name}"
-
-    stato_label = st.radio("", ["Corpo asciutto", "Bagnato", "Immerso"],
-                           index=0, horizontal=True, key=k("radio_stato_corpo"),
-                           label_visibility="collapsed")
-    stato_corpo = "Asciutto" if stato_label == "Corpo asciutto" else stato_label
-
-    try:
-        tabella2 = load_tabelle_correzione()
-    except Exception:
-        tabella2 = None
-
-    # Peso robusto per FC
-    if st.session_state.get("peso") in (None, 0) or (st.session_state.get("peso") or 0) <= 0:
-        st.session_state["peso"] = 70.0
-
-    peso_eff = st.session_state.get("peso") or peso_default
-    try:
-        peso_eff = float(peso_eff)
-        if peso_eff <= 0:
-            peso_eff = float(peso_default)
-    except Exception:
-        peso_eff = float(peso_default)
-
-    if stato_corpo == "Immerso":
-        acqua_label = st.radio("", ["In acqua stagnante", "In acqua corrente"],
-                               index=0, horizontal=True, key=k("radio_acqua"),
-                               label_visibility="collapsed")
-        acqua_mode = "stagnante" if acqua_label == "In acqua stagnante" else "corrente"
-
-        result = compute_factor(
-            stato="Immerso", acqua=acqua_mode, counts=DressCounts(),
-            superficie_display=None, correnti_aria=False,
-            peso=peso_eff, tabella2_df=tabella2
-        )
-        st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-        return
-
-    col_corr, col_vest = st.columns([1.0, 1.3], gap="small")
-    with col_corr:
-        corr_placeholder = st.empty()
-    with col_vest:
-        toggle_vestito = st.toggle("Vestiti/coperte su addome/bacino?",
-                                   value=st.session_state.get(k("toggle_vestito"), False),
-                                   key=k("toggle_vestito"))
-
-    n_sottili = n_spessi = n_cop_medie = n_cop_pesanti = 0
-    if toggle_vestito:
-        defaults = {
-            "Strati leggeri (indumenti o teli sottili)": st.session_state.get(k("strati_sottili"), 0),
-            "Strati pesanti (indumenti o teli spessi)":  st.session_state.get(k("strati_spessi"), 0),
-        }
-        if stato_corpo == "Asciutto":
-            defaults.update({
-                "Coperte di medio spessore": st.session_state.get(k("coperte_medie"), 0),
-                "Coperte pesanti":           st.session_state.get(k("coperte_pesanti"), 0),
-            })
-        df = pd.DataFrame([{"Voce": nome, "Numero?": v} for nome, v in defaults.items()])
-        edited = st.data_editor(
-            df, hide_index=True, use_container_width=True,
-            column_config={
-                "Voce": st.column_config.TextColumn(disabled=True, width="medium"),
-                "Numero?": st.column_config.NumberColumn(min_value=0, max_value=8, step=1, width="small"),
-            },
-        )
-        vals = {r["Voce"]: _safe_int(r["Numero?"]) for _, r in edited.iterrows()}
-        n_sottili     = vals.get("Strati leggeri (indumenti o teli sottili)", 0)
-        n_spessi      = vals.get("Strati pesanti (indumenti o teli spessi)", 0)
-        n_cop_medie   = vals.get("Coperte di medio spessore", 0) if stato_corpo == "Asciutto" else 0
-        n_cop_pesanti = vals.get("Coperte pesanti", 0)           if stato_corpo == "Asciutto" else 0
-
-    counts = DressCounts(
-        sottili=n_sottili, spessi=n_spessi,
-        coperte_medie=n_cop_medie, coperte_pesanti=n_cop_pesanti
-    )
-
-    superficie_display_selected = None
-    if stato_corpo == "Asciutto":
-        nudo_eff = ((not toggle_vestito)
-                    or (counts.sottili == counts.spessi == counts.coperte_medie == counts.coperte_pesanti == 0))
-        options_display = SURF_DISPLAY_ORDER.copy()
-        if not nudo_eff:
-            options_display = [o for o in options_display if o != "Piano metallico spesso (all’aperto)"]
-        prev_display = st.session_state.get(k("superficie_display_sel"))
-        if prev_display not in options_display:
-            prev_display = options_display[0]
-        superficie_display_selected = st.selectbox(
-            "Superficie di appoggio", options_display,
-            index=options_display.index(prev_display),
-            key=k("superficie_display_sel"), label_visibility="visible"
-        )
-
-    correnti_presenti = False
-    with corr_placeholder.container():
-        mostra_correnti = True
-        if stato_corpo == "Asciutto":
-            f_vc = fattore_vestiti_coperte(counts)
-            if f_vc >= 1.2:
-                mostra_correnti = False
-        if mostra_correnti:
-            correnti_presenti = st.toggle(
-                "Correnti d'aria presenti?",
-                value=st.session_state.get(k("toggle_correnti_fc"), False),
-                key=k("toggle_correnti_fc"), disabled=False
-            )
-
-    try:
-        tabella2 = load_tabelle_correzione()
-    except Exception:
-        tabella2 = None
-
-    result = compute_factor(
-        stato=stato_corpo, acqua=None, counts=counts,
-        superficie_display=superficie_display_selected if stato_corpo == "Asciutto" else None,
-        correnti_aria=correnti_presenti,
-        peso=peso_eff, tabella2_df=tabella2
-    )
-    st.session_state["__next_fc"] = round(float(result.fattore_finale), 2)
-
 if st.session_state.get("toggle_fattore_inline_mobile", False):
     with fc_panel_start():
         pannello_suggerisci_fc_mobile(
-            peso_default=70.0 if st.session_state.get("peso") in (None, 0) else st.session_state.get("peso"),
+            peso_default=st.session_state.get("peso"),
             key_prefix="fcpanel_mobile"
         )
 
@@ -499,15 +372,12 @@ if st.session_state.get("toggle_fattore_inline_mobile", False):
 # ------------------------------------------------------------
 if "__next_fc" in st.session_state:
     v = float(st.session_state.pop("__next_fc"))
-    st.session_state["fattore_correzione"] = floor_to_step(v)
+    st.session_state["fattore_correzione"] = rounded_fc(v)
 
 # Callback per normalizzare l'input FC su step 0,05 e chiudere il pannello "Suggerisci FC"
 def _normalize_fc_callback():
-    try:
-        v = float(st.session_state.get("fattore_correzione", 1.0))
-        st.session_state["fattore_correzione"] = floor_to_step(v)  # arrotonda per difetto a 0,05
-    except Exception:
-        return
+    st.session_state.pop("__msil_fc_chosen_range", None)
+    normalize_fc_input(st.session_state, "fattore_correzione", msil=True)
     # chiudi eventuali pannelli "Suggerisci FC" aperti
     st.session_state["toggle_fattore_inline_mobile"] = False  # toggle del pannello mobile
     st.session_state["toggle_fattore"] = False                # flag usato per mostrare il pannello
@@ -519,38 +389,56 @@ def _normalize_fc_callback():
 with c_fc:
     fc_placeholder.number_input(
         "", step=0.05, format="%.2f",
-        min_value=0.30, max_value=3.00,
+        min_value=0.35,
         key="fattore_correzione", label_visibility="collapsed",
         on_change=_normalize_fc_callback
     )
 
+if st.session_state.get("__msil_fc_chosen_range"):
+    lo_fc, hi_fc = st.session_state["__msil_fc_chosen_range"]
+    st.caption(f"FC scelto: {lo_fc:.2f} – {hi_fc:.2f}")
+
+render_scenarios_button(MSIL_PAGE)
+
 # ------------------------------------------------------------
 # 3) Pulsante finale
 # ------------------------------------------------------------
-clicked = st.button("STIMA EPOCA DECESSO", key="btn_stima_mobile", use_container_width=True, type="primary")
+if warning := fc_weight_warning(st.session_state):
+    if fc_weight_needs_review(st.session_state):
+        st.warning(warning)
+    else:
+        st.caption(warning)
+
+clicked = st.button(i18n.ui_text("msil.estimate_button"), key="btn_stima_mobile", use_container_width=True, type="primary")
 
 # ------------------------------------------------------------
 # Firma input e range fissi mobile
 # ------------------------------------------------------------
 def _inputs_signature_mobile(selettore_macchie: str, selettore_rigidita: str):
     return (
+        int(st.session_state.get("henssge_round_minutes", 15)),
         bool(st.session_state.get("usa_orario_custom", False)),
         str(st.session_state.get("input_data_rilievo")),
         str(st.session_state.get("input_ora_rilievo")),
         selettore_macchie,
+        effective_livor_pressure(st.session_state),
         selettore_rigidita,
         _sig_val(st.session_state.get("rt_val")),
         _sig_val(st.session_state.get("ta_base_val")),
         _sig_val(st.session_state.get("peso")),
         _sig_val(st.session_state.get("fattore_correzione")),
+        tuple(st.session_state.get("__msil_fc_chosen_range", [])),
         37.2,
     )
 
 # Range TA e FC
 ta_center = st.session_state.get("ta_base_val")
-fc_center = float(st.session_state.get("fattore_correzione", 1.0))
+fc_center = st.session_state.get("fattore_correzione", None)
 
-if ta_center is not None:
+scenario_temperatures = scenario_temperature_bounds(st.session_state.get("__fc_applied_choice") or {})
+if scenario_temperatures is not None and ta_center == scenario_temperatures[0]:
+    st.session_state["Ta_min_beta"], st.session_state["Ta_max_beta"] = scenario_temperatures
+elif ta_center is not None:
     try:
         ta_center = float(ta_center)
         st.session_state["Ta_min_beta"] = round(ta_center - 1.0, 2)
@@ -562,8 +450,16 @@ else:
     st.session_state.pop("Ta_min_beta", None)
     st.session_state.pop("Ta_max_beta", None)
 
-st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
-st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+chosen_fc = st.session_state.get("__msil_fc_chosen_range")
+if chosen_fc:
+    st.session_state["FC_min_beta"], st.session_state["FC_max_beta"] = chosen_fc
+elif finite_number(fc_center):
+    fc_center = float(fc_center)
+    st.session_state["FC_min_beta"] = round(fc_center - 0.10, 2)
+    st.session_state["FC_max_beta"] = round(fc_center + 0.10, 2)
+else:
+    st.session_state.pop("FC_min_beta", None)
+    st.session_state.pop("FC_max_beta", None)
 
 curr_sig = _inputs_signature_mobile(selettore_macchie, selettore_rigidita)
 if "last_run_sig_mobile" not in st.session_state:
@@ -589,30 +485,45 @@ if st.session_state.get("run_stima_mobile"):
     no_rigidita = str(selettore_rigidita).strip() in {"Non valutata", "Non valutate", "/"}
 
     
-    considera_raffreddamento = (
-        input_rt is not None and
-        input_ta is not None and
-        input_w is not None and input_w > 0
-    )
-
     aggiorna_grafico(
         selettore_macchie=selettore_macchie,
         selettore_rigidita=selettore_rigidita,
-        input_rt=(input_rt if considera_raffreddamento else None),
-        input_ta=(input_ta if considera_raffreddamento else None),
-        input_tm=(37.2 if considera_raffreddamento else None),
-        input_w=(input_w if considera_raffreddamento else None),
-        fattore_correzione=st.session_state.get("fattore_correzione", 1.0),
+        livor_digitopressione=effective_livor_pressure(st.session_state),
+        input_rt=input_rt,
+        input_ta=input_ta,
+        input_tm=37.2,
+        input_w=input_w,
+        fattore_correzione=st.session_state.get("fattore_correzione", None),
         widgets_parametri_aggiuntivi={},
         usa_orario_custom=st.session_state.get("usa_orario_custom"),
         input_data_rilievo=st.session_state.get("input_data_rilievo"),
         input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
         alterazioni_putrefattive=False,
         skip_warnings=True,
+        # Sopralluogo always uses its documented intervals, independently of
+        # the Full page's toggles. Do not overwrite those user preferences.
+        cooling_options={
+            "stima_cautelativa_beta": True,
+            "peso_stimato_beta": True,
+            "Ta_min_beta": st.session_state.get("Ta_min_beta"),
+            "Ta_max_beta": st.session_state.get("Ta_max_beta"),
+            "FC_min_beta": st.session_state.get("FC_min_beta"),
+            "FC_max_beta": st.session_state.get("FC_max_beta"),
+            "henssge_round_minutes": st.session_state.get("henssge_round_minutes", 15),
+            "__fc_applied_choice": st.session_state.get("__fc_applied_choice"),
+        },
     )
 
 st.session_state["selettore_macchie"] = selettore_macchie
 st.session_state["selettore_rigidita"] = selettore_rigidita
+if st.session_state.get("run_stima_mobile"):
+    from app.case_report import capture_report
+    capture_report(st.session_state, "msil")
+render_case_menu(MSIL_PAGE)
+from app.word_launch import render_word_download
+render_word_download("msil")
 
-with st.popover("ℹ️ Raccomandazioni"):
+with st.popover(i18n.ui_text("msil.recommendations_button")):
     st.markdown(_raccomandazioni_html(), unsafe_allow_html=True)
+
+render_language_selector()
