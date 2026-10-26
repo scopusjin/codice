@@ -1051,8 +1051,6 @@ def aggiorna_grafico(
     frase_breve_html = st.session_state.get("frase_breve")
     if frase_breve_html:
         render_frase_breve(frase_breve_html, key="fb_before_details")
-        if overlap and not discordanti:
-            st.markdown(nota_limiti_stima(), unsafe_allow_html=True)
 
     if mobile_result_figure is not None:
         with st.expander(i18n.ui_text("graph.plot_expander"), expanded=False):
