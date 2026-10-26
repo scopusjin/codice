@@ -107,11 +107,11 @@ class CompactLivorPickerTests(unittest.TestCase):
         repo = Path(__file__).resolve().parents[1]
         html = (repo / "app/livor_picker_frontend/index.html").read_text(encoding="utf-8")
         self.assertIn('<select id="livor-choice"', html)
-        self.assertIn("new Option(value, value)", html)
+        self.assertIn("new Option(args.labels?.[value] || value, value)", html)
         self.assertIn("streamlit:setComponentValue", html)
         self.assertIn("streamlit:setFrameHeight", html)
         self.assertIn("appearance: auto", html)
-        self.assertIn("font: 400 13px", html)
+        self.assertIn("font: 400 12px", html)
         self.assertNotIn('type="radio"', html)
 
     def test_digitopressione_is_compact_and_slightly_indented(self):

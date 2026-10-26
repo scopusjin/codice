@@ -113,23 +113,10 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         self.assertEqual(app.session_state['FC_min_beta'], 1.35)
         self.assertEqual(app.session_state['FC_max_beta'], 1.4)
 
-    def test_sopralluogo_calculation_is_independent_of_full_mode(self):
-        results = []
-        for prudent in (False, True):
-            app = self.start(stima_cautelativa_beta=prudent, peso_stimato_beta=prudent)
-            app.switch_page('pages/App_MSIL.py').run()
-            app.button(key='btn_stima_mobile').click().run()
-            self.assertFalse(app.exception)
-            text = app.session_state['__desc_dettagliate_html']
-            self.assertIn('19.0', text)
-            self.assertIn('67', text)
-            self.assertNotRegex(text, r'<(?:b|strong)\b|font-weight\s*:\s*(?:bold|[6-9]00)')
-            results.append(re.sub('<[^>]+>', '', app.session_state['frase_breve']))
-            app.switch_page('Stima_epoca_decesso.py').run()
-            self.assertFalse(app.exception)
-            self.assertEqual(app.session_state['stima_cautelativa_beta'], prudent)
-            self.assertEqual(app.session_state['peso_stimato_beta'], prudent)
-        self.assertEqual(results[0], results[1])
+    def test_sopralluogo_is_not_an_active_page(self):
+        # Its scientific helpers remain tested separately; navigation is suspended.
+        self.assertFalse((ROOT / 'pages/App_MSIL.py').exists())
+        self.assertTrue((ROOT / 'disabled_pages/App_MSIL.py').is_file())
 
     def test_detailed_conclusion_distinguishes_one_parameter_from_combined_data(self):
         for with_datetime in (False, True):
@@ -154,7 +141,8 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                 self.assertNotIn('EPOCA DEL DECESSO STIMATA:', detail)
                 self.assertIn('EPOCA DEL DECESSO STIMATA:', app.session_state['frase_breve'])
 
-                app.selectbox[0].select('Parzialmente migrabili').run()
+                app.session_state['selettore_macchie_ui'] = 'Parzialmente migrabili'
+                app.run()
                 app.button(key='btn_stima').click().run()
                 self.assertFalse(app.exception)
                 detail = app.session_state['__desc_dettagliate_html']
@@ -180,37 +168,34 @@ class CoolingPagesRegressionTests(unittest.TestCase):
                          input_ora_rilievo='11:28',
                          input_ora_rilievo_native='11:28',
                          fc_min_val=1.4, fc_other_val=None, ta_other_val=20.)
-        app.selectbox[0].select(app.selectbox[0].options[1]).run()
+        app.session_state['selettore_macchie_ui'] = 'Parzialmente migrabili'
+        app.run()
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
         self.assertTrue(any('fattore di correzione' in warning.value.lower()
-                            for warning in app.warning),
-                        [warning.value for warning in app.warning])
+                            for warning in app.markdown),
+                        [warning.value for warning in app.markdown])
         self.assertIsNotNone(app.session_state['frase_breve'])
         self.assertNotIn('Applicando l’equazione', app.session_state['__desc_dettagliate_html'])
         self.assertNotIn("Applicando l'equazione", app.session_state['__desc_dettagliate_html'])
         self.assertNotRegex(app.session_state['__desc_dettagliate_html'], r'<(?:b|strong)\b')
 
-    def test_missing_rectal_temperature_is_named_in_both_views(self):
-        for msil in (False, True):
-            with self.subTest(msil=msil):
-                app = self.start(rt_val=None,
+    def test_missing_rectal_temperature_is_named_in_final_note_in_both_layouts(self):
+        for mobile in (False, True):
+            with self.subTest(mobile=mobile):
+                app = self.start(rt_val=None, __full_device_mobile=mobile,
                                  input_ora_rilievo='11:28',
-                                 input_ora_rilievo_native='11:28')
-                if msil:
-                    app.switch_page('pages/App_MSIL.py').run()
-                app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
-                self.assertFalse(app.exception)
-                self.assertTrue(any('manca la temperatura rettale.' in warning.value.lower()
-                                    for warning in app.warning),
-                                [warning.value for warning in app.warning])
-                app.selectbox[0].select(app.selectbox[0].options[1]).run()
-                app.button(key='btn_stima_mobile' if msil else 'btn_stima').click().run()
+                                 input_ora_rilievo_native='11:28',
+                                 selettore_macchie_ui='Parzialmente migrabili')
+                app.button(key='btn_stima').click().run()
                 self.assertFalse(app.exception)
                 self.assertIsNotNone(app.session_state['frase_breve'])
-                self.assertTrue(any('manca la temperatura rettale.' in warning.value.lower()
-                                    for warning in app.warning),
-                                [warning.value for warning in app.warning])
+                notes = [item.value for item in app.markdown
+                         if 'Raffreddamento non calcolato' in item.value]
+                self.assertEqual(len(notes), 1)
+                self.assertIn('temperatura rettale', notes[0])
+                self.assertIn('#a66b00', notes[0])
+                self.assertIn('font-size:8pt', notes[0])
 
     def test_temperature_order_is_invariant_in_full_results(self):
         results = []
@@ -282,14 +267,14 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         app = self.start(peso=2., stima_cautelativa_beta=True, peso_stimato_beta=True)
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any('peso' in warning.value.lower() for warning in app.warning))
+        self.assertTrue(any('peso' in warning.value.lower() for warning in app.markdown))
 
     def test_empty_temperature_max_does_not_invent_an_interval(self):
         app = self.start(stima_cautelativa_beta=True,
                          __prudent_explicit_ranges_initialized=True, ta_other_val=None)
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any('temperatura' in warning.value for warning in app.warning))
+        self.assertTrue(any('temperatura' in warning.value for warning in app.markdown))
         self.assertIsNone(app.session_state['frase_breve'])
 
     def test_zero_fc_shows_warning_without_crashing(self):
@@ -298,4 +283,4 @@ class CoolingPagesRegressionTests(unittest.TestCase):
         app.run()
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any('FC' in warning.value for warning in app.warning))
+        self.assertTrue(any('FC' in warning.value for warning in app.markdown))

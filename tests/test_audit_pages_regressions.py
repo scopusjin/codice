@@ -8,6 +8,7 @@ from streamlit.testing.v1 import AppTest
 from streamlit.proto.WidgetStates_pb2 import WidgetStates
 import app.decimal_number_input_v2 as decimal_v2
 from app.henssge import calcola_raffreddamento
+from app.utils_time import round_display_datetime
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -69,12 +70,11 @@ class AuditPagesRegressionTests(unittest.TestCase):
                 self.assertFalse(app.exception)
                 self.assertIsNotNone(app.button(key='btn_stima'))
 
-    def test_manual_fc_panel_selection_survives_rerun_in_both_modes(self):
+    def test_manual_fc_panel_selection_survives_rerun_in_main(self):
         app = self.start()
         self.edit_fc(app, 'fattore_correzione', 1.25)
         app.run()
         self.assertEqual(app.session_state['fattore_correzione'], 1.25)
-        app.switch_page('pages/App_MSIL.py').run()
         self.edit_fc(app, 'fattore_correzione', 1.30)
         app.run()
         self.assertEqual(app.session_state['fattore_correzione'], 1.30)
@@ -103,22 +103,22 @@ class AuditPagesRegressionTests(unittest.TestCase):
         app.session_state['peso'] = 100.
         app.run()
         self.assertEqual(app.session_state['fattore_correzione'], 1.75)
-        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.caption))
-        app.switch_page('pages/App_MSIL.py').run()
-        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.caption))
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.markdown))
+        app.run()
+        self.assertTrue(any('FC adattato per il peso' in w.value for w in app.markdown))
         self.edit_fc(app, 'fattore_correzione', 2.)
-        self.assertFalse(any('FC adattato per il peso' in w.value for w in app.caption))
+        self.assertFalse(any('FC adattato per il peso' in w.value for w in app.markdown))
 
-    def test_result_uses_actual_inspection_minute_and_settings_invalidate_it(self):
+    def test_result_rounds_raw_calendar_bounds_and_settings_invalidate_it(self):
         app = self.start(input_data_rilievo=dt.date(2026, 1, 2), input_ora_rilievo='12:07',
                          input_ora_rilievo__manual=True, input_ora_rilievo_native='12:07',
                          henssge_round_minutes=6)
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        times = calcola_raffreddamento(30, 20, 37.2, 70, 1, round_minutes=6)
+        times = calcola_raffreddamento(30, 20, 37.2, 70, 1, round_minutes=None)
         inspection = dt.datetime(2026, 1, 2, 12, 7)
-        for hours in (times[1], times[2]):
-            self.assertIn((inspection - dt.timedelta(hours=hours)).strftime('%H:%M'),
+        for hours, upper in ((times[2], False), (times[1], True)):
+            self.assertIn(round_display_datetime(inspection - dt.timedelta(hours=hours), 6, upper=upper).strftime('%H:%M'),
                           app.session_state['frase_breve'])
         app.session_state['henssge_round_minutes'] = 15
         app.run()
@@ -128,5 +128,5 @@ class AuditPagesRegressionTests(unittest.TestCase):
         app = self.start(peso=150., fattore_correzione=3.)
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any('combinazione di FC e peso' in w.value for w in app.warning))
+        self.assertTrue(any('combinazione di FC e peso' in w.value for w in app.markdown))
         self.assertIsNone(app.session_state['frase_breve'])

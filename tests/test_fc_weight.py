@@ -21,7 +21,7 @@ class FCWeightTests(unittest.TestCase):
                 "weight": weight, "manual": False, "description": "condizioni conservate"}
 
     def test_no_prescribed_initial_weight_in_main_and_sopralluogo(self):
-        for filename, required_inputs in (("Stima_epoca_decesso.py", 4), ("pages/App_MSIL.py", 0)):
+        for filename, required_inputs in (("Stima_epoca_decesso.py", 4), ("disabled_pages/App_MSIL.py", 0)):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 tree = ast.parse(source)

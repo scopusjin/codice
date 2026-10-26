@@ -112,3 +112,9 @@ Dopo il riscontro dell’utente e la verifica della cronologia sono allineate le
 - Aggiunto test esplicito delle pagine disattivate e del rifiuto dell’import MSIL senza alterare il caso corrente. I vecchi test di navigazione MSIL richiedono ancora una revisione tecnica separata.
 
 Superati 54 test Python selezionati (50 test su dati tanatologici, testi, audit numerico, arrotondamenti e report; 2 test mirati catalogo; 2 sospensione pagine) e la verifica JavaScript mirata FC 1.40–1.60. Nessun codice applicativo, parametro scientifico, formula, workflow o main modificato. Le altre suite negative del rapporto iniziale non sono dichiarate risolte. La convalida complessiva e la pubblicazione restano da completare.
+
+## Secondo allineamento alle decisioni confermate
+
+Aggiornati i test di pagina dell'audit e del raffreddamento: valori grezzi prima dell'arrotondamento finale, nota FC accanto all'etichetta, errori di raffreddamento resi nella nota finale, selettore ipostasi personalizzato. Il controllo della temperatura rettale mancante verifica anche colore giallo e dimensione 8pt. I controlli prima dedicati alla navigazione MSIL verificano ora l'assenza della pagina attiva e la conservazione del sorgente disattivato; la persistenza del FC resta verificata nella pagina principale. Il test statico del peso legge il sorgente MSIL archiviato senza riattivarlo. Selettore ipostasi: aggiornate le aspettative sulle etichette traducibili (0df24142) e sul font compatto (c501b24d).
+
+Superati separatamente 6 test audit, 15 test raffreddamento, 8 test selettore e 20 test peso FC: 49 test. Nessuna modifica al codice applicativo o al main. Non costituisce convalida dell'intero branch: restano i wrapper storici di navigazione/lingua/FC, le tabelle e le suite JavaScript da completare.
