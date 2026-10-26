@@ -44,8 +44,19 @@ def prepare_word_launch():
     except (ValueError, TypeError) as exc:
         st.error('Dati inviati da Word non validi: ' + str(exc))
         st.stop()
-    from app.case_file import snapshot_case
-    st.session_state['__case_pending_import'] = snapshot_case(values, 'full')
+    from app.case_file import snapshot_case, CaseFileError
+    if params.get('mt_resume') == '1':
+        from app.word_resume import render_word_resume
+        try:
+            pending = render_word_resume(params)
+        except CaseFileError as exc:
+            st.error(str(exc))
+            st.stop()
+        if pending is None:
+            st.stop()
+    else:
+        pending = snapshot_case(values, 'full')
+    st.session_state['__case_pending_import'] = pending
     if params.get('mt_request'):
         st.session_state['__word_launch_pending'] = {
             'request_id': params['mt_request'], 'case_code': values['case_code']}

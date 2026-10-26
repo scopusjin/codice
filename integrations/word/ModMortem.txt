@@ -1,0 +1,944 @@
+Option Explicit
+
+' MORTEM - RIPRESA COMPLETA - 26.10.2026
+' La ripresa completa richiede anche app/word_resume.py e il relativo frontend nell'app.
+' Installare insieme al supporto di ripresa Word nell'app.
+' Richiede DatiCaso_Salva, DatiCaso_LeggiJSONFile e frmMortemAttesa.
+' Il form mantiene Collega e ImpostaOccupato e richiama
+' Mortem_ImportaRiepilogo / Mortem_AnnullaOperazione.
+' Nessun gestore SGB, timer, polling o script esterno.
+' Nessun salvataggio automatico del documento Word.
+' Nessuna modifica o cancellazione dei JSON importati.
+' Solo Word legge la cartella locale. L'app riceve il contenuto del solo JSON scelto.
+' Il browser e il sito non ricevono accesso al filesystem del computer.
+' CC prioritari; fallback ai segnalibri chiave, chiave_1, chiave_2.
+' Nomi legacy diversi richiedono verifica nel documento specifico.
+
+Private Const APP_URL As String = "https://mor-tem.streamlit.app/"
+Private Const BM As String = "Mortem_Valutazione"
+Private Const SEGNAPOSTO As String = "[Testo Mortem da importare]"
+Private mDocumento As Word.Document
+Private mOriginale As String
+Private mCaso As String
+Private mNomeDocumento As String
+Private mWindow As frmMortemAttesa
+Private mImportazione As Boolean
+Private mFase As String
+
+Private Type MortemGuid
+    a As Long
+    b As Integer
+    c As Integer
+    d(0 To 7) As Byte
+End Type
+#If VBA7 Then
+    Private Declare PtrSafe Function CoCreateGuid Lib "ole32.dll" (ByRef valore As MortemGuid) As Long
+#Else
+    Private Declare Function CoCreateGuid Lib "ole32.dll" (ByRef valore As MortemGuid) As Long
+#End If
+
+Public Sub Mortem_InstallaPulsante()
+    On Error GoTo Errore
+    If Application.Documents.Count = 0 Then Exit Sub
+    PreparaDocumento ActiveDocument
+    MsgBox "Area Mortem pronta. Il comando e' testo nascosto: per vederlo usa Mostra/Nascondi (" & ChrW(182) & "). Salva il documento per conservare la preparazione.", vbInformation, "Mortem"
+    Exit Sub
+Errore:
+    MsgBox Err.Description, vbExclamation, "Preparazione Mortem"
+End Sub
+
+Public Sub Mortem_ApriApp()
+    Dim Doc As Word.Document, root As Object, campi As Object
+    Dim percorso As String, url As String, messaggio As String, ripresa As String, token As String, avvio As String
+    On Error GoTo Errore
+    If mImportazione Or Application.Documents.Count = 0 Then Exit Sub
+    Set Doc = ActiveDocument
+    VerificaDocumento Doc
+    If Doc.Path = "" Then Err.Raise vbObjectError + 740, , "Salva prima il documento nella cartella del caso."
+    mFase = "Preparazione segnalibro e pulsante"
+    PreparaDocumento Doc
+    If Not DatiCaso_Salva(Doc) Then Exit Sub
+    percorso = PercorsoCaso(Doc)
+    If percorso = "" Then Exit Sub
+    Set root = LeggiJSON(percorso)
+    Set campi = Oggetto(root, "campi")
+    Mortem_AnnullaOperazione
+    Set mDocumento = Doc
+    mOriginale = percorso
+    mCaso = CodiceCaso(root)
+    mNomeDocumento = Doc.FullName
+    mFase = "Ricerca caso Mortem da riprendere"
+    ripresa = CercaCasoDaRiprendere(Doc.Path, mCaso)
+    token = NuovoToken()
+    url = APP_URL & "?mt_open=1&mt_case=" & CodificaURL(mCaso)
+    url = url & "&mt_request=" & token
+    url = url & "&mt_date=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "ispezione"))
+    url = url & "&mt_time=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "oraispezione"))
+    url = url & "&mt_weight=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "peso"))
+    url = url & "&mt_ta=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "tambiente"))
+    url = url & "&mt_tr=" & CodificaURL(LeggiParametroDocumento(Doc, campi, "trettale"))
+    Set mWindow = New frmMortemAttesa
+    mWindow.Collega Doc
+    mWindow.Show vbModeless
+    If ripresa <> "" Then
+        mFase = "Preparazione riapertura completa del caso"
+        url = APP_URL & "?embed=true&mt_open=1&mt_case=" & CodificaURL(mCaso) & "&mt_request=" & token & "&mt_resume=1"
+        avvio = CreaAvvioLocale(ripresa, url, token)
+        Doc.FollowHyperlink Address:=avvio, NewWindow:=True
+    Else
+        Doc.FollowHyperlink Address:=url, NewWindow:=True
+    End If
+    Exit Sub
+Errore:
+    messaggio = "Fase: " & mFase & vbCrLf & "Errore " & CStr(Err.Number) & " - " & Err.Description & vbCrLf & "Origine: " & Err.Source
+    Mortem_AnnullaOperazione
+    MsgBox "Avvio Mortem non completato: " & messaggio, vbExclamation, "Mortem"
+End Sub
+
+Public Sub Mortem_AnnullaOperazione()
+    If mImportazione Then Exit Sub
+    On Error Resume Next
+    If Not mWindow Is Nothing Then Unload mWindow
+    Set mWindow = Nothing
+    Set mDocumento = Nothing
+    mOriginale = "": mCaso = "": mNomeDocumento = ""
+    On Error GoTo 0
+End Sub
+
+Public Sub Mortem_ImportaRiepilogo()
+    Dim Doc As Word.Document, trovato As Boolean
+    Dim percorso As String, messaggio As String
+    On Error GoTo Errore
+    If mImportazione Then Exit Sub
+    If mDocumento Is Nothing Then
+        MsgBox "Avvia prima Mortem dal documento. Per importare un JSON gia' scaricato puoi anche usare Mortem_ImportaDescrizioni da Alt+F8.", vbInformation, "Mortem"
+        Exit Sub
+    End If
+    For Each Doc In Application.Documents
+        If Doc Is mDocumento Then trovato = True: Exit For
+    Next Doc
+    If Not trovato Then Err.Raise vbObjectError + 743, , "Il documento collegato non e' piu' aperto."
+    If StrComp(mDocumento.FullName, mNomeDocumento, vbTextCompare) <> 0 Then
+        Err.Raise vbObjectError + 744, , "Il documento e' stato rinominato o spostato. Annulla e riapri Mortem da Word."
+    End If
+    VerificaDocumento mDocumento
+    mFase = "Attivazione importazione"
+    mImportazione = True
+    mFase = "Aggiornamento finestra Fatto"
+    If Not mWindow Is Nothing Then mWindow.ImpostaOccupato True
+    mFase = "Ricerca JSON scaricato"
+    percorso = TrovaRiepilogo(mDocumento.Path, mCaso)
+    If percorso <> "" Then
+        If ImportaCaso(mDocumento, mOriginale, percorso) Then
+            mImportazione = False
+            Mortem_AnnullaOperazione
+            Exit Sub
+        End If
+    End If
+Ripristina:
+    mImportazione = False
+    If Not mWindow Is Nothing Then mWindow.ImpostaOccupato False
+    Exit Sub
+Errore:
+    messaggio = "Fase: " & mFase & vbCrLf & "Errore " & CStr(Err.Number) & " - " & Err.Description & vbCrLf & "Origine: " & Err.Source
+    mImportazione = False
+    On Error Resume Next
+    If Not mWindow Is Nothing Then mWindow.ImpostaOccupato False
+    On Error GoTo 0
+    MsgBox "Importazione non completata: " & messaggio & vbCrLf & "Il JSON scaricato non e' stato modificato.", vbExclamation, "Mortem"
+End Sub
+
+Public Sub Mortem_ImportaDescrizioni()
+    Dim Doc As Word.Document
+    If mImportazione Or Application.Documents.Count = 0 Then Exit Sub
+    Set Doc = ActiveDocument
+    Call ImportaCaso(Doc, "", "")
+End Sub
+
+Private Sub PreparaDocumento(ByVal Doc As Word.Document)
+    Dim target As Word.Range, punto As Word.Range, p As Word.Range
+    Dim campo As Word.Field, presente As Boolean, pulsante As Boolean
+    Dim testo As String, inizio As Long, fine As Long, posizione As Long
+    Dim lunghezza As Long, delta As Long, track As Boolean, screen As Boolean
+    Dim stato As Boolean, record As Boolean, modificato As Boolean
+    Dim numero As Long, messaggio As String
+    On Error GoTo Errore
+    VerificaDocumento Doc
+    presente = Doc.Bookmarks.Exists(BM)
+    pulsante = HaPulsante(Doc)
+    If presente Then
+        mFase = "Accesso al segnalibro Mortem"
+    Set target = Doc.Bookmarks(BM).Range.Duplicate
+        mFase = "Controllo limiti del segnalibro"
+    NormalizzaRange target
+        mFase = "Verifica area di destinazione"
+    VerificaDestinazione Doc, target
+        If pulsante Then
+            StilePulsanti Doc
+            Exit Sub
+        End If
+    Else
+        Set punto = Selection.Range.Duplicate
+        If Not (punto.Document Is Doc) Then Err.Raise vbObjectError + 750, , "Posiziona il cursore nel documento da aggiornare."
+        If punto.StoryType <> wdMainTextStory Then Err.Raise vbObjectError + 750, , "Posiziona il cursore nel testo principale."
+        If punto.Information(wdWithInTable) Then Err.Raise vbObjectError + 750, , "Scegli un paragrafo fuori dalle tabelle."
+        If punto.Start <> punto.End Then Err.Raise vbObjectError + 750, , "Posiziona soltanto il cursore, senza selezionare testo."
+        Set p = punto.Paragraphs(1).Range.Duplicate
+        testo = Trim$(Replace(Replace(Replace(p.Text, vbCr, ""), vbTab, ""), ChrW(160), " "))
+        If testo <> "" Or p.Fields.Count > 0 Or p.InlineShapes.Count > 0 Then
+            Err.Raise vbObjectError + 751, , "Manca il segnalibro Mortem. Crea con Invio un paragrafo vuoto nel punto desiderato, lascia li' il cursore e avvia Mortem_InstallaPulsante da Alt+F8. Non cliccare il vecchio pulsante durante questa preparazione."
+        End If
+        Set punto = Doc.Range(p.Start, p.Start)
+        VerificaPunto Doc, punto
+    End If
+    track = Doc.TrackRevisions: screen = Application.ScreenUpdating: stato = True
+    Application.UndoRecord.StartCustomRecord "Prepara area Mortem"
+    record = True
+    Doc.TrackRevisions = False: Application.ScreenUpdating = False
+    If Not presente Then
+        posizione = punto.Start
+        Set target = Doc.Range(posizione, posizione)
+        modificato = True
+        target.Text = SEGNAPOSTO
+        Set target = Doc.Range(posizione, posizione + Len(SEGNAPOSTO))
+        target.Font.Hidden = False
+        Doc.Bookmarks.Add Name:=BM, Range:=target
+    End If
+    If Not pulsante Then
+        inizio = target.Start: fine = target.End
+        posizione = target.Paragraphs(1).Range.Start
+        lunghezza = Doc.Content.End
+        Set punto = Doc.Range(posizione, posizione)
+        modificato = True
+        punto.InsertBefore vbCr
+        Set punto = Doc.Range(posizione, posizione)
+        Set campo = Doc.Fields.Add(Range:=punto, Type:=wdFieldMacroButton, Text:="Mortem_ApriApp Crea/aggiorna dati dall'app", PreserveFormatting:=False)
+        campo.Update
+        Set p = Doc.Range(posizione, posizione).Paragraphs(1).Range
+        p.ListFormat.RemoveNumbers
+        p.Font.Hidden = True
+        campo.Code.Font.Hidden = True: campo.Result.Font.Hidden = True
+        delta = Doc.Content.End - lunghezza
+        Set target = Doc.Range(inizio + delta, fine + delta)
+        Doc.Bookmarks.Add Name:=BM, Range:=target
+    End If
+    mFase = "Verifica area di destinazione"
+    VerificaDestinazione Doc, target
+    StilePulsanti Doc
+    Application.UndoRecord.EndCustomRecord: record = False
+    Doc.TrackRevisions = track: Application.ScreenUpdating = screen
+    Exit Sub
+Errore:
+    numero = Err.Number: messaggio = Err.Description
+    On Error Resume Next
+    If record Then
+        Application.UndoRecord.EndCustomRecord
+        If modificato Then Doc.Undo
+    End If
+    If stato Then
+        Doc.TrackRevisions = track: Application.ScreenUpdating = screen
+    End If
+    On Error GoTo 0
+    Err.Raise numero, "Preparazione Mortem", messaggio
+End Sub
+
+Private Sub NormalizzaRange(ByVal r As Word.Range)
+    Do While r.End > r.Start
+        If Right$(r.Text, 1) <> vbCr Then Exit Do
+        r.MoveEnd wdCharacter, -1
+    Loop
+End Sub
+
+Private Function TestoVisibile(ByVal area As Word.Range) As String
+    Dim r As Word.Range
+    Set r = area.Duplicate
+    r.TextRetrievalMode.IncludeHiddenText = False
+    r.TextRetrievalMode.IncludeFieldCodes = False
+    TestoVisibile = Trim$(Replace(Replace(Replace(r.Text, vbCr, ""), vbTab, " "), ChrW(160), " "))
+End Function
+
+Private Function Interseca(ByVal a As Word.Range, ByVal b As Word.Range) As Boolean
+    If Not a.InStory(b) Then Exit Function
+    If a.Start = a.End Then
+        Interseca = (a.Start > b.Start And a.Start < b.End)
+    ElseIf b.Start = b.End Then
+        Interseca = (b.Start >= a.Start And b.Start < a.End)
+    Else
+        Interseca = (a.Start < b.End And a.End > b.Start)
+    End If
+End Function
+
+Private Sub VerificaDestinazione(ByVal Doc As Word.Document, ByVal target As Word.Range)
+    Dim r As Word.Range, segno As Word.Bookmark, cc As Word.ContentControl, f As Word.Field
+    If target.StoryType <> wdMainTextStory Then Err.Raise vbObjectError + 752, , "L'area Mortem deve essere nel testo principale."
+    If target.Information(wdWithInTable) Then Err.Raise vbObjectError + 752, , "L'area Mortem deve essere fuori dalle tabelle."
+    Set r = Doc.Range(target.Paragraphs(1).Range.Start, target.Start)
+    If TestoVisibile(r) <> "" Then Err.Raise vbObjectError + 753, , "Il segnalibro Mortem inizia a meta' paragrafo. Elimina soltanto il segnalibro da Inserisci > Segnalibro, senza cancellare il testo. Poi scegli un paragrafo vuoto e avvia Mortem_InstallaPulsante da Alt+F8."
+    Set r = Doc.Range(target.End, target.Paragraphs.Last.Range.End)
+    If TestoVisibile(r) <> "" Then Err.Raise vbObjectError + 754, , "Il segnalibro Mortem termina a meta' paragrafo. Il testo circostante non verra' sostituito."
+    For Each segno In Doc.Bookmarks
+        If StrComp(segno.Name, BM, vbTextCompare) <> 0 Then
+            If Interseca(target, segno.Range) Then Err.Raise vbObjectError + 755, , "L'area Mortem coinvolge il segnalibro " & segno.Name & "."
+        End If
+    Next segno
+    For Each cc In Doc.ContentControls
+        If Interseca(target, cc.Range) Then Err.Raise vbObjectError + 756, , "L'area Mortem coinvolge un controllo contenuto."
+    Next cc
+    For Each f In Doc.Fields
+        Set r = Doc.Range(f.Code.Start - 1, f.Result.End + 1)
+        If Interseca(target, r) Then Err.Raise vbObjectError + 757, , "L'area Mortem contiene un campo o un pulsante, che deve rimanere fuori dal segnalibro."
+    Next f
+End Sub
+
+Private Sub VerificaPunto(ByVal Doc As Word.Document, ByVal punto As Word.Range)
+    Dim segno As Word.Bookmark, cc As Word.ContentControl, f As Word.Field, r As Word.Range
+    For Each segno In Doc.Bookmarks
+        Set r = segno.Range
+        If punto.InStory(r) Then
+            If punto.Start >= r.Start And punto.Start <= r.End Then Err.Raise vbObjectError + 758, , "Il punto scelto tocca il segnalibro " & segno.Name & ". Scegli un altro paragrafo vuoto."
+        End If
+    Next segno
+    For Each cc In Doc.ContentControls
+        Set r = cc.Range
+        If punto.InStory(r) Then
+            If punto.Start >= r.Start And punto.Start <= r.End Then Err.Raise vbObjectError + 758, , "Il punto scelto tocca un controllo contenuto. Scegli un altro paragrafo vuoto."
+        End If
+    Next cc
+    For Each f In Doc.Fields
+        Set r = Doc.Range(f.Code.Start - 1, f.Result.End + 1)
+        If punto.InStory(r) Then
+            If punto.Start >= r.Start And punto.Start <= r.End Then Err.Raise vbObjectError + 758, , "Il punto scelto tocca un campo. Scegli un altro paragrafo vuoto."
+        End If
+    Next f
+End Sub
+
+Private Function HaPulsante(ByVal Doc As Word.Document) As Boolean
+    Dim f As Word.Field, re As Object
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^\s*MACROBUTTON\s+([A-Za-z0-9_]+\.)*Mortem_ApriApp(\s|$)"
+    re.IgnoreCase = True
+    For Each f In Doc.Fields
+        If f.Type = wdFieldMacroButton Then
+            If re.Test(f.Code.Text) Then HaPulsante = True: Exit Function
+        End If
+    Next f
+End Function
+
+Private Function ImportaCaso(ByVal Doc As Word.Document, ByVal originale As String, ByVal risultato As String) As Boolean
+    Dim root As Object, saved As Object, blocchi As Object, blocco As Object
+    Dim chiavi As Variant, k As Variant, riga As Variant
+    Dim righe As New Collection, livelli As New Collection, tipi As New Collection
+    Dim target As Word.Range, r As Word.Range, fontBase As Word.Font
+    Dim atteso As String, misurata As String, contenuto As String, unito As String
+    Dim livello As Long, i As Long, posizione As Long, inizio As Long
+    Dim elenco As Word.ListTemplate
+    Dim track As Boolean, screen As Boolean, stato As Boolean, record As Boolean, modificato As Boolean
+    Dim messaggio As String
+    On Error GoTo Errore
+    VerificaDocumento Doc
+    If originale = "" Then originale = PercorsoCaso(Doc)
+    If originale = "" Then Exit Function
+    mFase = "Lettura dati originali"
+    Set root = LeggiJSON(originale)
+    mFase = "Identificazione caso"
+    atteso = CodiceCaso(root)
+    mFase = "Lettura temperatura dal documento"
+    misurata = LeggiParametroDocumento(Doc, Oggetto(root, "campi"), "tambiente")
+    If risultato = "" Then risultato = ScegliJSON("Seleziona il JSON Mortem di " & atteso, Doc.Path)
+    If risultato = "" Then Exit Function
+    Set saved = LeggiJSON(risultato)
+    If TestoJSON(saved, "format") <> "mortem-case" Then Err.Raise vbObjectError + 760, , "Non e' un JSON Mortem."
+    If StrComp(TestoJSON(saved, "case_code"), atteso, vbTextCompare) <> 0 Then Err.Raise vbObjectError + 761, , "Il JSON appartiene a " & TestoJSON(saved, "case_code") & ", mentre il documento e' collegato a " & atteso & "."
+    mFase = "Lettura blocchi Word nel JSON"
+    Set blocchi = Oggetto(Oggetto(saved, "report"), "word_blocks")
+    chiavi = Array("ambient_temperature", "correction_factor", "cooling", "livor", "rigor", "putrefaction", "additional", "conclusion")
+    mFase = "Preparazione testi"
+    For Each k In chiavi
+        If blocchi.Exists(CStr(k)) Then
+            Set blocco = Oggetto(blocchi, CStr(k))
+            contenuto = PulisciTesto(TestoJSON(blocco, "text"))
+            If CStr(k) = "ambient_temperature" Then
+                If StessaTemperatura(contenuto, misurata) Then contenuto = ""
+            End If
+            If contenuto <> "" Then
+                livello = 1
+                If CStr(k) = "ambient_temperature" Or CStr(k) = "correction_factor" Then livello = 2
+                If CStr(k) = "conclusion" Then
+                    livello = 0
+                    If righe.Count > 0 Then
+                        righe.Add "": livelli.Add 0: tipi.Add ""
+                    End If
+                End If
+                For Each riga In Split(contenuto, vbCr)
+                    righe.Add CStr(riga): livelli.Add livello: tipi.Add CStr(k)
+                Next riga
+            End If
+        End If
+    Next k
+    If righe.Count = 0 Then Err.Raise vbObjectError + 762, , "Mancano i testi aggiornati: esegui la stima e scarica nuovamente il risultato."
+    For i = 1 To righe.Count
+        If i > 1 Then unito = unito & vbCr
+        unito = unito & CStr(righe(i))
+    Next i
+    mFase = "Preparazione segnalibro e pulsante"
+    PreparaDocumento Doc
+    mFase = "Accesso al segnalibro Mortem"
+    Set target = Doc.Bookmarks(BM).Range.Duplicate
+    mFase = "Controllo limiti del segnalibro"
+    NormalizzaRange target
+    mFase = "Verifica area di destinazione"
+    VerificaDestinazione Doc, target
+    mFase = "Lettura formato caratteri"
+    Set fontBase = target.Paragraphs(1).Range.Font.Duplicate
+    track = Doc.TrackRevisions: screen = Application.ScreenUpdating: stato = True
+    mFase = "Apertura operazione annullabile"
+    Application.UndoRecord.StartCustomRecord "Importa testi Mortem"
+    record = True
+    Doc.TrackRevisions = False: Application.ScreenUpdating = False
+    inizio = target.Start
+    modificato = True
+    mFase = "Scrittura testo importato"
+    target.Text = unito
+    mFase = "Preparazione elenco Word locale"
+    Set elenco = CreaElencoMortem(Doc)
+    posizione = inizio
+    For i = 1 To righe.Count
+        Set r = Doc.Range(posizione, posizione + Len(CStr(righe(i))))
+        mFase = "Formattazione riga " & CStr(i)
+        FormattaRiga r, fontBase, CLng(livelli(i)), elenco, i
+        If CStr(tipi(i)) = "livor" Then Sottolinea r, "macchie ipostatiche"
+        If CStr(tipi(i)) = "rigor" Then Sottolinea r, "rigidit" & ChrW(224) & " cadaverica"
+        posizione = posizione + Len(CStr(righe(i))) + 1
+    Next i
+    mFase = "Ricostruzione segnalibro finale"
+    Set target = Doc.Range(inizio, inizio + Len(unito))
+    target.Font.Hidden = False
+    target.Shading.Texture = wdTextureNone
+    target.Shading.BackgroundPatternColor = wdColorAutomatic
+    target.Shading.ForegroundPatternColor = wdColorAutomatic
+    target.HighlightColorIndex = wdTurquoise
+    Doc.Bookmarks.Add Name:=BM, Range:=target
+    Application.UndoRecord.EndCustomRecord: record = False
+    Doc.TrackRevisions = track: Application.ScreenUpdating = screen
+    ImportaCaso = True
+    MsgBox "Testi Mortem aggiornati per " & atteso & ". Verifica il testo evidenziato in turchese. Il documento non e' stato salvato automaticamente.", vbInformation, "Mortem"
+    Exit Function
+Errore:
+    messaggio = "Fase: " & mFase & vbCrLf & "Errore " & CStr(Err.Number) & " - " & Err.Description & vbCrLf & "Origine: " & Err.Source
+    On Error Resume Next
+    If record Then
+        Application.UndoRecord.EndCustomRecord
+        If modificato Then Doc.Undo
+    End If
+    If stato Then
+        Doc.TrackRevisions = track: Application.ScreenUpdating = screen
+    End If
+    On Error GoTo 0
+    MsgBox "Importazione non completata: " & messaggio, vbExclamation, "Mortem"
+End Function
+
+Private Sub FormattaRiga(ByVal area As Word.Range, ByVal fontBase As Word.Font, ByVal livello As Long, ByVal elenco As Word.ListTemplate, ByVal numeroRiga As Long)
+    Dim p As Word.Range, nomeFont As String, dimensione As Single
+    Set p = area.Paragraphs(1).Range
+    mFase = "Riga " & CStr(numeroRiga) & ": rimozione elenco precedente"
+    p.ListFormat.RemoveNumbers
+    ' Non riassegna oggetti Font/ParagraphFormat contenenti proprieta'
+    ' miste o riferimenti agli elenchi del vecchio documento.
+    mFase = "Riga " & CStr(numeroRiga) & ": formato caratteri"
+    nomeFont = fontBase.Name
+    If nomeFont = "" Then nomeFont = "Arial"
+    dimensione = fontBase.Size
+    If dimensione < 1 Or dimensione > 1638 Then dimensione = 10
+    With area.Font
+        .Name = nomeFont
+        .Size = dimensione
+        .Bold = False
+        .Italic = False
+        .Underline = wdUnderlineNone
+        .Hidden = False
+        .Color = wdColorAutomatic
+    End With
+    mFase = "Riga " & CStr(numeroRiga) & ": formato paragrafo"
+    With p.ParagraphFormat
+        .OutlineLevel = wdOutlineLevelBodyText
+        .Alignment = wdAlignParagraphLeft
+        .SpaceBefore = 0
+        .SpaceAfter = 0
+        .LineSpacingRule = wdLineSpaceSingle
+        .KeepWithNext = False
+        .KeepTogether = False
+        .LeftIndent = 0
+        .RightIndent = 0
+        .FirstLineIndent = 0
+    End With
+    If livello > 0 And area.End > area.Start Then
+        mFase = "Riga " & CStr(numeroRiga) & ": applicazione elenco locale"
+        p.ListFormat.ApplyListTemplateWithLevel _
+            ListTemplate:=elenco, ContinuePreviousList:=False, _
+            ApplyTo:=wdListApplyToSelection, _
+            DefaultListBehavior:=wdWord9ListBehavior, ApplyLevel:=livello
+    End If
+End Sub
+
+Private Sub Sottolinea(ByVal area As Word.Range, ByVal frase As String)
+    Dim r As Word.Range
+    Set r = area.Duplicate
+    With r.Find
+        .ClearFormatting: .Text = frase: .Forward = True
+        .Wrap = wdFindStop: .MatchCase = False
+        .MatchWildcards = False: .MatchWholeWord = False: .Format = False
+        If .Execute Then r.Font.Underline = wdUnderlineSingle
+    End With
+End Sub
+
+Private Function PulisciTesto(ByVal s As String) As String
+    Dim riga As Variant, t As String, risultato As String
+    s = Replace(Replace(s, ChrW(8212), "-"), ChrW(8211), "-")
+    s = Replace(Replace(s, vbCrLf, vbLf), vbCr, vbLf)
+    For Each riga In Split(s, vbLf)
+        t = Trim$(Replace(CStr(riga), ChrW(160), " "))
+        If Left$(t, 1) = ChrW(8226) Then t = Trim$(Mid$(t, 2))
+        If t <> "" Then
+            If risultato <> "" Then risultato = risultato & vbCr
+            risultato = risultato & t
+        End If
+    Next riga
+    PulisciTesto = risultato
+End Function
+
+Private Function StessaTemperatura(ByVal s As String, ByVal misurata As String) As Boolean
+    Dim re As Object, matches As Object, m As Object, valore As Double
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^[+-]?[0-9]+([.,][0-9]+)?$"
+    misurata = Trim$(misurata)
+    If Not re.Test(misurata) Then Exit Function
+    valore = Val(Replace(misurata, ",", "."))
+    If InStr(s, ":") = 0 Then Exit Function
+    s = Mid$(s, InStr(s, ":") + 1)
+    re.Global = True: re.Pattern = "[+-]?[0-9]+([.,][0-9]+)?"
+    Set matches = re.Execute(s)
+    If matches.Count = 0 Then Exit Function
+    For Each m In matches
+        If Abs(Val(Replace(m.Value, ",", ".")) - valore) > 0.00001 Then Exit Function
+    Next m
+    StessaTemperatura = True
+End Function
+
+Private Function TrovaRiepilogo(ByVal cartella As String, ByVal codice As String) As String
+    Dim files As New Collection, validi As New Collection
+    Dim nome As String, percorso As Variant, re As Object
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^(\s?\([0-9]+\))?\.json$": re.IgnoreCase = True
+    If cartella <> "" Then
+        nome = Dir$(cartella & Application.PathSeparator & "stima" & codice & "*.json", vbNormal Or vbHidden Or vbSystem Or vbReadOnly)
+        Do While nome <> ""
+            If re.Test(Mid$(nome, Len("stima" & codice) + 1)) Then files.Add cartella & Application.PathSeparator & nome
+            nome = Dir$()
+        Loop
+    End If
+    For Each percorso In files
+        If RiepilogoCompatibile(CStr(percorso), codice) Then validi.Add CStr(percorso)
+    Next percorso
+    mFase = "Selezione del riepilogo trovato"
+    If validi.Count = 1 Then
+        TrovaRiepilogo = CStr(validi(1))
+    Else
+        TrovaRiepilogo = ScegliJSON("Seleziona il JSON Mortem di " & codice, cartella)
+    End If
+End Function
+
+Private Function RiepilogoCompatibile(ByVal percorso As String, ByVal codice As String) As Boolean
+    Dim root As Object, blocchi As Object
+    On Error GoTo NonCompatibile
+    Set root = LeggiJSON(percorso)
+    If TestoJSON(root, "format") <> "mortem-case" Then Exit Function
+    If StrComp(TestoJSON(root, "case_code"), codice, vbTextCompare) <> 0 Then Exit Function
+    Set blocchi = Oggetto(Oggetto(root, "report"), "word_blocks")
+    RiepilogoCompatibile = (blocchi.Count > 0)
+NonCompatibile:
+End Function
+
+Private Function PercorsoCaso(ByVal Doc As Word.Document) As String
+    Dim percorso As String
+    If Doc.Path <> "" Then
+        percorso = Doc.Path & Application.PathSeparator & "_dati_caso.json"
+        If Len(Dir$(percorso, vbNormal Or vbHidden Or vbSystem Or vbReadOnly)) > 0 Then PercorsoCaso = percorso: Exit Function
+    End If
+    PercorsoCaso = ScegliJSON("Seleziona _dati_caso.json di questo documento", Doc.Path)
+End Function
+
+Private Function ScegliJSON(ByVal titolo As String, ByVal cartella As String) As String
+    mFase = "Scelta manuale JSON"
+    With Application.FileDialog(msoFileDialogFilePicker)
+        .Title = titolo: .AllowMultiSelect = False
+        .Filters.Clear: .Filters.Add "File JSON", "*.json"
+        If cartella <> "" Then .InitialFileName = cartella & Application.PathSeparator
+        If .Show = -1 Then ScegliJSON = .SelectedItems(1)
+    End With
+End Function
+
+Private Function LeggiJSON(ByVal percorso As String) As Object
+    Dim risultato As Object
+    mFase = "Lettura JSON: " & percorso
+    Set risultato = DatiCaso_LeggiJSONFile(percorso)
+    If risultato Is Nothing Then Err.Raise vbObjectError + 770, , "Impossibile leggere il JSON: " & percorso
+    Set LeggiJSON = risultato
+End Function
+
+Private Function Oggetto(ByVal parent As Object, ByVal chiave As String) As Object
+    Dim risultato As Object
+    If parent Is Nothing Then Err.Raise vbObjectError + 771, , "Oggetto JSON mancante: " & chiave
+    If Not parent.Exists(chiave) Then Err.Raise vbObjectError + 771, , "Campo JSON mancante: " & chiave
+    If Not IsObject(parent(chiave)) Then Err.Raise vbObjectError + 771, , "Oggetto JSON non disponibile: " & chiave
+    mFase = "Accesso oggetto JSON: " & chiave
+    Set risultato = parent(chiave)
+    If risultato Is Nothing Then Err.Raise vbObjectError + 771, , "Oggetto JSON vuoto: " & chiave
+    Set Oggetto = risultato
+End Function
+
+Private Function TestoJSON(ByVal parent As Object, ByVal chiave As String) As String
+    If parent Is Nothing Then Exit Function
+    If Not parent.Exists(chiave) Then Exit Function
+    If IsObject(parent(chiave)) Then Exit Function
+    If IsNull(parent(chiave)) Or IsEmpty(parent(chiave)) Then Exit Function
+    TestoJSON = Trim$(CStr(parent(chiave)))
+End Function
+
+Private Function CodiceCaso(ByVal root As Object) As String
+    Dim anno As String, numero As Long, ramo As Variant, dati As Object
+    LeggiIdentita root, "JSON", anno, numero
+    For Each ramo In Array("campi", "verbale")
+        If root.Exists(CStr(ramo)) Then
+            If IsObject(root(CStr(ramo))) Then
+                Set dati = root(CStr(ramo))
+                If Not dati Is Nothing Then LeggiIdentita dati, CStr(ramo), anno, numero
+            End If
+        End If
+    Next ramo
+    If anno = "" Or numero = 0 Then Err.Raise vbObjectError + 772, , "Manca un riferimento EOC completo. Compila rifeoc con un codice come X26.84 oppure anno e numero X nei dati del caso."
+    CodiceCaso = "X" & anno & "." & Format$(numero, "00")
+End Function
+
+Private Sub LeggiIdentita(ByVal dati As Object, ByVal origine As String, ByRef anno As String, ByRef numero As Long)
+    Dim k As Variant, valore As String, re As Object, m As Object
+    valore = TestoJSON(dati, "anno")
+    If IdentitaPresente(valore) Then IntegraAnno valore, anno, origine & ".anno"
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^X\s*([0-9]{2}|[0-9]{4})\s*[./-]\s*([0-9]+)$": re.IgnoreCase = True
+    For Each k In Array("numeroX", "rifeoc", "riferimentoEOC", "numeroEOC")
+        valore = Trim$(Replace(TestoJSON(dati, CStr(k)), ChrW(160), " "))
+        If IdentitaPresente(valore) Then
+            If re.Test(valore) Then
+                Set m = re.Execute(valore)(0)
+                IntegraAnno CStr(m.SubMatches(0)), anno, origine & "." & CStr(k)
+                IntegraNumero CStr(m.SubMatches(1)), numero, origine & "." & CStr(k)
+            Else
+                IntegraNumero valore, numero, origine & "." & CStr(k)
+            End If
+        End If
+    Next k
+End Sub
+
+Private Function IdentitaPresente(ByVal valore As String) As Boolean
+    Select Case LCase$(Trim$(valore))
+        Case "", "0", "xx", "xxxx", "da compilare": Exit Function
+    End Select
+    IdentitaPresente = True
+End Function
+
+Private Sub IntegraAnno(ByVal valore As String, ByRef anno As String, ByVal origine As String)
+    Dim re As Object, candidato As String, n As Long
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[0-9]+$"
+    If Not re.Test(valore) Or Len(valore) > 4 Or Len(valore) = 3 Then Err.Raise vbObjectError + 773, , "Anno non valido in " & origine & "."
+    n = CLng(valore)
+    If Len(valore) = 4 And n < 1000 Then Err.Raise vbObjectError + 773, , "Anno non valido in " & origine & "."
+    candidato = Format$(n Mod 100, "00")
+    If anno <> "" And anno <> candidato Then Err.Raise vbObjectError + 773, , "I riferimenti EOC indicano anni diversi: verifica " & origine & "."
+    anno = candidato
+End Sub
+
+Private Sub IntegraNumero(ByVal valore As String, ByRef numero As Long, ByVal origine As String)
+    Dim re As Object, n As Double
+    Set re = CreateObject("VBScript.RegExp"): re.Pattern = "^[0-9]+$"
+    If Not re.Test(valore) Or Len(valore) > 10 Then Err.Raise vbObjectError + 774, , "Riferimento EOC non valido in " & origine & "."
+    n = CDbl(valore)
+    If n <= 0 Or n > 2147483647# Then Err.Raise vbObjectError + 774, , "Numero EOC non valido in " & origine & "."
+    If numero > 0 And numero <> CLng(n) Then Err.Raise vbObjectError + 774, , "I riferimenti EOC indicano numeri diversi: verifica " & origine & "."
+    numero = CLng(n)
+End Sub
+
+Private Sub VerificaDocumento(ByVal Doc As Word.Document)
+    If Doc Is Nothing Then Err.Raise vbObjectError + 775, , "Documento non disponibile."
+    If Doc.ReadOnly Or Doc.ProtectionType <> wdNoProtection Then Err.Raise vbObjectError + 775, , "Il documento e' in sola lettura o protetto."
+End Sub
+
+Private Function NuovoToken() As String
+    Dim g As MortemGuid, s As String, i As Long
+    If CoCreateGuid(g) <> 0 Then Err.Raise vbObjectError + 776, , "Impossibile creare il collegamento al caso."
+    s = Right$("00000000" & Hex$(g.a), 8) & Right$("0000" & Hex$(g.b), 4) & Right$("0000" & Hex$(g.c), 4)
+    For i = 0 To 7
+        s = s & Right$("00" & Hex$(g.d(i)), 2)
+    Next i
+    NuovoToken = LCase$(s)
+End Function
+
+Private Function CodificaURL(ByVal valore As String) As String
+    Dim i As Long, n As Long, risultato As String, ch As String
+    valore = Trim$(valore)
+    For i = 1 To Len(valore)
+        ch = Mid$(valore, i, 1): n = AscW(ch)
+        If n < 32 Or n > 126 Then Err.Raise vbObjectError + 777, , "Caratteri inattesi in un campo da trasferire: " & valore
+        If ch Like "[A-Za-z0-9]" Or InStr("-._~", ch) > 0 Then
+            risultato = risultato & ch
+        Else
+            risultato = risultato & "%" & Right$("0" & Hex$(n), 2)
+        End If
+    Next i
+    CodificaURL = risultato
+End Function
+
+
+' Compatibilita' dati: il controllo contenuto, se esiste, resta prioritario.
+' Nei documenti privi di quel controllo cerca i vecchi segnalibri.
+' Se nessuna destinazione locale esiste, usa il valore del JSON del caso.
+Private Function LeggiParametroDocumento(ByVal Doc As Word.Document, ByVal campi As Object, ByVal chiave As String) As String
+    Dim controlli As Word.ContentControls, cc As Word.ContentControl
+    Dim nome As Variant, valore As String, risultato As String, presente As Boolean
+    Set controlli = Doc.SelectContentControlsByTag(chiave)
+    If controlli.Count > 0 Then
+        For Each cc In controlli
+            If Not cc.ShowingPlaceholderText Then
+                valore = PulisciParametro(cc.Range.Text, chiave)
+                If valore <> "" Then
+                    If risultato <> "" And risultato <> valore Then Err.Raise vbObjectError + 778, , "Valori diversi nei controlli del campo " & chiave & "."
+                    risultato = valore
+                End If
+            End If
+        Next cc
+        LeggiParametroDocumento = risultato
+        Exit Function
+    End If
+    For Each nome In Array(chiave, chiave & "_1", chiave & "_2")
+        If Doc.Bookmarks.Exists(CStr(nome)) Then
+            presente = True
+            valore = PulisciParametro(Doc.Bookmarks(CStr(nome)).Range.Text, chiave)
+            If valore <> "" Then
+                If risultato <> "" And risultato <> valore Then Err.Raise vbObjectError + 778, , "Valori diversi nei segnalibri del campo " & chiave & "."
+                risultato = valore
+            End If
+        End If
+    Next nome
+    If presente Then
+        LeggiParametroDocumento = risultato
+    Else
+        LeggiParametroDocumento = PulisciParametro(TestoJSON(campi, chiave), chiave)
+    End If
+End Function
+
+Private Function PulisciParametro(ByVal valore As String, ByVal chiave As String) As String
+    valore = Replace(Replace(Replace(valore, vbCr, ""), Chr(7), ""), ChrW(160), " ")
+    Select Case chiave
+        Case "peso"
+            valore = Replace(valore, "kg", "", 1, -1, vbTextCompare)
+        Case "tambiente", "trettale"
+            valore = Replace(valore, ChrW(176), "")
+            valore = Replace(valore, "C", "", 1, -1, vbTextCompare)
+    End Select
+    PulisciParametro = Trim$(valore)
+End Function
+
+
+
+' Ripresa: un solo file valido nella cartella viene usato automaticamente.
+' Con piu' file e' sempre richiesta una scelta, senza selezionare il piu' recente.
+Private Function CercaCasoDaRiprendere(ByVal cartella As String, ByVal codice As String) As String
+    Dim files As New Collection, validi As New Collection
+    Dim nome As String, percorso As Variant, root As Object, scelto As String
+    nome = Dir$(cartella & Application.PathSeparator & "stima" & codice & "*.json", vbNormal Or vbHidden Or vbSystem Or vbReadOnly)
+    Do While nome <> ""
+        files.Add cartella & Application.PathSeparator & nome
+        nome = Dir$()
+    Loop
+    For Each percorso In files
+        If CasoRipresaCompatibile(CStr(percorso), codice) Then validi.Add CStr(percorso)
+    Next percorso
+    If validi.Count = 0 Then Exit Function
+    If validi.Count = 1 Then
+        CercaCasoDaRiprendere = CStr(validi(1))
+        Exit Function
+    End If
+    scelto = ScegliJSON("Piu' stime salvate per " & codice & ": scegli quella da riaprire", cartella)
+    If scelto = "" Then Err.Raise vbObjectError + 779, , "Apertura annullata: nessuna stima selezionata."
+    If Not CasoRipresaCompatibile(scelto, codice) Then Err.Raise vbObjectError + 779, , "Il file scelto non e' un caso Mortem completo del documento collegato."
+    CercaCasoDaRiprendere = scelto
+End Function
+
+Private Function CasoRipresaCompatibile(ByVal percorso As String, ByVal codice As String) As Boolean
+    Dim root As Object
+    On Error GoTo NonCompatibile
+    Set root = LeggiJSON(percorso)
+    If TestoJSON(root, "format") <> "mortem-case" Then Exit Function
+    If StrComp(TestoJSON(root, "case_code"), codice, vbTextCompare) <> 0 Then Exit Function
+    If TestoJSON(root, "view") <> "full" Then Exit Function
+    If Not root.Exists("inputs") Or Not root.Exists("signs") Then Exit Function
+    CasoRipresaCompatibile = True
+NonCompatibile:
+End Function
+
+Private Function CreaAvvioLocale(ByVal percorsoJSON As String, ByVal url As String, ByVal token As String) As String
+    Dim stream As Object, xml As Object, nodo As Object
+    Dim dati As String, html As String, destinazione As String, numero As Long, messaggio As String
+    On Error GoTo Errore
+    Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 1: stream.Open: stream.LoadFromFile percorsoJSON
+    If stream.Size > 1048576 Then Err.Raise vbObjectError + 780, , "Il JSON Mortem supera 1 MB."
+    Set xml = CreateObject("MSXML2.DOMDocument.6.0")
+    Set nodo = xml.createElement("base64")
+    nodo.DataType = "bin.base64"
+    nodo.nodeTypedValue = stream.Read
+    dati = Replace(Replace(nodo.Text, vbCr, ""), vbLf, "")
+    stream.Close
+    html = "<!doctype html><html><head><meta charset='utf-8'><title>Mortem</title>"
+    html = html & "<style>html,body{margin:0;height:100%;font-family:Arial}iframe{border:0;width:100%;height:100%;display:block}</style></head><body>"
+    html = html & "<iframe id='mortem' title='Mortem' src='" & Replace(url, "&", "&amp;") & "'></iframe><script>"
+    html = html & "const token='" & token & "',data='" & dati & "',origin='https://mor-tem.streamlit.app';"
+    html = html & "addEventListener('message',e=>{const m=e.data;if(!m||m.type!=='mortem:resume-request'||m.token!==token||!e.source)return;"
+    html = html & "if(e.origin!==origin&&e.origin!=='null')return;"
+    html = html & "e.source.postMessage({type:'mortem:resume-data',token,data},e.origin==='null'?'*':e.origin);});"
+    html = html & "</script></body></html>"
+    destinazione = Environ$("TEMP") & Application.PathSeparator & "Mortem_avvio_" & token & ".html"
+    Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 2: stream.Charset = "utf-8": stream.Open
+    stream.WriteText html
+    stream.SaveToFile destinazione, 2
+    stream.Close
+    CreaAvvioLocale = destinazione
+    Exit Function
+Errore:
+    numero = Err.Number: messaggio = Err.Description
+    On Error Resume Next
+    If Not stream Is Nothing Then stream.Close
+    On Error GoTo 0
+    Err.Raise numero, "Avvio locale Mortem", messaggio
+End Function
+
+Private Sub StilePulsanti(ByVal Doc As Word.Document)
+    Dim f As Word.Field, re As Object, posizioni As New Collection
+    Dim i As Long, r As Word.Range
+    Set re = CreateObject("VBScript.RegExp")
+    re.Pattern = "^\s*MACROBUTTON\s+([A-Za-z0-9_]+\.)*Mortem_ApriApp(\s|$)"
+    re.IgnoreCase = True
+    ' Raccoglie prima gli intervalli: l'inserimento XML ricrea il campo.
+    For Each f In Doc.Fields
+        If f.Type = wdFieldMacroButton Then
+            If re.Test(f.Code.Text) Then
+                Set r = Doc.Range(f.Code.Start - 1, f.Result.End + 1)
+                posizioni.Add r
+            End If
+        End If
+    Next f
+    For i = posizioni.Count To 1 Step -1
+        Set r = posizioni(i)
+        StilePulsanteTesto r
+    Next i
+End Sub
+
+Private Sub StilePulsanteTesto(ByVal campoCompleto As Word.Range)
+    Const NS_W As String = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    Dim xml As Object, corpo As Object, nodo As Object, run As Object
+    Dim props As Object, bordo As Object, sfondo As Object, colore As Object
+    Dim grassetto As Object, nascosto As Object, vecchio As Object
+    Set xml = CreateObject("MSXML2.DOMDocument.6.0")
+    xml.async = False
+    xml.preserveWhiteSpace = True
+    If Not xml.LoadXML(campoCompleto.WordOpenXML) Then
+        Err.Raise vbObjectError + 781, , "Impossibile preparare lo stile del comando Mortem."
+    End If
+    xml.setProperty "SelectionNamespaces", _
+        "xmlns:w='" & NS_W & "' xmlns:pkg='http://schemas.microsoft.com/office/2006/xmlPackage'"
+    Set corpo = xml.selectSingleNode("//pkg:part[@pkg:name='/word/document.xml']/pkg:xmlData/w:document/w:body")
+    If corpo Is Nothing Then Err.Raise vbObjectError + 781, , "Struttura del comando Mortem non disponibile."
+    ' Elimina i precedenti bordi/sfondi di paragrafo solo dal frammento del campo.
+    For Each nodo In corpo.selectNodes(".//w:pPr/w:pBdr | .//w:pPr/w:shd")
+        nodo.parentNode.removeChild nodo
+    Next nodo
+    ' w:bdr e w:shd in w:rPr sono bordi/sfondi dei soli caratteri.
+    ' Non si usano Range.Borders, che puo' creare bordi di paragrafo.
+    For Each run In corpo.selectNodes(".//w:r[w:t]")
+        Set props = run.selectSingleNode("w:rPr")
+        If props Is Nothing Then
+            Set props = xml.createNode(1, "w:rPr", NS_W)
+            run.insertBefore props, run.firstChild
+        End If
+        For Each vecchio In props.selectNodes("w:bdr | w:shd | w:color | w:b | w:vanish")
+            props.removeChild vecchio
+        Next vecchio
+        Set grassetto = xml.createNode(1, "w:b", NS_W)
+        props.appendChild grassetto
+        Set nascosto = xml.createNode(1, "w:vanish", NS_W)
+        props.appendChild nascosto
+        Set colore = xml.createNode(1, "w:color", NS_W)
+        colore.setAttribute "w:val", "174169"
+        props.appendChild colore
+        Set bordo = xml.createNode(1, "w:bdr", NS_W)
+        bordo.setAttribute "w:val", "single"
+        bordo.setAttribute "w:sz", "4"
+        bordo.setAttribute "w:space", "2"
+        bordo.setAttribute "w:color", "2D69A5"
+        props.appendChild bordo
+        Set sfondo = xml.createNode(1, "w:shd", NS_W)
+        sfondo.setAttribute "w:val", "clear"
+        sfondo.setAttribute "w:color", "auto"
+        sfondo.setAttribute "w:fill", "E1EFFC"
+        props.appendChild sfondo
+    Next run
+    ' Rimuove eventuali vecchi bordi di riga soltanto quando il
+    ' paragrafo contiene esclusivamente questo comando.
+    Dim paragrafo As Word.Range, testoParagrafo As String, testoComando As String
+    Set paragrafo = campoCompleto.Paragraphs(1).Range
+    If campoCompleto.Fields.Count = 1 Then
+        testoParagrafo = Trim$(Replace(paragrafo.Text, vbCr, ""))
+        testoComando = Trim$(campoCompleto.Fields(1).Result.Text)
+        If testoParagrafo = testoComando Then
+            paragrafo.Borders.Enable = False
+            paragrafo.Shading.Texture = wdTextureNone
+            paragrafo.Shading.BackgroundPatternColor = wdColorAutomatic
+            paragrafo.Shading.ForegroundPatternColor = wdColorAutomatic
+        End If
+    End If
+    campoCompleto.InsertXML xml.XML
+End Sub
+
+
+Private Function CreaElencoMortem(ByVal Doc As Word.Document) As Word.ListTemplate
+    Dim elenco As Word.ListTemplate, candidato As Word.ListTemplate, livello As Long
+    ' Riusa solo il modello con nome riservato a questa macro.
+    For Each candidato In Doc.ListTemplates
+        If candidato.Name = "Mortem_ElencoLocale_v1" Then
+            Set elenco = candidato
+            Exit For
+        End If
+    Next candidato
+    If elenco Is Nothing Then
+        Set elenco = Doc.ListTemplates.Add(OutlineNumbered:=True, Name:="Mortem_ElencoLocale_v1")
+    End If
+    For livello = 1 To 2
+        With elenco.ListLevels(livello)
+            .NumberStyle = wdListNumberStyleBullet
+            If livello = 1 Then
+                .NumberFormat = ChrW(8226)
+            Else
+                .NumberFormat = ChrW(9675)
+            End If
+            .Font.Name = "Arial"
+            .Alignment = wdListLevelAlignLeft
+            .NumberPosition = Application.CentimetersToPoints(0.6 * livello - 0.3)
+            .TextPosition = Application.CentimetersToPoints(0.6 * livello)
+            .TabPosition = Application.CentimetersToPoints(0.6 * livello)
+            .TrailingCharacter = wdTrailingTab
+            .ResetOnHigher = 0
+            .StartAt = 1
+        End With
+    Next livello
+    Set CreaElencoMortem = elenco
+End Function

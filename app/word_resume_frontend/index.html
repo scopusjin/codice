@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><script>
+let token = '', sent = false;
+function send(type, extra = {}) {
+  parent.postMessage({isStreamlitMessage:true, type, ...extra}, '*');
+}
+addEventListener('message', event => {
+  const message = event.data;
+  if (!message || typeof message !== 'object') return;
+  if (event.source === parent && message.type === 'streamlit:render') {
+    token = message.args.token || '';
+    send('streamlit:setFrameHeight', {height:0});
+    if (!sent && /^[a-f0-9]{32}$/.test(token)) {
+      // The local launcher is the top-level page; the app and this component
+      // are its descendants. Only an event is used, without timers or polling.
+      top.postMessage({type:'mortem:resume-request', token}, '*');
+    }
+  }
+  if (event.source === top && message.type === 'mortem:resume-data' &&
+      message.token === token && typeof message.data === 'string' && !sent) {
+    sent = true;
+    send('streamlit:setComponentValue', {value:{token, data:message.data}, dataType:'json'});
+  }
+});
+send('streamlit:componentReady', {apiVersion:1});
+</script>
