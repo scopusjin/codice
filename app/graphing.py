@@ -1052,7 +1052,7 @@ def aggiorna_grafico(
     if frase_breve_html:
         render_frase_breve(frase_breve_html, key="fb_before_details")
         if overlap and not discordanti:
-            brief_note = nota_limiti_stima().replace(
+            brief_note = nota_limiti_stima().replace("<i>", "").replace("</i>", "").replace(
                 "<p>", "<p style='color:blue;font-size:8pt;line-height:1.35;margin:4px 0;'>"
             )
             st.markdown(brief_note, unsafe_allow_html=True)

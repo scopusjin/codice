@@ -334,3 +334,8 @@ Base GitHub verificata `7891d3166569307221cf0ae09df38a0a2959e755`, branch `refac
 ### Nota discreta anche sotto la descrizione breve — 26 ottobre 2026
 
 Base GitHub verificata `f2c4f333bd0570c69973085b5607d65c692e9f8e`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. La nuova indicazione esplicita sostituisce la precedente: mostrare la cautela anche sotto la descrizione breve, in piccolo e blu. In `app/graphing.py`, `aggiorna_grafico`, ripristinata la nota esterna al riquadro breve con carattere 8pt blu, corsivo e margini contenuti. Testo italiano integrale, inglese già sintetico; dettagli e blocco Word invariati. Nessuna modifica ai calcoli, agli orari o al FC. Sintassi/import, diff e 8 test case_report/final_time_rounding superati. Resa grafica da confermare dall’utente nell’app aggiornata; nessuna verifica in browser reale dichiarata.
+
+
+### Nota breve senza corsivo — 26 ottobre 2026
+
+Base GitHub verificata `1850e30ad561d4f0c9d10562310b28e2046068d1`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Su richiesta esplicita rimossi soltanto i tag di corsivo dalla copia della cautela mostrata sotto il riepilogo breve in `app/graphing.py`, `aggiorna_grafico`. Dimensione 8pt, colore blu, testo e posizione invariati. Descrizioni dettagliate e blocco Word conservano il corsivo. Diff limitato alla presentazione della nota; sintassi/import e 4 test final_time_rounding superati. Resa visiva da confermare nell’app.
