@@ -339,3 +339,8 @@ Base GitHub verificata `f2c4f333bd0570c69973085b5607d65c692e9f8e`, repository `s
 ### Nota breve senza corsivo — 26 ottobre 2026
 
 Base GitHub verificata `1850e30ad561d4f0c9d10562310b28e2046068d1`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. Su richiesta esplicita rimossi soltanto i tag di corsivo dalla copia della cautela mostrata sotto il riepilogo breve in `app/graphing.py`, `aggiorna_grafico`. Dimensione 8pt, colore blu, testo e posizione invariati. Descrizioni dettagliate e blocco Word conservano il corsivo. Diff limitato alla presentazione della nota; sintassi/import e 4 test final_time_rounding superati. Resa visiva da confermare nell’app.
+
+
+### Avviso raffreddamento compatto dopo la nota breve — 26 ottobre 2026
+
+Repository `scopusjin/codice`, branch `refactor-tanatology-keys`, base GitHub verificata `2052d969a5d4f62d1772ae9381c912979cf75e47`. Su richiesta esplicita, in `app/graphing.py`, `aggiorna_grafico`, eliminato il riquadro di avviso prima del grafico e mostrato il messaggio dopo la nota blu sotto il riepilogo breve, in 8pt senza corsivo. Helper di sola presentazione `_cooling_unavailable_note`: «Raffreddamento non calcolato (non compilati temperatura rettale, temperatura ambientale, peso corporeo e fattore di correzione).» con elenco dinamico dei dati effettivamente mancanti; equivalente inglese. Gli altri errori di validazione conservano il motivo e vengono presentati nella stessa posizione. Validatore, calcoli, dettagli, Word e chiavi invariati. Superati 12 test cooling_input_regressions/case_report; AppTest della pagina reale verifica un solo avviso, testo, 8pt, assenza del corsivo e posizione dopo la nota blu. Sintassi/import e diff verificati. Da confermare visivamente nell’app su desktop/mobile.

@@ -129,6 +129,35 @@ def render_frase_breve(html: str, key: str = "fb_top"):
         unsafe_allow_html=True,
     )
 
+
+def _cooling_unavailable_note(error: str) -> str:
+    """Compact presentation only; preserve the underlying validation rules."""
+    from html import escape
+    missing = re.match(r"^Manc(?:a|ano) (.+)\.$", error)
+    if missing:
+        fields = re.sub(r"(^|, | e )(?:la |il )", r"\1", missing.group(1))
+        if current_language() == "en":
+            replacements = {
+                "tutte le temperature (rettale, ambientale e ante-mortem)": "all temperatures (rectal, ambient and ante-mortem)",
+                "uno dei due valori del ": "one of the two values for ",
+                "uno dei due valori di ": "one of the two values for ",
+                "temperatura rettale": "rectal temperature",
+                "temperatura ambientale": "ambient temperature",
+                "temperatura ante-mortem": "ante-mortem temperature",
+                "peso corporeo": "body weight",
+                "fattore di correzione": "corrective factor",
+            }
+            for source, target in replacements.items():
+                fields = fields.replace(source, target)
+            fields = fields.replace(" e ", " and ")
+            text = "Body cooling not calculated (missing: " + fields + ")."
+        else:
+            text = "Raffreddamento non calcolato (non compilati " + fields + ")."
+    else:
+        prefix = "Body cooling not calculated" if current_language() == "en" else "Raffreddamento non calcolato"
+        text = prefix + " (" + translate(error).rstrip(".") + ")."
+    return "<p style='font-size:8pt;line-height:1.35;margin:4px 0;'>" + escape(text) + "</p>"
+
 # --------- pubblico ----------
 def aggiorna_grafico(
     *,
@@ -239,8 +268,6 @@ def aggiorna_grafico(
     gate_fail = cooling.gate_fail
     options = st.session_state if cooling_options is None else cooling_options
     condizioni_variabili = bool(options.get("stima_cautelativa_beta", False))
-    if cooling.validation_error:
-        st.warning("Raffreddamento non calcolato: " + cooling.validation_error)
     for blocco in cooling.detail_blocks:
         _add_det(blocco)
 
@@ -1056,6 +1083,9 @@ def aggiorna_grafico(
                 "<p>", "<p style='color:blue;font-size:8pt;line-height:1.35;margin:4px 0;'>"
             )
             st.markdown(brief_note, unsafe_allow_html=True)
+
+    if cooling.validation_error:
+        st.markdown(_cooling_unavailable_note(cooling.validation_error), unsafe_allow_html=True)
 
     if mobile_result_figure is not None:
         with st.expander(i18n.ui_text("graph.plot_expander"), expanded=False):
