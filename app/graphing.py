@@ -156,7 +156,7 @@ def _cooling_unavailable_note(error: str) -> str:
     else:
         prefix = "Body cooling not calculated" if current_language() == "en" else "Raffreddamento non calcolato"
         text = prefix + " (" + translate(error).rstrip(".") + ")."
-    return "<p style='font-size:8pt;line-height:1.35;margin:4px 0;'>" + escape(text) + "</p>"
+    return "<p style='color:#a66b00;font-size:8pt;line-height:1.35;margin:4px 0;'>" + escape(text) + "</p>"
 
 # --------- pubblico ----------
 def aggiorna_grafico(
