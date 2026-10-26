@@ -6,7 +6,7 @@ function point(actual,expected,label,tolerance=1e-5){checks++;assert(Math.abs(ac
 function c(config,expected){eq(run(config).range,expected,JSON.stringify(config));}
 // Independent agreed scientific scenarios, not snapshots of the implementation.
 c({s:3},[1.2,1.3]);c({s:3,air:'continuous'},[1.2,1.3]);
-c({p:1},[1.2,1.2]);c({p:3,isolation:'none'},[1.4,1.4]);
+c({p:1},[1.2,1.2]);c({p:3,isolation:'none'},[1.4,1.6]);
 c({state:'Bagnato',p:3},[1.2,1.3]);c({state:'Bagnato',p:4,s:2},[1.2,1.3]);
 c({state:'Bagnato',p:3,air:'continuous'},[.9,.9]);
 c({state:'Bagnato',m:1},[1,1.1]);c({state:'Bagnato',m:1,p:1},[1.1,1.2]);

@@ -32,11 +32,14 @@ console.log(JSON.stringify({ids:Object.keys(api.EXAMPLE_MATCHERS),
 """
         data = json.loads(subprocess.check_output(['node', '-e', script], cwd=ROOT, text=True))
         examples = load_examples()
-        self.assertEqual(data['ids'], [e['id'] for e in examples])
+        # The archive is preserved for reference; only the selected contextual
+        # records have frontend matchers (documented in commit b143643d).
+        contextual = [e for e in examples if not e.get('archive')]
+        self.assertEqual(data['ids'], [e['id'] for e in contextual])
         self.assertFalse(any(e.get('referenceOnly') for e in examples))
         for row, js_row in zip(examples, data['rows'], strict=True):
             self.assertEqual(row['id'], js_row['id'])
-            conditions = row['conditions'].replace('aria mobile', 'correnti d’aria').replace('aria ferma', 'assenza di correnti d’aria')
+            conditions = re.sub(r'\s+(?:sul|del) tronco inferiore', '', row['conditions']).replace('aria mobile', 'correnti d’aria').replace('aria ferma', 'assenza di correnti d’aria')
             self.assertEqual(re.sub(r'(\d),(\d)', r'\1.\2', conditions), js_row['conditions'])
             expected = row.get('observations') or (
                 f"FC iniziale: {row['fc']}; a {row['weight']:.1f} kg: {row['adjustedFc']}."
@@ -63,9 +66,9 @@ assert 'pandas' not in sys.modules
         self.assertIn('41.6', rows['Caso 33']['conditions'])
         self.assertIn('Metodo non applicato', rows['Caso 33']['notes'])
         self.assertIn('non verificato', rows['Caso 6']['notes'])
-        self.assertEqual(sum(e['type'] == 'Caso operativo' for e in load_examples()), 6)
-        self.assertEqual(sum(e['type'] in ('Esperimento', 'Esperimenti') for e in load_examples()), 20)
-        self.assertEqual(sum(e['type'] == 'Simulatore' for e in load_examples()), 9)
+        self.assertEqual(sum(e['type'] == 'Caso operativo' for e in load_examples()), 30)
+        self.assertEqual(sum(e['type'] in ('Esperimento', 'Esperimenti') for e in load_examples() if not e.get('archive')), 20)
+        self.assertEqual(sum(e['type'] == 'Simulatore' for e in load_examples() if not e.get('archive')), 9)
         for row in rows.values():
             self.assertTrue(row.get('weight') or row.get('weights') or row.get('virtualWeight'))
 

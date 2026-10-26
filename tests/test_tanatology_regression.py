@@ -56,8 +56,8 @@ class ScientificRangeRegressionTests(unittest.TestCase):
         self.assertEqual(opzioni_macchie["Confluenti (migrabilità non valutata)"][:1], (1,))
         self.assertEqual(opzioni_macchie["Confluenti e completamente migrabili"], (1, 6))
         self.assertIsNone(macchie_medi["Confluenti e completamente migrabili"])
-        self.assertIn("almeno 1 ora", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT])
-        self.assertIn("da 1 a 6 ore", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT_FULLY_MIGRATABLE])
+        self.assertIn("almeno un’ora", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT])
+        self.assertIn("tra 1 e 6 ore", LIVOR_DESCRIPTION_IT_BY_ID[LIVOR_CONFLUENT_FULLY_MIGRATABLE])
 
     def test_livor_pressure_descriptions_explain_scientific_bounds(self):
         full = LIVOR_PRESSURE_DESCRIPTION_IT_BY_ID[PRESSURE_COMPLETE_FADING]

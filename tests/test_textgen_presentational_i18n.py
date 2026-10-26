@@ -44,12 +44,13 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
         )
 
     def test_potente_paragraph_keeps_current_html_and_inclusive_boundary(self):
+        # Wording approved and implemented in commit 525852a1.
         expected = (
-            "<ul><li>Il metodo proposto da Potente et al., basato sul modello di raffreddamento di Henssge, "
-            "consente di stimare grossolanamente il tempo minimo post-mortem nei casi in cui i valori ottenuti "
-            "con l'equazione di Henssge ricadano al di fuori del suo intervallo ottimale di applicazione. "
-            "Applicato al caso specifico, suggerisce che, al momento dell’ispezione legale, fossero trascorse "
-            "almeno 26 ore 30 minuti (≈ 1.1 giorni) dal decesso.</li></ul>"
+            "<ul><li>Il grado di raffreddamento corporeo rilevato non consente di ottenere un intervallo temporale "
+            "sufficientemente attendibile mediante il metodo di Henssge. In tali condizioni, secondo il metodo proposto "
+            "da Potente et al., è possibile stimare soltanto un tempo minimo trascorso dal decesso. Applicato al caso "
+            "specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno "
+            "26 ore 30 minuti dal decesso.</li></ul>"
         )
         self.assertEqual(
             paragrafo_potente(

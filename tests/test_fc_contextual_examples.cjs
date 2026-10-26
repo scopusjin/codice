@@ -32,7 +32,9 @@ function show(state,extra){
 let rendered=show('Immerso',{'scenario-temperature':'10',air:'unknown',surface:'metal','metal-type':'',thin:'invalid'});
 assert.equal(nodes['source-examples'].hidden,false);
 assert.match(rendered,/Caso 01/);assert.match(rendered,/Caso 10/);
-assert.match(rendered,/Peso: 65 kg/);assert.match(rendered,/19\.3 °C/);
+// Compact summaries omit documentary weights; source records retain them.
+assert.doesNotMatch(rendered,/Peso:/);
+assert.equal(api.EXAMPLES.find(e=>e.id==='t6_7-01').weight,65);assert.match(rendered,/19\.3 °C/);
 assert.doesNotMatch(rendered,/tab\. 6\.7|Riferimento:|soglia universale|intervallo di confidenza/);
 assert.match(text(nodes['source-full-citations']),/Henssge/);
 assert(!nodes['source-full-citations'].children.some(n=>n.children.some(x=>x.children.length)));
@@ -45,7 +47,7 @@ assert.equal(nodes['source-examples'].hidden,true);
 assert.match(text(nodes['source-full-citations']),/acqua corrente/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'no'});
 assert.match(rendered,/Prova su simulatore/);
-assert.match(rendered,/Peso virtuale standard: 60\.4 kg/);
+assert.doesNotMatch(rendered,/Peso virtuale standard:/);
 assert.doesNotMatch(rendered,/Althaus|tab\. 6\.11|non quantifica altre combinazioni/);
 assert.match(text(nodes['source-full-citations']),/Althaus/);
 assert.doesNotMatch(text(nodes['source-full-citations']),/Cooling experiments using dummies/);

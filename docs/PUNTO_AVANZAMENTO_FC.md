@@ -372,3 +372,18 @@ Repository `scopusjin/codice`, branch `refactor-tanatology-keys`, base GitHub ve
 ### Convalida completa prima di aggiornare main — 26 ottobre 2026
 
 Richiesta esplicita dell’utente: convalidare tutto il branch e aggiornare l’app principale, conservando il sistema che la tiene sveglia. Base esaminata `cb9db235d1d1c0760c56ac89459d923f7a0c888c`; main `43ab9bca62a9b8cd27f2831f08f7050049265d0f`. Keepalive identico, URL e main da preservare. Esito complessivo non superato: suite globale 385 test con 30 failure/15 error; isolamento con dipendenze prescritte 45 moduli superati/17 negativi/1 senza unittest; JavaScript 6/12 programmi superati, incluso language con argomento corretto. Riprodotte le sei suite JS negative e test_tanatology_data anche su cb76f970: problemi di test/aspettative anteriori agli ultimi interventi, da distinguere da difetti reali. Compilazione e pip check superati. Dettagli, moduli e prossimo intervento in `docs/VALIDAZIONE_BRANCH_2026-10-26.md`. Nessun codice applicativo modificato e main non aggiornato: la convalida completa non può essere dichiarata positiva. Resta autorizzato l’aggiornamento dell’app principale soltanto dopo aver completato la verifica; non chiedere di nuovo permesso per quella pubblicazione già richiesta.
+
+
+## Aggiornamento dei test per decisioni già adottate — 26 ottobre 2026
+
+Dopo il riscontro dell’utente e la verifica della cronologia sono allineate le sole aspettative già superate:
+
+- FC ordinario multistrato 1.40–1.60: commit c5fad888 e aggiornamento della guida 3a9bde74 del 17 ottobre. Corretto il caso pertinente nel test del motore; verifica mirata superata. La suite engine complessiva mantiene altre discrepanze non trattate qui.
+- Ipostasi in via di confluenza 0–4 ore: commit 3ce0f3bf e testo 3425f760 del 16 ottobre. Test delle mappe aggiornato anche alle categorie confluite aggiunte con eeef49b0. Le formulazioni «almeno un’ora» e «tra 1 e 6 ore» seguono i testi concordati (869f997b).
+- test_audit_numeric_regressions ora verifica valori interni non arrotondati e indipendenti dall’impostazione, coerentemente con la decisione del 26 ottobre. La suite final_rounding_policy continua a verificare entrambe le rappresentazioni finali e le impostazioni.
+- Test del catalogo: 30 casi operativi (763f83cb); distinzione fra archivio completo e selezione contestuale importata (b143643d). Conservato il confronto dei dati per tutte le 152 schede, senza pretendere un matcher per ogni scheda di archivio. Le condizioni sintetiche omettono il richiamo ridondante al tronco inferiore, mantenendo il confronto con i dati originali.
+- Test del riepilogo contestuale aggiornato soltanto per le omissioni dei pesi, concordate nella presentazione compatta (6c7d3f8d). Il peso originale del caso resta verificato nel catalogo. Il controllo successivo sulla denominazione del simulatore continua a fallire: non è stato cancellato né adeguato automaticamente all’implementazione.
+- Descrizione Potente aggiornata alla formulazione già implementata con 525852a1, mantenendo i controlli sulle soglie di applicabilità.
+- Aggiunto test esplicito delle pagine disattivate e del rifiuto dell’import MSIL senza alterare il caso corrente. I vecchi test di navigazione MSIL richiedono ancora una revisione tecnica separata.
+
+Superati 54 test Python selezionati (50 test su dati tanatologici, testi, audit numerico, arrotondamenti e report; 2 test mirati catalogo; 2 sospensione pagine) e la verifica JavaScript mirata FC 1.40–1.60. Nessun codice applicativo, parametro scientifico, formula, workflow o main modificato. Le altre suite negative del rapporto iniziale non sono dichiarate risolte. La convalida complessiva e la pubblicazione restano da completare.

@@ -8,7 +8,7 @@ from unittest.mock import patch
 from app.cautelativa import compute_raffreddamento_cautelativo
 from app.fc_selection import apply_choice, normalize_fc_input, fc_weight_needs_review
 from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combination
-from app.henssge import calcola_raffreddamento, cooling_coefficient, round_to_step_minutes
+from app.henssge import calcola_raffreddamento, cooling_coefficient
 
 
 class AuditNumericRegressionTests(unittest.TestCase):
@@ -54,21 +54,25 @@ class AuditNumericRegressionTests(unittest.TestCase):
         self.assertTrue(self.cooling({**options, 'peso_stimato_beta': True},
                                     input_w=147.).validation_error)
 
-    def test_durations_and_dates_use_one_rounding_at_each_selected_precision(self):
+    def test_computation_keeps_unrounded_bounds_at_every_display_precision(self):
         inspection = dt.datetime(2026, 1, 2, 12, 7)
+        expected = calcola_raffreddamento(30, 20, 37.2, 70, 1., round_minutes=None)
         for step in (6, 15, 30):
             with self.subTest(step=step):
-                expected = calcola_raffreddamento(30, 20, 37.2, 70, 1., round_minutes=step)
                 result = compute_raffreddamento_cautelativo(dt_ispezione=inspection,
                     Ta_value=20, CF_value=1, peso_kg=70, Ta_range=(20, 20), CF_range=(1, 1),
-                    solver_kwargs=dict(Tr=30, T0=37.2, round_minutes=step))
+                    solver_kwargs=dict(Tr=30, T0=37.2, round_minutes=None))
                 self.assertAlmostEqual((inspection - result.dt_min).total_seconds()/3600, expected[2])
                 self.assertAlmostEqual((inspection - result.dt_max).total_seconds()/3600, expected[1])
                 result2 = self.cooling(dict(stima_cautelativa_beta=True,
                     Ta_min_beta=20., Ta_max_beta=20., FC_min_beta=1., FC_max_beta=1.,
                     henssge_round_minutes=step))
+                self.assertAlmostEqual(result2.t_min_raff_henssge, expected[1])
+                self.assertAlmostEqual(result2.t_max_raff_henssge, expected[2])
+                self.assertAlmostEqual(result2.t_med_raff_henssge_rounded_raw,
+                                       (expected[1]+expected[2])/2)
                 self.assertEqual(result2.t_med_raff_henssge_rounded,
-                                 round_to_step_minutes((expected[1]+expected[2])/2, step))
+                                 result2.t_med_raff_henssge_rounded_raw)
 
     def test_manual_fc_rounds_nearest_including_half_step(self):
         for value, expected in [(1.23, 1.25), (1.22, 1.20), (1.325, 1.35), (3.16, 3.15)]:
