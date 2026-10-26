@@ -329,3 +329,8 @@ Su richiesta: riferimenti tabellari riuniti in un paragrafo; esempi Henssge/Brin
 ### Cautela soltanto nelle descrizioni dettagliate — 26 ottobre 2026
 
 Base GitHub verificata `7891d3166569307221cf0ae09df38a0a2959e755`, branch `refactor-tanatology-keys`, repository `scopusjin/codice`. Su correzione esplicita dell’utente rimossa in `app/graphing.py`, `aggiorna_grafico`, la chiamata che mostrava i due paragrafi di cautela sotto il riepilogo breve. Conservati integralmente e in corsivo nelle descrizioni dettagliate e nel relativo blocco conclusivo Word; arrotondamenti e ogni altra funzione invariati. Sintassi/import, diff e 8 test case_report/final_time_rounding superati. Da confermare nell’app l’assenza sotto il riepilogo breve e la presenza nel dettaglio; nessuna verifica grafica in browser dichiarata.
+
+
+### Nota discreta anche sotto la descrizione breve — 26 ottobre 2026
+
+Base GitHub verificata `f2c4f333bd0570c69973085b5607d65c692e9f8e`, repository `scopusjin/codice`, branch `refactor-tanatology-keys`. La nuova indicazione esplicita sostituisce la precedente: mostrare la cautela anche sotto la descrizione breve, in piccolo e blu. In `app/graphing.py`, `aggiorna_grafico`, ripristinata la nota esterna al riquadro breve con carattere 8pt blu, corsivo e margini contenuti. Testo italiano integrale, inglese già sintetico; dettagli e blocco Word invariati. Nessuna modifica ai calcoli, agli orari o al FC. Sintassi/import, diff e 8 test case_report/final_time_rounding superati. Resa grafica da confermare dall’utente nell’app aggiornata; nessuna verifica in browser reale dichiarata.
