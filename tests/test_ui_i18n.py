@@ -153,7 +153,7 @@ class MSILUiTextCompatibilityTests(unittest.TestCase):
     def test_msil_recommendations_keep_current_content(self):
         text = i18n.ui_text("msil.recommendations_html")
         self.assertIn("LA VALUTAZIONE DEL RAFFREDDAMENTO CADAVERICO NON È APPLICABILE SE:", text)
-        self.assertIn("Migrabilità ≠ improntabilità", text)
+        self.assertIn("Migrabilità e sbiancamento alla digitopressione sono reperti distinti.", text)
         self.assertIn("±1 °C", text)
         self.assertIn("± 0.1", text)
         self.assertIn("±3 kg", text)

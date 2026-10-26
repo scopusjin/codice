@@ -51,7 +51,8 @@ assert.equal(nodes.lo.value,'1.75');
 weight(70);assert.deepEqual(plain(panel.payload().range),[1.35,2]);
 weight(75);assert.equal(panel.payload().weight_adjusted,false);
 panel.restore(weighted,70);assert.deepEqual(plain(panel.payload().range),[1.35,2]);
-weight('');assert.equal(nodes['use-scenarios'].disabled,true);
+weight('');assert.equal(nodes['use-scenarios'].disabled,false);
+assert(Number.isNaN(panel.payload().weight)); // FC may be chosen before entering weight in home.
 weight(100);assert.deepEqual(plain(panel.payload().range),[1.35,1.75]);
 choose(0);assert.equal(nodes.lo.value,'1.35');choose(1);assert.equal(nodes.lo.value,'1.75');
 

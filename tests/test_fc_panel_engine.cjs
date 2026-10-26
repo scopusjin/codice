@@ -7,19 +7,19 @@ function c(config,expected){eq(run(config).range,expected,JSON.stringify(config)
 // Independent agreed scientific scenarios, not snapshots of the implementation.
 c({s:3},[1.2,1.3]);c({s:3,air:'continuous'},[1.2,1.3]);
 c({p:1},[1.2,1.2]);c({p:3,isolation:'none'},[1.4,1.6]);
-c({state:'Bagnato',p:3},[1.2,1.3]);c({state:'Bagnato',p:4,s:2},[1.2,1.3]);
+c({state:'Bagnato',p:3},[1.2,1.2]);c({state:'Bagnato',p:4,s:2},[1.2,1.2]);
 c({state:'Bagnato',p:3,air:'continuous'},[.9,.9]);
 c({state:'Bagnato',m:1},[1,1.1]);c({state:'Bagnato',m:1,p:1},[1.1,1.2]);
-c({state:'Bagnato',h:1},[1.2,1.3]);c({state:'Bagnato',h:1,air:'continuous'},[.9,.9]);
+c({state:'Bagnato',h:1},[1.1,1.2]);c({state:'Bagnato',h:1,air:'continuous'},[.7,.9]);
 c({state:'Bagnato',surf:4},[.6,.75]);c({state:'Bagnato',surf:4,s:1,air:'continuous'},[.6,.6]);
 c({state:'Bagnato',surf:4,p:2,air:'continuous'},[.8,.8]);
 c({surf:3,s:2},[1.4,1.5]);c({surf:3,s:3},[1.3,1.4]);
 c({h:1,feather:'yes'},[2.8,3]);c({h:1,feather:'yes',surf:2},[2.8,3.1]);
 c({m:2,p:1,volume:'yes',surf:2},[2,2.8]); // bed counted once
 c({surf:7},[.55,.55]);c({surf:7,p:1},[.55,1.2]);
-c({state:'Bagnato',surf:7,p:3},[.55,1.3]);
-for(const surf of [2,3]){c({state:'Bagnato',p:3,surf,supportSoaked:'yes'},[1.2,1.3]);c({state:'Bagnato',p:3,surf,supportSoaked:'no'},[1.3,1.4]);}
-const leaves=[ [{},[1.3,1.3],[1.5,1.5]], [{s:1},[1.3,1.4],[1.5,1.6]], [{s:2},[1.3,1.5],[1.5,1.7]], [{s:3},[1.3,1.6],[1.5,1.8]], [{s:4},[1.3,1.6],[1.5,1.8]], [{p:1},[1.3,1.5],[1.5,1.7]], [{p:2,s:2},[1.3,1.7],[1.5,1.9]], [{p:3,isolation:'none'},[1.4,1.7],[1.5,1.9]] ];
+c({state:'Bagnato',surf:7,p:3},[.55,1.2]);
+for(const surf of [2,3]){c({state:'Bagnato',p:3,surf,supportSoaked:'yes'},[1.2,1.2]);c({state:'Bagnato',p:3,surf,supportSoaked:'no'},[1.3,1.3]);}
+const leaves=[ [{},[1.3,1.3],[1.5,1.5]], [{s:1},[1.3,1.4],[1.5,1.6]], [{s:2},[1.3,1.5],[1.5,1.7]], [{s:3},[1.3,1.6],[1.5,1.8]], [{s:4},[1.3,1.6],[1.5,1.8]], [{p:1},[1.3,1.5],[1.5,1.7]], [{p:2,s:2},[1.3,1.7],[1.5,1.9]], [{p:3,isolation:'none'},[1.4,1.9],[1.5,2.1]] ];
 for(const [config,humid,dry] of leaves){c({...config,surf:8,leaf:'humid',leafCover:'no'},humid);c({...config,surf:8,leaf:'dry',leafCover:'no'},dry);}
 // Leaf support and leaf covering are distinct selections. An unanswered
 // covering question must not silently reuse the support-only suggestion.

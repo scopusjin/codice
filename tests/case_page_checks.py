@@ -40,7 +40,7 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(app.text_input(key="__case_code_input").value, "CASE-MODAL")
 
     def test_round_trip_between_devices_and_replacement_of_existing_case(self):
-        for msil in (False, True):
+        for msil in (False,):
             with self.subTest(msil=msil):
                 app = self.start(False, msil)
                 app.button(key="case_menu").click().run()
@@ -139,7 +139,7 @@ class CasePageTests(unittest.TestCase):
         self.assertEqual(app.session_state["case_code"], "x26-05")
 
     def test_import_opens_saved_calculation_mode(self):
-        for source_msil in (False, True):
+        for source_msil in (False,):
             with self.subTest(source_msil=source_msil):
                 source = self.start(msil=source_msil)
                 saved = snapshot_case(source.session_state._state.filtered_state, "msil" if source_msil else "full")
@@ -147,8 +147,6 @@ class CasePageTests(unittest.TestCase):
                 # Keep the real multipage entrypoint; a standalone AppTest of
                 # pages/App_MSIL.py cannot navigate to the actual main script.
                 target = self.start()
-                if not source_msil:
-                    target.switch_page("pages/App_MSIL.py").run()
                 target.session_state["__case_pending_import"] = saved
                 target.run()
                 self.assertEqual(list(target.exception), [])
@@ -158,7 +156,7 @@ class CasePageTests(unittest.TestCase):
 
     def test_file_import_restores_case_and_does_not_replay(self):
         import json
-        for msil in (False, True):
+        for msil in (False,):
             with self.subTest(msil=msil):
                 app = self.start(msil=msil)
                 saved = snapshot_case({"case_code": "BROWSER-TEST", "peso": 91., "rt_val": 28.},

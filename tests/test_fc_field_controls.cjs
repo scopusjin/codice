@@ -9,6 +9,7 @@ function harness(version) {
     return nodes[id] ||= {
       value: '', dataset: {}, style: {setProperty() {}}, events: {},
       classList: {toggle() {}, remove() {}},
+      getAttribute(name) { return this[name] || ""; },
       setAttribute(name, value) { this[name] = value; },
       addEventListener(name, callback) { this.events[name] = callback; },
       fire(name, event = {}) { (this.events[name] || this['on' + name])?.(event); },
@@ -33,7 +34,7 @@ function harness(version) {
   const context = {document, window};
   vm.runInNewContext(js.replace('export default function', 'globalThis.render = function'), context);
   return {input: node('.number-input'), minus: node('.number-minus'), plus: node('.number-plus'),
-    values, edits, render: data => context.render({parentElement: {querySelector: node}, data,
+    values, edits, render: data => context.render({parentElement: {querySelector: node, querySelectorAll: () => []}, data,
       setStateValue: (key, value) => values.push(value), setTriggerValue: key => edits.push(key)})};
 }
 

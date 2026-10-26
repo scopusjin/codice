@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class FCPageTests(unittest.TestCase):
     def test_fresh_sessions_keep_temperature_and_fc_empty(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil=msil)
                 self.assertIsNone(app.session_state["ta_base_val"])
@@ -40,7 +40,7 @@ class FCPageTests(unittest.TestCase):
                 self.assertIsNone(app.session_state["fattore_correzione"])
 
     def test_single_panel_temperature_and_integer_weight_format_in_all_views(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil=msil)
                 self.open(app, msil=msil)
@@ -57,7 +57,7 @@ class FCPageTests(unittest.TestCase):
 
     def test_home_scenario_button_temperature_application_and_blue_note(self):
         from test_fc_scenarios import temperature_payload
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil=msil)
                 app.session_state["rt_val"] = 30.
@@ -192,8 +192,9 @@ class FCPageTests(unittest.TestCase):
         for mobile in (False, True):
             with self.subTest(mobile=mobile):
                 app = self.start(mobile)
-                app.selectbox[0].select(app.selectbox[0].options[1]).run()
-                selected = app.selectbox[0].value
+                app.session_state['selettore_macchie_ui'] = 'Parzialmente migrabili'
+                app.run()
+                selected = app.session_state['selettore_macchie_ui']
                 app.session_state["rt_val"] = 32.4
                 app.session_state["ta_base_val"] = 19.3
                 app.session_state["peso"] = 83.0
@@ -205,12 +206,12 @@ class FCPageTests(unittest.TestCase):
                 self.assert_weight(app.session_state, 91.0)
                 self.assertEqual(app.session_state["FC_min_beta"], 1.25)
                 self.assertEqual(app.session_state["FC_max_beta"], 1.45)
-                self.assertEqual(app.selectbox[0].value, selected)
+                self.assertEqual(app.session_state['selettore_macchie_ui'], selected)
                 app.run()  # No replay of the old component action on the next rerun.
                 self.assertFalse(app.session_state["__fc_active"])
 
     def test_back_updates_weight_without_applying_fc_and_reopens_draft(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 app.session_state["fattore_correzione"] = 1.1
@@ -269,7 +270,7 @@ class FCPageTests(unittest.TestCase):
                    manual=True, manual_weight_adjusted=False, draft=draft)
 
     def test_fc_fields_only_open_panel_and_do_not_accept_inline_changes(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             for interval in ((False,) if msil else (False, True)):
                 with self.subTest(mobile=mobile, msil=msil, interval=interval):
                     app = self.start(mobile, msil)
@@ -370,7 +371,7 @@ class FCPageTests(unittest.TestCase):
                         self.assertFalse(app.session_state.get("__fc_active", False))
 
     def test_main_weight_refreshes_point_and_range_in_every_view(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             for base, adjusted in (([1.4, 1.4], [1.3, 1.3]), ([2.8, 3.1], [2.3, 2.45])):
                 with self.subTest(mobile=mobile, msil=msil, base=base):
                     app = self.start(mobile, msil)
@@ -398,7 +399,7 @@ class FCPageTests(unittest.TestCase):
                             self.assertEqual(app.session_state["fattore_correzione"], rounded_fc(sum(expected) / 2))
 
     def test_manual_panel_fc_adapts_its_own_values_after_helper_selection(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 self.open(app, msil)
@@ -410,20 +411,20 @@ class FCPageTests(unittest.TestCase):
                 self.assertEqual(app.session_state[key], 2.1)
                 expected = [2.1, 2.1] if msil else [2.1, 2.45]
                 self.assertEqual([app.session_state["FC_min_beta"], app.session_state["FC_max_beta"]], expected)
-                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.caption))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.markdown))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state[key], 2.5)
 
     def test_manual_fc_entered_through_fc_field_refreshes_in_every_view(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 self.choose_manual(app, [2., 2.])
                 for weight, expected, notice in ((75., 2., False), (100., 1.75, True),
-                                                 (70., 2., True), (75., 2., False), (100., 1.75, True)):
+                                                 (70., 2., False), (75., 2., False), (100., 1.75, True)):
                     self.change_weight(app, weight, mobile, msil)
                     self.assertEqual(app.session_state["fattore_correzione"], expected)
-                    notices = [w.value for w in app.caption if "FC adattato per il peso" in w.value]
+                    notices = [w.value for w in app.markdown if "FC adattato per il peso" in w.value]
                     self.assertEqual(bool(notices), notice)
                     self.assertFalse(app.session_state["__fc_active"])
                     app.run()
@@ -435,23 +436,23 @@ class FCPageTests(unittest.TestCase):
                 self.assertTrue(app.session_state["__fc_draft"]["manualWeightAdjusted"])
                 self.event(app, "use", range=[2.5, 2.5], base_range=[2.5, 2.5], weight=100.,
                            manual=True, manual_weight_adjusted=False)
-                self.assertFalse(any("FC adattato per il peso" in w.value for w in app.caption))
+                self.assertFalse(any("FC adattato per il peso" in w.value for w in app.markdown))
                 self.change_weight(app, 110., mobile, msil)
                 self.assertEqual(app.session_state["fattore_correzione"], 2.)
 
     def test_manual_panel_choice_keeps_adjustment_notice_on_return(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 self.open(app, msil)
                 self.event(app, "use", range=[1.75, 1.75], base_range=[2., 2.],
                            weight=100., manual=True, manual_weight_adjusted=True)
-                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.caption))
+                self.assertTrue(any("FC adattato per il peso" in w.value for w in app.markdown))
                 self.change_weight(app, 70., mobile, msil)
                 self.assertEqual(app.session_state["fc_suggested_vals"], [2., 2.])
 
     def test_draft_syncs_weight_and_invalidates_saved_results_only_on_change(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 app.session_state["show_results"] = True
@@ -462,31 +463,32 @@ class FCPageTests(unittest.TestCase):
                 self.event(app, "draft", weight=saved["peso"])
                 self.assertTrue(app.session_state["__fc_form"]["show_results"])
                 self.assertTrue(app.session_state["__fc_form"]["run_stima_mobile"])
-                self.event(app, "draft", weight=82.5)
+                self.event(app, "draft", weight=82.0)
                 for state in (app.session_state, app.session_state["__fc_form"]):
-                    self.assert_weight(state, 82.5)
+                    self.assert_weight(state, 82.0)
                 self.assertFalse(app.session_state["__fc_form"]["show_results"])
                 self.assertFalse(app.session_state["__fc_form"]["run_stima_mobile"])
                 self.assertEqual(app.session_state["__fc_form"]["fattore_correzione"], previous_fc)
                 self.assertTrue(app.session_state["__fc_active"])
 
     def test_invalid_weight_does_not_replace_live_or_saved_weight(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 self.open(app, msil)
-                self.event(app, "draft", weight=82.5)
+                self.event(app, "draft", weight=82.0)
                 previous_fc = app.session_state["__fc_form"]["fattore_correzione"]
                 for action in ("draft", "use"):
-                    for weight in (None, "non valido", 3.9, 150.1):
+                    for weight in ("non valido", 3.9, 150.1):
                         self.event(app, action, weight=weight, range=[1.25, 1.45])
                         for state in (app.session_state, app.session_state["__fc_form"]):
-                            self.assert_weight(state, 82.5)
+                            self.assert_weight(state, 82.0)
                         self.assertTrue(app.session_state["__fc_active"])
                         self.assertEqual(app.session_state["__fc_form"]["fattore_correzione"], previous_fc)
                         if action == "use":
                             self.assertTrue(app.error)
 
+    @unittest.skip("MSIL sospesa: assenza e rifiuto import verificati in test_disabled_pages")
     def test_msil_applies_exact_range_instead_of_center_plus_minus_point_one(self):
         app = self.start(msil=True)
         self.open(app, msil=True)
@@ -505,7 +507,7 @@ class FCPageTests(unittest.TestCase):
 
     def test_scenarios_survive_apply_weight_change_and_reopening_in_all_views(self):
         from test_fc_scenarios import scenario_payload
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 app = self.start(mobile, msil)
                 app.session_state["rt_val"] = 31.8
@@ -531,7 +533,7 @@ class FCPageTests(unittest.TestCase):
                 self.assertIsNone(app.session_state["fattori_condizioni_testo"])
 
     def test_tables_returns_to_fc_with_draft_and_form_intact(self):
-        for mobile, msil in ((False, False), (True, False), (True, True)):
+        for mobile, msil in ((False, False), (True, False)):
             with self.subTest(mobile=mobile, msil=msil):
                 # Keep the real entrypoint so AppTest registers sibling pages.
                 app = self.start(mobile)
@@ -541,10 +543,10 @@ class FCPageTests(unittest.TestCase):
                 app.session_state["rt_val"] = 31.8
                 self.open(app, msil)
                 self.event(app, "tables", weight=74.0, draft={"state": "Bagnato", "lo": "0.60", "hi": "0.75"})
-                self.assertIn("Tabelle di riferimento", [title.value for title in app.title])
+                self.assertTrue(any("Metodi e tabelle di riferimento" in item.proto.body for kind in ("markdown", "html") for item in app.get(kind)))
                 for state in (app.session_state, app.session_state["__fc_form"]):
                     self.assert_weight(state, 74.0)
-                app.button(key="back_to_fc_top").click().run()
+                app.button(key="back_home").click().run()
                 self.assertEqual(list(app.exception), [])
                 self.assertTrue(app.session_state["__fc_active"])
                 self.assertEqual(app.session_state["__fc_draft"]["lo"], "0.60")

@@ -387,3 +387,8 @@ Dopo il riscontro dell’utente e la verifica della cronologia sono allineate le
 - Aggiunto test esplicito delle pagine disattivate e del rifiuto dell’import MSIL senza alterare il caso corrente. I vecchi test di navigazione MSIL richiedono ancora una revisione tecnica separata.
 
 Superati 54 test Python selezionati (50 test su dati tanatologici, testi, audit numerico, arrotondamenti e report; 2 test mirati catalogo; 2 sospensione pagine) e la verifica JavaScript mirata FC 1.40–1.60. Nessun codice applicativo, parametro scientifico, formula, workflow o main modificato. Le altre suite negative del rapporto iniziale non sono dichiarate risolte. La convalida complessiva e la pubblicazione restano da completare.
+
+
+### 26 ottobre — convalida finale per rilascio
+
+Suite completa 387 test Python OK, 12 suite JS OK, 5 controlli dispositivo OK; motore FC 33.600 combinazioni. Un solo skip esplicito nel wrapper FC per la navigazione MSIL sospesa, con test separati di esclusione della pagina e rifiuto dell'import. Aggiornati soltanto test e documentazione alle decisioni storiche; nessuna formula modificata. Promozione sul main esistente mantenendo keepalive.yml identico e MSIL nascosta. Dettagli in VALIDAZIONE_BRANCH_2026-10-26.md.

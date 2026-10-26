@@ -28,9 +28,8 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertIn('st.container(gap="xsmall", key="full_mobile_primary_cards")', source)
         self.assertIn('if full_device_is_mobile() else st', source)
         for card in ("full_inspection_card", "full_cooling_card", "full_signs_card"):
-            self.assertIn(f'with primary_cards.container(border=True, key="{card}"):', source)
-        self.assertIn("primary_cards.warning(warning)", source)
-        self.assertIn("primary_cards.caption(warning)", source)
+            self.assertRegex(source, rf'with primary_cards.container\(border=True, (?:gap="small", )?key="{card}"\):')
+        self.assertIn("st.warning(warning)", source)
         ast.parse(source)
 
     def test_mobile_navigation_uses_sidebar_only(self):
@@ -176,12 +175,11 @@ class FullMobileFlowTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         header = calls[0]
         self.assertEqual(len(header.args), 1)
-        self.assertIsInstance(header.args[0], ast.Name)
-        self.assertEqual(header.args[0].id, "_MOBILE_HEADER_HTML")
-        self.assertEqual(
-            {option.arg: ast.literal_eval(option.value) for option in header.keywords},
-            {"height": 34},
-        )
+        self.assertIsInstance(header.args[0], ast.IfExp)
+        self.assertEqual(header.args[0].orelse.id, "_MOBILE_HEADER_HTML")
+        height = next(option.value for option in header.keywords if option.arg == "height")
+        self.assertEqual(ast.literal_eval(height.orelse), 34)
+        self.assertEqual(ast.literal_eval(height.body), 46)
         self.assertIn("menu.addEventListener(\"click\", openSidebar)", _MOBILE_HEADER_HTML)
         self.assertIn("title.textContent = source.textContent.trim()", _MOBILE_HEADER_HTML)
 
@@ -202,8 +200,8 @@ class FullMobileFlowTests(unittest.TestCase):
 
     def test_mobile_results_open_without_duplicate_container(self):
         app = self._mobile_app()
-        app.selectbox[0].select(app.selectbox[0].options[1])
-        app.selectbox[1].select(app.selectbox[1].options[1])
+        app.session_state["selettore_macchie_ui"] = "Parzialmente migrabili"
+        app.session_state["selettore_rigidita_ui"] = "Presente, in aumento"
         app.run(timeout=20)
 
         next(

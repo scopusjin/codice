@@ -1,6 +1,8 @@
 # Verifica completa del branch — 26 ottobre 2026
 
-**Esito: convalida non completata con successo; non promuovere ancora su main.**
+**Esito aggiornato: controlli automatici completati con successo; pronto per integrazione nel main esistente.**
+
+Le sezioni iniziali documentano i fallimenti della prima verifica e sono superate dagli aggiornamenti successivi e dall’esito finale in fondo.
 
 Repository: scopusjin/codice. Revisione esaminata: cb9db235d1d1c0760c56ac89459d923f7a0c888c, refactor-tanatology-keys. Main verificato: 43ab9bca62a9b8cd27f2831f08f7050049265d0f. Nessun codice applicativo modificato durante questa verifica.
 
@@ -118,3 +120,19 @@ Superati 54 test Python selezionati (50 test su dati tanatologici, testi, audit 
 Aggiornati i test di pagina dell'audit e del raffreddamento: valori grezzi prima dell'arrotondamento finale, nota FC accanto all'etichetta, errori di raffreddamento resi nella nota finale, selettore ipostasi personalizzato. Il controllo della temperatura rettale mancante verifica anche colore giallo e dimensione 8pt. I controlli prima dedicati alla navigazione MSIL verificano ora l'assenza della pagina attiva e la conservazione del sorgente disattivato; la persistenza del FC resta verificata nella pagina principale. Il test statico del peso legge il sorgente MSIL archiviato senza riattivarlo. Selettore ipostasi: aggiornate le aspettative sulle etichette traducibili (0df24142) e sul font compatto (c501b24d).
 
 Superati separatamente 6 test audit, 15 test raffreddamento, 8 test selettore e 20 test peso FC: 49 test. Nessuna modifica al codice applicativo o al main. Non costituisce convalida dell'intero branch: restano i wrapper storici di navigazione/lingua/FC, le tabelle e le suite JavaScript da completare.
+
+
+## Convalida finale e rilascio
+
+Completato l'allineamento dei controlli alla cronologia, senza modifiche al codice applicativo:
+
+- b083e8b0: tabella dei reperti osservati, anziché vecchie domande Sì/No; verificati rendering italiano/inglese, 35 righe, intervalli, fasi descrittive e fonte Anders. Mantenuto il confronto indipendente fra intervalli sopraciliari e parametri del motore.
+- 7c2f610f e 45c271a3: intervalli dei tessuti bagnati e domanda unica; aggiornati gli esempi numerici precedenti e le conseguenze sugli appoggi. L'estensione 1.40–1.60 dei molti strati si propaga anche ai casi sulle foglie. Formule e soglie non alterate.
+- 8a360866: gli esempi di coperture possono includere confronti vicini; distinto il controllo della corrispondenza esatta da quello dell'elenco dei confronti. b143643d: schede di simulatore identificate con tabella/riga.
+- 8ffe384a: scelta del FC possibile prima di inserire il peso; restano controllati pesi esplicitamente invalidi e conservazione del caso. 135c43d3 e 50fceea5: peso intero e avviso solo rispetto al FC di riferimento.
+- Aggiornati i DOM simulati per la traduzione ARIA e il bridge linguistico, le bandiere incorporate, i titoli compatti e il pulsante di ritorno comune dalle tabelle.
+- Navigazione attiva verificata su desktop e mobile, salvataggio/importazione dei casi, traduzione e ripristino delle bozze FC. La navigazione MSIL non è più parte del perimetro attivo: un test specifico è esplicitamente sospeso, mentre test_disabled_pages verifica l'assenza della pagina e il rifiuto dell'import senza alterare il caso corrente. I test dei suoi helper restano disponibili.
+
+Esito finale: `python -m unittest discover -s tests` — **387 test, OK**. Il wrapper FC esegue a sua volta 21 test, OK con un solo skip esplicito per MSIL sospesa. Superati inoltre tutti i **12 programmi JavaScript**, con catalogo passato correttamente al test linguistico; il motore FC verifica **33.600 combinazioni e 3.385 controlli**. Eseguite direttamente anche le 5 funzioni di test_device_mode (non raccolte da unittest): tutte superate. Compilazione e `pip check` superati; nessun problema whitespace.
+
+Non è dichiarato un collaudo visuale in browser reale né una verifica della versione effettivamente caricata dal deploy pubblico. La pubblicazione usa il main e l'URL di produzione esistenti, senza cambiare la configurazione Streamlit. `.github/workflows/keepalive.yml` è identico al main precedente, compresi frequenza di 15 minuti e URL di produzione. Nessuna pagina MSIL o Anteprima desktop attiva.

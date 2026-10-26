@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class SubpageHeadingsTests(unittest.TestCase):
     def test_all_subpages_use_the_same_heading_renderer(self):
         expected = {
-            "pages/2_Tabelle di riferimento.py": 'render_page_heading("Tabelle di riferimento")',
+            "pages/2_Tabelle di riferimento.py": 'render_page_heading("Metodi e tabelle di riferimento")',
             "pages/9_Reference.py": 'render_page_heading("Riferimenti bibliografici")',
             "pages/Impostazioni.py": 'render_page_heading("⚙️ Impostazioni")',
         }
@@ -51,7 +51,7 @@ class SubpageHeadingsTests(unittest.TestCase):
         self.assertIn('padding: 2px 0 0;', shell)
         self.assertIn('text-transform: uppercase;', shell)
         self.assertIn('height=46 if msil_title', shell)
-        msil = (ROOT / "pages/App_MSIL.py").read_text(encoding="utf-8")
+        msil = (ROOT / "disabled_pages/App_MSIL.py").read_text(encoding="utf-8")
         self.assertIn("install_minimal_mobile_shell(msil_title=True)", msil)
         self.assertIn('font-size:clamp(1.2rem,1.25vw,1.5rem)', msil)
         self.assertIn('text-transform:uppercase!important', msil)

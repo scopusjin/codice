@@ -3,7 +3,7 @@ const {panel,nodes,buttons,context,html}=require('./fc_panel_harness.cjs');
 // The clothing symbols share the categories' header, not a separate legend row.
 assert.doesNotMatch(html, /<legend title="Indumenti e coperture"/);
 assert.match(html, /id="blanket-counts"><div class="category"><span>Coperte<\/span><span class="covering-icons"/);
-assert.equal((html.match(/class="covering-icons"/g)||[]).length,1);
+assert.equal((html.match(/class="covering-icons"/g)||[]).length,2);
 assert.match(html, /id="special-covers"/);
 nodes.surface.selectedOptions=[{textContent:'Piano neutro'}];
 let sent;
@@ -85,15 +85,15 @@ console.log('FC leaves: required answer, support-only range, covering, draft and
 
 // The applied payload retains the unadapted range even at a different weight.
 nodes.weight.value='100.0';nodes.weight.events.input();
-assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
+assert(nodes['manual-state'].textContent.startsWith('FC adattato per il peso (100 kg).'));
 const adjustedSuggestion=panel.snapshot();panel.restore(adjustedSuggestion,100);
-assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
+assert(nodes['manual-state'].textContent.startsWith('FC adattato per il peso (100 kg).'));
 nodes.use.events.click();
 assert.notDeepEqual([...sent.range],[2.7,2.7]);
 assert.deepEqual([...sent.base_range],[2.7,2.7]);
 assert.equal(sent.manual,false);
 nodes.restore.events.click();
-assert.equal(nodes['manual-state'].textContent,'');
+assert(nodes['manual-state'].textContent.startsWith('FC adattato per il peso (100 kg).'));
 
 // Manual values are the anchor for every later weight, including restored drafts.
 nodes.lo.value='2';nodes.lo.events.input();
@@ -107,17 +107,17 @@ for(const [weight,expected] of [[70,'2.00'],[100,'1.75'],[110,'1.70'],[70,'2.00'
   nodes.use.events.click();
   assert.equal(sent.manual,true);assert.deepEqual([...sent.base_range],[2,2]);
 }
-assert.match(nodes['manual-state'].textContent,/reinseriscili manualmente/);
+assert.equal(nodes['manual-state'].textContent,'');
 const manualDraft=panel.snapshot();panel.restore(manualDraft,100);
 assert.equal(nodes.lo.value,'1.75');assert.equal(nodes.hi.value,'1.75');
-assert.match(nodes['manual-state'].textContent,/adattato al nuovo peso/);
+assert(nodes['manual-state'].textContent.startsWith('FC adattato per il peso (100 kg).'));
 nodes.hi.value='2.5';nodes.hi.events.input();
 nodes.lo.value='2.5';nodes.lo.events.input();
 assert.equal(nodes['manual-state'].textContent.includes('adattato al nuovo peso'),false);
 nodes.weight.value='110';nodes.weight.events.input();
 assert.equal(nodes.lo.value,'2.00');assert.equal(nodes.hi.value,'2.00');
 nodes.weight.value='';nodes.weight.events.input();
-assert.equal(nodes.lo.value,'2.00');assert.equal(nodes.use.disabled,true);
+assert.equal(nodes.lo.value,'2.00');assert.equal(nodes.use.disabled,false);
 nodes.weight.value='100';nodes.weight.events.input();
 assert.equal(nodes.lo.value,'2.10');assert.equal(nodes.hi.value,'2.10');
 nodes.lo.value='';nodes.lo.events.input();
@@ -142,7 +142,7 @@ panel.restore({lo:'1.75',hi:'1.75',weight:100,manual:false,selectedBase:[2,2]},1
 assert.equal(panel.payload().manual,false);assert.deepEqual([...panel.payload().base_range],[2,2]);
 nodes.weight.value='70';nodes.weight.events.input();
 assert.equal(nodes.lo.value,'2.00');assert.equal(panel.payload().weight_adjusted,true);
-assert.equal(nodes['manual-state'].textContent,'FC adattato per il peso.');
+assert.equal(nodes['manual-state'].textContent,'');
 nodes.weight.value='75';nodes.weight.events.input();
 assert.equal(panel.payload().weight_adjusted,false);
 assert.equal(panel.payload().manual,false);
@@ -157,7 +157,8 @@ const fs=require('fs'),vm=require('vm'),path=require('path');
 const catalog=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/fc_examples.json'),'utf8'));
 const messages=[],events={},rootEvents={};let restored=0,callback=null,openingDraft;
 const parent={postMessage:m=>messages.push(m)};
-const win={parent,FCPanel:{setDesktop(){},setExamples(examples){assert.deepEqual(examples,catalog);},restore(draft){restored++;openingDraft=draft;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
+const translationCalls=[];
+const win={parent,FCTranslation:{set:(language,translations)=>translationCalls.push({language,translations})},FCPanel:{setDesktop(){},setExamples(examples){assert.deepEqual(examples,catalog);},restore(draft){restored++;openingDraft=draft;},payload(){return {weight:70,range:[1.2,1.3]};}},addEventListener:(name,cb)=>events[name]=cb};
 const root={getBoundingClientRect:()=>({height:600}),addEventListener:(name,cb)=>rootEvents[name]=cb};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend/bridge.js'),'utf8'),{
  window:win,document:{getElementById:id=>id==='fc-full'?root:{disabled:false},documentElement:{style:{}}},
@@ -166,6 +167,7 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../app/fc_panel_frontend
 });
 const render={source:parent,data:{type:'streamlit:render',args:{instance:'test',weight:70,draft:null,examples:catalog}}};
 events.message(render);events.message(render);assert.equal(restored,1);
+assert.equal(translationCalls.length,2);
 assert.equal(openingDraft,null);
 const savedScenarios=[{lo:'1.20',hi:'1.30',temperature:'18'},{lo:'0.50',hi:'0.50',temperature:'20'}];
 const reopened={source:parent,data:{type:'streamlit:render',args:{...render.data.args,instance:'reopened',draft:{multiple:true,activeScenario:1,scenarios:savedScenarios}}}};

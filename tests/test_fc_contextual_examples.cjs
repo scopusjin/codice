@@ -46,7 +46,7 @@ show('Immerso',{water:'corrente','scenario-temperature':'0'});
 assert.equal(nodes['source-examples'].hidden,true);
 assert.match(text(nodes['source-full-citations']),/acqua corrente/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'no'});
-assert.match(rendered,/Prova su simulatore/);
+assert.match(rendered,/Simulatore appoggiato/);
 assert.doesNotMatch(rendered,/Peso virtuale standard:/);
 assert.doesNotMatch(rendered,/Althaus|tab\. 6\.11|non quantifica altre combinazioni/);
 assert.match(text(nodes['source-full-citations']),/Althaus/);
@@ -54,5 +54,5 @@ assert.doesNotMatch(text(nodes['source-full-citations']),/Cooling experiments us
 assert.doesNotMatch(rendered,/Esperimento su cadavere|undefined/);
 rendered=show('Asciutto',{surface:'8',leaf:'dry','leaf-cover':'yes',air:'intermittent'});
 assert.match(rendered,/FC: 1\.77/);assert.match(rendered,/FC: 2\.72/);
-assert.match(rendered,/asterisco/);
+assert.match(rendered,/foglie/);
 console.log('Contextual examples: condition matching, immersion, source links and simulator labels passed.');

@@ -36,10 +36,9 @@ class CombinedReferencePresentationTests(unittest.TestCase):
     def test_other_scientific_limits_remain_intact(self):
         expected = {
             "rigor": [
-                "≤ 7", "≥ 0.5", "≤ 20", "≥ 2", "≤ 19 [4]",
-                "≥ 2", "≤ 96", "≥ 24", "≤ 192", "≥ 24",
+                "0–7", "0,5–20", "2–96", "24–192", "≥ 24", "≤ 19 [4]",
             ],
-            "mechanical": ["≤ 2.5", "≤ 13", "≥ 1.5"],
+            "mechanical": ["0–2,5", "0–5", "0–13", "≥ 1,5"],
             "mouth": ["≤ 11", "≥ 3"],
             "chemical": ["≤ 10", "≥ 3", "≤ 30", "≥ 5", "≤ 46", "≥ 14"],
         }
@@ -73,8 +72,8 @@ class CombinedReferencePresentationTests(unittest.TestCase):
                 minimum = str(int(low)) if low == int(low) else str(low).replace(".", ",")
                 maximum = str(int(high)) if high == int(high) else str(high).replace(".", ",")
                 self.assertEqual(displayed, f"{minimum}–{maximum}")
-                self.assertTrue(italian.startswith(f"Fase {phase} — "))
-                self.assertTrue(english.startswith(f"Phase {phase} — "))
+                self.assertIn("stimolo elettrico", italian)
+                self.assertIn("electrical stimulation", english)
         self.assertEqual(rows[6][2], "≥ 5")
         self.assertEqual(engine["Nessuna reazione"][0], 5)
 

@@ -27,7 +27,7 @@ class LanguagePageTests(unittest.TestCase):
         return app
 
     def test_roundtrip_and_old_case_import_preserve_inputs_and_reports(self):
-        for mobile,msil in ((False,False),(True,False),(True,True)):
+        for mobile,msil in ((False,False),(True,False)):
             with self.subTest(mobile=mobile,msil=msil):
                 app=self.start(mobile,msil)
                 button='btn_stima_mobile' if msil else 'btn_stima'
@@ -118,7 +118,8 @@ class LanguagePageTests(unittest.TestCase):
                     footer=app.main.get('button_group')[-1]
                     self.assertEqual(footer.key,'mortem_language_widget')
                     self.assertEqual(footer.value,language)
-                    self.assertEqual(footer.options,['IT','EN'])
+                    self.assertEqual([label.rsplit(' ',1)[-1] for label in footer.options],['IT','EN'])
+                    self.assertTrue(all('data:image/svg+xml;base64,' in label for label in footer.options))
                     self.assertNotIn(3,app._tree.children)
                     title='\n'.join(item.proto.body for kind in ('html','markdown') for item in app.main.get(kind))
                     self.assertIn('TIME SINCE DEATH ESTIMATION' if language=='en' else 'STIMA EPOCA DECESSO',title)
@@ -126,7 +127,7 @@ class LanguagePageTests(unittest.TestCase):
                 self.assertEqual(translate('T. amb. media','en'),'Mean amb. T.')
 
     def test_footer_survives_fc_route_and_missing_data_stop(self):
-        for mobile,msil in ((False,False),(True,False),(True,True)):
+        for mobile,msil in ((False,False),(True,False)):
             app=self.start(mobile,msil,extra={'__fc_active':True,'__fc_instance':'footer-check'})
             self.assertEqual(app.main.get('button_group')[-1].key,'mortem_language_widget')
             self.assertNotIn(3,app._tree.children)

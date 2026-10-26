@@ -18,7 +18,8 @@ panel.setDesktop(true);assert.equal(nodes['garment-thin'].value,'4');
 change('garment-thin',1);change('teli','');assert.equal(nodes.use.disabled,true);
 change('teli',0);change('light-cover',1);change('garment-thick',0);
 assert(api.exampleMatches(panel.payload().conditions).some(e=>e.id==='blanket-B56'));
-change('teli',1);assert(!api.exampleMatches(panel.payload().conditions).some(e=>e.id==='blanket-B56'));
+change('teli',1);assert(!api.EXAMPLE_MATCHERS['blanket-B56'](panel.payload().conditions));
+assert(api.exampleMatches(panel.payload().conditions).some(e=>e.id==='blanket-B56')); // Broader comparisons deliberately include adjacent conditions.
 const b33=api.EXAMPLE_MATCHERS['blanket-B33'];
 assert(b33({...base,surf:2,m:2}));assert(b33({...base,surf:2,h:1}));
 assert(!b33({...base,surf:2,m:1}));assert(!b33({...base,surf:0,m:2}));

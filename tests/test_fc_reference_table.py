@@ -130,133 +130,78 @@ class FCReferenceTableTests(unittest.TestCase):
                 self.assertNotIn('SCROLL_TO_FC', html)
 
 
-class CombinedRows(HTMLParser):
+class ObservedRows(HTMLParser):
     def __init__(self):
         super().__init__()
         self.rows = {}
-        self.cells = []
+        self.all_rows = []
         self.cell = None
+        self.cells = []
 
     def handle_starttag(self, tag, attrs):
-        if tag == 'tr':
-            self.cells = []
-        elif tag == 'td':
-            self.cell = []
+        if tag == 'tr': self.cells = []
+        if tag == 'td': self.cell = []
 
     def handle_data(self, text):
-        if self.cell is not None:
-            self.cell.append(text)
+        if self.cell is not None: self.cell.append(text)
 
     def handle_endtag(self, tag):
         if tag == 'td':
             self.cells.append(''.join(self.cell).strip())
             self.cell = None
-        elif tag == 'tr' and self.cells:
-            criterion, yes, no = self.cells
-            self.rows[criterion] = (yes, no)
+        if tag == 'tr' and len(self.cells) == 2:
+            self.rows[self.cells[0]] = self.cells[1]
+            self.all_rows.append(tuple(self.cells))
 
 
 class CombinedReferenceTableTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        path = ROOT / 'pages/2_Tabelle di riferimento.py'
-        cls.html, cls.captions = [], []
-        tree = ast.parse(path.read_text(encoding='utf-8'))
-        combined_constants = {
-            target.id for node in tree.body if isinstance(node, ast.Assign)
-            for target in node.targets if isinstance(target, ast.Name)
-            and target.id.startswith('_COMBINED_')
-        }
-        cls.namespace = _isolated_reference_renderer(
-            path, combined_constants, '_render_combined_table',
-            cls.html, cls.captions,
-        )
-
     def render(self, language):
-        self.html.clear()
-        self.captions.clear()
-        self.namespace['_render_combined_table'](language)
-        self.assertEqual(len(self.html), 1)
-        self.assertIn('href="Reference" target="_self"', self.html[0])
-        self.assertTrue(any('href="Reference"' in caption for caption in self.captions))
-        parser = CombinedRows()
-        parser.feed(self.html[0])
-        self.assertEqual(len(parser.rows), 23)
-        text = self.namespace['_COMBINED_TABLE_TEXT'][language]
-        return {key: parser.rows[label] for key, label in text.items() if label in parser.rows}
+        html, captions = [], []
+        namespace = _isolated_reference_renderer(
+            ROOT / 'pages/2_Tabelle di riferimento.py',
+            {'_COMBINED_TABLE_TEXT', '_COMBINED_BIBLIOGRAPHY'}, '_render_combined_table', html, captions)
+        namespace['_render_combined_table'](language)
+        self.assertEqual(len(html), 1)
+        parser = ObservedRows()
+        parser.feed(html[0])
+        self.assertEqual(len(parser.all_rows), 35)
+        self.assertIn('href="Reference"', html[0])
+        self.assertTrue(any('Anders et al., 2013' in note for note in captions))
+        self.observed_rows = parser.all_rows
+        return parser.rows
 
-    def interval(self, rows, answers):
-        lower, upper = 0, INF_HOURS
-        for key, yes in answers:
-            bound = rows[key][0 if yes else 1]
-            self.assertNotRegex(bound, r'\d,\d')
-            if bound == '—':
-                continue
-            match = re.fullmatch(r'([≥≤]) (\d+(?:\.\d+)?)(?: \[\d+\])?', bound)
-            self.assertIsNotNone(match, bound)
-            sign, number = match.groups()
-            if sign == '≥':
-                lower = max(lower, float(number))
-            else:
-                upper = min(upper, float(number))
-        return lower, upper
+    def test_observed_rigor_intervals_match_engine_in_both_languages(self):
+        labels = {
+            'it': ('Non ancora apprezzabile', 'Presente, in via di intensificazione e generalizzazione',
+                   'Presente, intensa e generalizzata', 'In via di risoluzione', 'Completamente risolta'),
+            'en': ('Not yet appreciable', 'Present, developing and spreading',
+                   'Present, intense and generalized', 'Resolving', 'Completely resolved')}
+        for language in labels:
+            rows = self.render(language)
+            self.assertEqual([rows[label] for label in labels[language]],
+                             ['0–7', '0.5–20', '2–96', '24–192', '≥ 24'])
 
-    def test_cumulative_supraciliary_answers_match_observed_extent_intervals(self):
-        keys = ('supra_cheek', 'supra_forehead', 'supra_lower_lid',
-                'supra_whole_upper_lid', 'supra_partial_upper_lid', 'supra_nasal')
-        grades = ('Fase VI', 'Fase V', 'Fase IV', 'Fase III', 'Fase II', 'Fase I', 'Nessuna reazione')
-        expected = dati_parametri_aggiuntivi['Eccitabilità elettrica sopraciliare']['range']
+    def test_anatomical_supraciliary_descriptions_keep_all_time_intervals(self):
         for language in ('it', 'en'):
             rows = self.render(language)
-            for first_positive, grade in enumerate(grades):
-                with self.subTest(language=language, grade=grade):
-                    answers = [(key, index >= first_positive) for index, key in enumerate(keys)]
-                    self.assertEqual(self.interval(rows, answers), expected[grade])
+            values = [value for label, value in self.observed_rows
+                      if ('allo stimolo elettrico' in label if language == 'it'
+                          else 'following electrical stimulation' in label)]
+            self.assertEqual(values[:7], ['0–6', '1–7', '2–8', '3–13', '3.5–16', '5–22', '≥ 5'])
 
-    def test_progression_questions_reproduce_the_five_rigor_stages(self):
-        stages = {
-            'Non ancora apprezzabile': [('rigor_beginning', False)],
-            'Presente e in via di intensificazione e generalizzazione':
-                [('rigor_beginning', True), ('rigor_complete', False)],
-            'Presente, intensa e generalizzata':
-                [('rigor_complete', True), ('rigor_persistence', False)],
-            'In via di risoluzione': [('rigor_persistence', True), ('rigor_resolution', False)],
-            'Risolta': [('rigor_resolution', True)],
-        }
-        for language in ('it', 'en'):
-            rows = self.render(language)
-            for stage, answers in stages.items():
-                with self.subTest(language=language, stage=stage):
-                    self.assertEqual(self.interval(rows, answers), opzioni_rigidita[stage])
+    def test_reestablishment_has_updated_bound_and_bibliography(self):
+        for language, label in (('it', 'Si riforma dopo essere stata vinta'),
+                                ('en', 'Re-establishes after being broken')):
+            self.assertEqual(self.render(language)[label], '≤ 19 [4]')
+        self.assertIn('10.1007/s00414-011-0632-z',
+                      (ROOT / 'pages/9_Reference.py').read_text())
 
-    def test_updated_reestablishment_bound_has_its_own_source_reference(self):
-        # Anders et al., Int J Legal Med 2013: observed re-establishment up to 19 h.
-        for language in ('it', 'en'):
-            rows = self.render(language)
-            self.assertEqual(self.interval(rows, [('reestablishment', True)]), (0, 19))
-            self.assertEqual(self.interval(rows, [('reestablishment', False)]), (2, INF_HOURS))
-            self.assertTrue(rows['reestablishment'][0].endswith('[4]'))
-            # The table now links its abbreviated [4] citation to the full
-            # internal bibliography; the DOI belongs to that destination.
-            self.assertTrue(any(
-                'Anders et al., 2013' in note and 'href="Reference"' in note
-                for note in self.captions
-            ))
-            bibliography = ROOT / 'pages/9_Reference.py'
-            self.assertIn('10.1007/s00414-011-0632-z',
-                          bibliography.read_text(encoding='utf-8'))
-            self.assertEqual(rows['muscle_response'], ('≤ 11', '≥ 3'))
-
-    def test_mechanical_criteria_keep_compound_method_bounds_distinct_from_descriptive_phases(self):
-        # Henssge et al. (2000), Table 1: propagated response and local
-        # idiomuscular contraction are distinct criteria. The reference table
-        # must not be forced to reproduce the application's descriptive states.
-        for language in ('it', 'en'):
-            rows = self.render(language)
-            self.assertEqual(rows['whole_muscle'], ('≤ 2.5', '—'))
-            self.assertEqual(rows['mechanical_response'], ('≤ 13', '≥ 1.5'))
-            self.assertNotIn('reversible_swelling', rows)
-            self.assertEqual(self.interval(rows, [('whole_muscle', False)]), (0, INF_HOURS))
+    def test_mechanical_observations_preserve_distinct_descriptive_phases(self):
+        rows = self.render('it')
+        self.assertEqual(rows['Contrazione dell’intero muscolo alla percussione'], '0–2.5')
+        self.assertEqual(rows['Tumefazione reversibile alla percussione'], '0–5')
+        self.assertEqual(rows['Piccola tumefazione persistente alla percussione'], '0–13')
+        self.assertEqual(rows['Nessuna reazione alla percussione'], '≥ 1.5')
 
 
 if __name__ == '__main__':
