@@ -33,6 +33,12 @@ def prepare_case_import(home):
     pending = st.session_state.pop("__case_pending_import", None)
     if pending is None:
         return
+    if pending.get("view") == "msil":
+        from app.language import current_language
+        st.error("App MSIL is temporarily unavailable. The current case has not been changed."
+                 if current_language() == "en" else
+                 "App MSIL è temporaneamente disattivata. Il caso attuale non è stato modificato.")
+        return
     try:
         values = restored_inputs(pending)
     except CaseFileError as exc:

@@ -76,4 +76,8 @@ def render_back_button(current, *, key="back_home"):
     """Render one back control with a label based on actual provenance."""
     import streamlit as st
     if st.button(back_label(st.session_state, current), key=key):
-        st.switch_page(go_back(st.session_state, current))
+        target = go_back(st.session_state, current)
+        # An already-open session may still remember the temporarily disabled page.
+        if target == MSIL_PAGE:
+            target = FULL_PAGE
+        st.switch_page(target)

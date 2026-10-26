@@ -133,7 +133,6 @@ def _translate_navigation():
         "Tabelle di riferimento": "Reference tables",
         "Impostazioni": "Settings",
         "Reference": "References",
-        "Anteprima desktop": "Desktop preview",
     }
     script = """<script>(() => {
       const names = __NAMES__, english = __ENGLISH__;
