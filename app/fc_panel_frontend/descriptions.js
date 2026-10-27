@@ -84,11 +84,13 @@
       if (!c.m && !c.h && many && c.isolation === 'several') parts.push('più capi particolarmente isolanti');
       if (c.m + c.h > 1 && (!c.h || c.feather === 'no') && c.volume === 'yes') parts.push('coperture molto voluminose');
     }
-    const surfaces = {0:fields.surface === 'wood' ? 'piano di legno' : 'pavimento',
+    const surfaces = {0:'superficie termicamente indifferente',
       1:'superficie termicamente indifferente', 2:'superficie termicamente isolante', 3:'superficie termicamente isolante',
-      4:'superficie termicamente conduttiva', 5:'superficie termicamente conduttiva', 6:'piano metallico sottile',
-      7:'piano metallico molto spesso', 8:'foglie ' + ({dry:'secche',humid:'umide',wet:'bagnate'}[c.leaf] || ''),
-      10:'pavimento in PVC'};
+      4:'superficie termicamente conduttiva', 5:'superficie termicamente conduttiva', 6:'superficie termicamente indifferente',
+      7:'superficie termicamente conduttiva',
+      8:(c.leaf === 'wet' ? 'superficie termicamente indifferente' : 'superficie termicamente isolante') +
+        ' (foglie ' + ({dry:'secche',humid:'umide',wet:'bagnate'}[c.leaf] || 'con umidità da precisare') + ')',
+      10:'superficie termicamente conduttiva'};
     if (surfaces[c.surf]) parts.push('adagiato su ' + surfaces[c.surf]);
     if (c.surf === 8 && c.leafCover === 'yes') parts.push('con copertura di foglie');
     if (c.state === 'Bagnato' && [2,3].includes(c.surf) && c.supportSoaked === 'yes') parts.push('appoggio impregnato di liquidi');
