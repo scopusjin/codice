@@ -553,12 +553,13 @@ def prudent_graphing_detail_list(
     *, header: str, ta_text: str, cf_text: str, weight_text: str,
     scenario_description: Optional[str] = None,
     ta_is_range: bool = True, cf_is_range: bool = True,
+    measured_values: Optional[tuple] = None,
     language: Optional[str] = None,
 ) -> str:
     return _get_henssge_locale(language).prudent_graphing_detail_list(
         header=header, ta_text=ta_text, cf_text=cf_text, weight_text=weight_text,
         scenario_description=scenario_description,
-        ta_is_range=ta_is_range, cf_is_range=cf_is_range,
+        ta_is_range=ta_is_range, cf_is_range=cf_is_range, measured_values=measured_values,
     )
 
 

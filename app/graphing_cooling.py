@@ -306,6 +306,7 @@ def compute_cooling_state(
 
             elenco_html = i18n.prudent_graphing_detail_list(
                 header=i18n.prudent_header(),
+                measured_values=(float(input_ta) if finite_number(input_ta) else None, Tr_val, T0_val),
                 ta_text=ta_txt,
                 cf_text=cf_txt,
                 weight_text=p_txt,

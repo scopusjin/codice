@@ -239,20 +239,34 @@ def prudent_graphing_result_range(start: str, end: str) -> str:
 
 def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, weight_text: str,
                                 scenario_description: str | None = None,
-                                ta_is_range: bool = True, cf_is_range: bool = True) -> str:
+                                ta_is_range: bool = True, cf_is_range: bool = True,
+                                measured_values: tuple | None = None) -> str:
     from html import escape
     ta_label = ("Range di temperature ambientali medie" if ta_is_range else "Temperatura ambientale media")
     cf_label = ("Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo"
                 if cf_is_range else "Fattore di correzione considerato")
     fc_item = (f"<li>{escape(scenario_description)}.</li>" if scenario_description else
                f"<li>{cf_label}: <b>{cf_text}</b>.</li>")
+    measured_html = ""
+    if measured_values is not None:
+        ta, tr, t0 = measured_values
+        measured_ta = f"{ta:.1f}" if ta is not None else "—"
+        header = "Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+        measured_html = (
+            "<li>Temperature misurate nel corso dell’ispezione legale:<ul>"
+            f"<li>Temperatura ambientale: {measured_ta} °C.</li>"
+            f"<li>Temperatura rettale: {tr:.1f} °C.</li></ul></li>"
+            f"<li>Peso del cadavere misurato in sala autoptica: <b>{weight_text}</b>.</li>"
+            f"<li>Temperatura corporea ipotizzata al momento della morte: {t0:.1f} °C.</li>"
+        )
+    weight_html = "" if measured_values is not None else f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
     return (
         "<ul>"
         f"<li>{header}"
         "<ul style='list-style-type: circle; margin-left: 20px;'>"
-        f"<li>{ta_label}, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>{ta_text}</b>.</li>"
+        f"{measured_html}<li>{ta_label}, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>{ta_text}</b>.</li>"
         f"{fc_item}"
-        f"<li>Peso corporeo: <b>{weight_text}</b>.</li>"
+        f"{weight_html}"
         "</ul></li>"
         "</ul>"
     )

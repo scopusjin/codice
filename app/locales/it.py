@@ -616,16 +616,10 @@ def cooling_input_paragraph(
     correction_description: str,
     ambient_temperature_text: str | None = None,
 ) -> str:
-    if inspection_time is None or inspection_date is None:
-        temperature_title = "Temperature misurate nel corso dell’ispezione legale:"
-    else:
-        temperature_title = (
-            "Temperature misurate nel corso dell’ispezione legale verso le ore "
-            f"{inspection_time} del {inspection_date}:"
-        )
+    temperature_title = "Temperature misurate nel corso dell’ispezione legale:"
 
     return (
-        "<ul><li>Per la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
+        "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
         "<ul>"
         f"<li>{temperature_title}"
         "<ul>"
@@ -633,7 +627,7 @@ def cooling_input_paragraph(
         f"<li>Temperatura rettale: {tr_text} °C.</li>"
         "</ul>"
         "</li>"
-        f"<li>Peso del cadavere misurato: {weight_text} kg.</li>"
+        f"<li>Peso del cadavere misurato in sala autoptica: {weight_text} kg.</li>"
         f"<li>Temperatura corporea ipotizzata al momento della morte: {t0_text} °C.</li>"
         f"<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): {correction_description}.</li>"
         "</ul>"

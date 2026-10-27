@@ -193,7 +193,8 @@ def prudent_graphing_result_range(start: str, end: str) -> str:
 
 def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, weight_text: str,
                                 scenario_description: str | None = None,
-                                ta_is_range: bool = True, cf_is_range: bool = True) -> str:
+                                ta_is_range: bool = True, cf_is_range: bool = True,
+                                measured_values: tuple | None = None) -> str:
     from html import escape
 
     ta_label = "Range of mean ambient temperatures" if ta_is_range else "Mean ambient temperature"
@@ -203,9 +204,21 @@ def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, wei
     )
     fc_item = (f"<li>{escape(scenario_description)}.</li>" if scenario_description else
                f"<li>{cf_label}: <b>{cf_text}</b>.</li>")
+    measured_html = ""
+    if measured_values is not None:
+        ta, tr, t0 = measured_values
+        measured_ta = f"{ta:.1f}" if ta is not None else "—"
+        measured_html = (
+            "<li>Temperatures measured during the medico-legal examination:<ul>"
+            f"<li>Ambient temperature: {measured_ta} °C.</li>"
+            f"<li>Rectal temperature: {tr:.1f} °C.</li></ul></li>"
+            f"<li>Body weight measured in the autopsy room: <b>{weight_text}</b>.</li>"
+            f"<li>Assumed body temperature at death: {t0:.1f} °C.</li>"
+        )
+    weight_html = "" if measured_values is not None else f"<li>Body weight: <b>{weight_text}</b>.</li>"
     return (
         f"<ul><li>{header}<ul style='list-style-type: circle; margin-left: 20px;'>"
-        f"<li>{ta_label} between death and examination, allowing for possible fluctuations: "
+        f"{measured_html}<li>{ta_label} between death and examination, allowing for possible fluctuations: "
         f"<b>{ta_text}</b>.</li>{fc_item}"
-        f"<li>Body weight: <b>{weight_text}</b>.</li></ul></li></ul>"
+        f"{weight_html}</ul></li></ul>"
     )

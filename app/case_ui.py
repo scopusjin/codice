@@ -83,6 +83,25 @@ def prepare_case_import(home):
         st.switch_page(PAGES[pending["view"]])
 
 
+def render_case_download(view, *, key, word_hint=False):
+    """Download the same current case as the Case menu."""
+    try:
+        case = snapshot_case(st.session_state, view)
+        data = encode_case(case)
+    except CaseFileError as exc:
+        st.error(str(exc))
+        return
+    st.download_button("Scarica caso", data, file_name=case_filename(case),
+                       mime="application/json", key=key, on_click="ignore",
+                       icon=":material/download:")
+    context = st.session_state.get("__word_return")
+    if word_hint and context and context.get("case_code") == case["case_code"]:
+        from app.language import current_language
+        st.caption('Save the file in the same folder as the Word document, then return to Word and click Done.'
+                   if current_language() == "en" else
+                   'Salva il file nella stessa cartella del documento Word, così potrà essere importato premendo Fatto.')
+
+
 def _close_case_dialog():
     st.session_state["__case_dialog_open"] = False
 

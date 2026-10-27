@@ -1154,6 +1154,10 @@ def aggiorna_grafico(
                             st.session_state["__desc_dettagliate_html"],
                             unsafe_allow_html=True
                         )
+                        from app.case_report import capture_report
+                        from app.case_ui import render_case_download
+                        capture_report(st.session_state, "full")
+                        render_case_download("full", key="case_download_details", word_hint=True)
 
             if avvisi:
                 with st.container(width="content", key="result_warnings_action"):
