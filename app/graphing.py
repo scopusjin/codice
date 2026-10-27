@@ -770,12 +770,12 @@ def aggiorna_grafico(
                     if current_language() == "en":
                         par_h = par_h.replace(
                             "before temperature measurement.",
-                            f"before temperature measurement at {data_ora_ispezione_raw:%H:%M}.",
+                            f"before temperature measurement at {data_ora_ispezione_raw:%H:%M} on {data_ora_ispezione_raw:%d.%m.%Y}.",
                             1,
                         )
                     par_h = par_h.replace(
                         "prima dei rilievi effettuati nel corso dell’ispezione legale.",
-                        f"prima dei rilievi effettuati nel corso dell’ispezione legale, alle ore {data_ora_ispezione_raw:%H:%M}.",
+                        f"prima dei rilievi effettuati nel corso dell’ispezione legale, alle ore {data_ora_ispezione_raw:%H:%M} del {data_ora_ispezione_raw:%d.%m.%Y}.",
                         1,
                     )
                 _add_det(par_h)
