@@ -45,7 +45,8 @@ def capture_report(state, view):
     case = snapshot_case(state, view, include_report=False)
     state["__case_report"] = {"signature": _signature(case), "language": current_language(),
                               "detailed_html": html, "detailed_text": plain_text(html),
-                              "word_blocks": deepcopy(state.get("__word_report_blocks", {}))}
+                              "word_blocks": deepcopy(state.get("__word_report_blocks", {})),
+                              "word_footnotes": deepcopy(state.get("__word_footnotes", []))}
 
 
 def current_report(state, case):
@@ -56,7 +57,9 @@ def current_report(state, case):
             or saved.get("language", "it") != current_language()
             or saved["signature"] != _signature(case) or not saved["detailed_text"]):
         return None
-    return {key: saved[key] for key in ("detailed_text", "detailed_html", "word_blocks")}
+    result = {key: saved[key] for key in ("detailed_text", "detailed_html", "word_blocks")}
+    result["word_footnotes"] = deepcopy(saved.get("word_footnotes", []))
+    return result
 
 
 WORD_BLOCK_KEYS = {"ambient_temperature", "correction_factor", "cooling", "livor", "rigor", "putrefaction", "additional", "conclusion"}

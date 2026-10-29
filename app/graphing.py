@@ -185,6 +185,7 @@ def aggiorna_grafico(
         skip_warnings = bool(kwargs.pop("skip_warnings"))
 
     st.session_state.pop("__word_report_blocks", None)
+    st.session_state["__word_footnotes"] = []
     st.session_state["__desc_dettagliate_html"] = ""
     word_cooling = []
     testo_macchie = testo_rigidita = ""
@@ -539,7 +540,7 @@ def aggiorna_grafico(
     if late_warning:
         from html import escape
         late_report = dict(late_report)
-        late_report['html'] += '<p style="color:#9C2F16;">' + escape(late_warning) + '</p>'
+        late_report['html'] = late_report.get('conflict_html', late_report['html']) + '<p style="color:#9C2F16;">' + escape(late_warning) + '</p>'
         avvisi.append(late_warning)
 
     # Più scenari o metodi del raffreddamento restano un solo parametro.
@@ -1090,6 +1091,8 @@ def aggiorna_grafico(
         additional_html="\n".join(word_additional), putrefaction_html=word_putrefaction,
         conclusion=((frase_finale_html + nota_limiti_stima()) if overlap and not discordanti and frase_finale_html else ""),
     )
+
+    st.session_state["__word_footnotes"] = late_report.get("word_footnotes", []) if late_report else []
 
     # salva per popover
     st.session_state["__desc_dettagliate_html"] = translate("\n".join([c for c in chunks if c]))

@@ -470,3 +470,11 @@ Sostituite le due multiselezioni a tendina della sezione tardiva con caselle da 
 ### 29 ottobre 2026 — Minuscole nell'avviso di incoerenza
 
 Uniformata in italiano l'iniziale dei nomi dei parametri elencati dopo i due punti, senza modificare le etichette dei pannelli o i criteri dell'avviso. Verifica mirata del controllo di incoerenza superata.
+
+### 29 ottobre 2026 — Modello testuale del medico e note solo Word
+
+Ripristinata la struttura del modello fornito dal medico per introduzione, processi trasformativi e colonizzazione entomologica. Reperti, elenco dei parametri esplicitamente inutilizzabili e conclusione temporale restano dipendenti dalle selezioni. «Gli unici elementi» compare solo quando non sono selezionate altre valutazioni utilizzabili. Le formulazioni sulla compatibilità vengono omesse dalla variante di testo esportata in caso di avviso di discordanza. Restano invariati criteri di incoerenza e risultati numerici.
+
+Su successiva indicazione del medico, le definizioni di putrefazione ed entomofauna non compaiono nel testo dell'app: sono incluse soltanto nel nuovo campo facoltativo `report.word_footnotes`, con testo e parola di ancoraggio. La validazione JSON accetta i precedenti file senza note e controlla formato, lunghezza e presenza dell'ancoraggio nel report. Il modulo VBA distribuito inserisce vere note Word usando `Footnotes.Add`, all'interno dello stesso record Annulla. La successiva sostituzione del blocco elimina nativamente i vecchi richiami contenuti nel blocco. Nessuna nota su putrefazione per i soli fenomeni conservativi; nessuna nota entomologica senza reperti selezionati.
+
+36 test superati: modelli, varianti pupari, note Word-only, JSON con note e precedenti casi senza, selezioni checkbox, discordanza ed esportazione; test tanatologici e testi Henssge invariati. Verifiche statiche VBA superate. L'inserimento effettivo delle note e la reimportazione restano da verificare in Word, non disponibile nel runtime.

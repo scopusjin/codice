@@ -219,8 +219,15 @@ def validate_case(case):
     report = case.get("report")
     if report is not None:
         _require(isinstance(report, dict) and {"detailed_text", "detailed_html"} <= report.keys()
-                 <= {"detailed_text", "detailed_html", "word_blocks"})
+                 <= {"detailed_text", "detailed_html", "word_blocks", "word_footnotes"})
         _require(all(_text(report[key], 100000) for key in ("detailed_text", "detailed_html")))
+        notes = report.get("word_footnotes", [])
+        _require(isinstance(notes, list) and len(notes) <= 10)
+        for note in notes:
+            _require(isinstance(note, dict) and note.keys() == {"anchor", "text"})
+            _require(_text(note["anchor"], 200) and bool(note["anchor"].strip()))
+            _require(_text(note["text"], 8000) and bool(note["text"].strip()))
+            _require(note["anchor"].casefold() in report["detailed_text"].casefold())
         from app.case_report import WORD_BLOCK_KEYS
         blocks = report.get("word_blocks", {})
         _require(isinstance(blocks, dict) and blocks.keys() <= WORD_BLOCK_KEYS)

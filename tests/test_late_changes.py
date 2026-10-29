@@ -15,7 +15,7 @@ class LateChangesTests(unittest.TestCase):
     def test_multiple_observations_and_puparia_wording(self):
         report = build_late_report(self.state())
         for text in ('enfisema putrefattivo', 'colliquazione', 'larve', 'pupari vuoti',
-                     'fuoriuscita dell’adulto', 'almeno diversi giorni prima del rinvenimento'):
+                     'fuoriuscita dell’insetto adulto', 'almeno diversi giorni prima del rinvenimento'):
             self.assertIn(text, report['html'])
         self.assertNotIn('non risultano utilizzabili', report['html'])
         report = build_late_report(self.state(henssge_non_applicabile=True,
@@ -49,6 +49,29 @@ class LateChangesTests(unittest.TestCase):
         self.assertIn('mummification and adipocere', report['html'])
         self.assertIn('at least several days', report['brief'])
 
+    def test_user_template_and_word_only_definitions(self):
+        report = build_late_report(self.state(henssge_non_applicabile=True))
+        self.assertIn('fenomeni post-mortali consecutivi normalmente presi in considerazione', report['html'])
+        self.assertIn('in quanto il cadavere si trovava ormai in una fase avanzata', report['html'])
+        self.assertIn('Gli unici elementi', report['html'])
+        self.assertIn('Poiché tali processi possono manifestarsi in un intervallo temporale estremamente variabile', report['html'])
+        self.assertIn('il loro grado di sviluppo permette unicamente di ritenere', report['html'])
+        self.assertIn('quantomeno vari giorni prima del rinvenimento', report['html'])
+        self.assertIn('Anche questo elemento risulta pertanto compatibile', report['html'])
+        self.assertNotIn('risulta pertanto compatibile', report['conflict_html'])
+        state = self.state(show_results=True)
+        state.update(__desc_dettagliate_html=report['html'], __word_footnotes=report['word_footnotes'])
+        capture_report(state, 'full')
+        case = decode_case(encode_case(snapshot_case(state, 'full')))
+        self.assertEqual(case['report']['word_footnotes'], report['word_footnotes'])
+        bad = deepcopy(case)
+        bad['report']['word_footnotes'][0]['anchor'] = 'not found'
+        with self.assertRaises(CaseFileError):
+            encode_case(bad)
+        state = self.state()
+        state.update(late_changes_observed=['mummification'], late_insects_observed=[])
+        self.assertEqual(build_late_report(state)['word_footnotes'], [])
+
     def test_json_roundtrip_and_stale_report(self):
         state = self.state(show_results=True)
         state['__desc_dettagliate_html'] = build_late_report(state)['html']
@@ -76,7 +99,7 @@ class LateChangesTests(unittest.TestCase):
             self.assertNotIn('raffreddamento', warning)
             self.assertIn('non è stata inclusa nel calcolo', warning)
             self.assertNotIn('range', report)
-            self.assertNotIn('non risulta in contrasto', report['html'])
+            self.assertNotIn('non risulta in contrasto', report['conflict_html'])
             self.assertNotIn('quantificare un intervallo minimo', report['html'])
             self.assertFalse(late_hours_conflict(report, [('ipostasi', 24), ('rigidità', float('inf'))]))
         for choice in ('unspecified', 'custom'):
@@ -102,6 +125,10 @@ class LateChangesTests(unittest.TestCase):
         self.assertIsNotNone(case['report'])
         self.assertIn('pupari vuoti', case['report']['detailed_text'])
         self.assertIn('fuoriuscita', case['report']['word_blocks']['putrefaction']['text'])
+        self.assertEqual([n['anchor'] for n in case['report']['word_footnotes']], ['putrefattivi', 'entomofauna'])
+        self.assertIn('Per putrefazione si intende', case['report']['word_footnotes'][0]['text'])
+        self.assertNotIn('Per putrefazione si intende', case['report']['detailed_text'])
+        self.assertNotIn('[1]', case['report']['detailed_text'])
         self.assertNotIn('arrotondat', case['report']['detailed_text'])
         self.assertFalse(app.get('pyplot'))
         app.session_state['selettore_macchie'] = 'Fisse'
