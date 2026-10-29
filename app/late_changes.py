@@ -243,7 +243,7 @@ def render_late_inputs():
     from app.language import current_language
     en = current_language() == 'en'
     index = int(en)
-    st.toggle('Add late postmortem changes / insect evidence' if en else 'Aggiungi fenomeni trasformativi / entomofauna', key=ENABLED)
+    st.toggle('Late postmortem changes / insect evidence' if en else 'Fenomeni trasformativi / entomofauna', key=ENABLED)
     if not st.session_state.get(ENABLED):
         return
     if TRANSFORM_KEY not in st.session_state:
@@ -259,17 +259,20 @@ def render_late_inputs():
     def mark_entomo_manual():
         st.session_state[ENTOMO_AUTO_KEY] = False
 
-    with st.container(border=True, key='late_changes_card'):
-        st.markdown('Formulate a **prudent assessment** for each group, taking the available findings and case circumstances into account.' if en else
-                    'Formula una **valutazione prudente** per ciascun gruppo, tenendo conto dei reperti e delle circostanze del caso.')
+    with st.container(key='late_changes_card'):
         with st.container(gap='medium', key='late_selection_groups'):
             for title, options, state_key in (
                 ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
                 ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
             ):
                 selected = st.session_state.get(state_key, [])
-                with st.container(border=True, gap='small', key=state_key + '__group'):
-                    with st.popover(title, use_container_width=True):
+                if state_key == INSECT_KEY:
+                    st.divider()
+                with st.container(gap='small', key=state_key + '__group'):
+                    heading, action = st.columns([4, 1.4], gap='small', vertical_alignment='center')
+                    heading_slot = heading.empty()
+                    with action, st.popover('Choose findings' if en else 'Scegli reperti', key=state_key + '__popup', use_container_width=True):
+                        st.markdown('**' + title + '**')
                         checked = []
                         with st.container(horizontal=True, wrap=True, gap='small', key=state_key + '__choices'):
                             for option_id, labels in options.items():
@@ -282,20 +285,23 @@ def render_late_inputs():
                                                key=state_key + '__check_' + option_id, width='content'):
                                     checked.append(option_id)
                     st.session_state[state_key] = checked
-                    if checked:
-                        st.caption(('Selected findings: ' if en else 'Reperti selezionati: ') + '; '.join(options[k][index] for k in checked))
                     is_entomo = state_key == INSECT_KEY
+                    group_title = ('Insect evidence' if en else 'Entomofauna') if is_entomo else ('Late postmortem changes' if en else 'Fenomeni trasformativi')
+                    selected_text = ' · '.join(options[k][index] for k in checked) if checked else ('No findings selected' if en else 'Nessun reperto selezionato')
+                    heading_slot.markdown('<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;">'
+                        '<span style="font-weight:500;">' + escape(group_title) + '</span>'
+                        '<span style="color:gray;font-size:0.9em;">' + escape(selected_text) + '</span></div>', unsafe_allow_html=True)
                     choice_key = ENTOMO_KEY if is_entomo else TRANSFORM_KEY
                     custom_key = ENTOMO_CUSTOM_KEY if is_entomo else TRANSFORM_CUSTOM_KEY
                     if is_entomo and st.session_state[ENTOMO_AUTO_KEY]:
                         st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
                     label = ('Prudent assessment of insect evidence' if en else 'Valutazione prudente dell’entomofauna') if is_entomo else (
                         'Prudent assessment of late postmortem changes' if en else 'Valutazione prudente dei fenomeni trasformativi')
-                    if is_entomo and checked:
-                        st.caption('Check the proposed assessment and modify it if necessary.' if en else
-                                   'Verifica la valutazione proposta e modificala se necessario.')
+                    note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
+                    st.markdown('<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;">'
+                        '<span>' + escape(label) + '</span><span style="color:gray;font-size:0.9em;">' + note + '</span></div>', unsafe_allow_html=True)
                     st.selectbox(label, options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index],
-                                 key=choice_key, disabled=not checked, width='stretch',
+                                 key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
                                  on_change=mark_entomo_manual if is_entomo else None)
                     if st.session_state[choice_key] == 'custom':
                         st.text_area(('Conclusion text — ' if en else 'Testo della valutazione — ') + label.lower(),

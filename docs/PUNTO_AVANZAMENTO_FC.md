@@ -504,3 +504,9 @@ Test della sezione, report/JSON, adattatori tanatologici e testi Henssge superat
 Rimossa la compressione dei due gruppi in riquadri stretti: ogni gruppo utilizza ora l'intera larghezza, con selezione dei reperti e valutazione nello stesso riquadro. Ripristinati spazi ordinari, riepilogo dei reperti selezionati in chiaro e campi a larghezza piena. Mantenute le caselle affiancabili dentro le finestre. Etichette esplicite «Valutazione prudente dei fenomeni trasformativi» e «Valutazione prudente dell’entomofauna», istruzione sulla formulazione prudente e richiamo a verificare/modificare la proposta entomologica. Nessun cambiamento a conclusioni, proposte, calcoli o formato JSON.
 
 Test della sezione e del report superati, incluse etichette e istruzioni; diff senza errori. Nessuna verifica visiva del deployment eseguita.
+
+### 29 ottobre 2026 — Applicazione della proposta grafica approvata
+
+Applicata la proposta rivista in conversazione: unico comando di apertura, senza titolo e istruzione introduttiva duplicati; due gruppi separati da una linea, senza riquadri annidati. Reperti selezionati accanto ai titoli, con ritorno a capo; pulsanti «Scegli reperti» aprono le caselle. Per entrambe le valutazioni, titolo principale e indicazione grigia adiacente «da verificare e modificare se necessario». Menu a larghezza piena, etichette native accessibili mantenute. Nessuna variazione a scelte, proposte, testi del report, JSON, note Word o calcoli.
+
+14 test della sezione e del report superati, incluse etichette, reperti accanto al titolo, assenza dell'istruzione eliminata e presenza dell'indicazione su entrambe le valutazioni. Diff senza errori. Nessuna verifica visiva del deployment eseguita.
