@@ -277,6 +277,18 @@ def render_late_inputs():
             height: auto !important; min-height: 0 !important; flex-shrink: 0 !important;
         }
         .st-key-late_changes_card [data-testid="stHorizontalBlock"] { align-items: start !important; }
+        .st-key-late_changes_card [data-testid="stMarkdownContainer"] {
+            margin: 0 !important;
+        }
+        @media (max-width: 768px) {
+            .st-key-late_changes_card [class*="__assessment_row"] {
+                flex-direction: column !important; align-items: stretch !important;
+            }
+            .st-key-late_changes_card [class*="__assessment_row"] > * {
+                width: 100% !important; max-width: 100% !important;
+            }
+            .st-key-late_changes_card { min-width: 0 !important; }
+        }
         .st-key-late_changes_card [data-testid="stMarkdownContainer"] p,
         .st-key-late_changes_card [data-testid="stWidgetLabel"] p {
             font-size: 0.86rem !important; line-height: 1.3 !important;
