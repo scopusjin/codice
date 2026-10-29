@@ -271,7 +271,13 @@ def render_late_inputs():
             display: block !important; height: auto !important; min-height: 0 !important;
         }
         .st-key-late_changes_card [data-testid="stVerticalBlock"] > * + * {
-            margin-top: 0.2rem !important;
+            margin-top: 0.1rem !important;
+        }
+        .st-key-late_changes_card [data-testid="stVerticalBlock"] > [class*="__popup"] {
+            margin-top: 1px !important;
+        }
+        .st-key-late_selection_groups > * + * {
+            margin-top: 0.35rem !important;
         }
         .st-key-late_changes_card :is([data-testid="stLayoutWrapper"], [data-testid="stElementContainer"], [data-testid="stHorizontalBlock"]) {
             height: auto !important; min-height: 0 !important; flex-shrink: 0 !important;
