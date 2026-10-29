@@ -1,13 +1,17 @@
-"""Selected documentary examples for contextual FC explanations.
-
-The complete maintenance archive is private and is not distributed with the app."""
-
+"""Documentary FC examples and reviewed contextual comparisons (no FC rules)."""
 import json
 from pathlib import Path
 
-_CATALOG = Path(__file__).resolve().parents[1] / "data/fc_examples.json"
+_DATA = Path(__file__).resolve().parents[1] / "data"
 
 
 def load_examples():
-    """Return fresh records so rendering cannot mutate shared session data."""
-    return json.loads(_CATALOG.read_text(encoding="utf-8"))
+    """Return fresh records with review metadata, retaining source values verbatim."""
+    examples = json.loads((_DATA / "fc_examples.json").read_text(encoding="utf-8"))
+    review = json.loads((_DATA / "fc_example_review.json").read_text(encoding="utf-8"))
+    for example in examples:
+        entry = review["entries"][example["id"]]
+        example["contextualReview"] = dict(entry)
+        if entry.get("profile"):
+            example["contextualReview"]["criteria"] = review["profiles"][entry["profile"]]
+    return examples

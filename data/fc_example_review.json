@@ -1,0 +1,1454 @@
+{
+  "version": 1,
+  "scope": "Revisione delle schede del catalogo e della pertinenza dei confronti; non nuova verifica integrale delle immagini originali. Nessuna modifica ai calcoli FC.",
+  "profiles": {
+    "nude_wind": {
+      "state": "Asciutto",
+      "air": "continuous",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "dry_light_still": {
+      "state": "Asciutto",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "La fonte descrive indumenti distribuiti in modo diverso sul corpo; il conteggio degli strati dell’app non ne riproduce esattamente la disposizione."
+    },
+    "dry_many_still": {
+      "state": "Asciutto",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        3,
+        6
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "dry_light_wind": {
+      "state": "Asciutto",
+      "air": "continuous",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "La prova riguarda gli indumenti e le correnti continue descritti; il numero di strati è soltanto un criterio di confronto."
+    },
+    "dry_many_wind": {
+      "state": "Asciutto",
+      "air": "continuous",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        3,
+        6
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "La prova riguarda l’insieme degli indumenti descritti con correnti continue."
+    },
+    "blanket_nude_one": {
+      "state": "Asciutto",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        1,
+        1
+      ],
+      "note": "Nella fonte la coperta è leggera; non documenta un piumone equivalente."
+    },
+    "blanket_nude_two": {
+      "state": "Asciutto",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        2,
+        2
+      ],
+      "note": "Nella fonte sono presenti due coperte leggere; lo spessore non coincide necessariamente con quello selezionato."
+    },
+    "blanket_clothed_one": {
+      "state": "Asciutto",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        1,
+        3
+      ],
+      "covers": [
+        1,
+        1
+      ],
+      "note": "Nella fonte la coperta è leggera e gli indumenti sono quelli descritti."
+    },
+    "bed_clothed": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        4
+      ],
+      "covers": [
+        1,
+        3
+      ],
+      "note": "Numero e spessore delle coperture non precisati; materasso e indumenti sono già compresi nella prova."
+    },
+    "bed_diapers": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        4
+      ],
+      "covers": [
+        1,
+        3
+      ],
+      "note": "Nella prova sono presenti due pannolini, non rappresentati dal conteggio ordinario degli indumenti; coperture non precisate."
+    },
+    "water_warm": {
+      "state": "Immerso",
+      "water": "stagnante",
+      "waterSeries": "warm",
+      "note": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "water_cold": {
+      "state": "Immerso",
+      "water": "stagnante",
+      "waterSeries": "cold",
+      "note": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "wet_one_still": {
+      "state": "Bagnato",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        1,
+        1
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "soaked": true,
+      "note": "Camice completamente bagnato; non è una prova con tessuti soltanto in parte bagnati."
+    },
+    "wet_two_still": {
+      "state": "Bagnato",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        2,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "soaked": true,
+      "note": "Due camici completamente bagnati; non è una prova con tessuti soltanto in parte bagnati."
+    },
+    "wet_many_still": {
+      "state": "Bagnato",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        3,
+        6
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "soaked": true,
+      "note": "La prova riguarda l’insieme degli indumenti bagnati descritti, non coperture bagnate."
+    },
+    "wet_many_wind": {
+      "state": "Bagnato",
+      "air": "continuous",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        2,
+        6
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "soaked": true,
+      "note": "La prova riguarda gli indumenti bagnati descritti con correnti continue, senza coperte."
+    },
+    "wet_nude": {
+      "state": "Bagnato",
+      "air": "still",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Superficie corporea bagnata, senza indumenti né coperture."
+    },
+    "wet_grass_night": {
+      "state": "Bagnato",
+      "air": "still",
+      "surfaces": [
+        1
+      ],
+      "garments": [
+        2,
+        4
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova notturna su prato bagnato e cielo sereno: non implica che tutti gli indumenti fossero completamente impregnati; non equivale a ogni condizione di corpo bagnato."
+    },
+    "sim_padded": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        3
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "sim_neutral": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        0,
+        1
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "sim_pvc": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        10
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "sim_concrete": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        4,
+        5
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "sim_metal_cement": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        7
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "leaves_wet": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        8
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "leaf": "wet",
+      "leafCover": "no",
+      "note": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "leaves_humid": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        8
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "leaf": "humid",
+      "leafCover": "no",
+      "note": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "leaves_dry": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        8
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "leaf": "dry",
+      "leafCover": "no",
+      "note": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "leaves_covered": {
+      "state": "nonimmersed",
+      "air": "unspecified",
+      "surfaces": [
+        8
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "leafCover": "yes",
+      "note": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "case_road": {
+      "state": "Asciutto",
+      "air": "continuous",
+      "surfaces": [
+        1
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso della pratica medico-legale: il FC è scelto per l’insieme della scena, non misurato sperimentalmente."
+    },
+    "case_floor": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        0
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso della pratica medico-legale: pavimento non ulteriormente caratterizzato; ricostruzione ambientale specifica."
+    },
+    "case_floor_intermittent": {
+      "state": "Asciutto",
+      "air": "intermittent",
+      "surfaces": [
+        0
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso con ventilazione temporanea o cambiata nel tempo; il FC non isola l’effetto dei soli indumenti."
+    },
+    "case_floor_nude_intermittent": {
+      "state": "Asciutto",
+      "air": "intermittent",
+      "surfaces": [
+        0
+      ],
+      "garments": [
+        0,
+        0
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso con finestre aperte e ventilazione temporanea; non è una prova in aria ferma o con correnti continue."
+    },
+    "case_concrete": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        4
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su scala in calcestruzzo: FC scelto considerando anche indumenti e ambiente."
+    },
+    "case_stone_thick": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        4
+      ],
+      "garments": [
+        1,
+        3
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su pietra con pigiama spesso: indumenti e appoggio sono compresi insieme."
+    },
+    "case_tiles": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        5
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su piastrelle in seminterrato; il tipo di ambiente è parte del confronto."
+    },
+    "case_carpet": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        3
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su moquette, non su materasso; il FC riguarda la scena nel suo insieme."
+    },
+    "case_carpet_open": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su moquette con porte e finestre aperte; la scheda non quantifica durata e intensità delle correnti."
+    },
+    "case_sofa": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        3
+      ],
+      "garments": [
+        1,
+        4
+      ],
+      "covers": [
+        0,
+        1
+      ],
+      "note": "Caso con contatto esteso con seduta e schienale; il grado di avvolgimento può differire da quello del corpo reale."
+    },
+    "case_sofa_intermittent": {
+      "state": "Asciutto",
+      "air": "intermittent",
+      "surfaces": [
+        3
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso su divano con finestra poi chiusa; il cambiamento della ventilazione fa parte della ricostruzione."
+    },
+    "case_bed_intermittent": {
+      "state": "Asciutto",
+      "air": "intermittent",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso sul letto con apertura e chiusura della finestra in tempi diversi."
+    },
+    "case_outside_intermittent": {
+      "state": "Asciutto",
+      "air": "intermittent",
+      "surfaces": [
+        1
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso all’esterno con correnti temporanee e cambiamento di posizione; FC della scena complessiva."
+    },
+    "case_many_wind": {
+      "state": "Asciutto",
+      "air": "continuous",
+      "surfaces": [
+        1
+      ],
+      "garments": [
+        3,
+        6
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Caso con più indumenti e temperatura notturna ricostruita; non è una prova di isolamento del singolo indumento."
+    },
+    "case_child_diaper": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        3
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "maxWeight": 20,
+      "note": "Caso pediatrico di 14 kg, con pannolino: range ipotizzato dagli autori, non coefficiente sperimentale del pannolino."
+    },
+    "case_duvet_removed": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        2
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        1,
+        3
+      ],
+      "note": "Nel caso la copertura è rimossa 2.5 ore prima della misura; non equivale a una copertura mantenuta per tutto il raffreddamento."
+    },
+    "case_improvised_insulation": {
+      "state": "Asciutto",
+      "air": "unspecified",
+      "surfaces": [
+        3
+      ],
+      "garments": [
+        1,
+        2
+      ],
+      "covers": [
+        0,
+        0
+      ],
+      "note": "Il supporto del caso è un secchio con sacco di polvere, non un divano: il confronto riguarda soltanto l’isolamento dell’appoggio."
+    }
+  },
+  "entries": {
+    "t6_3-01": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_3-02": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_3-27": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_3-29": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_3-30": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_3-38": {
+      "status": "comparison",
+      "profile": "nude_wind",
+      "reason": "Nella prova le correnti sono continue; l’appoggio non è precisato nella scheda."
+    },
+    "t6_4-B61": {
+      "status": "comparison",
+      "profile": "dry_light_still",
+      "reason": "La fonte descrive indumenti distribuiti in modo diverso sul corpo; il conteggio degli strati dell’app non ne riproduce esattamente la disposizione."
+    },
+    "t6_4-H66": {
+      "status": "comparison",
+      "profile": "dry_light_still",
+      "reason": "La fonte descrive indumenti distribuiti in modo diverso sul corpo; il conteggio degli strati dell’app non ne riproduce esattamente la disposizione."
+    },
+    "t6_4-B64": {
+      "status": "comparison",
+      "profile": "dry_light_still",
+      "reason": "La fonte descrive indumenti distribuiti in modo diverso sul corpo; il conteggio degli strati dell’app non ne riproduce esattamente la disposizione."
+    },
+    "t6_4-B37": {
+      "status": "comparison",
+      "profile": "dry_light_still",
+      "reason": "La fonte descrive indumenti distribuiti in modo diverso sul corpo; il conteggio degli strati dell’app non ne riproduce esattamente la disposizione."
+    },
+    "t6_4-B57": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-H2": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-B53": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-H4": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-B60-a": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-B36": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-B59": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_4-B60-b": {
+      "status": "comparison",
+      "profile": "dry_many_still",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti, non strati uniformi su tutto il corpo."
+    },
+    "t6_5-H12": {
+      "status": "comparison",
+      "profile": "dry_light_wind",
+      "reason": "La prova riguarda gli indumenti e le correnti continue descritti; il numero di strati è soltanto un criterio di confronto."
+    },
+    "t6_5-H11": {
+      "status": "comparison",
+      "profile": "dry_light_wind",
+      "reason": "La prova riguarda gli indumenti e le correnti continue descritti; il numero di strati è soltanto un criterio di confronto."
+    },
+    "t6_5-B66": {
+      "status": "comparison",
+      "profile": "dry_many_wind",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti con correnti continue."
+    },
+    "t6_5-H13": {
+      "status": "comparison",
+      "profile": "dry_many_wind",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti con correnti continue."
+    },
+    "t6_5-B67": {
+      "status": "comparison",
+      "profile": "dry_many_wind",
+      "reason": "La prova riguarda l’insieme degli indumenti descritti con correnti continue."
+    },
+    "t6_6-B62": {
+      "status": "retained",
+      "profile": "blanket_nude_one",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-B51": {
+      "status": "retained",
+      "profile": "blanket_nude_two",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-B52": {
+      "status": "retained",
+      "profile": "blanket_clothed_one",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-H07": {
+      "status": "retained",
+      "profile": "bed_clothed",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-H10": {
+      "status": "retained",
+      "profile": "bed_clothed",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-H06": {
+      "status": "retained",
+      "profile": "bed_clothed",
+      "reason": "Già richiamato nel confronto sulle coperte, pur contrassegnato come archivio; criteri e limiti del confronto ora esplicitati."
+    },
+    "t6_6-H09": {
+      "status": "comparison",
+      "profile": "bed_diapers",
+      "reason": "Nella prova sono presenti due pannolini, non rappresentati dal conteggio ordinario degli indumenti; coperture non precisate."
+    },
+    "t6_7-20": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-21": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-22": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-24": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-25": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-27": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-28": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-30": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-02": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-03": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-04": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-05": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-08": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-11": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-12": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-13": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-14": {
+      "status": "comparison",
+      "profile": "water_warm",
+      "reason": "Corpo nudo sospeso in acqua quasi ferma; vestiti, coperture e contatto con il fondo non sono documentati da questa prova."
+    },
+    "t6_7-06": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-07": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-09": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-17": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-18": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-19": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-23": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_7-29": {
+      "status": "comparison",
+      "profile": "water_cold",
+      "reason": "Serie in acqua prossima a 0 °C, distinta dalle prove a circa 10–20 °C; non è una prova in acqua corrente."
+    },
+    "t6_8-42": {
+      "status": "comparison",
+      "profile": "wet_two_still",
+      "reason": "Due camici completamente bagnati; non è una prova con tessuti soltanto in parte bagnati."
+    },
+    "t6_8-68": {
+      "status": "comparison",
+      "profile": "wet_many_wind",
+      "reason": "La prova riguarda gli indumenti bagnati descritti con correnti continue, senza coperte."
+    },
+    "t6_8-80": {
+      "status": "comparison",
+      "profile": "wet_grass_night",
+      "reason": "Prova notturna su prato bagnato e cielo sereno: non implica che tutti gli indumenti fossero completamente impregnati; non equivale a ogni condizione di corpo bagnato."
+    },
+    "t6_8-81": {
+      "status": "comparison",
+      "profile": "wet_grass_night",
+      "reason": "Prova notturna su prato bagnato e cielo sereno: non implica che tutti gli indumenti fossero completamente impregnati; non equivale a ogni condizione di corpo bagnato."
+    },
+    "t6_8-82": {
+      "status": "comparison",
+      "profile": "wet_grass_night",
+      "reason": "Prova notturna su prato bagnato e cielo sereno: non implica che tutti gli indumenti fossero completamente impregnati; non equivale a ogni condizione di corpo bagnato."
+    },
+    "t6_10-201": {
+      "status": "comparison",
+      "profile": "sim_padded",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-202": {
+      "status": "comparison",
+      "profile": "sim_padded",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-270": {
+      "status": "comparison",
+      "profile": "sim_padded",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-300": {
+      "status": "comparison",
+      "profile": "sim_padded",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-310": {
+      "status": "comparison",
+      "profile": "sim_padded",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-210": {
+      "status": "comparison",
+      "profile": "sim_neutral",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-211": {
+      "status": "comparison",
+      "profile": "sim_neutral",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-212": {
+      "status": "comparison",
+      "profile": "sim_neutral",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-225": {
+      "status": "comparison",
+      "profile": "sim_neutral",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-231": {
+      "status": "comparison",
+      "profile": "sim_pvc",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-232": {
+      "status": "comparison",
+      "profile": "sim_pvc",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-240": {
+      "status": "comparison",
+      "profile": "sim_concrete",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-250": {
+      "status": "comparison",
+      "profile": "sim_concrete",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-251": {
+      "status": "comparison",
+      "profile": "sim_concrete",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-252": {
+      "status": "comparison",
+      "profile": "sim_concrete",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-291": {
+      "status": "comparison",
+      "profile": "sim_metal_cement",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_10-292": {
+      "status": "comparison",
+      "profile": "sim_metal_cement",
+      "reason": "Prova su simulatore senza rivestimento isolante; il peso virtuale non è la massa di un cadavere."
+    },
+    "t6_11-riga-3": {
+      "status": "comparison",
+      "profile": "leaves_humid",
+      "reason": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "t6_11-riga-4": {
+      "status": "comparison",
+      "profile": "leaves_dry",
+      "reason": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "t6_11-riga-6": {
+      "status": "comparison",
+      "profile": "leaves_dry",
+      "reason": "Simulatore su circa 2 cm di foglie; spessore e contatto del corpo reale possono differire."
+    },
+    "t6_12-riga-2": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-3": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-4": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-5": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-6": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-7": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-8": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-9": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-10": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-11": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-12": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "t6_12-riga-14": {
+      "status": "comparison",
+      "profile": "leaves_covered",
+      "reason": "Simulatore su circa 2 cm di foglie e sotto circa 10 cm di foglie; la scheda non precisa lo stato delle foglie per questa singola riga."
+    },
+    "case-11": {
+      "status": "comparison",
+      "profile": "case_road",
+      "reason": "Caso della pratica medico-legale: il FC è scelto per l’insieme della scena, non misurato sperimentalmente."
+    },
+    "case-13": {
+      "status": "comparison",
+      "profile": "case_floor",
+      "reason": "Caso della pratica medico-legale: pavimento non ulteriormente caratterizzato; ricostruzione ambientale specifica."
+    },
+    "case-25": {
+      "status": "comparison",
+      "profile": "case_floor_intermittent",
+      "reason": "Caso con ventilazione temporanea o cambiata nel tempo; il FC non isola l’effetto dei soli indumenti."
+    },
+    "case-26": {
+      "status": "comparison",
+      "profile": "case_concrete",
+      "reason": "Caso su scala in calcestruzzo: FC scelto considerando anche indumenti e ambiente."
+    },
+    "case-27": {
+      "status": "comparison",
+      "profile": "case_road",
+      "reason": "Caso della pratica medico-legale: il FC è scelto per l’insieme della scena, non misurato sperimentalmente."
+    },
+    "case-42": {
+      "status": "comparison",
+      "profile": "case_floor",
+      "reason": "Caso della pratica medico-legale: pavimento non ulteriormente caratterizzato; ricostruzione ambientale specifica."
+    },
+    "case-43": {
+      "status": "comparison",
+      "profile": "case_floor_nude_intermittent",
+      "reason": "Caso con finestre aperte e ventilazione temporanea; non è una prova in aria ferma o con correnti continue."
+    },
+    "case-44": {
+      "status": "comparison",
+      "profile": "case_carpet_open",
+      "reason": "Caso su moquette con porte e finestre aperte; la scheda non quantifica durata e intensità delle correnti."
+    },
+    "case-48": {
+      "status": "comparison",
+      "profile": "case_sofa",
+      "reason": "Caso con contatto esteso con seduta e schienale; il grado di avvolgimento può differire da quello del corpo reale."
+    },
+    "case-49": {
+      "status": "comparison",
+      "profile": "case_many_wind",
+      "reason": "Caso con più indumenti e temperatura notturna ricostruita; non è una prova di isolamento del singolo indumento."
+    },
+    "case-54": {
+      "status": "comparison",
+      "profile": "case_sofa_intermittent",
+      "reason": "Caso su divano con finestra poi chiusa; il cambiamento della ventilazione fa parte della ricostruzione."
+    },
+    "case-56": {
+      "status": "comparison",
+      "profile": "case_bed_intermittent",
+      "reason": "Caso sul letto con apertura e chiusura della finestra in tempi diversi."
+    },
+    "case-64": {
+      "status": "comparison",
+      "profile": "case_outside_intermittent",
+      "reason": "Caso all’esterno con correnti temporanee e cambiamento di posizione; FC della scena complessiva."
+    },
+    "case-66": {
+      "status": "comparison",
+      "profile": "case_duvet_removed",
+      "reason": "Nel caso la copertura è rimossa 2.5 ore prima della misura; non equivale a una copertura mantenuta per tutto il raffreddamento."
+    },
+    "case-72": {
+      "status": "comparison",
+      "profile": "case_floor_intermittent",
+      "reason": "Caso con ventilazione temporanea o cambiata nel tempo; il FC non isola l’effetto dei soli indumenti."
+    },
+    "case-36": {
+      "status": "comparison",
+      "profile": "case_stone_thick",
+      "reason": "Caso su pietra con pigiama spesso: indumenti e appoggio sono compresi insieme."
+    },
+    "case-37": {
+      "status": "comparison",
+      "profile": "case_child_diaper",
+      "reason": "Caso pediatrico di 14 kg, con pannolino: range ipotizzato dagli autori, non coefficiente sperimentale del pannolino."
+    },
+    "case-46": {
+      "status": "comparison",
+      "profile": "case_tiles",
+      "reason": "Caso su piastrelle in seminterrato; il tipo di ambiente è parte del confronto."
+    },
+    "case-47": {
+      "status": "comparison",
+      "profile": "case_improvised_insulation",
+      "reason": "Il supporto del caso è un secchio con sacco di polvere, non un divano: il confronto riguarda soltanto l’isolamento dell’appoggio."
+    },
+    "case-70": {
+      "status": "comparison",
+      "profile": "case_sofa",
+      "reason": "Caso con contatto esteso con seduta e schienale; il grado di avvolgimento può differire da quello del corpo reale."
+    },
+    "case-71": {
+      "status": "comparison",
+      "profile": "case_carpet",
+      "reason": "Caso su moquette, non su materasso; il FC riguarda la scena nel suo insieme."
+    },
+    "t6_6-senza-ID": {
+      "status": "archive",
+      "reason": "Descrizione non ripetuta nella fonte: copertura, indumenti e soggetto non identificabili con sufficiente precisione."
+    },
+    "case-31": {
+      "status": "archive",
+      "reason": "Resti carbonizzati e spegnimento del fuoco non rappresentati nei controlli dell’app; la fonte non usa il metodo termico."
+    },
+    "case-45": {
+      "status": "archive",
+      "reason": "Permanenza in una balla di paglia e successivo spostamento non rappresentati; FC interrogativo e metodo termico non utilizzato."
+    },
+    "case-7": {
+      "status": "archive",
+      "reason": "Corpo sospeso per impiccamento: manca nell’app una condizione senza appoggio; non assimilabile automaticamente al pavimento."
+    },
+    "wet-51-44": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wet-case-15": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wet-41": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wet-52": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wet-50": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "still-B63": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "still-B58": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "still-H6": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "still-B54": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wind-H15": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "wind-H14": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "blanket-B33": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "blanket-B56": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "blanket-H08": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "case-33": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "case-6": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "case-55": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "case-22": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "case-62": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "t6_3-28": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "nude_wind"
+    },
+    "t6_7-01": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "water_warm"
+    },
+    "t6_7-10": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "water_warm"
+    },
+    "t6_7-15": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "water_cold"
+    },
+    "t6_7-16": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "water_cold"
+    },
+    "t6_8-55": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "t6_8-47": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati."
+    },
+    "t6_10-200": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "sim_padded"
+    },
+    "t6_10-230": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "sim_pvc"
+    },
+    "t6_10-260": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "sim_concrete"
+    },
+    "t6_10-290": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "sim_metal_cement"
+    },
+    "t6_11-riga-1": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "leaves_wet"
+    },
+    "t6_11-riga-2": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "leaves_humid"
+    },
+    "t6_11-riga-5": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "leaves_dry"
+    },
+    "t6_12-riga-1": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "leaves_covered"
+    },
+    "t6_12-riga-13": {
+      "status": "retained",
+      "reason": "Collegamento contestuale già presente, mantenuto; valori e condizioni originali conservati.",
+      "profile": "leaves_covered"
+    }
+  }
+}

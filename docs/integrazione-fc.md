@@ -45,6 +45,6 @@ node tests/test_fc_panel_ui.cjs
 
 Verificare visivamente desktop e telefono: allineamento dei contatori, assenza di tagli nel componente, spiegazioni aperte, peso e trasferimento del range. I test Streamlit non verificano il rendering effettivo nel browser.
 
-Il catalogo pubblico comprende 34 schede documentali selezionate per le spiegazioni, non l’intera casistica pubblicata. L’archivio completo è mantenuto privatamente su Drive; le fonti e le condizioni non chiarite restano segnalate nelle note. Il coefficiente 3.24596 della formula del peso è stato confrontato visivamente con l’equazione 6.10 di Madea, 3ª edizione, 2016.
+Il catalogo corrente comprende 152 schede documentali: 148 hanno un collegamento contestuale o per confronto e 4 rimangono escluse dai suggerimenti con motivazione. I criteri della revisione del 29 ottobre sono registrati in `REVISIONE_ESEMPI_FC_2026-10-29.md`; i valori originali, le fonti e i limiti dei casi restano conservati. Le immagini originali di manutenzione rimangono su Drive. Il coefficiente 3.24596 della formula del peso è stato confrontato visivamente con l’equazione 6.10 di Madea, 3ª edizione, 2016.
 
 La sostituzione è proposta su un ramo dedicato. Nessuna modifica a `main` e nessuna pubblicazione automatica richiesta.

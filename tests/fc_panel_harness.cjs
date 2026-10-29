@@ -37,8 +37,12 @@ const ctx={document:{getElementById:id=>nodes[id],createElement:()=>new El(),cre
   window:{innerWidth:420,innerHeight:800,matchMedia:()=>media}};
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/descriptions.js'),'utf8'),ctx);
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/counters.js'),'utf8'),ctx);
+vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/example_comparisons.js'),'utf8'),ctx);
 vm.runInNewContext(code,ctx);
-ctx.window.FCPanel.setExamples(JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_examples.json'),'utf8')));
+const review=JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_example_review.json'),'utf8'));
+const examples=JSON.parse(fs.readFileSync(require('path').join(__dirname,'../data/fc_examples.json'),'utf8'));
+for(const e of examples){const entry=review.entries[e.id];e.contextualReview={...entry,...(entry.profile?{criteria:review.profiles[entry.profile]}:{})};}
+ctx.window.FCPanel.setExamples(examples);
 const api=ctx.api,base={state:'Asciutto',s:0,p:0,m:0,h:0,surf:0,air:'still',wind:false,strongWind:false,isolation:'',volume:'',water:'stagnante',feather:'no',leaf:'wet'};
 vm.runInNewContext(fs.readFileSync(require('path').join(__dirname,'../app/fc_panel_frontend/scenarios.js'),'utf8'),ctx);
 const run=c=>JSON.parse(JSON.stringify(api.evaluateFC({...base,...c}))),eq=(c,expected)=>assert.deepEqual(run(c).range,expected,JSON.stringify(c));

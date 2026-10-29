@@ -22,6 +22,7 @@ Estensione oltre FC 3 approvata per questa prova, non validazione sperimentale. 
 <link rel="stylesheet" href="panel.css">
 <script src="descriptions.js"></script>
 <script src="counters.js"></script>
+<script src="example_comparisons.js"></script>
 <section id="suggest-page">
 <div class="top"><button id="back" class="back" aria-label="Indietro">← Indietro</button><h3 id="panel-title">Consiglia FC</h3></div>
 <!-- Peso del caso: sincronizzato dalla schermata principale, senza controlli modificabili qui. -->
@@ -488,6 +489,8 @@ function blanketExampleMatches(c){
   }
   return selected.map(({e,profile})=>{
     const differences=[];
+    if(profile.clothed!==clothed)differences.push('indumenti differenti');
+    if(profile.support!==support)differences.push('superficie di appoggio differente');
     if(c.wind)differences.push('correnti d’aria non equivalenti a quelle della prova');
     if(profile.count===null)differences.push('numero e spessore delle coperture non precisati nella descrizione della prova');
     else if(profile.count!==count)differences.push('numero di coperture differente');
@@ -499,11 +502,21 @@ function blanketExampleMatches(c){
 }
 
 function exampleMatches(c){
-  if(c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag))return [];
-  if(c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air))return [];
-  if(c.state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0))return blanketExampleMatches(c);
-  return EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));
+  const customCover=c.state!=='Immerso'&&(c.thermalFoil||c.bodyBag);
+  const uncertainAir=c.state!=='Immerso'&&['intermittent','unknown'].includes(c.air);
+  const existing=customCover||uncertainAir?[]:
+    c.state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?blanketExampleMatches(c):
+    EXAMPLES.filter(e=>EXAMPLE_MATCHERS[e.id]?.(c));
+  const compared=window.FCExampleComparisons.select(EXAMPLES,c);
+  const byId=new Map(existing.map(e=>[e.id,e]));
+  for(const e of compared){
+    const previous=byId.get(e.id);
+    byId.set(e.id,previous?{...previous,comparisonNote:
+      [previous.comparisonNote,e.comparisonNote].filter(Boolean).join(' ')}:e);
+  }
+  return [...byId.values()];
 }
+
 function originLabel(r){
   if(!r.range)return 'Nessun suggerimento automatico';
   if(r.kind==='Tabella Henssge')return 'Tabelle operative originali di Henssge';
@@ -585,7 +598,7 @@ function renderFCProvenance(r,examples=[],c=null){
   }
 }
 function showSource(){
-  let c={...data(),state,water:q('#water').value};
+  let c={...data(),state,water:q('#water').value,weight:num(q('#weight'))};
   if(q('#air-row').hidden)c={...c,air:'still',wind:false};
   const examples=state==='Immerso'||(validCounts(c)&&c.surf!==null)?exampleMatches(c):[];
   renderFCProvenance(result,examples,c);
@@ -630,7 +643,8 @@ function showSource(){
   if(active&&!result.sources.includes('weight'))sourceDetails(citations,SOURCES.weight);
   q('#source-examples .hint').textContent=state==='Asciutto'&&(c.m+c.h>0||c.lightCover>0)?'Esempi sulle coperture dalla letteratura, anche per confronto: differenze di indumenti, appoggio e coperture sono segnalate quando presenti.':'Esempi ricavati da casistiche della letteratura scientifica con condizioni simili:';
   const list=q('#example-list');list.replaceChildren();q('#source-examples').hidden=examples.length===0;
-  for(const e of examples){
+  let overflow=null;
+  for(const [index,e] of examples.entries()){
     const item=document.createElement('li');
     const title=document.createElement('strong');
     title.textContent=e.title+(e.type==='Caso operativo'?' (pratica medico-legale)':'');
@@ -639,9 +653,18 @@ function showSource(){
     const value=document.createElement('strong');value.textContent=exampleDecimalText(exampleFCText(e));
     item.append(value);
     const note=(e.notes||'').replaceAll('La copertura è valutata insieme agli indumenti su appoggio neutro.','').trim();
-    if(note&&e.title!=='Caso 33')item.append(document.createTextNode(' · '+exampleDecimalText(note)));
+    if(note)item.append(document.createTextNode(' · '+exampleDecimalText(note)));
     if(e.comparisonNote)item.append(document.createTextNode(' · '+e.comparisonNote));
-    list.append(item);
+    if(index<6)list.append(item);
+    else{
+      if(!overflow){
+        const row=document.createElement('li'), details=document.createElement('details');
+        const summary=document.createElement('summary');
+        summary.textContent='Altri esempi pertinenti ('+(examples.length-6)+')';
+        overflow=document.createElement('ul');details.append(summary,overflow);row.append(details);list.append(row);
+      }
+      overflow.append(item);
+    }
   }
 }
 function manualSelectionNote(a,b){
