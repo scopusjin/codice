@@ -25,7 +25,7 @@ class FullUiTextCompatibilityTests(unittest.TestCase):
             "full.measurement_time_input": "Ora rilievo (HH:MM):",
             "full.putrefactive_changes": "Alterazioni putrefattive?",
             "full.estimate_button": "Procedi con la stima",
-            "full.no_data_warning": "Nessun dato inserito per la stima",
+            "full.no_data_warning": "Nessun dato utile inserito per la stima",
             "graph.plot_expander": "Mostra grafico",
         }
         for key, value in expected.items():

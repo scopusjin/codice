@@ -78,7 +78,7 @@ UI_TEXT = {
     "full.measurement_time_input": "Observation time (HH:MM):",
     "full.putrefactive_changes": "Putrefactive changes?",
     "full.estimate_button": "Estimate time since death",
-    "full.no_data_warning": "No data entered for estimation",
+    "full.no_data_warning": "No useful data entered for estimation",
     "full.henssge_incoherent_warning": "Henssge’s method could not be applied (inconsistent or out-of-range temperatures).",
     "msil.page_title": "TIME SINCE DEATH ESTIMATION — MSIL",
     "msil.no_description": "<p style='opacity:.7'>No description available.</p>",

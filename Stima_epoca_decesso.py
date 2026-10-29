@@ -987,7 +987,10 @@ if st.session_state["show_results"]:
                 input_tm=input_tm, input_w=input_w,
                 fattore_correzione=st.session_state.get("fattore_correzione"),
                 options=st.session_state)
-            st.warning(("Per la stima del raffreddamento: " + missing[0].lower() + missing[1:]) if missing
+            cooling_entered = any(st.session_state.get(key) is not None for key in (
+                "rt_val", "ta_base_val", "ta_other_val", "peso", "fattore_correzione",
+                "fc_min_val", "fc_other_val"))
+            st.warning(("Per la stima del raffreddamento: " + missing[0].lower() + missing[1:]) if missing and cooling_entered
                        else i18n.ui_text("full.no_data_warning"))
         render_language_selector()
         st.stop()
