@@ -23,7 +23,7 @@ INSECTS = {
     'empty_puparia': ('Pupari vuoti', 'Empty puparia'),
 }
 CONCLUSIONS = {
-    'unspecified': ('Epoca non ulteriormente precisabile', 'Time of death cannot be further specified'),
+    'unspecified': ('Epoca del decesso non meglio precisabile', 'Time of death cannot be further specified'),
     'few_days': ('Almeno alcuni giorni prima del rinvenimento', 'At least a few days before discovery'),
     'days': ('Almeno diversi giorni prima del rinvenimento', 'At least several days before discovery'),
     'weeks': ('Alcune settimane prima del rinvenimento', 'Several weeks before discovery'),
