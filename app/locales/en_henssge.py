@@ -9,8 +9,8 @@ from __future__ import annotations
 
 def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
     return (
-        "<ul><li>Henssge’s method suggests that death occurred approximately "
-        f"{interval} before temperature measurement.{extra}</li></ul>"
+        "<p style='margin-left:40px;'>Henssge’s method suggests that death occurred approximately "
+        f"{interval} before temperature measurement.{extra}</p>"
     )
 
 

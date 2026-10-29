@@ -141,8 +141,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.2,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
     def test_henssge_detail_qd_between_point_two_and_point_three_keeps_current_html(self):
@@ -154,8 +154,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.25,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
     def test_henssge_detail_qd_at_point_three_has_no_qd_warning(self):
@@ -167,8 +167,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 2 e 5 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
     def test_henssge_detail_over_thirty_hours_has_no_separate_warning(self):
@@ -180,8 +180,8 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
                 qd_val=0.3,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 28 e 34 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 28 e 34 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
     def test_henssge_warning_list_is_currently_empty(self):

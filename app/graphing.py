@@ -13,6 +13,7 @@ import streamlit as st
 
 from app.language import presentation_i18n as i18n, current_language
 from app.presentation_translation import translate
+from app.report_formatting import underline_findings
 from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
 from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
@@ -51,6 +52,8 @@ def _is_num(x):
 def _wrap_final(s: str | None) -> str | None:
     if not s:
         return s
+
+    s = underline_findings(s)
 
     # Detailed descriptions use regular text, including when pasted into Word.
     # Shared sentence templates retain their emphasis in the separate summary.

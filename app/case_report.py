@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from copy import deepcopy
 import json
 import re
+from app.report_formatting import underline_findings
 
 
 class _PlainText(HTMLParser):
@@ -71,6 +72,7 @@ def build_word_blocks(*, input_html, cooling_html, livor, rigor, conclusion, add
 
     def add(key, html, rule="always"):
         if html:
+            html = underline_findings(html)
             blocks[key] = {"html": html, "text": plain_text(html), "insert_when": rule}
 
     # Only leaf list items: never copy the input introduction or measured data.

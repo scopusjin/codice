@@ -25,8 +25,8 @@ class TextgenHenssgeI18nTests(unittest.TestCase):
                 qd_val=None,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "non oltre 4 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "non oltre 4 ore prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
     def test_mixed_range_uses_singular_hour(self):
@@ -38,8 +38,8 @@ class TextgenHenssgeI18nTests(unittest.TestCase):
                 qd_val=None,
                 ta_val=20.0,
             ),
-            "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
-            "tra 1 ora e 6 ore 30 minuti prima dei rilievi effettuati nel corso dell’ispezione legale.</li></ul>",
+            "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+            "tra 1 ora e 6 ore 30 minuti prima dei rilievi effettuati nel corso dell’ispezione legale.</p>",
         )
 
 

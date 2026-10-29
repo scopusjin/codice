@@ -10,10 +10,10 @@ from __future__ import annotations
 
 def henssge_detail_paragraph(interval: str, extra: str = "") -> str:
     return (
-        "<ul><li>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
+        "<p style='margin-left:40px;'>Applicando l'equazione di Henssge, si può stimare che il decesso sia avvenuto approssimativamente "
         f"{interval} "
         "prima dei rilievi effettuati nel corso dell’ispezione legale."
-        f"{extra}</li></ul>"
+        f"{extra}</p>"
     )
 
 
