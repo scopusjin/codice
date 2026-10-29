@@ -266,12 +266,12 @@ def render_late_inputs():
         st.session_state[ENTOMO_AUTO_KEY] = False
 
     st.markdown('''<style>
-        .st-key-late_changes_card { padding: 0.65rem 0.8rem !important; }
+        .st-key-late_changes_card { padding: 0.4rem 0.65rem !important; }
         .st-key-late_changes_card [data-testid="stVerticalBlock"] {
             display: block !important; height: auto !important; min-height: 0 !important;
         }
         .st-key-late_changes_card [data-testid="stVerticalBlock"] > * + * {
-            margin-top: 0.5rem !important;
+            margin-top: 0.2rem !important;
         }
         .st-key-late_changes_card :is([data-testid="stLayoutWrapper"], [data-testid="stElementContainer"], [data-testid="stHorizontalBlock"]) {
             height: auto !important; min-height: 0 !important; flex-shrink: 0 !important;
@@ -302,7 +302,7 @@ def render_late_inputs():
         .st-key-late_changes_card [data-testid="stPopover"] button p {
             white-space: normal !important; overflow-wrap: anywhere; text-align: left !important;
         }
-        .st-key-late_changes_card .mortem-late-divider { border-top: 1px solid rgba(128,128,128,0.3); margin: 0.35rem 0; }
+        .st-key-late_changes_card .mortem-late-divider { border-top: 1px solid rgba(128,128,128,0.3); margin: 0.1rem 0; }
     </style>''', unsafe_allow_html=True)
     with st.container(border=True, key='late_changes_card'):
         with st.container(gap='small', key='late_selection_groups'):
