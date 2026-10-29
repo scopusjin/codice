@@ -360,7 +360,7 @@ def render_late_inputs():
                     label = 'Prudent assessment of time since death:' if en else 'Valutazione prudente epoca del decesso:'
                     choices = [k for k in CONCLUSIONS if not is_entomo or k not in {'weeks', 'months'}]
                     with st.container(horizontal=True, wrap=True, vertical_alignment='center', gap='small', key=state_key + '__assessment_row'):
-                        st.markdown(label, width=270)
+                        st.markdown('<div style="padding-left:0.5rem;font-size:0.82rem;line-height:1.3;">' + escape(label) + '</div>', unsafe_allow_html=True, width=270)
                         st.selectbox(label, options=choices, format_func=lambda k: CONCLUSIONS[k][index],
                                      key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
                                      on_change=mark_entomo_manual if is_entomo else None)
