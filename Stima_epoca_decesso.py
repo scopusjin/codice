@@ -26,6 +26,7 @@ from app.full_mobile_layout import _render_click_help
 from app.mobile_shell import install_minimal_mobile_shell
 from app.language import render_language_selector
 from app.graphing import aggiorna_grafico
+from app.late_changes import render_late_inputs, build_late_report, KEYS as LATE_KEYS
 from app.livor_digitopressione import effective_livor_pressure, render_livor_pressure_input
 from app.rigor_reformation import effective_rigor_reformation, render_rigor_reformation_input
 from app.livor_picker import render_livor_picker
@@ -857,6 +858,8 @@ if mostra_parametri_aggiuntivi:
 else:
     st.session_state["alterazioni_putrefattive"] = False
 
+render_late_inputs()
+
 def _inputs_signature():
     import numpy as np
     import datetime as _dt
@@ -883,6 +886,7 @@ def _inputs_signature():
         return str(v)
 
     base = [
+        tuple(_freeze(st.session_state.get(key)) for key in LATE_KEYS),
         int(st.session_state.get("henssge_round_minutes", 15)),
         bool(st.session_state.get("usa_orario_custom", False)),
         bool(st.session_state.get("mostra_parametri_aggiuntivi", False)),
@@ -973,7 +977,9 @@ if st.session_state["show_results"]:
         for nome_parametro, widgets in widgets_parametri_aggiuntivi.items()
     )
 
-    if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile:
+    from app.language import current_language
+    late_report = build_late_report(st.session_state, current_language())
+    if no_rt and no_macchie and no_rigidita and not ha_parametro_aggiuntivo_stimabile and not late_report:
         with result_slot.container(key="mortem_no_data_box"):
             missing = missing_cooling_inputs(input_rt=input_rt, input_ta=input_ta,
                 input_tm=input_tm, input_w=input_w,
@@ -988,6 +994,7 @@ if st.session_state["show_results"]:
     # specific field. Other tanatological parameters remain usable.
     considera_raffreddamento = (
         not st.session_state.get("henssge_non_applicabile", False)
+        and not (late_report and no_rt)
     )
 
     with result_slot.container(key="mortem_result_box"):
@@ -1007,6 +1014,7 @@ if st.session_state["show_results"]:
             input_ora_rilievo=st.session_state.get("input_ora_rilievo"),
             alterazioni_putrefattive=st.session_state.get("alterazioni_putrefattive", False),
             skip_warnings=True,
+            late_report=late_report,
         )
 
     from app.case_report import capture_report

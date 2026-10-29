@@ -35,7 +35,13 @@ for param, label in SPECIAL_PARAM_LABEL_IT.items():
     BOOL_KEYS.update({label + "_diversa", label + "_ora__manual"})
     TEXT_KEYS.update({label + "_ora", label + "_ora__last_main"})
     DATE_KEYS.add(label + "_data")
-STATE_KEYS = NUMBER_KEYS | BOOL_KEYS | TEXT_KEYS | DATE_KEYS | LIST_KEYS | SELECTORS.keys() | {"henssge_round_minutes"}
+from app.late_changes import (ENABLED, CHANGE_KEY, INSECT_KEY, CONCLUSION_KEY, CUSTOM_KEY,
+                              CHANGES, INSECTS, CONCLUSIONS)
+BOOL_KEYS.add(ENABLED)
+TEXT_KEYS.add(CUSTOM_KEY)
+SELECTORS[CONCLUSION_KEY] = set(CONCLUSIONS)
+LATE_LISTS = {CHANGE_KEY: set(CHANGES), INSECT_KEY: set(INSECTS)}
+STATE_KEYS = set(LATE_LISTS) | NUMBER_KEYS | BOOL_KEYS | TEXT_KEYS | DATE_KEYS | LIST_KEYS | SELECTORS.keys() | {"henssge_round_minutes"}
 CHOICE_KEYS = set("""range weight base_range manual manual_weight_adjusted weight_adjusted
 manual_center conditions description rule explanation sources draft scenarios temperature""".split())
 DRAFT_FIELDS = set("""teli light-cover thin thick medium heavy surface metal-type leaf leaf-cover feather air water
@@ -244,6 +250,9 @@ def validate_case(case):
                     date.fromisoformat(value)
             except (TypeError, ValueError) as exc:
                 raise CaseFileError("Data dei rilievi non valida.") from exc
+        elif key in LATE_LISTS:
+            _require(isinstance(value, list) and all(isinstance(v, str) and v in LATE_LISTS[key] for v in value))
+            _require(len(value) == len(set(value)))
         elif key in LIST_KEYS:
             _require(value is None or (isinstance(value, list) and all(_number(v) for v in value)))
             if key == "__msil_fc_chosen_range" and value:

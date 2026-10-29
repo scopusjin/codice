@@ -175,6 +175,7 @@ def aggiorna_grafico(
     alterazioni_putrefattive: bool,
     skip_warnings: bool = False,   # <-- nuovo flag per silenziare avvisi base
     cooling_options=None,
+    late_report=None,
     livor_digitopressione: str = PRESSURE_NOT_ASSESSED,
     rigor_reformation: str = REFORMATION_NOT_ASSESSED,
     **kwargs,
@@ -604,7 +605,7 @@ def aggiorna_grafico(
 
     st.session_state["frase_breve"] = None
 
-    if num_params_grafico == 0 and not cooling.validation_error:
+    if num_params_grafico == 0 and not cooling.validation_error and not late_report:
         warn_box(i18n.ui_text("graph.no_useful_data"))
 
     if num_params_grafico > 0:
@@ -865,7 +866,7 @@ def aggiorna_grafico(
 
     # Descrizioni tanatologiche: includi solo rilievi effettivamente valutati.
     # Gli stati "Non valutata/e" non vengono più riportati nel testo dettagliato.
-    if not macchie_non_valutate:
+    if not macchie_non_valutate and not (late_report and base_tanatology.livor_id == "livor_unreliable"):
         testo_macchie = i18n.livor_description(base_tanatology.livor_id)
         if (
             base_tanatology.livor_id == "livor_partially_migratable"
@@ -909,7 +910,7 @@ def aggiorna_grafico(
                                                *macchie_range, macchie_range[1] >= INF_HOURS)
         if testo_macchie:
             _add_det(f"<ul><li>{testo_macchie.strip()}</li></ul>")
-    if not rigidita_non_valutata:
+    if not rigidita_non_valutata and not (late_report and base_tanatology.rigor_id == "rigor_unreliable"):
         testo_rigidita = i18n.rigor_description(base_tanatology.rigor_id)
         if (
             rigor_reformation == REFORMATION_YES
@@ -938,7 +939,7 @@ def aggiorna_grafico(
         if testo_rigidita:
             _add_det(f"<ul><li>{testo_rigidita}</li></ul>")
     word_additional = paragrafi_parametri_aggiuntivi(parametri=parametri_aggiuntivi_da_considerare)
-    word_putrefaction = paragrafo_putrefattive(alterazioni_putrefattive)
+    word_putrefaction = late_report["html"] if late_report else paragrafo_putrefattive(alterazioni_putrefattive)
     for blocco in word_additional:
         _add_det(blocco)
     _add_det(word_putrefaction)
@@ -1087,6 +1088,11 @@ def aggiorna_grafico(
 
     # Riepilogo verde prima dei comandi di dettaglio.
     frase_breve_html = st.session_state.get("frase_breve")
+    if late_report:
+        from html import escape
+        late_brief = "<p>" + escape(late_report["brief"]) + "</p>"
+        frase_breve_html = (frase_breve_html or "") + late_brief
+        st.session_state["frase_breve"] = frase_breve_html
     if frase_breve_html:
         render_frase_breve(frase_breve_html, key="fb_before_details")
         if overlap and not discordanti:
