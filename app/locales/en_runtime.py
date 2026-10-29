@@ -690,3 +690,18 @@ TEXT.update({
     "Temperatura della prova: ": "Experimental temperature: ",
     "Altri esempi pertinenti (": "More relevant examples ("
 })
+
+# Table-derived FC explanations: no app-analogy warning for tabulated categories.
+TEXT.update({
+    "Per due strati leggeri asciutti, in aria ferma, la tabella di Henssge indica un FC di 1.10–1.20.": "For two dry light layers in still air, Henssge’s table gives a correction factor of 1.10–1.20.",
+    "Per tre strati leggeri asciutti, in aria ferma, la tabella di Henssge indica un FC di 1.20–1.30.": "For three dry light layers in still air, Henssge’s table gives a correction factor of 1.20–1.30.",
+    "Il FC previsto dalla tabella di Henssge per gli strati presenti è ": "Henssge’s table gives a correction factor for the selected layers of ",
+    "La correzione per l’appoggio segue la tabella di Henssge.": "The supporting-surface adjustment follows Henssge’s table.",
+    "Dopo aver considerato gli indumenti, le coperture e le correnti d’aria, l’app applica ": "After accounting for clothing, coverings and air movement, the app applies ",
+    " a entrambi gli estremi per la superficie di appoggio. ": " to both endpoints for the supporting surface. ",
+    " Il FC risultante è ": " The resulting correction factor is ",
+})
+
+TEXT.update({
+    "L’app mantiene per tre strati leggeri asciutti esposti a correnti d’aria il FC di 1.20–1.30 previsto per l’aria ferma. Questa estensione è un ragionamento dell’app.": "For three dry light layers exposed to moving air, the app retains the still-air correction factor of 1.20–1.30. This extension is an app assumption.",
+})

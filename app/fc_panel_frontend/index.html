@@ -151,9 +151,9 @@ const SOURCES = {
 const RULES = [
   {id:'dry-naked', label:'Asciutto, nudo, piano neutro', values:'Aria ferma 1.00; corrente 0.75', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s+c.p===0, range:c=>c.wind?[.75,.75]:[1,1]},
   {id:'dry-one-thin', label:'Asciutto, 1 sottile', values:'Aria ferma 1.10; corrente 0.90', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===1&&c.p===0, range:c=>c.wind?[.9,.9]:[1.1,1.1]},
-  {id:'dry-two-thin', label:'Asciutto, 2 leggeri, aria ferma', values:'1.10 - 1.20', kind:'Ragionamento dell’app', sources:['henssge'], note:'Le categorie degli strati leggeri descritte nelle tabelle di Henssge si sovrappongono. L’app propone l’intervallo tra i valori 1.10 e 1.20.', match:c=>c.state==='Asciutto'&&!c.wind&&c.s===2&&c.p===0, range:()=>[1.1,1.2]},
+  {id:'dry-two-thin', label:'Asciutto, 2 leggeri, aria ferma', values:'1.10 - 1.20', kind:'Tabella Henssge', sources:['henssge'], note:'Per due strati leggeri asciutti, in aria ferma, la tabella di Henssge indica un FC di 1.10–1.20.', match:c=>c.state==='Asciutto'&&!c.wind&&c.s===2&&c.p===0, range:()=>[1.1,1.2]},
   {id:'dry-two-thin-wind', label:'Asciutto, 2 leggeri, aria mobile', values:'0.90', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.wind&&c.s===2&&c.p===0, range:()=>[.9,.9]},
-  {id:'dry-three-thin', label:'Asciutto, 3 sottili', values:'1.20 - 1.30', kind:'Ragionamento dell’app', sources:['henssge'], note:'L’app propone l’intervallo tra i valori riportati nelle tabelle di Henssge per 2–3 e 3–4 strati leggeri.', match:c=>c.state==='Asciutto'&&c.s===3&&c.p===0, range:()=>[1.2,1.3]},
+  {id:'dry-three-thin', label:'Asciutto, 3 sottili', values:'1.20 - 1.30', kind:'Tabella Henssge', sources:['henssge'], note:'Per tre strati leggeri asciutti, in aria ferma, la tabella di Henssge indica un FC di 1.20–1.30.', match:c=>c.state==='Asciutto'&&c.s===3&&c.p===0, range:()=>[1.2,1.3]},
   {id:'dry-four-thin', label:'Asciutto, 4 sottili', values:'1.30', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===4&&c.p===0, range:()=>[1.3,1.3]},
   {id:'dry-thick', label:'Asciutto, 1–2 spessi, nessun sottile', values:'1.20', kind:'Tabella Henssge', sources:['henssge'], match:c=>c.state==='Asciutto'&&c.s===0&&c.p>=1&&c.p<=2, range:()=>[1.2,1.2]},
   {id:'dry-mixed', label:'Asciutto, 1–2 spessi + 1–2 sottili', values:'1.20 - 1.40', kind:'Ragionamento dell’app', sources:['henssge','clothes'], note:'Intervallo proposto fra strati spessi e abbigliamento multistrato.', match:c=>c.state==='Asciutto'&&c.p>=1&&c.p<=2&&c.s>=1&&c.s<=2, range:()=>[1.2,1.4]},
@@ -199,7 +199,7 @@ function clothedSupportDelta(c){
   return null;
 }
 function supportAdjustmentNote(c,range,delta){
-  return 'Dopo aver considerato gli indumenti, le coperture e le correnti d’aria, l’app applica '+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' a entrambi gli estremi per la superficie di appoggio. La correzione segue la tabella di Henssge; l’associazione dei capi selezionati alla classe di isolamento è un ragionamento dell’app.';
+  return 'Dopo aver considerato gli indumenti, le coperture e le correnti d’aria, l’app applica '+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' a entrambi gli estremi per la superficie di appoggio. La correzione per l’appoggio segue la tabella di Henssge.';
 }
 function shiftedSupport(c,base){
   if(base.id==='feather-duvet'&&c.surf===2)return decision('feather-duvet-mattress',[base.range[0],base.range[1]+.1],'Ragionamento dell’app','Piumone di piume su materasso.',[...base.sources,'support'],'L’app mantiene il minimo del piumone di piume e aumenta il massimo di 0.10 per l’appoggio isolante. Questa combinazione non ha un intervallo specifico nelle fonti consultate.');
@@ -207,7 +207,9 @@ function shiftedSupport(c,base){
   if(target===null)return pending('Precisare la superficie di appoggio.',['support']);
   const included=base.referenceSurface===2?.1:0,delta=target-included;
   if(!delta&&base.referenceSurface===undefined&&c.surf<=1)return base;
-  let detail=supportAdjustmentNote(c,base.range,delta);
+  const tabulated=base.kind==='Tabella Henssge'&&c.state==='Asciutto'&&[2,3,4,5].includes(c.surf)&&!c.bodyBag&&!c.thermalFoil;
+  let detail=tabulated?'Il FC previsto dalla tabella di Henssge per gli strati presenti è '+rangeText(base.range)+'. '+supportAdjustmentNote(c,base.range,delta):[base.detail,supportAdjustmentNote(c,base.range,delta)].filter(Boolean).join(' ');
+  let limited=false;
   if(c.surf===3)detail+=' Con più isolamento degli indumenti, la maggiorazione indicata nella tabella di Henssge scende da +0.30 a +0.10: il passaggio di categoria può ridurre il suggerimento.';
   if(c.surf===8)detail='L’app assimila le foglie '+(c.leaf==='humid'?'umide al materasso':c.leaf==='dry'?'secche a un supporto molto imbottito':'bagnate a un appoggio neutro')+' e applica '+(delta>=0?'+':'−')+fmt(Math.abs(delta))+' a entrambi gli estremi. Questa combinazione con indumenti o coperture non è stata verificata direttamente negli esperimenti sulle foglie.';
   if(included)detail=delta===0?'Il range di confronto comprende già il letto: l’app non aggiunge una seconda maggiorazione per l’appoggio. Gli estremi sono adattabili dall’operatore.':'Il caso della pratica medico-legale comprende già il letto. Per confrontarlo con l’appoggio selezionato, l’app sostituisce la maggiorazione del letto con quella del nuovo supporto, modificando entrambi gli estremi di '+(delta>0?'+':'−')+fmt(Math.abs(delta))+'.';
@@ -216,11 +218,12 @@ function shiftedSupport(c,base){
     const naked=evaluateFixedAir({...c,s:0,p:0,m:0,h:0,wetCase:false});
     if(naked.range){
       const floor=naked.range[0];
-      if(range.some(v=>v<floor-1e-8))detail+=' L’app non scende sotto il minimo previsto per il corpo nudo nelle stesse condizioni.';
+      if(range.some(v=>v<floor-1e-8)){limited=true;detail+=' L’app non scende sotto il minimo previsto per il corpo nudo nelle stesse condizioni.';}
       range=range.map(v=>Math.max(v,floor));
     }
   }
-  return decision(base.id+'-support',range,'Ragionamento dell’app','Intervallo adattato alla superficie di appoggio.',[...base.sources,'support',...(c.surf===8?['leaves']:[]),...(c.surf===10?['pvc']:[])],detail);
+  if(tabulated)detail+=' Il FC risultante è '+rangeText(range)+'.';
+  return decision(base.id+'-support',range,tabulated&&!limited?'Tabella Henssge':'Ragionamento dell’app','Intervallo adattato alla superficie di appoggio.',[...base.sources,'support',...(c.surf===8?['leaves']:[]),...(c.surf===10?['pvc']:[])],detail);
 }
 function wetSupportDecision(c,base){
   if(!base.range)return base;
@@ -290,6 +293,7 @@ function blanketOrClothingBase(c){
   if(matches.length>1)throw Error('Regole sovrapposte: '+matches.map(r=>r.id));
   if(!matches.length)return pending(isMany(c)&&c.state==='Asciutto'?'Precisare la presenza di capi particolarmente isolanti.':'Combinazione da precisare.',c.state==='Bagnato'?['wet']:['henssge','clothes']);
   const rule=matches[0],r=decision(rule.id,rule.range(c),rule.kind,rule.note||'Suggerimento per la configurazione selezionata.',rule.sources,rule.note||'Fattore di correzione indicato nella tabella riepilogativa degli studi di Henssge, in base a indumenti, coperture, condizioni del corpo e movimento dell’aria o dell’acqua.');
+  if(rule.id==='dry-three-thin'&&c.wind){r.kind='Ragionamento dell’app';r.detail='L’app mantiene per tre strati leggeri asciutti esposti a correnti d’aria il FC di 1.20–1.30 previsto per l’aria ferma. Questa estensione è un ragionamento dell’app.';}
   if(rule.id==='wet-naked-still')r.detail='Intervallo tra due risultati sperimentali per il corpo nudo bagnato, senza correnti d’aria. I valori osservati sono 0.75 e 0.77; non costituiscono un intervallo di confidenza.';
   if(rule.sources.includes('wetMixed')&&!c.wind)r.detail='Il range colloca la combinazione tra i riferimenti disponibili per gli strati bagnati. Due leggeri orientano il confronto con un pesante, senza equivalenza fissa.';
   if(rule.id==='wet-mixed-wind')r.detail='L’app propone l’intervallo fra i riferimenti per scarsa protezione e per almeno due strati pesanti bagnati, esposti a correnti d’aria. Questa combinazione non è riportata nella tabella di Henssge.';
@@ -560,8 +564,6 @@ function renderFCProvenance(r,examples=[],c=null){
   }
   if(!r.range)return;
   const originalRanges={
-    'dry-two-thin':['1.10','1.20'],
-    'dry-three-thin':['1.20','1.30'],
     'dry-mixed':['1.20','1.40'],
     'wet-mixed-wind':['0.70','0.90'],
     'wet-many-thick':['1.20'],

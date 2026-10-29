@@ -14,11 +14,11 @@ const previous=load(original),updated=load(current);
 const plain=x=>JSON.parse(JSON.stringify(x));
 let count=0;
 for(const state of ['Asciutto','Bagnato','Immerso'])for(const air of ['still','continuous','intermittent','unknown'])
-for(const surf of [0,1,2,3,4,5,6,7,8,9,10])for(const [s,p,m,h] of [[0,0,0,0],[1,0,0,0],[0,2,0,0],[1,1,1,0],[0,0,0,1]])
+for(const surf of [0,1,2,3,4,5,6,7,8,9,10])for(const [s,p,m,h] of [[0,0,0,0],[1,0,0,0],[2,0,0,0],[3,0,0,0],[0,2,0,0],[1,1,1,0],[0,0,1,0],[0,0,0,1]])
 for(const water of ['stagnante','corrente'])for(const waterNearZero of [false,true]){
  const c={...updated.base,state,air,wind:air==='continuous',surf,s,p,m,h,water,waterNearZero,leaf:'dry',leafCover:'yes',wetClothes:'full',wetCovers:'full',weight:70};
- const expected=plain(previous.api.evaluateFC(c));
+ const expected=plain(previous.api.evaluateFC(c).range);
  updated.api.exampleMatches(c);
- assert.deepEqual(plain(updated.api.evaluateFC(c)),expected,JSON.stringify(c));count++;
+ assert.deepEqual(plain(updated.api.evaluateFC(c).range),expected,JSON.stringify(c));count++;
 }
 console.log('Numeric parity with '+count+' configurations: OK.');
