@@ -259,8 +259,13 @@ def render_late_inputs():
     def mark_entomo_manual():
         st.session_state[ENTOMO_AUTO_KEY] = False
 
-    with st.container(key='late_changes_card'):
-        with st.container(gap='medium', key='late_selection_groups'):
+    st.markdown('''<style>
+        .st-key-late_changes_card [data-testid="stVerticalBlock"] { gap: 0.35rem; }
+        .st-key-late_changes_card [data-testid="stDivider"] hr { margin: 0.35rem 0; }
+        .st-key-late_changes_card [data-testid="stMarkdownContainer"] p { margin-bottom: 0; }
+    </style>''', unsafe_allow_html=True)
+    with st.container(border=True, key='late_changes_card'):
+        with st.container(gap='small', key='late_selection_groups'):
             for title, options, state_key in (
                 ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
                 ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
