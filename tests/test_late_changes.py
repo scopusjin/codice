@@ -46,7 +46,7 @@ class LateChangesTests(unittest.TestCase):
         self.assertNotIn('infezioni', report['html'])
         self.assertNotIn('entomofauna', report['html'])
         report = build_late_report(state, 'en')
-        self.assertIn('mummification and adipocere', report['html'])
+        self.assertIn('mummification and areas showing adipocere', report['html'])
         self.assertIn('at least several days', report['brief'])
 
     def test_user_template_and_word_only_definitions(self):
@@ -71,6 +71,23 @@ class LateChangesTests(unittest.TestCase):
         state = self.state()
         state.update(late_changes_observed=['mummification'], late_insects_observed=[])
         self.assertEqual(build_late_report(state)['word_footnotes'], [])
+
+    def test_extent_options_keep_legacy_observations_and_word_notes(self):
+        state = self.state(show_results=True)
+        state['late_changes_observed'] = ['liquefaction_partial', 'liquefaction_diffuse',
+            'mummification_partial', 'mummification_diffuse', 'skeletonisation_partial',
+            'skeletonisation_diffuse', 'adipocere']
+        report = build_late_report(state)
+        for text in ('aree di parziale colliquazione', 'diffusa colliquazione di porzioni corporee',
+                     'aree di parziale mummificazione', 'diffusa scheletrizzazione di porzioni corporee',
+                     'aree caratterizzate da presenza di adipocera'):
+            self.assertIn(text, report['html'])
+        self.assertEqual(report['word_footnotes'][0]['anchor'], 'putrefattivi')
+        case = decode_case(encode_case(snapshot_case(state, 'full')))
+        self.assertEqual(restored_inputs(case)['late_changes_observed'], state['late_changes_observed'])
+        state['late_changes_observed'] = ['liquefaction']
+        self.assertIn('colliquazione.', build_late_report(state)['html'])
+        self.assertNotIn('parziale colliquazione', build_late_report(state)['html'])
 
     def test_json_roundtrip_and_stale_report(self):
         state = self.state(show_results=True)
@@ -117,6 +134,8 @@ class LateChangesTests(unittest.TestCase):
         app.run()
         self.assertFalse(app.exception)
         self.assertEqual(len(app.multiselect), 0)
+        self.assertTrue(any(p.proto.popover.label == 'Modificazioni post-mortali osservate' for p in app.get('popover')))
+        self.assertFalse(any('non generano automaticamente' in c.value for c in app.caption))
         self.assertTrue(app.checkbox(key='late_changes_observed__check_gas').value)
         self.assertTrue(app.checkbox(key='late_insects_observed__check_empty_puparia').value)
         app.button(key='btn_stima').click().run()

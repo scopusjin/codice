@@ -7,9 +7,15 @@ CHANGES = {
     'gas': ('Enfisema putrefattivo', 'Putrefactive gas formation'),
     'skin': ('Epidermolisi', 'Skin slippage'),
     'liquefaction': ('Colliquazione', 'Liquefaction'),
+    'liquefaction_partial': ('Aree di parziale colliquazione', 'Areas of partial liquefaction'),
+    'liquefaction_diffuse': ('Diffusa colliquazione di porzioni corporee', 'Extensive liquefaction of body regions'),
     'mummification': ('Mummificazione', 'Mummification'),
-    'adipocere': ('Adipocera', 'Adipocere'),
+    'mummification_partial': ('Aree di parziale mummificazione', 'Areas of partial mummification'),
+    'mummification_diffuse': ('Diffusa mummificazione di porzioni corporee', 'Extensive mummification of body regions'),
+    'adipocere': ('Aree caratterizzate da presenza di adipocera', 'Areas showing adipocere'),
     'skeletonisation': ('Scheletrizzazione', 'Skeletonisation'),
+    'skeletonisation_partial': ('Aree di parziale scheletrizzazione', 'Areas of partial skeletonisation'),
+    'skeletonisation_diffuse': ('Diffusa scheletrizzazione di porzioni corporee', 'Extensive skeletonisation of body regions'),
 }
 INSECTS = {
     'eggs': ('Uova', 'Eggs'), 'larvae': ('Larve', 'Larvae'),
@@ -86,7 +92,7 @@ def build_late_report(state, language='it'):
     items = []
     if changes:
         observations = _join([CHANGES[k][index].lower() for k in changes], en)
-        putrefactive = any(k in changes for k in ('colour', 'marbling', 'gas', 'skin', 'liquefaction'))
+        putrefactive = any(k in changes for k in ('colour', 'marbling', 'gas', 'skin', 'liquefaction', 'liquefaction_partial', 'liquefaction_diffuse'))
         if en:
             text = ('Late postmortem changes, particularly putrefaction. ' if putrefactive else 'Late postmortem changes. ')
             text += f'The following changes were observed: {observations}. '
@@ -190,22 +196,26 @@ def render_late_inputs():
             ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
             ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
         ):
-            st.markdown('**' + title + '**')
             selected = st.session_state.get(state_key, [])
-            columns = st.columns(2, gap='small')
-            checked = []
-            for number, (option_id, labels) in enumerate(options.items()):
-                with columns[number % 2]:
-                    if st.checkbox(labels[index], value=option_id in selected,
+            with st.popover(title, use_container_width=True):
+                checked = []
+                for option_id, labels in options.items():
+                    # Preserve unqualified observations from older files without
+                    # assigning them a new, unsupported extent.
+                    legacy = state_key == CHANGE_KEY and option_id in {'liquefaction', 'mummification', 'skeletonisation'}
+                    if legacy and option_id not in selected:
+                        continue
+                    label = labels[index] + ((' (previous selection)' if en else ' (selezione precedente)') if legacy else '')
+                    if st.checkbox(label, value=option_id in selected,
                                    key=state_key + '__check_' + option_id):
                         checked.append(option_id)
             st.session_state[state_key] = checked
+            if checked:
+                st.caption('; '.join(options[k][index] for k in checked))
         st.selectbox('Overall assessment chosen by the physician' if en else 'Conclusione complessiva scelta dal medico',
                      options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index], key=CONCLUSION_KEY)
         if st.session_state.get(CONCLUSION_KEY) == 'custom':
             st.text_area('Conclusion text' if en else 'Testo della conclusione', key=CUSTOM_KEY, max_chars=4000)
-        st.caption('The selected findings do not generate an automatic time interval.' if en else
-                   'I reperti selezionati non generano automaticamente un intervallo temporale.')
 
 
 def late_hours_conflict(report, upper_bounds, language='it'):
@@ -236,7 +246,7 @@ def late_hours_conflict(report, upper_bounds, language='it'):
 def late_word_footnotes(changes, insects, en=False):
     """Definitions supplied by the physician, exported only for native Word notes."""
     notes = []
-    if any(k in changes for k in ('colour', 'marbling', 'gas', 'skin', 'liquefaction')):
+    if any(k in changes for k in ('colour', 'marbling', 'gas', 'skin', 'liquefaction', 'liquefaction_partial', 'liquefaction_diffuse')):
         notes.append({
             'anchor': 'putrefaction' if en else 'putrefattivi',
             'text': ('Putrefaction is the postmortem degradation of tissues, mainly through bacterial activity. Its traditional phases may overlap: discolouration, sometimes with visible superficial veins (marbling); gas formation in tissues and body cavities; and liquefaction and progressive breakdown of soft tissues. Skin slippage, the separation of the epidermis from underlying layers, may also occur. Onset and progression vary widely with environmental conditions and the characteristics of the body.' if en else
