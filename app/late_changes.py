@@ -256,6 +256,12 @@ def render_late_inputs():
         if key not in st.session_state:
             st.session_state[key] = st.session_state.get(CUSTOM_KEY, '')
 
+    # Preserve older saved assessments as editable free text, outside the presets.
+    if st.session_state[ENTOMO_KEY] in {'weeks', 'months'}:
+        st.session_state[ENTOMO_CUSTOM_KEY] = CONCLUSIONS[st.session_state[ENTOMO_KEY]][index]
+        st.session_state[ENTOMO_KEY] = 'custom'
+        st.session_state[ENTOMO_AUTO_KEY] = False
+
     def mark_entomo_manual():
         st.session_state[ENTOMO_AUTO_KEY] = False
 
@@ -303,12 +309,19 @@ def render_late_inputs():
                     heading_slot.markdown('**' + group_title + '** &nbsp; :gray[' + selected_text + ']')
                     choice_key = ENTOMO_KEY if is_entomo else TRANSFORM_KEY
                     custom_key = ENTOMO_CUSTOM_KEY if is_entomo else TRANSFORM_CUSTOM_KEY
-                    if is_entomo and st.session_state[ENTOMO_AUTO_KEY]:
-                        st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
+                    if is_entomo:
+                        # A retained preset (including one loaded from an older case)
+                        # must follow a change of findings. Preserve a distinct medical assessment.
+                        retained_preset = (checked != selected and
+                                           st.session_state[ENTOMO_KEY] == suggested_entomo_choice(selected))
+                        if st.session_state[ENTOMO_AUTO_KEY] or retained_preset:
+                            st.session_state[ENTOMO_AUTO_KEY] = True
+                            st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
                     label = ('Prudent assessment of insect evidence' if en else 'Valutazione prudente dell’entomofauna') if is_entomo else (
                         'Prudent assessment of late postmortem changes' if en else 'Valutazione prudente dei fenomeni trasformativi')
                     note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
-                    st.selectbox(label + ' — :gray[' + note + ']', options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index],
+                    choices = [k for k in CONCLUSIONS if not is_entomo or k not in {'weeks', 'months'}]
+                    st.selectbox(label + ' — :gray[' + note + ']', options=choices, format_func=lambda k: CONCLUSIONS[k][index],
                                  key=choice_key, disabled=not checked, width='stretch',
                                  on_change=mark_entomo_manual if is_entomo else None)
                     if st.session_state[choice_key] == 'custom':
