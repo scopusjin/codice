@@ -30,7 +30,13 @@
   function combined() {
     if (!items.length || items.some(item => item.error || !item.range.every(Number.isFinite))) return null;
     const range = [Math.min(...items.map(item => item.range[0])), Math.max(...items.map(item => item.range[1]))];
-    const conditions = bound => [...new Set(items.filter(item => item.range[bound] === range[bound]).map(item=>item.description))].join(' / ');
+    // At a tied endpoint use the opposite bound to identify that extreme.
+    const conditions = bound => {
+      const candidates = items.filter(item => item.range[bound] === range[bound]);
+      const other = 1 - bound;
+      const opposite = (bound === 0 ? Math.min : Math.max)(...candidates.map(item => item.range[other]));
+      return [...new Set(candidates.filter(item => item.range[other] === opposite).map(item => item.description))].join(' / ');
+    };
     if(range[0]===range[1])return {range,description:'Fattore di correzione considerato: '+range[0].toFixed(2)+' ('+conditions(0)+')'};
     return {range, description:'Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo: ' + range[0].toFixed(2) +
       ' (' + conditions(0) + ') — ' + range[1].toFixed(2) + ' (' + conditions(1) + ')'};

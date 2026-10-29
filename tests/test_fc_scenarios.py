@@ -157,6 +157,27 @@ class FCScenarioTests(unittest.TestCase):
         self.assertNotIn("Range di", text)
         self.assertTrue(result.raffreddamento_calcolabile)
 
+    def test_shared_lower_bound_describes_only_the_lower_extreme(self):
+        common = "corpo asciutto, con uno strato di indumenti leggeri"
+        surface = ", adagiato su superficie termicamente conduttiva"
+        bare = common + surface
+        covered = common + ", coperto con un telo sottile" + surface
+        scenarios = [dict(range=[0.90, 0.90], description=bare),
+                     dict(range=[0.90, 1.00], description=covered)]
+        for ordered in (scenarios, list(reversed(scenarios))):
+            bounds, text = summarize_scenarios(ordered)
+            self.assertEqual(bounds, [0.90, 1.00])
+            self.assertTrue(text.endswith(f"0.90 ({bare}) — 1.00 ({covered})"))
+            self.assertEqual(text.count("telo sottile"), 1)
+
+    def test_shared_upper_bound_uses_the_upper_extreme(self):
+        scenarios = [dict(range=[0.90, 1.10], description="scenario ampio"),
+                     dict(range=[1.00, 1.10], description="scenario superiore")]
+        for ordered in (scenarios, list(reversed(scenarios))):
+            bounds, text = summarize_scenarios(ordered)
+            self.assertEqual(bounds, [0.90, 1.10])
+            self.assertTrue(text.endswith("0.90 (scenario ampio) — 1.10 (scenario superiore)"))
+
     def test_exact_extremes_and_conditions(self):
         payload = scenario_payload()
         state = {}

@@ -29,9 +29,15 @@ def summarize_scenarios(scenarios):
     bounds = [min(item["range"][0] for item in scenarios),
               max(item["range"][1] for item in scenarios)]
     descriptions = []
-    for index, value in enumerate(bounds):
+    # A shared lower bound does not make the wider scenario the lower extreme.
+    # Break endpoint ties using the other bound, independently of scenario order.
+    extreme_ranges = (min(tuple(item["range"]) for item in scenarios),
+                      max(tuple(reversed(item["range"])) for item in scenarios))
+    for index in range(2):
+        extreme = extreme_ranges[index]
         texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
-                              if item["range"][index] == value)
+                              if (tuple(item["range"]) if index == 0 else
+                                  tuple(reversed(item["range"]))) == extreme)
         descriptions.append(" / ".join(texts))
     label = ("Fattore di correzione considerato" if bounds[0] == bounds[1] else
              "Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
