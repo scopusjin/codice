@@ -175,5 +175,5 @@ def late_hours_conflict(report, upper_bounds, language='it'):
                 'The descriptive conclusion has not been included in the numerical combination.')
     return ('Possibile incoerenza: la conclusione scelta dal medico è espressa in giorni, settimane o mesi, '
             'mentre i seguenti parametri indicano un limite superiore inferiore a 24 ore prima dei rilievi principali: '
-            + _join(labels) + '. Verificare l’utilizzabilità di questi parametri e la conclusione selezionata. '
+            + _join([label[:1].lower() + label[1:] for label in labels]) + '. Verificare l’utilizzabilità di questi parametri e la conclusione selezionata. '
             'La conclusione descrittiva non è stata inclusa nel calcolo della stima combinata.')

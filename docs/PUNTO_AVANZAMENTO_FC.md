@@ -466,3 +466,7 @@ La conclusione qualitativa non viene convertita in un intervallo, non viene dise
 Sostituite le due multiselezioni a tendina della sezione tardiva con caselle da spuntare sempre visibili, raggruppate in due colonne per modificazioni post-mortali e reperti entomologici. Eliminato così anche il placeholder inglese «Choose options» nella UI italiana. Identificatori, liste salvate, testi e controlli di incoerenza invariati. Le caselle vengono inizializzate dalle liste del caso e aggiornano quelle stesse liste, preservando il formato JSON.
 
 20 test superati (sezione tardiva, dati del caso e report). AppTest verifica ripristino delle spunte dalle liste, rimozione di un reperto, invalidazione dei risultati e successiva esportazione del testo e delle liste aggiornate. Diff senza errori.
+
+### 29 ottobre 2026 — Minuscole nell'avviso di incoerenza
+
+Uniformata in italiano l'iniziale dei nomi dei parametri elencati dopo i due punti, senza modificare le etichette dei pannelli o i criteri dell'avviso. Verifica mirata del controllo di incoerenza superata.

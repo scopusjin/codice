@@ -70,7 +70,7 @@ class LateChangesTests(unittest.TestCase):
             state = self.state()
             state['late_conclusion'] = choice
             report = build_late_report(state)
-            warning = late_hours_conflict(report, [('rigidità', 192), ('ipostasi', 3), ('raffreddamento', float('nan'))])
+            warning = late_hours_conflict(report, [('Rigidità', 192), ('Ipostasi', 3), ('Raffreddamento', float('nan'))])
             self.assertIn('ipostasi', warning)
             self.assertNotIn('rigidità', warning)
             self.assertNotIn('raffreddamento', warning)
