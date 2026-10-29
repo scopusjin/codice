@@ -498,3 +498,9 @@ Descrizione breve riferita esplicitamente alle alterazioni trasformative e/o ai 
 Nuovi campi convalidati ed esportati nel JSON. I file precedenti con una sola conclusione conservano quella scelta iniziale nei due menu fino a revisione del medico; gli eventuali testi liberi precedenti sono mantenuti. Il modulo Word già distribuito continua a importare il riepilogo e le note senza richiedere altre modifiche.
 
 Test della sezione, report/JSON, adattatori tanatologici e testi Henssge superati. AppTest copre proposte per uova, pupari pieni/vuoti, modifica manuale e mancata sovrascrittura, indipendenza dei menu, esportazione delle scelte e nuove descrizioni brevi. Verificata assenza di errori nel diff. Nessuna nuova verifica di esecuzione in Word.
+
+### 29 ottobre 2026 — Chiarezza delle valutazioni prudenti
+
+Rimossa la compressione dei due gruppi in riquadri stretti: ogni gruppo utilizza ora l'intera larghezza, con selezione dei reperti e valutazione nello stesso riquadro. Ripristinati spazi ordinari, riepilogo dei reperti selezionati in chiaro e campi a larghezza piena. Mantenute le caselle affiancabili dentro le finestre. Etichette esplicite «Valutazione prudente dei fenomeni trasformativi» e «Valutazione prudente dell’entomofauna», istruzione sulla formulazione prudente e richiamo a verificare/modificare la proposta entomologica. Nessun cambiamento a conclusioni, proposte, calcoli o formato JSON.
+
+Test della sezione e del report superati, incluse etichette e istruzioni; diff senza errori. Nessuna verifica visiva del deployment eseguita.
