@@ -93,7 +93,9 @@ class LateChangesTests(unittest.TestCase):
             app.session_state[key] = value
         app.run()
         self.assertFalse(app.exception)
-        self.assertEqual(len(app.multiselect), 2)
+        self.assertEqual(len(app.multiselect), 0)
+        self.assertTrue(app.checkbox(key='late_changes_observed__check_gas').value)
+        self.assertTrue(app.checkbox(key='late_insects_observed__check_empty_puparia').value)
         app.button(key='btn_stima').click().run()
         self.assertFalse(app.exception)
         case = snapshot_case(app.session_state._state.filtered_state, 'full')
@@ -122,6 +124,14 @@ class LateChangesTests(unittest.TestCase):
         self.assertIn('Possibile incoerenza', case['report']['detailed_text'])
         self.assertIn('Possibile incoerenza', case['report']['word_blocks']['putrefaction']['text'])
         self.assertNotIn('almeno diversi giorni', app.session_state['frase_breve'])
+        app.checkbox(key='late_insects_observed__check_larvae').uncheck().run()
+        self.assertFalse(app.session_state['show_results'])
+        self.assertNotIn('larvae', app.session_state['late_insects_observed'])
+        app.button(key='btn_stima').click().run()
+        self.assertFalse(app.exception)
+        case = decode_case(encode_case(snapshot_case(app.session_state._state.filtered_state, 'full')))
+        self.assertNotIn('larve', case['report']['detailed_text'])
+        self.assertEqual(case['inputs']['late_insects_observed'], ['empty_puparia'])
 
 
 if __name__ == '__main__':

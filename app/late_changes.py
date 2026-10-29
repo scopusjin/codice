@@ -132,10 +132,20 @@ def render_late_inputs():
     if not st.session_state.get(ENABLED):
         return
     with st.container(border=True, key='late_changes_card'):
-        st.multiselect('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate',
-                       options=list(CHANGES), format_func=lambda k: CHANGES[k][index], key=CHANGE_KEY)
-        st.multiselect('Observed insect evidence' if en else 'Reperti entomologici osservati',
-                       options=list(INSECTS), format_func=lambda k: INSECTS[k][index], key=INSECT_KEY)
+        for title, options, state_key in (
+            ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
+            ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
+        ):
+            st.markdown('**' + title + '**')
+            selected = st.session_state.get(state_key, [])
+            columns = st.columns(2, gap='small')
+            checked = []
+            for number, (option_id, labels) in enumerate(options.items()):
+                with columns[number % 2]:
+                    if st.checkbox(labels[index], value=option_id in selected,
+                                   key=state_key + '__check_' + option_id):
+                        checked.append(option_id)
+            st.session_state[state_key] = checked
         st.selectbox('Overall assessment chosen by the physician' if en else 'Conclusione complessiva scelta dal medico',
                      options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index], key=CONCLUSION_KEY)
         if st.session_state.get(CONCLUSION_KEY) == 'custom':
