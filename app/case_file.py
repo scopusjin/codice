@@ -36,10 +36,12 @@ for param, label in SPECIAL_PARAM_LABEL_IT.items():
     TEXT_KEYS.update({label + "_ora", label + "_ora__last_main"})
     DATE_KEYS.add(label + "_data")
 from app.late_changes import (ENABLED, CHANGE_KEY, INSECT_KEY, CONCLUSION_KEY, CUSTOM_KEY,
-                              CHANGES, INSECTS, CONCLUSIONS)
-BOOL_KEYS.add(ENABLED)
-TEXT_KEYS.add(CUSTOM_KEY)
-SELECTORS[CONCLUSION_KEY] = set(CONCLUSIONS)
+                              CHANGES, INSECTS, CONCLUSIONS, TRANSFORM_KEY, TRANSFORM_CUSTOM_KEY,
+                              ENTOMO_KEY, ENTOMO_CUSTOM_KEY, ENTOMO_AUTO_KEY)
+BOOL_KEYS.update({ENABLED, ENTOMO_AUTO_KEY})
+TEXT_KEYS.update({CUSTOM_KEY, TRANSFORM_CUSTOM_KEY, ENTOMO_CUSTOM_KEY})
+for key in (CONCLUSION_KEY, TRANSFORM_KEY, ENTOMO_KEY):
+    SELECTORS[key] = set(CONCLUSIONS)
 LATE_LISTS = {CHANGE_KEY: set(CHANGES), INSECT_KEY: set(INSECTS)}
 STATE_KEYS = set(LATE_LISTS) | NUMBER_KEYS | BOOL_KEYS | TEXT_KEYS | DATE_KEYS | LIST_KEYS | SELECTORS.keys() | {"henssge_round_minutes"}
 CHOICE_KEYS = set("""range weight base_range manual manual_weight_adjusted weight_adjusted

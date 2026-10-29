@@ -488,3 +488,13 @@ Caselle raggruppate in due popover nativi, con riepilogo delle scelte all'estern
 ### 29 ottobre 2026 — Maschera compatta e opzioni affiancabili
 
 Compattati spazi e riepiloghi della sezione tardiva. I due comandi di selezione sono affiancati con ritorno a capo quando lo spazio non basta. Anche le opzioni nei popover utilizzano un contenitore orizzontale con wrapping, mantenendo caselle native e selezione multipla. Riepilogo esterno ridotto al numero di scelte; le singole spunte restano visibili aprendo il gruppo. Modifica limitata alla presentazione, senza cambiamenti a testi, JSON o calcoli. Otto test della sezione tardiva superati; diff senza errori. La proposta di revisione del paragrafo introduttivo è stata fornita in conversazione e non applicata all'app.
+
+### 29 ottobre 2026 — Valutazioni separate per trasformazioni ed entomofauna
+
+Sostituito il menu unico con «Valutazione dei fenomeni trasformativi» e «Valutazione dell’entomofauna», ciascuno accanto ai rispettivi reperti e con testo libero indipendente. I campi senza reperti sono disabilitati e non contribuiscono al report. La proposta iniziale entomologica è non precisabile per sole uova/larve, almeno alcuni giorni con pupari pieni e almeno diversi giorni con pupari vuoti. Queste sono scelte qualitative mostrate nel menu e modificabili prima della stima, non intervalli numerici. Dopo una modifica manuale il suggerimento non sovrascrive la scelta al cambiare dei reperti; questo stato è salvato nel JSON.
+
+Descrizione breve riferita esplicitamente alle alterazioni trasformative e/o ai reperti entomologici. Quando le due conclusioni temporali coincidono, viene prodotta una frase comune senza duplicare il medesimo riferimento temporale; altrimenti sono presentate separatamente. I paragrafi dettagliati seguono ciascuno la propria valutazione. Rimosso «caratteristiche» davanti alle macchie ipostatiche nell'introduzione. Il controllo delle stime di poche ore identifica quale valutazione tardiva è interessata. Nessun nuovo range o barra nel grafico e nessuna modifica al motore numerico.
+
+Nuovi campi convalidati ed esportati nel JSON. I file precedenti con una sola conclusione conservano quella scelta iniziale nei due menu fino a revisione del medico; gli eventuali testi liberi precedenti sono mantenuti. Il modulo Word già distribuito continua a importare il riepilogo e le note senza richiedere altre modifiche.
+
+Test della sezione, report/JSON, adattatori tanatologici e testi Henssge superati. AppTest copre proposte per uova, pupari pieni/vuoti, modifica manuale e mancata sovrascrittura, indipendenza dei menu, esportazione delle scelte e nuove descrizioni brevi. Verificata assenza di errori nel diff. Nessuna nuova verifica di esecuzione in Word.

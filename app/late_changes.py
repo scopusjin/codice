@@ -1,4 +1,4 @@
-"""Descriptive late postmortem findings; no automatic chronological thresholds."""
+"""Qualitative late postmortem assessments; no numerical chronological ranges."""
 from html import escape
 
 CHANGES = {
@@ -24,6 +24,7 @@ INSECTS = {
 }
 CONCLUSIONS = {
     'unspecified': ('Epoca non ulteriormente precisabile', 'Time of death cannot be further specified'),
+    'few_days': ('Almeno alcuni giorni prima del rinvenimento', 'At least a few days before discovery'),
     'days': ('Almeno diversi giorni prima del rinvenimento', 'At least several days before discovery'),
     'weeks': ('Alcune settimane prima del rinvenimento', 'Several weeks before discovery'),
     'months': ('Alcuni mesi prima del rinvenimento', 'Several months before discovery'),
@@ -34,7 +35,55 @@ CHANGE_KEY = 'late_changes_observed'
 INSECT_KEY = 'late_insects_observed'
 CONCLUSION_KEY = 'late_conclusion'
 CUSTOM_KEY = 'late_conclusion_custom'
-KEYS = (ENABLED, CHANGE_KEY, INSECT_KEY, CONCLUSION_KEY, CUSTOM_KEY)
+TRANSFORM_KEY = 'late_transform_conclusion'
+TRANSFORM_CUSTOM_KEY = 'late_transform_custom'
+ENTOMO_KEY = 'late_entomo_conclusion'
+ENTOMO_CUSTOM_KEY = 'late_entomo_custom'
+ENTOMO_AUTO_KEY = 'late_entomo_automatic'
+TIMED_CHOICES = {'few_days', 'days', 'weeks', 'months'}
+KEYS = (ENABLED, CHANGE_KEY, INSECT_KEY, CONCLUSION_KEY, CUSTOM_KEY,
+        TRANSFORM_KEY, TRANSFORM_CUSTOM_KEY, ENTOMO_KEY, ENTOMO_CUSTOM_KEY, ENTOMO_AUTO_KEY)
+
+
+def suggested_entomo_choice(insects):
+    if 'empty_puparia' in insects:
+        return 'days'
+    if 'full_puparia' in insects:
+        return 'few_days'
+    return 'unspecified'
+
+
+def assessment_choices(state):
+    # Older files had one shared conclusion; keep it until the physician edits it.
+    legacy = state.get(CONCLUSION_KEY, 'unspecified')
+    return (state.get(TRANSFORM_KEY, legacy), state.get(ENTOMO_KEY, legacy))
+
+
+def assessment_sentence(kind, choice, custom, insects, en=False):
+    index = int(en)
+    if kind == 'transform':
+        prefix = ('The presence of late postmortem changes only supports a death occurring ' if en else
+                  'La presenza di alterazioni trasformative post-mortali consente unicamente di ritenere che il decesso si sia verificato ')
+        unspecified = ('The observed late postmortem changes do not allow the time of death to be further specified.' if en else
+                       'Le alterazioni trasformative post-mortali osservate non permettono di avanzare precisazioni sull’epoca del decesso.')
+        label = 'Late postmortem changes' if en else 'Fenomeni trasformativi'
+    else:
+        if 'empty_puparia' in insects:
+            subject = 'The presence of empty puparia attributable to colonisation of the body' if en else 'La presenza di pupari vuoti riferibili alla colonizzazione del cadavere'
+        elif 'full_puparia' in insects:
+            subject = 'The presence of full puparia attributable to colonisation of the body' if en else 'La presenza di pupari pieni riferibili alla colonizzazione del cadavere'
+        else:
+            subject = 'The observed insect evidence' if en else 'La presenza dei reperti entomologici osservati'
+        prefix = subject + (' only supports a death occurring ' if en else ' consente unicamente di ritenere che il decesso si sia verificato ')
+        unspecified = ('Without further information, the observed insect evidence does not allow the time of death to be further specified.' if en else
+                       'I reperti entomologici osservati, in assenza di ulteriori elementi, non permettono di avanzare precisazioni sull’epoca del decesso.')
+        label = 'Insect evidence' if en else 'Entomofauna'
+    if choice == 'custom' and custom.strip():
+        return label + ': ' + custom.strip()
+    if choice in TIMED_CHOICES:
+        return prefix + CONCLUSIONS[choice][index].lower() + '.'
+    return unspecified
+
 
 
 def _join(items, en=False):
@@ -55,7 +104,7 @@ def build_late_report(state, language='it'):
     if state.get('henssge_non_applicabile'):
         unavailable.append('body cooling' if en else 'il raffreddamento cadaverico')
     if state.get('selettore_macchie_id') == 'livor_unreliable':
-        unavailable.append('postmortem lividity' if en else 'le caratteristiche delle macchie ipostatiche')
+        unavailable.append('postmortem lividity' if en else 'le macchie ipostatiche')
     if state.get('selettore_rigidita_id') == 'rigor_unreliable':
         unavailable.append('rigor mortis' if en else 'la rigidità cadaverica')
     if state.get('mostra_parametri_aggiuntivi'):
@@ -66,7 +115,8 @@ def build_late_report(state, language='it'):
             unreliable = SPECIAL_OPTION_LABEL_IT[param].get(OPTION_UNRELIABLE)
             if unreliable is not None and selected == unreliable:
                 unavailable.append(special_parameter_label(param, language).lower())
-    choice = state.get(CONCLUSION_KEY, 'unspecified')
+    transform_choice, entomo_choice = assessment_choices(state)
+    choice = transform_choice
     compatibility = []
     paragraphs = []
     if unavailable:
@@ -103,7 +153,7 @@ def build_late_report(state, language='it'):
                 text += 'Their development depends on environmental conditions and the characteristics of the body. '
             text += ('Their onset may vary greatly, from hours to several weeks after death; their assessment does not permit a precise time of death.' if putrefactive else
                      'Their marked variability prevents a precise estimate of the time since death.')
-            if choice in ('days', 'weeks', 'months'):
+            if choice in TIMED_CHOICES:
                 text += ' In this case, their degree of development only supports a death occurring ' + CONCLUSIONS[choice][index].lower() + '.'
         else:
             text = ('I processi post-mortali tardivi/trasformativi, in particolare quelli putrefattivi. ' if putrefactive else
@@ -117,11 +167,14 @@ def build_late_report(state, language='it'):
             else:
                 text += ('La loro insorgenza e progressione sono influenzate dalle condizioni ambientali e dalle caratteristiche del cadavere. '
                          'La loro valutazione non permette di formulare precisazioni sull’epoca della morte.')
-            if choice in ('days', 'weeks', 'months'):
-                timing = {'days': 'quantomeno vari giorni', 'weeks': 'alcune settimane', 'months': 'alcuni mesi'}[choice]
+            if choice in TIMED_CHOICES:
+                timing = {'few_days': 'quantomeno alcuni giorni', 'days': 'quantomeno vari giorni', 'weeks': 'alcune settimane', 'months': 'alcuni mesi'}[choice]
                 text += (' Nel caso in esame, il loro grado di sviluppo permette unicamente di ritenere che il decesso si sia verificato '
                          + timing + ' prima del rinvenimento.')
+        if choice not in TIMED_CHOICES:
+            text += ' ' + assessment_sentence('transform', choice, str(state.get(TRANSFORM_CUSTOM_KEY, state.get(CUSTOM_KEY, ''))), insects, en)
         items.append(text)
+    choice = entomo_choice
     if insects:
         observations = _join([INSECTS[k][index].lower() for k in insects], en)
         if en:
@@ -130,12 +183,12 @@ def build_late_report(state, language='it'):
             text += 'Insect development is strongly influenced by environmental conditions, insect type and species, and the exposure of the body. '
             if 'empty_puparia' in insects:
                 text += ('Without making a specific entomological estimate, empty puparia suggest that at least some colonising insects reached the advanced stages of development and emerged as adults. ')
-                if choice in ('days', 'weeks', 'months'):
+                if choice in TIMED_CHOICES:
                     text += ('Despite the wide variation in developmental times with species and environmental conditions, this process requires an appreciable period, at least on the order of several days. ')
-                    compatible = 'This finding is therefore also compatible with death occurring at least several days before discovery.'
+                    compatible = 'This finding is compatible with death occurring ' + CONCLUSIONS[choice][index].lower() + '.'
                     compatibility.append(compatible)
                     text += compatible
-            elif choice in ('days', 'weeks', 'months'):
+            elif choice in TIMED_CHOICES:
                 compatible = 'Without making a specific entomological estimate, these observations are compatible with death occurring ' + CONCLUSIONS[choice][index].lower() + '.'
                 compatibility.append(compatible)
                 text += compatible
@@ -146,41 +199,43 @@ def build_late_report(state, language='it'):
             if 'empty_puparia' in insects:
                 text += ('Pur senza avanzare specifiche valutazioni entomologiche, la presenza di pupari vuoti suggerisce che almeno una parte degli insetti colonizzatori '
                          'abbia raggiunto le fasi più avanzate del proprio ciclo di sviluppo, fino alla fuoriuscita dell’insetto adulto. ')
-                if choice in ('days', 'weeks', 'months'):
+                if choice in TIMED_CHOICES:
                     text += ('Pur considerando l’ampia variabilità dei tempi di sviluppo in relazione alla specie coinvolta e alle condizioni ambientali, '
                              'tale processo richiede comunque un intervallo temporale non trascurabile, quantificabile almeno nell’ordine di diversi giorni. ')
-                    compatible = 'Anche questo elemento risulta pertanto compatibile con un decesso avvenuto almeno diversi giorni prima del rinvenimento.'
+                    compatible = 'Anche questo elemento risulta pertanto compatibile con un decesso avvenuto ' + CONCLUSIONS[choice][index].lower() + '.'
                     compatibility.append(compatible)
                     text += compatible
-            elif choice in ('days', 'weeks', 'months'):
+            elif choice in TIMED_CHOICES:
                 timing = CONCLUSIONS[choice][index].lower()
-                compatible = ('Pur senza avanzare specifiche valutazioni entomologiche, quanto osservato non risulta in contrasto con le considerazioni sopra espresse '
-                              'e appare compatibile con un decesso avvenuto ' + timing + '.') if changes else (
-                              'Pur senza avanzare specifiche valutazioni entomologiche, quanto osservato appare compatibile con un decesso avvenuto ' + timing + '.')
+                compatible = ('Pur senza avanzare specifiche valutazioni entomologiche, quanto osservato appare compatibile con un decesso avvenuto ' + timing + '.')
                 compatibility.append(compatible)
                 text += compatible
+        if choice not in TIMED_CHOICES:
+            text += ' ' + assessment_sentence('entomo', choice, str(state.get(ENTOMO_CUSTOM_KEY, state.get(CUSTOM_KEY, ''))), insects, en)
         items.append(text)
-    choice = state.get(CONCLUSION_KEY, 'unspecified')
-    if choice == 'custom':
-        conclusion = str(state.get(CUSTOM_KEY, '')).strip()
-        if not conclusion:
-            conclusion = CONCLUSIONS['unspecified'][index] + '.'
-    elif choice in ('days', 'weeks', 'months'):
-        timing = CONCLUSIONS[choice][index].lower()
-        conclusion = ('In this case, the overall assessment of the findings supports the physician’s judgement that death occurred ' + timing + '.') if en else (
-            'Nel caso in esame, la valutazione complessiva dei reperti permette di ritenere che il decesso si sia verificato ' + timing + '.')
+    assessments = []
+    briefs = []
+    if changes:
+        assessments.append(('transform', transform_choice))
+        briefs.append(assessment_sentence('transform', transform_choice,
+            str(state.get(TRANSFORM_CUSTOM_KEY, state.get(CUSTOM_KEY, ''))), insects, en))
+    if insects:
+        assessments.append(('entomo', entomo_choice))
+        briefs.append(assessment_sentence('entomo', entomo_choice,
+            str(state.get(ENTOMO_CUSTOM_KEY, state.get(CUSTOM_KEY, ''))), insects, en))
+    if changes and insects and transform_choice == entomo_choice and transform_choice in TIMED_CHOICES:
+        conclusion = ('The late postmortem changes and insect evidence only support a death occurring ' if en else
+                      'Le alterazioni trasformative post-mortali e i reperti entomologici osservati consentono unicamente di ritenere che il decesso si sia verificato ')
+        conclusion += CONCLUSIONS[transform_choice][index].lower() + '.'
     else:
-        conclusion = ('The findings do not allow the time of death to be further specified.') if en else (
-            'Sulla base dei reperti considerati, l’epoca del decesso non risulta ulteriormente precisabile.')
+        conclusion = '\n'.join(briefs)
     html = ''.join('<p>' + escape(p) + '</p>' for p in paragraphs)
     html += '<ul>' + ''.join('<li>' + escape(p) + '</li>' for p in items) + '</ul>'
-    if not changes or choice not in ('days', 'weeks', 'months'):
-        html += '<p>' + escape(conclusion) + '</p>'
     conflict_html = html
     for sentence in compatibility:
         conflict_html = conflict_html.replace(escape(sentence), '')
     footnotes = late_word_footnotes(changes, insects, en)
-    return {'html': html, 'conflict_html': conflict_html, 'brief': conclusion, 'choice': choice, 'word_footnotes': footnotes}
+    return {'html': html, 'conflict_html': conflict_html, 'brief': conclusion, 'choice': choice, 'assessments': assessments, 'word_footnotes': footnotes}
 
 
 def render_late_inputs():
@@ -199,6 +254,19 @@ def render_late_inputs():
         .st-key-late_changes_observed__choices [data-testid="stCheckbox"],
         .st-key-late_insects_observed__choices [data-testid="stCheckbox"] {margin:0!important;padding:0!important;}
         </style>''', unsafe_allow_html=True)
+    if TRANSFORM_KEY not in st.session_state:
+        st.session_state[TRANSFORM_KEY] = st.session_state.get(CONCLUSION_KEY, 'unspecified')
+    if ENTOMO_KEY not in st.session_state:
+        st.session_state[ENTOMO_KEY] = st.session_state.get(CONCLUSION_KEY, suggested_entomo_choice(st.session_state.get(INSECT_KEY, [])))
+    if ENTOMO_AUTO_KEY not in st.session_state:
+        st.session_state[ENTOMO_AUTO_KEY] = CONCLUSION_KEY not in st.session_state
+    for key in (TRANSFORM_CUSTOM_KEY, ENTOMO_CUSTOM_KEY):
+        if key not in st.session_state:
+            st.session_state[key] = st.session_state.get(CUSTOM_KEY, '')
+
+    def mark_entomo_manual():
+        st.session_state[ENTOMO_AUTO_KEY] = False
+
     with st.container(border=True, key='late_changes_card'):
         with st.container(horizontal=True, wrap=True, gap='small', key='late_selection_buttons'):
             for title, options, state_key in (
@@ -222,10 +290,19 @@ def render_late_inputs():
                     st.session_state[state_key] = checked
                     if checked:
                         st.caption((str(len(checked)) + ' selected') if en else (str(len(checked)) + ' selezionati'))
-        st.selectbox('Overall assessment chosen by the physician' if en else 'Conclusione complessiva scelta dal medico',
-                     options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index], key=CONCLUSION_KEY)
-        if st.session_state.get(CONCLUSION_KEY) == 'custom':
-            st.text_area('Conclusion text' if en else 'Testo della conclusione', key=CUSTOM_KEY, max_chars=4000)
+                    is_entomo = state_key == INSECT_KEY
+                    choice_key = ENTOMO_KEY if is_entomo else TRANSFORM_KEY
+                    custom_key = ENTOMO_CUSTOM_KEY if is_entomo else TRANSFORM_CUSTOM_KEY
+                    if is_entomo and st.session_state[ENTOMO_AUTO_KEY]:
+                        st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
+                    label = ('Insect evidence assessment' if en else 'Valutazione dell’entomofauna') if is_entomo else (
+                        'Late postmortem changes assessment' if en else 'Valutazione dei fenomeni trasformativi')
+                    st.selectbox(label, options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index],
+                                 key=choice_key, disabled=not checked,
+                                 on_change=mark_entomo_manual if is_entomo else None)
+                    if st.session_state[choice_key] == 'custom':
+                        st.text_area(('Conclusion text — ' if en else 'Testo della valutazione — ') + label.lower(),
+                                     key=custom_key, max_chars=4000, disabled=not checked)
 
 
 def late_hours_conflict(report, upper_bounds, language='it'):
@@ -236,18 +313,24 @@ def late_hours_conflict(report, upper_bounds, language='it'):
     """
     from math import isfinite
     from numbers import Real
-    if not report or report.get('choice') not in {'days', 'weeks', 'months'}:
+    if not report:
+        return ''
+    assessments = report.get('assessments', [('legacy', report.get('choice'))])
+    timed = [kind for kind, choice in assessments if choice in TIMED_CHOICES]
+    if not timed:
         return ''
     labels = list(dict.fromkeys(label for label, upper in upper_bounds
                                if isinstance(upper, Real) and isfinite(upper) and 0 <= upper < 24))
     if not labels:
         return ''
+    origin_it = _join([{'transform': 'la valutazione dei fenomeni trasformativi', 'entomo': 'la valutazione dell’entomofauna', 'legacy': 'la conclusione scelta dal medico'}[k] for k in timed])
+    origin_en = _join([{'transform': 'the assessment of late postmortem changes', 'entomo': 'the insect evidence assessment', 'legacy': 'the physician’s selected conclusion'}[k] for k in timed], True)
     if language == 'en':
-        return ('Potential inconsistency: the physician selected a conclusion expressed in days, weeks or months, '
+        return ('Potential inconsistency: ' + origin_en + (' refer' if len(timed) > 1 else ' refers') + ' to days, weeks or months, '
                 'but the following parameters have an upper limit of less than 24 hours before the main examination: '
                 + _join(labels, True) + '. Review the applicability of these parameters and the selected conclusion. '
                 'The descriptive conclusion has not been included in the numerical combination.')
-    return ('Possibile incoerenza: la conclusione scelta dal medico è espressa in giorni, settimane o mesi, '
+    return ('Possibile incoerenza: ' + origin_it + (' sono espresse' if len(timed) > 1 else ' è espressa') + ' in giorni, settimane o mesi, '
             'mentre i seguenti parametri indicano un limite superiore inferiore a 24 ore prima dei rilievi principali: '
             + _join([label[:1].lower() + label[1:] for label in labels]) + '. Verificare l’utilizzabilità di questi parametri e la conclusione selezionata. '
             'La conclusione descrittiva non è stata inclusa nel calcolo della stima combinata.')

@@ -1103,7 +1103,7 @@ def aggiorna_grafico(
         st.warning(late_warning)
     if late_report and not late_warning:
         from html import escape
-        late_brief = "<p>" + escape(late_report["brief"]) + "</p>"
+        late_brief = "<p>" + escape(late_report["brief"]).replace("\n", "</p><p>") + "</p>"
         frase_breve_html = (frase_breve_html or "") + late_brief
         st.session_state["frase_breve"] = frase_breve_html
     if frase_breve_html:
