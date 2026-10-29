@@ -534,6 +534,14 @@ def aggiorna_grafico(
         )
         famiglie_usate.append(FAMILY_COOLING)
 
+    from app.late_changes import late_hours_conflict
+    late_warning = late_hours_conflict(late_report, zip(nomi_usati, fine), current_language())
+    if late_warning:
+        from html import escape
+        late_report = dict(late_report)
+        late_report['html'] += '<p style="color:#9C2F16;">' + escape(late_warning) + '</p>'
+        avvisi.append(late_warning)
+
     # Più scenari o metodi del raffreddamento restano un solo parametro.
     single_parameter = len(set(famiglie_usate)) == 1
 
@@ -1088,7 +1096,9 @@ def aggiorna_grafico(
 
     # Riepilogo verde prima dei comandi di dettaglio.
     frase_breve_html = st.session_state.get("frase_breve")
-    if late_report:
+    if late_warning:
+        st.warning(late_warning)
+    if late_report and not late_warning:
         from html import escape
         late_brief = "<p>" + escape(late_report["brief"]) + "</p>"
         frase_breve_html = (frase_breve_html or "") + late_brief

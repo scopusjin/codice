@@ -94,18 +94,16 @@ def build_late_report(state, language='it'):
         observations = _join([INSECTS[k][index].lower() for k in insects], en)
         if en:
             text = f'Insect colonisation of the body, with {observations}. '
-            text += ('Insect development depends strongly on environmental conditions, species and the exposure and accessibility of the body. ')
+            text += ('The development of colonising insects depends on species, environmental conditions and the exposure and accessibility of the body. ')
             if 'empty_puparia' in insects:
-                text += ('The presence of empty puparia, if attributable to colonisation of this body, suggests that at least some colonising insects completed their immature development and emerged as adults. ')
-            text += ('Without a specific entomological assessment, these observations alone do not establish a numerical minimum interval since death. '
-                     'The interval since colonisation must also be distinguished from the interval since death.')
+                text += ('Empty puparia attributable to this body indicate that at least some colonising insects completed their immature development and emerged as adults. ')
+            text += ('Without making a specific entomological estimate, these findings are considered together with the other available evidence in the overall assessment of the time since death.')
         else:
             text = f'La colonizzazione del cadavere da parte dell’entomofauna, con presenza di {observations}. '
-            text += ('Anche l’evoluzione dell’entomofauna è fortemente condizionata dalle condizioni ambientali, dalla specie di insetto e dalle modalità di esposizione e accessibilità del cadavere. ')
+            text += ('Lo sviluppo degli insetti colonizzatori dipende dalla specie, dalle condizioni ambientali e dalle modalità di esposizione e accessibilità del cadavere. ')
             if 'empty_puparia' in insects:
-                text += ('La presenza di pupari vuoti, se riferibili alla colonizzazione del cadavere in esame, suggerisce che almeno una parte degli insetti colonizzatori abbia completato il proprio sviluppo fino alla fuoriuscita dell’insetto adulto. ')
-            text += ('Pur senza avanzare specifiche valutazioni entomologiche, quanto osservato non consente, da solo, di quantificare un intervallo minimo dal decesso. '
-                     'Il tempo trascorso dalla colonizzazione deve inoltre essere distinto da quello trascorso dalla morte.')
+                text += ('I pupari vuoti riferibili al cadavere in esame indicano che almeno una parte degli insetti colonizzatori ha completato il proprio sviluppo fino alla fuoriuscita dell’adulto. ')
+            text += ('Pur senza avanzare specifiche valutazioni entomologiche, questi reperti vengono considerati congiuntamente agli altri elementi disponibili nella valutazione complessiva dell’epoca del decesso.')
         items.append(text)
     choice = state.get(CONCLUSION_KEY, 'unspecified')
     if choice == 'custom':
@@ -119,13 +117,10 @@ def build_late_report(state, language='it'):
     else:
         conclusion = ('The findings do not allow the time of death to be further specified.') if en else (
             'Sulla base dei reperti considerati, l’epoca del decesso non risulta ulteriormente precisabile.')
-    if insects and choice in ('days', 'weeks', 'months'):
-        items[-1] += (' These observations do not conflict with the overall assessment below.' if en else
-                      ' Quanto osservato non risulta in contrasto con la valutazione complessiva di seguito espressa.')
     html = ''.join('<p>' + escape(p) + '</p>' for p in paragraphs)
     html += '<ul>' + ''.join('<li>' + escape(p) + '</li>' for p in items) + '</ul>'
     html += '<p>' + escape(conclusion) + '</p>'
-    return {'html': html, 'brief': conclusion}
+    return {'html': html, 'brief': conclusion, 'choice': choice}
 
 
 def render_late_inputs():
@@ -133,10 +128,10 @@ def render_late_inputs():
     from app.language import current_language
     en = current_language() == 'en'
     index = int(en)
-    with st.expander('Late postmortem changes / insect evidence' if en else 'Fenomeni trasformativi / entomofauna'):
-        st.checkbox('Include in the assessment' if en else 'Includi nella valutazione', key=ENABLED)
-        if not st.session_state.get(ENABLED):
-            return
+    st.toggle('Add late postmortem changes / insect evidence' if en else 'Aggiungi fenomeni trasformativi / entomofauna', key=ENABLED)
+    if not st.session_state.get(ENABLED):
+        return
+    with st.container(border=True, key='late_changes_card'):
         st.multiselect('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate',
                        options=list(CHANGES), format_func=lambda k: CHANGES[k][index], key=CHANGE_KEY)
         st.multiselect('Observed insect evidence' if en else 'Reperti entomologici osservati',
@@ -147,3 +142,28 @@ def render_late_inputs():
             st.text_area('Conclusion text' if en else 'Testo della conclusione', key=CUSTOM_KEY, max_chars=4000)
         st.caption('The selected findings do not generate an automatic time interval.' if en else
                    'I reperti selezionati non generano automaticamente un intervallo temporale.')
+
+
+def late_hours_conflict(report, upper_bounds, language='it'):
+    """Flag a clearly short upper limit, without turning the late choice into a range.
+
+    Less than 24 hours is incompatible with a conclusion expressed in several
+    days/weeks/months. Open limits and unparsed free text are not classified.
+    """
+    from math import isfinite
+    from numbers import Real
+    if not report or report.get('choice') not in {'days', 'weeks', 'months'}:
+        return ''
+    labels = list(dict.fromkeys(label for label, upper in upper_bounds
+                               if isinstance(upper, Real) and isfinite(upper) and 0 <= upper < 24))
+    if not labels:
+        return ''
+    if language == 'en':
+        return ('Potential inconsistency: the physician selected a conclusion expressed in days, weeks or months, '
+                'but the following parameters have an upper limit of less than 24 hours before the main examination: '
+                + _join(labels, True) + '. Review the applicability of these parameters and the selected conclusion. '
+                'The descriptive conclusion has not been included in the numerical combination.')
+    return ('Possibile incoerenza: la conclusione scelta dal medico è espressa in giorni, settimane o mesi, '
+            'mentre i seguenti parametri indicano un limite superiore inferiore a 24 ore prima dei rilievi principali: '
+            + _join(labels) + '. Verificare l’utilizzabilità di questi parametri e la conclusione selezionata. '
+            'La conclusione descrittiva non è stata inclusa nel calcolo della stima combinata.')

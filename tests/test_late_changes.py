@@ -2,7 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 import unittest
 
-from app.late_changes import build_late_report
+from app.late_changes import build_late_report, late_hours_conflict
 from app.case_file import snapshot_case, encode_case, decode_case, restored_inputs, CaseFileError
 from app.case_report import capture_report
 
@@ -15,7 +15,7 @@ class LateChangesTests(unittest.TestCase):
     def test_multiple_observations_and_puparia_wording(self):
         report = build_late_report(self.state())
         for text in ('enfisema putrefattivo', 'colliquazione', 'larve', 'pupari vuoti',
-                     'fuoriuscita dell’insetto adulto', 'almeno diversi giorni prima del rinvenimento'):
+                     'fuoriuscita dell’adulto', 'almeno diversi giorni prima del rinvenimento'):
             self.assertIn(text, report['html'])
         self.assertNotIn('non risultano utilizzabili', report['html'])
         report = build_late_report(self.state(henssge_non_applicabile=True,
@@ -65,6 +65,24 @@ class LateChangesTests(unittest.TestCase):
         with self.assertRaises(CaseFileError):
             encode_case(bad)
 
+    def test_hours_conflict_checks_each_parameter_without_building_late_range(self):
+        for choice in ('days', 'weeks', 'months'):
+            state = self.state()
+            state['late_conclusion'] = choice
+            report = build_late_report(state)
+            warning = late_hours_conflict(report, [('rigidità', 192), ('ipostasi', 3), ('raffreddamento', float('nan'))])
+            self.assertIn('ipostasi', warning)
+            self.assertNotIn('rigidità', warning)
+            self.assertNotIn('raffreddamento', warning)
+            self.assertIn('non è stata inclusa nel calcolo', warning)
+            self.assertNotIn('range', report)
+            self.assertNotIn('non risulta in contrasto', report['html'])
+            self.assertNotIn('quantificare un intervallo minimo', report['html'])
+            self.assertFalse(late_hours_conflict(report, [('ipostasi', 24), ('rigidità', float('inf'))]))
+        for choice in ('unspecified', 'custom'):
+            self.assertFalse(late_hours_conflict({'choice': choice}, [('ipostasi', 3)]))
+        self.assertIn('Potential inconsistency', late_hours_conflict({'choice': 'days'}, [('lividity', 3)], 'en'))
+
     def test_full_page_late_only_and_mixed_export(self):
         from streamlit.testing.v1 import AppTest
         import app.decimal_number_input_v2 as decimal_v2
@@ -94,6 +112,16 @@ class LateChangesTests(unittest.TestCase):
         self.assertIn('pupari vuoti', html)
         self.assertIn('macchie ipostatiche', html)
         self.assertIn('arrotondat', html)
+        app.session_state['selettore_macchie'] = 'Non ancora comparse'
+        app.session_state['selettore_macchie_ui'] = 'Non ancora comparse'
+        app.run()
+        app.button(key='btn_stima').click().run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any('Possibile incoerenza' in w.value for w in app.warning))
+        case = snapshot_case(app.session_state._state.filtered_state, 'full')
+        self.assertIn('Possibile incoerenza', case['report']['detailed_text'])
+        self.assertIn('Possibile incoerenza', case['report']['word_blocks']['putrefaction']['text'])
+        self.assertNotIn('almeno diversi giorni', app.session_state['frase_breve'])
 
 
 if __name__ == '__main__':

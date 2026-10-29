@@ -181,11 +181,13 @@ st.markdown("""
 
   /* La sezione aggiuntiva resta chiusa finché non serve e viene separata
      dal resto del modulo senza introdurre un'altra card pesante. */
-  [class*="st-key-mostra_parametri_aggiuntivi"] {
+  [class*="st-key-mostra_parametri_aggiuntivi"],
+  [class*="st-key-late_changes_enabled"] {
     margin: 0.18rem 0 0 !important;
     padding: 0.38rem 0 0 !important;
   }
-  [class*="st-key-mostra_parametri_aggiuntivi"] [data-testid="stToggle"] {
+  [class*="st-key-mostra_parametri_aggiuntivi"] [data-testid="stToggle"],
+  [class*="st-key-late_changes_enabled"] [data-testid="stToggle"] {
     margin: 0 !important;
     padding: 0 !important;
   }
