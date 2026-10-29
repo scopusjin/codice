@@ -191,27 +191,37 @@ def render_late_inputs():
     st.toggle('Add late postmortem changes / insect evidence' if en else 'Aggiungi fenomeni trasformativi / entomofauna', key=ENABLED)
     if not st.session_state.get(ENABLED):
         return
+    st.markdown('''<style>
+        .st-key-late_changes_card {gap:0.35rem!important;padding:0.65rem!important;}
+        .st-key-late_selection_buttons {gap:0.45rem!important;}
+        .st-key-late_changes_observed__choices,
+        .st-key-late_insects_observed__choices {gap:0.25rem 1rem!important;}
+        .st-key-late_changes_observed__choices [data-testid="stCheckbox"],
+        .st-key-late_insects_observed__choices [data-testid="stCheckbox"] {margin:0!important;padding:0!important;}
+        </style>''', unsafe_allow_html=True)
     with st.container(border=True, key='late_changes_card'):
-        for title, options, state_key in (
-            ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
-            ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
-        ):
-            selected = st.session_state.get(state_key, [])
-            with st.popover(title, use_container_width=True):
-                checked = []
-                for option_id, labels in options.items():
-                    # Preserve unqualified observations from older files without
-                    # assigning them a new, unsupported extent.
-                    legacy = state_key == CHANGE_KEY and option_id in {'liquefaction', 'mummification', 'skeletonisation'}
-                    if legacy and option_id not in selected:
-                        continue
-                    label = labels[index] + ((' (previous selection)' if en else ' (selezione precedente)') if legacy else '')
-                    if st.checkbox(label, value=option_id in selected,
-                                   key=state_key + '__check_' + option_id):
-                        checked.append(option_id)
-            st.session_state[state_key] = checked
-            if checked:
-                st.caption('; '.join(options[k][index] for k in checked))
+        with st.container(horizontal=True, wrap=True, gap='small', key='late_selection_buttons'):
+            for title, options, state_key in (
+                ('Observed postmortem changes' if en else 'Modificazioni post-mortali osservate', CHANGES, CHANGE_KEY),
+                ('Observed insect evidence' if en else 'Reperti entomologici osservati', INSECTS, INSECT_KEY),
+            ):
+                selected = st.session_state.get(state_key, [])
+                with st.container(width='content', gap=None):
+                    with st.popover(title):
+                        checked = []
+                        with st.container(horizontal=True, wrap=True, gap='small', key=state_key + '__choices'):
+                            for option_id, labels in options.items():
+                                # Keep older, unqualified observations without inventing their extent.
+                                legacy = state_key == CHANGE_KEY and option_id in {'liquefaction', 'mummification', 'skeletonisation'}
+                                if legacy and option_id not in selected:
+                                    continue
+                                label = labels[index] + ((' (previous selection)' if en else ' (selezione precedente)') if legacy else '')
+                                if st.checkbox(label, value=option_id in selected,
+                                               key=state_key + '__check_' + option_id, width='content'):
+                                    checked.append(option_id)
+                    st.session_state[state_key] = checked
+                    if checked:
+                        st.caption((str(len(checked)) + ' selected') if en else (str(len(checked)) + ' selezionati'))
         st.selectbox('Overall assessment chosen by the physician' if en else 'Conclusione complessiva scelta dal medico',
                      options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index], key=CONCLUSION_KEY)
         if st.session_state.get(CONCLUSION_KEY) == 'custom':
