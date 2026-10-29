@@ -28,22 +28,18 @@ def scenario_temperature_bounds(choice):
 def summarize_scenarios(scenarios):
     bounds = [min(item["range"][0] for item in scenarios),
               max(item["range"][1] for item in scenarios)]
-    descriptions = []
-    # A shared lower bound does not make the wider scenario the lower extreme.
-    # Break endpoint ties using the other bound, independently of scenario order.
-    extreme_ranges = (min(tuple(item["range"]) for item in scenarios),
-                      max(tuple(reversed(item["range"])) for item in scenarios))
-    for index in range(2):
-        extreme = extreme_ranges[index]
-        texts = dict.fromkeys(scenario_conditions(item) for item in scenarios
-                              if (tuple(item["range"]) if index == 0 else
-                                  tuple(reversed(item["range"]))) == extreme)
-        descriptions.append(" / ".join(texts))
+    # Endpoint ties use the opposite bound; exact ties keep insertion order.
+    extremes = (min(scenarios, key=lambda item: tuple(item["range"])),
+                max(scenarios, key=lambda item: tuple(reversed(item["range"]))))
+    descriptions = [scenario_conditions(item) for item in extremes]
     label = ("Fattore di correzione considerato" if bounds[0] == bounds[1] else
              "Range stimato per il fattore di correzione, considerate le varie condizioni in cui potrebbe essersi trovato il corpo")
-    text = f"{label}: {bounds[0]:.2f} ({descriptions[0]})"
-    if bounds[0] != bounds[1]:
-        text += f" — {bounds[1]:.2f} ({descriptions[1]})"
+    if bounds[0] != bounds[1] and descriptions[0] == descriptions[1]:
+        text = f"{label}: {bounds[0]:.2f} — {bounds[1]:.2f} ({descriptions[0]})"
+    else:
+        text = f"{label}: {bounds[0]:.2f} ({descriptions[0]})"
+        if bounds[0] != bounds[1]:
+            text += f" — {bounds[1]:.2f} ({descriptions[1]})"
     return bounds, text
 
 

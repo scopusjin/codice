@@ -20,3 +20,13 @@ assert.match(tiedEndpoint.description,/0.90 \(corpo asciutto[^)]*\) — 1.00 \(c
 assert.equal((tiedEndpoint.description.match(/corpo bagnato/g)||[]).length,1);
 
 console.log("FC endpoint descriptions: OK");
+
+// Exact interval ties keep the first scenario and describe it once.
+choose(0);manual(.90,1.00);
+const sameRanges=panel.payload();
+assert.match(sameRanges.description,/0.90 — 1.00 \(corpo asciutto[^)]*\)$/);
+assert.equal((sameRanges.description.match(/corpo asciutto/g)||[]).length,1);
+assert.ok(!sameRanges.description.includes(' / '));
+assert.ok(!sameRanges.description.includes('corpo bagnato'));
+manual(.90,.90);choose(1);manual(.90,.90);
+assert.match(panel.payload().description,/0.90 \(corpo asciutto[^)]*\)$/);

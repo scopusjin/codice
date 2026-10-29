@@ -157,6 +157,19 @@ class FCScenarioTests(unittest.TestCase):
         self.assertNotIn("Range di", text)
         self.assertTrue(result.raffreddamento_calcolabile)
 
+    def test_identical_ranges_use_first_scenario_once(self):
+        for count in (2, 3):
+            scenarios = [dict(range=[0.90, 1.10], description=f"scenario {i}")
+                         for i in range(count)]
+            bounds, text = summarize_scenarios(scenarios)
+            self.assertEqual(bounds, [0.90, 1.10])
+            self.assertTrue(text.endswith("0.90 — 1.10 (scenario 0)"))
+            self.assertEqual(text.count("scenario 0"), 1)
+            self.assertNotIn("scenario 1", text)
+            self.assertNotIn(" / ", text)
+            _, reversed_text = summarize_scenarios(list(reversed(scenarios)))
+            self.assertTrue(reversed_text.endswith(f"0.90 — 1.10 (scenario {count - 1})"))
+
     def test_shared_lower_bound_describes_only_the_lower_extreme(self):
         common = "corpo asciutto, con uno strato di indumenti leggeri"
         surface = ", adagiato su superficie termicamente conduttiva"
@@ -263,7 +276,7 @@ class FCScenarioTests(unittest.TestCase):
         self.assertEqual(state["__fc_applied_choice"], previous)
         self.assertEqual(fc_weight_warning(state), "Peso modificato: ricontrollare il FC.")
 
-    def test_equal_fc_retains_multiple_conditions_and_range_output_mode(self):
+    def test_equal_fc_uses_first_conditions_and_retains_range_output_mode(self):
         payload = scenario_payload()
         payload["scenarios"][1]["range"] = [1.35, 1.35]
         payload["range"], _ = summarize_scenarios(payload["scenarios"])
@@ -271,7 +284,8 @@ class FCScenarioTests(unittest.TestCase):
         apply_choice(state, payload)
         self.assertTrue(state["stima_cautelativa_beta"])
         text = state["__fc_applied_choice"]["description"]
-        self.assertIn("corpo asciutto / corpo bagnato, aria in movimento", text)
+        self.assertTrue(text.endswith("1.35 (corpo asciutto)"))
+        self.assertNotIn(" / ", text)
 
     def test_report_conditions_are_escaped_and_only_match_the_applied_calculation(self):
         state = {}

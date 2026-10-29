@@ -418,3 +418,10 @@ Suite completa 387 test Python OK, 12 suite JS OK, 5 controlli dispositivo OK; m
 - Verificati 20 test Python scenari (inclusi minimo condiviso, massimo condiviso, ordine inverso, parità completa e adattamento al peso), 3 test report/download e test JavaScript mirato del riepilogo. Sintassi e diff superati.
 - La suite JavaScript generale degli scenari si ferma su un'aspettativa estranea alla modifica: 'su piano di legno' contro la dicitura corrente 'superficie termicamente indifferente', presente nel test di main. Non modificata e non dichiarata risolta; il nuovo test mirato degli estremi passa separatamente.
 - Commit corrente: quello contenente questa nota. Prossimo passo: riscontro utente del riepilogo nell'app e nuovo download JSON per Word. Il modulo Word già consegnato legge il nuovo riepilogo senza ulteriori modifiche.
+
+### Parità completa: prima descrizione soltanto — 29 ottobre 2026
+
+- Regola esplicitamente approvata dall'utente: se più scenari hanno range identici, usare il primo inserito, senza separatore '/'. Se la stessa descrizione rappresenta entrambi gli estremi, riportarla una sola volta dopo il range.
+- GitHub main riverificato prima dell'intervento: 9cacf30ca8243c9151e184237a5d2f74a9cc4445. Modificati soltanto summarize_scenarios e combined del frontend per la composizione delle descrizioni; calcoli, estremi numerici e scenari conservati invariati.
+- Superati 21 test Python scenari, incluse parità di due e tre scenari e ordine inverso; test JavaScript mirato con intervalli identici e valori singoli; sintassi Python/JS e diff. Resta il precedente limite della suite JS generale sulle diciture delle superfici; nessuna modifica a quel test.
+- Commit corrente: quello con questa nota. Prossimo passo: prova utente della descrizione dopo ricalcolo e nuovo download JSON. Nessuna ulteriore modifica al modulo Word necessaria.
