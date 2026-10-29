@@ -284,6 +284,12 @@ def render_late_inputs():
         }
         .st-key-late_changes_card [data-testid="stWidgetLabel"] { margin-bottom: 0.15rem !important; }
         .st-key-late_changes_card [data-testid="stPopover"] button { min-height: 2rem !important; padding: 0.2rem 0.6rem !important; }
+        .st-key-late_changes_card [data-testid="stPopover"] button {
+            height: auto !important; text-align: left !important; justify-content: space-between !important;
+        }
+        .st-key-late_changes_card [data-testid="stPopover"] button p {
+            white-space: normal !important; overflow-wrap: anywhere; text-align: left !important;
+        }
         .st-key-late_changes_card .mortem-late-divider { border-top: 1px solid rgba(128,128,128,0.3); margin: 0.35rem 0; }
     </style>''', unsafe_allow_html=True)
     with st.container(border=True, key='late_changes_card'):
@@ -296,9 +302,12 @@ def render_late_inputs():
                 if state_key == INSECT_KEY:
                     st.markdown('<div class="mortem-late-divider"></div>', unsafe_allow_html=True)
                 with st.container(gap='small', key=state_key + '__group'):
-                    heading, action = st.columns([4, 1.4], gap='small', vertical_alignment='center')
-                    heading_slot = heading.empty()
-                    with action, st.popover('Choose findings' if en else 'Scegli reperti', key=state_key + '__popup', use_container_width=True):
+                    is_entomo = state_key == INSECT_KEY
+                    group_title = ('Insect evidence' if en else 'Entomofauna') if is_entomo else ('Late postmortem changes' if en else 'Fenomeni trasformativi')
+                    st.markdown('**' + group_title + '**')
+                    displayed = [k for k in options if st.session_state.get(state_key + '__check_' + k, k in selected)]
+                    selected_text = ' · '.join(options[k][index] for k in displayed) if displayed else ('No findings selected' if en else 'Nessun reperto selezionato')
+                    with st.popover(selected_text, key=state_key + '__popup', use_container_width=True):
                         st.markdown('**' + title + '**')
                         checked = []
                         with st.container(horizontal=True, wrap=True, gap='small', key=state_key + '__choices'):
@@ -312,10 +321,6 @@ def render_late_inputs():
                                                key=state_key + '__check_' + option_id, width='content'):
                                     checked.append(option_id)
                     st.session_state[state_key] = checked
-                    is_entomo = state_key == INSECT_KEY
-                    group_title = ('Insect evidence' if en else 'Entomofauna') if is_entomo else ('Late postmortem changes' if en else 'Fenomeni trasformativi')
-                    selected_text = ' · '.join(options[k][index] for k in checked) if checked else ('No findings selected' if en else 'Nessun reperto selezionato')
-                    heading_slot.markdown('**' + group_title + '** &nbsp; :gray[' + selected_text + ']')
                     choice_key = ENTOMO_KEY if is_entomo else TRANSFORM_KEY
                     custom_key = ENTOMO_CUSTOM_KEY if is_entomo else TRANSFORM_CUSTOM_KEY
                     if is_entomo:
@@ -330,7 +335,7 @@ def render_late_inputs():
                     note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
                     choices = [k for k in CONCLUSIONS if not is_entomo or k not in {'weeks', 'months'}]
                     with st.container(horizontal=True, wrap=True, vertical_alignment='center', gap='small', key=state_key + '__assessment_row'):
-                        st.markdown(label + '  \n:gray[' + note + ']', width=270)
+                        st.markdown(escape(label) + '<br><span style="color:gray;font-size:0.78rem;">(' + escape(note) + ')</span>', unsafe_allow_html=True, width=270)
                         st.selectbox(label, options=choices, format_func=lambda k: CONCLUSIONS[k][index],
                                      key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
                                      on_change=mark_entomo_manual if is_entomo else None)
