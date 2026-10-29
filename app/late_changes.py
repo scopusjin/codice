@@ -260,9 +260,16 @@ def render_late_inputs():
         st.session_state[ENTOMO_AUTO_KEY] = False
 
     st.markdown('''<style>
-        .st-key-late_changes_card [data-testid="stVerticalBlock"] { gap: 0.35rem; }
-        .st-key-late_changes_card [data-testid="stDivider"] hr { margin: 0.35rem 0; }
-        .st-key-late_changes_card [data-testid="stMarkdownContainer"] p { margin-bottom: 0; }
+        .st-key-late_changes_card { padding: 0.65rem 0.8rem !important; }
+        .st-key-late_changes_card [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
+        .st-key-late_changes_card [data-testid="stMarkdownContainer"] p,
+        .st-key-late_changes_card [data-testid="stWidgetLabel"] p {
+            font-size: 0.86rem !important; line-height: 1.3 !important;
+            margin: 0 !important;
+        }
+        .st-key-late_changes_card [data-testid="stWidgetLabel"] { margin-bottom: 0.15rem !important; }
+        .st-key-late_changes_card [data-testid="stPopover"] button { min-height: 2rem !important; padding: 0.2rem 0.6rem !important; }
+        .st-key-late_changes_card .mortem-late-divider { border-top: 1px solid rgba(128,128,128,0.3); margin: 0.35rem 0; }
     </style>''', unsafe_allow_html=True)
     with st.container(border=True, key='late_changes_card'):
         with st.container(gap='small', key='late_selection_groups'):
@@ -272,7 +279,7 @@ def render_late_inputs():
             ):
                 selected = st.session_state.get(state_key, [])
                 if state_key == INSECT_KEY:
-                    st.divider()
+                    st.markdown('<div class="mortem-late-divider"></div>', unsafe_allow_html=True)
                 with st.container(gap='small', key=state_key + '__group'):
                     heading, action = st.columns([4, 1.4], gap='small', vertical_alignment='center')
                     heading_slot = heading.empty()
@@ -293,9 +300,7 @@ def render_late_inputs():
                     is_entomo = state_key == INSECT_KEY
                     group_title = ('Insect evidence' if en else 'Entomofauna') if is_entomo else ('Late postmortem changes' if en else 'Fenomeni trasformativi')
                     selected_text = ' · '.join(options[k][index] for k in checked) if checked else ('No findings selected' if en else 'Nessun reperto selezionato')
-                    heading_slot.markdown('<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;">'
-                        '<span style="font-weight:500;">' + escape(group_title) + '</span>'
-                        '<span style="color:gray;font-size:0.9em;">' + escape(selected_text) + '</span></div>', unsafe_allow_html=True)
+                    heading_slot.markdown('**' + group_title + '** &nbsp; :gray[' + selected_text + ']')
                     choice_key = ENTOMO_KEY if is_entomo else TRANSFORM_KEY
                     custom_key = ENTOMO_CUSTOM_KEY if is_entomo else TRANSFORM_CUSTOM_KEY
                     if is_entomo and st.session_state[ENTOMO_AUTO_KEY]:
@@ -303,10 +308,8 @@ def render_late_inputs():
                     label = ('Prudent assessment of insect evidence' if en else 'Valutazione prudente dell’entomofauna') if is_entomo else (
                         'Prudent assessment of late postmortem changes' if en else 'Valutazione prudente dei fenomeni trasformativi')
                     note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
-                    st.markdown('<div style="display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;">'
-                        '<span>' + escape(label) + '</span><span style="color:gray;font-size:0.9em;">' + note + '</span></div>', unsafe_allow_html=True)
-                    st.selectbox(label, options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index],
-                                 key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
+                    st.selectbox(label + ' — :gray[' + note + ']', options=list(CONCLUSIONS), format_func=lambda k: CONCLUSIONS[k][index],
+                                 key=choice_key, disabled=not checked, width='stretch',
                                  on_change=mark_entomo_manual if is_entomo else None)
                     if st.session_state[choice_key] == 'custom':
                         st.text_area(('Conclusion text — ' if en else 'Testo della valutazione — ') + label.lower(),
