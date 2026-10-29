@@ -267,7 +267,13 @@ def render_late_inputs():
 
     st.markdown('''<style>
         .st-key-late_changes_card { padding: 0.65rem 0.8rem !important; }
-        .st-key-late_changes_card [data-testid="stVerticalBlock"] { gap: 0.3rem !important; }
+        .st-key-late_changes_card [data-testid="stVerticalBlock"] {
+            gap: 0.4rem !important; height: auto !important; min-height: 0 !important;
+        }
+        .st-key-late_changes_card :is([data-testid="stLayoutWrapper"], [data-testid="stElementContainer"], [data-testid="stHorizontalBlock"]) {
+            height: auto !important; min-height: 0 !important; flex-shrink: 0 !important;
+        }
+        .st-key-late_changes_card [data-testid="stHorizontalBlock"] { align-items: start !important; }
         .st-key-late_changes_card [data-testid="stMarkdownContainer"] p,
         .st-key-late_changes_card [data-testid="stWidgetLabel"] p {
             font-size: 0.86rem !important; line-height: 1.3 !important;
@@ -317,13 +323,15 @@ def render_late_inputs():
                         if st.session_state[ENTOMO_AUTO_KEY] or retained_preset:
                             st.session_state[ENTOMO_AUTO_KEY] = True
                             st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
-                    label = ('Prudent assessment of insect evidence' if en else 'Valutazione prudente dell’entomofauna') if is_entomo else (
-                        'Prudent assessment of late postmortem changes' if en else 'Valutazione prudente dei fenomeni trasformativi')
+                    label = 'Prudent assessment of time since death:' if en else 'Valutazione prudente epoca del decesso:'
                     note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
                     choices = [k for k in CONCLUSIONS if not is_entomo or k not in {'weeks', 'months'}]
-                    st.selectbox(label + ' — :gray[' + note + ']', options=choices, format_func=lambda k: CONCLUSIONS[k][index],
-                                 key=choice_key, disabled=not checked, width='stretch',
-                                 on_change=mark_entomo_manual if is_entomo else None)
+                    with st.container(horizontal=True, wrap=True, vertical_alignment='center', gap='small', key=state_key + '__assessment_row'):
+                        st.markdown(label, width='content')
+                        st.selectbox(label, options=choices, format_func=lambda k: CONCLUSIONS[k][index],
+                                     key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
+                                     on_change=mark_entomo_manual if is_entomo else None)
+                    st.markdown(':gray[' + note + ']')
                     if st.session_state[choice_key] == 'custom':
                         st.text_area(('Conclusion text — ' if en else 'Testo della valutazione — ') + label.lower(),
                                      key=custom_key, max_chars=4000, disabled=not checked)
