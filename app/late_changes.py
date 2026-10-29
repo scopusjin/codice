@@ -286,6 +286,15 @@ def render_late_inputs():
         .st-key-late_changes_card [data-testid="stMarkdownContainer"] {
             margin: 0 !important;
         }
+        .st-key-late_changes_card [class*="__assessment_row"] {
+            align-items: center !important;
+        }
+        :is(.st-key-late_changes_observed__choices, .st-key-late_insects_observed__choices) {
+            gap: 0.2rem 0.5rem !important;
+        }
+        :is(.st-key-late_changes_observed__choices, .st-key-late_insects_observed__choices) [data-testid="stCheckbox"] label {
+            min-height: 1.5rem !important; padding-block: 0 !important; margin-block: 0 !important;
+        }
         @media (max-width: 768px) {
             .st-key-late_changes_card [class*="__assessment_row"] {
                 flex-direction: column !important; align-items: stretch !important;
@@ -322,13 +331,12 @@ def render_late_inputs():
                 with st.container(gap='small', key=state_key + '__group'):
                     is_entomo = state_key == INSECT_KEY
                     group_title = ('Insect evidence' if en else 'Entomofauna') if is_entomo else ('Late postmortem changes' if en else 'Fenomeni trasformativi')
-                    st.markdown('**' + group_title + '**')
+                    st.markdown('**' + group_title + '**' + ('' if is_entomo else (' observed' if en else ' osservati')))
                     displayed = [k for k in options if st.session_state.get(state_key + '__check_' + k, k in selected)]
                     selected_text = ' · '.join(options[k][index] for k in displayed) if displayed else ('No findings selected' if en else 'Nessun reperto selezionato')
                     with st.popover(selected_text, key=state_key + '__popup', use_container_width=True):
-                        st.markdown('**' + title + '**')
                         checked = []
-                        with st.container(horizontal=True, wrap=True, gap='small', key=state_key + '__choices'):
+                        with st.container(horizontal=True, wrap=True, gap='xsmall', key=state_key + '__choices'):
                             for option_id, labels in options.items():
                                 # Keep older, unqualified observations without inventing their extent.
                                 legacy = state_key == CHANGE_KEY and option_id in {'liquefaction', 'mummification', 'skeletonisation'}
@@ -350,10 +358,9 @@ def render_late_inputs():
                             st.session_state[ENTOMO_AUTO_KEY] = True
                             st.session_state[ENTOMO_KEY] = suggested_entomo_choice(checked)
                     label = 'Prudent assessment of time since death:' if en else 'Valutazione prudente epoca del decesso:'
-                    note = 'to be checked and modified if necessary' if en else 'da verificare e modificare se necessario'
                     choices = [k for k in CONCLUSIONS if not is_entomo or k not in {'weeks', 'months'}]
                     with st.container(horizontal=True, wrap=True, vertical_alignment='center', gap='small', key=state_key + '__assessment_row'):
-                        st.markdown(escape(label) + '<br><span style="color:gray;font-size:0.78rem;">(' + escape(note) + ')</span>', unsafe_allow_html=True, width=270)
+                        st.markdown(label, width=270)
                         st.selectbox(label, options=choices, format_func=lambda k: CONCLUSIONS[k][index],
                                      key=choice_key, disabled=not checked, width='stretch', label_visibility='collapsed',
                                      on_change=mark_entomo_manual if is_entomo else None)

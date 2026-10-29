@@ -210,7 +210,7 @@ class LateChangesTests(unittest.TestCase):
         self.assertTrue(app.checkbox(key='late_changes_observed__check_gas').value)
         self.assertTrue(app.checkbox(key='late_insects_observed__check_empty_puparia').value)
         self.assertTrue(any('Valutazione prudente' in field.label for field in app.selectbox))
-        self.assertEqual(sum('da verificare e modificare se necessario' in m.value for m in app.markdown), 2)
+        self.assertEqual(sum('da verificare e modificare se necessario' in m.value for m in app.markdown), 0)
         self.assertFalse(any('Formula una' in m.value for m in app.markdown))
         self.assertTrue(any('Enfisema putrefattivo' in p.proto.popover.label for p in app.get('popover')))
         app.button(key='btn_stima').click().run()
