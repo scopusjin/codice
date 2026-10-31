@@ -16,6 +16,20 @@ class WordResumeTests(unittest.TestCase):
     def event(self, case=None):
         return {'token':'a'*32,'data':base64.b64encode(encode_case(case or self.case)).decode()}
 
+    def test_current_word_measurements_override_saved_values_only(self):
+        from app.word_launch import apply_word_measurements
+        original = deepcopy(self.case)
+        updated = apply_word_measurements(self.case, {'peso':80., 'rt_val':30., 'ta_base_val':20.})
+        state = restored_inputs(updated)
+        self.assertEqual([state[k] for k in ('peso','rt_val','ta_base_val')], [80.,30.,20.])
+        self.assertEqual(state['__full_standard_ta_base_val'],20.)
+        self.assertEqual(state['fc_min_val'],.9)
+        self.assertEqual(state['fc_other_val'],1.2)
+        self.assertEqual(updated['signs'],original['signs'])
+        self.assertEqual(self.case,original)
+        self.assertNotIn('report',updated)
+        self.assertEqual(apply_word_measurements(self.case,{})['inputs']['peso'],72.)
+
     def test_complete_restore_keeps_every_serialized_field(self):
         restored = resume_case(self.event(), self.params)
         self.assertEqual(restored, self.case)
@@ -48,7 +62,7 @@ st.text('ready')
         with patch('app.word_resume.render_word_resume',return_value=self.case):
             app.run()
         self.assertFalse(app.exception)
-        self.assertEqual(app.session_state['peso'],72.)
+        self.assertEqual(app.session_state['peso'],999.)
         self.assertEqual(app.session_state['fc_other_val'],1.2)
         self.assertEqual(app.session_state['__word_return']['request_id'],'a'*32)
         self.assertNotIn('mt_resume',app.query_params)

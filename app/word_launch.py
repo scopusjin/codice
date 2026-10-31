@@ -34,6 +34,33 @@ def launch_values(params):
     return values
 
 
+def apply_word_measurements(case, values):
+    """Overlay current documented measurements while retaining saved case choices."""
+    from app.case_file import restored_inputs, snapshot_case
+    from app.fc_selection import refresh_fc_for_weight
+    state = restored_inputs(case)
+    old_ta = state.get('ta_base_val')
+    for key in ('peso', 'rt_val', 'ta_base_val'):
+        if key in values:
+            state[key] = values[key]
+    if 'ta_base_val' in values:
+        ta = values['ta_base_val']
+        state['__full_standard_ta_base_val'] = ta
+        state['__full_interval_ta_base_val'] = ta
+        # Keep a saved excursion bound; a single temperature follows the new measurement.
+        if state.get('ta_other_val') == old_ta:
+            state['ta_other_val'] = ta
+            state['__full_interval_ta_other_val'] = ta
+        other = state.get('ta_other_val')
+        if other is not None:
+            state['Ta_min_beta'], state['Ta_max_beta'] = sorted((ta, other))
+    if 'peso' in values:
+        refresh_fc_for_weight(state)
+    updated = snapshot_case(state, case['view'], include_report=False)
+    updated['editor_open'] = case['editor_open']
+    return updated
+
+
 def prepare_word_launch():
     import streamlit as st
     if st.query_params.get('mt_open') != '1':
@@ -54,6 +81,7 @@ def prepare_word_launch():
             st.stop()
         if pending is None:
             st.stop()
+        pending = apply_word_measurements(pending, values)
     else:
         pending = snapshot_case(values, 'full')
     st.session_state['__case_pending_import'] = pending
