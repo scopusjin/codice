@@ -510,7 +510,11 @@ def final_sentence_dt_over(
     duration: str, cutoff_time: str, cutoff_date: str, *, single_parameter: bool = False,
 ) -> str:
     if single_parameter:
-        return _available_data_conclusion(f"<b>prima delle ore {cutoff_time} del {cutoff_date}</b>")
+        return (
+            "<p>La valutazione dei dati disponibili porta a stimare che, al momento dei rilievi tanatologici, "
+            f"fossero trascorse almeno <b>{duration}</b> dal decesso, "
+            f"collocabile <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+        )
     return (
         "<p>La valutazione combinata dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
         f"<b>oltre {duration} prima</b> "

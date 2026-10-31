@@ -1050,7 +1050,7 @@ def aggiorna_grafico(
         chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
     elif overlap and frase_finale_html and (not single_parameter or usa_orario_custom):
         # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
-        chunks.append(_wrap_final(f"<ul><li>{frase_finale_html}</li></ul>"))
+        chunks.append(_wrap_final(frase_finale_html))
 
     if overlap and not discordanti:
         chunks.append(_wrap_final(nota_limiti_stima()))
