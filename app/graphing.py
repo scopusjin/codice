@@ -804,7 +804,10 @@ def aggiorna_grafico(
                 continuation = par_p.split("In tali condizioni,", 1)
                 if len(continuation) == 2:
                     equilibrium = i18n.ui_text("graph.henssge_equal_temperature_detail", temperature=f"{float(Tr_val):.1f}")
-                    par_p = equilibrium.removesuffix("</li></ul>") + " In tali condizioni," + continuation[1]
+                    equilibrium = equilibrium.removeprefix("<ul><li>").removesuffix("</li></ul>")
+                    equilibrium = equilibrium.replace("In merito al <u>raffreddamento corporeo</u>, è valutabile", "È valutabile", 1)
+                    body = (equilibrium + " In tali condizioni," + continuation[1]).removesuffix("</li></ul>")
+                    par_p = '<p style="margin-left:40px;">' + body + '</p>'
             elif temperatures_equal and par_p:
                 _add_det(i18n.ui_text("graph.henssge_equal_temperature_detail", temperature=f"{float(Tr_val):.1f}"))
             _add_det(par_p)
