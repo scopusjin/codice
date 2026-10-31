@@ -604,7 +604,7 @@ def parameter_summary(labels: list[str]) -> str:
 
 
 def potente_paragraph(duration: str, days: str, high_temperature: bool = False) -> str:
-    day_note = _minimum_days_parenthesis(duration).replace("(almeno ", "(")
+    day_note = _minimum_days_parenthesis(duration)
     if high_temperature:
         return (
             "<ul><li>Per temperature ambientali superiori a 23 °C, il metodo di Henssge "
