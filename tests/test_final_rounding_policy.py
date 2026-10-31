@@ -79,10 +79,11 @@ class FinalRoundingPolicyTests(unittest.TestCase):
         with using_language('it'):
             self.assertIn('al quarto d’ora (per difetto',nota_arrotondamento_orari(15))
             self.assertIn('a 30 minuti',nota_arrotondamento_orari(30))
-            self.assertIn('L’ampiezza',nota_arrotondamento_orari())
+            self.assertNotIn('L’ampiezza',nota_arrotondamento_orari())
         with using_language('en'):
             self.assertIn('30-minute increments',nota_arrotondamento_orari(30))
             self.assertNotIn('quarto',nota_arrotondamento_orari(30))
+            self.assertNotIn('Settings',nota_arrotondamento_orari(30))
 
     def test_settings_control_changes_final_outputs_and_note(self):
         from streamlit.testing.v1 import AppTest
@@ -119,4 +120,6 @@ with patch('app.graphing.compute_cooling_state',return_value=c):
             detail=app.session_state['__desc_dettagliate_html']
             self.assertIn(start,detail)
             self.assertIn('al quarto d’ora' if step==15 else 'a 30 minuti',detail)
+            self.assertEqual(app.button(key='rounding_settings_button').label, '⚙️')
+            self.assertNotIn('⚙',detail)
             self.assertIn(start,app.session_state['__word_report_blocks']['conclusion']['text'])

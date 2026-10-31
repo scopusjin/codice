@@ -511,13 +511,12 @@ def nota_arrotondamento_orari(round_minutes: int = 15) -> str:
     if current_language() == "en":
         text = (
             f"Estimated postmortem intervals and times of death are rounded to {round_minutes}-minute increments "
-            "(lower bounds downwards and upper bounds upwards). The rounding interval can be changed in Settings."
+            "(lower bounds downwards and upper bounds upwards)."
         )
     else:
         unit = "al quarto d’ora" if round_minutes == 15 else f"a {round_minutes} minuti"
         text = (
             f"Gli intervalli temporali e gli orari stimati del decesso sono arrotondati {unit} "
-            "(per difetto al limite inferiore e per eccesso al limite superiore). "
-            "L’ampiezza dell’arrotondamento è modificabile nelle Impostazioni."
+            "(per difetto al limite inferiore e per eccesso al limite superiore)."
         )
     return "<p style='color:blue;font-size:8pt;'>" + text + "</p>"

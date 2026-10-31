@@ -1003,6 +1003,7 @@ def aggiorna_grafico(
     # --- buffer per popover descrizioni ---
     st.session_state["__desc_dettagliate_html"] = ""  # reset
     chunks = []
+    rounding_note_index = None
 
     # 1) descrizioni dettagliate dei dati/metodi effettivamente valutati
     for blocco in dettagli:
@@ -1065,6 +1066,7 @@ def aggiorna_grafico(
 
     if overlap and not discordanti:
         chunks.append(_wrap_final(nota_limiti_stima()))
+        rounding_note_index = len(chunks)
         chunks.append(_wrap_final(nota_arrotondamento_orari(round_minutes)))
 
     # 3) frase blu di riepilogo dei parametri usati.
@@ -1164,6 +1166,16 @@ def aggiorna_grafico(
                 text-align:justify!important;
                 text-justify:inter-word!important;
             }
+            .st-key-rounding_note_row{
+                border:1px solid rgba(0,0,0,0.08);
+                border-radius:8px;
+                padding:10px 12px;
+            }
+            div[data-testid="stPopoverContent"] .st-key-rounding_note_row .final-text{
+                border:0!important;
+                padding:0!important;
+            }
+            .st-key-rounding_note_row p{margin-bottom:0;}
             </style>
             """),
             unsafe_allow_html=True
@@ -1183,10 +1195,21 @@ def aggiorna_grafico(
             if st.session_state.get("__desc_dettagliate_html"):
                 with st.container(width="content", key="result_descriptions_action"):
                     with st.popover(i18n.ui_text("graph.descriptions_popover")):
-                        st.markdown(
-                            st.session_state["__desc_dettagliate_html"],
-                            unsafe_allow_html=True
-                        )
+                        if rounding_note_index is None:
+                            st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
+                        else:
+                            # Native navigation retains the session; the control is UI-only.
+                            from app.page_navigation import SETTINGS_PAGE
+                            st.markdown(translate("\n".join(c for c in chunks[:rounding_note_index] if c)), unsafe_allow_html=True)
+                            with st.container(horizontal=True, wrap=False, vertical_alignment="center",
+                                              gap="xsmall", key="rounding_note_row"):
+                                st.markdown(translate(chunks[rounding_note_index]), unsafe_allow_html=True, width="stretch")
+                                if st.button("⚙️", key="rounding_settings_button", type="tertiary",
+                                             help="Settings" if current_language() == "en" else "Impostazioni"):
+                                    st.switch_page(SETTINGS_PAGE)
+                            remaining = "\n".join(c for c in chunks[rounding_note_index + 1:] if c)
+                            if remaining:
+                                st.markdown(translate(remaining), unsafe_allow_html=True)
                         from app.case_report import capture_report
                         from app.case_ui import render_case_download
                         capture_report(st.session_state, "full")
