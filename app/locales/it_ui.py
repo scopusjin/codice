@@ -172,7 +172,7 @@ UI_TEXT = {
     ),
     "graph.henssge_equal_temperature_detail": (
         "<ul><li>La temperatura rettale e la temperatura ambientale sono entrambe pari a <b>{temperature} °C</b>. "
-        "Questo suggerisce che il corpo abbia raggiunto l’equilibrio termico con l’ambiente, condizione che non permette di applicare il metodo di Henssge.</li></ul>"
+        "Questo suggerisce che, al momento dell’ispezione legale, il corpo avesse raggiunto l’equilibrio termico con l’ambiente, condizione che non permette di applicare il metodo di Henssge.</li></ul>"
     ),
     "graph.henssge_below_ambient_warning": (
         "T. rettale inferiore alla T. ambientale: metodo di Henssge non applicabile. "
