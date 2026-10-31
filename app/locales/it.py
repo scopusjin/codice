@@ -526,7 +526,7 @@ def final_sentence_dt_over(
         return (
             "<p>La valutazione dei dati disponibili porta a stimare che, al momento dei rilievi tanatologici, "
             f"fossero trascorse almeno <b>{duration}</b> dal decesso{_minimum_days_parenthesis(duration)}, "
-            f"collocabile <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
+            f"collocabile circa <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
         )
     return (
         "<p>La valutazione combinata dei dati tanatologici consente di stimare che la morte sia avvenuta all'incirca "
