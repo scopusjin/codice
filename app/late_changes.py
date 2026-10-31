@@ -156,9 +156,7 @@ def build_late_report(state, language='it'):
             if choice in TIMED_CHOICES:
                 text += ' In this case, their degree of development only supports a death occurring ' + CONCLUSIONS[choice][index].lower() + '.'
         else:
-            text = ('I processi post-mortali tardivi/trasformativi, in particolare quelli putrefattivi. ' if putrefactive else
-                    'I processi post-mortali tardivi/trasformativi. ')
-            text += f'Nel caso in esame sono state rilevate le seguenti modificazioni: {observations}. '
+            text = f'Relativamente ai processi post-mortali tardivi/trasformativi, nel caso in esame sono state rilevate le seguenti modificazioni: {observations}. '
             if putrefactive:
                 text += ('La loro insorgenza è influenzata da numerosi fattori, esogeni (ad esempio temperatura ambientale, esposizione ai fenomeni meteorologici) '
                          'ed endogeni (temperatura corporea, infezioni prima del decesso, presenza di ferite). '
@@ -171,7 +169,7 @@ def build_late_report(state, language='it'):
                 timing = {'few_days': 'quantomeno alcuni giorni', 'days': 'quantomeno vari giorni', 'weeks': 'alcune settimane', 'months': 'alcuni mesi'}[choice]
                 text += (' Nel caso in esame, il loro grado di sviluppo permette unicamente di ritenere che il decesso si sia verificato '
                          + timing + ' prima del rinvenimento.')
-        if choice not in TIMED_CHOICES:
+        if choice not in TIMED_CHOICES and (en or choice == 'custom'):
             text += ' ' + assessment_sentence('transform', choice, str(state.get(TRANSFORM_CUSTOM_KEY, state.get(CUSTOM_KEY, ''))), insects, en)
         items.append(text)
     choice = entomo_choice
@@ -233,7 +231,7 @@ def build_late_report(state, language='it'):
     else:
         conclusion = '\n'.join(briefs)
     html = ''.join('<p>' + escape(p) + '</p>' for p in paragraphs)
-    html += '<ul>' + ''.join('<li>' + escape(p) + '</li>' for p in items) + '</ul>'
+    html += '<ul>' + ''.join('<li>' + escape(p).replace('processi post-mortali tardivi/trasformativi', '<u>processi post-mortali tardivi/trasformativi</u>', 1) + '</li>' for p in items) + '</ul>'
     conflict_html = html
     for sentence in compatibility:
         conflict_html = conflict_html.replace(escape(sentence), '')
@@ -408,7 +406,7 @@ def late_word_footnotes(changes, insects, en=False):
     notes = []
     if any(k in changes for k in ('colour', 'marbling', 'gas', 'skin', 'liquefaction', 'liquefaction_partial', 'liquefaction_diffuse')):
         notes.append({
-            'anchor': 'putrefaction' if en else 'putrefattivi',
+            'anchor': 'putrefaction' if en else 'processi post-mortali tardivi/trasformativi',
             'text': ('Putrefaction is the postmortem degradation of tissues, mainly through bacterial activity. Its traditional phases may overlap: discolouration, sometimes with visible superficial veins (marbling); gas formation in tissues and body cavities; and liquefaction and progressive breakdown of soft tissues. Skin slippage, the separation of the epidermis from underlying layers, may also occur. Onset and progression vary widely with environmental conditions and the characteristics of the body.' if en else
                      'Per putrefazione si intende il complesso dei processi di degradazione post-mortale dei tessuti, principalmente legati all’azione della flora batterica. Classicamente se ne distinguono diverse fasi, che possono in parte sovrapporsi: una fase cromatica, caratterizzata dalla comparsa e progressiva diffusione di alterazioni cromatiche cutanee, nell’ambito della quale può rendersi evidente anche la rete venosa superficiale (cosiddetta fanerizzazione); una fase enfisematosa, dovuta alla produzione e all’accumulo di gas nei tessuti e nelle cavità corporee; e una fase colliquativa, caratterizzata dal progressivo disfacimento e dalla liquefazione dei tessuti molli. Nel corso di tali processi può inoltre verificarsi epidermolisi, ossia il distacco più o meno esteso dell’epidermide dagli strati cutanei sottostanti. La comparsa e la progressione di questi fenomeni presentano un’ampia variabilità in funzione delle condizioni ambientali e delle caratteristiche del cadavere.')})
     if insects:
