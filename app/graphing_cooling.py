@@ -291,6 +291,11 @@ def compute_cooling_state(
             )
             raffreddamento_calcolabile = True
 
+        # Input documentation remains useful when the Henssge gate rejects equilibrium.
+        if raffreddamento_calcolabile or (
+            not validation_error and Ta_range is not None and CF_range is not None
+            and _is_num(Tr_val) and _is_num(Ta_val) and float(Tr_val) == float(Ta_val)
+        ):
             # --- Range Ta/FC per riepilogo ---
             ta_lo, ta_hi = Ta_range
             ta_txt = temperature_description(options, CF_range, W_val, Ta_range)
