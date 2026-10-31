@@ -227,6 +227,9 @@ def build_late_report(state, language='it'):
         conclusion = ('The late postmortem changes and insect evidence only support a death occurring ' if en else
                       'Le alterazioni trasformative post-mortali e i reperti entomologici osservati consentono unicamente di ritenere che il decesso si sia verificato ')
         conclusion += CONCLUSIONS[transform_choice][index].lower() + '.'
+    elif changes and insects and transform_choice == entomo_choice == 'unspecified':
+        conclusion = ('Without further information, the observed late postmortem changes and insect evidence do not allow the time of death to be further specified.' if en else
+                      'Le alterazioni trasformative post-mortali e i reperti entomologici osservati, in assenza di ulteriori elementi, non permettono di avanzare precisazioni sull’epoca del decesso.')
     else:
         conclusion = '\n'.join(briefs)
     html = ''.join('<p>' + escape(p) + '</p>' for p in paragraphs)
