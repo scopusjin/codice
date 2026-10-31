@@ -191,8 +191,8 @@ def build_late_report(state, language='it'):
                 compatibility.append(compatible)
                 text += compatible
         else:
-            stages = 'insetti in differenti stadi di sviluppo (in particolare ' + observations + ')' if len(insects) > 1 else observations
-            text = f'La colonizzazione del cadavere da parte dell’entomofauna, con presenza di {stages}. '
+            observations = _join(['larve di dittero (mosche)' if k == 'larvae' else INSECTS[k][index].lower() for k in insects])
+            text = f'Relativamente alla colonizzazione del cadavere da parte di entomofauna, è stata osservata presenza di {observations}. '
             text += ('Anche l’evoluzione dell’entomofauna è fortemente condizionata dalle condizioni ambientali, dalla tipologia e specie di insetto e dalle modalità di esposizione del cadavere. ')
             if 'empty_puparia' in insects:
                 text += ('Pur senza avanzare specifiche valutazioni entomologiche, la presenza di pupari vuoti suggerisce che almeno una parte degli insetti colonizzatori '
@@ -231,7 +231,7 @@ def build_late_report(state, language='it'):
     else:
         conclusion = '\n'.join(briefs)
     html = ''.join('<p>' + escape(p) + '</p>' for p in paragraphs)
-    html += '<ul>' + ''.join('<li>' + escape(p).replace('processi post-mortali tardivi/trasformativi', '<u>processi post-mortali tardivi/trasformativi</u>', 1) + '</li>' for p in items) + '</ul>'
+    html += '<ul>' + ''.join('<li>' + escape(p).replace('processi post-mortali tardivi/trasformativi', '<u>processi post-mortali tardivi/trasformativi</u>', 1).replace('colonizzazione del cadavere da parte di entomofauna', '<u>colonizzazione del cadavere da parte di entomofauna</u>', 1) + '</li>' for p in items) + '</ul>'
     conflict_html = html
     for sentence in compatibility:
         conflict_html = conflict_html.replace(escape(sentence), '')
