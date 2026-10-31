@@ -136,9 +136,9 @@ def build_late_report(state, language='it'):
         has_early = has_early or any(state.get(label + '_selector') not in
             (None, SPECIAL_OPTION_LABEL_IT[param].get(OPTION_NOT_ASSESSED), SPECIAL_OPTION_LABEL_IT[param].get(OPTION_UNRELIABLE))
             for param, label in SPECIAL_PARAM_LABEL_IT.items())
-    paragraphs.append('The following findings allow some considerations.' if en else
-                      ('Gli elementi su cui possono esser avanzate alcune considerazioni sono i seguenti.' if has_early else
-                       'Gli unici elementi su cui possono esser avanzate alcune considerazioni sono i seguenti.'))
+    if not has_early:
+        paragraphs.append('The following findings allow some considerations.' if en else
+                          'Gli unici elementi su cui possono esser avanzate alcune considerazioni sono i seguenti.')
     items = []
     if changes:
         observations = _join([CHANGES[k][index].lower() for k in changes], en)
