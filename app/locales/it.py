@@ -604,6 +604,7 @@ def parameter_summary(labels: list[str]) -> str:
 
 
 def potente_paragraph(duration: str, days: str, high_temperature: bool = False) -> str:
+    day_note = _minimum_days_parenthesis(duration).replace("(almeno ", "(")
     if high_temperature:
         return (
             "<ul><li>Per temperature ambientali superiori a 23 °C, il metodo di Henssge "
@@ -611,14 +612,14 @@ def potente_paragraph(duration: str, days: str, high_temperature: bool = False) 
             "rilevato non consente di ottenere un intervallo temporale sufficientemente attendibile. "
             "In tali condizioni, secondo il metodo proposto da Potente et al., è possibile stimare "
             "soltanto un tempo minimo trascorso dal decesso. "
-            f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso.</li></ul>"
+            f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso{day_note}.</li></ul>"
         )
     return (
         "<ul><li>Il grado di raffreddamento corporeo rilevato non consente di ottenere un intervallo "
         "temporale sufficientemente attendibile mediante il metodo di Henssge. "
         "In tali condizioni, secondo il metodo proposto da Potente et al., è possibile stimare "
         "soltanto un tempo minimo trascorso dal decesso. "
-        f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso.</li></ul>"
+        f"Applicato al caso specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno {duration} dal decesso{day_note}.</li></ul>"
     )
 
 

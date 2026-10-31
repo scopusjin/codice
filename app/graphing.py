@@ -748,7 +748,7 @@ def aggiorna_grafico(
             ))
 
         word_cooling_start = len(dettagli)
-        if temperatures_equal:
+        if temperatures_equal and not usa_potente:
             _add_det(i18n.ui_text(
                 "graph.henssge_equal_temperature_detail",
                 temperature=f"{float(Tr_val):.1f}",
@@ -799,6 +799,14 @@ def aggiorna_grafico(
                 mt_ore=mt_ore, mt_giorni=mt_giorni, qd_val=qd_for_potente, ta_val=Ta_val, qd_threshold=qd_threshold,
                 round_minutes=round_minutes,
             )
+            if temperatures_equal and par_p and current_language() == "it":
+                # Link thermal equilibrium directly to the minimum-time method.
+                continuation = par_p.split("In tali condizioni,", 1)
+                if len(continuation) == 2:
+                    equilibrium = i18n.ui_text("graph.henssge_equal_temperature_detail", temperature=f"{float(Tr_val):.1f}")
+                    par_p = equilibrium.removesuffix("</li></ul>") + " In tali condizioni," + continuation[1]
+            elif temperatures_equal and par_p:
+                _add_det(i18n.ui_text("graph.henssge_equal_temperature_detail", temperature=f"{float(Tr_val):.1f}"))
             _add_det(par_p)
 
         word_cooling = dettagli[word_cooling_start:]
