@@ -506,13 +506,26 @@ def simple_sentence_dt_range(
     )
 
 
+def _minimum_days_parenthesis(duration: str) -> str:
+    """Express a minimum duration also in whole days and remaining whole hours."""
+    import re
+    match = re.match(r"^(\d+)\s+or[ae]\b", duration)
+    if not match or int(match.group(1)) < 24:
+        return ""
+    days, hours = divmod(int(match.group(1)), 24)
+    value = f"{days} " + ("giorno" if days == 1 else "giorni")
+    if hours:
+        value += f" e {hours} " + ("ora" if hours == 1 else "ore")
+    return f" (almeno {value})"
+
+
 def final_sentence_dt_over(
     duration: str, cutoff_time: str, cutoff_date: str, *, single_parameter: bool = False,
 ) -> str:
     if single_parameter:
         return (
             "<p>La valutazione dei dati disponibili porta a stimare che, al momento dei rilievi tanatologici, "
-            f"fossero trascorse almeno <b>{duration}</b> dal decesso, "
+            f"fossero trascorse almeno <b>{duration}</b> dal decesso{_minimum_days_parenthesis(duration)}, "
             f"collocabile <b>prima delle ore {cutoff_time} del {cutoff_date}</b>.</p>"
         )
     return (
