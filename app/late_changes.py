@@ -101,8 +101,6 @@ def build_late_report(state, language='it'):
     if not changes and not insects:
         return None
     unavailable = []
-    if state.get('henssge_non_applicabile'):
-        unavailable.append('body cooling' if en else 'il raffreddamento cadaverico')
     if state.get('selettore_macchie_id') == 'livor_unreliable':
         unavailable.append('postmortem lividity' if en else 'le macchie ipostatiche')
     if state.get('selettore_rigidita_id') == 'rigor_unreliable':

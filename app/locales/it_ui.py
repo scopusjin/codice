@@ -170,6 +170,10 @@ UI_TEXT = {
         "T. rettale e T. ambientale sono uguali: il metodo di Henssge non è applicabile "
         "per assenza di gradiente termico."
     ),
+    "graph.henssge_not_applicable_detail": (
+        "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, "
+        "non risulta possibile applicare il nomogramma di Henssge.</li></ul>"
+    ),
     "graph.henssge_equal_temperature_detail": (
         "<ul><li>In merito al <u>raffreddamento corporeo</u>, è valutabile che, al momento dell’ispezione legale, "
         "il corpo avesse raggiunto l’equilibrio termico con l’ambiente, condizione che non permette di applicare il metodo di Henssge.</li></ul>"

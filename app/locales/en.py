@@ -137,7 +137,7 @@ LIVOR_DESCRIPTION_BY_ID = {
         "Published limits suggest a postmortem interval between 1 and 6 hours."
     ),
     ts.LIVOR_FULLY_MIGRATABLE: (
-        "Postmortem lividity shifted completely after repositioning (confluence unspecified). "
+        "Postmortem lividity shifted completely after repositioning. "
         "Published limits suggest less than 6 hours since death."
     ),
     ts.LIVOR_PARTIALLY_MIGRATABLE: (

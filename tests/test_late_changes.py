@@ -21,9 +21,13 @@ class LateChangesTests(unittest.TestCase):
         report = build_late_report(self.state(henssge_non_applicabile=True,
             selettore_macchie_id='livor_unreliable', selettore_rigidita_id='rigor_full'))
         intro = report['html'].split('</p>')[0]
-        self.assertIn('raffreddamento', intro)
+        self.assertNotIn('raffreddamento', intro)
         self.assertIn('ipostatiche', intro)
         self.assertNotIn('rigidità', intro)
+        for language, excluded in (('it', 'in quanto il cadavere'), ('en', 'because the body was already')):
+            report = build_late_report(self.state(henssge_non_applicabile=True), language)
+            self.assertNotIn(excluded, report['html'])
+            self.assertNotIn(excluded, report['conflict_html'])
 
     def test_no_automatic_timing_or_empty_puparia_claim(self):
         state = self.state()
@@ -50,7 +54,7 @@ class LateChangesTests(unittest.TestCase):
         self.assertIn('at least several days', report['brief'])
 
     def test_user_template_and_word_only_definitions(self):
-        report = build_late_report(self.state(henssge_non_applicabile=True))
+        report = build_late_report(self.state(selettore_macchie_id='livor_unreliable'))
         self.assertIn('fenomeni post-mortali consecutivi normalmente presi in considerazione', report['html'])
         self.assertIn('in quanto il cadavere si trovava ormai in una fase avanzata', report['html'])
         self.assertIn('Gli unici elementi', report['html'])
@@ -218,6 +222,11 @@ class LateChangesTests(unittest.TestCase):
         case = snapshot_case(app.session_state._state.filtered_state, 'full')
         self.assertIsNotNone(case['report'])
         self.assertIn('pupari vuoti', case['report']['detailed_text'])
+        cooling_text = ('Per quanto attiene la valutazione del raffreddamento cadaverico, '
+                        'non risulta possibile applicare il nomogramma di Henssge.')
+        self.assertEqual(case['report']['detailed_text'].count(cooling_text), 1)
+        self.assertEqual(case['report']['word_blocks']['cooling']['text'], '• ' + cooling_text)
+        self.assertNotIn('fase avanzata', case['report']['detailed_text'])
         self.assertIn('fuoriuscita', case['report']['word_blocks']['putrefaction']['text'])
         self.assertEqual([n['anchor'] for n in case['report']['word_footnotes']], ['putrefattivi', 'entomofauna'])
         self.assertIn('Per putrefazione si intende', case['report']['word_footnotes'][0]['text'])
@@ -253,6 +262,59 @@ class LateChangesTests(unittest.TestCase):
         case = decode_case(encode_case(snapshot_case(app.session_state._state.filtered_state, 'full')))
         self.assertNotIn('larve', case['report']['detailed_text'])
         self.assertEqual(case['inputs']['late_insects_observed'], ['empty_puparia'])
+
+    def test_nonapplicable_cooling_and_migratable_lividity_in_export(self):
+        from streamlit.testing.v1 import AppTest
+        import app.decimal_number_input_v2 as decimal_v2
+        from app.language import using_language
+        page = str(Path(__file__).resolve().parents[1] / 'Stima_epoca_decesso.py')
+        cooling_texts = {
+            'it': ('Per quanto attiene la valutazione del raffreddamento cadaverico, '
+                   'non risulta possibile applicare il nomogramma di Henssge.'),
+            'en': 'Regarding body cooling, the Henssge nomogram cannot be applied.',
+        }
+        livor_texts = {
+            'it': ('È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, '
+                   'fossero completamente migrabili e fossero improntabili. '
+                   'Secondo i limiti segnalati in letteratura scientifica, '
+                   'questo suggerisce che fossero trascorse meno di 6 ore dal decesso.'),
+            'en': ('Postmortem lividity shifted completely after repositioning; '
+                   'it blanched completely under finger pressure. '
+                   'The combined findings suggest less than 6 hours since death, '
+                   'based on published time limits.'),
+        }
+        for language in ('it', 'en'):
+            for mobile in (False, True):
+                with self.subTest(language=language, mobile=mobile):
+                    decimal_v2._renderer = None
+                    app = AppTest.from_file(page, default_timeout=30)
+                    for key, value in dict(
+                        mortem_language=language, __full_device_mobile=mobile,
+                        henssge_non_applicabile=True, rt_val=30., ta_base_val=20.,
+                        tm_val=37.2, peso=70., fattore_correzione=1.,
+                        selettore_macchie='Completamente migrabili',
+                        selettore_macchie_ui='Completamente migrabili (confluenza non specificata)',
+                        livor_digitopressione='complete_fading',
+                    ).items():
+                        app.session_state[key] = value
+                    app.run()
+                    app.button(key='btn_stima').click().run()
+                    self.assertFalse(app.exception)
+                    with using_language(language):
+                        case = decode_case(encode_case(snapshot_case(app.session_state._state.filtered_state, 'full')))
+                    report = case['report']
+                    self.assertEqual(report['detailed_text'].count(cooling_texts[language]), 1)
+                    self.assertEqual(report['word_blocks']['cooling']['text'], '• ' + cooling_texts[language])
+                    self.assertIn(livor_texts[language], report['detailed_text'])
+                    self.assertEqual(report['word_blocks']['livor']['text'], '• ' + livor_texts[language])
+                    self.assertNotIn('grado di confluenza non specificato', report['detailed_text'])
+                    self.assertNotIn('confluence unspecified', report['detailed_text'])
+                    self.assertNotIn('putrefaction', report['word_blocks'])
+                    app.checkbox(key='henssge_non_applicabile').uncheck().run()
+                    self.assertFalse(app.session_state['show_results'])
+                    app.button(key='btn_stima').click().run()
+                    self.assertFalse(app.exception)
+                    self.assertNotIn(cooling_texts[language], app.session_state['__desc_dettagliate_html'])
 
 
 if __name__ == '__main__':

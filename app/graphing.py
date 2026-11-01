@@ -722,7 +722,11 @@ def aggiorna_grafico(
             msg = i18n.ui_text("graph.henssge_incoherent")
             avvisi.append(msg)
 
-    if all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
+    if options.get("henssge_non_applicabile"):
+        cooling_note = i18n.ui_text("graph.henssge_not_applicable_detail")
+        _add_det(cooling_note)
+        word_cooling.append(cooling_note)
+    elif all(_is_num(v) for v in [Tr_val, Ta_val, T0_val, W_val, CF_val]):
         if Ta_val > 25:
             avvisi.append(i18n.ui_text("graph.high_ambient_factor_warning"))
         if Ta_val < 18:

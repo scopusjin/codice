@@ -137,6 +137,9 @@ UI_TEXT = {
     "graph.henssge_missing_invalid": "Henssge’s method for postmortem body cooling could not be applied: missing or invalid data.",
     "graph.henssge_incoherent": "Henssge’s method for postmortem body cooling could not be applied: inconsistent or out-of-range data",
     "graph.henssge_equal_temperature_warning": "Rectal and ambient temperatures are equal: Henssge’s method is not applicable because there is no thermal gradient.",
+    "graph.henssge_not_applicable_detail": (
+        "<ul><li>Regarding body cooling, the Henssge nomogram cannot be applied.</li></ul>"
+    ),
     "graph.henssge_equal_temperature_detail": (
         "<ul><li>Rectal and ambient temperatures are both <b>{temperature} °C</b>. This suggests that the body "
         "has reached thermal equilibrium with its surroundings, so Henssge’s method cannot be applied.</li></ul>"

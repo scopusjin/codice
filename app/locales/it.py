@@ -99,7 +99,7 @@ LIVOR_DESCRIPTION_IT_BY_ID = {
     ),
     LIVOR_FULLY_MIGRATABLE: (
         "È da ritenersi che le macchie ipostatiche, al momento dell’ispezione legale, "
-        "fossero completamente migrabili (grado di confluenza non specificato). "
+        "fossero completamente migrabili. "
         "Secondo i limiti massimi segnalati in letteratura scientifica, questo suggerisce "
         "che fossero trascorse meno di 6 ore dal decesso."
     ),
