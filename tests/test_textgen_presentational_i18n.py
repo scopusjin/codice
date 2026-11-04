@@ -44,13 +44,12 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
         )
 
     def test_potente_paragraph_keeps_current_html_and_inclusive_boundary(self):
-        # Wording approved and implemented in commit 525852a1.
         expected = (
             "<ul><li>Il grado di raffreddamento corporeo rilevato non consente di ottenere un intervallo temporale "
             "sufficientemente attendibile mediante il metodo di Henssge. In tali condizioni, secondo il metodo proposto "
             "da Potente et al., è possibile stimare soltanto un tempo minimo trascorso dal decesso. Applicato al caso "
             "specifico, questo suggerisce che, al momento dell’ispezione legale, fossero trascorse almeno "
-            "26 ore 30 minuti dal decesso.</li></ul>"
+            "26 ore 30 minuti dal decesso (almeno 1 giorno e 2 ore).</li></ul>"
         )
         self.assertEqual(
             paragrafo_potente(
