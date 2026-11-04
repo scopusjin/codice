@@ -1021,6 +1021,7 @@ def aggiorna_grafico(
         qd_max=Qd_max,
         qd_range_status=qd_range_status,
     )
+    swiss_note = None
     if (
         frase_qd_html
         and _is_num(swisswuff_min_ore)
@@ -1062,11 +1063,16 @@ def aggiorna_grafico(
         frase_qd_html = frase_qd_html.replace("</p>", f" {swiss_note}</p>")
 
     # 2) stima complessiva / eventuale discordanza
+    # Real empty paragraphs survive copying to a document with zero paragraph margins.
+    conclusion_html = ""
+    if overlap and not discordanti and frase_finale_html:
+        paragraph = frase_finale_html.replace("<p>", '<p class="mortem-conclusion">', 1)
+        conclusion_html = "<p>&nbsp;</p>" + paragraph + "<p>&nbsp;</p>"
     if discordanti:
         chunks.append(_wrap_final(i18n.ui_text("graph.discordant_detail_html")))
-    elif overlap and frase_finale_html and (not single_parameter or usa_orario_custom):
+    elif conclusion_html and (not single_parameter or usa_orario_custom):
         # Con un solo parametro, senza data/ora la conclusione ripete il dettaglio.
-        chunks.append(_wrap_final(frase_finale_html))
+        chunks.append(_wrap_final(conclusion_html))
 
     if overlap and not discordanti:
         chunks.append(_wrap_final(nota_limiti_stima()))
@@ -1094,11 +1100,16 @@ def aggiorna_grafico(
             chunks.append(_wrap_final("<p style='color:blue;font-size:8pt;'>" + fc_note + "</p>"))
 
     # 4) nota blu Qd, seguita dalla precisazione Potente per il caso in esame.
+    export_chunks = chunks.copy()
     if frase_qd_html:
         chunks.append(_wrap_final(frase_qd_html))
+        if swiss_note:
+            export_chunks.append(_wrap_final("<p style='color:blue;font-size:8pt;'>" + swiss_note + "</p>"))
 
     if condizioni_variabili and qd_range_status == "mixed" and usa_potente and _is_num(mt_ore):
-        chunks.append(_wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore), round_minutes=round_minutes)))
+        potente_note = _wrap_final(nota_potente_condizioni_critiche(minimum_hours=float(mt_ore), round_minutes=round_minutes))
+        chunks.append(potente_note)
+        export_chunks.append(potente_note)
 
     # Separate Word fields: use the same generated prose, without the blue notes.
     from app.case_report import build_word_blocks
@@ -1106,13 +1117,13 @@ def aggiorna_grafico(
         input_html="\n".join(dettagli), cooling_html="\n".join(word_cooling),
         livor=testo_macchie, rigor=testo_rigidita,
         additional_html="\n".join(word_additional), putrefaction_html=word_putrefaction,
-        conclusion=((frase_finale_html + nota_limiti_stima()) if overlap and not discordanti and frase_finale_html else ""),
+        conclusion=(conclusion_html + nota_limiti_stima() if conclusion_html else ""),
     )
 
     st.session_state["__word_footnotes"] = late_report.get("word_footnotes", []) if late_report else []
 
-    # salva per popover
-    st.session_state["__desc_dettagliate_html"] = translate("\n".join([c for c in chunks if c]))
+    # capture_report uses this HTML for both the JSON and its plain-text version.
+    st.session_state["__desc_dettagliate_html"] = translate("\n".join(c for c in export_chunks if c))
 
     # Riepilogo verde prima dei comandi di dettaglio.
     frase_breve_html = st.session_state.get("frase_breve")
@@ -1200,7 +1211,7 @@ def aggiorna_grafico(
                 with st.container(width="content", key="result_descriptions_action"):
                     with st.popover(i18n.ui_text("graph.descriptions_popover")):
                         if rounding_note_index is None:
-                            st.markdown(st.session_state["__desc_dettagliate_html"], unsafe_allow_html=True)
+                            st.markdown(translate("\n".join(c for c in chunks if c)), unsafe_allow_html=True)
                         else:
                             # Native navigation retains the session; the control is UI-only.
                             from app.page_navigation import SETTINGS_PAGE

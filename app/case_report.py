@@ -100,5 +100,5 @@ def build_word_blocks(*, input_html, cooling_html, livor, rigor, conclusion, add
     add("putrefaction", putrefaction_html)
     add("additional", additional_html)
     if conclusion:
-        add("conclusion", "<p>&nbsp;</p><p>" + conclusion + "</p>")
+        add("conclusion", conclusion)
     return blocks

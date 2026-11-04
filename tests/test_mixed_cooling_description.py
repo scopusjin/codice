@@ -49,7 +49,9 @@ class MixedCoolingDescriptionTests(unittest.TestCase):
         note = re.search(r"<p[^>]*color:blue[^>]*>Nel caso in esame, per le condizioni.*?</p>", html)
         self.assertIsNotNone(note)
         self.assertIn('42 ore e 45 minuti prima', note.group())
-        self.assertGreater(note.start(), html.index('Il parametro Qd'))
+        self.assertNotIn('Il parametro Qd', html)
+        shown = '\n'.join(m.value for m in app.markdown)
+        self.assertGreater(shown.index(note.group()), shown.index('Il parametro Qd'))
         self.assertIn('16 ore', app.session_state['frase_breve'])
 
     def test_combined_conclusion_keeps_livor_upper_limit(self):
