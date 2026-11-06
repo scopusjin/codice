@@ -46,7 +46,9 @@ options = dict(''')
         self.assertFalse(app.exception)
         html = app.session_state['__desc_dettagliate_html']
         text = plain_text(html)
-        for value in ('Temperatura ambientale: 11.0 °C', 'Temperatura rettale: 17.1 °C',
+        self.assertNotIn('Temperatura ambientale:', text)
+        self.assertNotIn('Temperature misurate', text)
+        for value in ('Temperatura rettale: 17.1 °C',
                       'Peso del cadavere misurato in sala autoptica: 85 kg',
                       'Temperatura corporea ipotizzata al momento della morte: 37.2 °C',
                       'Range di temperature ambientali medie'):
@@ -64,10 +66,11 @@ options = dict(''')
         self.assertEqual(len(app.get('download_button')), 1)
         self.assertFalse(any('stessa cartella' in c.value for c in app.caption))
 
-    def test_single_values_title_has_no_time(self):
+    def test_single_values_identify_mean_temperature_without_time(self):
         from datetime import datetime
         from app.textgen import paragrafo_raffreddamento_input
         html = paragrafo_raffreddamento_input(isp_dt=datetime(2026,8,7,11,50),
             ta_val=25.5, tr_val=33.9, w_val=72, t0_val=37.2, cf_descr='1.00')
-        self.assertIn('Temperature misurate nel corso dell’ispezione legale:', html)
+        self.assertIn('Temperatura ambientale media considerata: 25.5 °C.', html)
+        self.assertNotIn('Temperature misurate', html)
         self.assertNotIn('11:50', html)

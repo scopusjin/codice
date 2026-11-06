@@ -249,13 +249,10 @@ def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, wei
                f"<li>{cf_label}: <b>{cf_text}</b>.</li>")
     measured_html = ""
     if measured_values is not None:
-        ta, tr, t0 = measured_values
-        measured_ta = f"{ta:.1f}" if ta is not None else "—"
+        _, tr, t0 = measured_values
         header = "Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
         measured_html = (
-            "<li>Temperature misurate nel corso dell’ispezione legale:<ul>"
-            f"<li>Temperatura ambientale: {measured_ta} °C.</li>"
-            f"<li>Temperatura rettale: {tr:.1f} °C.</li></ul></li>"
+            f"<li>Temperatura rettale: {tr:.1f} °C.</li>"
             f"<li>Peso del cadavere misurato in sala autoptica: <b>{weight_text}</b>.</li>"
             f"<li>Temperatura corporea ipotizzata al momento della morte: {t0:.1f} °C.</li>"
         )
@@ -264,7 +261,8 @@ def prudent_graphing_detail_list(*, header: str, ta_text: str, cf_text: str, wei
         "<ul>"
         f"<li>{header}"
         "<ul style='list-style-type: circle; margin-left: 20px;'>"
-        f"{measured_html}<li>{ta_label}, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>{ta_text}</b>.</li>"
+        f"{measured_html}<li class='mortem-ambient-mean' data-mortem-range='{int(ta_is_range)}' lang='it'>"
+        f"{ta_label}, tenendo conto delle possibili escursioni termiche verificatesi tra decesso e ispezione legale: <b>{ta_text}</b>.</li>"
         f"{fc_item}"
         f"{weight_html}"
         "</ul></li>"

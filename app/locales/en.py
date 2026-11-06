@@ -498,14 +498,14 @@ def potente_paragraph(duration: str, days: str, high_temperature: bool = False) 
 def cooling_input_paragraph(*, inspection_time, inspection_date, ta_text: str, tr_text: str,
                             weight_text: str, t0_text: str, correction_description: str,
                             ambient_temperature_text: str | None = None) -> str:
-    title = "Temperatures measured during the medico-legal examination:"
     return (
         "<ul><li>Postmortem body cooling was assessed using:"
-        f"<ul><li>{title}<ul>"
-        f"<li>Ambient temperature: {ambient_temperature_text or ta_text + ' °C'}.</li>"
-        f"<li>Rectal temperature: {tr_text} °C.</li></ul></li>"
+        "<ul>"
+        f"<li>Rectal temperature: {tr_text} °C.</li>"
         f"<li>Body weight measured in the autopsy room: {weight_text} kg.</li>"
         f"<li>Assumed body temperature at death: {t0_text} °C.</li>"
+        "<li class='mortem-ambient-mean' data-mortem-range='0' lang='en'>"
+        f"Mean ambient temperature used: {ambient_temperature_text or ta_text + ' °C'}.</li>"
         "<li>Corrective factor (assumed from the known conditions): "
         f"{correction_description.rstrip('.')}.</li></ul></li></ul>"
     )

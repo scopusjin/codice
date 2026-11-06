@@ -93,14 +93,11 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             ),
             "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
             "<ul>"
-            "<li>Temperature misurate nel corso dell’ispezione legale:"
-            "<ul>"
-            "<li>Temperatura ambientale: 20.0 °C.</li>"
             "<li>Temperatura rettale: 32.5 °C.</li>"
-            "</ul>"
-            "</li>"
             "<li>Peso del cadavere misurato in sala autoptica: 70 kg.</li>"
             "<li>Temperatura corporea ipotizzata al momento della morte: 37.2 °C.</li>"
+            "<li class='mortem-ambient-mean' data-mortem-range='0' lang='it'>"
+            "Temperatura ambientale media considerata: 20.0 °C.</li>"
             "<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): 1.0 (nessuna correzione).</li>"
             "</ul>"
             "</li></ul>",
@@ -118,14 +115,11 @@ class TextgenPresentationalI18nTests(unittest.TestCase):
             ),
             "<ul><li>Per quanto attiene la valutazione del raffreddamento cadaverico, sono stati considerati gli elementi di seguito indicati."
             "<ul>"
-            "<li>Temperature misurate nel corso dell’ispezione legale:"
-            "<ul>"
-            "<li>Temperatura ambientale: 20.0 °C.</li>"
             "<li>Temperatura rettale: — °C.</li>"
-            "</ul>"
-            "</li>"
             "<li>Peso del cadavere misurato in sala autoptica: 70 kg.</li>"
             "<li>Temperatura corporea ipotizzata al momento della morte: 37.2 °C.</li>"
+            "<li class='mortem-ambient-mean' data-mortem-range='0' lang='it'>"
+            "Temperatura ambientale media considerata: 20.0 °C.</li>"
             "<li>Fattore di correzione ipotizzato in base alle condizioni ambientali (per quanto noto): 1.0 (nessuna correzione).</li>"
             "</ul>"
             "</li></ul>",
