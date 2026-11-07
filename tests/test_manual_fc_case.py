@@ -81,11 +81,17 @@ class ManualFCCaseTests(unittest.TestCase):
         app.run()
         app.button(key="btn_stima").click().run()
         self.assertFalse(app.exception)
-        self.assertTrue(any(button.proto.label == "Scarica riepilogo per Word"
-                            for button in app.get("download_button")))
+        labels = [button.proto.label for button in app.get("download_button")]
+        self.assertIn("Scarica caso", labels)
+        self.assertNotIn("Scarica riepilogo per Word", labels)
+        self.assertTrue(any("stessa cartella del documento Word" in caption.value
+                            for caption in app.caption))
         raw, filename = word_result(app.session_state._state.filtered_state, "full")
         self.assertEqual(filename, "stimaX26.117.json")
-        self.assertTrue(decode_case(raw)["report"]["word_blocks"])
+        case = decode_case(raw)
+        self.assertTrue(case["report"]["word_blocks"])
+        self.assertEqual(case["fc_choice"]["range"], [1.0, 1.3])
+        self.assertEqual(case["word_return"], {"request_id": "a" * 32, "case_code": "X26.117"})
 
     def test_invalid_condition_values_are_still_rejected(self):
         for value in (None, True, 0, [], {}, "Dry", "non valido", " "):
