@@ -547,3 +547,54 @@ Il medico ha confermato la parentesi già adottata per il tempo minimo secondo P
 - Prossimo passo concordato: sostituire il modulo Word, ricalcolare/scaricare e importare un caso con rilevata = media, uno con valori diversi e uno con range. Provare anche aggiornamento del riepilogo esistente e conservazione del precedente. Nessun altro intervento avviato.
 
 Verifica estesa conclusa sullo stesso intervento: aggiornato anche il confronto HTML di `test_cautelativa_presentational_i18n` per i soli attributi del marcatore della temperatura media. I 71 test mirati (66 precedenti più 5 del renderer prudente) sono superati. Suite completa finale: 418 test, 412 superati e 6 fallimenti preesistenti, tutti riprodotti sulla base `4becc9e9` (che aveva 8 fallimenti su 416 test). I due controlli sull'inversione degli estremi termici ora passano perché il riepilogo non ripete più un estremo come temperatura misurata. I 6 residui riguardano placeholder IT/EN per l'equilibrio termico, due ancoraggi delle note sui fenomeni tardivi, la vecchia etichetta del download Word, la descrizione peribuccale e il testo della conclusione con limite aperto; nessuna modifica fuori ambito per risolverli. Superati i controlli Node del motore FC (3’385 verifiche e 33’600 combinazioni) e dei casi nel browser; il controllo UI Node sugli scenari fallisce identicamente sulla base e sulla versione finale. Diff finale verificato, nessuna nuova regressione rilevata. Il modulo Word aggiornato è stato salvato come versione 15 dello stesso file; resta la prova manuale descritta sopra.
+
+### 7 novembre 2026 — Revisione proposta dei sei fallimenti residui
+
+Base verificata su GitHub e nel checkout: `7db36fc61a62d82b7b9c5c9cbf854574aaea11ab`.
+Il suo albero coincide con quello di `b31e41b0`: i cinque commit successivi alla
+verifica del 6 novembre sono keepalive senza modifiche ai file. L'intervento è
+preparato nel ramo `review/residual-tests-2026-11-07`, per revisione prima
+dell'integrazione in `main`.
+
+| Fallimento originale | Diagnosi ed evidenza | Correzione proposta |
+| --- | --- | --- |
+| `test_i18n_english.test_all_ui_keys_and_format_specifiers_are_present` | Disallineamento reale della traduzione: `graph.henssge_equal_temperature_detail` conserva in inglese `{temperature}` e non riferisce l'equilibrio al momento dell'ispezione. Il commit `d7e97655` ha adottato la formulazione italiana richiesta eliminando il valore numerico. | Allineare soltanto la stringa inglese al significato italiano, mantenendo l'inapplicabilità di Henssge. Il controllo generale di parità dei placeholder resta integro, senza eccezioni. |
+| `test_late_changes.test_extent_options_keep_legacy_observations_and_word_notes` | Aspettativa superata: il commit `6e42d331` ha aggiornato insieme il paragrafo e l'ancoraggio da `putrefattivi` a `processi post-mortali tardivi/trasformativi`. | Aggiornare il test e controllare la presenza delle ancore nelle varianti ordinaria e con discordanza, oltre alla conservazione delle note dopo esportazione e rilettura JSON. |
+| `test_late_changes.test_full_page_late_only_and_mixed_export` | Stessa aspettativa superata nel test integrato di pagina; il testo attuale contiene l'ancora esportata. | Aggiornare il confronto; verificare anche le ancore nel blocco Word dei fenomeni tardivi e la conservazione delle note nel JSON. |
+| `test_manual_fc_case.test_full_page_manual_fc_reaches_word_download_without_exception` | Aspettativa superata: il commit `d2a8adf5` ha unificato il download sotto `Scarica caso`. Il test di avvio Word già verifica l'assenza della precedente etichetta. | Verificare il pulsante corrente, il promemoria Word, il nome del file, i blocchi del report, l'intervallo FC manuale e i metadati di ritorno. |
+| `test_tanatology_regression.test_perioral_descriptions_explain_henssge_binary_choice` | Aspettativa superata per la sola reazione assente: `7e1ed52f` ha adottato espressamente la frase «Tale risultato consente soltanto di stimare…». | Conservare la formulazione corrente con un confronto esatto; mantenere i controlli sulle tre reazioni presenti e sui loro limiti. |
+| `test_textgen_time_formatting.test_single_parameter_conclusion_with_dates_uses_only_calendar_window` | Aspettativa superata per il limite superiore aperto: `6476742b`, `a1eca005` e `86c63195` hanno ripristinato durata minima, equivalente in giorni e «collocabile circa». | Separare i casi con limite superiore finito da quello aperto; verificare durata minima, eventuale parentesi in giorni e data/ora, inclusi 2 ore e 26 ore 30 minuti. |
+
+L'unica modifica applicativa è il valore della chiave inglese indicata. Un
+confronto AST verifica che il resto del modulo è identico; tutti gli altri file
+applicativi, i testi italiani, le formule, le soglie, gli arrotondamenti, lo
+schema JSON e il VBA rimangono invariati.
+
+Un nuovo controllo AppTest verifica equilibrio termico a 20 e 25 °C in entrambe
+le lingue, contesto dell'ispezione, presenza singola della frase e conservazione
+nel JSON e nei blocchi Word, senza ripetere la temperatura nel paragrafo
+interpretativo. Sulla base questo controllo passa in italiano e fallisce in
+inglese; con la correzione proposta passa in entrambe le lingue. Si tratta di
+un test di esportazione, non di esecuzione in Microsoft Word.
+
+Verifiche iniziali: riprodotti 418 test, 412 superati e gli stessi 6 fallimenti.
+I 59 test mirati della proposta sono superati. La suite completa finale,
+`python -m unittest discover -s tests -v`, supera **420 test su 420** in 101.799 s
+(i 418 precedenti più il controllo dell'esportazione dell'equilibrio termico e
+il controllo separato della conclusione aperta). Superati anche
+`python -m compileall -q app Stima_epoca_decesso.py pages` e `git diff --check`.
+Ambiente Python 3.12.14 e
+Streamlit 1.64.0; verificate tutte le 48 versioni indicate in
+`constraints-py312.txt`, senza discrepanze. Nessuna modifica alle dipendenze.
+
+Il controllo Node del motore FC supera 3’385 verifiche e 33’600 combinazioni;
+superato anche `test_case_browser.cjs`. `test_fc_panel_ui.cjs` conserva il
+fallimento preesistente in `test_fc_scenarios.cjs:69`: attesa descrizione
+congiunta corpo asciutto/corpo bagnato, ottenuta descrizione del solo corpo
+asciutto. I tre output Node sono identici prima e dopo la proposta. Questo
+problema è esterno ai sei fallimenti Python esaminati e non viene modificato;
+non dichiarare verde l'intero workflow CI.
+
+Restano da eseguire le prove effettive di importazione e formattazione in
+Microsoft Word e la verifica visiva dell'app distribuita, dopo eventuale
+approvazione dell'integrazione.
