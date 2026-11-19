@@ -64,11 +64,12 @@ let sent;context.window.FCBridge={send:action=>sent={action,...panel.payload()}}
 nodes['use-scenarios'].click();assert.equal(sent.action,'use');assert.equal(sent.scenarios.length,2);
 assert.deepEqual(plain(sent.range),[1.35,1.75]);
 
-// Equal extremes retain all distinct conditions, while duplicates stay compact.
+// Identical FC ranges use the first scenario's description once.
 choose(0);manual(1,1);choose(1);manual(1,1);
-assert.match(panel.payload().description,/corpo asciutto.* \/ corpo bagnato/);
+const expectedDescription=`Fattore di correzione considerato: 1.00 (${panel.payload().scenarios[0].description})`;
+assert.equal(panel.payload().description,expectedDescription);
 nodes['add-scenario'].click();
-assert.equal((panel.payload().description.match(/corpo bagnato/g)||[]).length,1);
+assert.equal(panel.payload().description,expectedDescription);
 console.log('FC scenarios: independent conditions, aggregate bounds, manual bases, weights, drafts, incomplete inputs and ties passed.');
 
 // Temperatures are individual, accept negatives, and survive draft/weight changes.
@@ -80,7 +81,7 @@ assert.equal(nodes['scenario-tabs'].children[1],stableTab,'Temperature blur must
 change('surface','wood');
 assert.equal(panel.payload().scenarios[0].temperature,-2.5);
 assert.equal(panel.payload().scenarios[0].conditions.surf,0);
-assert.match(panel.payload().scenarios[0].description,/su piano di legno/);
+assert.match(panel.payload().scenarios[0].description,/adagiato su superficie termicamente indifferente/);
 choose(1);state('Immerso');change('scenario-temperature','8','input');
 assert.equal(nodes['scenario-temperature-label'].textContent,'Temperatura dell’acqua');
 assert.equal(nodes['scenario-temperature-output'].textContent,'-2.5 – 20.0 °C');
