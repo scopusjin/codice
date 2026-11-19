@@ -71,20 +71,33 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             "vale a dire circa <b>tra le ore 22:00 del 20.08.2026 e le ore 01:00 del 21.08.2026</b>.</p>",
         )
 
-    def test_single_parameter_conclusion_with_dates_uses_only_calendar_window(self):
+    def test_single_parameter_conclusion_with_finite_upper_bound_uses_only_calendar_window(self):
         isp_dt = datetime.datetime(2026, 10, 14, 11, 28)
         intro = "<p>La valutazione dei dati disponibili porta a stimare che la morte sia avvenuta circa "
         cases = [
             (2, 13.5, "tra le ore 21:45 del 13.10.2026 e le ore 09:30 del 14.10.2026"),
             (2, 4, "tra le ore 07:15 e le ore 09:30 del 14.10.2026"),
             (0, 13.5, "successivamente alle ore 21:45 del 13.10.2026 (ma prima delle ore 11:28 del 14.10.2026)"),
-            (2, np.inf, "prima delle ore 09:30 del 14.10.2026"),
         ]
         for lower, upper, window in cases:
             with self.subTest(lower=lower, upper=upper):
                 self.assertEqual(
                     build_final_sentence(lower, upper, isp_dt, single_parameter=True),
                     intro + f"<b>{window}</b>.</p>",
+                )
+
+    def test_single_parameter_open_conclusion_keeps_minimum_duration_and_calendar_cutoff(self):
+        isp_dt = datetime.datetime(2026, 10, 14, 11, 28)
+        for lower, duration, days, cutoff in (
+            (2, "2 ore", "", "09:30 del 14.10.2026"),
+            (26.5, "26 ore 30 minuti", " (almeno 1 giorno e 2 ore)", "09:00 del 13.10.2026"),
+        ):
+            with self.subTest(lower=lower):
+                self.assertEqual(
+                    build_final_sentence(lower, np.inf, isp_dt, single_parameter=True),
+                    "<p>La valutazione dei dati disponibili porta a stimare che, al momento dei rilievi tanatologici, "
+                    f"fossero trascorse almeno <b>{duration}</b> dal decesso{days}, "
+                    f"collocabile circa <b>prima delle ore {cutoff}</b>.</p>",
                 )
 
     def test_single_parameter_conclusion_without_dates_preserves_time_bounds(self):

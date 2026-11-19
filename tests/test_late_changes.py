@@ -4,7 +4,7 @@ import unittest
 
 from app.late_changes import build_late_report, late_hours_conflict
 from app.case_file import snapshot_case, encode_case, decode_case, restored_inputs, CaseFileError
-from app.case_report import capture_report
+from app.case_report import capture_report, plain_text
 
 
 class LateChangesTests(unittest.TestCase):
@@ -156,8 +156,14 @@ class LateChangesTests(unittest.TestCase):
                      'aree di parziale mummificazione', 'diffusa scheletrizzazione di porzioni corporee',
                      'aree caratterizzate da presenza di adipocera'):
             self.assertIn(text, report['html'])
-        self.assertEqual(report['word_footnotes'][0]['anchor'], 'putrefattivi')
+        self.assertEqual(report['word_footnotes'][0]['anchor'], 'processi post-mortali tardivi/trasformativi')
+        for variant in ('html', 'conflict_html'):
+            for note in report['word_footnotes']:
+                self.assertIn(note['anchor'], plain_text(report[variant]))
+        state.update(__desc_dettagliate_html=report['html'], __word_footnotes=report['word_footnotes'])
+        capture_report(state, 'full')
         case = decode_case(encode_case(snapshot_case(state, 'full')))
+        self.assertEqual(case['report']['word_footnotes'], report['word_footnotes'])
         self.assertEqual(restored_inputs(case)['late_changes_observed'], state['late_changes_observed'])
         state['late_changes_observed'] = ['liquefaction']
         self.assertIn('colliquazione.', build_late_report(state)['html'])
@@ -228,7 +234,12 @@ class LateChangesTests(unittest.TestCase):
         self.assertEqual(case['report']['word_blocks']['cooling']['text'], '• ' + cooling_text)
         self.assertNotIn('fase avanzata', case['report']['detailed_text'])
         self.assertIn('fuoriuscita', case['report']['word_blocks']['putrefaction']['text'])
-        self.assertEqual([n['anchor'] for n in case['report']['word_footnotes']], ['putrefattivi', 'entomofauna'])
+        self.assertEqual([n['anchor'] for n in case['report']['word_footnotes']],
+                         ['processi post-mortali tardivi/trasformativi', 'entomofauna'])
+        for note in case['report']['word_footnotes']:
+            self.assertIn(note['anchor'], case['report']['word_blocks']['putrefaction']['text'])
+        self.assertEqual(decode_case(encode_case(case))['report']['word_footnotes'],
+                         case['report']['word_footnotes'])
         self.assertIn('Per putrefazione si intende', case['report']['word_footnotes'][0]['text'])
         self.assertNotIn('Per putrefazione si intende', case['report']['detailed_text'])
         self.assertNotIn('[1]', case['report']['detailed_text'])

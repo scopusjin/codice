@@ -141,8 +141,8 @@ UI_TEXT = {
         "<ul><li>Regarding body cooling, the Henssge nomogram cannot be applied.</li></ul>"
     ),
     "graph.henssge_equal_temperature_detail": (
-        "<ul><li>Rectal and ambient temperatures are both <b>{temperature} °C</b>. This suggests that the body "
-        "has reached thermal equilibrium with its surroundings, so Henssge’s method cannot be applied.</li></ul>"
+        "<ul><li>Regarding <u>body cooling</u>, the findings suggest that the body had reached thermal equilibrium "
+        "with its surroundings at the time of the medico-legal examination. Henssge’s method therefore cannot be applied.</li></ul>"
     ),
     "graph.henssge_below_ambient_warning": "Rectal temperature is below ambient temperature: Henssge’s method is not applicable. Check the entered data.",
     "graph.henssge_below_ambient_detail": (
