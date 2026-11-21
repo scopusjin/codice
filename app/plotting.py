@@ -27,6 +27,7 @@ def compute_plot_data(
     INF_HOURS: float,
     qd_threshold: float,
     extra_params: Optional[List[Dict[str, Any]]] = None,  # può contenere: label,start,end,adattato,is_potente
+    scenario_ranges: tuple[tuple[float, float] | None, ...] = (),
 ) -> Dict[str, Any]:
     """
     Prepara i dati per il grafico. Nessun side-effect. Nessuna dipendenza da Streamlit.
@@ -39,6 +40,25 @@ def compute_plot_data(
     livor_label = i18n.ui_text("plot.livor")
     rigor_label = i18n.ui_text("plot.rigor")
     cooling_label = i18n.ui_text("plot.cooling")
+    scenario_rows = {}
+
+    def append_scenarios():
+        labels.append(cooling_label)
+        starts.append(np.nan)
+        ends.append(np.nan)
+        for number, (interval, color) in enumerate(zip(scenario_ranges, ("steelblue", "#9a541c")), 1):
+            scenario_rows[len(labels)] = color
+            name = i18n.ui_text("plot.scenario", number=number)
+            lo, hi = interval if interval is not None else (np.nan, np.nan)
+            if interval is None:
+                value = i18n.ui_text("plot.no_estimate")
+            elif hi >= INF_HOURS:
+                value = f"≥ {_fmt(lo)} h"
+            else:
+                value = f"{_fmt(lo)}–{_fmt(hi)} h"
+            labels.append(f"{name} ({value})")
+            starts.append(lo)
+            ends.append(hi)
 
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
@@ -66,8 +86,13 @@ def compute_plot_data(
 
     # Parametri extra (altri range orari da mostrare come barre)
     _extra = list(extra_params) if extra_params else []
+    extra_rows = [None] * len(_extra)
     if _extra:
-        for e in _extra:
+        for pos, e in enumerate(_extra):
+            if e.get("is_potente") and scenario_ranges:
+                extra_rows[pos] = len(labels)
+                append_scenarios()
+                continue
             try:
                 lab = str(e.get("label", i18n.ui_text("plot.generic_parameter")))
                 if e.get("adattato", False):
@@ -84,6 +109,7 @@ def compute_plot_data(
             else:
                 end_val = float(ed)
                 lbl = f"{lab}\n({_fmt(s)}–{_fmt(end_val)} h)"
+            extra_rows[pos] = len(labels)
             labels.append(lbl)
             starts.append(float(s))
             ends.append(end_val)
@@ -96,7 +122,11 @@ def compute_plot_data(
     t_min_raff_visualizzato = np.nan
     t_max_raff_visualizzato = np.nan
 
-    if raffreddamento_calcolabile and not potente_present:
+    raff_only_lower = False
+    raff_only_lower_start = None
+    if raffreddamento_calcolabile and not potente_present and scenario_ranges:
+        append_scenarios()
+    elif raffreddamento_calcolabile and not potente_present:
         t_min_raff_visualizzato = t_min_raff_henssge
         t_max_raff_visualizzato = t_max_raff_henssge
 
@@ -118,9 +148,6 @@ def compute_plot_data(
         starts.append(t_min_raff_henssge)
         ends.append(t_max_raff_henssge)
         raffreddamento_idx = len(labels) - 1
-    else:
-        raff_only_lower = False
-        raff_only_lower_start = None
 
     # Calcolo cap e coda
     LINE_W = 6
@@ -188,6 +215,8 @@ def compute_plot_data(
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
         extra_params=_extra,
+        extra_rows=extra_rows,
+        scenario_rows=scenario_rows,
     )
 
 
@@ -242,7 +271,11 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
         if np.isnan(s):
             continue
         is_infinite = (np.isnan(e) or e >= INF_HOURS)
-        if not is_infinite:
+        if i in data["scenario_rows"]:
+            color = data["scenario_rows"][i]
+            ax.hlines(i, s, tail_end if is_infinite else e, color=color, linewidth=4,
+                      linestyle=DASH_LS if is_infinite else "solid", zorder=2)
+        elif not is_infinite:
             ax.hlines(i, s, e, color='steelblue', linewidth=LINE_W, zorder=2)
         else:
             solid_to = max(s, cap_base)
@@ -303,6 +336,10 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     ax.margins(x=0)
     ax.set_yticks(range(len(labels)))
     ax.set_yticklabels(labels, fontsize=18)        # etichette Y più grandi
+    if data["scenario_rows"]:
+        ax.set_ylim(-0.45, len(labels) - 0.55)
+        for index in data["scenario_rows"]:
+            ax.get_yticklabels()[index].set_fontsize(14)
     ax.invert_yaxis()
     ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=16)  # titolo asse X leggibile
     ax.tick_params(axis="x", labelsize=14)         # numeri asse X leggibili

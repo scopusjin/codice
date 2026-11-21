@@ -106,6 +106,9 @@ class FCScenarioTests(unittest.TestCase):
             self.assertEqual(solver.call_args.kwargs["temperature_scenarios"],
                              [(20., [1.35, 1.35]), (8., [1.4, 1.4])])
             self.assertEqual(sum(dict(cooling.qd_status_counts).values()), 2)
+            from app.henssge import calcola_raffreddamento
+            for bounds, ta, fc in zip(cooling.scenario_ranges, (20., 8.), (1.35, 1.4), strict=True):
+                self.assertEqual(bounds, calcola_raffreddamento(30., ta, 37.2, 70., fc, round_minutes=None)[1:3])
             details = "".join(cooling.detail_blocks)
             self.assertIn("8.0 °C (temperatura dell’acqua) – 20.0 °C", details)
             self.assertNotIn("Temperature degli scenari", details)
@@ -116,6 +119,7 @@ class FCScenarioTests(unittest.TestCase):
             cooling = compute_cooling_state(**args)
             solver.assert_not_called()
             self.assertFalse(cooling.raffreddamento_calcolabile)
+            self.assertEqual(cooling.scenario_ranges, ())
             self.assertIn("Temperature modificate", cooling.validation_error)
 
     def test_water_notes_follow_matching_temperatures_and_collapse_equal_values(self):
@@ -156,6 +160,7 @@ class FCScenarioTests(unittest.TestCase):
         self.assertIn("Fattore di correzione considerato: 1.35", text)
         self.assertNotIn("Range di", text)
         self.assertTrue(result.raffreddamento_calcolabile)
+        self.assertEqual(result.scenario_ranges, ((result.t_min_raff_henssge, result.t_max_raff_henssge),) * 2)
 
     def test_identical_ranges_use_first_scenario_once(self):
         for count in (2, 3):
@@ -334,6 +339,7 @@ class FCScenarioTests(unittest.TestCase):
                     fattore_correzione=1.35, data_ora_ispezione=datetime.datetime(2026, 10, 10, 9),
                     skip_warnings=False)
         with_scenarios = compute_cooling_state(**args, cooling_options=state)
+        self.assertEqual(with_scenarios.scenario_ranges, ())  # Caso storico senza temperature per scenario.
         state.pop("__fc_applied_choice")
         without_scenarios = compute_cooling_state(**args, cooling_options=state)
         for field in ("t_min_raff_henssge", "t_max_raff_henssge", "Qd_min", "Qd_max"):

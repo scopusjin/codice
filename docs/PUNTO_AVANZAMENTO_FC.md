@@ -1,5 +1,14 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Grafico del raffreddamento con due scenari – 21.11.2026
+
+Repository `scopusjin/codice`. La configurazione di MOR-TEM indica `main` come ramo di distribuzione. Base verificata `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`. Il ramo di prova `grafico-due-scenari-fc-20261121` identifica la versione con questa nota.
+
+- In `app/cautelativa.py` ogni combinazione già calcolata conserva gli indici degli scenari che la utilizzano. In `app/graphing_cooling.py` gli intervalli per il grafico derivano dalle combinazioni valide del rispettivo scenario, compreso il limite minimo secondo Potente.
+- `app/graphing.py` e `app/plotting.py` mostrano i due intervalli sotto una sola voce Raffreddamento, con le etichette delle risorse IT/EN. La stima combinata usa il consueto intervallo complessivo. I casi storici privi della temperatura per scenario e i percorsi che forniscono solo il limite aggregato conservano la visualizzazione complessiva.
+- Verificati i due percorsi Streamlit (desktop e mobile), le geometrie sovrapposte, disgiunte e coincidenti, il peso stimato, il limite aperto, l’assenza di stima e la lingua inglese. I controlli mirati sono in `tests/test_cooling_scenario_plot.py`, `tests/test_cooling_applicability.py` e `tests/test_fc_scenarios.py`.
+- Il controllo JavaScript facoltativo `tests/test_fc_counters.cjs` fallisce anche sulla base, nell’asserzione sui riferimenti documentali degli strati equivalenti. Restano da verificare la resa sul dispositivo dell’utente e la sua valutazione dell’anteprima prima del rilascio.
+
 ## Descrizioni inglesi più dirette — 23.10.2026
 
 - Revisione approvata dall'utente: inglese più sintetico e naturale, senza
