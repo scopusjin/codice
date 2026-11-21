@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.transforms import offset_copy
 
 from app.language import presentation_i18n as i18n
 
@@ -40,25 +41,7 @@ def compute_plot_data(
     livor_label = i18n.ui_text("plot.livor")
     rigor_label = i18n.ui_text("plot.rigor")
     cooling_label = i18n.ui_text("plot.cooling")
-    scenario_rows = {}
-
-    def append_scenarios():
-        labels.append(cooling_label)
-        starts.append(np.nan)
-        ends.append(np.nan)
-        for number, (interval, color) in enumerate(zip(scenario_ranges, ("steelblue", "#9a541c")), 1):
-            scenario_rows[len(labels)] = color
-            name = i18n.ui_text("plot.scenario", number=number)
-            lo, hi = interval if interval is not None else (np.nan, np.nan)
-            if interval is None:
-                value = i18n.ui_text("plot.no_estimate")
-            elif hi >= INF_HOURS:
-                value = f"≥ {_fmt(lo)} h"
-            else:
-                value = f"{_fmt(lo)}–{_fmt(hi)} h"
-            labels.append(f"{name} ({value})")
-            starts.append(lo)
-            ends.append(hi)
+    scenario_row = None
 
     # Etichette + range: IPOSTASI
     if macchie_range is not None and not np.isnan(macchie_range[0]):
@@ -91,7 +74,10 @@ def compute_plot_data(
         for pos, e in enumerate(_extra):
             if e.get("is_potente") and scenario_ranges:
                 extra_rows[pos] = len(labels)
-                append_scenarios()
+                scenario_row = len(labels)
+                labels.append(cooling_label)
+                starts.append(np.nan)
+                ends.append(np.nan)
                 continue
             try:
                 lab = str(e.get("label", i18n.ui_text("plot.generic_parameter")))
@@ -125,7 +111,10 @@ def compute_plot_data(
     raff_only_lower = False
     raff_only_lower_start = None
     if raffreddamento_calcolabile and not potente_present and scenario_ranges:
-        append_scenarios()
+        scenario_row = len(labels)
+        labels.append(cooling_label)
+        starts.append(np.nan)
+        ends.append(np.nan)
     elif raffreddamento_calcolabile and not potente_present:
         t_min_raff_visualizzato = t_min_raff_henssge
         t_max_raff_visualizzato = t_max_raff_henssge
@@ -155,12 +144,15 @@ def compute_plot_data(
     TAIL_FACTOR = 1.20
     DEFAULT_CAP_IF_NO_FINITE = 72.0
 
-    finite_ends_all = [e for e in ends if not np.isnan(e) and e < INF_HOURS]
+    plotted_intervals = list(zip(starts, ends))
+    if scenario_row is not None:
+        plotted_intervals.extend(interval for interval in scenario_ranges if interval is not None)
+    finite_ends_all = [e for _, e in plotted_intervals if not np.isnan(e) and e < INF_HOURS]
     cap_base = max(finite_ends_all) if finite_ends_all else DEFAULT_CAP_IF_NO_FINITE
 
     # Inizi dei segmenti infiniti blu
     infinite_starts_blue = [
-        s for s, e in zip(starts, ends)
+        s for s, e in plotted_intervals
         if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
     ]
 
@@ -216,12 +208,13 @@ def compute_plot_data(
         INF_HOURS=INF_HOURS,
         extra_params=_extra,
         extra_rows=extra_rows,
-        scenario_rows=scenario_rows,
+        scenario_row=scenario_row,
+        scenario_ranges=scenario_ranges,
     )
 
 
 
-def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
+def render_ranges_plot(data: Dict[str, Any], *, mobile: bool = False) -> plt.Figure:
     """
     Disegna il grafico dei range usando esclusivamente `data` di compute_plot_data.
     Non aggiunge linee rosse dell’intersezione: quelle restano nel main.
@@ -242,10 +235,30 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     LINE_W = style["line_w"]
     DASH_LS = style["dash_ls"]
 
-    fig, ax = plt.subplots(figsize=data["figsize"])
+    scenario_row = data["scenario_row"]
+    compact = mobile and scenario_row is not None
+    figsize = (5.0, 1.4 + 0.43 * len(labels)) if compact else data["figsize"]
+    fig, ax = plt.subplots(figsize=figsize, layout="constrained" if scenario_row is not None else None)
 
-        
-
+    if scenario_row is not None:
+        for index, (interval, color, offset) in enumerate(
+            zip(data["scenario_ranges"], ("steelblue", "#9a541c"), (2.2, -2.2)), 1
+        ):
+            name = i18n.ui_text("plot.scenario", number=index)
+            if interval is None:
+                ax.plot([], [], linestyle="none", label=f"{name} ({i18n.ui_text('plot.no_estimate')})")
+                continue
+            lo, hi = interval
+            open_end = not np.isfinite(hi) or hi >= INF_HOURS
+            value = f"≥ {_fmt(lo)} h" if open_end else f"{_fmt(lo)}–{_fmt(hi)} h"
+            # A fixed gap in points keeps coincident intervals distinct at any figure height.
+            transform = offset_copy(ax.transData, fig=fig, y=offset, units="points")
+            ax.plot([lo, tail_end if open_end else hi], [scenario_row, scenario_row],
+                    color=color, linewidth=3, linestyle=DASH_LS if open_end else "solid",
+                    solid_capstyle="butt", transform=transform, label=f"{name} ({value})")
+        fig.legend(loc="outside lower center", ncols=2, frameon=False,
+                   fontsize=10 if compact else 13, handlelength=1.4,
+                   handletextpad=0.4, columnspacing=1.3, borderaxespad=0.15)
 
     # 1) Segmenti verdi speciali per RAFFREDDAMENTO (sotto)
     if raff_idx is not None:
@@ -271,11 +284,7 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
         if np.isnan(s):
             continue
         is_infinite = (np.isnan(e) or e >= INF_HOURS)
-        if i in data["scenario_rows"]:
-            color = data["scenario_rows"][i]
-            ax.hlines(i, s, tail_end if is_infinite else e, color=color, linewidth=4,
-                      linestyle=DASH_LS if is_infinite else "solid", zorder=2)
-        elif not is_infinite:
+        if not is_infinite:
             ax.hlines(i, s, e, color='steelblue', linewidth=LINE_W, zorder=2)
         else:
             solid_to = max(s, cap_base)
@@ -335,15 +344,14 @@ def render_ranges_plot(data: Dict[str, Any]) -> plt.Figure:
     ax.set_xlim(0, tail_end)
     ax.margins(x=0)
     ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels(labels, fontsize=18)        # etichette Y più grandi
-    if data["scenario_rows"]:
+    ax.set_yticklabels(labels, fontsize=12 if compact else 18)
+    if scenario_row is not None:
         ax.set_ylim(-0.45, len(labels) - 0.55)
-        for index in data["scenario_rows"]:
-            ax.get_yticklabels()[index].set_fontsize(14)
     ax.invert_yaxis()
-    ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=16)  # titolo asse X leggibile
-    ax.tick_params(axis="x", labelsize=14)         # numeri asse X leggibili
+    ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=11 if compact else 16)
+    ax.tick_params(axis="x", labelsize=10 if compact else 14)
     ax.grid(True, axis='x', linestyle=':', alpha=0.6)
 
-    plt.tight_layout()
+    if scenario_row is None:
+        fig.tight_layout()
     return fig

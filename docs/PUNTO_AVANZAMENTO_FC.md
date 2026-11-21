@@ -1,5 +1,13 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Grafico compatto con legenda – 21.11.2026
+
+Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`, ramo dell’app principale `main`. Ultima versione testata prima di questa revisione `5f58cb458fe2f624e8124a58c0802d2775e483fb` (422 test Python superati). Il commit di questa nota identifica la revisione grafica.
+
+L’anteprima con due righe separate è stata scartata dopo la valutazione dell’utente. In `app/plotting.py`, `compute_plot_data` assegna al raffreddamento una sola riga e `render_ranges_plot` disegna i due segmenti a breve distanza. La legenda sotto l’asse delle ore identifica gli scenari e i loro intervalli. `app/graphing.py` passa al grafico la modalità desktop/mobile già attiva.
+
+L’anteprima è stata generata dalla pagina principale con ipostasi, rigor e i due scenari. Verificati entrambi i layout, la posizione della legenda, i limiti aperti e la distinzione di segmenti sovrapposti, coincidenti o disgiunti (`tests/test_cooling_scenario_plot.py`). Il prossimo passo è il riscontro dell’utente sull’anteprima prima del rilascio. Il controllo facoltativo sui contatori FC indicato nella sezione precedente in ordine cronologico resta aperto.
+
 ## Grafico del raffreddamento con due scenari – 21.11.2026
 
 Repository `scopusjin/codice`. La configurazione di MOR-TEM indica `main` come ramo di distribuzione. Base verificata `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`. Il ramo di prova `grafico-due-scenari-fc-20261121` identifica la versione con questa nota.

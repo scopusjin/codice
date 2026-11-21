@@ -643,7 +643,7 @@ def aggiorna_grafico(
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
-        fig_or_none = render_ranges_plot(plot_data)
+        fig_or_none = render_ranges_plot(plot_data, mobile=mobile_results)
 
         import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
