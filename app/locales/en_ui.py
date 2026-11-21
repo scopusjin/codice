@@ -170,7 +170,7 @@ UI_TEXT = {
     "plot.livor": "Lividity",
     "plot.rigor": "Rigor mortis",
     "plot.cooling": "Body cooling",
-    "plot.scenario": "Scenario {number}",
+    "plot.scenario": "Body cooling – scenario {number}",
     "plot.no_estimate": "no estimate",
     "plot.generic_parameter": "Parameter",
     "plot.hours_since_death": "Hours since death",

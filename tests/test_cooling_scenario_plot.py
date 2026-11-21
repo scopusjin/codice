@@ -36,11 +36,12 @@ class CoolingScenarioPlotTests(unittest.TestCase):
         for second in ((9., 16.), (20., 26.), (6., 12.), (40., np.inf), None):
             with self.subTest(second=second), using_language("en"):
                 open_end = second is not None and np.isinf(second[1])
+                overall_end = max(12., second[1]) if second is not None else 12.
                 extras = [{"label": "Body cooling", "start": 6., "end": np.inf, "is_potente": True}] if open_end else []
                 extras.append({"label": "Other", "start": 1., "end": 4.})
                 data = compute_plot_data(macchie_range=(0., 6.), macchie_medi_range=None,
                     rigidita_range=(2., 20.), rigidita_medi_range=(4., 8.),
-                    raffreddamento_calcolabile=not open_end, t_min_raff_henssge=6., t_max_raff_henssge=12.,
+                    raffreddamento_calcolabile=not open_end, t_min_raff_henssge=6., t_max_raff_henssge=overall_end,
                     t_med_raff_henssge_rounded_raw=9., Qd_val_check=.8, mt_ore=None, INF_HOURS=200.,
                     qd_threshold=.2, extra_params=extras, scenario_ranges=((6., 12.), second))
                 for mobile in (False, True):
@@ -52,19 +53,34 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             row = data["scenario_row"]
                             labels = [tick.get_text() for tick in ax.get_yticklabels()]
                             self.assertEqual(len(labels), 4)
-                            self.assertEqual(labels[row], "Body cooling")
+                            summary = "≥ 6 h" if open_end else f"6–{overall_end:g} h"
+                            self.assertEqual(labels[row], f"Body cooling\n({summary})")
+                            aggregate = [(tuple(segment[:, 0]), line.get_linewidths()[0])
+                                         for line in ax.collections for segment in line.get_segments()
+                                         if (segment[:, 1] == row).all()]
+                            self.assertEqual(aggregate[0][0][0], 6.)
+                            end = ax.get_xlim()[1] if open_end else overall_end
+                            self.assertEqual(aggregate[-1][0][1], end)
+                            self.assertTrue(all(width == data["style_flags"]["line_w"] for _, width in aggregate))
+                            if open_end:
+                                self.assertEqual(aggregate[0][0][1], aggregate[-1][0][0])
                             self.assertEqual(labels[data["extra_rows"][-1]], "Other\n(1–4 h)")
                             legend = fig.legends[0]
                             names = [item.get_text() for item in legend.texts]
                             self.assertLess(legend.get_window_extent().y1, ax.xaxis.label.get_window_extent().y0)
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().min))
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().max))
-                            self.assertEqual(names[0], "Scenario 1 (6–12 h)")
+                            self.assertEqual(names[0], "Body cooling – scenario 1 (6–12 h)")
                             first, other = (line for line in ax.lines if line.get_label() in names)
                             self.assertEqual(tuple(first.get_xdata()), (6., 12.))
                             self.assertEqual(tuple(first.get_ydata()), (row, row))
+                            center = ax.transData.transform((0, row))[1]
+                            top_scenario = first.get_transform().transform((0, row))[1]
+                            self.assertGreater((center - top_scenario) * 72 / fig.dpi,
+                                               (aggregate[0][1] + first.get_linewidth()) / 2)
+                            self.assertGreater(aggregate[0][1], first.get_linewidth())
                             if second is None:
-                                self.assertEqual(names[1], "Scenario 2 (no estimate)")
+                                self.assertEqual(names[1], "Body cooling – scenario 2 (no estimate)")
                                 self.assertEqual(len(other.get_xdata()), 0)
                                 continue
                             self.assertEqual(tuple(other.get_ydata()), (row, row))
@@ -72,7 +88,7 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             self.assertGreater(gap * 72 / fig.dpi, first.get_linewidth())
                             self.assertLess(gap * 72 / fig.dpi, 6.)
                             if open_end:
-                                self.assertEqual(names[1], "Scenario 2 (≥ 40 h)")
+                                self.assertEqual(names[1], "Body cooling – scenario 2 (≥ 40 h)")
                                 self.assertEqual(tuple(other.get_xdata()), (40., ax.get_xlim()[1]))
                                 self.assertGreater(ax.get_xlim()[1], 40.)
                                 self.assertTrue(other.is_dashed())

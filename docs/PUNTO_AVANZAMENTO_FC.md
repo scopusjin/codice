@@ -1,5 +1,13 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Intervallo complessivo e legenda dei due scenari – 21.11.2026
+
+Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`. Base verificata e testata `0e0d3f792742a849fbf6884439c101587c9cee6f`. Il ramo di distribuzione è `main` (verificato a `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`). La revisione corrente è il commit di questa nota.
+
+- Su richiesta dell’utente, nella riga Raffreddamento compare la stessa barra blu spessa degli altri parametri. Visualizza il range complessivo già utilizzato nella stima. I due segmenti sottili sono disegnati subito sotto.
+- L’etichetta a sinistra riporta l’intervallo complessivo tra parentesi. Per i decimali si usa il punto. Nella legenda sotto il grafico ciascuna voce inizia con «Raffreddamento – scenario» e riporta il proprio intervallo. Su mobile le voci occupano due righe.
+- File interessati: `app/plotting.py`, risorse IT/EN, `tests/test_cooling_scenario_plot.py`. Verificati con Streamlit gli esempi desktop e mobile. I controlli verificano spessore della barra, intervalli aperti, estremi, posizione delle linee e della legenda. Prossimo riscontro: valutazione dell’anteprima aggiornata prima del rilascio.
+
 ## Grafico compatto con legenda – 21.11.2026
 
 Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`, ramo dell’app principale `main`. Ultima versione testata prima di questa revisione `5f58cb458fe2f624e8124a58c0802d2775e483fb` (422 test Python superati). Il commit di questa nota identifica la revisione grafica.
