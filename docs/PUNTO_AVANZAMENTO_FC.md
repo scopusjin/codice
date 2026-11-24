@@ -1,5 +1,11 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Rilascio del grafico approvato – 24.11.2026
+
+Repository `scopusjin/codice`, app MOR-TEM, ramo di distribuzione `main`. Revisione funzionale approvata e testata `667331727d516d0d46885a7ff98ba3ab26561bcf`. Il confronto con `main` (`a278207c268a39e9ec8bdc5558ee5104b27eb709`) ha restituito la stessa versione dei sorgenti dopo l’integrazione. La pubblicazione approvata è identificata dalla pull request «Pubblica il grafico di raffreddamento con due scenari» verso `main`.
+
+L’anteprima approvata mostra l’intervallo complessivo a sinistra e la barra blu spessa sopra i due intervalli sottili. La legenda sotto il grafico indica «Raffreddamento – scenario 1» e «Raffreddamento – scenario 2», ciascuno con i suoi estremi. I decimali usano il punto. Le prove desktop e mobile sono documentate nelle sezioni seguenti.
+
 ## Intervallo complessivo e legenda dei due scenari – 21.11.2026
 
 Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`. Base verificata e testata `0e0d3f792742a849fbf6884439c101587c9cee6f`. Il ramo di distribuzione è `main` (verificato a `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`). La revisione corrente è il commit di questa nota.
