@@ -16,7 +16,7 @@ from app.presentation_translation import translate
 from app.report_formatting import underline_findings
 from app.fc_description import build_cf_description
 from app.henssge import ranges_in_disaccordo_completa
-from app.parameters import INF_HOURS, nomi_brevi, peribuccale_popwassilew_palm_ranges
+from app.parameters import INF_HOURS, nomi_brevi
 from app.livor_digitopressione import PRESSURE_NOT_ASSESSED
 from app.rigor_reformation import REFORMATION_NOT_ASSESSED, REFORMATION_YES
 from app.graphing_tanatology import (
@@ -27,7 +27,6 @@ from app.graphing_tanatology import (
     resolve_base_tanatology_ranges,
     resolve_special_tanatology_value,
 )
-from app.special_tanatology_states import PARAM_ELECTRICAL_PERIORAL
 from app.graphing_cooling import compute_cooling_state, _potente_limit_for_combination
 from app.cooling_inputs import missing_cooling_inputs
 from app.fc_scenarios import temperature_description
@@ -394,22 +393,12 @@ def aggiorna_grafico(
             lo, hi = range_trasl
             lo = max(0, lo)
 
-            green_range_traslato = None
-            if parametro_risolto.parameter_id == PARAM_ELECTRICAL_PERIORAL:
-                pp_range = peribuccale_popwassilew_palm_ranges.get(stato_selezionato)
-                if pp_range is not None:
-                    pp_lo = max(0, pp_range[0] - diff_h)
-                    pp_hi = max(0, pp_range[1] - diff_h)
-                    if pp_hi >= pp_lo:
-                        green_range_traslato = (pp_lo, pp_hi)
-
             parametri_aggiuntivi_da_considerare.append(dict(
                 nome=nome_parametro, label=parametro_label,
                 parameter_id=parametro_risolto.parameter_id,
                 stato=stato_selezionato,
                 range_traslato=(lo, hi), descrizione=descrizione,
                 differenza_ore=diff_h, adattato=(diff_h != 0),
-                green_range_traslato=green_range_traslato,
             ))
             diffs = {p["differenza_ore"] for p in parametri_aggiuntivi_da_considerare if p.get("adattato")}
             nota_globale_range_adattato = len(diffs) == 1
@@ -430,7 +419,6 @@ def aggiorna_grafico(
                 parameter_id=parametro_risolto.parameter_id,
                 stato=stato_selezionato,
                 range_traslato=(np.nan, np.nan), descrizione=descrizione,
-                green_range_traslato=None,
             ))
 
     orari_parametri_differenti = any(
@@ -578,10 +566,6 @@ def aggiorna_grafico(
                 "order": idx,
                 "adattato": bool(p.get("adattato", False)),
             }
-            green_range = p.get("green_range_traslato")
-            if isinstance(green_range, tuple) and len(green_range) == 2:
-                extra_param["green_start"] = float(green_range[0])
-                extra_param["green_end"] = float(green_range[1])
             extra_params_for_plot.append(extra_param)
 
     # Conserva il limite complessivo anche quando si disegnano i singoli scenari.
@@ -633,47 +617,15 @@ def aggiorna_grafico(
             scenario_ranges=cooling.scenario_ranges,
         )
 
-        if isinstance(plot_data, dict):
-            plot_data["extra_params"] = extra_params_for_plot
-            tail = plot_data.get("tail_end", 72.0)
+        applied_choice = options.get("__fc_applied_choice") or {}
+        common_range = (comune_inizio, comune_fine) if overlap and not single_parameter else None
+        fig = render_ranges_plot(plot_data, mobile=mobile_results,
+                                 scenarios=applied_choice.get("scenarios") or (),
+                                 common_range=common_range)
+        if mobile_results:
+            mobile_result_figure = fig
         else:
-            tail = 72.0
-
-        for e in extra_params_for_plot:
-            if (not np.isfinite(e["end"])) or (e["end"] > tail):
-                e["end"] = tail
-
-        fig_or_none = render_ranges_plot(plot_data, mobile=mobile_results)
-
-        import matplotlib.figure as _mplfig
-        if isinstance(fig_or_none, _mplfig.Figure):
-            fig = fig_or_none
-            ax = fig.axes[0]
-
-            # Sottorange Popwassilew–Palm: informativo soltanto, non entra nell'intersezione.
-            for y, e in zip(plot_data["extra_rows"], extra_params_for_plot):
-                green_start = e.get("green_start")
-                green_end = e.get("green_end")
-                if y is not None and _is_num(green_start) and _is_num(green_end) and float(green_end) > float(green_start):
-                    ax.hlines(
-                        y,
-                        max(0.0, float(green_start)),
-                        min(float(tail), float(green_end)),
-                        color='mediumseagreen',
-                        linewidth=6,
-                        alpha=1.0,
-                        zorder=3,
-                    )
-
-            if overlap and (np.isnan(comune_fine) or comune_fine > 0):
-                if comune_inizio < tail:
-                    ax.axvline(max(0, comune_inizio), color='red', linestyle='--')
-                if not np.isnan(comune_fine) and comune_fine > 0:
-                    ax.axvline(min(tail, comune_fine), color='red', linestyle='--')
-            if mobile_results:
-                mobile_result_figure = fig
-            else:
-                st.pyplot(fig)
+            st.pyplot(fig)
 
         # La frase breve viene calcolata qui e mostrata prima dei comandi di dettaglio.
         if overlap:

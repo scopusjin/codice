@@ -46,7 +46,11 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                     qd_threshold=.2, extra_params=extras, scenario_ranges=((6., 12.), second))
                 for mobile in (False, True):
                     with self.subTest(mobile=mobile):
-                        fig = render_ranges_plot(data, mobile=mobile)
+                        temperatures = (20., 20.) if second == (6., 12.) else (20., 18.25)
+                        scenarios = [dict(range=[1., 1.], temperature=temperatures[0]),
+                                     dict(range=[1.2, 1.3], temperature=temperatures[1])]
+                        fig = render_ranges_plot(data, mobile=mobile, scenarios=scenarios,
+                                                 common_range=(6., 9.) if open_end else None)
                         try:
                             fig.canvas.draw()
                             ax = fig.axes[0]
@@ -54,7 +58,8 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             labels = [tick.get_text() for tick in ax.get_yticklabels()]
                             self.assertEqual(len(labels), 4)
                             summary = "≥ 6 h" if open_end else f"6–{overall_end:g} h"
-                            self.assertEqual(labels[row], f"Body cooling\n({summary})")
+                            self.assertEqual(labels[row], f"({summary})")
+                            self.assertEqual(ax.texts[row].get_text(), "Body cooling")
                             aggregate = [(tuple(segment[:, 0]), line.get_linewidths()[0])
                                          for line in ax.collections for segment in line.get_segments()
                                          if (segment[:, 1] == row).all()]
@@ -64,13 +69,24 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             self.assertTrue(all(width == data["style_flags"]["line_w"] for _, width in aggregate))
                             if open_end:
                                 self.assertEqual(aggregate[0][0][1], aggregate[-1][0][0])
-                            self.assertEqual(labels[data["extra_rows"][-1]], "Other\n(1–4 h)")
+                            self.assertEqual(labels[data["extra_rows"][-1]], "(1–4 h)")
+                            self.assertEqual(ax.texts[data["extra_rows"][-1]].get_text(), "Other")
                             legend = fig.legends[0]
                             names = [item.get_text() for item in legend.texts]
                             self.assertLess(legend.get_window_extent().y1, ax.xaxis.label.get_window_extent().y0)
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().min))
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().max))
-                            self.assertEqual(names[0], "Body cooling – scenario 1 (6–12 h)")
+                            self.assertEqual(names[0], "Limits used for the estimate")
+                            shared = temperatures[0] == temperatures[1]
+                            self.assertEqual(names[1], "Body cooling – CF 1.00" + (
+                                "" if shared else " · Ambient temp. 20.0 °C"))
+                            second_name = "Body cooling – CF 1.20–1.30" + (
+                                "" if shared else " · Ambient temp. 18.25 °C")
+                            if second is None:
+                                second_name += ("\n" if mobile else " ") + "(no estimate)"
+                            self.assertEqual(names[2], second_name)
+                            self.assertEqual([t.get_text() for t in ax.texts[len(labels):]], ["Common interval"] if open_end else [])
+                            self.assertEqual(len(names), 3)
                             first, other = (line for line in ax.lines if line.get_label() in names)
                             self.assertEqual(tuple(first.get_xdata()), (6., 12.))
                             self.assertEqual(tuple(first.get_ydata()), (row, row))
@@ -80,7 +96,6 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                                                (aggregate[0][1] + first.get_linewidth()) / 2)
                             self.assertGreater(aggregate[0][1], first.get_linewidth())
                             if second is None:
-                                self.assertEqual(names[1], "Body cooling – scenario 2 (no estimate)")
                                 self.assertEqual(len(other.get_xdata()), 0)
                                 continue
                             self.assertEqual(tuple(other.get_ydata()), (row, row))
@@ -88,7 +103,6 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             self.assertGreater(gap * 72 / fig.dpi, first.get_linewidth())
                             self.assertLess(gap * 72 / fig.dpi, 6.)
                             if open_end:
-                                self.assertEqual(names[1], "Body cooling – scenario 2 (≥ 40 h)")
                                 self.assertEqual(tuple(other.get_xdata()), (40., ax.get_xlim()[1]))
                                 self.assertGreater(ax.get_xlim()[1], 40.)
                                 self.assertTrue(other.is_dashed())

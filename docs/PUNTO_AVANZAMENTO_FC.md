@@ -1,5 +1,13 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Grafico definitivo con FC in legenda – 24.11.2026
+
+MOR-TEM usa `main` in `scopusjin/codice`. Base verificata `188ecfd246f60720803aac2b4ffa0f333c1ecd59` (PR #36). L’utente ha approvato l’anteprima e ha richiesto la pubblicazione sull’app principale. Il commit di questa nota sul ramo `grafico-mortem-legenda-fc-20261124` identifica la revisione.
+
+`app/graphing.py` passa alla figura l’intersezione già calcolata e gli scenari FC applicati. `app/plotting.py` disegna le barre blu, i due intervalli sottili e i limiti comuni dei diversi parametri. La legenda riporta il singolo FC o il suo range e aggiunge la temperatura ambientale solo quando differisce. I testi sono in `app/locales/it_ui.py` e `en_ui.py`. Il verde è stato rimosso dalla figura. Le stime e i testi medico-legali continuano a usare il motore esistente.
+
+Verificati il percorso pannello FC → «Usa» → «Procedi con la stima» su desktop e mobile, gli estremi delle barre, la legenda IT/EN, i due FC con temperatura uguale o diversa, i limiti aperti e lo scenario privo di stima. La prima prova con testo inglese lungo usciva dal margine mobile. L’indicazione di stima mancante va ora a capo e il relativo controllo in `tests/test_cooling_scenario_plot.py` passa. Per il riscontro sul rilascio usare una nuova stima online con due scenari e verificare l’immagine effettivamente prodotta.
+
 ## Rilascio del grafico approvato – 24.11.2026
 
 Repository `scopusjin/codice`, app MOR-TEM, ramo di distribuzione `main`. Revisione funzionale approvata e testata `667331727d516d0d46885a7ff98ba3ab26561bcf`. Il confronto con `main` (`a278207c268a39e9ec8bdc5558ee5104b27eb709`) ha restituito la stessa versione dei sorgenti dopo l’integrazione. La pubblicazione approvata è identificata dalla pull request «Pubblica il grafico di raffreddamento con due scenari» verso `main`.
