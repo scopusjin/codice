@@ -4,6 +4,8 @@ from __future__ import annotations
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.ticker import MaxNLocator
 from matplotlib.transforms import offset_copy
 
 from app.language import presentation_i18n as i18n
@@ -139,8 +141,8 @@ def compute_plot_data(
             raff_only_lower_start = None
 
         labels.append(label_h)
-        starts.append(t_min_raff_henssge)
-        ends.append(t_max_raff_henssge)
+        starts.append(raff_only_lower_start if raff_only_lower else t_min_raff_henssge)
+        ends.append(np.inf if raff_only_lower else t_max_raff_henssge)
         raffreddamento_idx = len(labels) - 1
 
     # Calcolo cap e coda
@@ -161,34 +163,13 @@ def compute_plot_data(
         if not np.isnan(s) and (np.isnan(e) or e >= INF_HOURS)
     ]
 
-    # Inizi verdi speciali per raffreddamento (proseguono a ∞ in verde)
-    special_inf_starts_green: List[float] = []
-    if raffreddamento_calcolabile and (raffreddamento_idx is not None):
-        if raff_only_lower and (raff_only_lower_start is not None):
-            special_inf_starts_green.append(float(raff_only_lower_start))
-
-    if infinite_starts_blue or special_inf_starts_green:
-        tail_base = max([cap_base] + infinite_starts_blue + special_inf_starts_green)
-    else:
-        tail_base = cap_base
-    tail_end = tail_base * TAIL_FACTOR
-
-    # Mediane verdi per ipostasi/rigidità
-    medians: Dict[str, Optional[Tuple[float, float]]] = {
-        "Macchie ipostatiche": None,
-        "Rigidità cadaverica": None,
-    }
-    if macchie_medi_range is not None:
-        medians["Macchie ipostatiche"] = macchie_medi_range
-    if rigidita_medi_range is not None:
-        medians["Rigidità cadaverica"] = rigidita_medi_range
+    tail_base = max([cap_base, *infinite_starts_blue])
+    tail_end = tail_base * (TAIL_FACTOR if infinite_starts_blue else 1.05)
+    if tail_end <= 0:
+        tail_end = 1.0
 
     # Mappatura y in ordine (coincidente con labels)
     y_map = {lbl.split("\n", 1)[0]: idx for idx, lbl in enumerate(labels)}
-
-    # Dimensione figura dinamica
-    num_params_grafico = len(labels)
-    figsize = (10, max(2, 1.5 + 0.5 * num_params_grafico))
 
     style_flags = dict(
         raff_only_lower=raff_only_lower,
@@ -201,13 +182,11 @@ def compute_plot_data(
         labels=labels,
         starts=starts,
         ends=ends,
-        medians=medians,
         raffreddamento_idx=raffreddamento_idx,
         tail_end=tail_end,
         cap_base=cap_base,
         style_flags=style_flags,
         y_map=y_map,
-        figsize=figsize,
         t_min_raff_visualizzato=t_min_raff_visualizzato,
         t_max_raff_visualizzato=t_max_raff_visualizzato,
         INF_HOURS=INF_HOURS,
@@ -219,145 +198,102 @@ def compute_plot_data(
 
 
 
-def render_ranges_plot(data: Dict[str, Any], *, mobile: bool = False) -> plt.Figure:
-    """
-    Disegna il grafico dei range usando esclusivamente `data` di compute_plot_data.
-    Non aggiunge linee rosse dell’intersezione: quelle restano nel main.
-    """
-    labels: List[str] = data["labels"]
-    starts: List[float] = data["starts"]
-    ends: List[float] = data["ends"]
-    medians: Dict[str, Optional[Tuple[float, float]]] = data["medians"]
-    raff_idx: Optional[int] = data["raffreddamento_idx"]
-    tail_end: float = data["tail_end"]
-    cap_base: float = data["cap_base"]
-    style = data["style_flags"]
-    INF_HOURS: float = data["INF_HOURS"]
+def _scenario_labels(scenarios):
+    """Keep the applied order so each key describes its own thin line."""
+    if len(scenarios) != 2:
+        return [i18n.ui_text("plot.scenario", number=i) for i in (1, 2)]
+    different_temperatures = scenarios[0]["temperature"] != scenarios[1]["temperature"]
+    labels = []
+    for scenario in scenarios:
+        lo, hi = scenario["range"]
+        fc = f"{lo:.2f}" if lo == hi else f"{lo:.2f}–{hi:.2f}"
+        label = i18n.ui_text("plot.cooling_factor", fc=fc)
+        if different_temperatures:
+            temperature = float(scenario["temperature"])
+            # Fields accept hundredths as well as tenths.
+            value = str(temperature)
+            label += i18n.ui_text("plot.ambient_suffix", temperature=value)
+        labels.append(label)
+    return labels
 
-    t_min_raff_visualizzato = data["t_min_raff_visualizzato"]
-    t_max_raff_visualizzato = data["t_max_raff_visualizzato"]
 
-    LINE_W = style["line_w"]
-    DASH_LS = style["dash_ls"]
-
+def render_ranges_plot(data: Dict[str, Any], *, mobile: bool = False, scenarios=(),
+                       common_range=None) -> plt.Figure:
+    labels = data["labels"]
     scenario_row = data["scenario_row"]
-    compact = mobile and scenario_row is not None
-    figsize = (5.0, 1.65 + 0.43 * len(labels)) if compact else data["figsize"]
-    fig, ax = plt.subplots(figsize=figsize, layout="constrained" if scenario_row is not None else None)
+    tail, cap = data["tail_end"], data["cap_base"]
+    inf_hours = data["INF_HOURS"]
+    width = data["style_flags"]["line_w"]
+    dashed = data["style_flags"]["dash_ls"]
+    blue, red = "#497da8", "#ad5352"
+    nrows = len(labels)
+    height = 1.55 + .52 * nrows + (.54 if scenario_row is not None else 0)
+    fig, ax = plt.subplots(figsize=(5.6 if mobile else 8.0, height), layout="constrained")
 
-    if scenario_row is not None:
-        for index, (interval, color, offset) in enumerate(
-            zip(data["scenario_ranges"], ("steelblue", "#9a541c"), (-6, -10.5)), 1
-        ):
-            name = i18n.ui_text("plot.scenario", number=index)
-            if interval is None:
-                ax.plot([], [], linestyle="none", label=f"{name} ({i18n.ui_text('plot.no_estimate')})")
-                continue
-            lo, hi = interval
-            open_end = not np.isfinite(hi) or hi >= INF_HOURS
-            value = _hours_range(lo, hi, INF_HOURS)
-            # Both thin lines sit below the normal blue range, with gaps measured in points.
-            transform = offset_copy(ax.transData, fig=fig, y=offset, units="points")
-            ax.plot([lo, tail_end if open_end else hi], [scenario_row, scenario_row],
-                    color=color, linewidth=3, linestyle=DASH_LS if open_end else "solid",
-                    solid_capstyle="butt", transform=transform, label=f"{name} ({value})")
-        fig.legend(loc="outside lower center", ncols=1 if compact else 2, frameon=False,
-                   fontsize=10 if compact else 13, handlelength=1.4,
-                   handletextpad=0.4, columnspacing=1.3, labelspacing=0.2, borderaxespad=0.15)
-
-    # 1) Segmenti verdi speciali per RAFFREDDAMENTO (sotto)
-    if raff_idx is not None:
-        raff_only_lower = style.get("raff_only_lower", False)
-        raff_only_lower_start = style.get("raff_only_lower_start")
-
-        def _draw_green_segment(y: int, start: float):
-            solid_from = max(0.0, start)
-            solid_to = max(solid_from, cap_base)
-            if solid_from < tail_end and solid_to > solid_from:
-                ax.hlines(y, solid_from, min(solid_to, tail_end),
-                          color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1)
-            dash_start = max(solid_to, solid_from)
-            if tail_end > dash_start:
-                ax.hlines(y, dash_start, tail_end,
-                          color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=1, linestyle=DASH_LS)
-
-        if raff_only_lower and (raff_only_lower_start is not None):
-            _draw_green_segment(raff_idx, float(raff_only_lower_start))
-
-    # 2) Linee blu base (tutti i range)
-    for i, (s, e) in enumerate(zip(starts, ends)):
-        if np.isnan(s):
+    for row, (lo, hi) in enumerate(zip(data["starts"], data["ends"])):
+        if not np.isfinite(lo):
             continue
-        is_infinite = (np.isnan(e) or e >= INF_HOURS)
-        if not is_infinite:
-            ax.hlines(i, s, e, color='steelblue', linewidth=LINE_W, zorder=2)
+        if np.isfinite(hi) and hi < inf_hours:
+            ax.hlines(row, lo, hi, color=blue, linewidth=width, zorder=2)
         else:
-            solid_to = max(s, cap_base)
-            if solid_to > s and s < tail_end:
-                ax.hlines(i, s, min(solid_to, tail_end), color='steelblue', linewidth=LINE_W, zorder=2)
-            dash_start = max(solid_to, s)
-            if tail_end > dash_start:
-                ax.hlines(i, dash_start, tail_end, color='steelblue', linewidth=LINE_W, zorder=2, linestyle=DASH_LS)
+            # Draw the open end beyond the last finite bound with a dashed line.
+            split = max(lo, cap)
+            if lo < split:
+                ax.hlines(row, lo, split, color=blue, linewidth=width, zorder=2)
+            ax.hlines(row, split, tail, color=blue, linewidth=width, linestyle=dashed, zorder=2)
 
-    # 3) Mediane verdi per ipostasi/rigidità (sopra)
-    # Macchie
-    if "Macchie ipostatiche" in medians and medians["Macchie ipostatiche"] is not None:
-        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith(i18n.ui_text("plot.livor"))), None)
-        if y is not None:
-            m_s, m_e = medians["Macchie ipostatiche"]
-            is_inf = (m_e is None) or (np.isnan(m_e)) or (m_e >= INF_HOURS)
-            if not is_inf:
-                ax.hlines(y, m_s, m_e, color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
-            else:
-                solid_to = max(m_s, cap_base)
-                if solid_to > m_s and m_s < tail_end:
-                    ax.hlines(y, m_s, min(solid_to, tail_end), color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
-                dash_start = max(solid_to, m_s)
-                if tail_end > dash_start:
-                    ax.plot([dash_start, tail_end], [y, y],
-                            color='mediumseagreen', linewidth=LINE_W, alpha=1.0, linestyle=DASH_LS, zorder=3)
-
-    # Rigidità
-    if "Rigidità cadaverica" in medians and medians["Rigidità cadaverica"] is not None:
-        y = next((idx for idx, lbl in enumerate(labels) if lbl.startswith(i18n.ui_text("plot.rigor"))), None)
-        if y is not None:
-            r_s, r_e = medians["Rigidità cadaverica"]
-            is_inf = (r_e is None) or (np.isnan(r_e)) or (r_e >= INF_HOURS)
-            if not is_inf:
-                ax.hlines(y, r_s, r_e, color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
-            else:
-                solid_to = max(r_s, cap_base)
-                if solid_to > r_s and r_s < tail_end:
-                    ax.hlines(y, r_s, min(solid_to, tail_end), color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
-                dash_start = max(solid_to, r_s)
-                if tail_end > dash_start:
-                    ax.plot([dash_start, tail_end], [y, y],
-                            color='mediumseagreen', linewidth=LINE_W, alpha=1.0, linestyle=DASH_LS, zorder=3)
-
-    # Marker corto verde del punto medio raffreddamento (solo se NON stiamo facendo tratteggiare all'infinito)
-    if raff_idx is not None:
-        raff_only_lower = style.get("raff_only_lower", False)
-        if not raff_only_lower:
-            if not (np.isnan(t_min_raff_visualizzato) or np.isnan(t_max_raff_visualizzato)):
-                pm = (t_min_raff_visualizzato + t_max_raff_visualizzato) / 2.0
-                off = 0.1
-                if (pm - off) < tail_end:
-                    ax.hlines(raff_idx, max(0, pm - off), min(tail_end, pm + off),
-                              color='mediumseagreen', linewidth=LINE_W, alpha=1.0, zorder=3)
-
-    #     # Assi, griglia, etichette
-    ax.set_xlim(0, tail_end)
-    ax.ticklabel_format(axis="x", useLocale=False)
-    ax.margins(x=0)
-    ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels(labels, fontsize=12 if compact else 18)
+    handles = [Line2D([], [], color=blue, linewidth=width, solid_capstyle="butt",
+                      label=i18n.ui_text("plot.estimate_limits"))]
     if scenario_row is not None:
-        ax.set_ylim(-0.45, len(labels) - 0.55)
-    ax.invert_yaxis()
-    ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=11 if compact else 16)
-    ax.tick_params(axis="x", labelsize=10 if compact else 14)
-    ax.grid(True, axis='x', linestyle=':', alpha=0.6)
+        for interval, name, color, offset in zip(
+            data["scenario_ranges"], _scenario_labels(scenarios),
+            ("#244e72", "#a15a26"), (-6.0, -10.5), strict=True
+        ):
+            if interval is None:
+                separator = "\n" if mobile else " "
+                name += f"{separator}({i18n.ui_text('plot.no_estimate')})"
+                line, = ax.plot([], [], linestyle="none", label=name)
+            else:
+                lo, hi = interval
+                open_end = not np.isfinite(hi) or hi >= inf_hours
+                transform = offset_copy(ax.transData, fig=fig, y=offset, units="points")
+                line, = ax.plot([lo, tail if open_end else hi], [scenario_row, scenario_row],
+                                color=color, linewidth=2.4, linestyle=dashed if open_end else "solid",
+                                solid_capstyle="butt", transform=transform, label=name)
+            handles.append(line)
 
-    if scenario_row is None:
-        fig.tight_layout()
+    ax.set_xlim(0, tail)
+    ax.set_ylim(nrows - .43, -.60)
+    names_and_hours = [label.rsplit("\n", 1) for label in labels]
+    ax.set_yticks(range(nrows), [hours for _, hours in names_and_hours],
+                  fontsize=10 if mobile else 11, va="top")
+    ax.tick_params(axis="y", length=0, pad=5, colors="#526471")
+    for row, (name, _) in enumerate(names_and_hours):
+        ax.annotate(name, (0, row), xycoords=ax.get_yaxis_transform(), xytext=(-5, 1),
+                    textcoords="offset points", ha="right", va="bottom", fontweight="bold",
+                    color="#182a37", fontsize=11.5 if mobile else 13)
+    ax.tick_params(axis="x", length=0, pad=4, labelsize=10 if mobile else 11, colors="#526471")
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=6 if mobile else 7, min_n_ticks=4, steps=[1, 2, 2.5, 5, 10]))
+    ax.ticklabel_format(axis="x", useLocale=False)
+    ax.set_xlabel(i18n.ui_text("plot.hours_since_death"), fontsize=11 if mobile else 12, color="#182a37")
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.spines["bottom"].set_color("#a2afb7")
+    ax.set_axisbelow(True)
+    ax.grid(axis="x", color="#dce3e7", linewidth=.65)
+
+    if common_range is not None:
+        lo, hi = common_range
+        ax.axvline(lo, color=red, linestyle=(0, (3, 3)), linewidth=1, zorder=1)
+        center = lo
+        if np.isfinite(hi) and hi > lo:
+            ax.axvline(hi, color=red, linestyle=(0, (3, 3)), linewidth=1, zorder=1)
+            ax.plot([lo, hi], [1, 1], transform=ax.get_xaxis_transform(), color=red,
+                    linewidth=1, solid_capstyle="butt", clip_on=False)
+            center = (lo + hi) / 2
+        # Keep the caption inside the graph when both limits are near one edge.
+        ax.text(np.clip(center / tail, .23, .77), 1.025, i18n.ui_text("plot.common_interval"),
+                ha="center", va="bottom", transform=ax.transAxes, color=red, fontsize=11)
+    fig.legend(handles=handles, loc="outside lower center", frameon=False, alignment="left",
+               fontsize=10.5 if mobile else 11.5, handlelength=2, handletextpad=.6,
+               labelspacing=.35, borderaxespad=.15)
     return fig
