@@ -172,20 +172,20 @@ def compute_raffreddamento_cautelativo(
     CF_vals = _discretize(CF_lo, CF_hi, CF_step, max_points_per_dim)
     P_vals = _discretize(p_lo, p_hi, peso_step, max_points_per_dim)
     pairs = list(itertools.product(Ta_vals, CF_vals))
+    scenario_members = {}
     if temperature_scenarios is not None:
         if not temperature_scenarios:
             raise ValueError("Specificare almeno uno scenario completo.")
-        pairs = []
-        for temperature, bounds in temperature_scenarios:
+        for index, (temperature, bounds) in enumerate(temperature_scenarios):
             if not finite_number(temperature):
                 raise ValueError("Specificare la temperatura di ogni scenario.")
             temperature = float(temperature)
             lo, hi = checked_interval(bounds, "FC dello scenario", positive=True)
             if not (Ta_lo <= temperature <= Ta_hi and CF_lo <= lo <= hi <= CF_hi):
                 raise ValueError("Scenario non coerente con gli intervalli selezionati.")
-            pairs.extend((temperature, cf) for cf in
-                         _discretize(lo, hi, CF_step, max_points_per_dim))
-        pairs = list(dict.fromkeys(pairs))
+            for cf in _discretize(lo, hi, CF_step, max_points_per_dim):
+                scenario_members.setdefault((temperature, cf), []).append(index)
+        pairs = list(scenario_members)
 
     # 3) Itera combinazioni
     recs: List[Dict[str, Any]] = []
@@ -226,6 +226,8 @@ def compute_raffreddamento_cautelativo(
                 "ore_max": ore_max,
                 "Qd": qd,
             })
+            if scenario_members:
+                recs[-1]["scenario_indices"] = tuple(scenario_members[(Ta, CF)])
 
     # 4) Aggregati
     # Tutte le combinazioni restano disponibili per il riepilogo informativo.

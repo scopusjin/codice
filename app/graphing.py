@@ -488,8 +488,7 @@ def aggiorna_grafico(
         qd_ok = (_is_num(Qd_val_check) and Qd_val_check <= qd_threshold) or (not _is_num(Qd_val_check))
         usa_potente = (mt_ore is not None) and (not np.isnan(mt_ore)) and qd_ok
 
-    # Nel grafico il raffreddamento occupa sempre una sola riga.
-    # Se Potente scatta, il range combinato viene rappresentato come intervallo aperto.
+    # Potente entra nel grafico attraverso i parametri extra.
     raff_for_plot = raffreddamento_calcolabile and not usa_potente
 
     # extra da parametri aggiuntivi
@@ -585,8 +584,7 @@ def aggiorna_grafico(
                 extra_param["green_end"] = float(green_range[1])
             extra_params_for_plot.append(extra_param)
 
-    # Se Potente scatta, mostra una sola barra "Raffreddamento" che rappresenta
-    # l'unione già usata per il risultato complessivo.
+    # Conserva il limite complessivo anche quando si disegnano i singoli scenari.
     if usa_potente and _is_num(mt_ore):
         raff_plot_start = float(mt_ore)
         if condizioni_variabili and raffreddamento_calcolabile and _is_num(t_min_raff_henssge):
@@ -632,6 +630,7 @@ def aggiorna_grafico(
             INF_HOURS=INF_HOURS,
             qd_threshold=qd_threshold,
             extra_params=extra_params_for_plot,
+            scenario_ranges=cooling.scenario_ranges,
         )
 
         if isinstance(plot_data, dict):
@@ -644,7 +643,7 @@ def aggiorna_grafico(
             if (not np.isfinite(e["end"])) or (e["end"] > tail):
                 e["end"] = tail
 
-        fig_or_none = render_ranges_plot(plot_data)
+        fig_or_none = render_ranges_plot(plot_data, mobile=mobile_results)
 
         import matplotlib.figure as _mplfig
         if isinstance(fig_or_none, _mplfig.Figure):
@@ -652,13 +651,12 @@ def aggiorna_grafico(
             ax = fig.axes[0]
 
             # Sottorange Popwassilew–Palm: informativo soltanto, non entra nell'intersezione.
-            extra_base_y = int(macchie_range_valido) + int(rigidita_range_valido)
-            for pos, e in enumerate(extra_params_for_plot):
+            for y, e in zip(plot_data["extra_rows"], extra_params_for_plot):
                 green_start = e.get("green_start")
                 green_end = e.get("green_end")
-                if _is_num(green_start) and _is_num(green_end) and float(green_end) > float(green_start):
+                if y is not None and _is_num(green_start) and _is_num(green_end) and float(green_end) > float(green_start):
                     ax.hlines(
-                        extra_base_y + pos,
+                        y,
                         max(0.0, float(green_start)),
                         min(float(tail), float(green_end)),
                         color='mediumseagreen',

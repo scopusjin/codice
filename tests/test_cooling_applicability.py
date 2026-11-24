@@ -23,6 +23,7 @@ class CoolingApplicabilityTests(unittest.TestCase):
         self.assertEqual(seen, [(10., 2., 70.), (20., 1., 70.)])
         self.assertEqual((result.ore_min, result.ore_max), (12., 22.))
         self.assertEqual(result.n_combinazioni, 2)
+        self.assertEqual(list(result.df_combinazioni["scenario_indices"]), [(0, 2), (1,)])
         seen.clear()
         result = compute_raffreddamento_cautelativo(**args, mostra_tabella=False, peso_stimato=True)
         self.assertEqual(result.n_combinazioni, 14)

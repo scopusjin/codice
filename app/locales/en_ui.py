@@ -170,6 +170,8 @@ UI_TEXT = {
     "plot.livor": "Lividity",
     "plot.rigor": "Rigor mortis",
     "plot.cooling": "Body cooling",
+    "plot.scenario": "Body cooling – scenario {number}",
+    "plot.no_estimate": "no estimate",
     "plot.generic_parameter": "Parameter",
     "plot.hours_since_death": "Hours since death",
     "data.weight_table_missing": "Body-weight correction table not found; continuing without it.",

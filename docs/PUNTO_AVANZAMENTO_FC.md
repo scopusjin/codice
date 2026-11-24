@@ -1,5 +1,36 @@
 # Punto di avanzamento FC — 19.10.2026
 
+## Rilascio del grafico approvato – 24.11.2026
+
+Repository `scopusjin/codice`, app MOR-TEM, ramo di distribuzione `main`. Revisione funzionale approvata e testata `667331727d516d0d46885a7ff98ba3ab26561bcf`. Il confronto con `main` (`a278207c268a39e9ec8bdc5558ee5104b27eb709`) ha restituito la stessa versione dei sorgenti dopo l’integrazione. La pubblicazione approvata è identificata dalla pull request «Pubblica il grafico di raffreddamento con due scenari» verso `main`.
+
+L’anteprima approvata mostra l’intervallo complessivo a sinistra e la barra blu spessa sopra i due intervalli sottili. La legenda sotto il grafico indica «Raffreddamento – scenario 1» e «Raffreddamento – scenario 2», ciascuno con i suoi estremi. I decimali usano il punto. Le prove desktop e mobile sono documentate nelle sezioni seguenti.
+
+## Intervallo complessivo e legenda dei due scenari – 21.11.2026
+
+Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`. Base verificata e testata `0e0d3f792742a849fbf6884439c101587c9cee6f`. Il ramo di distribuzione è `main` (verificato a `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`). La revisione corrente è il commit di questa nota.
+
+- Su richiesta dell’utente, nella riga Raffreddamento compare la stessa barra blu spessa degli altri parametri. Visualizza il range complessivo già utilizzato nella stima. I due segmenti sottili sono disegnati subito sotto.
+- L’etichetta a sinistra riporta l’intervallo complessivo tra parentesi. Per i decimali si usa il punto. Nella legenda sotto il grafico ciascuna voce inizia con «Raffreddamento – scenario» e riporta il proprio intervallo. Su mobile le voci occupano due righe.
+- File interessati: `app/plotting.py`, risorse IT/EN, `tests/test_cooling_scenario_plot.py`. Verificati con Streamlit gli esempi desktop e mobile. I controlli verificano spessore della barra, intervalli aperti, estremi, posizione delle linee e della legenda. Prossimo riscontro: valutazione dell’anteprima aggiornata prima del rilascio.
+
+## Grafico compatto con legenda – 21.11.2026
+
+Repository `scopusjin/codice`, ramo di prova `grafico-due-scenari-fc-20261121`, ramo dell’app principale `main`. Ultima versione testata prima di questa revisione `5f58cb458fe2f624e8124a58c0802d2775e483fb` (422 test Python superati). Il commit di questa nota identifica la revisione grafica.
+
+L’anteprima con due righe separate è stata scartata dopo la valutazione dell’utente. In `app/plotting.py`, `compute_plot_data` assegna al raffreddamento una sola riga e `render_ranges_plot` disegna i due segmenti a breve distanza. La legenda sotto l’asse delle ore identifica gli scenari e i loro intervalli. `app/graphing.py` passa al grafico la modalità desktop/mobile già attiva.
+
+L’anteprima è stata generata dalla pagina principale con ipostasi, rigor e i due scenari. Verificati entrambi i layout, la posizione della legenda, i limiti aperti e la distinzione di segmenti sovrapposti, coincidenti o disgiunti (`tests/test_cooling_scenario_plot.py`). Il prossimo passo è il riscontro dell’utente sull’anteprima prima del rilascio. Il controllo facoltativo sui contatori FC indicato nella sezione precedente in ordine cronologico resta aperto.
+
+## Grafico del raffreddamento con due scenari – 21.11.2026
+
+Repository `scopusjin/codice`. La configurazione di MOR-TEM indica `main` come ramo di distribuzione. Base verificata `dab783f2dd09d6d4ee0a7d511eeeb33463ea715e`. Il ramo di prova `grafico-due-scenari-fc-20261121` identifica la versione con questa nota.
+
+- In `app/cautelativa.py` ogni combinazione già calcolata conserva gli indici degli scenari che la utilizzano. In `app/graphing_cooling.py` gli intervalli per il grafico derivano dalle combinazioni valide del rispettivo scenario, compreso il limite minimo secondo Potente.
+- `app/graphing.py` e `app/plotting.py` mostrano i due intervalli sotto una sola voce Raffreddamento, con le etichette delle risorse IT/EN. La stima combinata usa il consueto intervallo complessivo. I casi storici privi della temperatura per scenario e i percorsi che forniscono solo il limite aggregato conservano la visualizzazione complessiva.
+- Verificati i due percorsi Streamlit (desktop e mobile), le geometrie sovrapposte, disgiunte e coincidenti, il peso stimato, il limite aperto, l’assenza di stima e la lingua inglese. I controlli mirati sono in `tests/test_cooling_scenario_plot.py`, `tests/test_cooling_applicability.py` e `tests/test_fc_scenarios.py`.
+- Il controllo JavaScript facoltativo `tests/test_fc_counters.cjs` fallisce anche sulla base, nell’asserzione sui riferimenti documentali degli strati equivalenti. Restano da verificare la resa sul dispositivo dell’utente e la sua valutazione dell’anteprima prima del rilascio.
+
 ## Descrizioni inglesi più dirette — 23.10.2026
 
 - Revisione approvata dall'utente: inglese più sintetico e naturale, senza

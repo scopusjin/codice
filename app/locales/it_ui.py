@@ -212,6 +212,8 @@ UI_TEXT = {
     "plot.livor": "Ipostasi",
     "plot.rigor": "Rigor",
     "plot.cooling": "Raffreddamento",
+    "plot.scenario": "Raffreddamento – scenario {number}",
+    "plot.no_estimate": "non stimabile",
     "plot.generic_parameter": "Parametro",
     "plot.hours_since_death": "Ore dal decesso",
 

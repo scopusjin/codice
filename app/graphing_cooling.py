@@ -101,6 +101,7 @@ class CoolingState:
     gate_fail: bool
     detail_blocks: tuple[str, ...]
     validation_error: str | None = None
+    scenario_ranges: tuple[tuple[float, float] | None, ...] = ()
 
 
 def compute_cooling_state(
@@ -140,6 +141,7 @@ def compute_cooling_state(
     validation_error = None
     Ta_range = CF_range = None
     temperature_scenarios = None
+    scenario_ranges = []
     requested = any(v is not None for v in (Tr_val, Ta_val, T0_val, W_val))
     try:
         if requested:
@@ -245,15 +247,21 @@ def compute_cooling_state(
             swisswuff_maxs: list[float] = []
             swisswuff_has_q_le_02 = False
             swisswuff_has_high_temp = False
+            if temperature_scenarios and len(temperature_scenarios) == 2:
+                scenario_ranges = [None, None]
             if res.df_combinazioni is not None:
                 for row in res.df_combinazioni.itertuples(index=False):
                     status = _classify_qd_for_ta(row.Ta, row.Qd)
+                    interval = None
+                    if status in ("optimal", "intermediate"):
+                        interval = (row.ore_min, row.ore_max)
                     if status is not None:
                         qd_counts[status] += 1
                     if status == "outside":
                         mt_candidate = _potente_limit_for_combination(row.Ta, row.CF, row.peso_kg)
                         if mt_candidate is not None:
                             potente_candidates.append(mt_candidate)
+                            interval = (mt_candidate, np.inf)
                         # Swisswuff viene riportato solo a titolo orientativo:
                         # - per Qd <= 0,20 usa la regola storica ±20%;
                         # - per Ta > 23 °C e 0,20 < Qd <= 0,50 conserva il normale
@@ -273,6 +281,12 @@ def compute_cooling_state(
                                     swisswuff_mins.append(float(row.ore_min))
                                 if _is_num(row.ore_max):
                                     swisswuff_maxs.append(float(row.ore_max))
+                    if scenario_ranges and interval is not None:
+                        for index in row.scenario_indices:
+                            previous = scenario_ranges[index]
+                            scenario_ranges[index] = interval if previous is None else (
+                                min(previous[0], interval[0]), max(previous[1], interval[1])
+                            )
             if potente_candidates:
                 potente_min_ore = float(min(potente_candidates))
             if swisswuff_mins and swisswuff_maxs:
@@ -383,6 +397,7 @@ def compute_cooling_state(
         qd_threshold=qd_threshold,
         gate_fail=gate_fail,
         detail_blocks=tuple(detail_blocks),
+        scenario_ranges=tuple(scenario_ranges),
         validation_error=validation_error,
     )
 
