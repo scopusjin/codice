@@ -155,19 +155,19 @@ class TextgenItalianTimeFormattingTests(unittest.TestCase):
             build_simple_sentence_no_dt(1, 4),
             "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
             "<b>tra 1 e 4 ore prima</b> "
-            "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
+            "dei rilievi tanatologici.</p>",
         )
         self.assertEqual(
             build_simple_sentence_no_dt(0, 4),
             "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
             "<b>non oltre 4 ore prima</b> "
-            "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
+            "dei rilievi tanatologici.</p>",
         )
         self.assertEqual(
             build_simple_sentence_no_dt(2, np.inf),
             "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
             "<b>oltre 2 ore prima</b> "
-            "dei rilievi effettuati nel corso dell’ispezione legale.</p>",
+            "dei rilievi tanatologici.</p>",
         )
 
     def test_final_sentence_simple_keeps_current_html(self):
