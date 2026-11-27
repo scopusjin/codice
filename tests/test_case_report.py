@@ -63,7 +63,7 @@ class ReportTests(unittest.TestCase):
         self.assertIn('<u>macchie ipostatiche</u>', blocks['livor']['html'])
         self.assertIn('<u>rigidità cadaverica</u>', blocks['rigor']['html'])
         self.assertTrue(blocks['conclusion']['html'].startswith('<p>&nbsp;</p><p class="mortem-conclusion">'))
-        self.assertIn('</p><p>&nbsp;</p><p><i>Va ricordato', blocks['conclusion']['html'])
+        self.assertIn('</p><p>&nbsp;</p><p><i>La stima dell’epoca del decesso basata sui dati tanatocronologici', blocks['conclusion']['html'])
         self.assertNotIn('<li>', blocks['conclusion']['html'])
         self.assertNotIn('43 ore', str(blocks))
         self.assertNotIn('Il parametro Qd', str(blocks))
