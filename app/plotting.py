@@ -4,7 +4,6 @@ from __future__ import annotations
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 from matplotlib.ticker import MaxNLocator
 from matplotlib.transforms import offset_copy
 
@@ -242,8 +241,7 @@ def render_ranges_plot(data: Dict[str, Any], *, mobile: bool = False, scenarios=
                 ax.hlines(row, lo, split, color=blue, linewidth=width, zorder=2)
             ax.hlines(row, split, tail, color=blue, linewidth=width, linestyle=dashed, zorder=2)
 
-    handles = [Line2D([], [], color=blue, linewidth=width, solid_capstyle="butt",
-                      label=i18n.ui_text("plot.estimate_limits"))]
+    handles = []
     if scenario_row is not None:
         for interval, name, color, offset in zip(
             data["scenario_ranges"], _scenario_labels(scenarios),
@@ -293,7 +291,8 @@ def render_ranges_plot(data: Dict[str, Any], *, mobile: bool = False, scenarios=
         # Keep the caption inside the graph when both limits are near one edge.
         ax.text(np.clip(center / tail, .23, .77), 1.025, i18n.ui_text("plot.common_interval"),
                 ha="center", va="bottom", transform=ax.transAxes, color=red, fontsize=11)
-    fig.legend(handles=handles, loc="outside lower center", frameon=False, alignment="left",
-               fontsize=10.5 if mobile else 11.5, handlelength=2, handletextpad=.6,
-               labelspacing=.35, borderaxespad=.15)
+    if handles:
+        fig.legend(handles=handles, loc="outside lower center", frameon=False, alignment="left",
+                   fontsize=10.5 if mobile else 11.5, handlelength=2, handletextpad=.6,
+                   labelspacing=.35, borderaxespad=.15)
     return fig
