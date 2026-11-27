@@ -35,6 +35,13 @@ class FinalTimeTests(unittest.TestCase):
             with using_language(language):
                 caution = nota_limiti_stima()
                 self.assertEqual(caution.count("<i>"), 2)
+                if language == "it":
+                    self.assertEqual(
+                        caution,
+                        "<p><i>La stima dell’epoca del decesso basata sui dati tanatocronologici è da ritenersi approssimativa, "
+                        "a causa dei limiti dei metodi scientifici applicabili e dell’influenza di numerose variabili.</i></p>"
+                        "<p><i>Deve essere valutata insieme agli altri elementi dell’indagine e può essere rivista alla luce di nuovi dati.</i></p>",
+                    )
                 blocks = build_word_blocks(input_html="", cooling_html="", livor="", rigor="", conclusion="Conclusion" + caution)
                 self.assertIn(caution, blocks["conclusion"]["html"])
                 self.assertIn("color:blue", nota_arrotondamento_orari())
