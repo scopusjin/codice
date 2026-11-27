@@ -34,7 +34,7 @@ aggiorna_grafico(selettore_macchie="Fisse", selettore_rigidita="Presente, intens
             index = next(i for i, p in enumerate(paragraphs) if p.startswith('La valutazione combinata'))
             self.assertEqual(paragraphs[index-1], '&nbsp;')
             self.assertEqual(paragraphs[index+1], '&nbsp;')
-            self.assertTrue(paragraphs[index+2].startswith('<i>Va ricordato'))
+            self.assertTrue(paragraphs[index+2].startswith('<i>La stima dell’epoca del decesso basata sui dati tanatocronologici'))
             self.assertTrue(paragraphs[index+3].startswith('<i>La stima dell’epoca'))
         self.assertRegex(report['detailed_text'], r'\n\nLa valutazione combinata[^\n]+\n\nVa ricordato')
 
