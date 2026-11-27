@@ -35,7 +35,7 @@ aggiorna_grafico(selettore_macchie="Fisse", selettore_rigidita="Presente, intens
             self.assertEqual(paragraphs[index-1], '&nbsp;')
             self.assertEqual(paragraphs[index+1], '&nbsp;')
             self.assertTrue(paragraphs[index+2].startswith('<i>La stima dell’epoca del decesso basata sui dati tanatocronologici'))
-            self.assertTrue(paragraphs[index+3].startswith('<i>La stima dell’epoca'))
+            self.assertTrue(paragraphs[index+3].startswith('<i>Deve essere valutata insieme agli altri elementi dell’indagine'))
         self.assertRegex(report['detailed_text'], r'\n\nLa valutazione combinata[^\n]+\n\nVa ricordato')
 
     def test_range_includes_measured_values_and_current_download(self):
