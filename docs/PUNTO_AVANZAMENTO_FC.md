@@ -1,5 +1,16 @@
 # Punto di avanzamento FC — 19.10.2026
 
+
+## Testi brevi e legenda del grafico — 27.11.2026
+
+Repository `scopusjin/codice`; ramo dell’app principale e di distribuzione `main`, come confermato da `.github/workflows/keepalive.yml` per `https://mor-tem.streamlit.app/`. Base verificata `b18d7c355d4258eb2b4653769e147bc129ea553f`; ultimo commit applicativo testato prima di questa nota `ace9318197fbda94b9a9cce1da7e510ac632b7ae`. Il commit contenente questa nota identifica il punto corrente.
+
+- In `app/locales/it_ui.py`, la guida «Henssge non applicabile» è stata accorciata nella formulazione approvata. Il relativo confronto testuale è aggiornato in `tests/test_ui_i18n.py`.
+- In `app/locales/it.py`, esclusivamente le tre descrizioni brevi senza data/ora (`simple_sentence_no_dt_not_over`, `simple_sentence_no_dt_over`, `simple_sentence_no_dt_range`) terminano ora con «prima dei rilievi tanatologici». Le descrizioni dettagliate e le frasi con data/ora non sono state modificate. Aspettative aggiornate in `tests/test_textgen_time_formatting.py`.
+- In `app/plotting.py`, `render_ranges_plot()` non crea più la voce generica «Limiti usati per la stima». In assenza di scenari non compare alcuna legenda; con due scenari rimangono esclusivamente le voci necessarie con FC e, se diversa, temperatura ambientale. Barre, intervalli, colori, asse e calcoli restano invariati. Il comportamento è coperto da `tests/test_cooling_scenario_plot.py`.
+- Verificati diff e sintassi. Superati 22 test mirati, con 85 sottocasi, per testi UI, formattazione temporale e grafico. Il primo avvio locale non disponeva di `pytest` e `streamlit`; dopo l’installazione delle dipendenze di verifica, gli stessi test sono stati eseguiti con esito positivo. Nessun tentativo funzionale fallito.
+- Problema aperto: la formulazione abbreviata della cautela generale nelle descrizioni brevi è stata proposta in conversazione ma non è stata inserita, in attesa di conferma del testo. Resta inoltre il controllo visivo dell’app distribuita dopo il riavvio automatico di Streamlit.
+
 ## Grafico definitivo con FC in legenda – 24.11.2026
 
 MOR-TEM usa `main` in `scopusjin/codice`. Base verificata `188ecfd246f60720803aac2b4ffa0f333c1ecd59` (PR #36). L’utente ha approvato l’anteprima e ha richiesto la pubblicazione sull’app principale. Il commit di questa nota sul ramo `grafico-mortem-legenda-fc-20261124` identifica la revisione.
