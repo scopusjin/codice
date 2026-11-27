@@ -498,11 +498,9 @@ def nota_limiti_stima() -> str:
             "findings of the investigation, and revised if new information relevant to the assessment becomes available.</i></p>"
         )
     return (
-        "<p><i>Va ricordato che i metodi comunemente utilizzati e utilizzabili in medicina legale non consentono di definire con precisione "
-        "l’epoca del decesso sulla base dei soli dati tanatocronologici. Tali dati, pur interpretati alla luce delle conoscenze e dei lavori "
-        "scientifici disponibili, sono infatti influenzati da numerose variabili, non sempre verificabili, controllabili o riproducibili.</i></p>"
-        "<p><i>La stima dell’epoca della morte deve pertanto essere considerata necessariamente approssimativa e teorica, deve esser verificata "
-        "rispetto agli altri elementi emersi nel corso dell’indagine, ed è suscettibile di revisione qualora sopravvengano nuovi dati utili alle valutazioni.</i></p>"
+        "<p><i>La stima dell’epoca del decesso basata sui dati tanatocronologici è da ritenersi approssimativa, "
+        "a causa dei limiti dei metodi scientifici applicabili e dell’influenza di numerose variabili.</i></p>"
+        "<p><i>Deve essere valutata insieme agli altri elementi dell’indagine e può essere rivista alla luce di nuovi dati.</i></p>"
     )
 
 
