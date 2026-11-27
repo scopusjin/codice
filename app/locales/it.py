@@ -392,7 +392,7 @@ def simple_sentence_no_dt_not_over(duration: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>non oltre {duration} prima</b> "
-        "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
+        "dei rilievi tanatologici.</p>"
     )
 
 
@@ -400,7 +400,7 @@ def simple_sentence_no_dt_over(duration: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>oltre {duration} prima</b> "
-        "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
+        "dei rilievi tanatologici.</p>"
     )
 
 
@@ -408,7 +408,7 @@ def simple_sentence_no_dt_range(interval: str) -> str:
     return (
         "<p><b>EPOCA DEL DECESSO STIMATA:</b> "
         f"<b>{interval} prima</b> "
-        "dei rilievi effettuati nel corso dell’ispezione legale.</p>"
+        "dei rilievi tanatologici.</p>"
     )
 
 
