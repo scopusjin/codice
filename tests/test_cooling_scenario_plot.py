@@ -32,6 +32,21 @@ class CoolingScenarioPlotTests(unittest.TestCase):
         self.assertEqual(state.scenario_ranges[0], (state.t_min_raff_henssge, state.t_max_raff_henssge))
         self.assertEqual(minimum, state.potente_min_ore)
 
+    def test_graph_without_scenarios_has_no_redundant_legend(self):
+        data = compute_plot_data(
+            macchie_range=(0., 6.), macchie_medi_range=None,
+            rigidita_range=(2., 20.), rigidita_medi_range=(4., 8.),
+            raffreddamento_calcolabile=True, t_min_raff_henssge=6., t_max_raff_henssge=12.,
+            t_med_raff_henssge_rounded_raw=9., Qd_val_check=.8, mt_ore=None, INF_HOURS=200.,
+            qd_threshold=.2, extra_params=[], scenario_ranges=(),
+        )
+        fig = render_ranges_plot(data)
+        try:
+            fig.canvas.draw()
+            self.assertEqual(fig.legends, [])
+        finally:
+            plt.close(fig)
+
     def test_scenarios_share_one_row_and_legend_below_the_axis(self):
         for second in ((9., 16.), (20., 26.), (6., 12.), (40., np.inf), None):
             with self.subTest(second=second), using_language("en"):
@@ -76,17 +91,16 @@ class CoolingScenarioPlotTests(unittest.TestCase):
                             self.assertLess(legend.get_window_extent().y1, ax.xaxis.label.get_window_extent().y0)
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().min))
                             self.assertTrue(fig.bbox.contains(*legend.get_window_extent().max))
-                            self.assertEqual(names[0], "Limits used for the estimate")
                             shared = temperatures[0] == temperatures[1]
-                            self.assertEqual(names[1], "Body cooling – CF 1.00" + (
+                            self.assertEqual(names[0], "Body cooling – CF 1.00" + (
                                 "" if shared else " · Ambient temp. 20.0 °C"))
                             second_name = "Body cooling – CF 1.20–1.30" + (
                                 "" if shared else " · Ambient temp. 18.25 °C")
                             if second is None:
                                 second_name += ("\n" if mobile else " ") + "(no estimate)"
-                            self.assertEqual(names[2], second_name)
+                            self.assertEqual(names[1], second_name)
                             self.assertEqual([t.get_text() for t in ax.texts[len(labels):]], ["Common interval"] if open_end else [])
-                            self.assertEqual(len(names), 3)
+                            self.assertEqual(len(names), 2)
                             first, other = (line for line in ax.lines if line.get_label() in names)
                             self.assertEqual(tuple(first.get_xdata()), (6., 12.))
                             self.assertEqual(tuple(first.get_ydata()), (row, row))
