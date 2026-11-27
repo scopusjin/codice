@@ -9,7 +9,8 @@ Repository `scopusjin/codice`; ramo dell’app principale e di distribuzione `ma
 - In `app/locales/it.py`, esclusivamente le tre descrizioni brevi senza data/ora (`simple_sentence_no_dt_not_over`, `simple_sentence_no_dt_over`, `simple_sentence_no_dt_range`) terminano ora con «prima dei rilievi tanatologici». Le descrizioni dettagliate e le frasi con data/ora non sono state modificate. Aspettative aggiornate in `tests/test_textgen_time_formatting.py`.
 - In `app/plotting.py`, `render_ranges_plot()` non crea più la voce generica «Limiti usati per la stima». In assenza di scenari non compare alcuna legenda; con due scenari rimangono esclusivamente le voci necessarie con FC e, se diversa, temperatura ambientale. Barre, intervalli, colori, asse e calcoli restano invariati. Il comportamento è coperto da `tests/test_cooling_scenario_plot.py`.
 - Verificati diff e sintassi. Superati 22 test mirati, con 85 sottocasi, per testi UI, formattazione temporale e grafico. Il primo avvio locale non disponeva di `pytest` e `streamlit`; dopo l’installazione delle dipendenze di verifica, gli stessi test sono stati eseguiti con esito positivo. Nessun tentativo funzionale fallito.
-- Problema aperto: la formulazione abbreviata della cautela generale nelle descrizioni brevi è stata proposta in conversazione ma non è stata inserita, in attesa di conferma del testo. Resta inoltre il controllo visivo dell’app distribuita dopo il riavvio automatico di Streamlit.
+- In `app/textgen.py`, `nota_limiti_stima()` usa la cautela italiana abbreviata e approvata, mantenuta in due paragrafi corsivi per l’interfaccia e il report Word. La versione inglese resta invariata. Il testo e la conservazione nei blocchi Word sono verificati in `tests/test_final_time_rounding.py`.
+- Problema aperto: resta il controllo visivo dell’app distribuita dopo il riavvio automatico di Streamlit.
 
 ## Grafico definitivo con FC in legenda – 24.11.2026
 
